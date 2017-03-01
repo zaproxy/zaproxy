@@ -171,29 +171,35 @@ public class UsersAPI extends ApiImplementor {
 			user.setAuthenticationCredentials(context.getAuthenticationMethod()
 					.createAuthenticationCredentials());
 			extension.getContextUserAuthManager(context.getIndex()).addUser(user);
+			context.save();
 			return new ApiResponseElement(PARAM_USER_ID, String.valueOf(user.getId()));
 		case ACTION_REMOVE_USER:
-			int contextId = ApiUtils.getIntParam(params, PARAM_CONTEXT_ID);
+			context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
 			int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
-			boolean deleted = extension.getContextUserAuthManager(contextId).removeUserById(userId);
-			if (deleted)
+			boolean deleted = extension.getContextUserAuthManager(context.getIndex()).removeUserById(userId);
+			if (deleted) {
+				context.save();
 				return ApiResponseElement.OK;
-			else
+			} else
 				return ApiResponseElement.FAIL;
 		case ACTION_SET_ENABLED:
 			boolean enabled = false;
 			try {
 				enabled = params.getBoolean(PARAM_ENABLED);
 			} catch (JSONException e) {
-				throw new ApiException(Type.BAD_FORMAT, PARAM_ENABLED + " - should be boolean");
+				throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_ENABLED + " - should be boolean");
 			}
-			getUser(params).setEnabled(enabled);
+			user = getUser(params);
+			user.setEnabled(enabled);
+			user.getContext().save();
 			return ApiResponseElement.OK;
 		case ACTION_SET_NAME:
 			String nameSN = params.getString(PARAM_USER_NAME);
 			if (nameSN == null || nameSN.isEmpty())
 				throw new ApiException(Type.MISSING_PARAMETER, PARAM_USER_NAME);
-			getUser(params).setName(nameSN);
+			user = getUser(params);
+			user.setName(nameSN);
+			user.getContext().save();
 			return ApiResponseElement.OK;
 		case ACTION_SET_AUTH_CREDENTIALS:
 			// Prepare the params
@@ -209,6 +215,7 @@ public class UsersAPI extends ApiImplementor {
 			ApiDynamicActionImplementor a = loadedAuthenticationMethodActions.get(context
 					.getAuthenticationMethod().getType().getUniqueIdentifier());
 			a.handleAction(actionParams);
+			context.save();
 			return ApiResponseElement.OK;
 
 		default:
@@ -231,7 +238,7 @@ public class UsersAPI extends ApiImplementor {
 		fields.put("enabled", Boolean.toString(u.isEnabled()));
 		fields.put("credentials", u.getAuthenticationCredentials().getApiResponseRepresentation().toJSON()
 				.toString());
-		ApiResponseSet response = new ApiResponseSet("user", fields);
+		ApiResponseSet<String> response = new ApiResponseSet<String>("user", fields);
 		return response;
 	}
 

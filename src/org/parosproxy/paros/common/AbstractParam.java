@@ -26,6 +26,8 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 
 package org.parosproxy.paros.common;
 
@@ -33,19 +35,19 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-public abstract class AbstractParam {
+public abstract class AbstractParam implements Cloneable {
 
     private static final Logger logger = Logger.getLogger(AbstractParam.class);
     
     private FileConfiguration config = null;
     /**
-     * Load this param from config
-     * @param config
+     * Loads the configurations from the given configuration file.
+     * 
+     * @param config the configuration file
      */
     public void load(FileConfiguration config) {
         this.config = config;
@@ -57,13 +59,24 @@ public abstract class AbstractParam {
         }
     }
     
-    public void load(String fileName) {
-    	this.load(fileName, null);
+    /**
+     * Loads the configurations from the file located at the given path.
+     * 
+     * @param filePath the path to the configuration file, might be relative.
+     */
+    public void load(String filePath) {
+    	this.load(filePath, null);
     }
     
-	public void load(String fileName, ControlOverrides overrides) {
+    /**
+     * Loads the configurations from the file located at the given path and using the given overrides
+     *
+     * @param filePath the path to the configuration file, might be relative.
+     * @param overrides the configuration overrides, might be {@code null}.
+     */
+	public void load(String filePath, ControlOverrides overrides) {
         try {
-            config = new ZapXmlConfiguration(fileName);
+            config = new ZapXmlConfiguration(filePath);
             if (overrides != null) {
                 for (Entry<String,String> entry : overrides.getConfigs().entrySet()) {
                 	logger.info("Setting config " + entry.getKey() + " = " + entry.getValue() + 
@@ -77,6 +90,11 @@ public abstract class AbstractParam {
         }
 	}
 
+    /**
+     * Gets the configuration file, previously loaded.
+     *
+     * @return the configurations file
+     */
     public FileConfiguration getConfig() {
         return config;
     } 
@@ -84,10 +102,8 @@ public abstract class AbstractParam {
     @Override
     public AbstractParam clone()  {
     	try {
-			AbstractParam clone = this.getClass().newInstance();
-			FileConfiguration fileConfig = new XMLConfiguration();
-			ConfigurationUtils.copy(this.getConfig(), fileConfig);
-			clone.load(fileConfig);
+			AbstractParam clone = (AbstractParam) super.clone();
+			clone.load((FileConfiguration) ConfigurationUtils.cloneConfiguration(config));
 			return clone;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -96,8 +112,19 @@ public abstract class AbstractParam {
     }
 
     /**
-     * Implement by subclass to parse the config file.
-     *
+     * Parses the configurations.
+     * <p>
+     * Called each time the configurations are loaded.
+     * 
+     * @see #getConfig()
      */
     protected abstract void parse();
+    
+    /**
+     * Will be called to reset the options to factory defaults.
+     * Most classes will not need to do anything, but those that do can override this method.
+     */
+    public void reset() {
+        // Do nothing
+    }
 }

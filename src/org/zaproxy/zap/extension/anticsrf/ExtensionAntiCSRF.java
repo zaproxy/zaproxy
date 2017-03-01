@@ -54,7 +54,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChangedListener {
@@ -63,7 +62,6 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	public static final String TAG = "AntiCSRF"; 
 	
 	private Map<String, AntiCsrfToken> valueToToken = new HashMap<>();
-	private Map<String, AntiCsrfToken> urlToToken = new HashMap<>();
 	
 	private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
 	private PopupMenuGenerateForm popupMenuGenerateForm = null;
@@ -115,6 +113,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 				}
 			};
 		}
+		AntiCsrfToken.setHistoryReferenceFactory(historyReferenceFactory);
 
 	    extensionHook.addSessionListener(this);
 
@@ -132,7 +131,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	    AntiCsrfAPI api = new AntiCsrfAPI(this);
         api.addApiOptions(getParam());
-        API.getInstance().registerApiImplementor(api);
+        extensionHook.addApiImplementor(api);
 
 	}
 	
@@ -182,9 +181,19 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	public void registerAntiCsrfToken(AntiCsrfToken token) {
 		log.debug("registerAntiCsrfToken " + token.getMsg().getRequestHeader().getURI().toString() + " " + token.getValue());
 		synchronized (valueToToken) {
-			valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+			try {
+				HistoryReference hRef = token.getMsg().getHistoryRef();
+				if (hRef == null) {
+					hRef = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_TEMPORARY, token.getMsg());
+					token.getMsg().setHistoryRef(null);
+				}
+
+				token.setHistoryReferenceId(hRef.getHistoryId());
+				valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+			} catch (HttpMalformedHeaderException | DatabaseException e) {
+				log.error("Failed to persist the message: ", e);
+			}
 		}
-		urlToToken.put(token.getMsg().getRequestHeader().getURI().toString(), token);
 	}
 
 	public boolean requestHasToken(HttpMessage msg) {
@@ -314,9 +323,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		}
 
 		synchronized (valueToToken) {
-			valueToToken = new HashMap<>();
+			valueToToken.clear();
 		}
-		urlToToken = new HashMap<>();
 		// search for tokens...
         try {
 			List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
@@ -420,8 +428,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			}
 
 			sb.append("</table>\n");
+			sb.append("<input id=\"submit\" type=\"submit\" value=\"Submit\"/>\n");
 			sb.append("</form>\n");
-			sb.append("<button onclick=\"document.getElementById('f1').submit()\">Submit</button>\n");
 			sb.append("</body>\n");
 			sb.append("</html>\n");
 
@@ -431,7 +439,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		return null;
 	}
 
-	private static interface HistoryReferenceFactory {
+	static interface HistoryReferenceFactory {
 
 		HistoryReference createHistoryReference(int id) throws DatabaseException, HttpMalformedHeaderException;
 

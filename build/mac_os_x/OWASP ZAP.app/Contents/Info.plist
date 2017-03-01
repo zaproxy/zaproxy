@@ -5,7 +5,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>OWASP ZAP</string>
 	<key>CFBundleExecutable</key>
-	<string>JavaAppLauncher</string>
+	<string>OWASP ZAP.sh</string>
 	<key>CFBundleIconFile</key>
 	<string>ZAP.icns</string>
 	<key>CFBundleIdentifier</key>

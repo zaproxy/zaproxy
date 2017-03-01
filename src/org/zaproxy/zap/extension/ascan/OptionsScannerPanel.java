@@ -30,6 +30,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -51,6 +52,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JSlider sliderDelayInMs = null;
     private JLabel labelThreadsPerHostValue = null;
     private JLabel labelDelayInMsValue = null;
+    private ZapNumberSpinner spinnerMaxRuleDuration = null;
+    private ZapNumberSpinner spinnerMaxScanDuration = null;
     private ZapNumberSpinner spinnerMaxResultsList = null;
     private JCheckBox chkInjectPluginIdInHeader = null;
     private JCheckBox chkHandleAntiCrsfTokens = null;
@@ -59,12 +62,14 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JComboBox<String> defaultAscanPolicy = null;
     private JComboBox<String> defaultAttackPolicy = null;
     private JCheckBox allowAttackModeOnStart = null;
+    private ZapNumberSpinner spinnerMaxChartTime = null;
     
     private ExtensionActiveScan extension;
     
     /**
-     * General Constructor
-     * @param extensionn 
+     * Constructs an {@code OptionsScannerPanel} with the given active scan extension.
+     * 
+     * @param extension the active scan extension, to obtain scan policy names
      */
     public OptionsScannerPanel(ExtensionActiveScan extension) {
         super();
@@ -78,74 +83,88 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("ascan.options.title"));
-        this.add(getPanelScanner(), getPanelScanner().getName());
+        this.add(new JScrollPane(getPanelScanner()));
     }
 
-    /**
-     * 
-     * @return 
-     */
     private JPanel getPanelScanner() {
         if (panelScanner == null) {
             panelScanner = new JPanel();
             panelScanner.setLayout(new GridBagLayout());
             panelScanner.setName("");
 
+            int row = 0;
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.numHosts.label")),
-                    LayoutHelper.getGBC(0, 0, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL));
             panelScanner.add(getSliderHostPerScan(),
-                    LayoutHelper.getGBC(0, 1, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.numThreads.label")),
-                    LayoutHelper.getGBC(0, 2, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getLabelThreadsPerHostValue(),
-                    LayoutHelper.getGBC(2, 2, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(2, row++, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getSliderThreadsPerHost(),
-                    LayoutHelper.getGBC(0, 3, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxRes.label")),
-                    LayoutHelper.getGBC(0, 4, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(this.getSpinnerMaxResultsList(),
-                    LayoutHelper.getGBC(1, 4, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+
+            panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxRule.label")),
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelScanner.add(this.getSpinnerMaxRuleDuration(),
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+
+            panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxScan.label")),
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelScanner.add(this.getSpinnerMaxScanDuration(),
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.delayInMs.label")),
-                    LayoutHelper.getGBC(0, 5, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getLabelDelayInMsValue(),
-                    LayoutHelper.getGBC(2, 5, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(2, row++, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getSliderDelayInMs(),
-                    LayoutHelper.getGBC(0, 6, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             
             // Add checkboxes for Active scan configuration
             // ---------------------------------------------            
             panelScanner.add(getChkInjectPluginIdInHeader(),
-            		LayoutHelper.getGBC(0, 7, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2))); 
+            		LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2))); 
             panelScanner.add(getChkHandleAntiCSRFTokens(),
-                    LayoutHelper.getGBC(0, 8, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
             panelScanner.add(this.getChkPromptInAttackMode(),
-                    LayoutHelper.getGBC(0, 9, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(this.getChkRescanInAttackMode(),
-                    LayoutHelper.getGBC(0, 10, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
 
             // Add Attack settings section
             // ---------------------------------------------
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.policy.ascan.label")),
-                    LayoutHelper.getGBC(0, 11, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(getDefaultAscanPolicyPulldown(),
-                    LayoutHelper.getGBC(1, 11, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.policy.attack.label")),
-                    LayoutHelper.getGBC(0, 12, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getDefaultAttackPolicyPulldown(),
-                    LayoutHelper.getGBC(1, 12, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(this.getAllowAttackModeOnStart(),
-                    LayoutHelper.getGBC(0, 13, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+
+            // Chart
+            panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxChart.label")),
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelScanner.add(this.getSpinnerMaxChartTime(),
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
             // Close Panel
             panelScanner.add(
                     new JLabel(), 
-                    LayoutHelper.getGBC(0, 30, 3, 1.0D, 1.0D, GridBagConstraints.BOTH));
+                    LayoutHelper.getGBC(0, row, 3, 1.0D, 1.0D, GridBagConstraints.BOTH));
         }
         
         return panelScanner;
@@ -177,10 +196,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     	
     }
 
-    /**
-     * 
-     * @param obj 
-     */
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
@@ -190,6 +205,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         getSliderDelayInMs().setValue(param.getDelayInMs());
         setLabelDelayInMsValue(param.getDelayInMs());
         getSpinnerMaxResultsList().setValue(param.getMaxResultsToList());
+        getSpinnerMaxRuleDuration().setValue(param.getMaxRuleDurationInMins());
+        getSpinnerMaxScanDuration().setValue(param.getMaxScanDurationInMins());
         getChkInjectPluginIdInHeader().setSelected(param.isInjectPluginIdInHeader());
         getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
         getChkPromptInAttackMode().setSelected(param.isPromptInAttackMode());
@@ -200,23 +217,10 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         getDefaultAscanPolicyPulldown().setSelectedItem(param.getDefaultPolicy());
         getDefaultAttackPolicyPulldown().setSelectedItem(param.getAttackPolicy());
         getAllowAttackModeOnStart().setSelected(param.isAllowAttackOnStart());
+        getSpinnerMaxChartTime().setValue(param.getMaxChartTimeInMins());
 
     }
 
-    /**
-     * 
-     * @param obj 
-     */
-    @Override
-    public void validateParam(Object obj) {
-        // no validation needed
-    }
-
-    /**
-     * 
-     * @param obj
-     * @throws Exception 
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
@@ -225,6 +229,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setThreadPerHost(getSliderThreadsPerHost().getValue());
         param.setDelayInMs(getDelayInMs());
         param.setMaxResultsToList(this.getSpinnerMaxResultsList().getValue());
+        param.setMaxRuleDurationInMins(this.getSpinnerMaxRuleDuration().getValue());
+        param.setMaxScanDurationInMins(this.getSpinnerMaxScanDuration().getValue());
         param.setInjectPluginIdInHeader(getChkInjectPluginIdInHeader().isSelected());
         param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
         param.setPromptInAttackMode(getChkPromptInAttackMode().isSelected());
@@ -232,6 +238,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setDefaultPolicy((String)this.getDefaultAscanPolicyPulldown().getSelectedItem());
         param.setAttackPolicy((String)this.getDefaultAttackPolicyPulldown().getSelectedItem());
         param.setAllowAttackOnStart(this.getAllowAttackModeOnStart().isSelected());
+        param.setMaxChartTimeInMins(this.getSpinnerMaxChartTime().getValue());
     }
 
     /**
@@ -298,19 +305,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return sliderDelayInMs;
     }
 
-    /**
-     * 
-     * @return 
-     */
-    public int getDelayInMs() {
+    private int getDelayInMs() {
         return this.sliderDelayInMs.getValue();
     }
 
-    /**
-     * 
-     * @param value 
-     */
-    public void setLabelDelayInMsValue(int value) {
+    private void setLabelDelayInMsValue(int value) {
         if (labelDelayInMsValue == null) {
             labelDelayInMsValue = new JLabel();
         }
@@ -329,17 +328,13 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             val = " " + value;
             
         } else {
-            val = "" + value;
+            val = Integer.toString(value);
         }
         
         labelDelayInMsValue.setText(val);
     }
 
-    /**
-     * 
-     * @return 
-     */
-    public JLabel getLabelDelayInMsValue() {
+    private JLabel getLabelDelayInMsValue() {
         if (labelDelayInMsValue == null) {
             setLabelDelayInMsValue(getSliderDelayInMs().getValue());
         }
@@ -368,10 +363,28 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return spinnerMaxResultsList;
     }
 
-    /**
-     * 
-     * @return 
-     */
+    private ZapNumberSpinner getSpinnerMaxRuleDuration() {
+        if (spinnerMaxRuleDuration == null) {
+            spinnerMaxRuleDuration = new ZapNumberSpinner();
+        }
+        return spinnerMaxRuleDuration;
+    }
+
+    private ZapNumberSpinner getSpinnerMaxScanDuration() {
+        if (spinnerMaxScanDuration == null) {
+            spinnerMaxScanDuration = new ZapNumberSpinner();
+        }
+        return spinnerMaxScanDuration;
+    }
+
+    private ZapNumberSpinner getSpinnerMaxChartTime() {
+        if (spinnerMaxChartTime == null) {
+            spinnerMaxChartTime = new ZapNumberSpinner();
+            spinnerMaxChartTime.setToolTipText(Constant.messages.getString("ascan.options.maxChart.tooltip"));
+        }
+        return spinnerMaxChartTime;
+    }
+
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.options.ascan";

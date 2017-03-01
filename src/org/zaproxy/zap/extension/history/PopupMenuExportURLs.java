@@ -49,26 +49,8 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
     private static Logger log = Logger.getLogger(PopupMenuExportURLs.class);
 
-    /**
-     * 
-     */
     public PopupMenuExportURLs() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuExportURLs(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("exportUrls.popup"));
+        super(Constant.messages.getString("exportUrls.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -130,8 +112,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
          				node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER)) {
         		
         	 	HttpMessage msg = node.getHistoryReference().getHttpMessage();
-    			if (msg != null && msg.getRequestHeader() != null &&
-        			msg.getRequestHeader().getURI() != null) {
+    			if (msg != null && msg.getRequestHeader().getURI() != null) {
 
             		writer.write(msg.getRequestHeader().getMethod());
             		writer.write("\t");

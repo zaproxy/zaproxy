@@ -52,6 +52,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final Integer requestBodySize;
     private final Integer responseHeaderSize;
     private final Integer responseBodySize;
+    private AlertRiskTableCellItem alertRiskCellItem;
     private final boolean highestAlertColumn;
     private Boolean note;
     private final boolean noteColumn;
@@ -95,6 +96,8 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         highestAlertColumn = hasColumn(sortedColumns, Column.HIGHEST_ALERT);
         noteColumn = hasColumn(sortedColumns, Column.NOTE);
         tagsColumn = hasColumn(sortedColumns, Column.TAGS);
+
+        alertRiskCellItem = super.getHighestAlert();
 
         refreshCachedValues();
     }
@@ -194,10 +197,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     @Override
     public AlertRiskTableCellItem getHighestAlert() {
-        if (highestAlertColumn) {
-            return AlertRiskTableCellItem.getItemForRisk(getHistoryReference().getHighestAlert());
-        }
-        return super.getHighestAlert();
+        return alertRiskCellItem;
     }
 
     @Override
@@ -222,6 +222,9 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         }
         if (tagsColumn) {
             tags = listToCsv(getHistoryReference().getTags());
+        }
+        if (highestAlertColumn) {
+            alertRiskCellItem = AlertRiskTableCellItem.getItemForRisk(getHistoryReference().getHighestAlert());
         }
     }
 

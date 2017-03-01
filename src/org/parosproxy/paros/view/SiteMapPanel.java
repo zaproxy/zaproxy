@@ -36,6 +36,8 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/06/01 Issue 1653: Support context menu key for trees
+// ZAP: 2016/04/14 Use View to display the HTTP messages
+// ZAP: 2016/07/01 Issue 2642: Slow mouse wheel scrolling in site tree
 
 package org.parosproxy.paros.view;
 
@@ -56,9 +58,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
@@ -81,12 +81,12 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextCreateDialog;
 import org.zaproxy.zap.view.ContextGeneralPanel;
+import org.zaproxy.zap.view.ContextsSitesPanel;
 import org.zaproxy.zap.view.ContextsTreeCellRenderer;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -106,7 +106,6 @@ public class SiteMapPanel extends AbstractPanel {
 	// ZAP: Added logger
     private static Logger log = Logger.getLogger(SiteMapPanel.class);
 
-	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
 	private JTree treeContext = null;
 	private DefaultTreeModel contextTree = null;
@@ -155,7 +154,7 @@ public class SiteMapPanel extends AbstractPanel {
 		
 		this.setLayout(new GridBagLayout());
 		this.add(this.getPanelToolbar(), LayoutHelper.getGBC(0, 0, 1, 0, new Insets(2,2,2,2)));
-		this.add(getJScrollPane(), 
+		this.add(new ContextsSitesPanel(getTreeContext(), getTreeSite(), "sitesPanelScrollPane"), 
 				LayoutHelper.getGBC(0, 1, 1, 1.0, 1.0, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
 
         expandRoot();
@@ -316,28 +315,6 @@ public class SiteMapPanel extends AbstractPanel {
 		return scopeButton;
 	}
 
-	
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setPreferredSize(new java.awt.Dimension(200,400));
-			jScrollPane.setName("sitesPanelScrollPane");
-			
-			JPanel panel = new JPanel();
-			panel.setLayout(new GridBagLayout());
-			panel.add(this.getTreeContext(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D));
-			panel.add(this.getTreeSite(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 1.0D));
-			jScrollPane.setViewportView(panel);
-
-		}
-		return jScrollPane;
-	}
-	
 	/**
 	 * This method initializes treeSite	
 	 * 	
@@ -370,20 +347,7 @@ public class SiteMapPanel extends AbstractPanel {
                             
                         }
 
-                        HttpPanel reqPanel = getView().getRequestPanel();
-				        HttpPanel resPanel = getView().getResponsePanel();
-				        
-				        if (msg.getRequestHeader().isEmpty()) {
-				        	reqPanel.clearView(true);
-				        } else {
-				        	reqPanel.setMessage(msg);
-				        }
-				        
-				        if (msg.getResponseHeader().isEmpty()) {
-				        	resPanel.clearView(false);
-				        } else {
-				        	resPanel.setMessage(msg, true);
-				        }
+                        getView().displayMessage(msg);
 
 			        	// ZAP: Call SiteMapListenners
 			            for (SiteMapListener listener : listeners) {
@@ -391,8 +355,7 @@ public class SiteMapPanel extends AbstractPanel {
 			            }
 				    } else {
 				    	// ZAP: clear the views when the root is selected
-                        getView().getRequestPanel().clearView(true);
-				        getView().getResponsePanel().clearView(false);
+				        getView().displayMessage(null);
 				    }
 	
 				}

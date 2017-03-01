@@ -20,6 +20,7 @@
  */
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -27,6 +28,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,6 +38,7 @@ import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanListenner2;
@@ -70,6 +73,16 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private String displayName = "";
 
+	/**
+	 * Counter for number of URIs, in and out of scope, found during the scan.
+	 * <p>
+	 * The counter is incremented when a new URI is found.
+	 * 
+	 * @see #foundURI(String, String, FetchStatus)
+	 * @see #getNumberOfURIsFound()
+	 */
+	private AtomicInteger numberOfURIsFound;
+
 	private Set<String> foundURIs;
 
 	private List<SpiderResource> resourcesFound;
@@ -84,17 +97,60 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private ScanListenner2 listener = null;
 
+	private volatile boolean cleared;
+
+	/**
+	 * The table model of the messages sent.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getMessagesTableModel()
+	 * @see #readURI(HttpMessage)
+	 */
+	private SpiderMessagesTableModel messagesTableModel;
+
+	/**
+	 * Constructs a {@code SpiderScan} with the given data.
+	 *
+	 * @param extension the extension to obtain configurations and notify the view
+	 * @param spiderParams the spider options
+	 * @param target the spider target
+	 * @param spiderURI the starting URI, may be {@code null}.
+	 * @param scanUser the user to be used in the scan, may be {@code null}.
+	 * @param scanId the ID of the scan
+	 * @deprecated (TODO add version) Use {@link #SpiderScan(ExtensionSpider, SpiderParam, Target, URI, User, int, String)}
+	 *             instead.
+	 */
+	@Deprecated
 	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId) {
+		this(extension, spiderParams, target, spiderURI, scanUser, scanId, "SpiderScan" + scanId);
+	}
+
+	/**
+	 * Constructs a {@code SpiderScan} with the given data.
+	 *
+	 * @param extension the extension to obtain configurations and notify the view
+	 * @param spiderParams the spider options
+	 * @param target the spider target
+	 * @param spiderURI the starting URI, may be {@code null}.
+	 * @param scanUser the user to be used in the scan, may be {@code null}.
+	 * @param scanId the ID of the scan
+	 * @param name the name that identifies the target
+	 * @since TODO add version
+	 */
+	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId, String name) {
 		lock = new ReentrantLock();
 		this.scanId = scanId;
+		setDisplayName(name);
 
+		numberOfURIsFound = new AtomicInteger();
 		foundURIs = Collections.synchronizedSet(new HashSet<String>());
 		resourcesFound = Collections.synchronizedList(new ArrayList<SpiderResource>());
 		foundURIsOutOfScope = Collections.synchronizedSet(new HashSet<String>());
 
 		state = State.NOT_STARTED;
 
-		spiderThread = new SpiderThread(extension, spiderParams, "SpiderApi-" + scanId, this);
+		spiderThread = new SpiderThread(Integer.toString(scanId), extension, spiderParams, name, this);
 
 		spiderThread.setStartURI(spiderURI);
 		spiderThread.setStartNode(target.getStartNode());
@@ -266,6 +322,32 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 				requestHeader.getURI().toString(),
 				responseHeader.getStatusCode(),
 				responseHeader.getReasonPhrase()));
+
+		if (View.isInitialised()) {
+			addMessageToMessagesTableModel(msg);
+		}
+	}
+
+	private void addMessageToMessagesTableModel(final HttpMessage msg) {
+		if (EventQueue.isDispatchThread() || cleared) {
+			if (cleared) {
+				return;
+			}
+
+			if (messagesTableModel == null) {
+				messagesTableModel = new SpiderMessagesTableModel();
+			}
+			messagesTableModel.addHistoryReference(msg.getHistoryRef());
+			return;
+		}
+
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				addMessageToMessagesTableModel(msg);
+			}
+		});
 	}
 
 	@Override
@@ -291,6 +373,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 	@Override
 	public void foundURI(String uri, String method, FetchStatus status) {
+		numberOfURIsFound.incrementAndGet();
 		if (FETCH_STATUS_IN_SCOPE.contains(status)) {
 			foundURIs.add(uri);
 		} else if (FETCH_STATUS_OUT_OF_SCOPE.contains(status)) {
@@ -328,6 +411,15 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		return 100;
 	}
 
+	/**
+	 * Gets the number of URIs, in and out of scope, found during the scan.
+	 *
+	 * @return the number of URIs found during the scan
+	 * @since 2.4.3
+	 */
+	public int getNumberOfURIsFound() {
+		return numberOfURIsFound.get();
+	}
 
 	@Override
 	public boolean isPaused() {
@@ -352,6 +444,19 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		return this.spiderThread.getResultsTableModel();
 	}
 
+	/**
+	 * Gets the {@code TableModel} of the messages sent during the spidering process.
+	 *
+	 * @return a {@code TableModel} with the messages sent
+	 * @since 2.5.0
+	 */
+	TableModel getMessagesTableModel() {
+		if (messagesTableModel == null) {
+			messagesTableModel = new SpiderMessagesTableModel();
+		}
+		return messagesTableModel;
+	}
+
 	public void setListener(ScanListenner2 listener) {
 		this.listener = listener;
 	}
@@ -368,5 +473,18 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		spiderThread.setCustomParseFilters(customParseFilters);
 	}
 
+	/**
+	 * Clears the table model of the HTTP messages sent.
+	 * 
+	 * @since 2.5.0
+	 * @see #getMessagesTableModel()
+	 */
+	void clear() {
+		cleared = true;
+		if (messagesTableModel != null) {
+			messagesTableModel.clear();
+			messagesTableModel = null;
+		}
+	}
 	
 }

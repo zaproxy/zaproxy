@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Form No Default Values - Spider HTML Form Parser</title>
+</head>
+<body>
+
+<form action="http://example.org" method="%%METHOD%%">
+<input name="_hidden" type="hidden" />
+<input name="_no-type" />
+<input name="_text" type="text" />
+<input name="_password" type="password" />
+<input name="_file" type="file" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/html5/number" method="%%METHOD%%">
+<input name="_number" type="number" />
+<input name="_number-min" type="number" min="1" />
+<input name="_number-max" type="number" max="2" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/html5/range" method="%%METHOD%%">
+<input name="_range" type="range" />
+<input name="_range-min" type="range" min="3" />
+<input name="_range-max" type="range" max="4" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/html5/misc" method="%%METHOD%%">
+<input name="_url" type="url" />
+<input name="_email" type="email" />
+<input name="_color" type="color" />
+<input name="_tel" type="tel" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/unknown" method="%%METHOD%%">
+<input name="_unknown" type="_unknown_" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/selects" method="%%METHOD%%">
+<select name="_select-no-options">
+</select>
+<select name="_select-one-option">
+    <option value="first-option">first-option</option>
+</select>
+<select name="_select-two-options">
+    <option value="first-option">first-option</option>
+    <option value="last-option">last-option</option>
+</select>
+<select name="_select-selected-option">
+    <option value="first-option">first-option</option>
+    <option value="selected-option" selected="selected">selected-option</option>
+    <option value="last-option">last-option</option>
+</select>
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/radio" method="%%METHOD%%">
+<input name="_radio" type="radio" value="first-radio" />
+<input name="_radio" type="radio" value="second-radio" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/checkbox" method="%%METHOD%%">
+<input name="_checkbox" type="checkbox" value="first-checkbox" />
+<input name="_checkbox" type="checkbox" value="second-checkbox" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+<form action="http://example.org/html5/date-time" method="%%METHOD%%">
+<input name="_datetime" type="datetime" />
+<input name="_datetime-local" type="datetime-local" />
+<input name="_date" type="date" />
+<input name="_time" type="time" />
+<input name="_month" type="month" />
+<input name="_week" type="week" />
+<input name="submit" type="submit" value="Submit" />
+</form>
+
+</body>
+</html>

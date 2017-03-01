@@ -23,6 +23,10 @@ import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 
+/**
+ * @deprecated (2.5.0) No longer used, replaced by {@link org.zaproxy.zap.extension.stdmenus.PopupMenuShowInHistory}.
+ */
+@Deprecated
 public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;

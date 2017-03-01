@@ -54,7 +54,9 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
+import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
+import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.PositiveValuesSlider;
 
 /**
@@ -72,6 +74,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	// The controls for the options:
 	private JSlider sliderMaxDepth = null;
 	private JSlider sliderThreads = null;
+	private ZapNumberSpinner durationNumberSpinner = null;
+	private ZapNumberSpinner maxChildrenNumberSpinner;
 	private JCheckBox chkPostForm = null;
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox parseComments = null;
@@ -124,11 +128,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			// Prepare the necessary labels
 			JLabel domainsLabel = new JLabel();
 			JLabel noThreadsLabel = new JLabel();
+			JLabel maxDuration = new JLabel();
 			JLabel maxDepthLabel = new JLabel();
 			JLabel handleParametersLabel = new JLabel();
 
 			maxDepthLabel.setText(Constant.messages.getString("spider.options.label.depth"));
 			noThreadsLabel.setText(Constant.messages.getString("spider.options.label.threads"));
+			maxDuration.setText(Constant.messages.getString("spider.options.label.duration"));
 			domainsLabel.setText(Constant.messages.getString("spider.options.label.domains"));
 			handleParametersLabel.setText(Constant.messages.getString("spider.options.label.handleparameters"));
 
@@ -147,6 +153,17 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			innerPanel.add(getSliderMaxDepth(), gbc);
 			innerPanel.add(noThreadsLabel, gbc);
 			innerPanel.add(getSliderThreads(), gbc);
+			
+			JPanel inlineOptionsPanel = new JPanel(new GridBagLayout());
+			inlineOptionsPanel.add(maxDuration, LayoutHelper.getGBC(0, 0, 1, 1.0D));
+			inlineOptionsPanel.add(getDurationNumberSpinner(), LayoutHelper.getGBC(1, 0, 1, 1.0D));
+
+			inlineOptionsPanel.add(
+					new JLabel(Constant.messages.getString("spider.options.label.maxChildren")),
+					LayoutHelper.getGBC(0, 1, 1, 1.0D));
+			inlineOptionsPanel.add(getMaxChildrenNumberSpinner(), LayoutHelper.getGBC(1, 1, 1, 1.0D));
+			innerPanel.add(inlineOptionsPanel, gbc);
+			
 			innerPanel.add(domainsLabel, gbc);
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.weighty = 1.0D;
@@ -182,6 +199,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		SpiderParam param = options.getParamSet(SpiderParam.class);
 		getSliderMaxDepth().setValue(param.getMaxDepth());
 		getSliderThreads().setValue(param.getThreadCount());
+		getDurationNumberSpinner().setValue(param.getMaxDuration());
+		getMaxChildrenNumberSpinner().setValue(param.getMaxChildren());
 		getDomainsAlwaysInScopeTableModel().setDomainsAlwaysInScope(param.getDomainsAlwaysInScope());
 		getDomainsAlwaysInScopePanel().setRemoveWithoutConfirmation(param.isConfirmRemoveDomainAlwaysInScope());
 		getChkProcessForm().setSelected(param.isProcessForm());
@@ -198,16 +217,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) {
-		// no validation needed
-	}
-
-	@Override
 	public void saveParam(Object obj) throws Exception {
 		OptionsParam options = (OptionsParam) obj;
 		SpiderParam param = options.getParamSet(SpiderParam.class);
 		param.setMaxDepth(getSliderMaxDepth().getValue());
 		param.setThreadCount(getSliderThreads().getValue());
+		param.setMaxDuration(getDurationNumberSpinner().getValue());
+		param.setMaxChildren(getMaxChildrenNumberSpinner().getValue());
 		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());
 		param.setConfirmRemoveDomainAlwaysInScope(getDomainsAlwaysInScopePanel().isRemoveWithoutConfirmation());
 		param.setSendRefererHeader(getChkSendRefererHeader().isSelected());
@@ -253,6 +269,20 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			sliderThreads = new PositiveValuesSlider(Constant.MAX_THREADS_PER_SCAN);
 		}
 		return sliderThreads;
+	}
+	
+	private ZapNumberSpinner getDurationNumberSpinner() {
+		if (durationNumberSpinner == null) {
+			durationNumberSpinner = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
+		}
+		return durationNumberSpinner;
+	}
+
+	private ZapNumberSpinner getMaxChildrenNumberSpinner() {
+		if (maxChildrenNumberSpinner == null) {
+			maxChildrenNumberSpinner = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
+		}
+		return maxChildrenNumberSpinner;
 	}
 
 	private JCheckBox getChkSendRefererHeader() {

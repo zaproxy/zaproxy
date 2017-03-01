@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.model;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -35,6 +38,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HtmlParameter.Type;
 
 public class StandardParameterParser implements ParameterParser {
 	
@@ -42,6 +46,7 @@ public class StandardParameterParser implements ParameterParser {
 	private static final String CONFIG_KV_SEPARATORS = "kvs";
 	private static final String CONFIG_STRUCTURAL_PARAMS = "struct";
 
+	private Context context;
 	private Pattern keyValuePairSeparatorPattern;
 	private Pattern keyValueSeparatorPattern;
 	private String keyValuePairSeparators;
@@ -98,21 +103,65 @@ public class StandardParameterParser implements ParameterParser {
 		
 	@Override
 	public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
-		Map<String, String> map = new HashMap<String, String>();
 	    if (msg == null) {
-	    	return map;
+	    	return new HashMap<>();
 	    }
-	    try {
-			switch (type) {
-			case form:	return this.parse(msg.getRequestBody().toString());
-			case url:	return this.parse(msg.getRequestHeader().getURI().getQuery());
-			default:
-						throw new InvalidParameterException("Type not supported: " + type);
+		switch (type) {
+		case form:	return this.parse(msg.getRequestBody().toString());
+		case url:
+			return convertParametersList(parseParameters(msg.getRequestHeader().getURI().getEscapedQuery()));
+		default:
+					throw new InvalidParameterException("Type not supported: " + type);
+		}
+	}
+
+	/**
+	 * Converts the given {@code List} of parameters to a {@code Map}.
+	 * <p>
+	 * The names of parameters are used as keys (mapping to corresponding value) thus removing any duplicated parameters. It is
+	 * used an empty {@code String} for the mapping, if the parameter has no value ({@code null}).
+	 *
+	 * @param parameters the {@code List} to be converted, must not be {@code null}
+	 * @return a {@code Map} containing the parameters
+	 */
+	private static Map<String, String> convertParametersList(List<NameValuePair> parameters) {
+		Map<String, String> map = new HashMap<>();
+		for (NameValuePair parameter : parameters) {
+			String value = parameter.getValue();
+			if (value == null) {
+				value = "";
 			}
-		} catch (URIException e) {
-			log.error(e.getMessage(), e);
+			map.put(parameter.getName(), value);
 		}
 		return map;
+	}
+
+	/**
+	 * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given {@code type} is not
+	 *             {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
+	 *             {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
+	 */
+	@Override
+	public List<NameValuePair> getParameters(HttpMessage msg, Type type) {
+		if (msg == null) {
+			throw new IllegalArgumentException("Parameter msg must not be null.");
+		}
+		if (type == null) {
+			throw new IllegalArgumentException("Parameter type must not be null.");
+		}
+
+		switch (type) {
+		case form:
+			return parseParameters(msg.getRequestBody().toString());
+		case url:
+			String query = msg.getRequestHeader().getURI().getEscapedQuery();
+			if (query == null) {
+				return new ArrayList<>(0);
+			}
+			return parseParameters(query);
+		default:
+			throw new IllegalArgumentException("The provided type is not supported: " + type);
+		}
 	}
 
 	private void setKeyValueSeparatorPattern(Pattern keyValueSeparatorPattern) {
@@ -190,6 +239,34 @@ public class StandardParameterParser implements ParameterParser {
 		}
 		return map;
 	}
+
+	@Override
+	public List<NameValuePair> parseParameters(String parameters) {
+		if (parameters == null) {
+			return new ArrayList<>(0);
+		}
+
+		List<NameValuePair> parametersList = new ArrayList<>();
+		String[] pairs = getKeyValuePairSeparatorPattern().split(parameters);
+		for (int i = 0; i < pairs.length; i++) {
+			String[] nameValuePair = getKeyValueSeparatorPattern().split(pairs[i], 2);
+			if (nameValuePair.length == 1) {
+				parametersList.add(new DefaultNameValuePair(urlDecode(nameValuePair[0])));
+			} else {
+				parametersList.add(new DefaultNameValuePair(urlDecode(nameValuePair[0]), urlDecode(nameValuePair[1])));
+			}
+		}
+		return parametersList;
+	}
+
+	private static String urlDecode(String value) {
+		try {
+			return URLDecoder.decode(value, "UTF-8");
+		} catch (UnsupportedEncodingException ignore) {
+			// Shouldn't happen UTF-8 is a standard charset (see java.nio.charset.StandardCharsets)
+		}
+		return "";
+	}
 	
 	@Override
 	public StandardParameterParser clone() {
@@ -200,9 +277,45 @@ public class StandardParameterParser implements ParameterParser {
 
 	@Override
 	public List<String> getTreePath(URI uri) throws URIException {
+		return this.getTreePath(uri, true);
+	}
+
+	private List<String> getTreePath(URI uri, boolean incStructParams) throws URIException {
 		String path = uri.getPath();
 		List<String> list = new ArrayList<String>();
 		if (path != null) {
+			Context context = this.getContext();
+			if (context != null) {
+				String uriStr = uri.toString();
+				boolean changed = false;
+				for (StructuralNodeModifier ddn : context.getDataDrivenNodes()) {
+					Matcher m = ddn.getPattern().matcher(uriStr);
+					if (m.find()){ 
+						if (m.groupCount() == 3) {
+							path = m.group(1) + SessionStructure.DATA_DRIVEN_NODE_PREFIX + 
+									ddn.getName() + SessionStructure.DATA_DRIVEN_NODE_POSTFIX + 
+									m.group(3);
+							if (!path.startsWith("/")) {
+								// Should always start with a slash;)
+								path = "/" + path;
+							}
+							changed = true;
+						} else if (m.groupCount() == 2) {
+							path = m.group(1) + SessionStructure.DATA_DRIVEN_NODE_PREFIX + 
+									ddn.getName() + SessionStructure.DATA_DRIVEN_NODE_POSTFIX;
+							if (!path.startsWith("/")) {
+								// Should always start with a slash;)
+								path = "/" + path;
+							}
+							changed = true;
+						}
+					}
+				}
+				if (changed) {
+					log.debug("Changed path from " + uri.getPath() + " to " + path);
+				}
+			}
+			
 			// Note: Start from the 2nd path element as the first on is always the empty string due
 			// to the split
 			String[] pathList = path.split("/");
@@ -210,19 +323,20 @@ public class StandardParameterParser implements ParameterParser {
 				list.add(pathList[i]);
 			}
 		}
-		// Add any structural params (url param) in key order
-		Map<String, String> urlParams = this.parse(uri.getQuery());
-		List<String> keys = new ArrayList<String>(urlParams.keySet());
-		Collections.sort(keys);
-		for (String key: keys) {
-			if (this.structuralParameters.contains(key)) {
-				list.add(urlParams.get(key));
+		if (incStructParams) {
+			// Add any structural params (url param) in key order
+			Map<String, String> urlParams = convertParametersList(parseParameters(uri.getEscapedQuery()));
+			List<String> keys = new ArrayList<String>(urlParams.keySet());
+			Collections.sort(keys);
+			for (String key: keys) {
+				if (this.structuralParameters.contains(key)) {
+					list.add(urlParams.get(key));
+				}
 			}
 		}
 
 		return list;
 	}
-	
 	
 	@Override
 	public List<String> getTreePath(HttpMessage msg) throws URIException {
@@ -242,8 +356,6 @@ public class StandardParameterParser implements ParameterParser {
 
 		return list;
 	}
-	
-	
 
 	@Override
 	public String getAncestorPath(URI uri, int depth) throws URIException {
@@ -252,22 +364,29 @@ public class StandardParameterParser implements ParameterParser {
 		if (depth == 0 || path == null) {
 			return "";
 		}
+		List<String> pathList = getTreePath(uri, false);
 
-		// Add the 'normal' path elements until we finish them or we reach the desired depth
-		String[] pathList = path.split("/");
+		// Add the 'normal' (plus data driven) path elements 
+		// until we finish them or we reach the desired depth
 		StringBuilder parentPath = new StringBuilder(path.length());
-		// Note: Start from the 2nd path element as the first on is always the empty string due to
-		// the split
-		for (int i = 1; i < pathList.length && depth > 0; i++, depth--) {
-			parentPath.append('/').append(pathList[i]);
+		for (int i = 0; i < pathList.size() && depth > 0; i++, depth--) {
+			String element = pathList.get(i);
+			parentPath.append('/');
+			if (element.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
+				// Its a data driven node - use the regex pattern instead
+				parentPath.append(SessionStructure.DATA_DRIVEN_NODE_REGEX);
+			} else {
+				parentPath.append(element);
+			}
 		}
 		// If we're done or we have no structural parameters, just return
-		if (depth == 0 || structuralParameters.isEmpty())
+		if (depth == 0 || structuralParameters.isEmpty()) {
 			return parentPath.toString();
+		}
 
 		// Add the 'structural params' path elements
 		boolean firstElement = true;
-		Map<String, String> urlParams = this.parse(uri.getQuery());
+		Map<String, String> urlParams = convertParametersList(parseParameters(uri.getEscapedQuery()));
 		for (Entry<String, String> param : urlParams.entrySet()) {
 			if (this.structuralParameters.contains(param.getKey())) {
 				if (firstElement) {
@@ -283,6 +402,16 @@ public class StandardParameterParser implements ParameterParser {
 			}
 		}
 		return parentPath.toString();
+	}
+
+	@Override
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+	@Override
+	public Context getContext() {
+		return context;
 	}
 
 }

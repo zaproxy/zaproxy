@@ -71,19 +71,16 @@ public final class URLResolver {
 
 	/**
 	 * Parses a given specification using the algorithm depicted in <a
-	 * href="http://www.faqs.org/rfcs/rfc1808.html">RFC1808</a>:<br/>
-	 * <br/>
-	 * 
-	 * <p>
-	 * Section 2.4: Parsing a URL
-	 * </p>
-	 * 
+	 * href="https://tools.ietf.org/html/rfc1808#section-2.4">RFC1808 - Section 2.4</a>:
+	 * <blockquote>
+	 * <h3>Section 2.4: Parsing a URL</h3>
 	 * An accepted method for parsing URLs is useful to clarify the generic-RL syntax of Section 2.2
 	 * and to describe the algorithm for resolving relative URLs presented in Section 4. This
 	 * section describes the parsing rules for breaking down a URL (relative or absolute) into the
 	 * component parts described in Section 2.1. The rules assume that the URL has already been
 	 * separated from any surrounding text and copied to a "parse string". The rules are listed in
 	 * the order in which they would be applied by the parser.
+	 * </blockquote>
 	 * 
 	 * @param spec The specification to parse.
 	 * @return the parsed specification.

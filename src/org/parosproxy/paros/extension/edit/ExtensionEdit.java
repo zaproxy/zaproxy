@@ -24,6 +24,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
+// ZAP: 2016/06/20 Removed unnecessary/unused constructor
 
 package org.parosproxy.paros.extension.edit;
 
@@ -46,26 +47,8 @@ public class ExtensionEdit extends ExtensionAdaptor {
     private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
 
-    /**
-     * 
-     */
     public ExtensionEdit() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionEdit(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName("ExtensionEdit");
+        super("ExtensionEdit");
         this.setOrder(4);
 	}
 	

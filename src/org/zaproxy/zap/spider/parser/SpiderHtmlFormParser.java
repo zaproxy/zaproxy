@@ -20,6 +20,7 @@ package org.zaproxy.zap.spider.parser;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -56,15 +57,28 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	private static final String DEFAULT_PASS_VALUE = DEFAULT_TEXT_VALUE;
 
 	/** The spider parameters. */
-	SpiderParam param;
+	private final SpiderParam param;
+
+	/**
+	 * The default {@code Date} to be used for default values of date fields.
+	 * <p>
+	 * Default is {@code null}.
+	 * 
+	 * @see #setDefaultDate(Date)
+	 */
+	private Date defaultDate;
 
 	/**
 	 * Instantiates a new spider html form parser.
 	 * 
 	 * @param param the parameters for the spider
+	 * @throws IllegalArgumentException if {@code param} is null.
 	 */
 	public SpiderHtmlFormParser(SpiderParam param) {
 		super();
+		if (param == null) {
+			throw new IllegalArgumentException("Parameter param must not be null.");
+		}
 		this.param = param;
 	}
 
@@ -82,12 +96,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		}
 
 		// Get the context (base url)
-		String baseURL;
-		if (message == null) {
-			baseURL = "";
-		} else {
-			baseURL = message.getRequestHeader().getURI().toString();
-		}
+		String baseURL = message.getRequestHeader().getURI().toString();
 
 		// Try to see if there's any BASE tag that could change the base URL
 		Element base = source.getFirstElement(HTMLElementName.BASE);
@@ -95,8 +104,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			if (log.isDebugEnabled()) {
 				log.debug("Base tag was found in HTML: " + base.getDebugInfo());
 			}
-			if (base.getAttributeValue("href") != null) {
-				baseURL = base.getAttributeValue("href");
+			String href = base.getAttributeValue("href");
+			if (href != null && !href.isEmpty()) {
+				baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
 			}
 		}
 
@@ -121,12 +131,22 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				continue;
 			}
 
-			// Prepare data set
-			List<HtmlParameter> formDataSet = prepareFormDataSet(form.getFormFields());
+			// Clear the fragment, if any, as it does not have any relevance for the server
+			if (action.contains("#")) {
+				int fs = action.lastIndexOf("#");
+				action = action.substring(0, fs);
+			}
+
+			FormData formData = prepareFormDataSet(form.getFormFields());
 
 			// Process the case of a POST method
 			if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
-				String query = "";
+				// Build the absolute canonical URL
+				String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
+				if (fullURL == null) {
+					return false;
+				}
+				log.debug("Canonical URL constructed using '" + action + "': " + fullURL);
 
 				/*
 				 * Ignore encoding, as we will not POST files anyway, so using
@@ -134,39 +154,32 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				 */
 				// String encoding = form.getAttributeValue("enctype");
 				// if (encoding != null && encoding.equals("multipart/form-data"))
-				query = buildEncodedUrlQuery(formDataSet);
-				log.debug("Submiting form with POST method and message body with form parameters (normal encoding): "
-						+ query);
-
-				// Build the absolute canonical URL
-				String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
-				if (fullURL == null) {
-					return false;
+				String baseRequestBody = buildEncodedUrlQuery(formData.getFields());
+				if (formData.getSubmitFields().isEmpty()) {
+					notifyPostResourceFound(message, depth, fullURL, baseRequestBody);
+					continue;
 				}
 
-				log.debug("Canonical URL constructed using '" + action + "': " + fullURL);
-				notifyListenersPostResourceFound(message, depth + 1, fullURL, query);
+				for (HtmlParameter submitField : formData.getSubmitFields()) {
+					notifyPostResourceFound(
+							message,
+							depth,
+							fullURL,
+							appendEncodedUrlQueryParameter(baseRequestBody, submitField));
+				}
 
 			} // Process anything else as a GET method
 			else {
-				String query = buildEncodedUrlQuery(formDataSet);
-				log.debug("Submiting form with GET method and query with form parameters: " + query);
-
-				// Clear the fragment, if any, as it does not have any relevance for the server
-				if (action.contains("#")) {
-					int fs = action.lastIndexOf("#");
-					action = action.substring(0, fs);
-				}
 
 				// Process the final URL
 				if (action.contains("?")) {
 					if (action.endsWith("?")) {
-						processURL(message, depth, action + query, baseURL);
+						processGetForm(message, depth, action, baseURL, formData);
 					} else {
-						processURL(message, depth, action + "&" + query, baseURL);
+						processGetForm(message, depth, action + "&", baseURL, formData);
 					}
 				} else {
-					processURL(message, depth, action + "?" + query, baseURL);
+					processGetForm(message, depth, action + "?", baseURL, formData);
 				}
 			}
 
@@ -176,20 +189,45 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	}
 
 	/**
+	 * Processes the given GET form data into, possibly, several URLs.
+	 * <p>
+	 * For each submit field present in the form data is processed one URL, which includes remaining normal fields.
+	 *
+	 * @param message the source message
+	 * @param depth the current depth
+	 * @param action the action
+	 * @param baseURL the base URL
+	 * @param formData the GET form data
+	 * @see #processURL(HttpMessage, int, String, String)
+	 */
+	private void processGetForm(HttpMessage message, int depth, String action, String baseURL, FormData formData) {
+		String baseQuery = buildEncodedUrlQuery(formData.getFields());
+		if (formData.getSubmitFields().isEmpty()) {
+			log.debug("Submiting form with GET method and query with form parameters: " + baseQuery);
+			processURL(message, depth, action + baseQuery, baseURL);
+		} else {
+			for (HtmlParameter submitField : formData.getSubmitFields()) {
+				String query = appendEncodedUrlQueryParameter(baseQuery, submitField);
+				log.debug("Submiting form with GET method and query with form parameters: " + query);
+				processURL(message, depth, action + query, baseURL);
+			}
+		}
+	}
+
+	/**
 	 * Prepares the form data set. A form data set is a sequence of control-name/current-value pairs
 	 * constructed from successful controls, which will be sent with a GET/POST request for a form.
 	 * 
-	 * <br/>
-	 * Also see:
-	 * http://whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.
-	 * html
-	 * 
-	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-data-set
+	 * @see <a href="https://www.w3.org/TR/REC-html40/interact/forms.html#form-data-set">HTML 4.01 Specification - 17.13.3
+	 *      Processing form data</a>
+	 * @see <a href="https://html.spec.whatwg.org/multipage/forms.html#association-of-controls-and-forms">HTML 5 - 4.10.18.3
+	 *      Association of controls and forms</a>
 	 * @param form the form
 	 * @return the list
 	 */
-	private List<HtmlParameter> prepareFormDataSet(FormFields form) {
+	private FormData prepareFormDataSet(FormFields form) {
 		List<HtmlParameter> formDataSet = new LinkedList<>();
+		List<HtmlParameter> submitFields = new ArrayList<>();
 
 		// Process each form field
 		Iterator<FormField> it = form.iterator();
@@ -199,55 +237,86 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				log.debug("New form field: " + field.getDebugInfo());
 			}
 
-			// Get its value(s)
-			List<String> values = field.getValues();
-			if (log.isDebugEnabled()) {
-				log.debug("Existing values: " + values);
+			List<HtmlParameter> currentList = formDataSet;
+			if (field.getFormControl().getFormControlType().isSubmit()) {
+				currentList = submitFields;
 			}
-
-			// If there are no values at all or only an empty value
-			if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
-				String finalValue = DEFAULT_EMPTY_VALUE;
-
-				// Check if we can use predefined values
-				Collection<String> predefValues = field.getPredefinedValues();
-				if (!predefValues.isEmpty()) {
-					// Try first elements
-					Iterator<String> iterator = predefValues.iterator();
-					finalValue = iterator.next();
-
-					// If there are more values, don't use the first, as it usually is a "No select"
-					// item
-					if (iterator.hasNext()) {
-						finalValue = iterator.next();
-					}
-				} else {
-					/*
-					 * In all cases, according to Jericho documentation, the only left option is for
-					 * it to be a TEXT field, without any predefined value. We check if it has only
-					 * one userValueCount, and, if so, fill it with a default value.
-					 */
-					if (field.getUserValueCount() > 0) {
-						finalValue = getDefaultTextValue(field);
-					}
-				}
-
-				// Save the finalValue in the FormDataSet
-				log.debug("No existing value for field " + field.getName() + ". Generated: " + finalValue);
-				HtmlParameter p = new HtmlParameter(Type.form, field.getName(), finalValue);
-				formDataSet.add(p);
-			}
-			// If there are preselected values for the fields, use them
-			else {
-				for (String v : values) {
-					// Save the finalValue in the FormDataSet
-					HtmlParameter p = new HtmlParameter(Type.form, field.getName(), v);
-					formDataSet.add(p);
-				}
+			for (String value : getValues(field)) {
+				currentList.add(new HtmlParameter(Type.form, field.getName(), value));
 			}
 		}
 
-		return formDataSet;
+		return new FormData(formDataSet, submitFields);
+	}
+
+	/**
+	 * Gets the values for the given {@code field}.
+	 * <p>
+	 * If the field is of submit type it returns its predefined values.
+	 *
+	 * @param field the field
+	 * @return a list with the values
+	 * @see #getDefaultTextValue(FormField)
+	 */
+	private List<String> getValues(FormField field) {
+		if (field.getFormControl().getFormControlType().isSubmit()) {
+			return new ArrayList<>(field.getPredefinedValues());
+		}
+
+		// Get its value(s)
+		List<String> values = field.getValues();
+		if (log.isDebugEnabled()) {
+			log.debug("Existing values: " + values);
+		}
+
+		// If there are no values at all or only an empty value
+		if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
+			String finalValue = DEFAULT_EMPTY_VALUE;
+
+			// Check if we can use predefined values
+			Collection<String> predefValues = field.getPredefinedValues();
+			if (!predefValues.isEmpty()) {
+				// Try first elements
+				Iterator<String> iterator = predefValues.iterator();
+				finalValue = iterator.next();
+
+				// If there are more values, don't use the first, as it usually is a "No select"
+				// item
+				if (iterator.hasNext()) {
+					finalValue = iterator.next();
+				}
+			} else {
+				/*
+				 * In all cases, according to Jericho documentation, the only left option is for
+				 * it to be a TEXT field, without any predefined value. We check if it has only
+				 * one userValueCount, and, if so, fill it with a default value.
+				 */
+				if (field.getUserValueCount() > 0) {
+					finalValue = getDefaultTextValue(field);
+				}
+			}
+
+			log.debug("No existing value for field " + field.getName() + ". Generated: " + finalValue);
+
+			values = new ArrayList<>(1);
+			values.add(finalValue);
+		}
+
+		return values;
+	}
+
+	/**
+	 * Notifies listeners that a new POST resource was found.
+	 *
+	 * @param message the source message
+	 * @param depth the current depth
+	 * @param url the URL of the resource
+	 * @param requestBody the request body
+	 * @see #notifyListenersPostResourceFound(HttpMessage, int, String, String)
+	 */
+	private void notifyPostResourceFound(HttpMessage message, int depth, String url, String requestBody) {
+		log.debug("Submiting form with POST method and message body with form parameters (normal encoding): " + requestBody);
+		notifyListenersPostResourceFound(message, depth + 1, url, requestBody);
 	}
 
 	/**
@@ -269,6 +338,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * 
 	 * @param field the field
 	 * @return the default text value
+	 * @see #getDefaultDate()
 	 */
 	private String getDefaultTextValue(FormField field) {
 		FormControl fc = field.getFormControl();
@@ -285,7 +355,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				if (min != null) {
 					return min;
 				}
-				String max = fc.getAttributesMap().get("min");
+				String max = fc.getAttributesMap().get("max");
 				if (max != null) {
 					return max;
 				}
@@ -310,27 +380,27 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 			if (type.equalsIgnoreCase("datetime")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("datetime-local")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("date")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("time")) {
 				SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("month")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("week")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 		} else if (fc.getFormControlType() == FormControlType.PASSWORD) {
 			return DEFAULT_PASS_VALUE;
@@ -341,10 +411,35 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	}
 
 	/**
+	 * Gets the default {@code Date}, to be used for default values of date fields.
+	 *
+	 * @return the date, never {@code null}.
+	 * @see #setDefaultDate(Date)
+	 */
+	private Date getDefaultDate() {
+		if (defaultDate == null) {
+			return new Date();
+		}
+		return defaultDate;
+	}
+
+	/**
+	 * Sets the default {@code Date}, to be used for default values of date fields.
+	 * <p>
+	 * If none ({@code null}) is set it's used the current date when generating the values for the fields.
+	 *
+	 * @param date the default date, might be {@code null}.
+	 * @since TODO add version
+	 */
+	public void setDefaultDate(Date date) {
+		this.defaultDate = date;
+	}
+
+	/**
 	 * Builds the query, encoded with "application/x-www-form-urlencoded".
 	 * 
-	 * 
-	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type
+	 * @see <a href="https://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type">HTML 4.01 Specification - 17.13.4
+	 *      Form content types</a>
 	 * @param formDataSet the form data set
 	 * @return the query
 	 */
@@ -372,10 +467,55 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		return request.toString();
 	}
 
+	/**
+	 * Appends the given {@code parameter} into the given {@code query}.
+	 *
+	 * @param query the query
+	 * @param parameter the parameter to append
+	 * @return the query with the parameter appended
+	 */
+	private static String appendEncodedUrlQueryParameter(String query, HtmlParameter parameter) {
+		StringBuilder strBuilder = new StringBuilder(query);
+		if (strBuilder.length() != 0) {
+			strBuilder.append('&');
+		}
+		try {
+			strBuilder.append(URLEncoder.encode(parameter.getName(), ENCODING_TYPE))
+					.append('=')
+					.append(URLEncoder.encode(parameter.getValue(), ENCODING_TYPE));
+		} catch (UnsupportedEncodingException e) {
+			log.warn("Error while encoding query for form.", e);
+		}
+		return strBuilder.toString();
+	}
+
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
 		// Fallback parser - if it's a HTML message which has not already been processed		
-		return !wasAlreadyConsumed && message.getResponseHeader() != null
-				&& message.getResponseHeader().isHtml();
+		return !wasAlreadyConsumed && message.getResponseHeader().isHtml();
+	}
+
+	/**
+	 * The fields (and its values) of a HTML form.
+	 * <p>
+	 * Normal fields and submit fields are kept apart.
+	 */
+	private static class FormData {
+
+		private final List<HtmlParameter> fields;
+		private final List<HtmlParameter> submitFields;
+
+		public FormData(List<HtmlParameter> fields, List<HtmlParameter> submitFields) {
+			this.fields = fields;
+			this.submitFields = submitFields;
+		}
+
+		public List<HtmlParameter> getFields() {
+			return fields;
+		}
+
+		public List<HtmlParameter> getSubmitFields() {
+			return submitFields;
+		}
 	}
 }

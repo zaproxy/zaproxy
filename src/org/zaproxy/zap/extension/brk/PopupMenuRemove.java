@@ -33,18 +33,7 @@ public class PopupMenuRemove extends ExtensionPopupMenuItem {
     
     
     public PopupMenuRemove() {
-        super();
- 		initialize();
-    }
-
-    
-    public PopupMenuRemove(String label) {
-        super(label);
-    }
-
-	
-	private void initialize() {
-        this.setText(Constant.messages.getString("brk.remove.popup"));
+        super(Constant.messages.getString("brk.remove.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -58,8 +47,10 @@ public class PopupMenuRemove extends ExtensionPopupMenuItem {
 	}
 	
     @Override
+    @SuppressWarnings("deprecation")
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BreakpointsPanel.PANEL_NAME)) {
+            // TODO remove once no longer needed (i.e. when all add-ons show modal dialogues).
             if (extension.canRemoveBreakpoint()) {
                 this.setEnabled(true);
             } else {

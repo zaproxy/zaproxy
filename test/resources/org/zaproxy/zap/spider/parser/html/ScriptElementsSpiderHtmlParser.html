@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Script Elements - Spider HTML Parser</title>
+
+<script src="//script.example.com/base/scheme"></script>
+<script src="http://script.example.com:8000/b"></script>
+<script src="https://script.example.com/c?a=b#fragment"></script>
+<script src="script/relative"></script>
+<script src=""></script>
+<script src="/script/absolute"></script>
+<script src="ftp://script.example.com/"></script>
+
+<!--  Ignored: -->
+<script></script>
+<script src="mailto:script@example.com"></script>
+<script src="javascript:hello();"></script>
+<script src="scheme://script.example.com/invalid"></script>
+
+</head>
+<body>
+</body>
+</html>

@@ -42,11 +42,21 @@
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 1582: Low memory option
+// ZAP: 2015/08/19 Change to cope with deprecation of HttpMessage.getParamNameSet(HtmlParameter.Type, String)
+// ZAP: 2015/08/19 Issue 1784: NullPointerException when active scanning through the API with a target without scheme
+// ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2015/11/05 Change findNode(..) methods to match top level nodes
+// ZAP: 2015/11/09 Fix NullPointerException when creating a HistoryReference with a request URI without path
+// ZAP: 2016/04/21 Issue 2342: Checks non-empty method for deletion of SiteNodes via API 
+// ZAP: 2016/04/28 Issue 1171: Raise site and node add or remove events
+// ZAP: 2016/07/07 Do not add the message to past history if it already belongs to the node
+// ZAP: 2017/01/23: Issue 1800: Alpha sort the site tree
 
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.security.InvalidParameterException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +66,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.httpclient.URI;
@@ -75,9 +86,11 @@ import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.view.SiteTreeFilter;
 
-public class SiteMap extends DefaultTreeModel {
+public class SiteMap extends SortedTreeModel {
 
 	private static final long serialVersionUID = 2311091007687218751L;
+	
+	private enum EventType {ADD, REMOVE};
 	
 	private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
 
@@ -122,6 +135,10 @@ public class SiteMap extends DefaultTreeModel {
                 return null;
         	}
             List<String> path = model.getSession().getTreePath(uri);
+            if (path.size() == 0) {
+            	// Its a top level node
+            	resultNode = parent;
+            }
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
@@ -184,6 +201,10 @@ public class SiteMap extends DefaultTreeModel {
         	}
             
             List<String> path = model.getSession().getTreePath(msg);
+            if (path.size() == 0) {
+            	// Its a top level node
+            	resultNode = parent;
+            }
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
@@ -427,9 +448,7 @@ public class SiteMap extends DefaultTreeModel {
             hrefMap.put(result.getHistoryReference().getHistoryId(), result);
 
             applyFilter(newNode);
-
-            ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
-            		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(result)));
+            handleEvent(parent, result, EventType.ADD);
 
         }
         // ZAP: Cope with getSiteNode() returning null
@@ -489,9 +508,8 @@ public class SiteMap extends DefaultTreeModel {
 
             this.applyFilter(node);
 
-            ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
-            		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(node)));
-        } else {
+            handleEvent(parent, node, EventType.ADD);            
+        } else if (hrefMap.get(ref.getHistoryId()) != node) {
            
             // do not replace if
             // - use local copy (304). only use if 200
@@ -514,28 +532,15 @@ public class SiteMap extends DefaultTreeModel {
         //String leafName = "\u007f" + msg.getRequestHeader().getMethod()+":"+nodeName;
         String leafName = msg.getRequestHeader().getMethod()+":"+nodeName;
         
-        String query = "";
-
-        try {
-            query = msg.getRequestHeader().getURI().getQuery();
-        } catch (URIException e) {
-            // ZAP: Added error
-            log.error(e.getMessage(), e);
-        }
-        if (query == null) {
-            query = "";
-        }
-        leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.url, query));
+        leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.url));
         
         // also handle POST method query in body
-        query = "";
         if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
         	String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         	if (contentType != null && contentType.startsWith("multipart/form-data")) {
         		leafName = leafName + "(multipart/form-data)";
         	} else {
-        		query = msg.getRequestBody().toString();
-        		leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.form, query));
+        		leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.form));
         	}
         }
         
@@ -546,7 +551,7 @@ public class SiteMap extends DefaultTreeModel {
     private String getLeafName(String nodeName, URI uri, String method, String postData) {
         String leafName;
         
-        if (method != null) {
+        if (method != null && !method.isEmpty()) {
         	leafName = method + ":" + nodeName;
         } else {
         	leafName = nodeName;
@@ -605,10 +610,27 @@ public class SiteMap extends DefaultTreeModel {
         TreeNode[] path = node.getPath();
         StringBuilder sb = new StringBuilder();
         String nodeName;
+        String uriPath = baseRef.getURI().getPath();
+        if (uriPath == null) {
+            uriPath = "";
+        }
+        String [] origPath = uriPath.split("/");
         for (int i=1; i<path.length; i++) {
         	// ZAP Cope with error counts in the node names
         	nodeName = ((SiteNode)path[i]).getNodeName();
-            sb.append(nodeName);
+        	if (((SiteNode)path[i]).isDataDriven()) {
+            	// Retrieve original name..
+            	if (origPath.length > i-1) {
+            		log.debug("Replace Data Driven element " + nodeName + " with " + origPath[i-1]);
+            		sb.append(origPath[i-1]);
+            	} else {
+            		log.error("Failed to determine original node name for element " + i +
+            				nodeName + " original request: " + baseRef.getURI().toString());
+                    sb.append(nodeName);
+            	}
+            } else {
+                sb.append(nodeName);
+            }
             if (i<path.length-1) {
                 sb.append('/');
             }
@@ -641,7 +663,12 @@ public class SiteMap extends DefaultTreeModel {
 	private String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		
-		String scheme = uri.getScheme().toLowerCase();
+		String scheme = uri.getScheme();
+		if (scheme == null) {
+			scheme = "http";
+		} else {
+			scheme = scheme.toLowerCase();
+		}
 		host.append(scheme).append("://").append(uri.getHost());
 		
 		int port = uri.getPort();		
@@ -702,7 +729,7 @@ public class SiteMap extends DefaultTreeModel {
 	protected void applyFilter (SiteNode node) {
     	if (filter != null) {
     		boolean filtered = this.setFilter(filter, node);
-    		SiteNode parent = ((SiteNode)node.getParent());
+    		SiteNode parent = node.getParent();
     		if (parent != null && ! filtered && parent.isFiltered()) {
     			// This node is no longer filtered but its parent is, unfilter the parent so it becomes visible
     			this.clearParentFilter(parent);
@@ -719,8 +746,116 @@ public class SiteMap extends DefaultTreeModel {
 	private void clearParentFilter (SiteNode parent) {
 		if (parent != null) {
 			parent.setFiltered(false);
-			clearParentFilter((SiteNode)parent.getParent());
+			clearParentFilter(parent.getParent());
 		}
 	}
+	
+	@Override
+	public void removeNodeFromParent(MutableTreeNode node) {
+		SiteNode parent=(SiteNode)node.getParent();
+		super.removeNodeFromParent(node);
+		handleEvent(parent, (SiteNode)node, EventType.REMOVE);
+	}
 
+	/**
+	 * Handles the publishing of the add or remove event. Node events are always published.
+	 * Site events are only published when the parent of the node is the root of the tree.
+	 * 
+	 * @param parent relevant parent node
+	 * @param node the site node the action is being carried out for
+	 * @param eventType the type of event occurring (ADD or REMOVE)
+	 * @see EventType
+	 * @since 2.5.0
+	 */
+	private void handleEvent(SiteNode parent, SiteNode node, EventType eventType) {
+		switch (eventType) {
+		case ADD:
+			publishEvent(SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, node);
+			if (parent == getRoot()) {
+				publishEvent(SiteMapEventPublisher.SITE_ADDED_EVENT, node);
+			}
+			break;
+		case REMOVE:
+			publishEvent(SiteMapEventPublisher.SITE_NODE_REMOVED_EVENT, node);
+			if(parent == getRoot()) {
+				publishEvent(SiteMapEventPublisher.SITE_REMOVED_EVENT, node);
+			}
+		}
+	}
+	
+	/**
+	 * Publish the event being carried out.
+	 * 
+	 * @param event the event that is happening
+	 * @param node the node being acted upon
+	 * @since 2.5.0
+	 */
+	private static void publishEvent(String event, SiteNode node) {
+		ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), new Event(SiteMapEventPublisher.getPublisher(), event, new Target(node)));
+	}
+}
+
+/**
+ * Based on example code from:
+ * <a href="http://www.java2s.com/Code/Java/Swing-JFC/AtreemodelusingtheSortTreeModelwithaFilehierarchyasinput.htm">Sorted Tree Example</a>
+ */
+class SortedTreeModel extends DefaultTreeModel {
+
+	private static final long serialVersionUID = 4130060741120936997L;
+	private Comparator<SiteNode> comparator;
+
+	public SortedTreeModel(TreeNode node, SiteNodeStringComparator siteNodeStringComparator) {
+		super(node);
+		this.comparator = siteNodeStringComparator;
+	}
+
+	public SortedTreeModel(TreeNode node) {
+		super(node);
+		this.comparator = new SiteNodeStringComparator();
+	}
+	
+	public SortedTreeModel(TreeNode node, boolean asksAllowsChildren, Comparator<SiteNode> aComparator) {
+		super(node, asksAllowsChildren);
+		this.comparator = aComparator;
+	}
+
+	public void insertNodeInto(SiteNode child, SiteNode parent) {
+		int index = findIndexFor(child, parent);
+		super.insertNodeInto(child, parent, index);
+	}
+
+	public void insertNodeInto(SiteNode child, SiteNode parent, int i) {
+		// The index is useless in this model, so just ignore it.
+		insertNodeInto(child, parent);
+	}
+
+	private int findIndexFor(SiteNode child, SiteNode parent) {
+		int childCount = parent.getChildCount();
+		if (childCount == 0) {
+			return 0;
+		}
+		if (childCount == 1) {
+			return comparator.compare(child, (SiteNode) parent.getChildAt(0)) <= 0 ? 0 : 1;
+		}
+		return findIndexFor(child, parent, 0, childCount - 1);
+	}
+
+	private int findIndexFor(SiteNode child, SiteNode parent, int idx1, int idx2) {
+		if (idx1 == idx2) {
+			return comparator.compare(child, (SiteNode) parent.getChildAt(idx1)) <= 0 ? idx1 : idx1 + 1;
+		}
+		int half = (idx1 + idx2) / 2;
+		if (comparator.compare(child, (SiteNode) parent.getChildAt(half)) <= 0) {
+			return findIndexFor(child, parent, idx1, half);
+		}
+		return findIndexFor(child, parent, half + 1, idx2);
+	}
+}
+
+class SiteNodeStringComparator implements Comparator<SiteNode> {
+	public int compare(SiteNode sn1, SiteNode sn2) {
+		String s1 = sn1.getNodeName();
+		String s2 = sn2.getNodeName();
+		return s1.compareToIgnoreCase(s2);
+	}
 }

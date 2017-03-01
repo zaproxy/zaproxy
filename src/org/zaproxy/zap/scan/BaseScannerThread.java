@@ -22,17 +22,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The base implementation that needs to be extended for a thread that is used to run a Scan.
- * <p/>
+ * <p>
  * This abstract implementation handles common elements that correspond to all scans (scan progress,
  * scan maximum progress, running/paused state, start options), but should be extended to take into
  * consideration particular needs of the scan.
- * <p/>
+ * <p>
  * An important characteristic of the scanner threads is that they are based on a set of start
  * options ({@link ScanStartOptions}) that should be used for fully specifying the configuration for
  * a particular scan. The scan options should be provided to the Scanner Thread before being started
  * via the {@link #setStartOptions(ScanStartOptions)} method. Examples of configuration required
  * might include: context and/or site node to scan, user to scan as, policy etc.
- * <p/>
+ * <p>
  * The most important method that needs to be implemented is {@link #scan()}, but other common
  * methods should be implemented as well, calling the {@code super} implementation:
  * <ul>
@@ -42,7 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <li>{@link #stopScan()}</li>
  * </ul>
  *
- * @param <StartOptions> the generic type
+ * @param <StartOptions> the type of the start scan options
  * @see ScanStartOptions
  * @see ScannerThreadManager
  */
@@ -202,12 +202,12 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	/**
 	 * Method called when the scan is paused. The base implementation handles the update of the
 	 * thread's paused state, but should be overridden if necessary.
-	 * <p/>
+	 * <p>
 	 * Note: Implementations must be careful to make sure the scan actually gets paused (either by
 	 * overriding this method or by constantly checking the {@link #isPaused()} status or using the
 	 * {@link #checkPausedAndWait()} method in the {@link #scan()} method).
-	 * <p/>
-	 * Note: This method is not always run on the scanner thread.
+	 * <p>
+	 * <strong>Note:</strong> This method is not always run on the scanner thread.
 	 * 
 	 * @see #setPaused(boolean)
 	 */
@@ -218,12 +218,12 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	/**
 	 * Method called when the scan is resumed. The base implementation handles the update of the
 	 * thread's paused state, but should be overridden if necessary.
-	 * <p/>
+	 * <p>
 	 * Note: Implementations must be careful to make sure the scan actually gets paused (either by
 	 * overriding this method or by constantly checking the {@link #isPaused()} status or using the
 	 * {@link #checkPausedAndWait()} method in the {@link #scan()} method).
-	 * <p/>
-	 * Note: This method is not always run on the scanner thread.
+	 * <p>
+	 * <strong>Note:</strong> This method is not always run on the scanner thread.
 	 * 
 	 * @see #setPaused(boolean)
 	 */
@@ -236,12 +236,12 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	 * the update of the thread's running state, but should be overridden if necessary. If the
 	 * thread is now stopped, also updates the paused state to {@code false}, to make sure that, if
 	 * the thread was sleeping, it gets awakened.
-	 * <p/>
+	 * <p>
 	 * Note: Implementations must be careful to make sure the scan is stopped and the thread
 	 * finishes (either by overriding this method or by constantly checking the {@link #isRunning()}
 	 * status in the {@link #scan()} method).
-	 * <p/>
-	 * Note: This method is not always run on the scanner thread.
+	 * <p>
+	 * <strong>Note:</strong> This method is not always run on the scanner thread.
 	 */
 	public void stopScan() {
 		setPaused(false);
@@ -251,8 +251,8 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	/**
 	 * Method called when the scan is started. The base implementation handles the update of the
 	 * thread's running state and calls the {@link #scan()} method.
-	 * <p/>
-	 * Note: This method is being run on the scanner thread.
+	 * <p>
+	 * <strong>Note:</strong> This method is being run on the scanner thread.
 	 */
 	public void startScan() {
 		setRunningState(true);

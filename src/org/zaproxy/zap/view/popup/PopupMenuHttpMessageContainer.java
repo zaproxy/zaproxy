@@ -28,6 +28,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.search.SearchPanel;
+import org.zaproxy.zap.extension.spider.SpiderPanel;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
@@ -55,6 +56,12 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
         ALERTS_PANEL,
         ACTIVE_SCANNER_PANEL,
         SEARCH_PANEL,
+        /**
+         * The panel where spiders' HTTP messages are shown.
+         * 
+         * @since 2.5.0
+         */
+        SPIDER_PANEL,
         FUZZER_PANEL,
         FORCED_BROWSE_PANEL,
         UNKNOWN
@@ -220,7 +227,6 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * </ol>
      * <strong>Note:</strong> If the menu is declared as not safe ({@code isSafe()}) the button will be disabled if in
      * {@code Mode.Safe} or if in {@code Mode.Protected} and not all the selected messages are in scope.
-     * </p>
      * <h3>Notifying and processing child menus</h3>
      * <p>
      * When the method {@code isProcessExtensionPopupChildren()} returns true, the method
@@ -239,7 +245,6 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * {@code true};</li>
      * </ul>
      * The separators will be dynamically added and removed as needed when the pop up menu is shown.
-     * </p>
      * <p>
      * <strong>Note:</strong> Override of this method should be done with extra care as it might break all the expected
      * functionality.
@@ -350,10 +355,13 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
         case SearchPanel.HTTP_MESSAGE_CONTAINER_NAME:
             invoker = Invoker.SEARCH_PANEL;
             break;
+        case SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
+            invoker = Invoker.SPIDER_PANEL;
+            break;
         case ActiveScanPanel.MESSAGE_CONTAINER_NAME:
             invoker = Invoker.ACTIVE_SCANNER_PANEL;
             break;
-        case "HttpFuzzerResultsContentPanel":
+        case "fuzz.httpfuzzerResultsContentPanel":
             invoker = Invoker.FUZZER_PANEL;
             break;
         case "ForcedBrowseMessageContainer":

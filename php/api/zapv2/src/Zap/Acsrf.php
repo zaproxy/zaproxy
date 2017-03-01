@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,18 +32,23 @@ class Acsrf {
 		$this->zap = $zap;
 	}
 
-	public function optionTokens() {
-		return $this->zap->request($this->zap->base . 'acsrf/view/optionTokens/')->{'Tokens'};
-	}
-
+	/**
+	 * Lists the names of all anti CSRF tokens
+	 */
 	public function optionTokensNames() {
 		return $this->zap->request($this->zap->base . 'acsrf/view/optionTokensNames/')->{'TokensNames'};
 	}
 
+	/**
+	 * Adds an anti CSRF token with the given name, enabled by default
+	 */
 	public function addOptionToken($string, $apikey='') {
 		return $this->zap->request($this->zap->base . 'acsrf/action/addOptionToken/', array('String' => $string, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Removes the anti CSRF token with the given name
+	 */
 	public function removeOptionToken($string, $apikey='') {
 		return $this->zap->request($this->zap->base . 'acsrf/action/removeOptionToken/', array('String' => $string, 'apikey' => $apikey));
 	}
@@ -52,7 +57,7 @@ class Acsrf {
 	 * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
 	 */
 	public function genForm($hrefid, $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'acsrf/other/genForm/', array('hrefId' => $hrefid, 'apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'acsrf/other/genForm/', array('hrefId' => $hrefid, 'apikey' => $apikey));
 	}
 
 }

@@ -119,14 +119,10 @@ public interface TableHistory extends DatabaseListener {
 			throws DatabaseException;
 
 	/**
-	 * Deletes all records whose history type was marked as temporary (by calling {@code setHistoryTypeTemporary(int)}).
-	 * <p>
-	 * By default the only temporary history type is {@code HistoryReference#TYPE_TEMPORARY}.
+	 * Deletes all records whose history type was marked as temporary.
 	 *
 	 * @throws DatabaseException if an error occurred while deleting the temporary history records
-	 * @see #setHistoryTypeAsTemporary(int)
-	 * @see #unsetHistoryTypeAsTemporary(int)
-	 * @see HistoryReference#TYPE_TEMPORARY
+	 * @see HistoryReference#getTemporaryTypes()
 	 */
 	void deleteTemporary() throws DatabaseException;
 

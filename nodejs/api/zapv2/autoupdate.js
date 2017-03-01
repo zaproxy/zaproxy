@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,42 @@ function Autoupdate(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * Returns the latest version number
+ **/
 Autoupdate.prototype.latestVersionNumber = function (callback) {
   this.api.request('/autoupdate/view/latestVersionNumber/', callback);
 };
 
+/**
+ * Returns 'true' if ZAP is on the latest version
+ **/
 Autoupdate.prototype.isLatestVersion = function (callback) {
   this.api.request('/autoupdate/view/isLatestVersion/', callback);
+};
+
+Autoupdate.prototype.optionAddonDirectories = function (callback) {
+  this.api.request('/autoupdate/view/optionAddonDirectories/', callback);
+};
+
+Autoupdate.prototype.optionDayLastChecked = function (callback) {
+  this.api.request('/autoupdate/view/optionDayLastChecked/', callback);
+};
+
+Autoupdate.prototype.optionDayLastInstallWarned = function (callback) {
+  this.api.request('/autoupdate/view/optionDayLastInstallWarned/', callback);
+};
+
+Autoupdate.prototype.optionDayLastUpdateWarned = function (callback) {
+  this.api.request('/autoupdate/view/optionDayLastUpdateWarned/', callback);
+};
+
+Autoupdate.prototype.optionDownloadDirectory = function (callback) {
+  this.api.request('/autoupdate/view/optionDownloadDirectory/', callback);
+};
+
+Autoupdate.prototype.optionCheckAddonUpdates = function (callback) {
+  this.api.request('/autoupdate/view/optionCheckAddonUpdates/', callback);
 };
 
 Autoupdate.prototype.optionCheckOnStart = function (callback) {
@@ -43,10 +73,6 @@ Autoupdate.prototype.optionDownloadNewRelease = function (callback) {
   this.api.request('/autoupdate/view/optionDownloadNewRelease/', callback);
 };
 
-Autoupdate.prototype.optionCheckAddonUpdates = function (callback) {
-  this.api.request('/autoupdate/view/optionCheckAddonUpdates/', callback);
-};
-
 Autoupdate.prototype.optionInstallAddonUpdates = function (callback) {
   this.api.request('/autoupdate/view/optionInstallAddonUpdates/', callback);
 };
@@ -55,24 +81,35 @@ Autoupdate.prototype.optionInstallScannerRules = function (callback) {
   this.api.request('/autoupdate/view/optionInstallScannerRules/', callback);
 };
 
-Autoupdate.prototype.optionReportReleaseAddons = function (callback) {
-  this.api.request('/autoupdate/view/optionReportReleaseAddons/', callback);
+Autoupdate.prototype.optionReportAlphaAddons = function (callback) {
+  this.api.request('/autoupdate/view/optionReportAlphaAddons/', callback);
 };
 
 Autoupdate.prototype.optionReportBetaAddons = function (callback) {
   this.api.request('/autoupdate/view/optionReportBetaAddons/', callback);
 };
 
-Autoupdate.prototype.optionReportAlphaAddons = function (callback) {
-  this.api.request('/autoupdate/view/optionReportAlphaAddons/', callback);
+Autoupdate.prototype.optionReportReleaseAddons = function (callback) {
+  this.api.request('/autoupdate/view/optionReportReleaseAddons/', callback);
 };
 
+/**
+ * Downloads the latest release, if any 
+ **/
 Autoupdate.prototype.downloadLatestRelease = function (apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
   this.api.request('/autoupdate/action/downloadLatestRelease/', {'apikey' : apikey}, callback);
+};
+
+Autoupdate.prototype.setOptionCheckAddonUpdates = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Autoupdate.prototype.setOptionCheckOnStart = function (bool, apikey, callback) {
@@ -91,14 +128,6 @@ Autoupdate.prototype.setOptionDownloadNewRelease = function (bool, apikey, callb
   this.api.request('/autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
-Autoupdate.prototype.setOptionCheckAddonUpdates = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
 Autoupdate.prototype.setOptionInstallAddonUpdates = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -115,12 +144,12 @@ Autoupdate.prototype.setOptionInstallScannerRules = function (bool, apikey, call
   this.api.request('/autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
-Autoupdate.prototype.setOptionReportReleaseAddons = function (bool, apikey, callback) {
+Autoupdate.prototype.setOptionReportAlphaAddons = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+  this.api.request('/autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Autoupdate.prototype.setOptionReportBetaAddons = function (bool, apikey, callback) {
@@ -131,12 +160,12 @@ Autoupdate.prototype.setOptionReportBetaAddons = function (bool, apikey, callbac
   this.api.request('/autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
-Autoupdate.prototype.setOptionReportAlphaAddons = function (bool, apikey, callback) {
+Autoupdate.prototype.setOptionReportReleaseAddons = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+  this.api.request('/autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 module.exports = Autoupdate;

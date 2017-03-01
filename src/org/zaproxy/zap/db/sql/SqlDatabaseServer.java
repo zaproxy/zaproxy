@@ -35,9 +35,9 @@ public class SqlDatabaseServer implements DatabaseServer {
     
     private static final Logger logger = Logger.getLogger(SqlDatabaseServer.class);
     
-	private String  dbUrl = null;;
-	private String  dbUser = null;;
-	private String  dbPassword = null;;
+	private String  dbUrl = null;
+	private String  dbUser = null;
+	private String  dbPassword = null;
 	private Server  dbServer = null;
 	private Connection dbConn = null;
 

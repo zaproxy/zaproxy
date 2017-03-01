@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
+import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTableModel<ProxyExcludedDomainMatcher> {
+public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTableModel<DomainMatcher> {
 
     private static final long serialVersionUID = -5411351965957264957L;
 
@@ -37,7 +37,7 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    private List<ProxyExcludedDomainMatcher> excludedDomains = new ArrayList<>(5);
+    private List<DomainMatcher> excludedDomains = new ArrayList<>(5);
 
     public ProxyExcludedDomainsTableModel() {
         super();
@@ -92,22 +92,22 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
         return String.class;
     }
 
-    public List<ProxyExcludedDomainMatcher> getExcludedDomains() {
+    public List<DomainMatcher> getExcludedDomains() {
         return excludedDomains;
     }
 
-    public void setExcludedDomains(List<ProxyExcludedDomainMatcher> excludedDomains) {
+    public void setExcludedDomains(List<DomainMatcher> excludedDomains) {
         this.excludedDomains = new ArrayList<>(excludedDomains.size());
 
-        for (ProxyExcludedDomainMatcher excludedDomain : excludedDomains) {
-            this.excludedDomains.add(new ProxyExcludedDomainMatcher(excludedDomain));
+        for (DomainMatcher excludedDomain : excludedDomains) {
+            this.excludedDomains.add(new DomainMatcher(excludedDomain));
         }
 
         fireTableDataChanged();
     }
 
     @Override
-    public List<ProxyExcludedDomainMatcher> getElements() {
+    public List<DomainMatcher> getElements() {
         return excludedDomains;
     }
 }

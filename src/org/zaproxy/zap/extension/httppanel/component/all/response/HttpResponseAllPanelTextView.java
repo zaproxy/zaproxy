@@ -21,13 +21,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.BadLocationException;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
+import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseAllPanelTextView extends HttpPanelTextView {
@@ -49,53 +48,19 @@ public class HttpResponseAllPanelTextView extends HttpPanelTextView {
 
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
-			HttpMessage httpMessage = (HttpMessage)getMessage();
-			//This only happens in the Request/Response Header
-			//As we replace all \r\n with \n we must add one character
-			//for each line until the line where the selection is.
-			int tHeader = 0;
-			String header = httpMessage.getResponseHeader().toString();
-			int pos = 0;
-			while ((pos = header.indexOf("\r\n", pos)) != -1) {
-				pos += 2;
-				++tHeader;
-			}
-			
-			final int headerLen = header.length();
-			final int diff = tHeader - headerLen;
-			
+			String header = ((HttpMessage) getMessage()).getResponseHeader().toString();
 			Matcher m = p.matcher(getText());
-			int start;
-			int end;
 			while (m.find()) {
-				start = m.start();
-				end = m.end();
-				
-				if (start+tHeader < headerLen) {
-					try {
-						start += getLineOfOffset(start);
-					} catch (BadLocationException e) {
-						//Shouldn't happen, but in case it does log it and return.
-						log.error(e.getMessage(), e);
-						return;
-					}
-					try {
-						end += getLineOfOffset(end);
-					} catch (BadLocationException e) {
-						//Shouldn't happen, but in case it does log it and return.
-						log.error(e.getMessage(), e);
-						return;
-					}
-					if (end > headerLen) {
-						end = headerLen;
-					}
-					matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_HEAD, start, end));
-				} else {
-					start += diff;
-					end += diff;
-				
-					matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_BODY, start, end));
+
+				int[] position = HttpTextViewUtils.getViewToHeaderBodyPosition(this, header, m.start(), m.end());
+				if (position.length == 0) {
+					return;
 				}
+
+				SearchMatch.Location location = position.length == 2
+						? SearchMatch.Location.RESPONSE_HEAD
+						: SearchMatch.Location.RESPONSE_BODY;
+				matches.add(new SearchMatch(location, position[0], position[1]));
 			}
 		}
 		
@@ -106,37 +71,26 @@ public class HttpResponseAllPanelTextView extends HttpPanelTextView {
 				return;
 			}
 			
-			final boolean isBody = SearchMatch.Location.RESPONSE_BODY.equals(sm.getLocation());
-			
-			//As we replace all \r\n with \n we must subtract one character
-			//for each line until the line where the selection is.
-			int t = 0;
-			String header = sm.getMessage().getResponseHeader().toString();
-			int pos = 0;
-			while ((pos = header.indexOf("\r\n", pos)) != -1) {
-				pos += 2;
-				
-				if (!isBody && pos > sm.getStart()) {
-					break;
-				}
-				
-				++t;
+			int[] pos;
+			if (SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation())) {
+				pos = HttpTextViewUtils.getHeaderToViewPosition(
+						this,
+						sm.getMessage().getResponseHeader().toString(),
+						sm.getStart(),
+						sm.getEnd());
+			} else {
+				pos = HttpTextViewUtils.getBodyToViewPosition(
+						this,
+						sm.getMessage().getResponseHeader().toString(),
+						sm.getStart(),
+						sm.getEnd());
 			}
-			
-			int start = sm.getStart()-t;
-			int end = sm.getEnd()-t;
-			
-			if (isBody) {
-				start += header.length();
-				end += header.length();
-			}
-			
-			int len = this.getText().length();
-			if (start > len || end > len) {
+
+			if (pos.length == 0) {
 				return;
 			}
 			
-			highlight(start, end);
+			highlight(pos[0], pos[1]);
 		}
 	}
 }

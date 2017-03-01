@@ -44,7 +44,7 @@ public class StructuralSiteNodeIterator implements Iterator<StructuralNode> {
 		if (! hasNext()) {
 			throw new NoSuchElementException();
 		}
-		return new StructuralSiteNode((SiteNode)children.nextElement());
+		return new StructuralSiteNode(children.nextElement());
 	}
 
 	@Override

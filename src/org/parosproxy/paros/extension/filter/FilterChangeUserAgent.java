@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2016/0405 Issue 2458: Fix xlint warning messages 
 
 package org.parosproxy.paros.extension.filter;
 
@@ -97,7 +98,6 @@ public class FilterChangeUserAgent extends FilterAdaptor {
 	@Override
 	public void editProperty() {
 	    FilterChangeUserAgentDialog  dialog = getFilterChangeUserAgentDialog();
-	    dialog.setView(getView());
 	    int result = dialog.showDialog();
 	    if (result == JOptionPane.CANCEL_OPTION) {
 	        return;

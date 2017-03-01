@@ -28,6 +28,8 @@ public class SiteMapEventPublisher implements EventPublisher {
 	private static SiteMapEventPublisher publisher = null;
 	public static final String SITE_NODE_ADDED_EVENT	= "siteNode.added";
 	public static final String SITE_NODE_REMOVED_EVENT	= "siteNode.removed";
+	public static final String SITE_ADDED_EVENT	= "site.added";
+	public static final String SITE_REMOVED_EVENT	= "site.removed";
 	
 	@Override
 	public String getPublisherName() {
@@ -38,7 +40,7 @@ public class SiteMapEventPublisher implements EventPublisher {
 		if (publisher == null) {
 			publisher = new SiteMapEventPublisher(); 
 	        ZAP.getEventBus().registerPublisher(publisher, 
-	        		new String[] {SITE_NODE_ADDED_EVENT, SITE_NODE_REMOVED_EVENT});
+	        		new String[] {SITE_NODE_ADDED_EVENT, SITE_NODE_REMOVED_EVENT, SITE_ADDED_EVENT, SITE_REMOVED_EVENT});
 
 		}
 		return publisher;

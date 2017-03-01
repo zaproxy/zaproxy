@@ -63,9 +63,6 @@ public class ParamsPanel extends AbstractPanel{
 	
     //private static Log log = LogFactory.getLog(ParamsPanel.class);
     
-    /**
-     * 
-     */
     public ParamsPanel(ExtensionParams extension) {
         super();
         this.extension = extension;
@@ -93,7 +90,6 @@ public class ParamsPanel extends AbstractPanel{
 	 * @return javax.swing.JPanel	
 
 	 */    
-	/**/
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 
@@ -124,7 +120,6 @@ public class ParamsPanel extends AbstractPanel{
 		}
 		return panelCommand;
 	}
-	/**/
 
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {
@@ -243,7 +238,6 @@ public class ParamsPanel extends AbstractPanel{
 
 			paramsTable.setName(PANEL_NAME);
 			paramsTable.setDoubleBuffered(true);
-			paramsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			paramsTable.addMouseListener(new java.awt.event.MouseAdapter() { 
 			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
@@ -351,15 +345,30 @@ public class ParamsPanel extends AbstractPanel{
 	}
 	
 	protected HtmlParameterStats getSelectedParam() {
+		int selectedRow = this.getParamsTable().getSelectedRow();
+		if (selectedRow == -1) {
+			return null;
+		}
 
 		// TODO type is localized :(
-		String type = (String) this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 0);
-		String name = (String) this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 1);
+		String type = (String) this.getParamsTable().getValueAt(selectedRow, 0);
+		String name = (String) this.getParamsTable().getValueAt(selectedRow, 1);
 
 		SiteParameters sps = extension.getSiteParameters(currentSite);
 		if (sps != null) {
 			return sps.getParam(HtmlParameter.Type.valueOf(type.toLowerCase()), name);	// TODO HACK!
 		}
 		return null;
+	}
+
+	/**
+	 * Tells whether or not only one of the parameters is selected.
+	 *
+	 * @return {@code true} if only one parameter is selected, {@code false} otherwise.
+	 * @see #getSelectedParam()
+	 * @since TODO add version
+	 */
+	boolean isOnlyOneParamSelected() {
+		return getParamsTable().getSelectedRowCount() == 1;
 	}
 }

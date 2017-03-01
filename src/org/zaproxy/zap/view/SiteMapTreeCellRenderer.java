@@ -19,15 +19,20 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -41,24 +46,30 @@ import org.zaproxy.zap.utils.DisplayUtils;
  */
 public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	
-	private static final ImageIcon ROOT_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
-	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
-	private static final ImageIcon LEAF_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
-	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
-	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
-	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
-	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
+	private static final ImageIcon ROOT_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
+	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
+	private static final ImageIcon LEAF_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
+	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
+	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
+	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
+	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
+	private static final ImageIcon DATA_DRIVEN_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/database.png"));
+	private static final ImageIcon DATA_DRIVEN_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/database-target.png"));
 
-	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
+	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
 
 	private static final long serialVersionUID = -4278691012245035225L;
 
 	private static Logger log = Logger.getLogger(SiteMapPanel.class);
 
 	private List<SiteMapListener> listeners;
+	private JPanel component; 
 
 	public SiteMapTreeCellRenderer(List<SiteMapListener> listeners) {
 		this.listeners = listeners;
+		this.component = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 2));
+		component.setOpaque(false);
+		this.putClientProperty("html.disable", Boolean.TRUE);
 	}
 
 	/**
@@ -69,6 +80,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
 
+		component.removeAll();
 		SiteNode node = null;
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
@@ -85,53 +97,93 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
-				setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));	// 'World' icon
+				component.add(wrap(ROOT_ICON)); // 'World' icon
 			} else {
-		        ImageIcon icon;
-				if (leaf) {
+				OverlayIcon icon;
+		        if (node.isDataDriven()) {
 					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						icon = LEAF_IN_SCOPE_ICON;
+						icon = new OverlayIcon(DATA_DRIVEN_IN_SCOPE_ICON);
 					} else {
-						icon = LEAF_ICON;
+						icon = new OverlayIcon(DATA_DRIVEN_ICON);
+					}
+		        } else if (leaf) {
+					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
+						icon = new OverlayIcon(LEAF_IN_SCOPE_ICON);
+					} else {
+						icon = new OverlayIcon(LEAF_ICON);
 					}
 				} else {
 					if  (expanded) {
 						if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-							icon = FOLDER_OPEN_IN_SCOPE_ICON;
+							icon = new OverlayIcon(FOLDER_OPEN_IN_SCOPE_ICON);
 						} else {
-							icon = FOLDER_OPEN_ICON;
+							icon = new OverlayIcon(FOLDER_OPEN_ICON);
 						}
 					} else {
 						if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-							icon = FOLDER_CLOSED_IN_SCOPE_ICON;
+							icon = new OverlayIcon(FOLDER_CLOSED_IN_SCOPE_ICON);
 						} else {
-							icon = FOLDER_CLOSED_ICON;
+							icon = new OverlayIcon(FOLDER_CLOSED_ICON);
 						}
 					}
 				}
-				if (((SiteNode)node.getParent()).isRoot() && node.getNodeName().startsWith("https://")) {
+				if (node.getParent().isRoot() && node.getNodeName().startsWith("https://")) {
 					// Add lock icon to site nodes with https
-					OverlayIcon oi = new OverlayIcon(icon);
-					oi.add(LOCK_OVERLAY_ICON);
-					setIcon(DisplayUtils.getScaledIcon(oi));
-				} else {
-					setIcon(DisplayUtils.getScaledIcon(icon));
+					icon.add(LOCK_OVERLAY_ICON);
 				}
+				
+				component.add(wrap(DisplayUtils.getScaledIcon(icon)));
+				
+				Alert alert = node.getHighestAlert();
+				if (alert != null) {
+					component.add(wrap(alert.getIcon()));
+				}
+
+				for (ImageIcon ci : node.getCustomIcons()){
+					component.add(wrap(DisplayUtils.getScaledIcon(ci)));
+				}
+				
+			}
+			if (sel) {
+				component.add(wrap(node.toString(), Color.WHITE));
+			} else {
+				component.add(wrap(node.toString()));
 			}
 
 	        for (SiteMapListener listener : listeners) {
 	        	listener.onReturnNodeRendererComponent(this, leaf, node);
 	        }
+	        return component;
 		}
 
 		return this;
 	}
 	
+    private JLabel wrap (String str) {
+        JLabel label = new JLabel(str);
+        label.setOpaque(false);
+        label.putClientProperty("html.disable", Boolean.TRUE);
+        return label;
+    }
+	
+    private JLabel wrap (String str, Color color) {
+        JLabel label = wrap(str);
+        label.setForeground(color);
+        return label;
+    }
+    
+    private JLabel wrap (ImageIcon icon) {
+        JLabel label = new JLabel(icon);
+        label.setOpaque(false);
+        label.putClientProperty("html.disable", Boolean.TRUE);
+        return label;
+    }
+    
 	/**
-	 * Extract HttpMessage out of {@link SiteMap} node.
+	 * Extracts a HistoryReference out of {@link SiteMap} node.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the node
+	 * @return the {@code HistoryReference}, or {@code null} if it has none
 	 */
 	public HistoryReference getHistoryReferenceFromNode(Object value) {
 		SiteNode node = null;

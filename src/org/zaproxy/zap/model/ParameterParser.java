@@ -31,7 +31,41 @@ public interface ParameterParser {
 
 	Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type);
 
+	/**
+	 * Gets the parameters of the given {@code type} from the given {@code message}.
+	 * <p>
+	 * The parameters are split using the key value pair separator(s) and each resulting parameter is split into name/value
+	 * pairs using key value separator(s).
+	 * <p>
+	 * Parameters' names and values are in decoded form.
+	 *
+	 * @param msg the message whose parameters will be extracted from
+	 * @param type the type of parameters to extract
+	 * @return a {@code List} containing the parameters
+	 * @throws IllegalArgumentException if the {@code msg} or {@code type} is {@code null}.
+	 * @since 2.5.0
+	 * @see #getDefaultKeyValuePairSeparator()
+	 * @see #getDefaultKeyValueSeparator()
+	 */
+	List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type);
+
 	Map<String, String> parse(String paramStr);
+
+	/**
+	 * Parses the given {@code parameters} into a list of {@link NameValuePair}.
+	 * <p>
+	 * The parameters are split using the key value pair separator(s) and each resulting parameter is split into name/value
+	 * pairs using key value separator(s).
+	 * <p>
+	 * Parameters' names and values are in decoded form.
+	 *
+	 * @param parameters the String of parameters to parse, might be {@code null}
+	 * @return a {@code List} containing the parameters parsed
+	 * @since 2.5.0
+	 * @see #getDefaultKeyValuePairSeparator()
+	 * @see #getDefaultKeyValueSeparator()
+	 */
+	List<NameValuePair> parseParameters(String parameters);
 
 	List<String> getTreePath(URI uri) throws URIException;
 	
@@ -42,18 +76,21 @@ public interface ParameterParser {
 	 * Gets the path of the URI's ancestor found at the given depth, taking into account any context
 	 * specific configuration (e.g. structural parameters). The depth could also be seen as the
 	 * number of path elements returned.
-	 * <p/>
+	 * <p>
 	 * A few examples (uri, depth):
 	 * <ul>
-	 * <li>(<i>http://example.org/path/to/element</i>, 0) -> ""</li>
-	 * <li>(<i>http://example.org/path/to/element</i>, 1) -> "/path"</li>
-	 * <li>(<i>http://example.org/path/to/element</i>, 3) -> "/path/to/element"</li>
-	 * <li>(<i>http://example.org/path?page=12&data=123</i>, 2) -> "/path?page=12", if {@code page}
+	 * <li>(<i>http://example.org/path/to/element</i>, 0) -&gt; ""</li>
+	 * <li>(<i>http://example.org/path/to/element</i>, 1) -&gt; "/path"</li>
+	 * <li>(<i>http://example.org/path/to/element</i>, 3) -&gt; "/path/to/element"</li>
+	 * <li>(<i>http://example.org/path?page=12&amp;data=123</i>, 2) -&gt; "/path?page=12", if {@code page}
 	 * is a structural parameter</li>
-	 * <li>(<i>http://example.org/path?page=12&data=123&type=1</i>, 3) -> "/path?page=12&type=1", if
+	 * <li>(<i>http://example.org/path?page=12&amp;data=123&amp;type=1</i>, 3) -&gt; "/path?page=12&amp;type=1", if
 	 * {@code page} and {@code type} are both structural parameter</li>
 	 * </ul>
 	 * 
+	 * @param uri the URI
+	 * @param depth the depth
+	 * @return the path of the ancestor
 	 * @throws URIException if an error occurred while accessing the provided uri
 	 */
 	String getAncestorPath(URI uri, int depth) throws URIException;
@@ -65,4 +102,8 @@ public interface ParameterParser {
 	String getConfig();
 
 	ParameterParser clone();
+	
+	void setContext(Context context);
+	
+	Context getContext();
 }

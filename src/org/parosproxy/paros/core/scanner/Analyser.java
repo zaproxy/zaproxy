@@ -31,6 +31,10 @@
 // ZAP: 2014/06/26 Added the possibility to count the available nodes that can be scanned
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/04/21 Allow to obtain the number of requests sent during the analysis
+// ZAP: 2016/06/10 Honour scan's scope when following redirections
+// ZAP: 2016/09/20 JavaDoc tweaks
 
 package org.parosproxy.paros.core.scanner;
 
@@ -73,6 +77,14 @@ public class Analyser {
     // ZAP Added delayInMs
     private int delayInMs;
 
+    /**
+     * The count of requests sent (and received) during the analysis.
+     * 
+     * @see #sendAndReceive(HttpMessage)
+     * @see #getRequestCount()
+     */
+    private int requestCount;
+
     // ZAP: Added parent
     HostProcess parent = null;
     
@@ -108,6 +120,8 @@ public class Analyser {
     /**
      * Analyse a single folder entity. Results are stored into
      * mAnalysedEntityTable.
+     * @param node the node that will be analysed
+     * @throws Exception if an error occurred while analysing the node (for example, failed to send the message)
      */
     private void analyse(StructuralNode node) throws Exception {
 	// if analysed already, return;
@@ -196,7 +210,7 @@ public class Analyser {
      * option is provided to check recursively. Note that the immediate children
      * are always checked first before further recursive check is done.
      *
-     * @param	entity	The current entity.
+     * @param	node the node used to obtain the suffix
      * @param	performRecursiveCheck	True = get recursively the suffix from all
      * the children.
      * @return	The suffix ".xxx" is returned. If there is no suffix found, an
@@ -271,26 +285,39 @@ public class Analyser {
      * a suffix exist in the children according to a priority of
      * staticSuffixList.
      *
-     * @param	entity	The current entity.
+     * @param	node the node used to construct the random path
      * @param	uri	The uri of the current entity.
      * @return	A random path (eg /folder1/folder2/1234567.chm) relative the
      * entity.
-     * @throws URIException
+     * @throws URIException if unable to decode the path of the given URI 
      */
     private String getRandomPathSuffix(StructuralNode node, URI uri) throws URIException {
         String resultSuffix = getChildSuffix(node, true);
 
         String path = "";
         path = (uri.getPath() == null) ? "" : uri.getPath();
-        path = path + (path.endsWith("/") ? "" : "/") + Long.toString(Math.abs(staticRandomGenerator.nextLong()));
+        path = path + (path.endsWith("/") ? "" : "/") + Long.toString(getRndPositiveLong());
         path = path + resultSuffix;
 
         return path;
 
     }
+    
+    /*
+     * Return a random positive long value
+     * Long.MIN_VALUE cannot be converted into a positive number by Math.abs
+     */
+    private long getRndPositiveLong() {
+  	   	long rnd = Long.MIN_VALUE;
+  	   	while (rnd == Long.MIN_VALUE) {
+  	  	   	rnd = staticRandomGenerator.nextLong();
+  	   	}
+    	return Math.abs(rnd);
+    }
 
     /**
      * Analyse node (should be a folder unless it is host level) in-order.
+     * @param node the node to analyse
      * @return the number of nodes available at this layer
      */
     private int inOrderAnalyse(StructuralNode node) {
@@ -455,7 +482,26 @@ public class Analyser {
             }
         }
 
-        httpSender.sendAndReceive(msg, true);
+        httpSender.sendAndReceive(msg, new HttpSender.RedirectionValidator() {
+
+            @Override
+            public boolean isValid(URI redirection) {
+                if (!parent.nodeInScope(redirection.getEscapedURI())) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Skipping redirection out of scan's scope: " + redirection);
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            @Override
+            public void notifyMessageReceived(HttpMessage message) {
+                // Nothing to do with the message.
+            }
+        });
+        requestCount++;
+
         // ZAP: Notify parent
         if (parent != null) {
             parent.notifyNewMessage(msg);
@@ -468,6 +514,16 @@ public class Analyser {
 
     public void setDelayInMs(int delayInMs) {
         this.delayInMs = delayInMs;
+    }
+
+    /**
+     * Gets the request count, sent (and received) during the analysis.
+     *
+     * @return the request count
+     * @since 2.5.0
+     */
+    public int getRequestCount() {
+        return requestCount;
     }
 
 }

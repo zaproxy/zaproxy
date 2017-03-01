@@ -38,6 +38,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * Reads:
  * <ul>
  * <li>name;</li>
+ * <li>status (since TODO add version);</li>
  * <li>version;</li>
  * <li>semver;</li>
  * <li>description;</li>
@@ -91,6 +92,7 @@ public abstract class BaseZapAddOnXmlData {
     private static final Logger LOGGER = Logger.getLogger(BaseZapAddOnXmlData.class);
 
     private static final String NAME_ELEMENT = "name";
+    private static final String STATUS = "status";
     private static final String VERSION_ELEMENT = "version";
     private static final String SEM_VER_ELEMENT = "semver";
     private static final String DESCRIPTION_ELEMENT = "description";
@@ -113,8 +115,13 @@ public abstract class BaseZapAddOnXmlData {
     private static final String EXTENSIONS_V1_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT + "[@v='1']";
     private static final String EXTENSION_CLASS_NAME = "classname";
     private static final String EXTENSION_DEPENDENCIES = DEPENDENCIES_ELEMENT + "/" + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
+    private static final String CLASSNAMES_ALLOWED_ELEMENT = "allowed";
+    private static final String CLASSNAMES_ALLOWED_ALL_ELEMENTS = "classnames/" + CLASSNAMES_ALLOWED_ELEMENT;
+    private static final String CLASSNAMES_RESTRICTED_ELEMENT = "restricted";
+    private static final String CLASSNAMES_RESTRICTED_ALL_ELEMENTS = "classnames/" + CLASSNAMES_RESTRICTED_ELEMENT;
 
     private String name;
+    private String status;
     private int packageVersion;
     private Version version;
     private String description;
@@ -123,6 +130,8 @@ public abstract class BaseZapAddOnXmlData {
     private String changes;
 
     private Dependencies dependencies;
+
+    private AddOnClassnames addOnClassnames;
 
     private String notBeforeVersion;
     private String notFromVersion;
@@ -165,6 +174,7 @@ public abstract class BaseZapAddOnXmlData {
     private void readDataImpl(HierarchicalConfiguration zapAddOnXml) {
         name = zapAddOnXml.getString(NAME_ELEMENT, "");
         packageVersion = zapAddOnXml.getInt(VERSION_ELEMENT, 0);
+        status = zapAddOnXml.getString(STATUS, "alpha");
         version = createVersion(zapAddOnXml.getString(SEM_VER_ELEMENT, ""));
         description = zapAddOnXml.getString(DESCRIPTION_ELEMENT, "");
         author = zapAddOnXml.getString(AUTHOR_ELEMENT, "");
@@ -178,6 +188,8 @@ public abstract class BaseZapAddOnXmlData {
 
         extensions = getStrings(zapAddOnXml, EXTENSIONS_ALL_ELEMENTS, EXTENSION_ELEMENT);
         extensionsWithDeps = readExtensionsWithDeps(zapAddOnXml);
+
+        addOnClassnames = readAddOnClassnames(zapAddOnXml);
 
         readAdditionalData(zapAddOnXml);
     }
@@ -201,6 +213,16 @@ public abstract class BaseZapAddOnXmlData {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the status of the add-on, "alpha", "beta" or "release".
+     *
+     * @return the status of the add-on
+     * @since TODO add version
+     */
+    public String getStatus() {
+        return status;
     }
 
     public String getDescription() {
@@ -229,6 +251,10 @@ public abstract class BaseZapAddOnXmlData {
 
     public Dependencies getDependencies() {
         return dependencies;
+    }
+    
+    public AddOnClassnames getAddOnClassnames() {
+        return addOnClassnames;
     }
 
     public String getNotBeforeVersion() {
@@ -335,14 +361,25 @@ public abstract class BaseZapAddOnXmlData {
             }
 
             List<AddOnDep> addOnDeps = readAddOnDependencies(fields);
-            extensionsWithDeps.add(new ExtensionWithDeps(classname, addOnDeps));
+            AddOnClassnames classnames = readAddOnClassnames(extensionNode);
+            extensionsWithDeps.add(new ExtensionWithDeps(classname, addOnDeps, classnames));
         }
 
         return extensionsWithDeps;
     }
 
+    private AddOnClassnames readAddOnClassnames(HierarchicalConfiguration node) {
+        List<String> allowed = getStrings(node, CLASSNAMES_ALLOWED_ALL_ELEMENTS, CLASSNAMES_ALLOWED_ELEMENT);
+        List<String> restricted = getStrings(node, CLASSNAMES_RESTRICTED_ALL_ELEMENTS, CLASSNAMES_RESTRICTED_ELEMENT);
+        if (allowed.isEmpty() && restricted.isEmpty()) {
+            return AddOnClassnames.ALL_ALLOWED;
+        }
+        return new AddOnClassnames(allowed, restricted);
+    }
+
     private void malformedFile(String reason) {
-        throw new IllegalArgumentException("Add-on \"" + name + "\" contains malformed ZapAddOn.xml file, " + reason);
+        throw new IllegalArgumentException(
+                "Add-on \"" + name + "\" contains malformed " + AddOn.MANIFEST_FILE_NAME + " file, " + reason);
     }
 
     public static class Dependencies {
@@ -412,10 +449,12 @@ public abstract class BaseZapAddOnXmlData {
 
         private final String classname;
         private final List<AddOnDep> addOnDependencies;
+        private final AddOnClassnames addOnClassnames;
 
-        public ExtensionWithDeps(String classname, List<AddOnDep> addOnDependencies) {
+        public ExtensionWithDeps(String classname, List<AddOnDep> addOnDependencies, AddOnClassnames addOnClassnames) {
             this.classname = classname;
             this.addOnDependencies = addOnDependencies;
+            this.addOnClassnames = addOnClassnames;
         }
 
         public String getClassname() {
@@ -424,6 +463,10 @@ public abstract class BaseZapAddOnXmlData {
 
         public List<AddOnDep> getDependencies() {
             return addOnDependencies;
+        }
+
+        public AddOnClassnames getAddOnClassnames() {
+            return addOnClassnames;
         }
     }
 }

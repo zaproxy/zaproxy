@@ -26,13 +26,16 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
+// ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2016/09/22 Issue 2886: Support Markdown format
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -44,37 +47,16 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 
     private static final int ARG_LAST_SCAN_REPORT_IDX = 0;
 
-    // ZAP: Changed to support XML reports as well
 	private ZapMenuItem menuItemHtmlReport = null;
+    private ZapMenuItem menuItemMdReport = null;
 	private ZapMenuItem menuItemXmlReport = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
-	// ZAP Added logger
-	private Logger logger = Logger.getLogger(ExtensionReport.class);
 
-    /**
-     * 
-     */
     public ExtensionReport() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionReport(String name) {
-        super(name);
+        super("ExtensionReport");
         this.setOrder(14);
     }
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setName("ExtensionReport");
-			
-	}
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -82,6 +64,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	        //extensionHook.getHookMenu().addNewMenu(getMenuReport());
 	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemHtmlReport());
 	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemXmlReport());
+            extensionHook.getHookMenu().addReportMenuItem(getMenuItemMdReport());
 
 	    }
         extensionHook.addCommandLine(getCommandLineArguments());
@@ -124,6 +107,24 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 		return menuItemXmlReport;
 	}
 	
+    private ZapMenuItem getMenuItemMdReport() {
+        if (menuItemMdReport == null) {
+            menuItemMdReport = new ZapMenuItem("menu.report.md.generate");
+            menuItemMdReport.addActionListener(new java.awt.event.ActionListener() { 
+
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {    
+
+                    ReportLastScan report = new ReportLastScan();
+                    report.generateReport(getView(), getModel(), ReportLastScan.ReportType.MD);
+                    
+                }
+            });
+
+        }
+        return menuItemMdReport;
+    }
+    
     @Override
     public void execute(CommandLineArgument[] args) {
 
@@ -134,10 +135,9 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             String fileName = arg.getArguments().get(0);
             try {
                 report.generate(fileName, getModel(), "xml/report.html.xsl");
-                System.out.println("Last Scan Report generated at " + fileName);
+                CommandLine.info("Last Scan Report generated at " + fileName);
             } catch (Exception e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
+            	CommandLine.error(e.getMessage(), e);
             }
         } else {
             return;
@@ -146,7 +146,8 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
     }
 
     private CommandLineArgument[] getCommandLineArguments() {
-        arguments[ARG_LAST_SCAN_REPORT_IDX] = new CommandLineArgument("-last_scan_report", 1, null, "", "-last_scan_report [file_path]: Generate 'Last Scan Report' into the file_path provided.");
+        arguments[ARG_LAST_SCAN_REPORT_IDX] = new CommandLineArgument("-last_scan_report", 1, null, "", 
+        		Constant.messages.getString("report.cmdline.gen.help"));
         return arguments;
     }
 	

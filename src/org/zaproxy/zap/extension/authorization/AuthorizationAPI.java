@@ -71,7 +71,7 @@ public class AuthorizationAPI extends ApiImplementor {
 		switch (name) {
 		case VIEW_GET_AUTHORIZATION_METHOD:
 			Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-			return context.getAuthorizationDetectionMethod().getApiResponseRepresentation();
+			return new ApiResponseElement(context.getAuthorizationDetectionMethod().getApiResponseRepresentation());
 		default:
 			throw new ApiException(Type.BAD_VIEW);
 		}

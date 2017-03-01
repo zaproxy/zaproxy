@@ -20,6 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +36,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * @author yhawke (2014)
  * @see NameValuePair
  */
-public class ScannerParamFilter {
+public class ScannerParamFilter implements Cloneable {
     private String wildcardedUrl;
     private String paramNameRegex;
     private int paramType;
@@ -138,6 +139,16 @@ public class ScannerParamFilter {
     }
     
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((paramNameRegex == null) ? 0 : paramNameRegex.hashCode());
+        result = prime * result + paramType;
+        result = prime * result + ((wildcardedUrl == null) ? 0 : wildcardedUrl.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof ScannerParamFilter) {
             ScannerParamFilter p = (ScannerParamFilter)obj;
@@ -170,5 +181,15 @@ public class ScannerParamFilter {
     
     public static final String getStringType(int paramType) {
         return typeMap.get(paramType);        
+    }
+
+    /**
+     * Gets the parameter types (IDs and corresponding name).
+     *
+     * @return the parameter types.
+     * @since TODO add version
+     */
+    public static Map<Integer, String> getTypes() {
+        return Collections.unmodifiableMap(typeMap);
     }
 }

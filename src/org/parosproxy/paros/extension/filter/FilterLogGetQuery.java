@@ -25,6 +25,7 @@
 // ZAP: 2012/07/29 Corrected init method and log errors
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2016/06/07 Use ZAP's home filter directory
 
 package org.parosproxy.paros.extension.filter;
 
@@ -32,6 +33,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
@@ -47,6 +49,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 
 public class FilterLogGetQuery extends FilterAdaptor {
 
+    private static final String LOG_FILE = Paths.get(Constant.FOLDER_FILTER, "get.xls").toString();
     private static final String delim = "\t";   
     private static final String CRLF = "\r\n";
     private File outFile;		    
@@ -70,11 +73,11 @@ public class FilterLogGetQuery extends FilterAdaptor {
     
     @Override
     public void init(Model model) {
-     	outFile = new File(getLogFileName());
+     	outFile = new File(Constant.getZapHome(), getLogFileName());
     }
 
     protected String getLogFileName() {
-        return "filter/get.xls";
+        return LOG_FILE;
     }
     
     @Override

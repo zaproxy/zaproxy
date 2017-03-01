@@ -95,7 +95,7 @@ public class SelectMessageLocationsPanel extends HttpPanel implements MessageLoc
     public void removeView(String componentName, String viewName, Object options) {
         for (Iterator<HttpPanelView> it = views.iterator(); it.hasNext();) {
             HttpPanelView httpPanelView = it.next();
-            if (viewName.equals(httpPanelView)) {
+            if (viewName.equals(httpPanelView.getName())) {
                 ((MessageLocationProducer) httpPanelView).removeFocusListener(focusListeners);
                 it.remove();
                 break;

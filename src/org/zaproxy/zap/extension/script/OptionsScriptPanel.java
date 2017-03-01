@@ -44,9 +44,6 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 	private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
 	private OptionsScriptTableModel scriptDirModel = null;
 	
-    /**
-     * 
-     */
     public OptionsScriptPanel(ExtensionScript extension) {
         super();
         this.extension = extension;
@@ -81,13 +78,6 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 	    getScriptDirModel().setTokens(param.getScriptDirs());
 	    tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveDir());
     }
-
-
-    @Override
-    public void validateParam(Object obj) throws Exception {
-
-    }
-
 
     @Override
     public void saveParam(Object obj) throws Exception {

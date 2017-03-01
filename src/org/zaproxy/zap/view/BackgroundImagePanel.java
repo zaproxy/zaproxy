@@ -34,6 +34,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  */
 public class BackgroundImagePanel extends JPanel {
 
+    private static final long serialVersionUID = 1L;
     private BufferedImage img;
 
     /**

@@ -20,6 +20,7 @@
 
 package org.zaproxy.zap.view;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -35,13 +36,8 @@ public class ContextListTableModel extends AbstractTableModel {
 				Constant.messages.getString("context.list.table.name"),
 				Constant.messages.getString("context.list.table.inscope")};
     
-    private List<Object[]> values = null;
+    private List<Object[]> values = Collections.emptyList();
     
-    //private static Logger log = Logger.getLogger(ContextListTableModel.class);
-
-    /**
-     * 
-     */
     public ContextListTableModel() {
         super();
     }

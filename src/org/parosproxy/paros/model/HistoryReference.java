@@ -39,13 +39,22 @@
 // ZAP: 2014/08/14 Issue 1311: Differentiate temporary internal messages from temporary scanner messages
 // ZAP: 2014/12/11 Update the flag webSocketUpgrade sooner to avoid re-reading the message from database
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2016/04/12 Update the SiteNode when deleting alerts
+// ZAP: 2016/05/27 Moved the temporary types to this class
+// ZAP: 2016/05/30 Add new type for CONNECT requests received by the proxy
+// ZAP: 2016/06/15 Add TYPE_SEQUENCE_TEMPORARY
+// ZAP: 2016/06/20 Add TYPE_ZEST_SCRIPT and deprecate TYPE_RESERVED_11
+// ZAP: 2016/08/30 Use a Set instead of a List for the alerts
+// ZAP: 2017/02/07 Add TYPE_SPIDER_AJAX_TEMPORARY.
 
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.httpclient.URI;
@@ -97,20 +106,114 @@ public class HistoryReference {
    // ZAP: Added TYPE_BRUTE_FORCE
    public static final int TYPE_BRUTE_FORCE = 7;
    public static final int TYPE_FUZZER = 8;
-   // ZAP: Added TYPE_SPIDER_TASK for use in spider tasks
+    /**
+     * A (temporary) HTTP message of the spider.
+     * <p>
+     * The type is used to off-load the messages (of resources found but not yet fetched) from the memory.
+     * 
+     * @since 2.0.0
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
    public static final int TYPE_SPIDER_TASK = 9;
-   // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
+
+   /**
+    * A HTTP message sent by the AJAX Spider.
+    * 
+    * @since 2.0.0
+    * @see #TYPE_SPIDER_AJAX_TEMPORARY
+    */
    public static final int TYPE_SPIDER_AJAX = 10;
-   // ZAP: Added TYPE_AUTHENTICATION for use in authentication methods
+    /**
+     * A (temporary) HTTP message that (attempts to) authenticates a {@link org.zaproxy.zap.users.User User}.
+     * 
+     * @since 2.4.0
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
    public static final int TYPE_AUTHENTICATION = 11;
    // ZAP: Added TYPE_ACCESS_CONTROL for use in access control testing methods
    public static final int TYPE_ACCESS_CONTROL = 13;
-   public static final int TYPE_RESERVED_11 = 12;	// Reserved by Psiinon
 
     /**
-     * A HTTP message sent by the (active) scanner which is set as temporary (i.e. deleted when the session is closed).
+     * A HTTP message sent by a Zest script.
+     * <p>
+     * Not all HTTP messages sent by Zest scripts will have this type, some might use the type(s) of the underlying component
+     * (for example, Zest Active Rules will use the types of the active scanner, {@link #TYPE_SCANNER_TEMPORARY} or
+     * {@link #TYPE_SCANNER}).
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_ZEST_SCRIPT = 12;
+
+    /**
+     * @deprecated (TODO add version) Use {@link #TYPE_ZEST_SCRIPT} instead.
+     * @since 2.1.0
+     */
+    @Deprecated
+    public static final int TYPE_RESERVED_11 = TYPE_ZEST_SCRIPT;
+
+    /**
+     * A (temporary) HTTP message sent by the (active) scanner.
+     * 
+     * @since 2.4.0
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
      */
     public static final int TYPE_SCANNER_TEMPORARY = 14;
+
+    /**
+     * The {@code Set} of temporary history types.
+     * 
+     * @see #addTemporaryType(int)
+     * @see #getTemporaryTypes()
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+    private static final Set<Integer> TEMPORARY_HISTORY_TYPES = new HashSet<>();
+
+    /**
+     * The {@code Set} with default temporary history types:
+     * <ul>
+     * <li>{@link #TYPE_TEMPORARY};</li>
+     * <li>{@link #TYPE_SCANNER_TEMPORARY};</li>
+     * <li>{@link #TYPE_AUTHENTICATION};</li>
+     * <li>{@link #TYPE_SPIDER_TASK};</li>
+     * <li>{@link #TYPE_SEQUENCE_TEMPORARY};</li>
+     * <li>{@link #TYPE_SPIDER_AJAX_TEMPORARY};</li>
+     * </ul>
+     * <p>
+     * Persisted messages with temporary types are deleted when the session is closed.
+     * <p>
+     * <strong>Note:</strong> This set does not allow modifications, any attempt to modify it will result in an
+     * {@code UnsupportedOperationException}.
+     * 
+     * @since 2.5.0
+     * @see #getTemporaryTypes()
+     */
+    public static final Set<Integer> DEFAULT_TEMPORARY_HISTORY_TYPES;
+
+    /**
+     * A HTTP CONNECT request received (and processed) by the local proxy.
+     * 
+     * @since 2.5.0
+     */
+    public static final int TYPE_PROXY_CONNECT = 16;
+
+    /**
+     * A (temporary) HTTP message created/used when active scanning sequences.
+     * 
+     * @since TODO add version
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+    public static final int TYPE_SEQUENCE_TEMPORARY = 17;
+
+    /**
+     * A (temporary) HTTP message of the AJAX spider.
+     * <p>
+     * Normally a message that was not processed (i.e. not on spider scope).
+     * 
+     * @since TODO add version
+     * @see #TYPE_SPIDER_AJAX
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+   public static final int TYPE_SPIDER_AJAX_TEMPORARY = 18;
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
@@ -118,6 +221,19 @@ public class HistoryReference {
 	private static TableTag staticTableTag = null;
 	// ZAP: Support for loading alerts from db
 	private static TableAlert staticTableAlert = null;
+
+	static {
+		Set<Integer> defaultHistoryTypes = new HashSet<>();
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_TEMPORARY));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SCANNER_TEMPORARY));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_AUTHENTICATION));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_TASK));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SEQUENCE_TEMPORARY));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY));
+		DEFAULT_TEMPORARY_HISTORY_TYPES = Collections.unmodifiableSet(defaultHistoryTypes);
+
+		TEMPORARY_HISTORY_TYPES.addAll(DEFAULT_TEMPORARY_HISTORY_TYPES);
+	}
 	
 	private int historyId = 0;
 	private int historyType = TYPE_PROXIED;
@@ -130,7 +246,7 @@ public class HistoryReference {
 	private ArrayList<Boolean> clearIfManual = null;
 	
 	// ZAP: Support for linking Alerts to Hrefs
-	private List<Alert> alerts;
+	private Set<Alert> alerts;
 	
 	private List<String> tags = new ArrayList<>();
 	private boolean webSocketUpgrade;
@@ -390,27 +506,19 @@ public class HistoryReference {
    public synchronized boolean addAlert(Alert alert) {
 	   //If this is the first alert
 	   if (alerts == null) {
-		   alerts = new ArrayList<>(1);
+		   alerts = new HashSet<>();
 	   }
 	   
-	   boolean add = true;
-	   
-	   for (Alert a : alerts) {
-		   if (alert.equals(a)) {
-			   // We've already recorded it
-				add = false;
-		   }
-	   }
-	   if (add) {
-		   this.alerts.add(alert);
+	   boolean added = false;
+	   if (alerts.add(alert)) {
 		   alert.setHistoryRef(this);
+		   added = true;
 	   }
 	   // Try to add to the SiteHNode anyway - that will also check if its already added
 	   if (this.siteNode != null) {
 		   siteNode.addAlert(alert);
-	   } else {
 	   }
-	   return add;
+	   return added;
    }
    
    public synchronized void updateAlert(Alert alert) {
@@ -436,6 +544,9 @@ public class HistoryReference {
    public synchronized void deleteAlert(Alert alert) {
 	   if (alerts != null) {
 		   alerts.remove(alert);
+		   if (siteNode != null) {
+		       siteNode.deleteAlert(alert);
+		   }
 	   }
    }
    
@@ -443,6 +554,37 @@ public class HistoryReference {
         if (alerts != null) {
             alerts.clear();
         }
+    }
+
+    /**
+     * Tells whether or not this history reference has the given alert.
+     *
+     * @param alert the alert to check
+     * @return {@code true} if it has the given alert, {@code false} otherwise.
+     * @since TODO add version
+     * @see #hasAlerts()
+     * @see #addAlert(Alert)
+     */
+    public synchronized boolean hasAlert(Alert alert) {
+        if (alerts == null) {
+            return false;
+        }
+        return alerts.contains(alert);
+    }
+
+    /**
+     * Tells whether or not this history reference has alerts.
+     *
+     * @return {@code true} if it has alerts, {@code false} otherwise.
+     * @since TODO add version
+     * @see #hasAlert(Alert)
+     * @see #addAlert(Alert)
+     */
+    public synchronized boolean hasAlerts() {
+        if (alerts == null) {
+            return false;
+        }
+        return !alerts.isEmpty();
     }
 
    public int getHighestAlert() {
@@ -460,18 +602,21 @@ public class HistoryReference {
    }
    
    	/**
-	 * Gets the alerts. If alerts where never added, an empty list will be returned. This list
-	 * should be used as "read-only", not modifying content in the {@link HistoryReference} through
-	 * it.
+	 * Gets the alerts.
+	 * <p>
+	 * If alerts where never added, an unmodifiable empty list is returned, otherwise it's returned a copy of the internal
+	 * collection.
 	 * 
 	 * @return the alerts
+	 * @see #addAlert(Alert)
+	 * @see #hasAlerts()
+	 * @see #hasAlert(Alert)
 	 */
-   public List<Alert> getAlerts() {
-	   if (alerts != null) {
-		   return this.alerts;
-	   } else {
-		   return Collections.emptyList();
+   public synchronized List<Alert> getAlerts() {
+	   if (alerts == null) {
+	       return Collections.emptyList();
 	   }
+	   return new ArrayList<>(this.alerts);
    }
 
 	public String getMethod() {
@@ -538,5 +683,57 @@ public class HistoryReference {
 			}
 		}
 		return requestBody;
+	}
+
+	/**
+	 * Adds the given {@code type} to the set of temporary types.
+	 * <p>
+	 * Persisted messages with temporary types are deleted when the session is closed.
+	 *
+	 * @since 2.5.0
+	 * @param type the history type that will be added
+	 * @see #removeTemporaryType(int)
+	 * @see #getTemporaryTypes()
+	 */
+	public static void addTemporaryType(int type) {
+		synchronized (TEMPORARY_HISTORY_TYPES) {
+			TEMPORARY_HISTORY_TYPES.add(Integer.valueOf(type));
+		}
+	}
+
+	/**
+	 * Removes the given {@code type} from the set of temporary types.
+	 * <p>
+	 * Attempting to remove a default temporary type has no effect.
+	 * 
+	 * @since 2.5.0
+	 * @param type the history type that will be removed
+	 * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+	 * @see #addTemporaryType(int)
+	 * @see #getTemporaryTypes()
+	 */
+	public static void removeTemporaryType(int type) {
+		Integer typeInteger = Integer.valueOf(type);
+		if (DEFAULT_TEMPORARY_HISTORY_TYPES.contains(typeInteger)) {
+			return;
+		}
+		synchronized (TEMPORARY_HISTORY_TYPES) {
+			TEMPORARY_HISTORY_TYPES.remove(typeInteger);
+		}
+	}
+
+	/**
+	 * Gets the temporary history types.
+	 * <p>
+	 * Persisted messages with temporary types are deleted when the session is closed.
+	 *
+	 * @return a {@code Set} with the temporary history types
+	 * @see #addTemporaryType(int)
+	 * @see #removeTemporaryType(int)
+	 */
+	public static Set<Integer> getTemporaryTypes() {
+		synchronized (TEMPORARY_HISTORY_TYPES) {
+			return new HashSet<>(TEMPORARY_HISTORY_TYPES);
+		}
 	}
 }

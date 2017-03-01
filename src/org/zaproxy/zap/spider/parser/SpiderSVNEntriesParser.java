@@ -32,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.htmlparser.jericho.Source;
@@ -45,6 +44,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.XmlUtils;
 
 /**
  * The Class SpiderSVNEntriesParser is used for parsing SVN metadata, inclusing SVN "entries" and "wc.db" files.
@@ -71,18 +71,14 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 	private SpiderParam params;
 	
 	/** used to parse the XML based .svn/entries file format */ 
-	private static DocumentBuilderFactory dbFactory;
-	
-	/** used to parse the XML based .svn/entries file format */ 
 	private static DocumentBuilder dBuilder;
 
 	private Pattern SVN_ENTRIES_FILE_PATTERN = Pattern.compile("/\\.svn/entries$|/\\.svn/wc.db$");
 	
-	/** statically initialise the XML DocumentBuilderFactory and DocumentBuilder */
+	/** statically initialise the XML DocumentBuilder */
 	static {
-		dbFactory = DocumentBuilderFactory.newInstance();
 		try {
-			dBuilder = dbFactory.newDocumentBuilder();
+			dBuilder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			log.error(e);
 		}

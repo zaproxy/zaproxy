@@ -1,3 +1,7 @@
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 // This authentication script can be used to authenticate in a webapplication via forms.
 // The submit target for the form, the name of the username field, the name of the password field
 // and, optionally, any extra POST Data fields need to be specified after loading the script.

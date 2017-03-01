@@ -50,6 +50,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.SyntaxMenu;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.HighlightSearchEntry;
 import org.zaproxy.zap.view.HighlighterManager;
 
@@ -122,6 +123,9 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		setCloseCurlyBraces(false);
 		setCloseMarkupTags(false);
 		setClearWhitespaceLinesEnabled(false);
+		
+		// Correct the font size
+		this.setFont(FontUtils.getFont(this.getFont().getFontName()));
 		
 		initHighlighter();
 	}

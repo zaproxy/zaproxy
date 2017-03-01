@@ -20,12 +20,18 @@
  */
  // ZAP: 2012/04/25 Changed the type of the parameter "panel" of the method
  // addSessionPanel.
+// ZAP: 2016/04/08 Allow to add ContextPanelFactory
+// ZAP: 2017/02/19 Allow to add components to the main tool bar.
 package org.parosproxy.paros.extension;
 
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.view.ContextPanelFactory;
 
 public class ExtensionHookView {
 
@@ -35,6 +41,26 @@ public class ExtensionHookView {
     private Vector<AbstractParamPanel> sessionPanelList = new Vector<>();
     private Vector<AbstractParamPanel> optionPanelList = new Vector<>();
     
+    /**
+     * The {@link ContextPanelFactory}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addContextPanelFactory(ContextPanelFactory)
+     * @see #getContextPanelFactories()
+     */
+    private List<ContextPanelFactory> contextPanelFactories;
+
+    /**
+     * The {@link Component}s added to this extension hook, to be later added to the main tool bar panel.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addMainToolBarComponent(Component)
+     * @see #getMainToolBarComponents()
+     */
+    private List<Component> mainToolBarComponents;
+
     public ExtensionHookView() {
     }
     
@@ -80,4 +106,64 @@ public class ExtensionHookView {
         return optionPanelList;
     }
     
+    /**
+     * Adds the given {@link ContextPanelFactory} to the view hook, to be later added to the
+     * {@link org.parosproxy.paros.view.View View}.
+     * <p>
+     * By default, the {@code ContextPanelFactory}s added are removed from the {@code View} when the extension is unloaded.
+     *
+     * @param contextPanelFactory the {@code ContextPanelFactory} that will be added to the {@code View}
+     * @since 2.5.0
+     */
+    public void addContextPanelFactory(ContextPanelFactory contextPanelFactory) {
+        if (contextPanelFactories == null) {
+            contextPanelFactories = new ArrayList<>();
+        }
+        contextPanelFactories.add(contextPanelFactory);
+    }
+
+    /**
+     * Gets the {@link ContextPanelFactory}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ContextPanelFactory}s, never {@code null}.
+     * @since 2.5.0
+     */
+    List<ContextPanelFactory> getContextPanelFactories() {
+        if (contextPanelFactories == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(contextPanelFactories);
+    }
+
+    /**
+     * Adds the given {@link Component} (usually {@link javax.swing.JButton JButton}, {@link javax.swing.JToggleButton
+     * JToggleButton}, {@link javax.swing.JToolBar.Separator JToolBar.Separator}) to the view hook, to be later added to the
+     * main tool bar panel.
+     * <p>
+     * By default, the {@code Component}s added are removed from the main tool bar panel when the extension is unloaded.
+     *
+     * @param component the {@code component} that will be added to the main tool bar panel
+     * @since TODO add version
+     * @see org.zaproxy.zap.view.MainToolbarPanel#addToolBarComponent(Component)
+     * @see org.zaproxy.zap.view.MainToolbarPanel#removeToolBarComponent(Component)
+     */
+    public void addMainToolBarComponent(Component component) {
+        if (mainToolBarComponents == null) {
+            mainToolBarComponents = new ArrayList<>();
+        }
+        mainToolBarComponents.add(component);
+    }
+
+    /**
+     * Gets the {@link Component}s added to this hook, for the main tool bar panel.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code Component}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<Component> getMainToolBarComponents() {
+        if (mainToolBarComponents == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(mainToolBarComponents);
+    }
 }

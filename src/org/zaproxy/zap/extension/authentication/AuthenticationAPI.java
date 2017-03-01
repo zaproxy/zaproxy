@@ -43,7 +43,8 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ApiUtils;
 
 /**
- * The API for manipulating the {@link Authentication} for {@link Context Contexts}.
+ * The API for manipulating the {@link org.zaproxy.zap.authentication.AuthenticationMethod AuthenticationMethod} for
+ * {@link Context Contexts}.
  */
 public class AuthenticationAPI extends ApiImplementor {
 
@@ -141,19 +142,24 @@ public class AuthenticationAPI extends ApiImplementor {
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
 
+		Context context;
 		switch (name) {
 		case ACTION_SET_LOGGED_IN_INDICATOR:
 			String loggedInIndicator = params.getString(PARAM_LOGGED_IN_INDICATOR);
 			if (loggedInIndicator == null || loggedInIndicator.isEmpty())
 				throw new ApiException(Type.MISSING_PARAMETER, PARAM_LOGGED_IN_INDICATOR);
-			getContext(params).getAuthenticationMethod().setLoggedInIndicatorPattern(loggedInIndicator);
+			context = getContext(params);
+			context.getAuthenticationMethod().setLoggedInIndicatorPattern(loggedInIndicator);
+			context.save();
 			return ApiResponseElement.OK;
 
 		case ACTION_SET_LOGGED_OUT_INDICATOR:
 			String loggedOutIndicator = params.getString(PARAM_LOGGED_OUT_INDICATOR);
 			if (loggedOutIndicator == null || loggedOutIndicator.isEmpty())
 				throw new ApiException(Type.MISSING_PARAMETER, PARAM_LOGGED_OUT_INDICATOR);
-			getContext(params).getAuthenticationMethod().setLoggedOutIndicatorPattern(loggedOutIndicator);
+			context = getContext(params);
+			context.getAuthenticationMethod().setLoggedOutIndicatorPattern(loggedOutIndicator);
+			context.save();
 			return ApiResponseElement.OK;
 
 		case ACTION_SET_METHOD:
@@ -163,9 +169,11 @@ public class AuthenticationAPI extends ApiImplementor {
 				actionParams = API.getParams(params.getString(PARAM_METHOD_CONFIG_PARAMS));
 			else
 				actionParams = new JSONObject();
-			actionParams.put(PARAM_CONTEXT_ID, getContextId(params));
+			context = getContext(params);
+			actionParams.put(PARAM_CONTEXT_ID, context.getIndex());
 			// Run the method
 			getSetMethodActionImplementor(params).handleAction(actionParams);
+			context.save();
 			return ApiResponseElement.OK;
 		default:
 			throw new ApiException(Type.BAD_ACTION);

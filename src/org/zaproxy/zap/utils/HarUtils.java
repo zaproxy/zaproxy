@@ -207,7 +207,7 @@ public final class HarUtils {
         HarCookies harCookies = new HarCookies();
 
         long whenCreated = System.currentTimeMillis();
-        for (HttpCookie cookie : responseHeader.getHttpCookies()) {
+        for (HttpCookie cookie : responseHeader.getHttpCookies(httpMessage.getRequestHeader().getHostName())) {
             Date expires;
             if (cookie.getVersion() == 0) {
                 expires = new Date(whenCreated + (cookie.getMaxAge() * 1000));

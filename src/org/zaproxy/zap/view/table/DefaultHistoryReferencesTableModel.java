@@ -26,6 +26,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.swing.event.TableModelEvent;
+
 import org.parosproxy.paros.model.HistoryReference;
 
 /**
@@ -135,6 +137,24 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
             fireTableRowsUpdated(rowIndex, rowIndex);
         }
+    }
+
+    public void refreshEntryRows() {
+        if (hrefList.isEmpty()) {
+            return;
+        }
+
+        for (DefaultHistoryReferencesTableEntry entry : hrefList) {
+            entry.refreshCachedValues();
+        }
+
+        fireTableChanged(
+                new TableModelEvent(
+                        this,
+                        0,
+                        hrefList.size() - 1,
+                        getColumnIndex(Column.HIGHEST_ALERT),
+                        TableModelEvent.UPDATE));
     }
 
     @Override

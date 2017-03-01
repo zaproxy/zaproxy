@@ -32,30 +32,8 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuRemoveAntiCSRF() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuRemoveAntiCSRF(String label) {
-        super(label);
-    }
-
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
-
-    /**
-	 * This method initialises this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("params.anticrsf.remove.popup"));
+        super(Constant.messages.getString("params.anticrsf.remove.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
@@ -68,9 +46,16 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
 			
 	}
 
+	public void setExtension(ExtensionParams extension) {
+		this.extension = extension;
+	}
+
     @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
+            if (!extension.getParamsPanel().isOnlyOneParamSelected()) {
+                return false;
+            }
         	
         	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
         	// Note that only form params are currently supported

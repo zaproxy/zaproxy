@@ -113,7 +113,6 @@ public class MultipartParam {
       * <code>String<code>
       * array with elements: disposition, name, filename.
       *
-      * @return String[] of elements: disposition, name, filename.
       * @exception IOException if the line is malformatted.
       */
     private void extractDispositionInfo(String line) throws IOException {

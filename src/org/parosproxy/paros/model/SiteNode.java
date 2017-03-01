@@ -44,21 +44,33 @@
 // ZAP: 2014/11/19 Issue 1412: Prevent ConcurrentModificationException when icons updated frequently
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/04/02 Issue 1582: Low memory option
+// ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/03/24 Do not access EDT in daemon mode
+// ZAP: 2016/04/12 Notify of changes when an alert is updated
+// ZAP: 2016/08/30 Use a Set instead of a List for the alerts
+// ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.SessionStructure;
 
 public class SiteNode extends DefaultMutableTreeNode {
 
@@ -70,7 +82,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
 	// ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-	private ArrayList<Alert> alerts = new ArrayList<>();
+	private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<Alert>());
 	private boolean justSpidered = false;
 	//private boolean justAJAXSpidered = false;
 	private ArrayList<String> icons = null;
@@ -80,11 +92,28 @@ public class SiteNode extends DefaultMutableTreeNode {
     private boolean isIncludedInScope = false;
     private boolean isExcludedFromScope = false;
     private boolean filtered = false;
-	
+    private boolean dataDriven = false;
+
+    /**
+     * Flag that indicates whether or not the {@link #calculateHighestAlert() highest alert needs to be calculated}, when
+     * {@link #appendIcons(StringBuilder) building the string representation}.
+     */
+    private boolean calculateHighestAlert;
+
+    /**
+     * The {@code Alert} with highest risk (and not a false positive).
+     * 
+     * @see #isHighestAlert(Alert)
+     */
+    private Alert highestAlert;
+
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
 		this.nodeName = nodeName;
+		if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
+			this.dataDriven = true; 
+		}
 		this.icons = new ArrayList<>();
 		this.clearIfManual = new ArrayList<>();
 		if (type == HistoryReference.TYPE_SPIDER) {
@@ -93,8 +122,9 @@ public class SiteNode extends DefaultMutableTreeNode {
 	}
     
     public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
-    	synchronized (this.icons) {  
-    		this.icons = i;
+    	synchronized (this.icons) {
+    		this.icons.clear();
+    		this.icons.addAll(i);
     		this.clearIfManual = c;
     	}
     }
@@ -119,46 +149,75 @@ public class SiteNode extends DefaultMutableTreeNode {
 	    	}
     	}
     }
+
+    /**
+     * Gets any custom icons that have been set for this node
+     * @return any custom icons that have been set for this node
+     * @since TODO add version
+     */
+    public List<ImageIcon> getCustomIcons() {
+        List<ImageIcon> iconList = new ArrayList<ImageIcon>();
+        if (justSpidered) {
+            iconList.add(new ImageIcon(Constant.class.getResource("/resource/icon/10/spider.png")));
+        }
+        synchronized (this.icons) {  
+            if (!this.icons.isEmpty()) {
+                for(String icon : this.icons) {
+                    iconList.add(new ImageIcon(Constant.class.getResource(icon)));
+                }
+            }
+        }
+        return iconList;
+    }
+
+    /**
+     * Calculates the highest alert.
+     * <p>
+     * After a call to this method the {@link #highestAlert} will have the highest alert (or {@code null} if none) and the flag
+     * {@link #calculateHighestAlert} will have the value {@code false}.
+     * 
+     * @see #isHighestAlert(Alert)
+     */
+    private void calculateHighestAlert() {
+        synchronized (alerts) {
+            highestAlert = null;
+            for (Alert alert : alerts) {
+                if (isHighestAlert(alert)) {
+                    highestAlert = alert;
+                }
+            }
+            calculateHighestAlert = false;
+        }
+    }
+
+    /**
+     * Tells whether or not the given alert is the alert with highest risk than the current highest alert.
+     * <p>
+     * {@link Alert#CONFIDENCE_FALSE_POSITIVE False positive alerts} are ignored.
+     *
+     * @param alert the alert to check
+     * @return {@code true} if it's the alert with highest risk, {@code false} otherwise.
+     */
+    private boolean isHighestAlert(Alert alert) {
+        if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
+            return false;
+        }
+        if (highestAlert == null) {
+            return true;
+        }
+        return alert.getRisk() > highestAlert.getRisk();
+    }
     
-    private void appendIcons(StringBuilder sb) {
-    	int highestRisk = -1;
-    	Alert highestAlert = null;
-    	for (Alert alert : this.getAlerts()) {
-    		if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE && alert.getRisk() > highestRisk) {
-    			highestRisk = alert.getRisk();
-    			highestAlert = alert;
-    		}
-    	}
-    	if (highestAlert != null) {
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(highestAlert.getIconUrl());
-    		sb.append("\">&nbsp;");
-    	}
-    	if (justSpidered) {
-        	sb.append("&nbsp;<img src=\"");
-        	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
-        	sb.append("\">&nbsp;");
-    	}
-    	synchronized (this.icons) {  
-	    	if (!this.icons.isEmpty()) {
-	    		for(String icon : this.icons) {
-	    			sb.append("&nbsp;<img src=\"");
-	    			sb.append(Constant.class.getResource(icon));
-	    			sb.append("\">&nbsp;");
-	    		}
-	    	}
-    	}
+    public Alert getHighestAlert() {
+        return this.highestAlert;
     }
     
     @Override
     public String toString() {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("<html><body>");
-    	appendIcons(sb);
-    	sb.append(StringEscapeUtils.escapeHtml(nodeName));
-    	sb.append("</body></html>");
-    	
-    	return sb.toString();
+        if (calculateHighestAlert) {
+            calculateHighestAlert();
+        }
+        return nodeName;
     }
     
     public boolean isParentOf (String nodeName) {
@@ -171,37 +230,60 @@ public class SiteNode extends DefaultMutableTreeNode {
     public String getNodeName() {
     	return this.nodeName;
     }
-    
+
+    public String getCleanNodeName() {
+    	return getCleanNodeName(true);
+    }
+
+    public String getCleanNodeName(boolean specialNodesAsRegex) {
+    	String name = this.getNodeName();
+    	if (specialNodesAsRegex && this.isDataDriven()) {
+    		// Non-greedy regex pattern 
+			name = "(.+?)";
+
+    	} else if (this.isLeaf()) {
+    		int colonIndex = name.indexOf(":");
+    		if (colonIndex > 0) {
+    			// Strip the GET/POST etc off
+    			name = name.substring(colonIndex+1);
+    		}
+    		int bracketIndex = name.lastIndexOf("(");
+    		if (bracketIndex > 0) {
+    			// Strip the param summary off
+    			name = name.substring(0, bracketIndex);
+    		}
+    		int quesIndex = name.indexOf("?");
+    		if (quesIndex > 0) {
+    			// Strip the parameters off
+    			name = name.substring(0, quesIndex);
+    		}
+    	}
+    	return name;
+    }
+
     public String getHierarchicNodeName() {
-		if (hierarchicNodeName != null) {
+    	return getHierarchicNodeName(true);
+    }
+
+    public String getHierarchicNodeName(boolean specialNodesAsRegex) {
+		if (hierarchicNodeName != null && specialNodesAsRegex) {
+			// The regex version is used most frequently, so cache
 			return hierarchicNodeName;
 		}
 
     	if (this.isRoot()) {
     		hierarchicNodeName = "";
-    	} else if (((SiteNode)this.getParent()).isRoot()) {
+    	} else if (this.getParent().isRoot()) {
     		hierarchicNodeName = this.getNodeName();
     	} else {
-	    	String nodeName = this.getNodeName();
-	    	if (this.isLeaf()) {
-	    		// Need to clean up
-	    		int colonIndex = nodeName.indexOf(":");
-	    		if (colonIndex > 0) {
-	    			// Strip the GET/POST etc off
-	    			nodeName = nodeName.substring(colonIndex+1);
-	    		}
-	    		int bracketIndex = nodeName.indexOf("(");
-	    		if (bracketIndex > 0) {
-	    			// Strip the param summary off
-	    			nodeName = nodeName.substring(0, bracketIndex);
-	    		}
-	    		int quesIndex = nodeName.indexOf("?");
-	    		if (quesIndex > 0) {
-	    			// Strip the parameters off
-	    			nodeName = nodeName.substring(0, quesIndex);
-	    		}
-	    	}
-	    	hierarchicNodeName = ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
+    		String name = 
+        			this.getParent().getHierarchicNodeName(specialNodesAsRegex) + "/" + 
+        					this.getCleanNodeName(specialNodesAsRegex);
+    		if (!specialNodesAsRegex) {
+    			// Dont cache the non regex version
+    			return name;
+    		}
+    		hierarchicNodeName = name;
     	}
     	return hierarchicNodeName;
     }
@@ -260,7 +342,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     }    
     
     private void nodeChanged() {
-    	if (this.siteMap == null) {
+    	if (this.siteMap == null || !View.isInitialised()) {
     		return;
     	}
         if (EventQueue.isDispatchThread()) {
@@ -288,22 +370,24 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public boolean hasAlert(Alert alert) {
-		for (Alert a : this.getAlerts()) {
-			   if (a.equals(alert)) {
-				   // We've already recorded it
-				   return true;
-			   }
-		}
-    	return false;
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
+    	return alerts.contains(alert);
     }
     
     public void addAlert(Alert alert) {
-    	if (this.hasAlert(alert)) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
+    	if (!this.alerts.add(alert)) {
     		return;
     	}
-    	this.alerts.add(alert);
-    	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
- 			((SiteNode)this.getParent()).addAlert(alert);
+    	if (isHighestAlert(alert)) {
+    		highestAlert = alert;
+    	}
+    	if (this.getParent() != null) {
+ 			this.getParent().addAlert(alert);
     	}
     	if (this.siteMap != null) {
     		// Adding alert might affect the nodes visibility in a filtered tree
@@ -313,32 +397,45 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void updateAlert(Alert alert) {
-		Alert foundAlert = null;
-		for (Alert a : this.getAlerts()) {
-			if (a.getAlertId() == alert.getAlertId()) {
-				// Do the work outside of the loop to prevent a concurrent mod exception
-				foundAlert = a;
-				break;
-			}
-		}
-		if (foundAlert != null) {
-			this.alerts.remove(foundAlert);
-			this.alerts.add(alert);
-		 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-		 		((SiteNode)this.getParent()).updateAlert(alert);
-		 	}
-	    	if (this.siteMap != null) {
-	    		// Updating an alert might affect the nodes visibility in a filtered tree
-	    		siteMap.applyFilter(this);
-	    	}
-		
-		}
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
+    	boolean updated = false;
+    	synchronized (alerts) {
+            for (Iterator<Alert> it = alerts.iterator(); it.hasNext();) {
+                if (it.next().getAlertId() == alert.getAlertId()) {
+                    it.remove();
+                    updated = true;
+                    this.alerts.add(alert);
+                    setCalculateHighestAlertIfSameAlert(alert);
+                    break;
+                }
+            }
+        }
+
+        if (updated) {
+            if (this.getParent() != null) {
+                this.getParent().updateAlert(alert);
+            }
+            if (this.siteMap != null) {
+                // Updating an alert might affect the nodes visibility in a filtered tree
+                siteMap.applyFilter(this);
+            }
+            this.nodeChanged();
+        }
     }
     
-    @SuppressWarnings("unchecked")
-	public List<Alert> getAlerts() {
-    	// This is a shallow copy, but prevents a ConcurrentModificationException
- 	   return (List<Alert>) this.alerts.clone();
+    /**
+     * Gets the alerts of the node.
+     * <p>
+     * The returned {@code List} is a copy of the internal collection.
+     *
+     * @return a new {@code List} containing the {@code Alert}s
+     */
+    public List<Alert> getAlerts() {
+        synchronized (alerts) {
+            return new ArrayList<>(alerts);
+        }
     }
     
     private void clearChildAlert (Alert alert, SiteNode child) {
@@ -359,17 +456,28 @@ public class SiteNode extends DefaultMutableTreeNode {
 	    		c = (SiteNode) this.getChildAfter(c);
 	    	}
 		}
-	 	if (removed && this.getParent() != null && this.getParent() instanceof SiteNode) {
-	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
+	 	if (removed) {
+	 	    setCalculateHighestAlertIfSameAlert(alert);
+	 	    nodeChanged();
+	 	    if (this.getParent() != null) {
+	 	        this.getParent().clearChildAlert(alert, this);
+	 	    }
 	 	}
     }
 
 	public void deleteAlert(Alert alert) {
-		alerts.remove(alert);
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
+		if (!alerts.remove(alert)) {
+			return;
+		}
+
+		setCalculateHighestAlertIfSameAlert(alert);
 		
 		// Remove from parents, if not in siblings
-	 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
+	 	if (this.getParent() != null) {
+	 		this.getParent().clearChildAlert(alert, this);
 	 	}
     	if (this.siteMap != null) {
     		// Deleting alert might affect the nodes visibility in a filtered tree
@@ -378,17 +486,31 @@ public class SiteNode extends DefaultMutableTreeNode {
 		this.nodeChanged();
 	}
 	
+    /**
+     * Sets whether or not the highest alert needs to be calculated, based on the given alert.
+     * <p>
+     * The highest alert needs to be calculated if the given alert is the highest alert.
+     *
+     * @param alert the alert to check
+     */
+    private void setCalculateHighestAlertIfSameAlert(Alert alert) {
+        if (highestAlert != null && highestAlert.getAlertId() == alert.getAlertId()) {
+            calculateHighestAlert = true;
+            highestAlert = null;
+        }
+    }
+
     public void deleteAlerts(List<Alert> alerts) {
-        List<Alert> alertsToRemove = new ArrayList<>(alerts);
-        if (this.alerts.removeAll(alertsToRemove)) {
+        if (this.alerts.removeAll(alerts)) {
             // Remove from parents, if not in siblings
-            if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-                ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
+            if (this.getParent() != null) {
+                this.getParent().clearChildAlerts(alerts);
             }
         	if (this.siteMap != null) {
         		// Deleting alerts might affect the nodes visibility in a filtered tree
         		siteMap.applyFilter(this);
         	}
+        	calculateHighestAlert = true;
             this.nodeChanged();
         }
     }
@@ -422,8 +544,9 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         boolean changed = this.alerts.removeAll(alertsToRemove);
         if (changed) {
-            if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-                ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
+            calculateHighestAlert = true;
+            if (this.getParent() != null) {
+                this.getParent().clearChildAlerts(alertsToRemove);
             }
             nodeChangedEventHandler();
         }
@@ -512,11 +635,25 @@ public class SiteNode extends DefaultMutableTreeNode {
 		super.setParent(newParent);
 	}
 
+    /**
+     * Returns this node's parent or null if this node has no parent.
+     *
+     * @return  this node's parent SiteNode, or null if this node has no parent
+     */
+	@Override
+    public SiteNode getParent() {
+        return (SiteNode)super.getParent();
+    }
+
 	public boolean isFiltered() {
 		return filtered;
 	}
 
 	protected void setFiltered(boolean filtered) {
 		this.filtered = filtered;
+	}
+
+	public boolean isDataDriven() {
+		return dataDriven;
 	}
 }

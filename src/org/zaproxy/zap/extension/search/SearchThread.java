@@ -127,7 +127,8 @@ public class SearchThread extends Thread {
             }
 
 			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryIdsOfHistType(session.getSessionId(),
-							HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER, HistoryReference.TYPE_SPIDER);
+							HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER, HistoryReference.TYPE_SPIDER,
+							HistoryReference.TYPE_SPIDER_AJAX);
 			int last = list.size();
 			int currentRecordId = 0;
 			for (int index=0;index < last;index++){

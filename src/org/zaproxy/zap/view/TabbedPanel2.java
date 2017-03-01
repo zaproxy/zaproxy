@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -35,8 +36,8 @@ public class TabbedPanel2 extends TabbedPanel {
 	private List<Component> fullTabList = new ArrayList<>();
 	private List<Component> removedTabList = new ArrayList<>();
 
-	private static final Icon PLUS_ICON = new ImageIcon(
-			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png"));
+	private static final Icon PLUS_ICON = DisplayUtils.getScaledIcon(new ImageIcon(
+			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png")));
 
 	// A fake component that never actually get displayed - used for the 'hidden tab list tab'
 	private Component hiddenComponent = new JLabel();
@@ -103,13 +104,17 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 	
 	/**
-     * Returns a clone of the TabbedPanel2 object.
-     * @param tabbedPabel
-   	 */
+	 * Clones the given tabbed panel.
+	 * 
+	 * @param tabbedPanel the tabbed panel to clone
+	 * @return the cloned tabbed panel
+	 * @deprecated (2.5.0) The implementation is not correct, not all state is correctly cloned.
+	 */
+	@Deprecated
 	public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
 		TabbedPanel2 t = new TabbedPanel2();
-		t.fullTabList = tabbedPanel.fullTabList;
-		t.removedTabList = tabbedPanel.removedTabList;
+		t.fullTabList = new ArrayList<>(tabbedPanel.fullTabList);
+		t.removedTabList = new ArrayList<>(tabbedPanel.removedTabList);
 		return t;
 	}
 	
@@ -147,9 +152,10 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 
 	/**
-	 * Returns a name save to be used in the XML config file
-	 * @param str
-	 * @return
+	 * Returns a name safe to be used in the XML config file.
+	 * 
+	 * @param str the name to be made safe
+	 * @return a name safe to be used in XML
 	 */
 	private String safeName(String str) {
 		return str.replaceAll("[^A-Za-z0-9]", "");
@@ -197,7 +203,7 @@ public class TabbedPanel2 extends TabbedPanel {
 				if (c instanceof AbstractPanel) {
 					// Dont use the addTab(AbstractPanel) methods as we need to force visibility
 					AbstractPanel panel = (AbstractPanel)c;
-					this.addTab(c.getName(), panel.getIcon(), panel, true, true, panel.getTabIndex());
+					this.addTab(c.getName(), panel.getIcon(), panel, panel.isHideable(), true, panel.getTabIndex());
 				} else {
 					// Work out the index to add it back in
 					int index = this.fullTabList.indexOf(c);
@@ -265,9 +271,16 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		if (! visible) {
 			setVisible(c, false);
+		} else {
+			this.removedTabList.remove(c);
 		}
 
 		handleHiddenTabListTab();
+
+		if ((index == 0 || getTabCount() == 1) && indexOfComponent(c) != -1) {
+			// Its now the first one, give it focus
+			setSelectedComponent(c);
+		}
 	}
 
 	private void handleHiddenTabListTab() {
@@ -282,10 +295,12 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 	
 	/**
-	 * Temporarily lock/unlock the specified tab, eg if its active and mustnt be closed.
-	 * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed 
-	 * @param panel
-	 * @param hideable
+	 * Temporarily locks/unlocks the specified tab, eg if its active and mustn't be closed.
+	 * <p>
+	 * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed.
+	 * 
+	 * @param panel the panel being changed
+	 * @param lock {@code true} if the panel should be locked, {@code false} otherwise.
 	 */
 	public void setTabLocked(AbstractPanel panel, boolean lock) {
         for (int i = 0; i < this.getTabCount(); i++) {
@@ -349,9 +364,21 @@ public class TabbedPanel2 extends TabbedPanel {
 		}
 	}
 
+	@Override
+	public void removeAll() {
+		super.removeAll();
+
+		removedTabList.clear();
+		removedTabList.addAll(fullTabList);
+
+		handleHiddenTabListTab();
+	}
+
   /**
-   * Toggle tab names to enable/disable tab name: used with Tools - Options - Display -
-   * "Show tab names". 
+   * Sets whether or not the tab names should be shown.
+   * 
+   * @param showTabNames {@code true} if the tab names should be shown, {@code false} otherwise.
+   * @since 2.4.0
    */
   public void setShowTabNames(boolean showTabNames) {
         for (int i = 0; i < getTabCount(); i++) {
@@ -382,9 +409,113 @@ public class TabbedPanel2 extends TabbedPanel {
      * Returns true if the tab is 'active' - ie is being used for anything. 
      * This method always returns false so must be overriden to be changed
      * 
-     * @return
+     * @return {@code true} if the tab is active, {@code false} otherwise
      */
     public boolean isActive() {
     	return false;
     }
+
+    /**
+     * Gets all the {@code AbstractPanel}s.
+     *
+     * @return a {@code List} containing all the panels
+     * @since 2.5.0
+     * @see #getVisiblePanels()
+     */
+    public List<AbstractPanel> getPanels() {
+        List<AbstractPanel> panels = new ArrayList<>();
+        for (Component component : fullTabList) {
+            if (component instanceof AbstractPanel) {
+                panels.add((AbstractPanel) component);
+            }
+        }
+        return panels;
+    }
+
+    /**
+     * Gets all the {@code AbstractPanel}s that are currently visible.
+     *
+     * @return a {@code List} containing all the visible panels
+     * @since 2.5.0
+     * @see #getPanels()
+     */
+    public List<AbstractPanel> getVisiblePanels() {
+        List<AbstractPanel> panels = getPanels();
+        for (Iterator<AbstractPanel> it = panels.iterator(); it.hasNext();) {
+            if (removedTabList.contains(it.next())) {
+                it.remove();
+            }
+        }
+        return panels;
+    }
+
+    /**
+     * Sets the given {@code panels} as visible, while hiding the remaining panels.
+     * <p>
+     * Any panel that cannot be hidden (per {@link AbstractPanel#isHideable()} and {@link AbstractPanel#isPinned()}) will still
+     * be shown, even if the panel was not in the given {@code panels}, moreover {@code panels} that are not currently added to
+     * this tabbed panel are ignored.
+     *
+     * @param panels the panels that should be visible
+     * @since 2.5.0
+     * @see #getVisiblePanels()
+     */
+    public void setVisiblePanels(List<AbstractPanel> panels) {
+        removeAll();
+
+        for (Component component : fullTabList) {
+            if (panels.contains(component)) {
+                setVisible(component, true);
+            } else if (component instanceof AbstractPanel) {
+                AbstractPanel ap = (AbstractPanel) component;
+                if (!canHidePanel(ap)) {
+                    setVisible(component, true);
+                }
+            }
+        }
+
+        if (getSelectedComponent() == null && getTabCount() > 0) {
+            setSelectedIndex(0);
+        }
+    }
+
+    /**
+     * Sets whether or not the panels should be visible.
+     * <p>
+     * {@link AbstractPanel#isHideable() Non-hideable} and {@link AbstractPanel#isPinned() pinned} panels are not affected by
+     * this call, when set to not be visible.
+     *
+     * @param visible {@code true} if all panels should be visible, {@code false} otherwise.
+     * @since 2.5.0
+     * @see #getVisiblePanels()
+     */
+    public void setPanelsVisible(boolean visible) {
+        for (Component component : fullTabList) {
+            if (component instanceof AbstractPanel) {
+                AbstractPanel ap = (AbstractPanel) component;
+                boolean canChangeVisibility = true;
+                if (!visible) {
+                    canChangeVisibility = canHidePanel(ap);
+                }
+
+                if (canChangeVisibility) {
+                    setVisible(component, visible);
+                }
+            }
+        }
+    }
+
+    /**
+     * Tells whether or not the given panel can be hidden.
+     * <p>
+     * A panel can be hidden if it is {@link AbstractPanel#isHideable() hideable} and it's not {@link AbstractPanel#isPinned()
+     * pinned}.
+     *
+     * @param panel the panel to be checked
+     * @return {@code true} if the panel can be hidden, {@code false} otherwise
+     */
+    private static boolean canHidePanel(AbstractPanel panel) {
+        return panel.isHideable() && !panel.isPinned();
+    }
+
 }

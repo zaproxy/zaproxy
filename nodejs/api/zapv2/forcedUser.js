@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,23 @@ function ForcedUser(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * Returns 'true' if 'forced user' mode is enabled, 'false' otherwise
+ **/
 ForcedUser.prototype.isForcedUserModeEnabled = function (callback) {
   this.api.request('/forcedUser/view/isForcedUserModeEnabled/', callback);
 };
 
+/**
+ * Gets the user (ID) set as 'forced user' for the given context (ID)
+ **/
 ForcedUser.prototype.getForcedUser = function (contextid, callback) {
   this.api.request('/forcedUser/view/getForcedUser/', {'contextId' : contextid}, callback);
 };
 
+/**
+ * Sets the user (ID) that should be used in 'forced user' mode for the given context (ID)
+ **/
 ForcedUser.prototype.setForcedUser = function (contextid, userid, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -43,6 +52,9 @@ ForcedUser.prototype.setForcedUser = function (contextid, userid, apikey, callba
   this.api.request('/forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Sets if 'forced user' mode should be enabled or not
+ **/
 ForcedUser.prototype.setForcedUserModeEnabled = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

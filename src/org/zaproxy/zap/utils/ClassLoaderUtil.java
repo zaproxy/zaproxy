@@ -17,7 +17,7 @@ public class ClassLoaderUtil {
     private static Logger log = Logger.getLogger(ClassLoaderUtil.class);
 
     // Parameters
-	private static final Class<?>[] parameters = new Class[]{URL.class};
+	private static final Class<?>[] parameters = new Class<?>[]{URL.class};
 
     /**
      * Add file to CLASSPATH
@@ -44,6 +44,9 @@ public class ClassLoaderUtil {
      * @throws IOException IOException
      */
     public static void addURL(URL u) throws IOException {
+        if (!(ClassLoader.getSystemClassLoader() instanceof URLClassLoader)) {
+            return;
+        }
 
         URLClassLoader sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
         URL[] urls = sysLoader.getURLs();

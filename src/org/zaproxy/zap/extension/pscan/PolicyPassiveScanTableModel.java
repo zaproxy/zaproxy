@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.StatusUI;
 
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
@@ -38,12 +40,11 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.threshold"),
         Constant.messages.getString("ascan.policy.table.quality")};
 
+    private static final int QUALITY_COLUMN_IDX = 2;
+
     private List<ScannerWrapper> listScanners = new ArrayList<>();
     private Map<String, String> i18nToStr = null;
 
-    /**
-     *
-     */
     public PolicyPassiveScanTableModel() {
     }
     
@@ -52,7 +53,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      * @param scanner 
      */
     public void addScanner(PluginPassiveScanner scanner) {
-        listScanners.add(new ScannerWrapper(scanner));   
+        listScanners.add(new ScannerWrapper(scanner, View.getSingleton().getStatusUI(scanner.getStatus())));
         fireTableDataChanged();
         
     }
@@ -76,16 +77,18 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     
     public void applyThreshold(AlertThreshold threshold, String quality) {
     	for (ScannerWrapper ss : this.listScanners) {
-    		if (quality.equals(ss.getQuality())) {
+    		if (quality.equals(ss.getQuality().toString())) {
     			ss.setThreshold(threshold);
     		}
     	}
+    	this.fireTableRowsUpdated(0, getRowCount());
     }
 
     public void applyThresholdToAll(AlertThreshold threshold) {
     	for (ScannerWrapper ss : this.listScanners) {
    			ss.setThreshold(threshold);
     	}
+    	this.fireTableRowsUpdated(0, getRowCount());
     }
 
     /**
@@ -110,6 +113,9 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      */
     @Override
     public Class<?> getColumnClass(int c) {
+        if (c == QUALITY_COLUMN_IDX) {
+            return StatusUI.class;
+        }
         return String.class;
 
     }
@@ -203,7 +209,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 result = strToI18n(test.getThreshold().name());
                 break;
                 
-            case 2: // Quality Column
+            case QUALITY_COLUMN_IDX:
                 result = test.getQuality();
                 break;  
             
@@ -220,10 +226,12 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      */
     private static class ScannerWrapper {
     	private final PluginPassiveScanner scanner;
+    	private final StatusUI quality;
     	private AlertThreshold threshold;
 
-    	public ScannerWrapper(PluginPassiveScanner scanner) {
+    	public ScannerWrapper(PluginPassiveScanner scanner, StatusUI quality) {
     		this.scanner = scanner;
+    		this.quality = quality;
     		reset();
     	}
     	
@@ -253,8 +261,8 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 			this.threshold = threshold;
 		}
 
-		public String getQuality() {
-			return Constant.messages.getString("ascan.policy.table.quality."+ scanner.getStatus().name());
+		public StatusUI getQuality() {
+			return quality;
 		}
     }
 }

@@ -19,19 +19,26 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -41,7 +48,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.UIManager;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.RowFilter;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -87,7 +102,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JPanel browsePanel = null;
 	private JPanel corePanel = null;
 	private JPanel installedAddOnsPanel = null;
+	private JPanel installedAddOnsFilterPanel = null;
 	private JPanel uninstalledAddOnsPanel = null;
+	private JPanel uninstalledAddOnsFilterPanel = null;
 	private JPanel retrievePanel = null;
 	private JScrollPane marketPlaceScrollPane = null;
 
@@ -96,6 +113,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JButton downloadZapButton = null;
 	private JButton checkForUpdatesButton = null;
 	private JButton updateButton = null;
+	private JButton updateAllButton = null;
 	private JButton uninstallButton = null;
 	private JButton installButton = null;
 	private JButton close1Button = null;
@@ -146,6 +164,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         	this.setSize(700, 500);
         }
         state = State.IDLE;
+        
+        // Handle escape key to close the dialog
+        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        AbstractAction escapeAction = new AbstractAction() {
+            private static final long serialVersionUID = 3516424501887406165L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispatchEvent(new WindowEvent(ManageAddOnsDialog.this, WindowEvent.WINDOW_CLOSING));
+            }
+	    };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE",escapeAction);
 	}
 
 	private JPanel getTopPanel() {
@@ -258,12 +288,16 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scrollPane.setViewportView(getInstalledAddOnsTable());
 
+			installedAddOnsFilterPanel = createFilterPanel(getInstalledAddOnsTable());
+
 			int row = 0;
-			installedAddOnsPanel.add(scrollPane, LayoutHelper.getGBC(0, row++, 4, 1.0D, 1.0D));
+			installedAddOnsPanel.add(installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 5, 0.0D));
+			installedAddOnsPanel.add(scrollPane, LayoutHelper.getGBC(0, row++, 5, 1.0D, 1.0D));
 			installedAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			installedAddOnsPanel.add(getUninstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
 			installedAddOnsPanel.add(getUpdateButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
-			installedAddOnsPanel.add(getClose1Button(), LayoutHelper.getGBC(3, row, 1, 0.0D));
+			installedAddOnsPanel.add(getUpdateAllButton(), LayoutHelper.getGBC(3, row, 1, 0.0D));
+			installedAddOnsPanel.add(getClose1Button(), LayoutHelper.getGBC(4, row, 1, 0.0D));
 
 		}
 		return installedAddOnsPanel;
@@ -281,15 +315,20 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
+			uninstalledAddOnsFilterPanel = createFilterPanel(getUninstalledAddOnsTable());
+
 			if (latestInfo == null) {
 				// Not checked yet
 				getUninstalledAddOnsTable();	// To initialise the table and model
 				getMarketPlaceScrollPane().setViewportView(getRetrievePanel());
+				uninstalledAddOnsFilterPanel.setVisible(false);
 			} else {
 				getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
+				uninstalledAddOnsFilterPanel.setVisible(true);
 			}
 
 			int row = 0;
+			uninstalledAddOnsPanel.add(uninstalledAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 4, 0.0D));
 			uninstalledAddOnsPanel.add(getMarketPlaceScrollPane(), LayoutHelper.getGBC(0, row++, 4, 1.0D, 1.0D));
 			uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			uninstalledAddOnsPanel.add(getInstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
@@ -300,6 +339,56 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return uninstalledAddOnsPanel;
 	}
 	
+	private static JPanel createFilterPanel(final JXTable table) {
+		JPanel filterPanel = new JPanel();
+		filterPanel.setLayout(new GridBagLayout());
+
+		JLabel filterLabel = new JLabel(Constant.messages.getString("cfu.label.addons.filter"));
+		final JTextField filterTextField = new JTextField();
+
+		filterLabel.setLabelFor(filterTextField);
+		filterPanel.add(filterLabel, LayoutHelper.getGBC(0, 0, 1, 0.0D));
+		filterPanel.add(filterTextField, LayoutHelper.getGBC(1, 0, 1, 1.0D));
+
+		String tooltipText = Constant.messages.getString("cfu.label.addons.filter.tooltip");
+		filterLabel.setToolTipText(tooltipText);
+		filterTextField.setToolTipText(tooltipText);
+
+		// Set filter listener
+		filterTextField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateFilter();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateFilter();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateFilter();
+			}
+
+			public void updateFilter() {
+				String filterText = filterTextField.getText();
+				if (filterText.isEmpty()) {
+					table.setRowFilter(null);
+					filterTextField.setForeground(UIManager.getColor("TextField.foreground"));
+				} else {
+					try {
+						table.setRowFilter(RowFilter.regexFilter("(?i)" + filterText));
+						filterTextField.setForeground(UIManager.getColor("TextField.foreground"));
+					} catch (PatternSyntaxException e) {
+						filterTextField.setForeground(Color.RED);
+					}
+				}
+			}
+		});
+		return filterPanel;
+	}
+
 	private JScrollPane getMarketPlaceScrollPane () {
 		if (marketPlaceScrollPane == null) {
 			marketPlaceScrollPane = new JScrollPane();
@@ -347,33 +436,38 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			uninstalledAddOnsModel.setAddOns(addOnsNotInstalled, prevInfo);
 		}
 		getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
+		uninstalledAddOnsFilterPanel.setVisible(true);
 
 	}
 	
 	private JXTable getInstalledAddOnsTable () {
 		if (installedAddOnsTable == null) {
 			installedAddOnsTable = new JXTable();
-			installedAddOnsTable.setSortable(false);
 			installedAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
 				public void tableChanged(TableModelEvent e) {
 					getUpdateButton().setEnabled(installedAddOnsModel.canUpdateSelected());
+					getUpdateAllButton().setEnabled(installedAddOnsModel.getAllUpdates().size() > 0);
 					getUninstallButton().setEnabled(installedAddOnsModel.canUninstallSelected());
 					
 				}});
 
 			installedAddOnsTable.setModel(installedAddOnsModel);
-			installedAddOnsTable.getColumnModel().getColumn(0).setPreferredWidth(200);
-			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(400);
-			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(60);
-			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(40);
-			
-			installedAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);
-			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(200);
-			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(400);
-			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+			installedAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);//icon
+			installedAddOnsTable.getColumnExt(0).setSortable(false);//icon doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(200);//name
+			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(400);//description
+			installedAddOnsTable.getColumnExt(2).setSortable(false);//description doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);//update
+			installedAddOnsTable.getColumnExt(3).setSortable(false);//update doesn't need to be sortable
 			installedAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(40);
-
+			installedAddOnsTable.getColumnExt(4).setSortable(false);//checkbox doesn't need to be sortable
+          
+            //Default sort by name (column 1)
+            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+            sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+            installedAddOnsTable.getRowSorter().setSortKeys(sortKeys);
+			
 			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
 					AddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
 			for (int i = 1; i < installedAddOnsTable.getColumnCount(); i++) {
@@ -401,7 +495,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JXTable getUninstalledAddOnsTable () {
 		if (uninstalledAddOnsTable == null) {
 			uninstalledAddOnsTable = new JXTable();
-			uninstalledAddOnsTable.setSortable(false);
 
 			uninstalledAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
@@ -414,7 +507,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				public void valueChanged(ListSelectionEvent e) {
 					getAddOnInfoButton().setEnabled(false);
 					if (DesktopUtils.canOpenUrlInBrowser() && getUninstalledAddOnsTable ().getSelectedRowCount() == 1) {
-						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable ().getSelectedRow());
+						//convertRowIndexToModel in-case they sorted
+						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable().convertRowIndexToModel(getUninstalledAddOnsTable().getSelectedRow()));
 						if (ao != null && ao.getAddOn().getInfo() != null) {
 							getAddOnInfoButton().setEnabled(true);
 						}
@@ -422,13 +516,24 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				}});
 			
 			uninstalledAddOnsTable.setModel(uninstalledAddOnsModel);
-			uninstalledAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);
-			uninstalledAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-			uninstalledAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(150);
-			uninstalledAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(300);
-			uninstalledAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(60);
-			uninstalledAddOnsTable.getColumnModel().getColumn(5).setPreferredWidth(40);
 
+			uninstalledAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);//Icon
+			uninstalledAddOnsTable.getColumnExt(0).setSortable(false); //Icon doesn't need sorting
+			uninstalledAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(50);//Status
+			uninstalledAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(150);//Name
+			uninstalledAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(300);//Description
+			uninstalledAddOnsTable.getColumnExt(3).setSortable(false);//Description doesn't need sorting
+			uninstalledAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(60);//Update (version number)
+			uninstalledAddOnsTable.getColumnExt(4).setSortable(false);//Update doesn't need sorting
+			uninstalledAddOnsTable.getColumnModel().getColumn(5).setPreferredWidth(40);//Checkbox
+			uninstalledAddOnsTable.getColumnExt(5).setSortable(false);//Checkbox doesn't need sorting
+         
+            //Default sort by status (column 1) descending (Release, Beta, Alpha), and name (column 2) ascending 
+            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(2);
+            sortKeys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
+            sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+            uninstalledAddOnsTable.getRowSorter().setSortKeys(sortKeys);
+                        
 			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
 					UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
 			for (int i = 1; i < uninstalledAddOnsTable.getColumnCount(); i++) {
@@ -661,6 +766,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	protected void setDownloadingZap() {
 		downloadZapButton.setEnabled(false);
 		getUpdateButton().setEnabled(false);	// Makes things less complicated
+		getUpdateAllButton().setEnabled(false);
 		state = State.DOWNLOADING_ZAP;
 		getUpdatesMessage().setText(Constant.messages.getString("cfu.check.zap.downloading"));
 	}
@@ -669,6 +775,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		if (EventQueue.isDispatchThread()) {
 			this.getDownloadZapButton().setEnabled(false); // Makes things less complicated
 			this.getUpdateButton().setEnabled(false);
+			this.getUpdateAllButton().setEnabled(false);
 			this.state = State.DOWNLOADING_UPDATES;
 			this.getUpdatesMessage().setText(Constant.messages.getString("cfu.check.upd.downloading"));
 		} else {
@@ -794,25 +901,44 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			updateButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					Set<AddOn> selectedAddOns = installedAddOnsModel.getSelectedUpdates();
-
-					if (selectedAddOns.isEmpty()) {
-						return;
-					}
-
-					AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
-
-					AddOnDependencyChecker.AddOnChangesResult result = calc.calculateUpdateChanges(selectedAddOns);
-					if (!calc.confirmUpdateChanges(ManageAddOnsDialog.this, result)) {
-						return;
-					}
-
-					extension.processAddOnChanges(ManageAddOnsDialog.this, result);
+					processUpdates(installedAddOnsModel.getSelectedUpdates());
 				}
 			});
 
 		}
 		return updateButton;
+	}
+
+	private JButton getUpdateAllButton() {
+		if (updateAllButton == null) {
+			updateAllButton = new JButton();
+			updateAllButton.setText(Constant.messages.getString("cfu.button.addons.updateAll"));
+			updateAllButton.setEnabled(false);	// Nothing will be selected initially
+			updateAllButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					processUpdates(installedAddOnsModel.getAllUpdates());
+				}
+			});
+
+		}
+		return updateAllButton;
+	}
+	
+	private void processUpdates(Set<AddOn> updatedAddOns) {
+		if (updatedAddOns.isEmpty()) {
+			return;
+		}
+
+		AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
+
+		AddOnDependencyChecker.AddOnChangesResult result = calc.calculateUpdateChanges(updatedAddOns);
+		if (!calc.confirmUpdateChanges(ManageAddOnsDialog.this, result)) {
+			return;
+		}
+
+		extension.processAddOnChanges(ManageAddOnsDialog.this, result);
+		
 	}
 
 	private JButton getUninstallButton() {
@@ -888,8 +1014,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			addOnInfoButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (getUninstalledAddOnsTable ().getSelectedRow() >= 0) {
-						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable ().getSelectedRow());
+					if (getUninstalledAddOnsTable().getSelectedRow() >= 0) {
+						//convertRowIndexToModel in-case they sorted
+						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable().convertRowIndexToModel(getUninstalledAddOnsTable().getSelectedRow()));
 						if (ao != null && ao.getAddOn().getInfo() != null) {
 							DesktopUtils.openUrlInBrowser(ao.getAddOn().getInfo().toString());
 						}
@@ -948,6 +1075,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		}
 		// Let people download updates now
 		this.getUpdateButton().setEnabled(true);
+		this.getUpdateAllButton().setEnabled(true);
 		this.getUpdatesMessage().setText(MessageFormat.format(
 				Constant.messages.getString("cfu.check.zap.downloaded"), 
 				f.getAbsolutePath()));

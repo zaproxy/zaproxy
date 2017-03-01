@@ -19,6 +19,8 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -386,8 +388,15 @@ public class HttpSessionsSite {
 		for (HttpCookie cookie : cookiesToSet) {
 			String lcCookieName = cookie.getName();
 			if (siteTokensSet.isSessionToken(lcCookieName)) {
-				Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) cookie.getMaxAge(),cookie.getSecure());				
-				tokenValues.put(lcCookieName, ck);
+				try {
+					// Use 0 if max-age less than -1, Cookie class does not accept negative (expired) max-age (-1 has special
+					// meaning).
+					long maxAge = cookie.getMaxAge() < -1 ? 0 : cookie.getMaxAge();
+					Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) maxAge,cookie.getSecure());				
+					tokenValues.put(lcCookieName, ck);
+				} catch (IllegalArgumentException e) {
+					log.warn("Failed to create cookie [" + cookie + "] for site [" + getSite() + "]: " + e.getMessage());
+				}
 			}
 		}
 
@@ -412,6 +421,7 @@ public class HttpSessionsSite {
 			}
 		}
 
+		boolean newSession = false;
 		// If the session didn't exist, create it now
 		if (session == null) {
 			session = new HttpSession(generateUniqueSessionName(),
@@ -443,7 +453,7 @@ public class HttpSessionsSite {
 					}
 				}
 			}
-			log.info("Created a new session as no match was found: " + session);
+			newSession = true;
 		}
 
 		// Update the session
@@ -451,6 +461,10 @@ public class HttpSessionsSite {
 			for (Entry<String, Cookie> tv : tokenValues.entrySet()) {
 				session.setTokenValue(tv.getKey(), tv.getValue());
 			}
+		}
+
+		if (newSession && log.isDebugEnabled()) {
+			log.debug("Created a new session as no match was found: " + session);
 		}
 
 		// Update the count of messages matched
@@ -471,8 +485,11 @@ public class HttpSessionsSite {
 	 *         all the tokens
 	 */
 	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, final HttpSessionTokensSet siteTokens) {
-
-		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessions, cookies, siteTokens);
+		Collection<HttpSession> sessionsCopy;
+		synchronized (sessions) {
+			sessionsCopy = new ArrayList<>(sessions);
+		}
+		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessionsCopy, cookies, siteTokens);
 	}
 
 	@Override
@@ -567,7 +584,7 @@ public class HttpSessionsSite {
 	 * 
 	 * @return the http sessions
 	 */
-	protected Set<HttpSession> getHttpSessions() {
+	public Set<HttpSession> getHttpSessions() {
 		synchronized (this.sessions) {
 			return Collections.unmodifiableSet(sessions);
 		}
@@ -579,7 +596,7 @@ public class HttpSessionsSite {
 	 * @param name the name
 	 * @return the http session with a given name, or null, if no such session exists
 	 */
-	protected HttpSession getHttpSession(String name) {
+	public HttpSession getHttpSession(String name) {
 		synchronized (this.sessions) {
 			for (HttpSession session : sessions) {
 				if (session.getName().equals(name)) {
@@ -625,5 +642,9 @@ public class HttpSessionsSite {
 
 	static void resetLastGeneratedSessionId() {
 		lastGeneratedSessionID = 0;
+	}
+	
+	public static int getNextSessionId() {
+		return lastGeneratedSessionID++;
 	}
 }

@@ -50,6 +50,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 /*
@@ -60,16 +61,17 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	private static final long serialVersionUID = 1L;
 
 	protected enum Location {start, beforeSites, beforeButtons, beforeProgressBar, afterProgressBar};
-	public String prefix;
+	private final String prefix;
 	
-	private SC controller = null;
+	private final SC controller;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JLabel scannedCountNameLabel = null;
 	private JLabel foundCountNameLabel = null;
 
-	private JComboBox<String> progressSelect = null;
-	private SortedComboBoxModel<String> progressModel = new SortedComboBoxModel<>();
+	private JComboBox<ScanEntry<GS>> progressSelect = null;
+	private SortedComboBoxModel<ScanEntry<GS>> progressModel = new SortedComboBoxModel<>();
+	private final ScanEntry<GS> selectScanEntry;
 
 	private JButton stopScanButton = null;
 	private ZapToggleButton pauseScanButton = null;
@@ -83,15 +85,32 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	private static Logger log = Logger.getLogger(ScanPanel2.class);
     
     /**
-     * @param prefix
-     * @param icon
-     * @param extension
-     * @param scanParam
+     * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan controller.
+     * 
+     * @param prefix the prefix for the resource messages
+     * @param icon the icon for the tab of the panel
+     * @param controller the scan controller
+     * @param scanParam unused
+     * @deprecated (TODO add version) Use {@link #ScanPanel2(String, ImageIcon, ScanController)} instead.
      */
+    @Deprecated
     public ScanPanel2(String prefix, ImageIcon icon, SC controller, AbstractParam scanParam) {
+        this(prefix, icon, controller);
+    }
+
+    /**
+     * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan controller.
+     * 
+     * @param prefix the prefix for the resource messages
+     * @param icon the icon for the tab of the panel
+     * @param controller the scan controller
+     * @since TODO add version
+     */
+    public ScanPanel2(String prefix, ImageIcon icon, SC controller) {
         super();
         this.prefix = prefix;
         this.controller = controller;
+        selectScanEntry = new ScanEntry<>(Constant.messages.getString(prefix + ".toolbar.progress.select"));
  		initialize(icon);
  		log.debug("Constructor " + prefix);
     }
@@ -297,7 +316,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
 			stopScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.stop"));
-			stopScanButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/142.png")));
+			stopScanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/142.png"))));
 			stopScanButton.setEnabled(false);
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -317,7 +336,10 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 			pauseScanButton = new ZapToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			pauseScanButton.setSelectedToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
-			pauseScanButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png"))));
+			pauseScanButton.setRolloverIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png"))));
+			pauseScanButton.setSelectedIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png"))));
+			pauseScanButton.setRolloverSelectedIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png"))));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -340,7 +362,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/041.png"))));
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -356,7 +378,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (clearScansButton == null) {
 			clearScansButton = new JButton();
 			clearScansButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.clear"));
-			clearScansButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/fugue/broom.png")));
+			clearScansButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/fugue/broom.png"))));
 			clearScansButton.setEnabled(false);
 			clearScansButton.addActionListener(new ActionListener () {
 				@Override
@@ -374,9 +396,9 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (count > 0) {
 			// Some were removed - remove all and add back the remaining ones
 			progressModel.removeAllElements();
-			progressModel.addElement(Constant.messages.getString(prefix + ".toolbar.progress.select"));
+			progressModel.addElement(selectScanEntry);
 			for (GS scan : controller.getAllScans()) {
-				progressModel.addElement(nameForScanner(scan));
+				progressModel.addElement(new ScanEntry<>(scan));
 			}
 			updateScannerUI();
 		}
@@ -384,13 +406,20 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	}
 	
 	public GS getSelectedScanner() {
-		return controller.getScan(this.idForScannerName((String)this.getProgressSelect().getSelectedItem()));
+		Object selectedItem = progressModel.getSelectedItem();
+		if (selectedItem == null) {
+			return null;
+		}
+
+		@SuppressWarnings("unchecked")
+		GS scan = ((ScanEntry<GS>) selectedItem).getScan();
+		return scan;
 	}
 	
-	protected JComboBox<String> getProgressSelect() {
+	protected JComboBox<ScanEntry<GS>> getProgressSelect() {
 		if (progressSelect == null) {
 			progressSelect = new JComboBox<>(progressModel);
-			progressSelect.addItem(Constant.messages.getString(prefix + ".toolbar.progress.select"));
+			progressSelect.addItem(selectScanEntry);
 			progressSelect.setSelectedIndex(0);
 			progressSelect.setEnabled(false);
 
@@ -446,7 +475,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
         	scanFinshedEventHandler(id, host);
 	    } else {
 	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
+	            EventQueue.invokeLater(new Runnable() {
 	                @Override
 	                public void run() {
 	                	scanFinshedEventHandler(id, host);
@@ -470,19 +499,12 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	    if (EventQueue.isDispatchThread()) {
 	    	scanProgressEventHandler(id, host, progress, maximum);
 	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	                	scanProgressEventHandler(id, host, progress, maximum);
-	                }
-	            });
-	        } catch (InterruptedException e) {
-				log.info("Interrupt scan progress update on GUI.");
-			} 
-	        catch (Exception e) {
-	            log.error(e.getMessage(), e);
-	        }
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                	scanProgressEventHandler(id, host, progress, maximum);
+                }
+            });
 	    }
 	}
 
@@ -494,30 +516,11 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
     	setActiveScanLabelsEventHandler();
 	}
 	
-	private String nameForScanner(GS scan) {
-		return scan.getScanId() + ": " + scan.getDisplayName(); 
-	}
-	
-	private int idForScannerName(String name) {
-		if (name == null) {
-			return -1;
-		}
-		int idx = name.indexOf(":");
-		if (idx < 0) {
-			return -1;
-		}
-		return Integer.parseInt(name.substring(0, idx));
-	}
-	
 	public void scannerStarted(GS scanner) {
-		String name = nameForScanner(scanner);
-		this.progressModel.addElement(name);
+		ScanEntry<GS> scanEntry = new ScanEntry<>(scanner);
+		this.progressModel.addElement(scanEntry);
 		this.getProgressSelect().setEnabled(true);
-		if (this.progressModel.getIndexOf(name) < 0) {
-			// Been added 'externally' (eg the Active Scan attack mode scanner)
-			this.progressModel.addElement(name);
-		}
-		this.getProgressSelect().setSelectedItem(name);
+		this.getProgressSelect().setSelectedItem(scanEntry);
 		this.trimProgressList();
 		this.scannerSelected(scanner);
 	}
@@ -530,10 +533,9 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (this.progressModel.getSize() > this.getNumberOfScansToShow() + 1) {
 			// Trim past results - the +1 is for the initial 'select scan' message
 			for (int i=1; i < this.progressModel.getSize(); i++) {
-				int id = this.idForScannerName((String)this.progressModel.getElementAt(i));
-				GS scan = controller.getScan(id);
+				GS scan = this.progressModel.getElementAt(i).getScan();
 				if (scan != null && scan.isStopped()) {
-					controller.removeScan(id);
+					controller.removeScan(scan.getScanId());
 					this.progressModel.removeElementAt(i);
 					
 					if (this.progressModel.getSize() <= this.getNumberOfScansToShow() + 1) {
@@ -551,8 +553,10 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		log.debug("reset " + prefix);
 
 		progressModel.removeAllElements();
-		progressSelect.addItem(Constant.messages.getString(prefix + ".toolbar.progress.select"));
+		progressSelect.addItem(selectScanEntry);
 		progressSelect.setSelectedIndex(0);
+
+		clearScansButton.setEnabled(false);
 	}
 
 	public void sessionScopeChanged(Session session) {
@@ -585,4 +589,65 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	protected abstract JButton getNewScanButton();
 
 	protected abstract int getNumberOfScansToShow();
+
+    private static class ScanEntry<GS extends GenericScanner2> implements Comparable<ScanEntry<GS>> {
+
+        private final GS scan;
+        private final String label;
+
+        public ScanEntry(String label) {
+            this.scan = null;
+            this.label = label;
+        }
+
+        public ScanEntry(GS scan) {
+            this.scan = scan;
+            this.label = scan.getScanId() + ": " + scan.getDisplayName();
+        }
+
+        public GS getScan() {
+            return scan;
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 + ((scan == null) ? 0 : scan.getScanId());
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ScanEntry<?> other = (ScanEntry<?>) obj;
+            if (scan == null) {
+                return (other.scan == null);
+            } else if (other.scan == null) {
+                return false;
+            }
+            return scan.getScanId() == other.scan.getScanId();
+        }
+
+        @Override
+        public int compareTo(ScanEntry<GS> other) {
+            if (other == null || other.scan == null) {
+                return 1;
+            }
+            if (scan == null) {
+                return -1;
+            }
+            return scan.getScanId() - other.scan.getScanId();
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+    }
 }

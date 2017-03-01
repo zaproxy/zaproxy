@@ -102,6 +102,7 @@ public class ForcedUserAPI extends ApiImplementor {
 			} catch (IllegalStateException ex) {
 				throw new ApiException(Type.USER_NOT_FOUND);
 			}
+			context.save();
 			return ApiResponseElement.OK;
 		case ACTION_SET_FORCED_USER_MODE_ENABLED:
 			if (!params.containsKey(PARAM_MODE_ENABLED))
@@ -110,7 +111,7 @@ public class ForcedUserAPI extends ApiImplementor {
 			try {
 				newModeStatus = params.getBoolean(PARAM_MODE_ENABLED);
 			} catch (JSONException ex) {
-				throw new ApiException(Type.BAD_FORMAT, PARAM_MODE_ENABLED);
+				throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_MODE_ENABLED);
 			}
 			extension.setForcedUserModeEnabled(newModeStatus);
 			return ApiResponseElement.OK;

@@ -208,10 +208,7 @@ public class AlertAddDialog extends AbstractDialog {
 								
 								// Update alert tree
 								extAlert.updateAlertInTree(alertViewPanel.getOriginalAlert(), alert);
-							}
-
-							// Update history tree
-							if (historyRef != null) {
+							} else if (historyRef != null) { // Update history tree
 								historyRef.updateAlert(alert);
 			                    extension.notifyHistoryItemChanged(historyRef);
 							}
@@ -221,11 +218,13 @@ public class AlertAddDialog extends AbstractDialog {
 						        historyRef = new HistoryReference(Model.getSingleton().getSession(), historyType, httpMessage);
 						    }
 						    
-							historyRef.addAlert(alert);
-		                    extension.notifyHistoryItemChanged(historyRef);
+						    alert.setSource(Alert.Source.MANUAL);
 						    // Raise it
 							if (extAlert != null) {
 								extAlert.alertFound(alert, historyRef);
+							} else {
+							    historyRef.addAlert(alert);
+							    extension.notifyHistoryItemChanged(historyRef);
 							}
 						}
 					} catch (Exception ex) {

@@ -22,6 +22,8 @@ package org.zaproxy.zap.model;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.parosproxy.paros.Constant;
+
 /**
  * Helper class with utility methods for ZAP {@code Session}s.
  *
@@ -36,7 +38,11 @@ public final class SessionUtils {
 
     public static Path getSessionPath(String session) {
         String normalisedSession = getNormalisedSessionName(session);
-        return Paths.get(normalisedSession);
+        Path sessionPath = Paths.get(normalisedSession);
+        if (!sessionPath.isAbsolute()) {
+            sessionPath = Paths.get(Constant.getZapHome(), Constant.FOLDER_SESSION_DEFAULT).resolve(sessionPath);
+        }
+        return sessionPath;
     }
 
     private static String getNormalisedSessionName(String session) {

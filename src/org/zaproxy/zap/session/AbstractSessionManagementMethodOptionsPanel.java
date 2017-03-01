@@ -25,11 +25,9 @@ import org.zaproxy.zap.session.SessionManagementMethodType.UnsupportedSessionMan
 
 /**
  * An Options Panel that is used to configure all the settings corresponding to an
- * {@link SessionManagementMethod}.<br/>
- * <br/>
+ * {@link SessionManagementMethod}.
+ * <p>
  * This panel will be displayed to users in a separate dialog.
- * 
- * @param <T> the session management method type
  */
 public abstract class AbstractSessionManagementMethodOptionsPanel extends JPanel {
 
@@ -46,6 +44,7 @@ public abstract class AbstractSessionManagementMethodOptionsPanel extends JPanel
 	 * (if {@link #saveMethod()} was called).
 	 * 
 	 * @param method the method to be loaded/shown in the panel.
+	 * @throws UnsupportedSessionManagementMethodException if the given method is not supported.
 	 */
 	public abstract void bindMethod(SessionManagementMethod method)
 			throws UnsupportedSessionManagementMethodException;

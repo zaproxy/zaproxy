@@ -24,9 +24,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.parosproxy.paros.Constant;
 
 /**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * A {@link javax.swing.tree.MutableTreeNode MutableTreeNode} for model of scripts tree.
+ * 
+ * @since 2.2.0
+ * @see ScriptTreeModel
  */
 public class ScriptNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;

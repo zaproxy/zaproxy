@@ -1,0 +1,839 @@
+<?xml version="1.0"?><OWASPZAPReport version="2.4.3" generated="Fri, 29 Jan 2016 12:17:58">
+<site name="http://localhost:8080" host="localhost" port="8080" ssl="false"><alerts><alertitem>
+  <pluginid>10016</pluginid>
+  <alert>Web Browser XSS Protection Not Enabled</alert>
+  <riskcode>1</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Low (Medium)</riskdesc>
+  <desc>&lt;p&gt;Web Browser XSS Protection is not enabled, or is disabled by the configuration of the &apos;X-XSS-Protection&apos; HTTP response header on the web server&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/robots.txt</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/sitemap.xml</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/home.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/about.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/login.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/search.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=6</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=5</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=3</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=2</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=7</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=4</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=1</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=21</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/contact.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=7</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=14</uri>
+  </instance>
+  </instances>
+  <count>58</count>
+  <solution>&lt;p&gt;Ensure that the web browser&apos;s XSS filter is enabled, by setting the X-XSS-Protection HTTP response header to &apos;1&apos;.&lt;/p&gt;</solution>
+  <otherinfo>&lt;p&gt;The X-XSS-Protection HTTP response header allows the web server to enable or disable the web browser&apos;s XSS protection mechanism. The following values would attempt to enable it: &lt;/p&gt;&lt;p&gt;X-XSS-Protection: 1; mode=block&lt;/p&gt;&lt;p&gt;X-XSS-Protection: 1; report=http://www.example.com/xss&lt;/p&gt;&lt;p&gt;The following values would disable it:&lt;/p&gt;&lt;p&gt;X-XSS-Protection: 0&lt;/p&gt;&lt;p&gt;The X-XSS-Protection HTTP response header is currently supported on Internet Explorer, Chrome and Safari (WebKit).&lt;/p&gt;&lt;p&gt;Note that this alert is only raised if the response body could potentially contain an XSS payload (with a text-based content type, with a non-zero length).&lt;/p&gt;</otherinfo>
+  <reference>&lt;p&gt;https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet&lt;/p&gt;&lt;p&gt;https://blog.veracode.com/2014/03/guidelines-for-setting-security-headers/&lt;/p&gt;</reference>
+  <cweid>933</cweid>
+  <wascid>14</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>10021</pluginid>
+  <alert>X-Content-Type-Options Header Missing</alert>
+  <riskcode>1</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Low (Medium)</riskdesc>
+  <desc>&lt;p&gt;The Anti-MIME-Sniffing header X-Content-Type-Options was not set to &apos;nosniff&apos;. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/robots.txt</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/sitemap.xml</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/home.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/about.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/login.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/search.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=6</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=5</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=3</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=2</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=7</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=4</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=1</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=21</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/contact.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=7</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=14</uri>
+  </instance>
+  </instances>
+  <count>58</count>
+  <solution>&lt;p&gt;Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to &apos;nosniff&apos; for all web pages.&lt;/p&gt;&lt;p&gt;If possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.&lt;/p&gt;</solution>
+  <otherinfo>&lt;p&gt;This issue still applies to error type pages (401, 403, 500, etc) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.&lt;/p&gt;&lt;p&gt;At &quot;High&quot; threshold this scanner will not alert on client or server error responses.&lt;/p&gt;</otherinfo>
+  <reference>&lt;p&gt;http://msdn.microsoft.com/en-us/library/ie/gg622941%28v=vs.85%29.aspx&lt;/p&gt;&lt;p&gt;https://www.owasp.org/index.php/List_of_useful_HTTP_headers&lt;/p&gt;</reference>
+  <wascid>15</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>10020</pluginid>
+  <alert>X-Frame-Options Header Not Set</alert>
+  <riskcode>2</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Medium (Medium)</riskdesc>
+  <desc>&lt;p&gt;X-Frame-Options header is not included in the HTTP response to protect against &apos;ClickJacking&apos; attacks.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/robots.txt</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/sitemap.xml</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/home.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/about.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/login.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/search.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=6</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=5</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=3</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=2</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=7</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=4</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?typeid=1</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=21</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/contact.jsp</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=7</uri>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/product.jsp?prodid=14</uri>
+  </instance>
+  </instances>
+  <count>58</count>
+  <solution>&lt;p&gt;Most modern Web browsers support the X-Frame-Options HTTP header. Ensure it&apos;s set on all web pages returned by your site (if you expect the page to be framed only by pages on your server (e.g. it&apos;s part of a FRAMESET) then you&apos;ll want to use SAMEORIGIN, otherwise if you never expect the page to be framed, you should use DENY.  ALLOW-FROM allows specific websites to frame the web page in supported web browsers).&lt;/p&gt;</solution>
+  <otherinfo>&lt;p&gt;At &quot;High&quot; threshold this scanner will not alert on client or server error responses.&lt;/p&gt;</otherinfo>
+  <reference>&lt;p&gt;http://blogs.msdn.com/b/ieinternals/archive/2010/03/30/combating-clickjacking-with-x-frame-options.aspx&lt;/p&gt;</reference>
+</alertitem>
+<alertitem>
+  <pluginid>10012</pluginid>
+  <alert>Password Autocomplete in browser</alert>
+  <riskcode>1</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Low (Medium)</riskdesc>
+  <desc>&lt;p&gt;AUTOCOMPLETE attribute is not disabled in HTML FORM/INPUT element containing password type input.  Passwords may be stored in browsers and retrieved.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/login.jsp</uri>
+  <param>input</param>
+  <evidence>&lt;input id=&quot;password&quot; name=&quot;password&quot; type=&quot;password&quot;&gt;</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/register.jsp</uri>
+  <param>input</param>
+  <evidence>&lt;input id=&quot;password1&quot; name=&quot;password1&quot; type=&quot;password&quot;&gt;</evidence>
+  </instance>
+  </instances>
+  <count>2</count>
+  <solution>&lt;p&gt;Turn off AUTOCOMPLETE attribute in form or individual input elements containing password by using AUTOCOMPLETE=&apos;OFF&apos;&lt;/p&gt;</solution>
+  <reference>&lt;p&gt;http://msdn.microsoft.com/library/default.asp?url=/workshop/author/forms/autocomplete_ovr.asp&lt;/p&gt;</reference>
+  <cweid>525</cweid>
+</alertitem>
+<alertitem>
+  <pluginid>10010</pluginid>
+  <alert>Cookie set without HttpOnly flag</alert>
+  <riskcode>1</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Low (Medium)</riskdesc>
+  <desc>&lt;p&gt;A cookie has been set without the HttpOnly flag, which means that the cookie can be accessed by JavaScript. If a malicious script can be run on this page then the cookie will be accessible and can be transmitted to another site. If this is a session cookie then session hijacking may be possible.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=2</param>
+  <evidence>b_id=2</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=3</param>
+  <evidence>b_id=3</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=4</param>
+  <evidence>b_id=4</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=5</param>
+  <evidence>b_id=5</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=6</param>
+  <evidence>b_id=6</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=7</param>
+  <evidence>b_id=7</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=8</param>
+  <evidence>b_id=8</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=9</param>
+  <evidence>b_id=9</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=10</param>
+  <evidence>b_id=10</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=11</param>
+  <evidence>b_id=11</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=13</param>
+  <evidence>b_id=13</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=15</param>
+  <evidence>b_id=15</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=17</param>
+  <evidence>b_id=17</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=18</param>
+  <evidence>b_id=18</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=19</param>
+  <evidence>b_id=19</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=20</param>
+  <evidence>b_id=20</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=21</param>
+  <evidence>b_id=21</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=22</param>
+  <evidence>b_id=22</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=23</param>
+  <evidence>b_id=23</evidence>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>b_id=25</param>
+  <evidence>b_id=25</evidence>
+  </instance>
+  </instances>
+  <count>50</count>
+  <solution>&lt;p&gt;Ensure that the HttpOnly flag is set for all cookies.&lt;/p&gt;</solution>
+  <reference>&lt;p&gt;www.owasp.org/index.php/HttpOnly&lt;/p&gt;</reference>
+  <wascid>13</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>90022</pluginid>
+  <alert>Application Error Disclosure</alert>
+  <riskcode>2</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Medium (Medium)</riskdesc>
+  <desc>&lt;p&gt;This page contains an error/warning message that may disclose sensitive information like the location of the file that produced the unhandled exception. This information can be used to launch further attacks against the web application. The alert could be a false positive if the error message is found inside a documentation page.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>N/A</param>
+  <evidence>HTTP 500 Internal server error</evidence>
+  </instance>
+  </instances>
+  <count>1</count>
+  <solution>&lt;p&gt;Review the source code of this page. Implement custom error pages. Consider implementing a mechanism to provide a unique error reference/identifier to the client (browser) while logging the details on the server side and not exposing them to the user.&lt;/p&gt;</solution>
+  <reference>&lt;p&gt;&lt;/p&gt;</reference>
+  <cweid>200</cweid>
+  <wascid>13</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>40012</pluginid>
+  <alert>Cross Site Scripting (Reflected)</alert>
+  <riskcode>3</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>High (Medium)</riskdesc>
+  <desc>&lt;p&gt;Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user&apos;s browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.&lt;/p&gt;&lt;p&gt;When an attacker gets a user&apos;s browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.&lt;/p&gt;&lt;p&gt;Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim&apos;s knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user&apos;s browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.&lt;/p&gt;&lt;p&gt;Persistent attacks occur when the malicious code is submitted to a web site where it&apos;s stored for a period of time. Examples of an attacker&apos;s favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/search.jsp?q=%3C%2Ffont%3E%3Cscript%3Ealert%281%29%3B%3C%2Fscript%3E%3Cfont%3E</uri>
+  <param>q</param>
+  <attack>&lt;/font&gt;&lt;script&gt;alert(1);&lt;/script&gt;&lt;font&gt;</attack>
+  <evidence>&lt;/font&gt;&lt;script&gt;alert(1);&lt;/script&gt;&lt;font&gt;</evidence>
+  </instance>
+  </instances>
+  <count>1</count>
+  <solution>&lt;p&gt;Phase: Architecture and Design&lt;/p&gt;&lt;p&gt;Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.&lt;/p&gt;&lt;p&gt;Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft&apos;s Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Phases: Implementation; Architecture and Design&lt;/p&gt;&lt;p&gt;Understand the context in which your data will be used and the encoding that will be expected. This is especially important when transmitting data between different components, or when generating outputs that can contain multiple encodings at the same time, such as web pages or multi-part mail messages. Study all expected communication protocols and data representations to determine the required encoding strategies.&lt;/p&gt;&lt;p&gt;For any data that will be output to another web page, especially any data that was received from external inputs, use the appropriate encoding on all non-alphanumeric characters.&lt;/p&gt;&lt;p&gt;Consult the XSS Prevention Cheat Sheet for more details on the types of encoding and escaping that are needed.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Phase: Architecture and Design&lt;/p&gt;&lt;p&gt;For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Phase: Implementation&lt;/p&gt;&lt;p&gt;For every web page that is generated, use and specify a character encoding such as ISO-8859-1 or UTF-8. When an encoding is not specified, the web browser may choose a different encoding by guessing which encoding is actually being used by the web page. This can cause the web browser to treat certain sequences as special, opening up the client to subtle XSS attacks. See CWE-116 for more mitigations related to encoding/escaping.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;To help mitigate XSS attacks against the user&apos;s session cookie, set the session cookie to be HttpOnly. In browsers that support the HttpOnly feature (such as more recent versions of Internet Explorer and Firefox), this attribute can prevent the user&apos;s session cookie from being accessible to malicious client-side scripts that use document.cookie. This is not a complete solution, since HttpOnly is not supported by all browsers. More importantly, XMLHTTPRequest and other powerful browser technologies provide read access to HTTP headers, including the Set-Cookie header in which the HttpOnly flag is set.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Assume all input is malicious. Use an &quot;accept known good&quot; input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, &quot;boat&quot; may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as &quot;red&quot; or &quot;blue.&quot;&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;Ensure that you perform input validation at well-defined interfaces within the application. This will help protect the application even if a component is reused or moved elsewhere.&lt;/p&gt;</solution>
+  <reference>&lt;p&gt;http://projects.webappsec.org/Cross-Site-Scripting&lt;/p&gt;&lt;p&gt;http://cwe.mitre.org/data/definitions/79.html&lt;/p&gt;</reference>
+  <cweid>79</cweid>
+  <wascid>8</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>40018</pluginid>
+  <alert>SQL Injection</alert>
+  <riskcode>3</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>High (Medium)</riskdesc>
+  <desc>&lt;p&gt;SQL injection may be possible.&lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>productid</param>
+  <attack>5-2</attack>
+  </instance>
+  </instances>
+  <count>1</count>
+  <solution>&lt;p&gt;Do not trust client side input, even if there is client side validation in place.  &lt;/p&gt;&lt;p&gt;In general, type check all data on the server side.&lt;/p&gt;&lt;p&gt;If the application uses JDBC, use PreparedStatement or CallableStatement, with parameters passed by &apos;?&apos;&lt;/p&gt;&lt;p&gt;If the application uses ASP, use ADO Command Objects with strong type checking and parameterized queries.&lt;/p&gt;&lt;p&gt;If database Stored Procedures can be used, use them.&lt;/p&gt;&lt;p&gt;Do *not* concatenate strings into queries in the stored procedure, or use &apos;exec&apos;, &apos;exec immediate&apos;, or equivalent functionality!&lt;/p&gt;&lt;p&gt;Do not create dynamic SQL queries using simple string concatenation.&lt;/p&gt;&lt;p&gt;Escape all data received from the client.&lt;/p&gt;&lt;p&gt;Apply a &apos;whitelist&apos; of allowed characters, or a &apos;blacklist&apos; of disallowed characters in user input.&lt;/p&gt;&lt;p&gt;Apply the principle of least privilege by using the least privileged database user possible.&lt;/p&gt;&lt;p&gt;In particular, avoid using the &apos;sa&apos; or &apos;db-owner&apos; database users. This does not eliminate SQL injection, but minimizes its impact.&lt;/p&gt;&lt;p&gt;Grant the minimum database access that is necessary for the application.&lt;/p&gt;</solution>
+  <otherinfo>&lt;p&gt;The original page results were successfully replicated using the expression [5-2] as the parameter value&lt;/p&gt;&lt;p&gt;The parameter value being modified was NOT stripped from the HTML output for the purposes of the comparison&lt;/p&gt;</otherinfo>
+  <reference>&lt;p&gt;https://www.owasp.org/index.php/Top_10_2010-A1&lt;/p&gt;&lt;p&gt;https://www.owasp.org/index.php/SQL_Injection_Prevention_Cheat_Sheet&lt;/p&gt;</reference>
+  <cweid>89</cweid>
+  <wascid>19</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>30001</pluginid>
+  <alert>Buffer Overflow</alert>
+  <riskcode>2</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Medium (Medium)</riskdesc>
+  <desc>&lt;p&gt;Buffer overflow errors are characterized by the overwriting of memory spaces of the background web process, which should have never been modified intentionally or unintentionally. Overwriting values of the IP (Instruction Pointer), BP (Base Pointer) and other registers causes exceptions, segmentation faults, and other process errors to occur. Usually these errors end execution of the application in an unexpected way. &lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>product</param>
+  <attack>POST http://localhost:8080/bodgeit/advanced.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2143
+Referer: http://localhost:8080/bodgeit/advanced.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>price</param>
+  <attack>POST http://localhost:8080/bodgeit/advanced.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2143
+Referer: http://localhost:8080/bodgeit/advanced.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>description</param>
+  <attack>POST http://localhost:8080/bodgeit/advanced.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2143
+Referer: http://localhost:8080/bodgeit/advanced.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2131
+Referer: http://localhost:8080/bodgeit/product.jsp?prodid=3
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>type</param>
+  <attack>POST http://localhost:8080/bodgeit/advanced.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2143
+Referer: http://localhost:8080/bodgeit/advanced.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>q</param>
+  <attack>POST http://localhost:8080/bodgeit/advanced.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2102
+Referer: http://localhost:8080/bodgeit/advanced.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_7</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2132
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_21</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_14</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_28</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_22</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_23</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_30</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_1</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2146
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_19</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2146
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_25</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2146
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_9</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2146
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_2</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2146
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_18</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2133
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_10</param>
+  <attack>POST http://localhost:8080/bodgeit/basket.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0
+Pragma: no-cache
+Cache-Control: no-cache
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2146
+Referer: http://localhost:8080/bodgeit/basket.jsp
+Host: localhost:8080
+
+</attack>
+  </instance>
+  </instances>
+  <count>33</count>
+  <solution>&lt;p&gt;Rewrite the background program using proper return length checking.  This will require a recompile of the background executable.&lt;/p&gt;</solution>
+  <otherinfo>&lt;p&gt;Potential Buffer Overflow.  The script closed the connection and threw a 500 Internal Server Error&lt;/p&gt;</otherinfo>
+  <reference>&lt;p&gt;https://www.owasp.org/index.php/Buffer_overflow_attack&lt;/p&gt;</reference>
+  <cweid>120</cweid>
+  <wascid>7</wascid>
+</alertitem>
+<alertitem>
+  <pluginid>30002</pluginid>
+  <alert>Format String Error</alert>
+  <riskcode>2</riskcode>
+  <confidence>2</confidence>
+  <riskdesc>Medium (Medium)</riskdesc>
+  <desc>&lt;p&gt;A Format String error occurs when the submitted data of an input string is evaluated as a command by the application. &lt;/p&gt;</desc>
+  <instances>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>product</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>price</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>description</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>type</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/advanced.jsp</uri>
+  <param>q</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_7</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_21</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_14</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_28</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_22</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_30</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_23</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_1</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_19</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_25</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_9</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_18</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_2</param>
+  <attack>ZAP</attack>
+  </instance>
+  <instance>
+  <uri>http://localhost:8080/bodgeit/basket.jsp</uri>
+  <param>quantity_10</param>
+  <attack>ZAP</attack>
+  </instance>
+  </instances>
+  <count>33</count>
+  <solution>&lt;p&gt;Rewrite the background program using proper deletion of bad character strings.  This will require a recompile of the background executable.&lt;/p&gt;</solution>
+  <otherinfo>&lt;p&gt;Potential Format String Error.  The script closed the connection on a /%s&lt;/p&gt;</otherinfo>
+  <reference>&lt;p&gt;https://www.owasp.org/index.php/Format_string_attack&lt;/p&gt;</reference>
+  <cweid>134</cweid>
+  <wascid>6</wascid>
+</alertitem>
+</alerts></site></OWASPZAPReport>

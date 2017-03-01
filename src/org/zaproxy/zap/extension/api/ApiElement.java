@@ -27,6 +27,20 @@ public class ApiElement {
 	private List<String> mandatoryParamNames = new ArrayList<>();
 	private List<String> optionalParamNames = new ArrayList<>();
 
+	/**
+	 * Flag that indicates whether or not the API element is deprecated.
+	 * 
+	 * @see #deprecatedDescription
+	 */
+	private boolean deprecated;
+
+	/**
+	 * The description for the deprecation.
+	 * 
+	 * @see #deprecated
+	 */
+	private String deprecatedDescription;
+
 	public String getName() {
 		return name;
 	}
@@ -108,4 +122,54 @@ public class ApiElement {
 		this.optionalParamNames = optionalParamNames;
 	}
 
+	/**
+	 * Tells whether or not the API element is deprecated.
+	 *
+	 * @return {@code true} if the API element is deprecated, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #getDeprecatedDescription()
+	 */
+	public boolean isDeprecated() {
+		return deprecated;
+	}
+
+	/**
+	 * Sets whether or not the API element is deprecated.
+	 * <p>
+	 * Deprecated elements are shown in the {@link WebUI} with a note that they are deprecated and their use is discouraged. The
+	 * API generators might also mark the elements as deprecated.
+	 * 
+	 * @param deprecated {@code true} if the API element is deprecated, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #setDeprecatedDescription(String)
+	 */
+	public void setDeprecated(boolean deprecated) {
+		this.deprecated = deprecated;
+	}
+
+	/**
+	 * Gets the description of the deprecation.
+	 *
+	 * @return the description of the deprecation, might be {@code null}.
+	 * @since TODO add version
+	 * @see #isDeprecated()
+	 */
+	public String getDeprecatedDescription() {
+		return deprecatedDescription;
+	}
+
+	/**
+	 * Sets the (concise) description of the deprecation.
+	 * <p>
+	 * The description should explain why it was deprecated and what are the alternative endpoints that should be used, if any.
+	 * <p>
+	 * <strong>Note:</strong> It should be in plain text (i.e. no HTML tags).
+	 *
+	 * @param description the description of the deprecation.
+	 * @since TODO add version
+	 * @see #setDeprecated(boolean)
+	 */
+	public void setDeprecatedDescription(String description) {
+		this.deprecatedDescription = description;
+	}
 }

@@ -32,19 +32,19 @@ import org.parosproxy.paros.network.HttpMessage;
 public class SpiderTextParser extends SpiderParser {
 
 	/** The Constant urlPattern defining the pattern for an url. */
-	private static final Pattern patternURL = Pattern.compile("\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)");
+	private static final Pattern patternURL = Pattern.compile("\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+)", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	public boolean parseResource(HttpMessage message, Source source, int depth) {
 		log.debug("Parsing a non-HTML text resource.");
 
+		String baseURL = message.getRequestHeader().getURI().toString();
+
 		// Use a simple pattern matcher to find urls
-		if (message.getResponseBody() != null) {
-			Matcher matcher = patternURL.matcher(message.getResponseBody().toString());
-			while (matcher.find()) {
-				String s = matcher.group(1);
-				processURL(message, depth, s, "");
-			}
+		Matcher matcher = patternURL.matcher(message.getResponseBody().toString());
+		while (matcher.find()) {
+			String s = matcher.group(1);
+			processURL(message, depth, s, baseURL);
 		}
 
 		return false;
@@ -53,8 +53,7 @@ public class SpiderTextParser extends SpiderParser {
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
 		// Fall-back parser - if it's a text, non-HTML response which has not already been processed
-		return !wasAlreadyConsumed && message.getResponseHeader() != null
-				&& message.getResponseHeader().isText() && !message.getResponseHeader().isHtml();
+		return !wasAlreadyConsumed && message.getResponseHeader().isText() && !message.getResponseHeader().isHtml();
 	}
 
 }

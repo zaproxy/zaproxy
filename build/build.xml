@@ -5,29 +5,19 @@
 	<property name="src.version" value="1.7" />
 	<property name="build" location="build" />
 	<property name="build.lib.dir" location="lib" />
-	<property name="build.crowdin.dir" location="${build}/crowdin" />
-	<property name="crowdin.dir" location="crowdin" />
 	<property name="dist" location="zap" />
 	<property name="dist.lib.dir" location="../lib" />
-	<property name="dist.lib.license.dir" location="../license" />
-	<property name="dist.lib.exploded.dir" location="api-libs-exploded" />
 	<property name="javadocs.dir" location="../javadocs" />
 	<property name="lang.dir" value="${src}/lang" />
 	<property name="help.dir" value="../../zap-core-help/src/help" />
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
-	<property name="wiki.dir" location="../../zap-core-help-wiki/" />
+	<property name="test.build" location="buildtest" />
 	<property name="zap.extensions.alpha.dir" location="../../zap-extensions_alpha/" />
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
-	<property name="zap.java.api.version" value="4" />
 	<property name="package" value="zaproxy" />
-
-	<property name="crowdin.zap.project.id" value="owasp-zap" />
-	<property name="crowdin.zap.help.project.id" value="owasp-zap-help" />
-
-	<property file="crowdin-api-keys"/>
 
 	<!-- mac specific properties -->
 	<property name="dist-mac" location="zap-mac" />
@@ -35,11 +25,11 @@
 	<property name="app.name" value="OWASP ZAP.app" />
 	<property name="app.volname" value="OWASP ZAP" />
 	<property name="app.bundle" value="${dist-mac}/${app.name}" />
-	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaAppLauncher" />
+	<property name="app.executable" value="${app.bundle}/Contents/MacOS/OWASP ZAP.sh" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
-	<!--This version downloaded from  http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html -->
-	<property name="app.jrearchive" value="jre-7u75-macosx-x64.tar.gz" />
-	<property name="app.jredir" value="jre1.7.0_75.jre" />
+	<!--This version downloaded from http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html -->
+	<property name="app.jrearchive" value="jre-8u121-macosx-x64.tar.gz" />
+	<property name="app.jredir" value="jre1.8.0_121.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
@@ -53,201 +43,18 @@
 		<os family="windows" />
 	</condition>
 
-	<!-- svn command line -->
-	<property name="svn.cmd" value="svn" />
-	<property name="git.cmd" value="git" />
-
 	<path id="build.classpath">
 		<fileset dir="${build.lib.dir}" includes="*.jar"/>
 	</path>
 
-	<!-- Ant task to generate the wiki -->
-	<taskdef classpathref="build.classpath" resource="wikitasks.properties" />
-
 	<!-- Ant task to generate JavaHelp jars -->
 	<taskdef name="generatejavahelpjars" classname="org.zaproxy.ant.javahelp.taskdefs.GenerateJavaHelpJars" classpathref="build.classpath" />
-
-	<!-- Crowdin related Ant types -->
-	<typedef name="crowdinconfiguration" classname="org.zaproxy.ant.crowdin.types.Configuration" classpathref="build.classpath" loaderref="lib.path.loader" />
-	<typedef name="cclanguagemapping" classname="org.zaproxy.ant.crowdin.types.LanguageMapping" loaderref="lib.path.loader" />
-	<typedef name="ccexclude" classname="org.zaproxy.ant.crowdin.types.Exclude" loaderref="lib.path.loader" />
-	<typedef name="ccproject" classname="org.zaproxy.ant.crowdin.types.Project" loaderref="lib.path.loader" />
-	<typedef name="ccfiles" classname="org.zaproxy.ant.crowdin.types.FileSet" loaderref="lib.path.loader" />
-	<typedef name="ccinclude" classname="org.zaproxy.ant.crowdin.types.Include" loaderref="lib.path.loader" />
-	<typedef name="cclocalresources" classname="org.zaproxy.ant.crowdin.types.LocalResourceSet" loaderref="lib.path.loader" />
-	<typedef name="cctranslatableelement" classname="org.zaproxy.ant.crowdin.types.TranslatableElement" loaderref="lib.path.loader" />
-	<typedef name="clastmodifieddateprovider" classname="org.zaproxy.ant.crowdin.types.ModifiedDateProvider" loaderref="lib.path.loader" />
-	<!-- Crowdin related Ant tasks -->
-	<taskdef name="crowdinupdatesources" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinUpdateSources" loaderref="lib.path.loader" />
-	<taskdef name="crowdindownloadtranslations" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinDownloadTranslations" loaderref="lib.path.loader" />
-	<taskdef name="crowdinupdatehelpsetlangattribute" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinUpdateHelpSetLangAttribute" loaderref="lib.path.loader" />
-	<taskdef name="crowdinexport" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinTriggerExportPackage" loaderref="lib.path.loader" />
-	<taskdef name="crowdindownload" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinDownloadPackage" loaderref="lib.path.loader" />
 
 	<!-- task to do conditionals -->
 	<taskdef classpathref="build.classpath" resource="net/sf/antcontrib/antlib.xml" />
 
 	<!-- task to build debs -->
 	<taskdef classpathref="build.classpath" name="deb" classname="org.vafer.jdeb.ant.DebAntTask"/>
-
-	<!-- Configuration for Crowdin tasks, it represents the files (and its properties) that should be upload/download to/from Crowdin. -->
-	<crowdinconfiguration id="crowdin.config">
-		<!-- translation of UI strings -->
-		<ccproject projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}">
-			<ccexclude path="/videos/**" />
-			<ccexclude path="/docs/**" />
-			<!-- zaproxy project -->
-			<ccfiles basedir="${lang.dir}" exportpatternprefix="/zaproxy/lang/">
-				<!-- UI strings -->
-				<ccinclude source="Messages.properties" 
-                    crowdinpath="/%original_file_name%"
-                    exportpattern="%file_name%_%locale_with_underscore%.%file_extension%" />
-				<!-- Alerts -->
-				<ccinclude source="vulnerabilities.xml" 
-                    crowdinpath="/%original_file_name%"
-                    exportpattern="%file_name%_%locale_with_underscore%.%file_extension%">
-				</ccinclude>
-			</ccfiles>
-			<!-- zaproxy project core add-ons -->
-			<ccfiles basedir="${src}/org/zaproxy/zap/extension/" exportpatternprefix="/zaproxy/add-ons/">
-				<!-- core-addons/ -->
-				<ccinclude source="*/resources/Messages.properties" 
-                    crowdinpath="/core/*/%original_file_name%"
-                    exportpattern="*/resources/%file_name%_%locale_with_underscore%.%file_extension%" />
-			</ccfiles>
-			<!-- zap-extensions project -->
-			<!-- alpha extensions -->
-			<ccfiles basedir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" 
-                exportpatternprefix="/zap-extensions/alpha/">
-				<ccinclude id="addons.include.messages" source="*/resources/Messages.properties" 
-                    crowdinpath="/extensions/*/%original_file_name%"
-                    exportpattern="*/resources/%file_name%_%locale_with_underscore%.%file_extension%" />
-			</ccfiles>
-			<!-- beta extensions -->
-			<ccfiles basedir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
-                exportpatternprefix="/zap-extensions/beta/">
-				<ccinclude refid="addons.include.messages" />
-			</ccfiles>
-			<!-- trunk extensions -->
-			<ccfiles basedir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/" 
-                exportpatternprefix="/zap-extensions/trunk/">
-				<ccinclude refid="addons.include.messages" />
-				<ccexclude id="exclude.examples" path="example*/resources/*" />
-			</ccfiles>
-		</ccproject>
-		<!-- translation of help resources -->
-		<ccproject projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}">
-			<!-- zaproxy project -->
-			<ccfiles basedir="${help.dir}" exportpatternprefix="/zaproxy/">
-				<!-- contents -->
-				<ccinclude source="zaphelp/contents/**/*.html"
-                    crowdinpath="/contents/**/%original_file_name%"
-                    exportpattern="zaphelp_%locale_with_underscore%/contents/**/%original_file_name%" />
-				<!-- helpset -->
-				<ccinclude source="zaphelp/helpset.hs" 
-                    crowdinpath="/%file_name%.xml" 
-                    exportpattern="zaphelp_%locale_with_underscore%/%file_name%_%locale_with_underscore%.%file_extension%">
-					<cctranslatableelement xpath="/helpset/title" />
-					<cctranslatableelement xpath="/helpset/presentation/title" />
-					<cctranslatableelement xpath="/helpset/view/label" />
-				</ccinclude>
-				<!-- toc -->
-				<ccinclude source="zaphelp/toc.xml" 
-                    crowdinpath="/%original_file_name%"
-                    exportpattern="zaphelp_%locale_with_underscore%/%original_file_name%">
-					<!-- Crowdin doesn't seem to support descendant axis -->
-					<!-- <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" /> -->
-					<cctranslatableelement xpath="/toc/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem/tocitem[@text]" />
-				</ccinclude>
-				<!-- index -->
-				<ccinclude source="zaphelp/index.xml" 
-                    crowdinpath="/%original_file_name%" 
-                    exportpattern="zaphelp_%locale_with_underscore%/%original_file_name%">
-					<!-- Crowdin doesn't seem to support descendant axis -->
-					<!-- <cctranslatableelement xpath="/index/descendant::indexitem[@text]" /> -->
-					<cctranslatableelement xpath="/index/indexitem[@text]" />
-				</ccinclude>
-				<cclocalresources source="zaphelp/map.jhm" 
-                    dest="zaphelp_%locale_with_underscore%/%original_file_name%"
-                    exportpattern="zaphelp_%locale_with_underscore%" />
-				<cclocalresources source="zaphelp/contents/**" 
-                    dest="zaphelp_%locale_with_underscore%/contents/**"
-                    exportpattern="zaphelp_%locale_with_underscore%">
-					<ccexclude path="zaphelp/contents/**/*.html" />
-				</cclocalresources>
-			</ccfiles>
-			<!-- zap-extensions project -->
-			<!-- alpha extensions -->
-			<ccfiles basedir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" 
-                exportpatternprefix="/zap-extensions/alpha/">
-				<!-- contents -->
-				<ccinclude id="addons.include.help.contents" source="*/resources/help/contents/**/*.html"
-                    crowdinpath="/extensions/*/contents/**/%original_file_name%"
-                    exportpattern="*/resources/help_%locale_with_underscore%/contents/**/%original_file_name%" />
-				<!-- helpset -->
-				<ccinclude id="addons.include.help.file.hs" source="*/resources/help/helpset.hs" 
-                    crowdinpath="/extensions/*/%file_name%.xml" 
-                    exportpattern="*/resources/help_%locale_with_underscore%/%file_name%_%locale_with_underscore%.%file_extension%">
-					<cctranslatableelement xpath="/helpset/title" />
-					<cctranslatableelement xpath="/helpset/presentation/title" />
-					<cctranslatableelement xpath="/helpset/view/label" />
-				</ccinclude>
-				<!-- toc -->
-				<ccinclude id="addons.include.help.file.toc" source="*/resources/help/toc.xml" 
-                    crowdinpath="/extensions/*/%original_file_name%"
-                    exportpattern="*/resources/help_%locale_with_underscore%/%original_file_name%">
-					<!-- Crowdin doesn't seem to support descendant axis -->
-					<!-- <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" /> -->
-					<cctranslatableelement xpath="/toc/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem[@text]" />
-					<cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem/tocitem[@text]" />
-				</ccinclude>
-				<!-- index -->
-				<ccinclude id="addons.include.help.file.index" source="*/resources/help/index.xml" 
-                    crowdinpath="/extensions/*/%original_file_name%" 
-                    exportpattern="*/resources/help_%locale_with_underscore%/%original_file_name%">
-					<!-- Crowdin doesn't seem to support descendant axis -->
-					<!-- <cctranslatableelement xpath="/index/descendant::indexitem[@text]" /> -->
-					<cctranslatableelement xpath="/index/indexitem[@text]" />
-				</ccinclude>
-				<cclocalresources id="addons.resources.help.file.map" source="*/resources/help/map.jhm" 
-                    dest="*/resources/help_%locale_with_underscore%/%original_file_name%"
-                    exportpattern="*/resources/help_%locale_with_underscore%" />
-				<cclocalresources id="addons.resources.help.contents" source="*/resources/help/contents/**" 
-                    dest="*/resources/help_%locale_with_underscore%/contents/**"
-                    exportpattern="*/resources/help_%locale_with_underscore%">
-					<ccexclude path="*/resources/help/contents/**/*.html" />
-				</cclocalresources>
-			</ccfiles>
-			<!-- beta extensions -->
-			<ccfiles basedir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
-                exportpatternprefix="/zap-extensions/beta/">
-				<ccinclude refid="addons.include.help.contents" />
-				<ccinclude refid="addons.include.help.file.hs" />
-				<ccinclude refid="addons.include.help.file.toc" />
-				<ccinclude refid="addons.include.help.file.index" />
-				<cclocalresources refid="addons.resources.help.file.map" />
-				<cclocalresources refid="addons.resources.help.contents" />
-			</ccfiles>
-			<!-- trunk extensions -->
-			<ccfiles basedir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/" 
-                exportpatternprefix="/zap-extensions/trunk/">
-				<ccinclude refid="addons.include.help.contents" />
-				<ccinclude refid="addons.include.help.file.hs" />
-				<ccinclude refid="addons.include.help.file.toc" />
-				<ccinclude refid="addons.include.help.file.index" />
-				<ccexclude refid="exclude.examples" />
-				<cclocalresources refid="addons.resources.help.file.map" />
-				<cclocalresources refid="addons.resources.help.contents" />
-			</ccfiles>
-		</ccproject>
-	</crowdinconfiguration>
 
 	<path id="dist.classpath">
 		<!--pathelement location="."/-->
@@ -262,9 +69,10 @@
 
 		<delete dir="${dist}" includeEmptyDirs="true" />
 		<delete dir="${build}" includeEmptyDirs="true" />
-		<delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
+		<delete dir="${test.build}" includeEmptyDirs="true" />
 
 		<mkdir dir="${build}" />
+		<mkdir dir="${test.build}" />
 		<mkdir dir="results" />
 	</target>
 
@@ -277,6 +85,8 @@
 		</delete>
 		<delete dir="${app.name}" />      <!-- if you've unzipped the Mac version, for testing -->
 		<delete dir="ZAP_${version}" />   <!-- if you've untarred the Linux version, for testing -->
+		<delete dir="${test.build}" includeEmptyDirs="true" />
+		<delete dir="results"  includeEmptyDirs="true" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile the source ">
@@ -291,6 +101,9 @@
 		<!-- Compile the java code from ${src} into ${build} -->
 		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
 		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+			<compilerarg value="-Xlint:all"/>
+			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
+			<compilerarg value="-Werror"/>
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
@@ -298,9 +111,13 @@
 			</classpath>
 		</javac>
 
-		<!-- Compile the java test code from ${test-src} into ${build} -->
-		<javac srcdir="${test.src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+		<!-- Compile the java test code from ${test.src} into ${test.build} -->
+		<javac srcdir="${test.src}" destdir="${test.build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+			<compilerarg value="-Xlint:all"/>
+			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
+			<compilerarg value="-Werror"/>
 			<classpath>
+				<pathelement location="${build}" />
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -312,7 +129,7 @@
 
 	</target>
 
-	<target name="dist" depends="compile" description="Generates the distribution">
+	<target name="dist" depends="setup, compile" description="Generates the distribution">
 		<echo message="Creating the distribution set..." />
 
 		<!-- Create the distribution directory -->
@@ -331,31 +148,27 @@
 		<copy todir="${dist}/db">
 			<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
 		</copy>
-		<copy todir="${dist}/filter">
-			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
-		</copy>
 		<copy todir="${dist}/plugin">
 			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 		<copy todir="${dist}/scripts">
 			<fileset dir="${src}/scripts" excludes="**/.svn/** **/_svn/**" />
 		</copy>
-		<copy todir="${dist}/session">
-			<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
-		</copy>
 		<copy todir="${dist}/lang">
 			<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 
 		<copy todir="${dist}/license">
-			<fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/log">
-			<fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
+			<fileset dir="${src}/license">
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
+				<exclude name="OrangeExtensions.License.txt" />
+			</fileset>
 		</copy>
 		<copy todir="${dist}/lib">
 			<fileset dir="${dist.lib.dir}">
 				<include name="**/*.jar" />
+				<exclude name="orange-extensions-1.3.0.jar" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
 			</fileset>
@@ -394,15 +207,14 @@
 			<classpath>
 				<fileset dir="${dist}/lib">
 					<include name="**/*.jar" />
-					<exclude name="**/JBroFuzz.jar"/>
 				</fileset>
-				<!-- include JBroFuzz.jar at the end of the classpath, since it has old versions of SQLite that cause issues -->
-				<fileset dir="${dist}/lib">
-					<include name="**/JBroFuzz.jar"/>
-				</fileset>
-				<!--path location="lang"/-->
+				<path location="${dist}/lang/" />
 			</classpath>
 		</manifestclasspath>
+
+		<tstamp>
+			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
+		</tstamp>
 
 		<jar jarfile="${dist}/${zap.jar}" update="true" compress="false">
 			<zipfileset dir="${build}" prefix="">
@@ -412,39 +224,7 @@
 				<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
 				<attribute name="Class-Path" value="${dist.manifest.classpath}" />
 				<attribute name="Implementation-Version" value="${version}" />
-			</manifest>
-		</jar>
-
-		<unjar dest="${dist.lib.exploded.dir}">
-			<fileset dir="${dist.lib.dir}" casesensitive="yes">
-				<include name="**/ant.jar" />
-				<include name="**/jdom.jar" />
-				<include name="**/commons-beanutils-1.8.3.jar" />
-				<include name="**/commons-collections-3.2.1.jar" />
-				<include name="**/commons-lang-2.6.jar" />
-				<include name="**/commons-logging-1.1.1.jar" />
-				<include name="**/ezmorph-1.0.6.jar" />
-				<!--
-                    NOTE: If you're adding a jar to this list, ensure you add the license to ../license
-                    so it is brought into zap-api.jar
-                -->
-			</fileset>
-		</unjar>
-
-		<!-- Need to manually increment the API jar version ${zap.java.api.version} (at the start) before uploading a new one -->
-		<jar jarfile="${dist}/zap-api-v2-${zap.java.api.version}.jar" update="true" compress="false">
-			<zipfileset dir="${build}" prefix="">
-				<include name="org/zaproxy/clientapi/**"/>
-			</zipfileset>
-			<zipfileset dir="${dist.lib.exploded.dir}" prefix="">
-				<include name="**/*.class"/>
-				<exclude name="**/*LICENSE*"/>
-				<exclude name="**/*NOTICE*"/>
-			</zipfileset>
-			<zipfileset dir="${dist.lib.license.dir}" prefix="META-INF/license"/>
-			<manifest>
-				<attribute name="Implementation-Version" value="${zap.java.api.version}" />
-				<attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
+				<attribute name="Create-Date" value="${yyyymmdd}" />
 			</manifest>
 		</jar>
 
@@ -452,8 +232,7 @@
 		<replace file="${dist}/zap.bat" token="zap-dev.jar" value="${zap.jar}"/>
 		<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
 
-		<!-- Delete the libraries files, "unjared" previously, as they are no longer needed. -->
-		<delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
+		<chmod perm="755" file="${dist}/zap.sh" />
 	</target>
 
 	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
@@ -465,33 +244,6 @@
 		<copy todir="${build}">
 			<fileset dir="${src}" includes="**/*.java" />
 		</copy>
-	</target>
-
-	<target name="generate-wiki" description="Generates the core wiki help pages">
-		<local name="version" />
-		<loadfile property="version" srcfile="version.txt" />
-		<generatewiki basesrcdir="${help.dir}" basedestdir="${wiki.dir}"
-            helpcontentsdir="contents/" helpcontentsinclude=".*\.html"
-            srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://github.com/zaproxy/zap-core-help/wiki/images/"
-            outputfilenameprefix="Help" includeoutputfiles="Help.*\.md" excludeoutputfiles="HelpAddons.*\.md"
-            helpfileextension=".html" wikifileextension=".md"
-            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="_Sidebar-CoreUserGuide.md">
-
-			<!-- Default language is at root of dest dir -->
-			<helpdir src="zaphelp" dest="" />
-			<!-- Do not generate until the pages are synced with Crowdin to fix the HTML errors and broken links.
-            <helpdir src="zaphelp_bs_BA" dest="bs" />
-            <helpdir src="zaphelp_de_DE" dest="de" />
-            <helpdir src="zaphelp_el_GR" dest="el" />
-            <helpdir src="zaphelp_es_ES" dest="es" />
-            <helpdir src="zaphelp_fa_IR" dest="fa" />
-            <helpdir src="zaphelp_fr_FR" dest="fr" />
-            <helpdir src="zaphelp_it_IT" dest="it" />
-            <helpdir src="zaphelp_ja_JP" dest="ja" />
-            <helpdir src="zaphelp_pl_PL" dest="pl" />
-            <helpdir src="zaphelp_pt_BR" dest="pt-BR" />
-            <helpdir src="zaphelp_ru_RU" dest="ru" /> -->
-		</generatewiki>
 	</target>
 
 	<macrodef name="copy-help-to-addon" description="deploy the help file to the equivalent addon">
@@ -530,7 +282,7 @@
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_es_ES"/>
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_fr_FR"/>
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_ja_JP"/>
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.beta.dir}" lang="_pt_BR"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.trunk.dir}" lang="_pt_BR"/>
 
 		<delete dir="${wkdir}" includeEmptyDirs="true" />
 	</target>
@@ -550,67 +302,6 @@
         	todir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/coreLang/files/lang"/>
 	</target>
 
-	<target name="crowdin-update-sources" description="Updates the sources, of all ZAP projects, into Crowdin">
-		<!-- When using updateneweronly as true you have to commit/push the changes before updating the sources so the commit 
-        date is newer than the modification date in Crowdin.
-        Use updateneweronly as true whenever possible as it updates/uploads only the necessary files.
-        Note: when moving add-ons between branches updateneweronly has to be false to force the update of export pattern -->
-		<crowdinupdatesources configrefid="crowdin.config" dryrun="false" verbose="true" updateoption="update_as_unapproved" 
-            xmlcontentsegmentation="false" updateneweronly="false" deleteremoved="false">
-			<!-- For SVN repo, uses commit date (from svn info) -->
-			<clastmodifieddateprovider name="svn" cmdpath="${svn.cmd}" failonerror="true" />
-			<!-- For Git repo, uses "committer date" (from git log) -->
-			<!-- <clastmodifieddateprovider name="git" cmdpath="${git.cmd}" failonerror="true" /> -->
-			<!-- File system file's last modified date. Not recommended, unless files' last
-            modified date is in sync with Git/SVN push/commit dates -->
-			<!-- <clastmodifieddateprovider name="file-system" /> -->
-		</crowdinupdatesources>
-	</target>
-
-	<target name="crowdin-download-translations" description="Downloads and updates the translations, from Crowdin, for all ZAP projects">
-		<delete dir="${build.crowdin.dir}" includeEmptyDirs="true" />
-		<mkdir dir="${build.crowdin.dir}" />
-		<crowdindownloadtranslations configrefid="crowdin.config" verbose="false" workingdir="${build.crowdin.dir}" />
-		<delete dir="${build.crowdin.dir}" includeEmptyDirs="true" />
-		<crowdinupdatehelpsetlangattribute configrefid="crowdin.config" verbose="false" helpsetfilename="helpset.hs" />
-	</target>
-
-	<target name="crowdin-trigger-export-packages" description="Triggers the build of ZAP's Crowdin projects translation package">
-		<crowdinexport projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" />
-		<crowdinexport projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" />
-	</target>
-
-	<target name="crowdin-download-packages" description="Downloads ZAP's Crowdin projects translation packages">
-		<crowdindownload projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" 
-            to="${crowdin.dir}/${crowdin.zap.project.id}.zip" language="all" />
-		<crowdindownload projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" 
-            to="${crowdin.dir}/${crowdin.zap.help.project.id}.zip" language="all" />
-	</target>
-
-	<macrodef name="set-svn-mime-type-prop">
-		<attribute name="directory"/>
-		<attribute name="files" default="" />
-		<attribute name="mimetype"/>
-		<sequential>
-			<local name="file.mime.type.targets" />
-			<property name="file.mime.type.targets" value="${build}/mime-type-targets" />
-			<local name="paths" />
-			<pathconvert property="paths" pathsep="${line.separator}">
-				<fileset dir="@{directory}" includes="@{files}" casesensitive="no" />
-			</pathconvert>
-			<echo output="${file.mime.type.targets}">${paths}</echo>
-			<exec executable="${svn.cmd}" failonerror="yes">
-				<arg value="propset" />
-				<arg value="svn:mime-type" />
-				<arg value="@{mimetype}" />
-				<arg value="--targets" />
-				<arg value="${file.mime.type.targets}" />
-				<arg value="--quiet" />
-			</exec>
-			<delete file="${file.mime.type.targets}" />
-		</sequential>
-	</macrodef>
-
 	<target name="generate-javadocs" description="Generates the javadocs">
 		<!-- Delete all the previous generated files and directories from the
           "javadocs.dir" directory before generating the new ones in case of any
@@ -629,20 +320,6 @@
                  link="http://docs.oracle.com/javase/7/docs/api/">
 		</javadoc>
 
-		<echo message="Adding generated files to SVN index..." />
-		<exec executable="${svn.cmd}" failonerror="yes">
-			<arg value="add" />
-			<arg value="${javadocs.dir}" />
-			<arg value="--force" />
-			<arg value="--quiet" />
-		</exec>
-
-		<echo message="Applying SVN mime-type property to generated files..." />
-		<!-- set mime-type such that HTML is returned by server -->
-		<set-svn-mime-type-prop directory="${javadocs.dir}" files="**/*.html" mimetype="text/html" />
-		<set-svn-mime-type-prop directory="${javadocs.dir}" files="**/*.css" mimetype="text/css" />
-		<set-svn-mime-type-prop directory="${javadocs.dir}" files="**/*.gif" mimetype="image/gif" />
-		<echo message="Done." />
 	</target>
 
 	<target name="generate-apis" description="Generates the client APIs">
@@ -664,43 +341,42 @@
 		<java classname="org.zaproxy.zap.extension.api.PhpAPIGenerator" dir=".." fork="yes">
 			<classpath refid="classpath" />
 		</java>
+		<java classname="org.zaproxy.zap.extension.api.GoAPIGenerator" dir=".." fork="yes">
+			<classpath refid="classpath" />
+		</java>
 	</target>
 
-    <target name="copy-jar-to-extension-projects" depends="setup, dist">
+    <target name="copy-jar-to-extension-projects" depends="dist">
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
     </target>
 
-	<target name="test" depends="setup, dist">
+	<target name="test" depends="dist">
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
-        		<fileset dir="../lib">
+                <pathelement location="${build}"/>
+                <pathelement location="${test.build}"/>
+        		<fileset dir="${dist.lib.dir}">
         			<include name="*.jar" />
-        		</fileset>
-        		<fileset dir="lib">
-        			<include name="*.jar" />
-        			<exclude name="ant*.jar" />
-        			<exclude name="junit*.jar" />
-        		</fileset>
-        		<fileset dir="zap">
-        			<include name="zap.jar" />
         			<exclude name="ant*.jar" />
         		</fileset>
         		<fileset dir="../testlib">
         			<include name="*.jar" />
         		</fileset>
-            	
-        		<!--pathelement location="bin"/-->		<!-- When running in Eclipse -->
-        		<pathelement location="build"/>		<!-- When running on build server -->
             </classpath>
             <formatter type="plain"/>
             <formatter type="xml"/>
             <batchtest fork="yes" todir="results">
-                <fileset dir="build">
+                <fileset dir="${test.build}">
                     <include name="**/*UnitTest.class"/>
                     <exclude name="**/Abstract*Test.class"/>
+                </fileset>
+                <fileset dir="${test.build}">
+                    <include name="**/AbstractPluginUnitTest.class"/>
+                    <include name="**/AbstractParamUnitTest.class"/>
+                    <include name="**/AbstractMultipleOptionsBaseTableModelUnitTest.class"/>
                 </fileset>
             </batchtest>
 		</junit>
@@ -798,6 +474,8 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
+				<exclude name="**/plugin/*macos*" />
+				<exclude name="**/plugin/*windows*" />
 				<exclude name="zap.sh" />
 			</tarfileset>
 			<tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
@@ -866,16 +544,9 @@
 	<target name="package-macosx">
 		<echo message="Packaging the Mac OS X build..." />
 
-		<!-- We can't store the JRE in SVN currently, so error out if it isn't manually put there -->
-		<fail message="Note that ${app.jrearchive} must be in ${mac-skeleton}/${app.name}/Contents/PlugIns for build to complete.">
-			<condition>
-				<not>
-					<resourcecount count="1" >
-						<fileset id="fs" dir="${mac-skeleton}/${app.name}/Contents/PlugIns" includes="${app.jrearchive}" />
-					</resourcecount>
-				</not>
-			</condition>
-		</fail>
+		<!-- Pull down the latest JRE in zap-libs-->
+		<get src="https://github.com/zaproxy/zap-libs/raw/master/files/jre/${app.jrearchive}" 
+			dest="${mac-skeleton}/${app.name}/Contents/PlugIns/${app.jrearchive}"/>
 
 		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
 		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
@@ -890,6 +561,8 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
+				<exclude name="**/plugin/*linux*" />
+				<exclude name="**/plugin/*windows*" />
 				<exclude name="**/*.bat" />
 				<exclude name="**/*.ico" />
 			</fileset>
@@ -924,6 +597,8 @@
 					<arg value="create" />
 					<arg value="-format" />
 					<arg value="UDBZ" />
+					<arg value="-megabytes" />
+					<arg value="300" />
 					<arg value="-srcfolder" />
 					<arg file="${dist-mac}" />
 					<arg value="-volname" />
@@ -935,11 +610,13 @@
 				</exec>
 			</then>
 			<else>
+				<!-- No point if not on Mac? Uncomment to generate if required
 				<delete file="ZAP_${version}_Mac_OS_X.zip" />
 				<echo message="Creating ZIP archive for the Mac OS X release; build on a Mac for compressed .dmg" />
 				<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
 					<arg line="-y -q -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
 				</exec>
+				-->
 			</else>
 		</if>
 
@@ -971,7 +648,11 @@
 
 	<!-- Load the version from version.txt, set ${zap.jar} -->
 	<target name="setup">
-		<loadfile property="version" srcfile="version.txt" />
+		<loadfile property="version" srcfile="version.txt">
+			<filterchain>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
 		<if>
 			<equals arg1="${version}" arg2="Dev Build" />
 			<then>
@@ -986,10 +667,10 @@
 		<echo message="Jar file for build is: ${zap.jar}" />
 	</target>
 
-	<target name="lite-release" depends="setup, dist, package-lite"
+	<target name="lite-release" depends="dist, package-lite"
 		description="Generates the distribution and (lite) cross-platform packages" />
 
-	<target name="full-release" depends="setup, dist, package-linux, package-macosx"
+	<target name="full-release" depends="dist, package-linux, package-macosx"
 		description="Generates the distribution and Linux/MacOS X packages [default]" />
 
 	<target name="day-stamped-release" description="Generates the day-stamped package, as well as the distribution and help jars">
@@ -998,7 +679,6 @@
 		</tstamp>
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
-		<property name="zap.jar" value="zap-${version}.jar" />
 
 		<antcall target="generate-help-jars" />
 		<!-- Set to compile with debug information -->
@@ -1008,69 +688,6 @@
 		<delete file="${dist}/README" />
 		<copy file="${src}/doc/README.weekly" tofile="${dist}/README"/>
 		<antcall target="package-daily" />
-	</target>
-
-	<macrodef name="svn-cleanup">
-		<attribute name="dir"/>
-		<sequential>
-			<exec executable="${svn.cmd}" failonerror="yes" dir="@{dir}">
-				<arg value="cleanup" />
-			</exec>
-		</sequential>
-	</macrodef>
-
-	<target name="package-workspace-zap" description="Package ZAP (Eclipse) workspace">
-		<echo message="Packaging ZAP workspace..." />
-
-		<local name="workspace.zap" />
-		<property name="workspace.zap" location="workspace-zap.zip" />
-		<delete file="${workspace.zap}" />
-
-		<local name="zaproxy.dir" />
-		<property name="zaproxy.dir" location="${src}/../" />
-
-		<local name="metadata.dir" />
-		<property name="metadata.dir" location="${zaproxy.dir}/../.metadata" />
-
-		<svn-cleanup dir="${zaproxy.dir}" />
-		<svn-cleanup dir="${zap.extensions.alpha.dir}" />
-		<svn-cleanup dir="${zap.extensions.beta.dir}" />
-		<svn-cleanup dir="${zap.extensions.trunk.dir}" />
-		<svn-cleanup dir="${zap.test.trunk.dir}" />
-
-		<zip destfile="${workspace.zap}" level="9">
-			<zipfileset dir="${metadata.dir}" prefix="workspace-zap/.metadata" defaultexcludes="false">
-				<include name="version.ini" />
-				<include name=".plugins/org.eclipse.core.resources/.root/*.tree" />
-				<include name=".plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources" />
-				<include name=".plugins/org.eclipse.debug.core/.launches/ZAP.launch" />
-				<include name=".plugins/org.eclipse.debug.ui/launchConfigurationHistory.xml" />
-			</zipfileset>
-			<zipfileset dir="${zaproxy.dir}" prefix="workspace-zap/zaproxy" defaultexcludes="false">
-				<exclude name="bin/" />
-				<exclude name="build/build/" />
-				<exclude name="build/zap/" />
-			</zipfileset>
-			<zipfileset dir="${zap.extensions.alpha.dir}" prefix="workspace-zap/zap-extensions-alpha" defaultexcludes="false">
-				<exclude name="bin/" />
-				<exclude name="build/build/" />
-				<exclude name="build/zap-exts/" />
-			</zipfileset>
-			<zipfileset dir="${zap.extensions.beta.dir}" prefix="workspace-zap/zap-extensions-beta" defaultexcludes="false">
-				<exclude name="bin/" />
-				<exclude name="build/build/" />
-				<exclude name="build/zap-exts/" />
-			</zipfileset>
-			<zipfileset dir="${zap.extensions.trunk.dir}" prefix="workspace-zap/zap-extensions" defaultexcludes="false">
-				<exclude name="bin/" />
-				<exclude name="build/build/" />
-				<exclude name="build/zap-exts/" />
-			</zipfileset>
-			<zipfileset dir="${zap.test.trunk.dir}" prefix="workspace-zap/zaproxy-test" defaultexcludes="false">
-				<exclude name="bin/" />
-				<exclude name="build/" />
-			</zipfileset>
-		</zip>
 	</target>
 
 </project>

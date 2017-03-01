@@ -24,12 +24,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -45,13 +48,23 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.zaproxy.zap.Version;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.AddOnDep;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.Dependencies;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.ExtensionWithDeps;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 public class AddOn  {
+
+	/**
+	 * The name of the manifest file, contained in the add-ons.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final String MANIFEST_FILE_NAME = "ZapAddOn.xml";
+
 	public enum Status {unknown, example, alpha, beta, weekly, release}
 	
 	private static ZapRelease v2_4 = new ZapRelease("2.4.0");
@@ -98,6 +111,13 @@ public class AddOn  {
 		SOFT_UNINSTALLATION_FAILED
 	}
 	
+	/**
+	 * The file extension of ZAP add-ons.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final String FILE_EXTENSION = ".zap";
+
 	private String id;
 	private String name;
 	private String description = "";
@@ -145,15 +165,34 @@ public class AddOn  {
 	 */
 	private List<Extension> loadedExtensions;
 	private List<String> ascanrules = Collections.emptyList();
+	private List<AbstractPlugin> loadedAscanrules = Collections.emptyList();
+	private boolean loadedAscanRulesSet;
 	private List<String> pscanrules = Collections.emptyList();
+	private List<PluginPassiveScanner> loadedPscanrules = Collections.emptyList();
+	private boolean loadedPscanRulesSet;
 	private List<String> files = Collections.emptyList();
+
+	private AddOnClassnames addOnClassnames = AddOnClassnames.ALL_ALLOWED;
 	
 	private Dependencies dependencies;
 
 	private static final Logger logger = Logger.getLogger(AddOn.class);
 	
+	/**
+	 * Tells whether or not the given file name matches the name of a ZAP add-on.
+	 * <p>
+	 * The file name must have the format "{@code <id>-<status>-<version>.zap}". The {@code id} is a string, the {@code status}
+	 * must be a value from {@link Status} and the {@code version} must be an integer.
+	 *
+	 * @param fileName the name of the file to check
+	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
+	 * @deprecated (TODO add version) Use {@link #isAddOnFileName(String)} instead, the checks done in this method are more
+	 *             strict than it needs to.
+	 * @see #isAddOnFileName(String)
+	 */
+	@Deprecated
 	public static boolean isAddOn(String fileName) {
-		if (! fileName.toLowerCase().endsWith(".zap")) {
+		if (! isAddOnFileName(fileName)) {
 			return false;
 		}
 		if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 3) {
@@ -170,13 +209,76 @@ public class AddOn  {
 		return true;
 		
 	}
-	public static boolean isAddOn(File f) {
-		if (! f.exists()) {
+
+	/**
+	 * Tells whether or not the given file name matches the name of a ZAP add-on.
+	 * <p>
+	 * The file name must have as file extension {@link #FILE_EXTENSION}.
+	 *
+	 * @param fileName the name of the file to check
+	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public static boolean isAddOnFileName(String fileName) {
+		if (fileName == null) {
 			return false;
 		}
-		return isAddOn(f.getName());
+		return fileName.toLowerCase(Locale.ROOT).endsWith(FILE_EXTENSION);
 	}
 
+	/**
+	 * Tells whether or not the given file is an add-on.
+	 *
+	 * @param f the file to be checked
+	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
+	 * @deprecated (TODO add version) Use {@link #isAddOn(Path)} instead.
+	 */
+	@Deprecated
+	public static boolean isAddOn(File f) {
+		return isAddOn(f.toPath());
+	}
+
+	/**
+	 * Tells whether or not the given file is a ZAP add-on.
+	 * <p>
+	 * An add-on is a ZIP file that contains, at least, a {@value #MANIFEST_FILE_NAME} file.
+	 * 
+	 * @param file the file to be checked
+	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #isAddOnFileName(String)
+	 */
+	public static boolean isAddOn(Path file) {
+		if (file == null || file.getNameCount() == 0) {
+			return false;
+		}
+
+		if (!isAddOnFileName(file.getFileName().toString())) {
+			return false;
+		}
+
+		if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
+			return false;
+		}
+
+		try (ZipFile zip = new ZipFile(file.toFile())) {
+			return zip.getEntry(MANIFEST_FILE_NAME) != null;
+		} catch (Exception e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Failed to obtain " + MANIFEST_FILE_NAME + " entry:", e);
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * Constructs an {@code AddOn} with the given file name.
+	 *
+	 * @param fileName the file name of the add-on
+	 * @throws Exception if the file name is not valid.
+	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
+	 */
+	@Deprecated
 	public AddOn(String fileName) throws Exception {
 		// Format is <name>-<status>-<version>.zap
 		if (! isAddOn(fileName)) {
@@ -192,21 +294,43 @@ public class AddOn  {
 	/**
 	 * Constructs an {@code AddOn} from the given {@code file}.
 	 * <p>
-	 * The {@code ZapAddOn.xml} ZIP file entry is read after validating that the add-on has a valid add-on file name.
+	 * The {@value #MANIFEST_FILE_NAME} ZIP file entry is read after validating that the add-on has a valid add-on file name.
 	 * <p>
 	 * The installation status of the add-on is 'not installed'.
 	 * 
 	 * @param file the file of the add-on
 	 * @throws Exception if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
-	 *			 while reading the {@code ZapAddOn.xml} ZIP file entry
+	 *             while reading the {@code value #ZAP_ADD_ON_XML} ZIP file entry
+	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
 	 */
+	@Deprecated
 	public AddOn(File file) throws Exception {
-		this(file.getName());
+		this(file.toPath());
+	}
+
+	/**
+	 * Constructs an {@code AddOn} from the given {@code file}.
+	 * <p>
+	 * The {@value #MANIFEST_FILE_NAME} ZIP file entry is read after validating that the add-on is a valid add-on.
+	 * <p>
+	 * The installation status of the add-on is 'not installed'.
+	 * 
+	 * @param file the file of the add-on
+	 * @throws IOException if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
+	 *             while reading the {@value #MANIFEST_FILE_NAME} ZIP file entry
+	 * @see #isAddOn(Path)
+	 */
+	public AddOn(Path file) throws IOException {
 		if (! isAddOn(file)) {
-			throw new Exception("Invalid ZAP add-on file " + file.getAbsolutePath());
+			throw new IOException("Invalid ZAP add-on file " + (file != null ? file.toAbsolutePath() : "[null]"));
 		}
-		this.file = file;
+		this.id = extractAddOnId(file.getFileName().toString());
+		this.file = file.toFile();
 		loadManifestFile();
+	}
+
+	private static String extractAddOnId(String fileName) {
+		return fileName.substring(0, fileName.indexOf('.')).split("-")[0];
 	}
 	
 	private void loadManifestFile() throws IOException {
@@ -214,29 +338,34 @@ public class AddOn  {
 		if (file.exists()) {
 			// Might not exist in the tests
 			try (ZipFile zip = new ZipFile(file)) {
-				ZipEntry zapAddOnEntry = zip.getEntry("ZapAddOn.xml");
-				if (zapAddOnEntry != null) {
-					try (InputStream zis = zip.getInputStream(zapAddOnEntry)) {
-						ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
+				ZipEntry zapAddOnEntry = zip.getEntry(MANIFEST_FILE_NAME);
+				if (zapAddOnEntry == null) {
+					throw new IOException("Add-on does not have the " + MANIFEST_FILE_NAME + " file.");
+				}
 
-						this.name = zapAddOnXml.getName();
-						this.version = zapAddOnXml.getVersion();
-						this.description = zapAddOnXml.getDescription();
-						this.changes = zapAddOnXml.getChanges();
-						this.author = zapAddOnXml.getAuthor();
-						this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
-						this.notFromVersion = zapAddOnXml.getNotFromVersion();
-						this.dependencies = zapAddOnXml.getDependencies();
+				try (InputStream zis = zip.getInputStream(zapAddOnEntry)) {
+					ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
 
-						this.ascanrules = zapAddOnXml.getAscanrules();
-						this.extensions = zapAddOnXml.getExtensions();
-						this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
-						this.files = zapAddOnXml.getFiles();
-						this.pscanrules = zapAddOnXml.getPscanrules();
+					this.name = zapAddOnXml.getName();
+					this.fileVersion = zapAddOnXml.getPackageVersion();
+					this.version = zapAddOnXml.getVersion();
+					this.status = AddOn.Status.valueOf(zapAddOnXml.getStatus());
+					this.description = zapAddOnXml.getDescription();
+					this.changes = zapAddOnXml.getChanges();
+					this.author = zapAddOnXml.getAuthor();
+					this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
+					this.notFromVersion = zapAddOnXml.getNotFromVersion();
+					this.dependencies = zapAddOnXml.getDependencies();
 
-						hasZapAddOnEntry = true;
-					}
+					this.ascanrules = zapAddOnXml.getAscanrules();
+					this.extensions = zapAddOnXml.getExtensions();
+					this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
+					this.files = zapAddOnXml.getFiles();
+					this.pscanrules = zapAddOnXml.getPscanrules();
 
+					this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
+
+					hasZapAddOnEntry = true;
 				}
 			}
 		}
@@ -249,7 +378,7 @@ public class AddOn  {
 	 * <p>
 	 * The given {@code SubnodeConfiguration} must have a {@code XPathExpressionEngine} installed.
 	 * <p>
-	 * The {@code ZapAddOn.xml} ZIP file entry is read, if the add-on file exists locally.
+	 * The {@value #MANIFEST_FILE_NAME} ZIP file entry is read, if the add-on file exists locally.
 	 * 
 	 * @param id the id of the add-on
 	 * @param baseDir the base directory where the add-on is located
@@ -343,6 +472,25 @@ public class AddOn  {
 		this.changes = changes;
 	}
 
+	/**
+	 * Gets the normalised file name of the add-on.
+	 * <p>
+	 * Should be used when copying the file from an "unknown" source (e.g. manually installed).
+	 *
+	 * @return the normalised file name.
+	 * @since TODO add version
+	 * @see #getFile()
+	 */
+	public String getNormalisedFileName() {
+		return getId() + "-" + getFileVersion() + FILE_EXTENSION;
+	}
+
+	/**
+	 * Gets the file of the add-on.
+	 *
+	 * @return the file of the add-on.
+	 * @see #getNormalisedFileName()
+	 */
 	public File getFile() {
 		return file;
 	}
@@ -408,12 +556,22 @@ public class AddOn  {
 					this.loadManifestFile();
 				} catch (IOException e) {
 					if (logger.isDebugEnabled()) {
-						logger.debug("Failed to read the ZapAddOn.xml file of " + id + ":", e);
+						logger.debug("Failed to read the " + AddOn.MANIFEST_FILE_NAME + " file of " + id + ":", e);
 					}
 				}
 			}
 		}
 		return hasZapAddOnEntry;
+	}
+
+	/**
+	 * Gets the classnames that can be loaded for the add-on.
+	 * 
+	 * @return the classnames that can be loaded
+	 * @since 2.4.3
+	 */
+	public AddOnClassnames getAddOnClassnames() {
+		return addOnClassnames;
 	}
 	
 	public List<String> getExtensions() {
@@ -436,6 +594,27 @@ public class AddOn  {
 			extensionClassnames.add(extension.getClassname());
 		}
 		return extensionClassnames;
+	}
+
+	/**
+	 * Returns the classnames that can be loaded for the given {@code Extension} (with dependencies).
+	 * 
+	 * @param classname the classname of the extension
+	 * @return the classnames that can be loaded
+	 * @since 2.4.3
+	 * @see #hasExtensionsWithDeps()
+	 */
+	public AddOnClassnames getExtensionAddOnClassnames(String classname) {
+		if (extensionsWithDeps.isEmpty() || classname == null || classname.isEmpty()) {
+			return AddOnClassnames.ALL_ALLOWED;
+		}
+
+		for (ExtensionWithDeps extension : extensionsWithDeps) {
+			if (classname.equals(extension.getClassname())) {
+				return extension.getAddOnClassnames();
+			}
+		}
+		return AddOnClassnames.ALL_ALLOWED;
 	}
 
 	/**
@@ -533,8 +712,148 @@ public class AddOn  {
 		return ascanrules;
 	}
 	
+	/**
+	 * Gets the active scan rules of this add-on that were loaded.
+	 *
+	 * @return an unmodifiable {@code List} with the active scan rules of this add-on that were loaded, never {@code null}
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrules(List)
+	 */
+	public List<AbstractPlugin> getLoadedAscanrules() {
+		return loadedAscanrules;
+	}
+
+	/**
+	 * Sets the loaded active scan rules of the add-on, allowing to set the status of the active scan rules appropriately and to
+	 * keep track of the active scan rules loaded so that they can be removed during uninstallation.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 * Should be called when installing/loading the add-on, by setting the loaded active scan rules, and when uninstalling by
+	 * setting an empty list. The method {@code setLoadedAscanrulesSet(boolean)} should also be called.
+	 * 
+	 * @param ascanrules the active scan rules loaded, might be empty if none were actually loaded
+	 * @throws IllegalArgumentException if {@code ascanrules} is {@code null}.
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrulesSet(boolean)
+	 * @see AbstractPlugin#setStatus(Status)
+	 */
+	void setLoadedAscanrules(List<AbstractPlugin> ascanrules) {
+		if (ascanrules == null) {
+			throw new IllegalArgumentException("Parameter ascanrules must not be null.");
+		}
+
+		if (ascanrules.isEmpty()) {
+			loadedAscanrules = Collections.emptyList();
+			return;
+		}
+
+		for (AbstractPlugin ascanrule : ascanrules) {
+			ascanrule.setStatus(getStatus());
+		}
+		loadedAscanrules = Collections.unmodifiableList(new ArrayList<>(ascanrules));
+	}
+
+	/**
+	 * Tells whether or not the loaded active scan rules of the add-on, if any, were already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 *
+	 * @return {@code true} if the loaded active scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrules(List)
+	 * @see #setLoadedAscanrulesSet(boolean)
+	 */
+	boolean isLoadedAscanrulesSet() {
+		return loadedAscanRulesSet;
+	}
+
+	/**
+	 * Sets whether or not the loaded active scan rules, if any, where already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on. The
+	 * method should be called, with {@code true} during installation/loading and {@code false} during uninstallation, after
+	 * calling the method {@code setLoadedAscanrules(List)}.
+	 *
+	 * @param ascanrulesSet {@code true} if the loaded active scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrules(List)
+	 */
+	void setLoadedAscanrulesSet(boolean ascanrulesSet) {
+		loadedAscanRulesSet = ascanrulesSet;
+	}
+
 	public List<String> getPscanrules() {
 		return pscanrules;
+	}
+
+	/**
+	 * Gets the passive scan rules of this add-on that were loaded.
+	 *
+	 * @return an unmodifiable {@code List} with the passive scan rules of this add-on that were loaded, never {@code null}
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrules(List)
+	 */
+	public List<PluginPassiveScanner> getLoadedPscanrules() {
+		return loadedPscanrules;
+	}
+
+	/**
+	 * Sets the loaded passive scan rules of the add-on, allowing to set the status of the passive scan rules appropriately and
+	 * keep track of the passive scan rules loaded so that they can be removed during uninstallation.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 * Should be called when installing/loading the add-on, by setting the loaded passive scan rules, and when uninstalling by
+	 * setting an empty list. The method {@code setLoadedPscanrulesSet(boolean)} should also be called.
+	 * 
+	 * @param pscanrules the passive scan rules loaded, might be empty if none were actually loaded
+	 * @throws IllegalArgumentException if {@code pscanrules} is {@code null}.
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrulesSet(boolean)
+	 * @see PluginPassiveScanner#setStatus(Status)
+	 */
+	void setLoadedPscanrules(List<PluginPassiveScanner> pscanrules) {
+		if (pscanrules == null) {
+			throw new IllegalArgumentException("Parameter pscanrules must not be null.");
+		}
+
+		if (pscanrules.isEmpty()) {
+			loadedPscanrules = Collections.emptyList();
+			return;
+		}
+
+		for (PluginPassiveScanner pscanrule : pscanrules) {
+			pscanrule.setStatus(getStatus());
+		}
+		loadedPscanrules = Collections.unmodifiableList(new ArrayList<>(pscanrules));
+	}
+
+	/**
+	 * Tells whether or not the loaded passive scan rules of the add-on, if any, were already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 *
+	 * @return {@code true} if the loaded passive scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrules(List)
+	 * @see #setLoadedPscanrulesSet(boolean)
+	 */
+	boolean isLoadedPscanrulesSet() {
+		return loadedPscanRulesSet;
+	}
+
+	/**
+	 * Sets whether or not the loaded passive scan rules, if any, where already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on. The
+	 * method should be called, with {@code true} during installation/loading and {@code false} during uninstallation, after
+	 * calling the method {@code setLoadedPscanrules(List)}.
+	 *
+	 * @param pscanrulesSet {@code true} if the loaded passive scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrules(List)
+	 */
+	void setLoadedPscanrulesSet(boolean pscanrulesSet) {
+		loadedPscanRulesSet = pscanrulesSet;
 	}
 	
 	public List<String> getFiles() {
@@ -557,9 +876,9 @@ public class AddOn  {
 	
 	/**
 	 * @deprecated (2.4.0) Use {@link #calculateRunRequirements(Collection)} instead. Returns {@code false}.
+	 * @return {@code false} always.
 	 */
 	@Deprecated
-	@SuppressWarnings("javadoc")
 	public boolean canLoad() {
 		return false;
 	}
@@ -1024,9 +1343,7 @@ public class AddOn  {
 			return false;
 		}
 
-		dependsOn(dependencies.getAddOns(), addOn);
-
-		return false;
+		return dependsOn(dependencies.getAddOns(), addOn);
 	}
 
 	/**

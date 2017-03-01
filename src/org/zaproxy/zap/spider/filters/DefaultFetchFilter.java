@@ -29,7 +29,7 @@ import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 
 /**
  * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering process. Its
- * filter rules are the following:<br/>
+ * filter rules are the following:
  * <ul>
  * <li>the resource protocol/scheme must be 'HTTP' or 'HTTPs'.</li>
  * <li>the resource must be found in the scope (domain) of the spidering process.</li>
@@ -62,38 +62,21 @@ public class DefaultFetchFilter extends FetchFilter {
 		try {
 			
 			// Context check
-			if (this.scanContext != null)
-				if (!this.scanContext.isInContext(uri.toString()))
+			if (this.scanContext != null) {
+				if (!this.scanContext.isInContext(uri.toString())) {
 					return FetchStatus.OUT_OF_CONTEXT;
-			
-			// Scope check
-			boolean ok = false;
-			String host = uri.getHost();
-			for (String scope : scopes) {
-				if (host.matches(scope)) {
-					ok = true;
-					break;
 				}
-			}
-			for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
-				if (domainInScope.matches(host)) {
-					ok = true;
-					break;
+			} else {
+				// Scope check
+				String host = uri.getHost();
+				if (!isDomainInScope(host) && !isDomainAlwaysInScope(host)) {
+					return FetchStatus.OUT_OF_SCOPE;
 				}
-			}
-			
-			if (!ok) {
-				return FetchStatus.OUT_OF_SCOPE;
 			}
 
 			// Check if any of the exclusion regexes match.
-			if (excludeList != null) {
-				String uriS = uri.toString();
-				for (String ex : excludeList) {
-					if (uriS.matches(ex)) {
-						return FetchStatus.USER_RULES;
-					}
-				}
+			if (isExcluded(uri.toString())) {
+				return FetchStatus.USER_RULES;
 			}
 
 		} catch (URIException e) {
@@ -102,6 +85,59 @@ public class DefaultFetchFilter extends FetchFilter {
 		}
 
 		return FetchStatus.VALID;
+	}
+
+	/**
+	 * Tells whether or not the given URI is excluded.
+	 *
+	 * @param uri the URI to check
+	 * @return {@code true} if the URI is excluded, {@code false} otherwise.
+	 */
+	private boolean isExcluded(String uri) {
+		if (excludeList == null || excludeList.isEmpty()) {
+			return false;
+		}
+
+		for (String ex : excludeList) {
+			if (uri.matches(ex)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Tells whether or not the given domain is one of the domains in scope.
+	 *
+	 * @param domain the domain to check
+	 * @return {@code true} if it's a domain in scope, {@code false} otherwise.
+	 * @see #scopes
+	 * @see #isDomainAlwaysInScope(String)
+	 */
+	private boolean isDomainInScope(String domain) {
+		for (String scope : scopes) {
+			if (domain.matches(scope)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Tells whether or not the given domain is one of the domains always in scope.
+	 *
+	 * @param domain the domain to check
+	 * @return {@code true} if it's a domain always in scope, {@code false} otherwise.
+	 * @see #domainsAlwaysInScope
+	 * @see #isDomainInScope(String)
+	 */
+	private boolean isDomainAlwaysInScope(String domain) {
+		for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
+			if (domainInScope.matches(domain)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

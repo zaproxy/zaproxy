@@ -35,7 +35,7 @@ public interface TableAlert extends DatabaseListener {
 			int risk, int confidence, String description, String uri,
 			String param, String attack, String otherInfo, String solution,
 			String reference, String evidence, int cweId, int wascId,
-			int historyId, int sourceHistoryId) throws DatabaseException;
+			int historyId, int sourceHistoryId, int sourceId) throws DatabaseException;
 
 	Vector<Integer> getAlertListBySession(long sessionId)
 			throws DatabaseException;

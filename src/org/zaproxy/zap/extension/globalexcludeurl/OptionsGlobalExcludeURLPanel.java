@@ -38,7 +38,6 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -47,9 +46,6 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
 	private OptionsGlobalExcludeURLTableModel globalExcludeURLModel = null;
 	
-    /**
-     * 
-     */
     public OptionsGlobalExcludeURLPanel() {
         super();
  		initialize();
@@ -87,11 +83,6 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
     }
 
 
-    @Override
-    public void validateParam(Object obj) throws Exception {
-
-    }
-
     private static Logger log = Logger.getLogger(OptionsGlobalExcludeURLPanel.class);
 
 
@@ -106,11 +97,12 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 	    globalExcludeURLParam.parse();
 	    List<String> ignoredRegexs = globalExcludeURLParam.getTokensNames();
 
-	    log.warn(ignoredRegexs.toString());
 	    Model.getSingleton().getSession().setGlobalExcludeURLRegexs(ignoredRegexs);
 	    // after saving, force the proxy/spider/scanner to refresh the URL lists.
 	    Model.getSingleton().getSession().forceGlobalExcludeURLRefresh();
-	    log.debug("Done saving Global Exclude URL");
+	    if (log.isDebugEnabled()) {
+	        log.debug("Done saving Global Exclude URL: " + ignoredRegexs.toString());
+	    }
     }
 
     /**

@@ -29,6 +29,10 @@
 // and enhance the usability of some options
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
+// ZAP: 2016/03/08 Issue 646: Outgoing proxy password as JPasswordField (pips) instead of ZapTextField
+// ZAP: 2016/03/18 Add checkbox to allow showing of the password
+// ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 
 package org.parosproxy.paros.extension.option;
 
@@ -37,12 +41,20 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.SortOrder;
 
@@ -50,13 +62,16 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
-import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.CommonUserAgents;
+import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
+import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ProxyDialog;
 
 
@@ -73,13 +88,19 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapPortNumberSpinner spinnerProxyChainPort = null;
 	private ZapTextField txtProxyChainRealm = null;
 	private ZapTextField txtProxyChainUserName = null;
-	private ZapTextField txtProxyChainPassword = null;
+	private JPasswordField txtProxyChainPassword = null;
+	private JCheckBox chkShowPassword = null;
 	private JCheckBox chkProxyChainAuth = null;
 	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
     private JCheckBox checkBoxSingleCookieRequestHeader;
+    private JComboBox<String> commonUserAgents = null;
+	private ZapTextField defaultUserAgent = null;
+
+	private JPanel dnsPanel;
+	private ZapNumberSpinner dnsTtlSuccessfulQueriesNumberSpinner;
 
     private SecurityProtocolsPanel securityProtocolsPanel;
 
@@ -91,6 +112,31 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
  		initialize();
    }
 
+	/**
+	 * This method initializes chkShowPassword	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */    
+	private JCheckBox getChkShowPassword() {
+		if (chkShowPassword == null) {
+			chkShowPassword = new JCheckBox();
+			chkShowPassword.setText(Constant.messages.getString("conn.options.proxy.auth.showpass"));
+			chkShowPassword.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					if (chkShowPassword.isSelected()) {
+						txtProxyChainPassword.setEchoChar((char) 0);
+			        } else {
+			        	txtProxyChainPassword.setEchoChar('*');
+			        }
+				}
+			});
+
+		}
+		return chkShowPassword;
+	}
+    
 	/**
 	 * This method initializes chkUseProxyChain	
 	 * 	
@@ -214,6 +260,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelProxyAuth() {
 		if (panelProxyAuth == null) {
+			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
+
 			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 
 			java.awt.GridBagConstraints gridBagConstraints62 = new GridBagConstraints();
@@ -299,6 +347,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gridBagConstraints72.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints72.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints72.ipadx = 50;
+			gridBagConstraints82.gridx = 1;
+			gridBagConstraints82.gridy = 5;
+			gridBagConstraints82.weightx = 0.5D;
+			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints82.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints82.ipadx = 50;
 			panelProxyAuth.add(getChkProxyChainAuth(), gridBagConstraints16);
 			panelProxyAuth.add(getChkProxyChainPrompt(), gridBagConstraints17);
 			panelProxyAuth.add(jLabel9, gridBagConstraints21);
@@ -307,6 +362,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelProxyAuth.add(getTxtProxyChainUserName(), gridBagConstraints52);
 			panelProxyAuth.add(jLabel11, gridBagConstraints62);
 			panelProxyAuth.add(getTxtProxyChainPassword(), gridBagConstraints72);
+			panelProxyAuth.add(getChkShowPassword(), gridBagConstraints82);
 		}
 		return panelProxyAuth;
 	}
@@ -322,34 +378,19 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelProxyChain.setName("ProxyChain");
 			JPanel innerPanel = new JPanel(new GridBagLayout());
 
-			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints92 = new GridBagConstraints();
+			GridBagConstraints gbc = new GridBagConstraints();
 
-			gridBagConstraints72.gridx = 0;
-			gridBagConstraints72.gridy = 0;
-			gridBagConstraints72.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints72.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints72.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 0;
+			gbc.insets = new java.awt.Insets(2,2,2,2);
+			gbc.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc.weightx = 1.0D;
 
-			gridBagConstraints82.gridx = 0;
-			gridBagConstraints82.gridy = 2;
-			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints82.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints82.weightx = 1.0D;
-			
-			gridBagConstraints92.gridx = 0;
-			gridBagConstraints92.gridy = 3;
-			gridBagConstraints92.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints92.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints92.fill = java.awt.GridBagConstraints.HORIZONTAL;
-
-			innerPanel.add(getPanelGeneral(), gridBagConstraints72);
-			gridBagConstraints72.gridy = 1;
-			innerPanel.add(getSecurityProtocolsPanel(), gridBagConstraints72);
-			innerPanel.add(getJPanel(), gridBagConstraints82);
-			innerPanel.add(getPanelProxyAuth(), gridBagConstraints92);
+			innerPanel.add(getPanelGeneral(), gbc);
+			innerPanel.add(getDnsPanel(), gbc);
+			innerPanel.add(getSecurityProtocolsPanel(), gbc);
+			innerPanel.add(getJPanel(), gbc);
+			innerPanel.add(getPanelProxyAuth(), gbc);
 			
 			JScrollPane scrollPane = new JScrollPane(innerPanel);
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -358,6 +399,48 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return panelProxyChain;
 	}
+
+	private JPanel getDnsPanel() {
+		if (dnsPanel == null) {
+			dnsPanel = new JPanel();
+			dnsPanel.setBorder(
+					javax.swing.BorderFactory.createTitledBorder(
+							null,
+							Constant.messages.getString("conn.options.dns.title"),
+							javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+							javax.swing.border.TitledBorder.DEFAULT_POSITION,
+							FontUtils.getFont(FontUtils.Size.standard),
+							Color.black));
+
+			GroupLayout layout = new GroupLayout(dnsPanel);
+			dnsPanel.setLayout(layout);
+			layout.setAutoCreateGaps(true);
+
+			JLabel valueLabel = new JLabel(Constant.messages.getString("conn.options.dns.ttlSuccessfulQueries.label"));
+			valueLabel.setToolTipText(Constant.messages.getString("conn.options.dns.ttlSuccessfulQueries.toolTip"));
+			valueLabel.setLabelFor(getDnsTtlSuccessfulQueriesNumberSpinner());
+
+			layout.setHorizontalGroup(layout.createSequentialGroup()
+					.addComponent(valueLabel)
+					.addComponent(getDnsTtlSuccessfulQueriesNumberSpinner()));
+
+			layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+					.addComponent(valueLabel)
+					.addComponent(getDnsTtlSuccessfulQueriesNumberSpinner()));
+		}
+		return dnsPanel;
+	}
+
+	private ZapNumberSpinner getDnsTtlSuccessfulQueriesNumberSpinner() {
+		if (dnsTtlSuccessfulQueriesNumberSpinner == null) {
+			dnsTtlSuccessfulQueriesNumberSpinner = new ZapNumberSpinner(
+					-1,
+					ConnectionParam.DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES,
+					Integer.MAX_VALUE);
+		}
+		return dnsTtlSuccessfulQueriesNumberSpinner;
+	}
+
 	/**
 	 * This method initializes txtProxyChainName	
 	 * 	
@@ -382,6 +465,61 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		return spinnerProxyChainPort;
 	}
 
+    private JComboBox<String> getCommonUserAgents() {
+    	if (commonUserAgents == null) {
+    		commonUserAgents = new JComboBox<String>(CommonUserAgents.getNames());
+    		if (commonUserAgents.getItemCount() == 0) {
+	    		commonUserAgents.setEnabled(false);
+    		} else {
+	    		commonUserAgents.addItem("");
+	    		commonUserAgents.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						String item = (String) commonUserAgents.getSelectedItem();
+						String ua = CommonUserAgents.getStringFromName(item);
+						if (ua != null) {
+							getDefaultUserAgent().setText(ua);
+						}
+					}});
+    		}
+    	}
+    	return commonUserAgents;
+    }
+
+    private ZapTextField getDefaultUserAgent() {
+    	if (defaultUserAgent == null) {
+    		defaultUserAgent = new ZapTextField();
+    		defaultUserAgent.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setUaFromString();
+				}
+    		});
+    		defaultUserAgent.addKeyListener(new KeyListener() {
+				@Override
+				public void keyTyped(KeyEvent e) {
+				}
+				@Override
+				public void keyPressed(KeyEvent e) {
+				}
+				@Override
+				public void keyReleased(KeyEvent e) {
+					setUaFromString();
+				}});
+    	}
+    	return defaultUserAgent;
+    }
+
+	private void setUaFromString() {
+		String name = CommonUserAgents.getNameFromString(getDefaultUserAgent().getText());
+		if (name != null) {
+			getCommonUserAgents().setSelectedItem(name);
+		} else {
+			getCommonUserAgents().setSelectedItem("");
+		}
+	}
+			
+
 	/**
 	 * This method initializes this
 	 */
@@ -390,8 +528,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("conn.options.title"));
         
         this.add(getPanelProxyChain(), getPanelProxyChain().getName());
-
-
 	}
 	
 	@Override
@@ -424,15 +560,21 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         txtProxyChainUserName.discardAllEdits();
         
         chkProxyChainPrompt.setSelected(connectionParam.isProxyChainPrompt());
+        chkShowPassword.setSelected(false);//Default don't show (everytime)
+        txtProxyChainPassword.setEchoChar('*');//Default mask (everytime)
 
         setProxyChainEnabled(connectionParam.isUseProxyChain());
 
         if (!connectionParam.isProxyChainPrompt()) {
 	        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
-	        txtProxyChainPassword.discardAllEdits();
         }
 
+        dnsTtlSuccessfulQueriesNumberSpinner.setValue(connectionParam.getDnsTtlSuccessfulQueries());
+
         securityProtocolsPanel.setSecurityProtocolsEnabled(connectionParam.getSecurityProtocolsEnabled());
+        
+        defaultUserAgent.setText(connectionParam.getDefaultUserAgent());
+        setUaFromString();
 	}
 	
 	private void setProxyChainEnabled(boolean isEnabled) {
@@ -457,6 +599,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    txtProxyChainPassword.setEnabled(isEnabled);
 	    // ZAP: Added prompt option
         chkProxyChainPrompt.setEnabled(isEnabled);
+        chkShowPassword.setEnabled(isEnabled);
 	    
         if (chkProxyChainPrompt.isSelected()) {
             setProxyChainPromptEnabled(true);
@@ -476,6 +619,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private void setProxyChainPromptEnabled(boolean isEnabled) {
 
 	    txtProxyChainPassword.setEnabled(!isEnabled);
+	    chkShowPassword.setEnabled(!isEnabled);
 	    
 	    Color color = Color.WHITE;
 	    if (isEnabled) {
@@ -547,7 +691,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    	}
 	    	
 	    } else {
-		    connectionParam.setProxyChainPassword(txtProxyChainPassword.getText());
+		    connectionParam.setProxyChainPassword(new String(txtProxyChainPassword.getPassword()));
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
@@ -555,7 +699,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
 
+        connectionParam.setDnsTtlSuccessfulQueries(dnsTtlSuccessfulQueriesNumberSpinner.getValue());
+
         connectionParam.setSecurityProtocolsEnabled(securityProtocolsPanel.getSelectedProtocols());
+        
+        connectionParam.setDefaultUserAgent(defaultUserAgent.getText());
 	}
 
 	/**
@@ -585,9 +733,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 * 	
 	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
-	private ZapTextField getTxtProxyChainPassword() {
+	private JPasswordField getTxtProxyChainPassword() {
 		if (txtProxyChainPassword == null) {
-			txtProxyChainPassword = new ZapTextField();
+			txtProxyChainPassword = new JPasswordField();
 		}
 		return txtProxyChainPassword;
 	}
@@ -638,6 +786,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelGeneral = new JPanel();
 			panelGeneral.setLayout(new GridBagLayout());
 			jLabel.setText(Constant.messages.getString("conn.options.timeout"));
+			jLabel.setLabelFor(getTxtTimeoutInSecs());
 			
 			panelGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
 					Constant.messages.getString("conn.options.general"), 
@@ -664,14 +813,23 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
 			
 			java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-			gbc.gridy = 1;
+			gbc.gridy = 3;
 			gbc.gridwidth = 2;
 			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc.insets = new java.awt.Insets(2,2,2,2);
 			gbc.anchor = java.awt.GridBagConstraints.WEST;
             
+			JLabel uaLabel = new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
+			uaLabel.setLabelFor(this.getDefaultUserAgent());
+			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1,0.5D));
+			panelGeneral.add(this.getCommonUserAgents(), 
+					LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2,2,2,2)));
+			panelGeneral.add(this.getDefaultUserAgent(), 
+					LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2,2,2,2)));
+
             panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
-		}
+
+}
 		return panelGeneral;
 	}
 
@@ -717,7 +875,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	}
 	
     private static class ProxyExcludedDomainsMultipleOptionsPanel extends
-            AbstractMultipleOptionsTablePanel<ProxyExcludedDomainMatcher> {
+            AbstractMultipleOptionsTablePanel<DomainMatcher> {
 
         private static final long serialVersionUID = 2332044353650231701L;
 
@@ -740,21 +898,21 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
         @Override
-        public ProxyExcludedDomainMatcher showAddDialogue() {
+        public DomainMatcher showAddDialogue() {
             if (addDialog == null) {
                 addDialog = new DialogAddProxyExcludedDomain(View.getSingleton().getOptionsDialog(null));
                 addDialog.pack();
             }
             addDialog.setVisible(true);
 
-            ProxyExcludedDomainMatcher hostAuthentication = addDialog.getProxyExcludedDomain();
+            DomainMatcher hostAuthentication = addDialog.getProxyExcludedDomain();
             addDialog.clear();
 
             return hostAuthentication;
         }
 
         @Override
-        public ProxyExcludedDomainMatcher showModifyDialogue(ProxyExcludedDomainMatcher e) {
+        public DomainMatcher showModifyDialogue(DomainMatcher e) {
             if (modifyDialog == null) {
                 modifyDialog = new DialogModifyProxyExcludedDomain(View.getSingleton().getOptionsDialog(null));
                 modifyDialog.pack();
@@ -762,7 +920,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             modifyDialog.setProxyExcludedDomain(e);
             modifyDialog.setVisible(true);
 
-            ProxyExcludedDomainMatcher excludedDomain = modifyDialog.getProxyExcludedDomain();
+            DomainMatcher excludedDomain = modifyDialog.getProxyExcludedDomain();
             modifyDialog.clear();
 
             if (!excludedDomain.equals(e)) {
@@ -773,7 +931,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
         @Override
-        public boolean showRemoveDialogue(ProxyExcludedDomainMatcher e) {
+        public boolean showRemoveDialogue(DomainMatcher e) {
             JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
             Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
             int option = JOptionPane.showOptionDialog(

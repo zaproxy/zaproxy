@@ -32,6 +32,9 @@
 // ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
 // the request body is not "x-www-form-urlencoded"
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
+// ZAP: 2016/06/17 Be lenient when parsing charset and accept single quote chars around the value
+// ZAP: 2016/06/17 Remove redundant initialisations of instance variables
+// ZAP: 2017/02/08 Change isEmpty to check start line instead of headers (if it has the status/request line it's not empty).
 
 package org.parosproxy.paros.network;
 
@@ -94,7 +97,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks
-    private static final Pattern patternCharset = Pattern.compile("charset *= *\"?([^\";\\s]+)\"?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternCharset = Pattern.compile("charset *= *(?:(?:'([^';\\s]+))|(?:\"?([^\";\\s]+)\"?))", Pattern.CASE_INSENSITIVE);
     protected static final String p_TEXT = "[^\\x00-\\x1f\\r\\n]*";
     protected static final String p_METHOD = "(\\w+)";
     protected static final String p_SP = " +";
@@ -104,13 +107,13 @@ public abstract class HttpHeader implements java.io.Serializable {
     protected static final String p_VERSION = "(HTTP/\\d+\\.\\d+)";
     protected static final String p_STATUS_CODE = "(\\d{3})";
     protected static final String p_REASON_PHRASE = "(" + p_TEXT + ")";
-    protected String mStartLine = "";
-    protected String mMsgHeader = "";
-    protected boolean mMalformedHeader = false;
-    protected Hashtable<String, Vector<String>> mHeaderFields = new Hashtable<>();
-    protected int mContentLength = -1;
-    protected String mLineDelimiter = CRLF;
-    protected String mVersion = HttpHeader.HTTP10;
+    protected String mStartLine;
+    protected String mMsgHeader;
+    protected boolean mMalformedHeader;
+    protected Hashtable<String, Vector<String>> mHeaderFields;
+    protected int mContentLength;
+    protected String mLineDelimiter;
+    protected String mVersion;
     // ZAP: added CORS headers
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 	public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
@@ -120,6 +123,11 @@ public abstract class HttpHeader implements java.io.Serializable {
 	public static final String METHODS_ALLOW = "Allow";
 	public static final String METHODS_PUBLIC = "Public";  //IIS specific?
 	public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
+	//ZAP: additional standard/defacto headers
+	public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
+	public static final String X_CSRF_TOKEN = "X-Csrf-Token";
+	public static final String X_CSRFTOKEN = "X-CsrfToken";
+	public static final String X_XSRF_TOKEN = "X-Xsrf-Token";
 
     public HttpHeader() {
         init();
@@ -132,7 +140,6 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @throws HttpMalformedHeaderException
      */
     public HttpHeader(String data) throws HttpMalformedHeaderException {
-        this();
         setMessage(data);
     }
 
@@ -156,9 +163,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @throws HttpMalformedHeaderException
      */
     public void setMessage(String data) throws HttpMalformedHeaderException {
-        init();
-
-        mMsgHeader = data;
+        clear();
         try {
             if (!this.parse(data)) {
                 mMalformedHeader = true;
@@ -545,8 +550,15 @@ public abstract class HttpHeader implements java.io.Serializable {
         return mMsgHeader;
     }
 
+    /**
+     * Tells whether or not the header is empty.
+     * <p>
+     * A header is empty if it has no content (for example, no start line nor headers).
+     *
+     * @return {@code true} if the header is empty, {@code false} otherwise.
+     */
     public boolean isEmpty() {
-        if (mMsgHeader == null || mMsgHeader.equals("")) {
+        if (mStartLine == null || mStartLine.isEmpty()) {
             return true;
         }
 
@@ -559,11 +571,14 @@ public abstract class HttpHeader implements java.io.Serializable {
             return null;
         }
 
-        String charset = null;
         Matcher matcher = patternCharset.matcher(contentType);
         if (matcher.find()) {
-            charset = matcher.group(1);
+            String charset = matcher.group(2);
+            if (charset == null) {
+                return matcher.group(1);
+            }
+            return charset;
         }
-        return charset;
+        return null;
     }
 }

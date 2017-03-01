@@ -23,6 +23,7 @@
 // ZAP: 2012/08/16 SHUTDOWN COMPACT old databases.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 
 package org.parosproxy.paros.db.paros;
 
@@ -34,11 +35,13 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.hsqldb.Server;
 import org.parosproxy.paros.db.DatabaseServer;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 
 
 public class ParosDatabaseServer implements DatabaseServer {
@@ -57,9 +60,14 @@ public class ParosDatabaseServer implements DatabaseServer {
 	Server  mServer = null;
 	Connection mConn = null;
 	
+	private final DatabaseParam databaseOptions;
 
 
-	ParosDatabaseServer(String dbname) throws ClassNotFoundException, Exception {
+	ParosDatabaseServer(String dbname, DatabaseParam databaseOptions) throws ClassNotFoundException, Exception {
+		if (databaseOptions == null) {
+			throw new IllegalArgumentException("Parameter databaseOptions must not be null.");
+		}
+		this.databaseOptions = databaseOptions;
 		start(dbname);
 	}
 	
@@ -107,6 +115,11 @@ public class ParosDatabaseServer implements DatabaseServer {
         if (doCompact) {
 	    	shutdown(true);
             mConn = DriverManager.getConnection(mUrl, mUser, mPassword);
+        }
+
+        String query = "SET FILES LOG " + (databaseOptions.isRecoveryLogEnabled() ? "TRUE" : "FALSE");
+        try (Statement stmt = getSingletonConnection().createStatement()) {
+            stmt.executeUpdate(query);
         }
     }
     

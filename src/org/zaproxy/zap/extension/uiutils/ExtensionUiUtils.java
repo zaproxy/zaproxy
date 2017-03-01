@@ -43,29 +43,10 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
 	public static final String NAME = "ExtensionUiUtils"; 
 	
-    private Logger logger = Logger.getLogger(ExtensionUiUtils.class);
+    private static final Logger LOGGER = Logger.getLogger(ExtensionUiUtils.class);
     
-	/**
-     * 
-     */
     public ExtensionUiUtils() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionUiUtils(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(200);
 
 	}
@@ -73,7 +54,10 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
-	    extensionHook.addSessionListener(this);
+
+		if (getView() != null) {
+			extensionHook.addSessionListener(this);
+		}
 	}
 	
 	
@@ -91,16 +75,14 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	                }
 	            });
 	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
+	            LOGGER.error(e.getMessage(), e);
 	        }
 	    }
 	}
 	
 	private void sessionChangedEventHandler(Session session) {
-		if (View.isInitialised()) {
-			View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
-			View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
-		}
+		View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
+		View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
 	}
 
 
@@ -113,14 +95,18 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	}
 
 	@Override
+	public boolean isCore() {
+		return true;
+	}
+
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO
-		return Constant.messages.getString("params.desc");
+		return Constant.messages.getString("uiutils.desc");
 	}
 
 	@Override

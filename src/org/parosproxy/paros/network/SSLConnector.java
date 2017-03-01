@@ -29,6 +29,7 @@
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 // ZAP: 2014/08/14 Issue 1274: ZAP Error [javax.net.ssl.SSLException]: Unsupported record version SSLv2Hello
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
+// ZAP: 2015/10/13 Issue 1975: Allow use of default disabled cipher suites (such as RC4-SHA)
 
 package org.parosproxy.paros.network;
 
@@ -102,7 +103,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static String[] serverEnabledProtocols;
 
 	private static ServerSslSocketsDecorator serverSslSocketsDecorator;
-	private static ClientSslSocketsDecorator clientSslSocketsDecorator;
+	private ClientSslSocketsDecorator clientSslSocketsDecorator;
 
     /**
      * The maximum time, in minutes, that the cached misconfigured hosts are considered valid.
@@ -549,7 +550,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		return new DecoratedSocketsSslSocketFactory(delegate, serverSslSocketsDecorator);
 	}
 
-	private static SSLSocketFactory createDecoratedClientSslSocketFactory(final SSLSocketFactory delegate) {
+	private SSLSocketFactory createDecoratedClientSslSocketFactory(final SSLSocketFactory delegate) {
 		return new DecoratedSocketsSslSocketFactory(delegate, clientSslSocketsDecorator);
 	}
 
@@ -564,7 +565,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		}
 	}
 
-	private static class ClientSslSocketsDecorator implements DecoratedSocketsSslSocketFactory.SslSocketDecorator {
+	private class ClientSslSocketsDecorator implements DecoratedSocketsSslSocketFactory.SslSocketDecorator {
 
 		@Override
 		public void decorate(SSLSocket sslSocket) {
@@ -572,6 +573,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 				readSupportedProtocols(sslSocket);
 			}
 			sslSocket.setEnabledProtocols(getClientEnabledProtocols());
+			if (relaxedTrust) {
+				sslSocket.setEnabledCipherSuites(sslSocket.getSupportedCipherSuites());
+			}
 		}
 	}
 

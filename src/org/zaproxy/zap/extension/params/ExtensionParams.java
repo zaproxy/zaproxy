@@ -48,7 +48,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
@@ -73,35 +72,15 @@ public class ExtensionParams extends ExtensionAdaptor
     private ExtensionHttpSessions extensionHttpSessions;
     private ParamScanner paramScanner;
     
-	/**
-     * 
-     */
     public ExtensionParams() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionParams(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(58);
-
-        API.getInstance().registerApiImplementor(new ParamsAPI(this));
 	}
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
+        extensionHook.addApiImplementor(new ParamsAPI(this));
 	    extensionHook.addSessionListener(this);
         extensionHook.addSiteMapListener(this);
 	    
@@ -451,6 +430,34 @@ public class ExtensionParams extends ExtensionAdaptor
 			// Dont think we need to do this... at least until rescan option implemented ...
 			//Control.getSingleton().getMenuToolsControl().options(Constant.messages.getString("options.acsrf.title"));
 		}
+	}
+
+	/**
+	 * Tells whether or not the given {@code site} was already seen.
+	 *
+	 * @param site the site that will be checked
+	 * @return {@code true} if the given {@code site} was already seen, {@code false} otherwise.
+	 * @since 2.5.0
+	 * @see #hasParameters(String)
+	 */
+	public boolean hasSite(String site) {
+		return siteParamsMap.containsKey(site);
+	}
+
+	/**
+	 * Tells whether or not the given {@code site} has parameters.
+	 *
+	 * @param site the site that will be checked
+	 * @return {@code true} if the given {@code site} has parameters, {@code false} if not, or was not yet seen.
+	 * @since 2.5.0
+	 * @see #hasSite(String)
+	 */
+	public boolean hasParameters(String site) {
+		SiteParameters siteParameters = siteParamsMap.get(site);
+		if (siteParameters == null) {
+			return false;
+		}
+		return siteParameters.hasParams();
 	}
 
 	public SiteParameters getSiteParameters(String site) {

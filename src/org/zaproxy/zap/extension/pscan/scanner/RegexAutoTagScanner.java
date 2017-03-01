@@ -25,13 +25,18 @@ import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Source;
 
+import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
+import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.utils.Stats;
 
 public class RegexAutoTagScanner extends PluginPassiveScanner {
 
+	public static final String TAG_STATS_PREFIX = "stats.tag.";
+	
     // protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
     protected static final int PATTERN_SCAN = Pattern.CASE_INSENSITIVE;
 
@@ -182,7 +187,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getRequestHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConf());
+				matched(msg, id);
 				return;
 			}
 		}
@@ -191,12 +196,12 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getRequestHeader().getURI().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConf());
+				matched(msg, id);
 				return;
 			}
 		}
 	}
-
+	
 	public Alert getAlert(HttpMessage msg) {
 		return null;
 	}
@@ -211,7 +216,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getResponseHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConf());
+				matched(msg, id);
 				return;
 			}
 		}
@@ -220,7 +225,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getResponseBody().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				parent.addTag(id, this.getConf());
+				matched(msg, id);
 				return;
 			}
 		}
@@ -304,6 +309,26 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
         }
         return true;
     }
+    
+	private void matched(HttpMessage msg, int id) {
+		if (tagHistoryType(msg.getHistoryRef().getHistoryType())) {
+			parent.addTag(id, this.getConf());
+		}
+		
+		try {
+			Stats.incCounter(SessionStructure.getHostName(msg), TAG_STATS_PREFIX + this.getConf());
+		} catch (URIException e) {
+			// Ignore
+		}
+	}
 
+	private boolean tagHistoryType(int historyType) {
+		return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
+	}
+
+	@Override
+	public boolean appliesToHistoryType(int historyType) {
+		return true;
+	}
 	
 }

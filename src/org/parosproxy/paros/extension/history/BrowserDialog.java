@@ -22,6 +22,8 @@
 // annotation to all appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -57,6 +59,8 @@ import org.parosproxy.paros.model.Model;
 @Deprecated
 public class BrowserDialog extends AbstractDialog {
 
+    private static final long serialVersionUID = 1L;
+
     private static final String TITLE = "View in Browser: ";
     
     private static final Logger logger = Logger.getLogger(BrowserDialog.class);
@@ -67,7 +71,6 @@ public class BrowserDialog extends AbstractDialog {
 	private JButton btnCapture = null;
 	private JButton btnStop = null;
 	private JButton btnClose = null;
-	private String title = "";
 	// ZAP: Added type argument.
 	private Vector<URL> URLs = new Vector<>();
     private JPanel jPanel = null;
@@ -294,22 +297,6 @@ public class BrowserDialog extends AbstractDialog {
         }
         return jPanel;
     }
-
-    /**
-     * This method initializes embeddedBrowser	
-     * 	
-     * @return org.parosproxy.paros.extension.history.EmbeddedBrowser	
-     */
-    // ZAP: Disabled the platform specific browser
-    /*
-    EmbeddedBrowser getEmbeddedBrowser() {
-        if (embeddedBrowser == null) {
-            embeddedBrowser = new EmbeddedBrowser();
-            embeddedBrowser.setName("embeddedBrowser");
-        }
-        return embeddedBrowser;
-    }
-    */
 
     void setURLTitle(String url) {
         setTitle(TITLE + url);

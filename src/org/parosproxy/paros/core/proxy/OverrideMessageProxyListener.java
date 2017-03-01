@@ -31,6 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * 
  * @since 2.3.0
  * @see ProxyListener
+ * @see ConnectRequestProxyListener
  */
 public interface OverrideMessageProxyListener extends ArrangeableProxyListener {
 
@@ -48,7 +49,6 @@ public interface OverrideMessageProxyListener extends ArrangeableProxyListener {
      * <li>the message will really be forwarded to the server, even if the return value is {@code false}, as the following
      * {@code ProxyListener}s may drop it.</li>
      * </ul>
-     * </p>
      * 
      * @param msg the {@code HttpMessage} that may be overridden and not forwarded to the server
      * @return {@code true} if the message should be overridden and not forward to the server, {@code false} otherwise
@@ -69,7 +69,6 @@ public interface OverrideMessageProxyListener extends ArrangeableProxyListener {
      * <li>the message will really be forwarded to the client, even if the return value is {@code false}, as the following
      * {@code ProxyListener}s may drop it.</li>
      * </ul>
-     * </p>
      * 
      * @param msg the {@code HttpMessage} that may be forwarded to the client
      * @return {@code true} if the message should be forwarded to the client, {@code false} otherwise

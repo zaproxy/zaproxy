@@ -94,11 +94,10 @@ public class DbSQL implements DatabaseListener {
 		return dbType;
 	}
 	
-	public Database initDatabase() throws IllegalStateException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+	public synchronized Database initDatabase() throws IllegalStateException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		if (dbProperties != null) {
 			throw new IllegalStateException("Database already initialised");
 		}
-		
 		File file = new File (Constant.getZapHome() + File.separator + "db", "db.properties");
 		if (! file.exists()) {
 			file = new File (Constant.getZapInstall() + File.separator + "db", "db.properties");
@@ -107,17 +106,16 @@ public class DbSQL implements DatabaseListener {
 			throw new FileNotFoundException(file.getAbsolutePath());
 		}
 		
-		Reader reader = new FileReader(file );
-		dbProperties = new Properties();;
-		dbProperties.load(reader);
-		
+		dbProperties = new Properties();
+		try (Reader reader = new FileReader(file )) {
+			dbProperties.load(reader);
+		}
 		dbType = dbProperties.getProperty("db.type");
 
 		// Load the SQL properties
 		sqlProperties = new Properties();
 		File sqlFile = new File (Constant.getZapInstall() + File.separator + "db", dbType + ".properties");
-		try {
-			Reader sqlReader = new FileReader(sqlFile);
+		try (Reader sqlReader = new FileReader(sqlFile)){
 			sqlProperties.load(sqlReader);
 		} catch (Exception e) {
 			logger.error("No SQL properties file for db type " + sqlFile.getAbsolutePath());

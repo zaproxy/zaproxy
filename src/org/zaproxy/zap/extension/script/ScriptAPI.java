@@ -93,7 +93,7 @@ public class ScriptAPI extends ApiImplementor {
 					if (type.isEnableable()) {
 						map.put("enabled", Boolean.toString(script.isEnabled()));
 					}
-					result.addItem(new ApiResponseSet("Script", map));
+					result.addItem(new ApiResponseSet<String>("Script", map));
 				}
 			}
 			return result;
@@ -151,7 +151,7 @@ public class ScriptAPI extends ApiImplementor {
 			
 			ScriptWrapper script = new ScriptWrapper(
 					params.getString(ACTION_PARAM_SCRIPT_NAME),
-					params.getString(ACTION_PARAM_SCRIPT_DESC),
+					getParam(params, ACTION_PARAM_SCRIPT_DESC, ""),
 					engine,
 					type,
 					true,

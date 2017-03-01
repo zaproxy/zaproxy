@@ -42,7 +42,9 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -62,6 +64,10 @@ public class API {
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
+
+	private static final String STATUS_OK = "200 OK";
+	private static final String STATUS_BAD_REQUEST = "400 Bad Request";
+	private static final String STATUS_INTERNAL_SERVER_ERROR = "500 Internal Server Error";
 
 	private Map<String, ApiImplementor> implementors = new HashMap<>();
 	private static API api = null;
@@ -87,6 +93,20 @@ public class API {
 		return api;
 	}
 
+	/**
+	 * Registers the given {@code ApiImplementor} to the ZAP API.
+	 * <p>
+	 * The implementor is not registed if the {@link ApiImplementor#getPrefix() API implementor prefix} is already in use.
+	 * <p>
+	 * <strong>Note:</strong> The preferred method to add an {@code ApiImplementor} is through the method
+	 * {@link org.parosproxy.paros.extension.ExtensionHook#addApiImplementor(ApiImplementor)
+	 * ExtensionHook.addApiImplementor(ApiImplementor)} when the corresponding
+	 * {@link org.parosproxy.paros.extension.Extension#hook(org.parosproxy.paros.extension.ExtensionHook) extension is hooked}.
+	 * Only use this method if really necessary.
+	 *
+	 * @param impl the implementor that will be registered
+	 * @see #removeApiImplementor(ApiImplementor)
+	 */
 	public void registerApiImplementor (ApiImplementor impl) {
 		if (implementors.get(impl.getPrefix()) != null) {
 			logger.error("Second attempt to register API implementor with prefix of " + impl.getPrefix());
@@ -102,6 +122,13 @@ public class API {
 		}
 	}
 	
+	/**
+	 * Removes the given {@code ApiImplementor} from the ZAP API.
+	 *
+	 * @param impl the implementor that will be removed
+	 * @since 2.1.0
+	 * @see #registerApiImplementor(ApiImplementor)
+	 */
 	public void removeApiImplementor(ApiImplementor impl) {
 		if (!implementors.containsKey(impl.getPrefix())) {
 			logger.warn("Attempting to remove an API implementor not registered, with prefix: " + impl.getPrefix());
@@ -119,25 +146,30 @@ public class API {
 	
 	public boolean isEnabled() {
 		// Check API is enabled (its always enabled if run from the cmdline)
-		if ( View.isInitialised() && ! Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
+		if ( View.isInitialised() && ! getOptionsParamApi().isEnabled()) {
 			return false;
 		}
 		return true;
 	}
 	
-	private boolean isSecureOnly() {
-		return Model.getSingleton().getOptionsParam().getApiParam().isSecureOnly();
+	private static OptionsParamApi getOptionsParamApi() {
+		return Model.getSingleton().getOptionsParam().getApiParam();
 	}
-
-	private boolean incErrorDetails() {
-		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
-	}
-
+	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
 	}
 
+	private boolean isPermittedIpAddr(HttpRequestHeader requestHeader) {
+		if (getOptionsParamApi().isPermittedIpAddress(requestHeader.getSenderAddress().getHostAddress())) {
+			return true;
+		}
+		logger.warn("Request to API URL " + requestHeader.getURI().toString() + " from " +
+				requestHeader.getSenderAddress().getHostAddress() + " not permitted");
+		return false;
+	}
+	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut, boolean force) throws IOException {
 		
@@ -148,6 +180,9 @@ public class API {
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
+			if (! isPermittedIpAddr(requestHeader)) {
+				return true;
+			}
 			logger.debug("handleApiRequest Callback: " + url);
 			for (Entry<String, ApiImplementor> callback : callBacks.entrySet()) {
 				if (url.startsWith(callback.getKey())) {
@@ -169,22 +204,29 @@ public class API {
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
-		if (this.isSecureOnly() && ! requestHeader.isSecure()) {
+		if (! isPermittedIpAddr(requestHeader)) {
+			return true;
+		}
+		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
 			// Insecure request with secure only set, always ignore
 			logger.debug("handleApiRequest rejecting insecure request");
-			return false;
+			return true;
 		}
 			
 		logger.debug("handleApiRequest " + url);
 
 		HttpMessage msg = new HttpMessage();
 		msg.setRequestHeader(requestHeader);
+		if (requestHeader.getContentLength() > 0) {
+			msg.setRequestBody(httpIn.readRequestBody(requestHeader));
+		}
 		String component = null;
 		ApiImplementor impl = null;
 		RequestType reqType = null;
 		String contentType = "text/plain; charset=UTF-8";
 		String response = "";
 		String name = null;
+		boolean error = false;
 		
 		try {
 			JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
@@ -234,6 +276,7 @@ public class API {
 									break;
 						}
 					} catch (IllegalArgumentException e) {
+						format = Format.HTML;
 						throw new ApiException(ApiException.Type.BAD_FORMAT);
 					}
 				}
@@ -270,16 +313,33 @@ public class API {
 						throw new ApiException(ApiException.Type.DISABLED);
 					}
 					String key = this.getApiKey();
+					
+					if (format.equals(Format.JSONP)) {
+						if (! getOptionsParamApi().isEnableJSONP()) {
+							// Not enabled
+							throw new ApiException(ApiException.Type.DISABLED);
+						}
+						if (key != null && key.length() > 0) {
+							// An api key is required for ALL JSONP requests
+							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+								throw new ApiException(ApiException.Type.BAD_API_KEY);
+							}
+						}
+					}
 
 					ApiResponse res;
 					switch (reqType) {
-					case action:	
-						// TODO Handle POST requests - need to read these in and then parse params from POST body
-						/*
-						if (Model.getSingleton().getOptionsParam().getApiParam().isPostActions()) {
-							throw new ApiException(ApiException.Type.DISABLED);
+					case action:
+						if (requestHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+							String contentTypeHeader = requestHeader.getHeader(HttpHeader.CONTENT_TYPE);
+							if(contentTypeHeader != null &&
+									contentTypeHeader.equals(HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
+								params = getParams(msg.getRequestBody().toString());
+							} else {
+								throw new ApiException(ApiException.Type.CONTENT_TYPE_NOT_SUPPORTED);
+							}
 						}
-						*/
+
 						if (key != null && key.length() > 0) {
 							// Check if the right api key has been used
 							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
@@ -379,19 +439,19 @@ public class API {
 			}
 			logger.debug("handleApiRequest returning: " + response);
 			
-		} catch (ApiException e) {
-			response =  e.toString(format, incErrorDetails());
- 			logger.warn("handleApiRequest error: " + response, e);
+		} catch (Exception e) {
+			handleException(msg, format, contentType, e);
+			error = true;
 		}
 		
-		if (format == null || ! format.equals(Format.OTHER) && shortcutImpl == null) {
+		if (!error && ! format.equals(Format.OTHER) && shortcutImpl == null) {
 	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
 	    	msg.setResponseBody(response);
 	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 		}
 		
 		if (impl != null) {
-			impl.addCustomHeaders(name, reqType, msg.getResponseHeader());
+			impl.addCustomHeaders(name, reqType, msg);
 		}
 
     	httpOut.write(msg.getResponseHeader());
@@ -405,22 +465,22 @@ public class API {
 	
 	/**
 	 * Returns a URI for the specified parameters. The API key will be added if required
-	 * @param format
-	 * @param prefix
-	 * @param type
-	 * @param name
+	 * @param format the format of the API response
+	 * @param prefix the prefix of the API implementor
+	 * @param type the request type
+	 * @param name the name of the endpoint
 	 * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will start with http://zap/..
-	 * @return
+	 * @return the URL to access the defined endpoint
 	 */
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String key = this.getApiKey();
 		String base = API_URL;
-		if (this.isSecureOnly()) {
+		if (getOptionsParamApi().isSecureOnly()) {
 			base = API_URL_S;
 		}
 		if (!proxy) {
 			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			if (this.isSecureOnly()) {
+			if (getOptionsParamApi().isSecureOnly()) {
 				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
 			} else {
 				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
@@ -492,12 +552,12 @@ public class API {
 					jp.put(key, value);
 				} catch (UnsupportedEncodingException | IllegalArgumentException e) {
 					// Carry on anyway
-					Exception apiException = new ApiException(ApiException.Type.BAD_FORMAT, params, e);
+					Exception apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params, e);
 					logger.error(apiException.getMessage(), apiException);
 				}
 			} else {
 				// Carry on anyway
-				Exception e = new ApiException(ApiException.Type.BAD_FORMAT, params);
+				Exception e = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params);
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -519,8 +579,8 @@ public class API {
 	}
 	
 	public String getApiKey() {
-		// Dont cache - could be changes via the optionss screen
-		return Model.getSingleton().getOptionsParam().getApiParam().getKey();
+		// Dont cache - could be changes via the options screen
+		return getOptionsParamApi().getKey();
 	}
 	
     public static String getDefaultResponseHeader(String contentType) {
@@ -528,17 +588,98 @@ public class API {
     }
 
     public static String getDefaultResponseHeader(String contentType, int contentLength) {
+        return getDefaultResponseHeader(STATUS_OK, contentType, contentLength, false);
+    }
+
+    public static String getDefaultResponseHeader(String contentType, int contentLength, boolean canCache) {
+        return getDefaultResponseHeader(STATUS_OK, contentType, contentLength, canCache);
+    }
+
+    public static String getDefaultResponseHeader(String responseStatus, String contentType, int contentLength) {
+    	return getDefaultResponseHeader(responseStatus, contentType, contentLength, false);
+    }
+
+    public static String getDefaultResponseHeader(String responseStatus, String contentType, int contentLength, boolean canCache) {
         StringBuilder sb = new StringBuilder(250);
 
-        sb.append("HTTP/1.1 200 OK\r\n");
-        sb.append("Pragma: no-cache\r\n");
-        sb.append("Cache-Control: no-cache\r\n");
+        sb.append("HTTP/1.1 ").append(responseStatus).append("\r\n");
+        if (! canCache) {
+        	sb.append("Pragma: no-cache\r\n");
+        	sb.append("Cache-Control: no-cache\r\n");
+        }
+        sb.append("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self'\r\n");
+        sb.append("Referrer-Policy: no-referrer\r\n");
         sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
         sb.append("Access-Control-Allow-Headers: ZAP-Header\r\n");
+        sb.append("X-Frame-Options: DENY\r\n");
+        sb.append("X-XSS-Protection: 1; mode=block\r\n");
+        sb.append("X-Content-Type-Options: nosniff\r\n");
         sb.append("X-Clacks-Overhead: GNU Terry Pratchett\r\n");
         sb.append("Content-Length: ").append(contentLength).append("\r\n");
         sb.append("Content-Type: ").append(contentType).append("\r\n");
 
         return sb.toString();
+    }
+
+    private static void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
+        String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
+        if (format == Format.OTHER) {
+            boolean logError = true;
+            if (cause instanceof ApiException) {
+                switch (((ApiException) cause).getType()) {
+                case DISABLED:
+                    responseStatus = STATUS_BAD_REQUEST;
+                    logger.warn("ApiException while handling API request:", cause);
+                    logError = false;
+                    break;
+                case BAD_TYPE:
+                case NO_IMPLEMENTOR:
+                case BAD_API_KEY:
+                case MISSING_PARAMETER:
+                case BAD_ACTION:
+                case BAD_VIEW:
+                case BAD_OTHER:
+                    responseStatus = STATUS_BAD_REQUEST;
+                    logger.warn("API 'other' malformed request:", cause);
+                    logError = false;
+                    break;
+                default:
+                }
+            }
+
+            if (logError) {
+                logger.error("API 'other' endpoint didn't handle exception:", cause);
+            }
+        } else {
+            ApiException exception;
+            if (cause instanceof ApiException) {
+                exception = (ApiException) cause;
+                if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getType())) {
+                    responseStatus = STATUS_BAD_REQUEST;
+                    logger.warn("ApiException while handling API request:", cause);
+                }
+            } else {
+                exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
+                logger.error("Exception while handling API request:", cause);
+            }
+            String response = exception.toString(format, getOptionsParamApi().isIncErrorDetails());
+
+            msg.getResponseBody().setCharset(getCharset(contentType));
+            msg.getResponseBody().setBody(response);
+        }
+
+        try {
+            msg.setResponseHeader(getDefaultResponseHeader(responseStatus, contentType, msg.getResponseBody().length()));
+        } catch (HttpMalformedHeaderException e) {
+            logger.warn("Failed to build API error response:", e);
+        }
+    }
+
+    private static String getCharset(String contentType) {
+        int idx = contentType.indexOf("charset=");
+        if (idx == -1) {
+            return "UTF-8";
+        }
+        return contentType.substring(idx + 8);
     }
 }

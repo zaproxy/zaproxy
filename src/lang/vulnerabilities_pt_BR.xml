@@ -3,12 +3,12 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
-	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+	<alert>Autenticação insuficiente</alert>
+	<desc>Autenticação insuficiente ocorre quando um site da web permite que um invasor acessar conteúdo sensível ou funcionalidade sem ter autenticado corretamente. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
 
 To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+	<solution>Fase: Arquitetura e Design 
+Use um framework de autenticação ou biblioteca como o recurso de autenticação de OWASP ESAPI.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -16,8 +16,8 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<alert>Autorização insuficiente</alert>
+	<desc>Resultados insuficientes de autorização ocorre quando um aplicativo não executa verificações de autorização adequada para garantir que o usuário está executando uma função ou acessando dados de maneira consistente com a política de segurança. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
 
 Insufficient Function Authorization
 
@@ -844,10 +844,10 @@ Consider using MVC based frameworks such as Struts.</solution>
 <vuln_items>wasc_35</vuln_items>
 <vuln_item_wasc_35>
 	<alert>SOAP Array Abuse</alert>
-	<desc>XML SOAP arrays are a common target for malicious abuse. SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from. SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element. A web-service that expects an array can be the target of a XML DoS attack by forcing the SOAP server to build a huge array in the machine's memory, thus inflicting a DoS condition on the machine due to the memory pre-allocation.</desc>
-	<solution> Perform adequate input validation against any value that influences the amount of memory that is allocated. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary.
+	<desc>Matrizes de XML SOAP são alvos comuns para ataques maliciosos. Matrizes SOAP são definidos como tendo um tipo de "SOAP-ENC:Array" ou um tipo derivado dela. SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element. A web-service that expects an array can be the target of a XML DoS attack by forcing the SOAP server to build a huge array in the machine's memory, thus inflicting a DoS condition on the machine due to the memory pre-allocation.</desc>
+	<solution> Execute a validação de entrada adequada contra qualquer valor que influencia a quantidade de memória alocada. Definir uma estratégia adequada para a manipulação de solicitações que excedem o limite e considerar apoiar uma opção de configuração para que o administrador pode estender a quantidade de memória a ser usado se necessário.
 
-Run your program using system-provided resource limits for memory. This might still cause the program to crash or exit, but the impact to the rest of the system will be minimized.</solution>
+Execute o programa usando os limites de memória fornecidos pelo sistema. Isso ainda pode causar o programa travar ou sair, mas o impacto para o resto do sistema será minimizado.</solution>
 	<reference>http://projects.webappsec.org/SOAP-Array-Abuse</reference>
 	<reference>http://cwe.mitre.org/data/definitions/789.html</reference>
 </vuln_item_wasc_35>

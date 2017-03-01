@@ -90,7 +90,7 @@ public class WebUI {
 				return ae1.getName().compareTo(ae2.getName());
 			}});
 		
-		sb.append("<table>\n");
+		sb.append("\n<table>\n");
 		for (ApiElement element : elementList) {
 			List<String> mandatoryParams = element.getMandatoryParamNames();
 			List<String> optionalParams = element.getOptionalParamNames();
@@ -124,6 +124,16 @@ public class WebUI {
 			}
 			sb.append("</a>");
 			sb.append("</td><td>");
+
+			if (element.isDeprecated()) {
+				sb.append(Constant.messages.getString("api.html.deprecated.endpoint"));
+				sb.append("<br />");
+				String text = element.getDeprecatedDescription();
+				if (text != null && !text.isEmpty()) {
+					sb.append(text);
+					sb.append("<br />");
+				}
+			}
 			
 			String descTag = element.getDescriptionTag();
 			if (descTag == null) {
@@ -149,27 +159,15 @@ public class WebUI {
 			RequestType reqType, String name) throws ApiException {
 		// Generate HTML UI
 		StringBuilder sb = new StringBuilder();
+		sb.append("<!DOCTYPE html>\n");
 		sb.append("<head>\n");
 		sb.append("<title>");
 		sb.append(Constant.messages.getString("api.html.title"));
 		sb.append("</title>\n");
+		/* The script version prevents the cache being used if ZAP has been updated in the same day */ 
+		sb.append("<script src=\"/script.js?v=" + CoreAPI.API_SCRIPT_VERSION + "\" type=\"text/javascript\"></script>\n");
 		sb.append("</head>\n");
 		sb.append("<body>\n");
-		if (component != null && reqType != null) {
-			sb.append("<script>\n");
-			sb.append("function submitScript() {\n");
-			if (RequestType.other.equals(reqType)) {
-				sb.append("var format = '" + Format.OTHER.name() + "'\n");
-			} else {
-				sb.append("var format = document.getElementById('zapapiformat').value\n");
-			}
-			sb.append("var url = '/' + format + '/" + component + "/" + reqType.name() + "/" + name + "/'\n");
-			sb.append("var form=document.getElementById('zapform');\n");
-			sb.append("form.action = url;\n");
-			sb.append("form.submit();\n");
-			sb.append("}\n");
-			sb.append("</script>\n");
-		}
 		sb.append("<h1>");
 		sb.append("<a href=\"/");
 		sb.append(Format.UI.name());
@@ -211,7 +209,7 @@ public class WebUI {
 					// Might not be set, so ignore failures
 				}
 				
-				sb.append("<form id=\"zapform\" name=\"zapform\">");
+				sb.append("\n<form id=\"zapform\" name=\"zapform\" action=\"override\">");
 				sb.append("<table>\n");
 				if ( ! RequestType.other.equals(reqType)) {
 					sb.append("<tr><td>");
@@ -219,6 +217,12 @@ public class WebUI {
 					sb.append("</td><td>\n");
 					sb.append("<select id=\"zapapiformat\" name=\"zapapiformat\">\n");
 					sb.append("<option value=\"JSON\">JSON</option>\n");
+					if (getOptionsParamApi().isEnableJSONP()) {
+						sb.append("<option value=\"JSONP\">JSONP</option>\n");
+					} else {
+						sb.append("<option value=\"JSONP\" disabled>JSONP</option>\n");
+					}
+					
 					sb.append("<option value=\"HTML\">HTML</option>\n");
 					sb.append("<option value=\"XML\">XML</option>\n");
 					sb.append("</select>\n");
@@ -226,7 +230,7 @@ public class WebUI {
 				}
 				
 				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType)) {
-					String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
+					String key = getOptionsParamApi().getKey();
 					if (key != null && key.length() > 0) {
 						sb.append("<tr>");
 						sb.append("<td>");
@@ -238,13 +242,24 @@ public class WebUI {
 						sb.append("\" name=\"");
 						sb.append(API.API_KEY_PARAM);
 						sb.append("\" value=\"");
-						if (Model.getSingleton().getOptionsParam().getApiParam().isAutofillKey()) {
+						if (getOptionsParamApi().isAutofillKey()) {
 							sb.append(key);
 						}
-						sb.append("\"></input>");
+						sb.append("\"/>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
+					sb.append("<tr>");
+					sb.append("<td>");
+					sb.append(Constant.messages.getString("api.html.formMethod"));
+					sb.append("</td>");
+					sb.append("<td>");
+					sb.append("<select name=\"formMethod\">\n");
+					sb.append("<option value=\"GET\" selected>GET</option>\n");
+					sb.append("<option value=\"POST\">POST</option>\n");
+					sb.append("</select>\n");
+					sb.append("</td>");
+					sb.append("</tr>\n");
 				}
 				
 				if (mandatoryParams != null) {
@@ -258,7 +273,7 @@ public class WebUI {
 						sb.append(param);
 						sb.append("\" name=\"");
 						sb.append(param);
-						sb.append("\"></input>");
+						sb.append("\"/>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
@@ -274,7 +289,7 @@ public class WebUI {
 						sb.append(param);
 						sb.append("\" name=\"");
 						sb.append(param);
-						sb.append("\"></input>");
+						sb.append("\"/>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
@@ -285,7 +300,8 @@ public class WebUI {
 				sb.append("<td>");
 				sb.append("<input id=\"button\" value=\"");
 				sb.append(element.getName());
-				sb.append("\" type=\"button\" onclick=\"submitScript();\">");
+				sb.append("\" type=\"button\" zap-component=\"" + component + 
+						"\" zap-type=\"" + reqType + "\" zap-name=\"" + name + "\"/>\n");
 				sb.append("</td>");
 				sb.append("</tr>\n");
 				sb.append("</table>\n");
@@ -373,5 +389,9 @@ public class WebUI {
 		sb.append("</body>\n");
 		
 		return sb.toString();
+	}
+	
+	private OptionsParamApi getOptionsParamApi() {
+		return Model.getSingleton().getOptionsParam().getApiParam();
 	}
 }

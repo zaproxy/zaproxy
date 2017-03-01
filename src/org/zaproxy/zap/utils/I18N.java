@@ -60,7 +60,9 @@ public class I18N {
     }
 
     /**
-     * Gets the String with the given key surrounded by <i>&lt;html&gt;&lt;p&gt; tags.
+     * Gets the String with the given key surrounded by {@code <html><p>} tags.
+     * @param key the key of the string
+     * @return the string read wrapped in HTML and paragraph tags
      */
 	public String getHtmlWrappedString(String key) {
 		String values = getString(key);
@@ -72,8 +74,8 @@ public class I18N {
     /**
      * Returns the specified char from the language file. 
      * As these are typically used for mnemnoics the 'null' char is returned if the key is not defined 
-     * @param key
-     * @return
+     * @param key the key of the char
+     * @return the char read, or null char if not found
      */
     public char getChar(String key) {
     	try {

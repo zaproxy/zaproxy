@@ -29,6 +29,7 @@
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
+// ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 
 package org.parosproxy.paros.core.scanner;
 
@@ -59,14 +60,14 @@ public interface Plugin extends Runnable {
     /**
      * Unique Paros ID of this plugin.
      *
-     * @return
+     * @return the ID
      */
     int getId();
 
     /**
      * Plugin name. This is the human readable plugin name for display.
      *
-     * @return
+     * @return the internationalised name
      */
     String getName();
 
@@ -74,14 +75,14 @@ public interface Plugin extends Runnable {
      * Code name is the plugin name used for dependency naming. By default this
      * is the class name (without the package prefix).
      *
-     * @return
+     * @return the internal name
      */
     String getCodeName();
 
     /**
      * Default description of this plugin.
      *
-     * @return
+     * @return the description
      */
     String getDescription();
 
@@ -99,6 +100,11 @@ public interface Plugin extends Runnable {
 
     void init(HttpMessage msg, HostProcess parent);
 
+    /**
+     * Scans the target server using the message previously set during initialisation.
+     * 
+     * @see #init(HttpMessage, HostProcess)
+     */
     void scan();
 
     /**
@@ -110,50 +116,52 @@ public interface Plugin extends Runnable {
     String[] getDependency();
 
     /**
-     * Enable/disable this plugin.
+     * Sets whether or not the scanner is enabled.
      *
-     * @param enabled
+     * @param enabled {@code true} if the scanner should be enabled, {@code false} otherwise
      */
     void setEnabled(boolean enabled);
 
     /**
-     * Return if this plugin is enabled.
-     *
-     * @return true = enabled.
+     * Tells whether or not the scanner is enabled.
+     * 
+     * @return {@code true} if the scanner is enabled, {@code false} otherwise
      */
     boolean isEnabled();
 
     /**
-     * The Category of this plugin. See Category.
+     * Gets the category of this scanner.
      *
-     * @return
+     * @return the category of the scanner
+     * @see Category
      */
     int getCategory();
 
     /**
      * Default solution returned by this plugin.
      *
-     * @return
+     * @return the solution
      */
     String getSolution();
 
     /**
      * Reference document provided by this plugin.
      *
-     * @return
+     * @return the references
      */
     String getReference();
 
     /**
      * Plugin must implement this to notify when completed.
      *
+     * @param parent the parent {@code HostProcess}
      */
     void notifyPluginCompleted(HostProcess parent);
 
     /**
-     * Always true - if plugin is visible to the framework.
+     * Tells whether or not the scanner can be selected and should be shown..
      *
-     * @return
+     * @return {@code true} if the scanner is visible, {@code false} otherwise
      */
     boolean isVisible();
 
@@ -216,7 +224,7 @@ public interface Plugin extends Runnable {
      * and may include LOW and HIGH OFF and DEFAULT are assumed and should not
      * be returned.
      *
-     * @return
+     * @return an array containing the attack thresholds supported
      */
     AlertThreshold[] getAlertThresholdsSupported();
 
@@ -258,27 +266,49 @@ public interface Plugin extends Runnable {
 
     /**
      * Returns an array of the AttackStrengths supported. It must include MEDIUM
-     * and may include LOW, HIGH and INSANE DEFAULT is assumed and should not be
+     * and may include LOW, HIGH and INSANE. DEFAULT is assumed and should not be
      * returned.
      *
-     * @return
+     * @return an array containing the attack strengths supported
      */
     AttackStrength[] getAttackStrengthsSupported();
 
     /**
-     * Set the technology set this scanner should include in scope (if relevant)
+     * Sets the technologies enabled for the scan.
      *
-     * @param ts
+     * @param ts the technologies enabled for the scan
+     * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+     * @since 2.0.0
+     * @see #targets(TechSet)
      */
     void setTechSet(TechSet ts);
 
     /**
-     * Returns true if the technology should be includes in the scope
+     * Tells whether or not the given technology is enabled for the scan.
+     * <p>
+     * Helper method to check if a technology is enabled before performing the scan.
      *
-     * @param tech
-     * @return
+     * @param tech the technology that will be checked
+     * @return {@code true} if the technology is enabled for the scan, {@code false} otherwise
+     * @since 2.0.0
+     * @see #targets(TechSet)
      */
     boolean inScope(Tech tech);
+
+    /**
+     * Tells whether or not the scanner targets the given {@code technologies} to be run. If the scanner does not target a
+     * specific technology is should return, always, {@code true} so the scanner is run independently of the technologies
+     * enabled.
+     * <p>
+     * Scanners that target multiple technologies must check which technologies are enabled before performing the actual scans.
+     *
+     * @param technologies the technologies that are enabled for the scan, never {@code null}
+     * @return {@code true} if the scanner is targeting the given technologies (or none at all), {@code false} otherwise
+     * @since 2.4.1
+     * @see #setTechSet(TechSet)
+     * @see #inScope(Tech)
+     */
+    boolean targets(TechSet technologies);
 
     void setTimeStarted();
 
@@ -289,19 +319,20 @@ public interface Plugin extends Runnable {
     Date getTimeFinished();
 
     /**
-     * Get the CWE Id: http://cwe.mitre.org/index.html
+     * Gets the CWE ID of the issue(s) raised by the scanner.
      *
-     * @return
+     * @return the CWE ID, -1 if unknown.
      * @since 2.2.0
+     * @see <a href="https://cwe.mitre.org/index.html">CWE - Common Weakness Enumeration</a>
      */
     int getCweId();
 
     /**
-     * Get the WASC Id:
-     * http://projects.webappsec.org/w/page/13246978/Threat%20Classification
+     * Gets the WASC ID of the issue(s) raised by the scanner.
      *
-     * @return
+     * @return the WASC ID, -1 if unknown.
      * @since 2.2.0
+     * @see <a href="http://projects.webappsec.org/w/page/13246978/Threat%20Classification">The WASC Threat Classification</a>
      */
     int getWascId();
     

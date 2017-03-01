@@ -20,8 +20,9 @@
 package org.zaproxy.zap.extension.brk.impl.http;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
@@ -29,13 +30,11 @@ public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = -7635703590177283587L;
     
-    private ExtensionBreak extension;
     private HttpBreakpointsUiManagerInterface uiManager;
 
-    public PopupMenuAddBreakSites(ExtensionBreak extension, HttpBreakpointsUiManagerInterface uiManager) {
+    public PopupMenuAddBreakSites(HttpBreakpointsUiManagerInterface uiManager) {
         super(Constant.messages.getString("brk.add.popup"));
 
-        this.extension = extension;
         this.uiManager = uiManager;
     }
 
@@ -45,17 +44,13 @@ public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
-    public boolean isButtonEnabledForSiteNode(SiteNode sn) {
-        return extension.canAddBreakpoint();
-    }
-
-    @Override
     public void performAction(SiteNode sn) {
-        String url = sn.getHierarchicNodeName();
-        if (!sn.isLeaf()) {
-            url += "/*";
-        }
-        uiManager.handleAddBreakpoint(url);
+        try {
+			uiManager.handleAddBreakpoint(
+					new StructuralSiteNode(sn).getRegexPattern(false));
+		} catch (DatabaseException e) {
+			// Ignore
+		}
     }
 
 }

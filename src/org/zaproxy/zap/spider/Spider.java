@@ -18,12 +18,14 @@
 package org.zaproxy.zap.spider;
 
 import java.net.CookieManager;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
@@ -91,7 +93,7 @@ public class Spider {
 	private DefaultFetchFilter defaultFetchFilter;
 	
 	/** The seed list. */
-	private List<URI> seedList;
+	private LinkedHashSet<URI> seedList;
 	
 	/** The extension. */
 	private ExtensionSpider extension;
@@ -103,10 +105,10 @@ public class Spider {
 	private HttpSender httpSender;
 
 	/** The count of the tasks finished. */
-	private AtomicInteger tasksDoneCount;
+	private int tasksDoneCount;
 
 	/** The total count of all the submitted tasks. */
-	private AtomicInteger tasksTotalCount;
+	private int tasksTotalCount;
 
 	/** The cookie manager. */
 	private CookieManager cookieManager;
@@ -116,6 +118,9 @@ public class Spider {
 
 	/** The scan user. */
 	private User scanUser;
+	
+	/** The time the scan was started */
+	private long timeStarted;
 
 	/**
 	 * The initialized marks if the spidering process is completely started. It solves the problem
@@ -130,6 +135,8 @@ public class Spider {
 	/**	we do not want to recurse into a Git folder, or a subfolder of a Git folder, if one was created from a previous Spider run */
 	private static final Pattern gitUrlPattern = Pattern.compile("\\.git/"); //case sensitive
 
+	private final String id;
+
 	/**
 	 * Instantiates a new spider.
 	 *
@@ -138,17 +145,37 @@ public class Spider {
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
+	 * @deprecated (TODO add version) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam, Model, Context)}
+	 *             instead.
 	 */
+	@Deprecated
 	public Spider(ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
+			Model model, Context scanContext) {
+		this("?", extension, spiderParam, connectionParam, model, scanContext);
+	}
+
+	/**
+	 * Constructs a {@code Spider} with the given data.
+	 * 
+	 * @param id the ID of the spider, usually a unique integer
+	 * @param extension the extension
+	 * @param spiderParam the spider param
+	 * @param connectionParam the connection param
+	 * @param model the model
+	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
+	 * @since TODO add version
+	 */
+	public Spider(String id, ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
 			Model model, Context scanContext) {
 		super();
 		log.info("Spider initializing...");
+		this.id = id;
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
 		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
-		this.seedList = new ArrayList<>();
+		this.seedList = new LinkedHashSet<>();
 		this.cookieManager = new CookieManager();
 		this.scanContext = scanContext;
 		this.extension = extension;
@@ -162,8 +189,8 @@ public class Spider {
 	private void init() {
 		this.paused = false;
 		this.stopped = true;
-		this.tasksDoneCount = new AtomicInteger(0);
-		this.tasksTotalCount = new AtomicInteger(0);
+		this.tasksDoneCount = 0;
+		this.tasksTotalCount = 0;
 		this.initialized = false;
 
 		// Add a default fetch filter and any custom ones
@@ -359,6 +386,10 @@ public class Spider {
 		return spiderParam;
 	}
 
+	protected ConnectionParam getConnectionParam() {
+		return connectionParam;
+	}
+
 	/**
 	 * Gets the controller.
 	 * 
@@ -400,7 +431,7 @@ public class Spider {
 			log.debug("Submitting task skipped (" + task + ") as the Spider process is terminated.");
 			return;
 		}
-		this.tasksTotalCount.incrementAndGet();
+		this.tasksTotalCount++;
 		try {
 			this.threadPool.execute(task);
 		} catch (RejectedExecutionException e) {
@@ -419,12 +450,17 @@ public class Spider {
 	public void start() {
 
 		log.info("Starting spider...");
+		
+		this.timeStarted = System.currentTimeMillis();
+
+		fetchFilterSeeds();
 
 		// Check if seeds are available, otherwise the Spider will start, but will not have any
 		// seeds and will not stop.
 		if (seedList == null || seedList.isEmpty()) {
 			log.warn("No seeds available for the Spider. Cancelling scan...");
 			notifyListenersSpiderComplete(false);
+			notifyListenersSpiderProgress(100, 0, 0);
 			return;
 		}
 
@@ -437,7 +473,8 @@ public class Spider {
 		this.initialized = false;
 
 		// Initialize the thread pool
-		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
+		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount(),
+				new SpiderThreadFactory("ZAP-SpiderThreadPool-" + id + "-thread-"));
 
 		// Initialize the HTTP sender
 		httpSender = new HttpSender(connectionParam, true, HttpSender.SPIDER_INITIATOR);
@@ -447,13 +484,41 @@ public class Spider {
 
 		// Add the seeds
 		for (URI uri : seedList) {
-			if (log.isInfoEnabled()) {
-				log.info("Adding seed for spider: " + uri);
+			if (log.isDebugEnabled()) {
+				log.debug("Adding seed for spider: " + uri);
 			}
 			controller.addSeed(uri, HttpRequestHeader.GET);
 		}
 		// Mark the process as completely initialized
 		initialized = true;
+	}
+
+	/**
+	 * Filters the seed list using the current fetch filters, preventing any non-valid seed from being accessed.
+	 * 
+	 * @see #seedList
+	 * @see FetchFilter
+	 * @see SpiderController#getFetchFilters()
+	 * @since 2.5.0
+	 */
+	private void fetchFilterSeeds() {
+		if (seedList == null || seedList.isEmpty()) {
+			return;
+		}
+
+		for (Iterator<URI> it = seedList.iterator(); it.hasNext();) {
+			URI seed = it.next();
+			for (FetchFilter filter : controller.getFetchFilters()) {
+				FetchStatus filterReason = filter.checkFilter(seed);
+				if (filterReason != FetchStatus.VALID) {
+					if (log.isDebugEnabled()) {
+						log.debug("Seed: " + seed + " was filtered with reason: " + filterReason);
+					}
+					it.remove();
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -472,10 +537,13 @@ public class Spider {
 		}
 		
 		// Issue the shutdown command
-		this.threadPool.shutdownNow();
+		this.threadPool.shutdown();
 		try {
 			if (!this.threadPool.awaitTermination(2, TimeUnit.SECONDS)) {
 				log.warn("Failed to await for all spider threads to stop in the given time (2s)...");
+				for (Runnable task : this.threadPool.shutdownNow()) {
+					((SpiderTask) task).cleanup();
+				}
 			}
 		} catch (InterruptedException ignore) {
 			log.warn("Interrupted while awaiting for all spider threads to stop...");
@@ -497,6 +565,10 @@ public class Spider {
 	 * The Spidering process is complete.
 	 */
 	private void complete() {
+		if (stopped) {
+			return;
+		}
+
 		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
 		if (httpSender != null) {
@@ -513,14 +585,14 @@ public class Spider {
 			@Override
 			public void run() {
 				if (threadPool != null) {
-					threadPool.shutdownNow();
+					threadPool.shutdown();
 				}
 				// Notify the listeners -- in the meanwhile
 				notifyListenersSpiderComplete(true);
 				controller.reset();
 				threadPool = null;
 			}
-		}).start();
+		}, "ZAP-SpiderShutdownThread-" + id).start();
 	}
 
 	/**
@@ -595,19 +667,24 @@ public class Spider {
 	}
 
 	/**
-	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
+	 * This method is run by each thread in the Thread Pool after the task execution. Particularly,
 	 * it notifies the listeners of the progress and checks if the scan is complete. Called from the
 	 * SpiderTask.
 	 */
-	protected void postTaskExecution() {
-		int done = this.tasksDoneCount.incrementAndGet();
-		int total = this.tasksTotalCount.get();
+	protected synchronized void postTaskExecution() {
+		if (stopped) {
+			// Stopped, so don't count the task(s) as done.
+			// (worker threads call this method even if the task was not really executed.)
+			return;
+		}
+		tasksDoneCount++;
+		int percentageComplete = tasksDoneCount * 100 / tasksTotalCount;
 
 		// Compute the progress and notify the listeners
-		this.notifyListenersSpiderProgress(done * 100 / total, done, total - done);
+		this.notifyListenersSpiderProgress(percentageComplete, tasksDoneCount, tasksTotalCount - tasksDoneCount);
 
 		// Check for ending conditions
-		if (done == total && initialized) {
+		if (tasksDoneCount == tasksTotalCount && initialized) {
 			this.complete();
 		}
 	}
@@ -627,6 +704,14 @@ public class Spider {
 	 * @return true, if is stopped
 	 */
 	public boolean isStopped() {
+		if (! stopped && this.spiderParam.getMaxDuration() > 0) {
+			// Check to see if the scan has exceeded the specified maxDuration
+			if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - this.timeStarted) > 
+					this.spiderParam.getMaxDuration()) {
+				log.info("Spidering process has exceeded maxDuration of " + this.spiderParam.getMaxDuration() + " minute(s)");
+				this.complete();
+			}
+		}
 		return stopped;
 	}
 
@@ -700,6 +785,8 @@ public class Spider {
 
 	/**
 	 * Notifies the listeners that the spider is complete.
+	 * 
+	 * @param successful {@code true} if the spider completed successfully (e.g. was not stopped), {@code false} otherwise
 	 */
 	protected synchronized void notifyListenersSpiderComplete(boolean successful) {
 		for (SpiderListener l : listeners) {
@@ -711,4 +798,29 @@ public class Spider {
 		this.controller.addSpiderParser(sp);
 	}
 
+	private static class SpiderThreadFactory implements ThreadFactory {
+
+		private final AtomicInteger threadNumber;
+		private final String namePrefix;
+		private final ThreadGroup group;
+
+		public SpiderThreadFactory(String namePrefix) {
+			threadNumber = new AtomicInteger(1);
+			this.namePrefix = namePrefix;
+			SecurityManager s = System.getSecurityManager();
+			group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+		}
+
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+			if (t.isDaemon()) {
+				t.setDaemon(false);
+			}
+			if (t.getPriority() != Thread.NORM_PRIORITY) {
+				t.setPriority(Thread.NORM_PRIORITY);
+			}
+			return t;
+		}
+	}
 }

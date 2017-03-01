@@ -17,29 +17,25 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
-import org.parosproxy.paros.Constant;
-
-public class NodeJSAPIGenerator {
-	private File dir;
-	private boolean optional = false;
+public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     
     private final String HEADER = 
             "/* Zed Attack Proxy (ZAP) and its related class files.\n" +
             " *\n" +
             " * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
             " *\n" +
-            " * Copyright the ZAP development team\n" +
+            " * Copyright 2016 the ZAP development team\n" +
             " *\n" +
             " * Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
             " * you may not use this file except in compliance with the License.\n" +
@@ -55,11 +51,6 @@ public class NodeJSAPIGenerator {
             " */\n" +
             "\n\n";
 
-	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed"; 
-
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
-        ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
-
     /**
      * Map any names which are reserved in java to something legal
      */
@@ -68,24 +59,30 @@ public class NodeJSAPIGenerator {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
         initMap.put("boolean", "bool");
+        initMap.put("continue", "cont");
         nameMap = Collections.unmodifiableMap(initMap);
     }
 
     public NodeJSAPIGenerator() {
-    	dir = new File("nodejs/api/zapv2"); 
+    	super("nodejs/api/zapv2");
     }
 
     public NodeJSAPIGenerator(String path, boolean optional) {
-    	dir = new File(path); 
-    	this.optional = optional;
+    	super(path, optional);
     }
 
-	public void generateNodeJSFiles(List<ApiImplementor> implementors) throws IOException {
-        for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
-            this.generateNodeJSComponent(imp);
-        }
+    /**
+     * Generates the API client files of the given API implementors.
+     *
+     * @param implementors the implementors
+     * @throws IOException if an error occurred while generating the APIs.
+     * @deprecated (TODO add version) Use {@link #generateAPIFiles(List)} instead.
+     */
+    @Deprecated
+    public void generateNodeJSFiles(List<ApiImplementor> implementors) throws IOException {
+        this.generateAPIFiles(implementors);
     }
-    
+
     private void generateNodeJSElement(ApiElement element, String component, 
             String type, Writer out) throws IOException {
         String className = createClassName(component);
@@ -98,19 +95,19 @@ public class NodeJSAPIGenerator {
             descTag = component + ".api." + type + "." + element.getName();
         }
         try {
-            String desc = msgs.getString(descTag);
+            String desc = getMessages().getString(descTag);
             out.write("/**\n");
             out.write(" * " + desc + "\n");
-			if (optional) {
-	            out.write(" * " + OPTIONAL_MASSAGE + "\n");
+			if (isOptional()) {
+	            out.write(" * " + OPTIONAL_MESSAGE + "\n");
 			}
             out.write(" **/\n");
         } catch (Exception e) {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
-			if (optional) {
+			if (isOptional()) {
 	            out.write("/**\n");
-	            out.write(" * " + OPTIONAL_MASSAGE + "\n");
+	            out.write(" * " + OPTIONAL_MESSAGE + "\n");
 	            out.write(" **/\n");
 			}
         }
@@ -137,7 +134,7 @@ public class NodeJSAPIGenerator {
                 out.write(safeName(param.toLowerCase()));
             }
         }
-        if (type.equals("action") || type.equals("other")) {
+        if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
             // Always add the API key - we've no way of knowing if it will be required or not
             if (hasParams) {
                 out.write(", ");
@@ -150,53 +147,61 @@ public class NodeJSAPIGenerator {
         }
         out.write("callback) {\n");
 
-        if (type.equals("action") || type.equals("other")) {
+        if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
             // Make the API key optional
             out.write("  if (!callback && typeof(" + API.API_KEY_PARAM + ") === 'function') {\n");
             out.write("    callback = " + API.API_KEY_PARAM + ";\n");
             out.write("    " + API.API_KEY_PARAM + " = null;\n");
             out.write("  }\n");
         }
-        String method = "request";
-        if (type.equals("other")) {
-            method = "requestOther";
-        }
-        out.write("  this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
 
         // , {'url': url}))
+        StringBuilder reqParams = new StringBuilder();
         if (hasParams) {
-            out.write(", {");
+            reqParams.append("{");
             boolean first = true;
             if (element.getMandatoryParamNames() != null) {
                 for (String param : element.getMandatoryParamNames()) {
                     if (first) {
                         first = false;
                     } else {
-                        out.write(", ");
+                        reqParams.append(", ");
                     }
-                    out.write("'" + param + "' : " + safeName(param.toLowerCase()));
+                    reqParams.append("'" + param + "' : " + safeName(param.toLowerCase()));
                 }
             }
-            if (element.getOptionalParamNames() != null) {
-                for (String param : element.getOptionalParamNames()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        out.write(", ");
-                    }
-                    out.write("'" + param + "' : " + safeName(param.toLowerCase()));
-                }
-            }
-            if (type.equals("action") || type.equals("other")) {
+            if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
                 // Always add the API key - we've no way of knowing if it will be required or not
-                if (first) {
-                    first = false;
-                } else {
-                    out.write(", ");
+                if (!first) {
+                    reqParams.append(", ");
                 }
-                out.write("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
+                reqParams.append("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
             }
-            out.write("}");
+            reqParams.append("}");
+
+            if (element.getOptionalParamNames() != null && !element.getOptionalParamNames().isEmpty()) {
+                out.write("  var params = ");
+                out.write(reqParams.toString());
+                out.write(";\n");
+                reqParams.replace(0, reqParams.length(), "params");
+
+                for (String param : element.getOptionalParamNames()) {
+                    out.write("  if ("+safeName(param.toLowerCase())+" && "+safeName(param.toLowerCase())+" !== null) {\n");
+                    out.write("    params['" + param + "'] = " + safeName(param.toLowerCase())+";\n");
+                    out.write("  }\n");
+                }
+            }
+        }
+        
+        String method = "request";
+        if (type.equals(OTHER_ENDPOINT)) {
+            method = "requestOther";
+        }
+        out.write("  this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+
+        if (hasParams) {
+            out.write(", ");
+            out.write(reqParams.toString());
         }
         out.write(", callback);\n");
         out.write("};\n\n");
@@ -226,40 +231,41 @@ public class NodeJSAPIGenerator {
         return string.replaceAll("\\.", "");
     }
 
-    private void generateNodeJSComponent(ApiImplementor imp) throws IOException {
+    @Override
+    protected void generateAPIFiles(ApiImplementor imp) throws IOException {
         String className = createClassName(imp.getPrefix());
     
-        File f = new File(this.dir, createFileName(imp.getPrefix()));
-        System.out.println("Generating " + f.getAbsolutePath());
-        FileWriter out = new FileWriter(f);
-        out.write(HEADER);
-        out.write("'use strict';\n\n");
-        
-        out.write("/**\n");
-        out.write(" * This file was automatically generated.\n");
-        out.write(" */\n");
-        out.write("function " + className + "(clientApi) {\n");
-        out.write("  this.api = clientApi;\n");
-        out.write("}\n\n");
+        Path file = getDirectory().resolve(createFileName(imp.getPrefix()));
+        System.out.println("Generating " + file.toAbsolutePath());
+        try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            out.write(HEADER);
+            out.write("'use strict';\n\n");
+            
+            out.write("/**\n");
+            out.write(" * This file was automatically generated.\n");
+            out.write(" */\n");
+            out.write("function " + className + "(clientApi) {\n");
+            out.write("  this.api = clientApi;\n");
+            out.write("}\n\n");
 
-        for (ApiElement view : imp.getApiViews()) {
-            this.generateNodeJSElement(view, imp.getPrefix(), "view", out);
+            for (ApiElement view : imp.getApiViews()) {
+                this.generateNodeJSElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);
+            }
+            for (ApiElement action : imp.getApiActions()) {
+                this.generateNodeJSElement(action, imp.getPrefix(), ACTION_ENDPOINT, out);
+            }
+            for (ApiElement other : imp.getApiOthers()) {
+                this.generateNodeJSElement(other, imp.getPrefix(), OTHER_ENDPOINT, out);
+            }
+            out.write("module.exports = " + className + ";\n");
         }
-        for (ApiElement action : imp.getApiActions()) {
-            this.generateNodeJSElement(action, imp.getPrefix(), "action", out);
-        }
-        for (ApiElement other : imp.getApiOthers()) {
-            this.generateNodeJSElement(other, imp.getPrefix(), "other", out);
-        }
-        out.write("module.exports = " + className + ";\n");
-        out.close();
     }
 
     public static void main(String[] args) throws Exception {
         // Command for generating a python version of the ZAP API
         
         NodeJSAPIGenerator wapi = new NodeJSAPIGenerator();
-        wapi.generateNodeJSFiles(ApiGeneratorUtils.getAllImplementors());
+        wapi.generateCoreAPIFiles();
         
     }
 

@@ -25,17 +25,14 @@ import java.security.SecureRandom;
 import javax.swing.JOptionPane;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedListener {
+public class ExtensionAPI extends ExtensionAdaptor {
 
 	public static final String NAME = "ExtensionAPI";
 	public static final String API_URL = "http://zap/";
@@ -45,29 +42,13 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
     private CoreAPI coreApi = null;
 	
     public ExtensionAPI() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionAPI(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(10);
 	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
-        extensionHook.addSessionListener(this);
 	    if (getView() != null) {
 	    	extensionHook.getHookView().addOptionPanel(getOptionsAPIPanel());
 	    	extensionHook.getHookMenu().addToolsMenuItem(getMenuAPI());
@@ -75,10 +56,9 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
         
         coreApi = new CoreAPI();
         coreApi.addApiOptions(extensionHook.getModel().getOptionsParam().getConnectionParam());
-        API.getInstance().registerApiImplementor(coreApi);
 
-        API.getInstance().registerApiImplementor(new ContextAPI());
-
+        extensionHook.addApiImplementor(coreApi);
+        extensionHook.addApiImplementor(new ContextAPI());
 
 	}
 
@@ -130,19 +110,6 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	}
 
 	@Override
-	public void sessionChanged(Session session) {
-		//API.getInstance().setSession(session);
-	}
-
-	@Override
-	public void sessionAboutToChange(Session session) {
-	}
-	
-	@Override
-	public void sessionScopeChanged(Session session) {
-	}
-	
-	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
@@ -159,11 +126,6 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 		} catch (MalformedURLException e) {
 			return null;
 		}
-	}
-	
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		// Ignore
 	}
 	
 	public CoreAPI getCoreAPI() {

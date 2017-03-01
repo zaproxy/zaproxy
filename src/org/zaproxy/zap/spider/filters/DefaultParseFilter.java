@@ -26,7 +26,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 
 /**
  * The DefaultParseFilter is an implementation of a {@link ParseFilter} that is default for
- * spidering process. Its filter rules are the following:<br/>
+ * spidering process. Its filter rules are the following:
  * <ul>
  * <li>the resource body should be under MAX_RESPONSE_BODY_SIZE bytes, otherwise it's probably a
  * binary resource.</li>
@@ -63,7 +63,7 @@ public class DefaultParseFilter extends ParseFilter {
 		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it 
 		//regardless of type, and regardless of whether it exceeds the file size restriction below.
 		
-		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher, gitFilenameMatcher;;
+		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher, gitFilenameMatcher;
 		try {
 			String fullfilename = responseMessage.getRequestHeader().getURI().getPath();
 			//handle null paths

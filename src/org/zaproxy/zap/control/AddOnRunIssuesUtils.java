@@ -114,6 +114,7 @@ public final class AddOnRunIssuesUtils {
         tree.setVisibleRowCount(5);
         tree.setEditable(false);
         tree.setRootVisible(false);
+        tree.setShowsRootHandles(true);
         tree.expandAll();
 
         return new JScrollPane(tree);

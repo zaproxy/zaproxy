@@ -139,7 +139,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 			values.put("host", this.hostname);
 			values.put("port", Integer.toString(this.port));
 			values.put("realm", this.realm);
-			return new ApiResponseSet("method", values);
+			return new ApiResponseSet<String>("method", values);
 		}
 
 	}
@@ -330,7 +330,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 				try {
 					new URI(method.hostname);
 				} catch (Exception ex) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_HOSTNAME);
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_HOSTNAME);
 				}
 
 				if(params.containsKey(PARAM_REALM))
@@ -341,7 +341,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 						String portString = params.getString(PARAM_PORT);
 						method.port = Integer.parseInt(portString);
 					} catch (Exception ex) {
-						throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_PORT);
+						throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PORT);
 					}
 
 				if (!context.getAuthenticationMethod().isSameType(method))

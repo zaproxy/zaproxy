@@ -42,21 +42,26 @@ public class ProxyDialog extends AbstractDialog {
 	private OptionsConnectionPanel connPanel = null;
 	private OptionsParam options = null;
 	private JButton btnOK = null;
+
     /**
-     * @throws HeadlessException
+     * Constructs an {@code ProxyDialog} with no owner and not modal.
+     * 
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
-    public ProxyDialog() throws HeadlessException {
+    public ProxyDialog() {
         super();
  		initialize();
     }
 
     /**
-     * @param arg0
-     * @param arg1
-     * @throws HeadlessException
+     * Constructs an {@code ProxyDialog} with the given owner and whether or not it's modal.
+     * 
+     * @param owner the {@code Frame} from which the dialog is displayed
+     * @param modal {@code true} if the dialogue should be modal, {@code false} otherwise
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
-    public ProxyDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
+    public ProxyDialog(Frame owner, boolean modal) {
+        super(owner, modal);
  		initialize();
     }
 

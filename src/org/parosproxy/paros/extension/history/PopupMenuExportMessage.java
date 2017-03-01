@@ -27,6 +27,8 @@
 // ZAP: 2012/11/01 Changed to load the HttpMessage from the database only once.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Changed to a JMenuItem.
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
 
 package org.parosproxy.paros.extension.history;
 
@@ -49,32 +51,15 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class PopupMenuExportMessage extends JMenuItem {
 
-    // ZAP: Added logger
+    private static final long serialVersionUID = 1L;
+
     private static final Logger log = Logger.getLogger(PopupMenuExportMessage.class);
 
     private static final String CRLF = "\r\n";
     private ExtensionHistory extension = null;
     
-    /**
-     * 
-     */
     public PopupMenuExportMessage() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuExportMessage(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("history.export.messages.popup"));	// ZAP: i18n
+        super(Constant.messages.getString("history.export.messages.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

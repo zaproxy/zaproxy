@@ -19,8 +19,6 @@ package org.zaproxy.zap.extension.brk.impl.http;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -118,20 +116,18 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 	        HttpMessage messge = (HttpMessage)aMessage;
 
             try {
-		        URI uri = (URI) messge.getRequestHeader().getURI().clone();
-	            uri.setQuery(null);
+		        String uri = messge.getRequestHeader().getURI().toString();
 	
 	            if (onlyIfInScope) {
-	            	if (! Model.getSingleton().getSession().isInScope(uri.toString())) {
+	            	if (! Model.getSingleton().getSession().isInScope(uri)) {
 	            		return false;
 	            	}
 	            }
-	
-		        
+	        
 		        String src = null;
 		        switch (location) {
 		        case url:	
-		        	src = uri.getURI();	
+		        	src = uri;	
 		        	break;
 		        case request_header:
 		        	if (! isRequest) {
@@ -177,7 +173,7 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 		        	return res;
 		        }
 		        
-            } catch (CloneNotSupportedException | URIException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
 	    }

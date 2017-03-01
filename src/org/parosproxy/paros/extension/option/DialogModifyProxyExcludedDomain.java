@@ -22,7 +22,7 @@ package org.parosproxy.paros.extension.option;
 import java.awt.Dialog;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
+import org.zaproxy.zap.network.DomainMatcher;
 
 class DialogModifyProxyExcludedDomain extends DialogAddProxyExcludedDomain {
 
@@ -41,7 +41,7 @@ class DialogModifyProxyExcludedDomain extends DialogAddProxyExcludedDomain {
         return CONFIRM_BUTTON_LABEL;
     }
 
-    public void setProxyExcludedDomain(ProxyExcludedDomainMatcher excludedDomain) {
+    public void setProxyExcludedDomain(DomainMatcher excludedDomain) {
         this.proxyExcludedDomain = excludedDomain;
     }
 

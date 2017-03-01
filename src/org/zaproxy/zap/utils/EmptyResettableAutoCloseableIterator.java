@@ -62,6 +62,6 @@ public final class EmptyResettableAutoCloseableIterator<E> implements Resettable
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
     }
 }

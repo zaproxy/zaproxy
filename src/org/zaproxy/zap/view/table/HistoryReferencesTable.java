@@ -20,40 +20,40 @@
 package org.zaproxy.zap.view.table;
 
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.SortOrder;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.IconValues;
 import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.PagingTableModel;
-import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
+import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.renderer.DateFormatStringValue;
@@ -66,20 +66,15 @@ import org.zaproxy.zap.view.table.decorator.NoteTableCellItemIconHighlighter;
 /**
  * A table specialised in showing data from {@code HistoryReference}s obtained from {@code HistoryReferencesTableModel}s.
  */
-public class HistoryReferencesTable extends JXTable {
+public class HistoryReferencesTable extends ZapTable {
 
     private static final long serialVersionUID = -6988769961088738602L;
 
     private static final Logger LOGGER = Logger.getLogger(HistoryReferencesTable.class);
 
-    private static final HistoryReferencesTableColumnFactory DEFAULT_COLUMN_FACTORY = new HistoryReferencesTableColumnFactory();
-
     private static final int MAXIMUM_ROWS_FOR_TABLE_CONFIG = 75;
 
     private int maximumRowsForTableConfig;
-
-    private boolean autoScroll;
-    private StickyScrollbarAdjustmentListener autoScrollScrollbarAdjustmentListener;
 
     public HistoryReferencesTable() {
         this(new DefaultHistoryReferencesTableModel());
@@ -97,7 +92,6 @@ public class HistoryReferencesTable extends JXTable {
         super(model);
 
         maximumRowsForTableConfig = MAXIMUM_ROWS_FOR_TABLE_CONFIG;
-        autoScroll = true;
 
         setName("GenericHistoryReferenceTable");
 
@@ -110,9 +104,6 @@ public class HistoryReferencesTable extends JXTable {
         setColumnSelectionAllowed(false);
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
-        setColumnControlVisible(true);
-
-        setDoubleBuffered(true);
 
         if (useDefaultSelectionListener) {
             getSelectionModel().addListSelectionListener(new DisplayMessageOnSelectionValueChange());
@@ -129,150 +120,13 @@ public class HistoryReferencesTable extends JXTable {
     }
 
     protected void installColumnFactory() {
-        setColumnFactory(DEFAULT_COLUMN_FACTORY);
+        setColumnFactory(new HistoryReferencesTableColumnFactory());
         createDefaultColumnsFromModel();
         initializeColumnWidths();
     }
 
-    /**
-     * Sets if the vertical scroll bar of the wrapper {@code JScrollPane} should be automatically scrolled on new values.
-     * <p>
-     * Default value is to {@code true}.
-     * 
-     * @param autoScroll {@code true} if vertical scroll bar should be automatically scrolled on new values, {@code false}
-     *            otherwise.
-     */
-    public void setAutoScrollOnNewValues(boolean autoScroll) {
-        if (this.autoScroll == autoScroll) {
-            return;
-        }
-        if (this.autoScroll) {
-            removeAutoScrollScrollbarAdjustmentListener();
-        }
-
-        this.autoScroll = autoScroll;
-
-        if (this.autoScroll) {
-            addAutoScrollScrollbarAdjustmentListener();
-        }
-    }
-
-    /**
-     * Tells whether or not the vertical scroll bar of the wrapper {@code JScrollPane} is automatically scrolled on new values.
-     * 
-     * @return {@code true} if the vertical scroll bar is automatically scrolled on new values, {@code false} otherwise.
-     * @see #setAutoScrollOnNewValues(boolean)
-     */
-    public boolean isAutoScrollOnNewValues() {
-        return autoScroll;
-    }
-
-    private void addAutoScrollScrollbarAdjustmentListener() {
-        JScrollPane scrollPane = getEnclosingScrollPane();
-        if (scrollPane != null && autoScrollScrollbarAdjustmentListener == null) {
-            autoScrollScrollbarAdjustmentListener = new StickyScrollbarAdjustmentListener();
-            scrollPane.getVerticalScrollBar().addAdjustmentListener(autoScrollScrollbarAdjustmentListener);
-        }
-    }
-
-    private void removeAutoScrollScrollbarAdjustmentListener() {
-        JScrollPane scrollPane = getEnclosingScrollPane();
-        if (scrollPane != null && autoScrollScrollbarAdjustmentListener != null) {
-            scrollPane.getVerticalScrollBar().removeAdjustmentListener(autoScrollScrollbarAdjustmentListener);
-            autoScrollScrollbarAdjustmentListener = null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to set auto-scroll on new values, if enabled.
-     * </p>
-     */
-    @Override
-    protected void configureEnclosingScrollPane() {
-        super.configureEnclosingScrollPane();
-
-        if (isAutoScrollOnNewValues()) {
-            addAutoScrollScrollbarAdjustmentListener();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to unset auto-scroll on new values, if enabled.
-     * </p>
-     */
-    @Override
-    protected void unconfigureEnclosingScrollPane() {
-        super.unconfigureEnclosingScrollPane();
-
-        if (isAutoScrollOnNewValues()) {
-            removeAutoScrollScrollbarAdjustmentListener();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to take into account for possible parent {@code JLayer}s.
-     * </p>
-     * 
-     * @see javax.swing.JLayer
-     */
-    // Note: Same implementation as in JXTable#getEnclosingScrollPane() but changed to get the parent and viewport view using
-    // the methods SwingUtilities#getUnwrappedParent(Component) and SwingUtilities#getUnwrappedView(JViewport) respectively.
-    @Override
-    protected JScrollPane getEnclosingScrollPane() {
-        Container p = SwingUtilities.getUnwrappedParent(this);
-        if (p instanceof JViewport) {
-            Container gp = p.getParent();
-            if (gp instanceof JScrollPane) {
-                JScrollPane scrollPane = (JScrollPane) gp;
-                // Make certain we are the viewPort's view and not, for
-                // example, the rowHeaderView of the scrollPane -
-                // an implementor of fixed columns might do this.
-                JViewport viewport = scrollPane.getViewport();
-                if (viewport == null || SwingUtilities.getUnwrappedView(viewport) != this) {
-                    return null;
-                }
-                return scrollPane;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Point getPopupLocation(final MouseEvent event) {
-        // Hack to select the row before showing the pop up menu when invoked using the mouse.
-        if (event != null) {
-            final int row = rowAtPoint(event.getPoint());
-            if (row < 0) {
-                getSelectionModel().clearSelection();
-            } else if (!getSelectionModel().isSelectedIndex(row)) {
-                getSelectionModel().setSelectionInterval(row, row);
-            }
-        }
-        return super.getPopupLocation(event);
-    }
-
     protected void displayMessage(final HttpMessage msg) {
-        if (msg == null) {
-            return;
-        }
-
-        if (msg.getRequestHeader().isEmpty()) {
-            View.getSingleton().getRequestPanel().clearView(true);
-        } else {
-            View.getSingleton().getRequestPanel().setMessage(msg);
-        }
-
-        if (msg.getResponseHeader().isEmpty()) {
-            View.getSingleton().getResponsePanel().clearView(false);
-        } else {
-            View.getSingleton().getResponsePanel().setMessage(msg, true);
-        }
+        View.getSingleton().displayMessage(msg);
     }
 
     public HistoryReference getSelectedHistoryReference() {
@@ -375,10 +229,15 @@ public class HistoryReferencesTable extends JXTable {
                     return;
                 }
 
+                boolean focusOwner = isFocusOwner();
                 try {
                     displayMessage(hRef.getHttpMessage());
                 } catch (HttpMalformedHeaderException | DatabaseException e) {
                     LOGGER.error(e.getMessage(), e);
+                } finally {
+                    if (focusOwner) {
+                        requestFocusInWindow();
+                    }
                 }
             }
         }
@@ -412,7 +271,9 @@ public class HistoryReferencesTable extends JXTable {
         }
     }
 
-    protected static class HistoryReferencesTableColumnFactory extends ColumnFactory {
+    protected class HistoryReferencesTableColumnFactory extends ColumnFactory {
+
+        private SizeBytesStringValue sizeBytesStringValue;
 
         public HistoryReferencesTableColumnFactory() {
         }
@@ -468,13 +329,62 @@ public class HistoryReferencesTable extends JXTable {
             installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_BODY), model);
         }
         
-        private void installSizeBytesRenderer(TableColumnExt columnExt, int columnIndex, TableModel model) {
+        protected void installSizeBytesRenderer(TableColumnExt columnExt, int columnIndex, TableModel model) {
             if (columnIndex != -1) {
                 if (columnExt.getModelIndex() == columnIndex
                         && SizeBytesStringValue.isTargetClass(model.getColumnClass(columnIndex))) {
-                    columnExt.setCellRenderer(new DefaultTableRenderer(new SizeBytesStringValue()));
+                    columnExt.setCellRenderer(new DefaultTableRenderer(getSizeBytesStringValue()));
                 }
             }
+        }
+
+        protected SizeBytesStringValue getSizeBytesStringValue() {
+            if (sizeBytesStringValue == null) {
+                sizeBytesStringValue = new SizeBytesStringValue();
+
+                JComponent columnControl = getColumnControl();
+                if (columnControl instanceof ZapColumnControlButton) {
+                    ZapColumnControlButton zapColumnControl = (ZapColumnControlButton) columnControl;
+                    zapColumnControl.addAction(new ChangeByteUnitAction(HistoryReferencesTable.this, sizeBytesStringValue));
+                    zapColumnControl.populatePopup();
+                }
+            }
+            return sizeBytesStringValue;
+        }
+    }
+
+    protected static class ChangeByteUnitAction extends AbstractActionExt {
+
+        private static final long serialVersionUID = 5518182106427836717L;
+
+        private final JXTable table;
+        private final SizeBytesStringValue sizeBytesStringValue;
+
+        public ChangeByteUnitAction(JXTable table, SizeBytesStringValue sizeBytesStringValue) {
+            super(Constant.messages.getString("view.table.useJustBytes.label"));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("view.table.useJustBytes.tooltip"));
+
+            this.table = table;
+            this.sizeBytesStringValue = sizeBytesStringValue;
+            this.putValue(SELECTED_KEY, sizeBytesStringValue.isUseJustBytesUnit());
+        }
+
+        public ChangeByteUnitAction(String label, Icon icon, JXTable table, SizeBytesStringValue sizeBytesStringValue) {
+            super(label, icon);
+
+            this.table = table;
+            this.sizeBytesStringValue = sizeBytesStringValue;
+        }
+
+        @Override
+        public boolean isStateAction() {
+            return true;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            sizeBytesStringValue.setUseJustBytesUnit(!sizeBytesStringValue.isUseJustBytesUnit());
+            table.repaint();
         }
     }
 }

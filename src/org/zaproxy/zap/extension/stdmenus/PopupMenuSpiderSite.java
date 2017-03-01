@@ -27,6 +27,10 @@ import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
+/**
+ * @deprecated (TODO add version) Superseded by {@link PopupMenuSpiderDialog}.
+ */
+@Deprecated
 public class PopupMenuSpiderSite extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 1L;
@@ -67,7 +71,7 @@ public class PopupMenuSpiderSite extends PopupMenuItemSiteNodeContainer {
 	    if (node != null) {
 	    	// Loop up to get the top parent
 			while (node.getParent() != null && node.getParent().getParent() != null) {
-				node = (SiteNode) node.getParent();
+				node = node.getParent();
 			}
 	    	getExtensionSpider().startScan(node);
 	    }

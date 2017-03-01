@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.brk.impl.http;
 
 import java.awt.Dimension;
 
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -28,6 +29,7 @@ import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
 import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.model.StructuralSiteNode;
 
 
 public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
@@ -63,13 +65,11 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
 
     @Override
     public void handleAddBreakpoint(Message aMessage) {
-        extensionBreak.dialogShown(ExtensionBreak.DialogType.ADD);
         showAddDialog(aMessage);
     }
     
     public void handleAddBreakpoint(String url) {
-        extensionBreak.dialogShown(ExtensionBreak.DialogType.ADD);
-        showAddDialog(url);
+        showAddDialog(url, HttpBreakpointMessage.Match.regex);
     }
 
     void addBreakpoint(HttpBreakpointMessage breakpoint) {
@@ -78,7 +78,6 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
 
     @Override
     public void handleEditBreakpoint(BreakpointMessageInterface breakpoint) {
-        extensionBreak.dialogShown(ExtensionBreak.DialogType.EDIT);
         showEditDialog((HttpBreakpointMessage)breakpoint);
     }
 
@@ -95,33 +94,42 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     public void reset() {
     }
     
-    private void populateAddDialogAndSetVisible(String url) {
+    private void populateAddDialogAndSetVisible(
+    		String url, HttpBreakpointMessage.Match match) {
     	breakDialog.init(
     			new HttpBreakpointMessage(url, HttpBreakpointMessage.Location.url, 
-    					HttpBreakpointMessage.Match.contains, false, true), 
+    					match, false, true), 
     			true);
     	breakDialog.setVisible(true);
     }
     
     private void showAddDialog(Message aMessage) {
+    	HttpBreakpointMessage.Match match = HttpBreakpointMessage.Match.regex;
     	HttpMessage msg = (HttpMessage) aMessage;
-    	if (msg.getRequestHeader().getURI() != null) {
-            this.showAddDialog(msg.getRequestHeader().getURI().toString());
-    	} else {
-            this.showAddDialog("");
+    	String regex = "";
+    	
+    	if (msg.getHistoryRef() != null && 
+    			msg.getHistoryRef().getSiteNode() != null) {
+        	try {
+				regex = new StructuralSiteNode(
+						msg.getHistoryRef().getSiteNode()).getRegexPattern(false);
+			} catch (DatabaseException e) {
+				// Ignore
+			}
     	}
+    	if (regex.length() == 0 && msg.getRequestHeader().getURI() != null) {
+    		// Just use the escaped url
+    		regex = msg.getRequestHeader().getURI().toString();
+    		match = HttpBreakpointMessage.Match.contains;
+    	}
+        this.showAddDialog(regex, match);
     }
     
-    private void showAddDialog(String url) {
+    private void showAddDialog(String url, HttpBreakpointMessage.Match match) {
         if (breakDialog == null) {
         	breakDialog = new BreakAddEditDialog(this, View.getSingleton().getMainFrame(), new Dimension(407, 255));
         }
-        populateAddDialogAndSetVisible(url);
-    }
-
-    void hideAddDialog() {
-    	breakDialog.dispose();
-        extensionBreak.dialogClosed();
+        populateAddDialogAndSetVisible(url, match);
     }
     
     private void populateEditDialogAndSetVisible(HttpBreakpointMessage breakpoint) {
@@ -136,14 +144,9 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
         populateEditDialogAndSetVisible(breakpoint);
     }
 
-    void hideEditDialog() {
-    	breakDialog.dispose();
-        extensionBreak.dialogClosed();
-    }
-
     private PopupMenuAddBreakSites getPopupMenuAddBreakSites() {
         if (popupMenuAddBreakSites == null) {
-            popupMenuAddBreakSites = new PopupMenuAddBreakSites(extensionBreak, this);
+            popupMenuAddBreakSites = new PopupMenuAddBreakSites(this);
         }
         return popupMenuAddBreakSites;
     }
@@ -154,5 +157,4 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
         }
         return popupMenuAddBreakHistory;
     }
-    
 }

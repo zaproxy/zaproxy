@@ -38,7 +38,7 @@ public class StructuralSiteNode implements StructuralNode {
 	@Override
 	public StructuralNode getParent() throws DatabaseException {
 		if (parent == null && ! this.isRoot()) {
-			parent = new StructuralSiteNode((SiteNode) node.getParent());
+			parent = new StructuralSiteNode(node.getParent());
 		}
 		return parent;
 	}
@@ -82,11 +82,27 @@ public class StructuralSiteNode implements StructuralNode {
 		return this.node;
 	}
 	
+	@Override
 	public boolean isSameAs (StructuralNode node) {
 		if (node instanceof StructuralSiteNode) {
 			return this.getSiteNode().equals(((StructuralSiteNode)node).getSiteNode());
 		}
 		return false;
+	}
+
+	@Override
+	public String getRegexPattern() throws DatabaseException {
+		return this.getRegexPattern(true);
+	}
+
+	@Override
+	public String getRegexPattern(boolean incChildren) throws DatabaseException {
+		return SessionStructure.getRegexPattern(this, incChildren);
+	}
+
+	@Override
+	public boolean isDataDriven() {
+		return this.node.isDataDriven();
 	}
 
 }

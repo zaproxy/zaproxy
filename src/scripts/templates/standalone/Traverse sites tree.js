@@ -3,12 +3,14 @@
 // Standalone scripts have no template.
 // They are only evaluated when you run them. 
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 function listChildren(node, level) {
-    var i;
-    for (i=0;i<level;i++) print ("    ");
     var j;
     for (j=0;j<node.getChildCount();j++) {
-        println(node.getChildAt(j).getNodeName());
+        println(Array(level+1).join("    ") + node.getChildAt(j).getNodeName());
         listChildren(node.getChildAt(j), level+1);
     }
 }

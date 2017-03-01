@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
- * Helper class that reads a {@code ZapAddOn.xml} file.
+ * Helper class that reads a {@link AddOn#MANIFEST_FILE_NAME manifest file}.
  * 
  * @since 2.4.0
  */

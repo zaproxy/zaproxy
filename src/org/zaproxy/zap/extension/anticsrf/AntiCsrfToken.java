@@ -19,29 +19,99 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
+import java.lang.ref.SoftReference;
+
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF.HistoryReferenceFactory;
 
 public class AntiCsrfToken implements Cloneable {
 
+	private static final Logger LOGGER = Logger.getLogger(AntiCsrfToken.class);
+
 	private HttpMessage msg; 
+	private SoftReference<HttpMessage> msgReference;
+	private int historyReferenceId;
 	private String name;
 	private String value;
 	private String targetURL;
 	private int formIndex;
+
+	private static HistoryReferenceFactory historyReferenceFactory;
+
+	static void setHistoryReferenceFactory(HistoryReferenceFactory historyReferenceFactory) {
+		AntiCsrfToken.historyReferenceFactory = historyReferenceFactory;
+	}
 	
 	public AntiCsrfToken(HttpMessage msg, String name, String value, int formIndex) {
+		this(msg, null, -1, name, value, formIndex);
+	}
+
+	private AntiCsrfToken(
+			HttpMessage msg,
+			SoftReference<HttpMessage> msgReference,
+			int historyReferenceId,
+			String name,
+			String value,
+			int formIndex) {
 		super();
 		this.msg = msg;
+		this.msgReference = msgReference;
+		this.historyReferenceId = historyReferenceId;
 		this.name = name;
 		this.value = value;
+		this.formIndex = formIndex;
 	}
-	
+
 	public HttpMessage getMsg() {
-		return msg;
+		if (msg != null) {
+			return msg;
+		}
+
+		if (msgReference != null) {
+			HttpMessage msg = msgReference.get();
+			if (msg != null) {
+				return msg;
+			}
+			msgReference.clear();
+			msgReference = null;
+		}
+
+		if (historyReferenceId == -1) {
+			return null;
+		}
+
+		try {
+			HttpMessage msg = historyReferenceFactory.createHistoryReference(historyReferenceId).getHttpMessage();
+			msgReference = new SoftReference<>(msg);
+			return msg;
+		} catch (HttpMalformedHeaderException | DatabaseException e) {
+			LOGGER.error("Failed to load the persisted message: ", e);
+		}
+		return null;
 	}
+
 	public void setMsg(HttpMessage msg) {
 		this.msg = msg;
+
+		if (msgReference != null) {
+			msgReference.clear();
+			msgReference = null;
+		}
+		historyReferenceId = -1;
 	}
+
+	void setHistoryReferenceId(int historyReferenceId) {
+		if (historyReferenceId < 0) {
+			throw new IllegalArgumentException("Parameter historyReferenceId must be equal or greater than zero.");
+		}
+
+		setMsg(null);
+		this.historyReferenceId = historyReferenceId;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -73,7 +143,7 @@ public class AntiCsrfToken implements Cloneable {
 
 	@Override	
 	public AntiCsrfToken clone () {
-		return new AntiCsrfToken(msg, name, value, formIndex);
+		return new AntiCsrfToken(msg, msgReference, historyReferenceId, name, value, formIndex);
 	}
 	
 }

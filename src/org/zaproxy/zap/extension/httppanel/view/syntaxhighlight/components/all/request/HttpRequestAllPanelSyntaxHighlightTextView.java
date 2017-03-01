@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.BadLocationException;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -33,6 +31,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.Request
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
+import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
 import org.zaproxy.zap.model.MessageLocation;
@@ -114,58 +113,28 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 		}
 
         protected MessageLocation getSelection() {
-            HttpMessage httpMessage = getMessage();
-            // This only happens in the Request/Response Header
-            // As we replace all \r\n with \n we must add one character
-            // for each line until the line where the selection is.
-            int tHeader = 0;
-            String header = httpMessage.getRequestHeader().toString();
-            int pos = 0;
-            while ((pos = header.indexOf("\r\n", pos)) != -1) {
-                pos += 2;
-                ++tHeader;
-            }
+            String header = getMessage().getRequestHeader().toString();
 
-            int start = getSelectionStart();
-            int end = getSelectionEnd();
-            HttpMessageLocation.Location location;
-
-            int headerLen = header.length();
-            if (start + tHeader < headerLen) {
-                try {
-                    start += getLineOfOffset(start);
-                } catch (BadLocationException e) {
-                    // Shouldn't happen, but in case it does log it and return...
-                    log.error(e.getMessage(), e);
-                    return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, 0);
-                }
-
-                try {
-                    end += getLineOfOffset(end);
-                } catch (BadLocationException e) {
-                    // Shouldn't happen, but in case it does log it and return...
-                    log.error(e.getMessage(), e);
-                    return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, 0);
-                }
-
-                if (end > headerLen) {
-                    end = headerLen;
-                }
-                location = HttpMessageLocation.Location.REQUEST_HEADER;
-            } else {
-                start += tHeader - headerLen;
-                end += tHeader - headerLen;
-
-                location = HttpMessageLocation.Location.REQUEST_BODY;
-            }
-
-            try {
-                return new DefaultTextHttpMessageLocation(location, start, end, getText(start, end - start));
-            } catch (BadLocationException e) {
-                // Shouldn't happen, but in case it does log it and return...
-                log.error(e.getMessage(), e);
+            int[] position = HttpTextViewUtils
+                    .getViewToHeaderBodyPosition(this, header, getSelectionStart(), getSelectionEnd());
+            if (position.length == 0) {
                 return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, 0);
             }
+
+            int start = position[0];
+            int end = position[1];
+            HttpMessageLocation.Location location;
+
+            String value;
+            if (position.length == 2) {
+                location = HttpMessageLocation.Location.REQUEST_HEADER;
+                value = header.substring(start, end);
+            } else {
+                location = HttpMessageLocation.Location.REQUEST_BODY;
+                value = getMessage().getRequestBody().toString().substring(start, end);
+            }
+
+            return new DefaultTextHttpMessageLocation(location, start, end, value);
 		}
 
 		protected MessageLocationHighlightsManager create() {
@@ -179,90 +148,45 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
                 return null;
             }
 
-            final boolean isBody = TextHttpMessageLocation.Location.REQUEST_BODY.equals(textLocation.getLocation());
-            
-            //As we replace all \r\n with \n we must subtract one character
-            //for each line until the line where the selection is.
-            int t = 0;
-            String header = getMessage().getRequestHeader().toString();
-            int pos = 0;
-            while ((pos = header.indexOf("\r\n", pos)) != -1) {
-                pos += 2;
-                
-                if (!isBody && pos > textLocation.getStart()) {
-                    break;
-                }
-                
-                ++t;
+            int[] pos;
+            if (TextHttpMessageLocation.Location.REQUEST_HEADER.equals(textLocation.getLocation())) {
+                pos = HttpTextViewUtils.getHeaderToViewPosition(
+                        this,
+                        getMessage().getRequestHeader().toString(),
+                        textLocation.getStart(),
+                        textLocation.getEnd());
+            } else {
+                pos = HttpTextViewUtils.getBodyToViewPosition(
+                        this,
+                        getMessage().getRequestHeader().toString(),
+                        textLocation.getStart(),
+                        textLocation.getEnd());
             }
-            
-            int start = textLocation.getStart()-t;
-            int end = textLocation.getEnd()-t;
-            
-            if (isBody) {
-                start += header.length();
-                end += header.length();
-            }
-            
-            int len = this.getText().length();
-            if (start > len || end > len) {
+
+            if (pos.length == 0) {
                 return null;
             }
 
-            textHighlight.setHighlightReference(highlight(start, end, textHighlight));
+            textHighlight.setHighlightReference(highlight(pos[0], pos[1], textHighlight));
 
             return textHighlight;
         }
 
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
-			HttpMessage httpMessage = getMessage();
-			//This only happens in the Request/Response Header
-			//As we replace all \r\n with \n we must add one character
-			//for each line until the line where the selection is.
-			int tHeader = 0;
-			String header = httpMessage.getRequestHeader().toString();
-			int pos = 0;
-			while ((pos = header.indexOf("\r\n", pos)) != -1) {
-				pos += 2;
-				++tHeader;
-			}
-			
-			final int headerLen = header.length();
-			final int diff = tHeader - headerLen;
-			
+			String header = getMessage().getRequestHeader().toString();
 			Matcher m = p.matcher(getText());
-			int start;
-			int end;
 			while (m.find()) {
-				start = m.start();
-				end = m.end();
-				
-				if (start+tHeader < headerLen) {
-					try {
-						start += getLineOfOffset(start);
-					} catch (BadLocationException e) {
-						//Shouldn't happen, but in case it does log it and return.
-						log.error(e.getMessage(), e);
-						return;
-					}
-					try {
-						end += getLineOfOffset(end);
-					} catch (BadLocationException e) {
-						//Shouldn't happen, but in case it does log it and return.
-						log.error(e.getMessage(), e);
-						return;
-					}
-					if (end > headerLen) {
-						end = headerLen;
-					}
-					matches.add(new SearchMatch(SearchMatch.Location.REQUEST_HEAD, start, end));
-				} else {
-					start += diff;
-					end += diff;
-				
-					matches.add(new SearchMatch(SearchMatch.Location.REQUEST_BODY, start, end));
-				}
+
+                int[] position = HttpTextViewUtils.getViewToHeaderBodyPosition(this, header, m.start(), m.end());
+                if (position.length == 0) {
+                    return;
+                }
+
+                SearchMatch.Location location = position.length == 2
+                        ? SearchMatch.Location.REQUEST_HEAD
+                        : SearchMatch.Location.REQUEST_BODY;
+                matches.add(new SearchMatch(location, position[0], position[1]));
 			}
 		}
 		
@@ -273,37 +197,26 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 				return;
 			}
 			
-			final boolean isBody = SearchMatch.Location.REQUEST_BODY.equals(sm.getLocation());
-			
-			//As we replace all \r\n with \n we must subtract one character
-			//for each line until the line where the selection is.
-			int t = 0;
-			String header = sm.getMessage().getRequestHeader().toString();
-			int pos = 0;
-			while ((pos = header.indexOf("\r\n", pos)) != -1) {
-				pos += 2;
-				
-				if (!isBody && pos > sm.getStart()) {
-					break;
-				}
-				
-				++t;
+			int[] pos;
+			if (SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation())) {
+				pos = HttpTextViewUtils.getHeaderToViewPosition(
+						this,
+						sm.getMessage().getRequestHeader().toString(),
+						sm.getStart(),
+						sm.getEnd());
+			} else {
+				pos = HttpTextViewUtils.getBodyToViewPosition(
+						this,
+						sm.getMessage().getRequestHeader().toString(),
+						sm.getStart(),
+						sm.getEnd());
 			}
-			
-			int start = sm.getStart()-t;
-			int end = sm.getEnd()-t;
-			
-			if (isBody) {
-				start += header.length();
-				end += header.length();
-			}
-			
-			int len = this.getText().length();
-			if (start > len || end > len) {
+
+			if (pos.length == 0) {
 				return;
 			}
 			
-			highlight(start, end);
+			highlight(pos[0], pos[1]);
 		}
 		
 		@Override

@@ -22,6 +22,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/08/21 Introduced support for shared UI Contexts for Context Property panels
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
+// ZAP: 2016/10/26 Initialise the panels when added to the dialogue, if shown
 
 package org.parosproxy.paros.view;
 
@@ -42,6 +43,11 @@ public class SessionDialog extends AbstractParamDialog {
 	/** The map of duplicate of the contexts, used for temporary changes in the UI. */
 	private Map<Integer, Context> uiContexts = new HashMap<>();
 
+	/**
+	 * The session currently shown in the dialogue, {@code null} if the dialogue is not visible.
+	 */
+	private Session session;
+	
 	public SessionDialog() {
 		super();
 		initialize();
@@ -76,20 +82,47 @@ public class SessionDialog extends AbstractParamDialog {
 	}
 
 	@Override
-	public void initParam(Object obj) {
-		super.initParam(obj);
-		// NOTE: Creation of UI Shared Contexts should be done/redone before calling this method.
-		// Send the 'ui context' duplicate to Context Properties Panels
+	public void addParamPanel(String[] parentParams, String name, AbstractParamPanel panel, boolean sort) {
+		super.addParamPanel(parentParams, name, panel, sort);
+
+		if (session != null) {
+			if (panel instanceof AbstractContextPropertiesPanel) {
+				initContextPanel((AbstractContextPropertiesPanel) panel);
+			} else {
+				panel.initParam(session);
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * <strong>Note:</strong> Creation of UI Shared Contexts should be done before calling this method.
+	 * 
+	 * @see #recreateUISharedContexts(Session)
+	 */
+	@Override
+	public void initParam(Object session) {
+		super.initParam(session);
+		
+		this.session = (Session) session;
 		for (AbstractParamPanel panel : super.getPanels()) {
 			if (panel instanceof AbstractContextPropertiesPanel) {
-				AbstractContextPropertiesPanel contextPanel = (AbstractContextPropertiesPanel) panel;
-				Context ctx = uiContexts.get(contextPanel.getContextIndex());
-				if (ctx != null) {
-					contextPanel.initContextData((Session) obj, ctx);
-				}
-			} else {
-				panel.initParam(obj);
+				initContextPanel((AbstractContextPropertiesPanel) panel);
 			}
+		}
+	}
+
+	/**
+	 * Initialises the given panel with the current session and the corresponding UI shared context.
+	 *
+	 * @param contextPanel the context panel to initialise
+	 * @see AbstractContextPropertiesPanel#initContextData(Session, Context)
+	 */
+	private void initContextPanel(AbstractContextPropertiesPanel contextPanel) {
+		Context ctx = uiContexts.get(contextPanel.getContextIndex());
+		if (ctx != null) {
+			contextPanel.initContextData(session, ctx);
 		}
 	}
 	
@@ -97,6 +130,16 @@ public class SessionDialog extends AbstractParamDialog {
 	public void saveParam() throws Exception {
 		super.saveParam();
 		Model.getSingleton().getSession().saveAllContexts();
+	}
+	
+	@Override
+	public void setVisible(boolean show) {
+		super.setVisible(show);
+
+		if (!show && session != null) {
+			session = null;
+			uiContexts.clear();
+		}
 	}
 
 	/**
@@ -110,6 +153,20 @@ public class SessionDialog extends AbstractParamDialog {
 		for (Context context : session.getContexts()) {
 			Context uiContext = context.duplicate();
 			uiContexts.put(context.getIndex(), uiContext);
+		}
+	}
+
+	/**
+	 * Creates the UI shared context for the given context.
+	 * <p>
+	 * Should be called when a new context is added to the session and before adding its panels.
+	 * 
+	 * @param context the context
+	 * @since TODO add version
+	 */
+	public void createUISharedContext(Context context) {
+		if (session != null) {
+			uiContexts.put(context.getIndex(), context.duplicate());
 		}
 	}
 

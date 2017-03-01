@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -34,10 +33,12 @@ import javax.xml.xpath.XPathFactory;
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.XmlUtils;
 
 /**
  * SitemapXMLParser is used for parsing URLs from a sitemap.xml file, which sometimes (very helpfully) resides in the web root.
@@ -56,9 +57,6 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 	private SpiderParam params;
 	
 	/** used to parse the XML based file format */ 
-	private static DocumentBuilderFactory dbFactory;
-	
-	/** used to parse the XML based file format */ 
 	private static DocumentBuilder dBuilder;
 	
 	/**
@@ -68,10 +66,9 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 
 	/** statically initialise the XML DocumentBuilderFactory and DocumentBuilder */
 	static {		
-		dbFactory = DocumentBuilderFactory.newInstance();
 		try {
-			dBuilder = dbFactory.newDocumentBuilder();
-			XPath  xpath = (XPath) XPathFactory.newInstance().newXPath();
+			dBuilder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
+			XPath  xpath = XPathFactory.newInstance().newXPath();
 			xpathLocationExpression = xpath.compile("/urlset/url/loc/text()");
 		} catch (ParserConfigurationException | XPathExpressionException e) {
 			log.error(e);
@@ -82,9 +79,13 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 	 * Instantiates a new sitemap.xml parser.
 	 * 
 	 * @param params the params
+	 * @throws IllegalArgumentException if {@code params} is null.
 	 */
 	public SpiderSitemapXMLParser(SpiderParam params) {
 		super();
+		if (params == null) {
+			throw new IllegalArgumentException("Parameter params must not be null.");
+		}
 		this.params = params;
 	}
 
@@ -93,7 +94,10 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 		
 		if (log.isDebugEnabled()) log.debug("Parsing a sitemap.xml resource...");
 		
-		if (message == null || !params.isParseSitemapXml()) {
+		if (message == null || !params.isParseSitemapXml() || 
+				!message.getResponseHeader().isXml() ||
+				HttpStatusCode.isClientError(message.getResponseHeader().getStatusCode()) ||
+				HttpStatusCode.isServerError(message.getResponseHeader().getStatusCode())) {
 			return false;
 		}		
 		
@@ -109,9 +113,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 				Document xmldoc = dBuilder.parse(new InputSource(new ByteArrayInputStream(response)));
 				NodeList locationNodes = (NodeList) xpathLocationExpression.evaluate(xmldoc, XPathConstants.NODESET);
 			    for (int i = 0; i < locationNodes.getLength(); i++) {
-			    	String location = locationNodes.item(i).getNodeValue();			    	
-			    	if ( location != null ) 
-			    		processURL(message, depth, location, baseURL); 
+			    	processURL(message, depth, locationNodes.item(i).getNodeValue(), baseURL); 
 			    }
 			} 
 			catch (Exception e) {

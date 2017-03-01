@@ -47,16 +47,16 @@ public interface ContextDataFactory {
 
 	/**
 	 * Export the Context data into the given configuration
-	 * @param ctx
-	 * @param config
+	 * @param ctx the context to export
+	 * @param config the {@code Configuration} where to export the context data
 	 */
 	void exportContextData(Context ctx, Configuration config);
 
 	/**
 	 * Import the Context data from the given configuration
-	 * @param ctx
-	 * @param config
-	 * @throws Exception 
+	 * @param ctx the context to import the context data to
+	 * @param config the {@code Configuration} containing the context data
+	 * @throws ConfigurationException if an error occurred while reading the context data from the {@code Configuration}
 	 */
 	void importContextData(Context ctx, Configuration config) throws ConfigurationException;
 }

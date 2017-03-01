@@ -25,6 +25,8 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/11/06 Added warning that filters will be removed
 // ZAP: 2015/02/16 Issue 1528: Support user defined font size
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2017/01/09 Remove method no longer needed.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -46,11 +48,10 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class AllFilterPanel extends AbstractParamPanel {
 
+	private static final long serialVersionUID = 1L;
 	private JTable tableFilter = null;
 	private JScrollPane jScrollPane = null;
-    /**
-     * 
-     */
+
     public AllFilterPanel() {
         super();
  		initialize();
@@ -123,11 +124,6 @@ public class AllFilterPanel extends AbstractParamPanel {
 
     @Override
     public void initParam(Object obj) {
-        
-    }
-
-    @Override
-    public void validateParam(Object obj) throws Exception {
         
     }
 

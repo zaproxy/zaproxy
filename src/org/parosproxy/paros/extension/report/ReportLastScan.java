@@ -27,6 +27,8 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2014/07/15 Issue 1263: Generate Report Clobbers Existing Files Without Prompting
+// ZAP: 2015/11/18 Issue 1555: Rework inclusion of HTML tags in reports 
+// ZAP: 2016/09/22 Issue 2886: Support Markdown format
 
 package org.parosproxy.paros.extension.report;
 
@@ -60,8 +62,9 @@ public class ReportLastScan {
     private static final String HTM_FILE_EXTENSION=".htm";
     private static final String HTML_FILE_EXTENSION=".html";
     private static final String XML_FILE_EXTENSION=".xml";
+    private static final String MD_FILE_EXTENSION=".md";
     
-    public enum ReportType {HTML, XML}
+    public enum ReportType {HTML, XML, MD}
 
     public ReportLastScan() {
     }
@@ -146,6 +149,8 @@ public class ReportLastScan {
                     	switch (localReportType) {
                         case XML:
                             return lcFileName.endsWith(XML_FILE_EXTENSION);
+                        case MD:
+                            return lcFileName.endsWith(MD_FILE_EXTENSION);
                         case HTML:
                         default:
                             return (lcFileName.endsWith(HTM_FILE_EXTENSION) || lcFileName.endsWith(HTML_FILE_EXTENSION));
@@ -159,6 +164,8 @@ public class ReportLastScan {
                 	switch(localReportType) {
                 	case XML:
                 		return Constant.messages.getString("file.format.xml");
+                    case MD:
+                        return Constant.messages.getString("file.format.md");
                 	case HTML:
                 	default:
                 		return Constant.messages.getString("file.format.html"); 
@@ -171,8 +178,12 @@ public class ReportLastScan {
         	switch(localReportType) {
         	case XML:
         		fileExtension=XML_FILE_EXTENSION;
-        		reportXSL = (Constant.getZapInstall() + "/xml/report.xml.xsl");
+        		reportXSL = null;	// Dont use XSLT
         		break;
+            case MD:
+                fileExtension=MD_FILE_EXTENSION;
+                reportXSL = (Constant.getZapInstall() + "/xml/report.md.xsl");
+                break;
         	case HTML:
         	default: 
         		fileExtension=HTML_FILE_EXTENSION;

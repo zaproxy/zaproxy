@@ -26,11 +26,14 @@
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2015/01/04 Issue 1387: Unable to change the proxy's port/address if the port/address was specified through the command line
+// ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 package org.parosproxy.paros.control;
  
 import java.util.List;
 
 import org.parosproxy.paros.core.proxy.CacheProcessingItem;
+import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
@@ -58,7 +61,7 @@ public class Proxy {
 
 	}
 	
-	public void startServer() {
+	public boolean startServer() {
 
 		// setProxyParam put in here so restart can reread param.
 		proxyServer.setProxyParam(model.getOptionsParam().getProxyParam());
@@ -103,9 +106,12 @@ public class Proxy {
 		    	proxyPort = model.getOptionsParam().getProxyParam().getProxyPort();
 		    }
 
-			proxyServer.startServer(proxyHost, proxyPort, false);
+			if (proxyServer.startServer(proxyHost, proxyPort, false) == -1) {
+				return false;
+			}
 		    
 		}
+		return true;
 	}
 
 	public void stopServer() {
@@ -152,6 +158,44 @@ public class Proxy {
 	    proxyServer.removePersistentConnectionListener(listener);
 	    proxyServerSSL.removePersistentConnectionListener(listener);
 	}
+
+    /**
+     * Adds the given {@code listener}, that will be notified of the received CONNECT requests.
+     *
+     * @param listener the listener that will be added
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since 2.5.0
+     */
+    public void addConnectRequestProxyListener(ConnectRequestProxyListener listener) {
+        validateListenerNotNull(listener);
+        proxyServer.addConnectRequestProxyListener(listener);
+        proxyServerSSL.addConnectRequestProxyListener(listener);
+    }
+
+    /**
+     * Validates that the given {@code listener} is not {@code null}, throwing an {@code IllegalArgumentException} if it is.
+     *
+     * @param listener the listener that will be validated
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     */
+    private static void validateListenerNotNull(Object listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Parameter listener must not be null.");
+        }
+    }
+
+    /**
+     * Removes the given {@code listener}, to no longer be notified of the received CONNECT requests.
+     *
+     * @param listener the listener that should be removed
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since 2.5.0
+     */
+    public void removeConnectRequestProxyListener(ConnectRequestProxyListener listener) {
+        validateListenerNotNull(listener);
+        proxyServer.removeConnectRequestProxyListener(listener);
+        proxyServerSSL.removeConnectRequestProxyListener(listener);
+    }
 
     /**
      * @return Returns the reverseProxy.

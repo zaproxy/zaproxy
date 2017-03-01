@@ -37,13 +37,11 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -70,6 +68,8 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	 */
 	public static final String MESSAGE_CONTAINER_NAME = "ActiveScanMessageContainer";
 
+	private static final String ZERO_REQUESTS_LABEL_TEXT = "0";
+
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
 	
     private ExtensionActiveScan extension;
@@ -82,11 +82,13 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private JLabel numRequests;
 
     /**
-     * @param extension
+     * Constructs an {@code ActiveScanPanel} with the given extension.
+     * 
+     * @param extension the active scan extension, to access options and start scans
      */
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon
-        super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension, null);
+        super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension);
         this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
@@ -103,6 +105,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			panelToolbar.add(getProgressButton(), getGBC(x++,0));
 		}
 		if (Location.afterProgressBar.equals(loc)) {
+			panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
 			panelToolbar.add(new JLabel(Constant.messages.getString("ascan.toolbar.requests.label")), getGBC(x++,0));
 			panelToolbar.add(getNumRequests(), getGBC(x++,0));
 		}
@@ -157,7 +160,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	
 	private JLabel getNumRequests() {
 		if (numRequests == null) {
-			numRequests = new JLabel();
+			numRequests = new JLabel(ZERO_REQUESTS_LABEL_TEXT);
 		}
 		return numRequests;
 	}
@@ -165,7 +168,8 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private void showScanProgressDialog() {
 		ActiveScan scan = this.getSelectedScanner();
 		if (scan != null) {
-			ScanProgressDialog spp = new ScanProgressDialog(View.getSingleton().getMainFrame(), scan.getDisplayName());
+			ScanProgressDialog spp = 
+					new ScanProgressDialog(View.getSingleton().getMainFrame(), scan.getDisplayName(), this.extension);
 			spp.setActiveScan(scan);
 			spp.setVisible(true);
 		}
@@ -241,7 +245,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			}
 		} else {
 			resetMessagesTable();
-		    this.getNumRequests().setText("");
+		    this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
 		    this.getProgressButton().setEnabled(false);
 		}
 	}
@@ -249,10 +253,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
 	@Override
 	public void alertFound(Alert alert) {
-		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
-		if (extAlert != null) {
-			extAlert.alertFound(alert, alert.getHistoryRef());
-		}
+		// Nothing to do, ActiveScanController (through ActiveScan) already raises the alerts.
 	}
 
 

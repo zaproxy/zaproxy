@@ -31,26 +31,8 @@ public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
     
-    /**
-     * 
-     */
     public PopupMenuSitesRefresh() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuSitesRefresh(String label) {
-        super(label);
-    }
-
-    /**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("siterefresh.popop"));
+        super(Constant.messages.getString("siterefresh.popop"));
         
         this.addActionListener(new java.awt.event.ActionListener() { 
 

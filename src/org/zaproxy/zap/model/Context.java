@@ -21,18 +21,21 @@ package org.zaproxy.zap.model;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
@@ -58,6 +61,7 @@ public class Context {
 	public static final String CONTEXT_CONFIG_POSTPARSER = CONTEXT_CONFIG + ".postparser";
 	public static final String CONTEXT_CONFIG_POSTPARSER_CLASS = CONTEXT_CONFIG_POSTPARSER + ".class";
 	public static final String CONTEXT_CONFIG_POSTPARSER_CONFIG = CONTEXT_CONFIG_POSTPARSER + ".config";
+	public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES = CONTEXT_CONFIG + ".ddns";
 
 	private static Logger log = Logger.getLogger(Context.class);
 
@@ -70,6 +74,7 @@ public class Context {
 	private List<String> excludeFromRegexs = new ArrayList<>();
 	private List<Pattern> includeInPatterns = new ArrayList<>();
 	private List<Pattern> excludeFromPatterns = new ArrayList<>();
+	private List<StructuralNodeModifier> dataDrivenNodes = new ArrayList<>();
 
 	/** The authentication method. */
 	private AuthenticationMethod authenticationMethod = null;
@@ -93,6 +98,8 @@ public class Context {
 		this.authenticationMethod = new ManualAuthenticationMethod(index);
 		this.authorizationDetectionMethod = new BasicAuthorizationDetectionMethod(null, null, null,
 				LogicalOperator.AND);
+		this.urlParamParser.setContext(this);
+		this.postParamParser.setContext(this);
 	}
 
 	public boolean isIncludedInScope(SiteNode sn) {
@@ -207,12 +214,47 @@ public class Context {
 	 * every node in the Site Tree.
 	 * 
 	 * @return the nodes in scope from site tree
+	 * @see #hasNodesInContextFromSiteTree()
 	 */
 	public List<SiteNode> getNodesInContextFromSiteTree() {
 		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
 		fillNodesInContext(rootNode, nodes);
 		return nodes;
+	}
+
+	/**
+	 * Tells whether or not there's at least one node from the sites tree in context.
+	 * 
+	 * @return {@code true} if the context has at least one node from the sites tree in context, {@code false} otherwise
+	 * @since 2.5.0
+	 * @see #getNodesInContextFromSiteTree()
+	 */
+	public boolean hasNodesInContextFromSiteTree() {
+		return hasNodesInContext((SiteNode) session.getSiteTree().getRoot());
+	}
+
+	/**
+	 * Tells whether or not there's at least one node from the sites tree in context.
+	 * <p>
+	 * The whole tree is traversed until is found one node in context.
+	 * 
+	 * @param node the node to check, recursively
+	 * @return {@code true} if the context has at least one node from the sites tree in context, {@code false} otherwise
+	 */
+	private boolean hasNodesInContext(SiteNode node) {
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = node.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isInContext(sn)) {
+				return true;
+			}
+			if (hasNodesInContext(sn)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -255,10 +297,10 @@ public class Context {
 	}
 
 	/**
-	 * Fills a given list with nodes in scope, searching recursively.
+	 * Tells whether or not the given node or any of its child nodes are in context.
 	 * 
-	 * @param rootNode the root node
-	 * @param nodesList the nodes list
+	 * @param node the node to start the check
+	 * @return {@code true} if at least one node is in context, {@code false} otherwise
 	 */
 	private boolean isContainsNodesInContext(SiteNode node) {
 		if (isInContext(node)) {
@@ -276,21 +318,48 @@ public class Context {
 	}
 
 	public List<String> getIncludeInContextRegexs() {
-		return includeInRegexs;
+		return Collections.unmodifiableList(includeInRegexs);
 	}
 
-	private void checkRegexs(List<String> regexs) throws Exception {
-		for (String url : regexs) {
-			url = url.trim();
-			if (url.length() > 0) {
-				Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-			}
+	/**
+	 * Validates that the given regular expressions are not {@code null} nor invalid.
+	 *
+	 * @param regexs the regular expressions to be validated, must not be {@code null}
+	 * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+	 * @throws PatternSyntaxException if one of the regular expressions is invalid.
+	 */
+	private static void validateRegexs(List<String> regexs) {
+		for (String regex : regexs) {
+			validateRegex(regex);
 		}
 	}
 
-	public void setIncludeInContextRegexs(List<String> includeRegexs) throws Exception {
-		// Check they are all valid regexes first
-		checkRegexs(includeRegexs);
+	/**
+	 * Validates that the given regular expression is not {@code null} nor invalid.
+	 *
+	 * @param regex the regular expression to be validated
+	 * @throws IllegalArgumentException if the regular expression is {@code null}.
+	 * @throws PatternSyntaxException if the regular expression is invalid.
+	 */
+	private static void validateRegex(String regex) {
+		if (regex == null) {
+			throw new IllegalArgumentException("The regular expression must not be null.");
+		}
+		String trimmedRegex = regex.trim();
+		if (!trimmedRegex.isEmpty()) {
+			Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
+		}
+	}
+
+	/**
+	 * Sets the regular expressions used to include a URL in context.
+	 *
+	 * @param includeRegexs the regular expressions
+	 * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+	 * @throws PatternSyntaxException if one of the regular expressions is invalid.
+	 */
+	public void setIncludeInContextRegexs(List<String> includeRegexs) {
+		validateRegexs(includeRegexs);
 		// Check if theyve been changed
 		if (includeInRegexs.size() == includeRegexs.size()) {
 			boolean changed = false;
@@ -316,42 +385,34 @@ public class Context {
 			}
 		}
 	}
-
-	private String getPatternFromNode(SiteNode sn, boolean recurse) throws Exception {
-		return this.getPatternUrl(new URI(sn.getHierarchicNodeName(), false).toString(), recurse);
-	}
-
-	private String getPatternUrl(String url, boolean recurse) throws Exception {
-		if (url.indexOf("?") > 0) {
-			// Strip off any parameters
-			url = url.substring(0, url.indexOf("?"));
-		}
-
-		if (recurse) {
-			url = Pattern.quote(url) + ".*";
-		} else {
-			url = Pattern.quote(url);
-		}
-		return url;
-	}
-
+	
 	public void excludeFromContext(SiteNode sn, boolean recurse) throws Exception {
-		addExcludeFromContextRegex(this.getPatternFromNode(sn, recurse));
+		excludeFromContext(new StructuralSiteNode(sn), recurse);
+	}
+
+	public void excludeFromContext(StructuralNode sn, boolean recurse) throws Exception {
+		addExcludeFromContextRegex(sn.getRegexPattern(recurse));
 	}
 
 	public void addIncludeInContextRegex(String includeRegex) {
-		Pattern p = Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE);
-		includeInPatterns.add(p);
+		validateRegex(includeRegex);
+		includeInPatterns.add(Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE));
 		includeInRegexs.add(includeRegex);
 	}
 
 	public List<String> getExcludeFromContextRegexs() {
-		return excludeFromRegexs;
+		return Collections.unmodifiableList(excludeFromRegexs);
 	}
 
-	public void setExcludeFromContextRegexs(List<String> excludeRegexs) throws Exception {
-		// Check they are all valid regexes first
-		checkRegexs(excludeRegexs);
+	/**
+	 * Sets the regular expressions used to exclude a URL from the context.
+	 *
+	 * @param excludeRegexs the regular expressions
+	 * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+	 * @throws PatternSyntaxException if one of the regular expressions is invalid.
+	 */
+	public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
+		validateRegexs(excludeRegexs);
 		// Check if theyve been changed
 		if (excludeFromRegexs.size() == excludeRegexs.size()) {
 			boolean changed = false;
@@ -380,8 +441,8 @@ public class Context {
 	}
 
 	public void addExcludeFromContextRegex(String excludeRegex) {
-		Pattern p = Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE);
-		excludeFromPatterns.add(p);
+		validateRegex(excludeRegex);
+		excludeFromPatterns.add(Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE));
 		excludeFromRegexs.add(excludeRegex);
 	}
 
@@ -397,11 +458,28 @@ public class Context {
 		this.techSet = techSet;
 	}
 
+	/**
+	 * Gets the name of the context.
+	 *
+	 * @return the name of the context, never {@code null} (since TODO add version).
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name of the context.
+	 *
+	 * @param name the new name of the context
+	 * @throws IllegalContextNameException (since TODO add version) if the given name is {@code null} or empty.
+	 */
 	public void setName(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalContextNameException(
+					IllegalContextNameException.Reason.EMPTY_NAME,
+					"The context name must not be null nor empty.");
+		}
+
 		this.name = name;
 	}
 
@@ -485,7 +563,6 @@ public class Context {
 
 	public void setUrlParamParser(ParameterParser paramParser) {
 		this.urlParamParser = paramParser;
-		restructureSiteTree();
 	}
 
 	public ParameterParser getPostParamParser() {
@@ -497,7 +574,7 @@ public class Context {
 	}
 
 	public void restructureSiteTree() {
-        if (EventQueue.isDispatchThread()) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	restructureSiteTreeEventHandler();
         } else {
             try {
@@ -515,34 +592,137 @@ public class Context {
 	
 	private void restructureSiteTreeEventHandler() {
 		log.debug("Restructure site tree for context: " + this.getName());
-		
-		HttpMessage msg;
-		SiteNode sn2;
+		List<SiteNode> nodes = this.getTopNodesInContextFromSiteTree();
+		for (SiteNode sn : nodes) {
+			checkNode(sn);
+		}
+	}
+	
+	private boolean checkNode(SiteNode sn) {
+		// Loop backwards through the children TODO change for lowmem!
+		// log.debug("checkNode " + sn.getHierarchicNodeName());		// Useful for debugging
+		int origChildren = sn.getChildCount();
+		int movedChildren = 0;
+		for (SiteNode childNode : getChildren(sn)) {
+			if (checkNode(childNode)) {
+				movedChildren++;
+			}
+		}
 
-		for (SiteNode sn: this.getNodesInContextFromSiteTree()) {
-			log.debug("Restructure site tree, node: " + sn.getNodeName());
+		if (this.isInContext(sn)) {
+			SiteMap sitesTree = this.session.getSiteTree();
+			HistoryReference href = sn.getHistoryReference();
+			
 			try {
-				msg = sn.getHistoryReference().getHttpMessage();
-				if (msg != null) {
-					sn2 = session.getSiteTree().findNode(msg, sn.getChildCount() > 0);
-					if (sn2 == null) {
-						sn2 = session.getSiteTree().addPath(sn.getHistoryReference(), msg);
-					}
-						
-					if (! sn2.equals(sn)) {
-						// TODO: Might be better in a 'merge'? Do we need to copy other things, list custom icons? 
-						for (Alert alert : sn.getAlerts()) {
-							sn2.addAlert(alert);
-						}
-						for (Alert alert : sn.getAlerts()) {
-							sn.deleteAlert(alert);
-						}
-						session.getSiteTree().removeNodeFromParent(sn);
+				SiteNode sn2;
+				if (HttpRequestHeader.POST.equals(href.getMethod())) {
+					// Have to go to the db as POST data can be used in the name
+					sn2 = sitesTree.findNode(href.getHttpMessage());
+				} else {
+					// This is better as it doesnt require a db read
+					sn2 = sitesTree.findNode(href.getURI());
+				}
+				
+				if (sn2 == null || ! sn.getHierarchicNodeName().equals(sn2.getHierarchicNodeName())) {
+					if (! sn.isDataDriven()) {
+						moveNode(sitesTree, sn);
+						return true;
 					}
 				}
+				if (movedChildren > 0 && movedChildren == origChildren && sn.getChildCount() == 0) {
+					if (href.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
+						// Remove temp old node, no need to add new one in - 
+						// that will happen when moving child nodes (if required)
+						deleteNode(sitesTree, sn);
+						return true;
+					}
+				}
+				// log.debug("Didnt need to move " + sn.getHierarchicNodeName());	// Useful for debugging
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
+		}
+		return false;
+		
+	}
+
+	/**
+	 * Gets the child nodes of the given site node.
+	 *
+	 * @param siteNode the site node that will be used, must not be {@code null}
+	 * @return a {@code List} with the child nodes, never {@code null}
+	 */
+	private List<SiteNode> getChildren(SiteNode siteNode) {
+		int childCount = siteNode.getChildCount();
+		if (childCount == 0) {
+			return Collections.emptyList();
+		}
+
+		List<SiteNode> children = new ArrayList<>(childCount);
+		for (int i = 0; i < childCount; i++) {
+			children.add((SiteNode) siteNode.getChildAt(i));
+		}
+		return children;
+	}
+
+	private void moveNode (SiteMap sitesTree, SiteNode sn) {
+		List<Alert> alerts = sn.getAlerts();
+		
+		// And delete the old one
+		deleteNode(sitesTree, sn);
+		
+		// Add into the right place
+		SiteNode sn2 = sitesTree.addPath(sn.getHistoryReference());
+		log.debug("Moved node " + sn.getHierarchicNodeName() + " to " + sn2.getHierarchicNodeName());
+
+		// And sort out the alerts
+		for (Alert alert : alerts) {
+			sn2.addAlert(alert);
+		}
+	}
+	
+	private void deleteNode (SiteMap sitesTree, SiteNode sn) {
+		log.debug("Deleting node " + sn.getHierarchicNodeName());
+		sn.deleteAlerts(sn.getAlerts());
+		
+		// Remove old one
+		sitesTree.removeNodeFromParent(sn);
+		sitesTree.removeHistoryReference(sn.getHistoryReference().getHistoryId());
+	}
+	
+	
+	public List<StructuralNodeModifier> getDataDrivenNodes() {
+		List<StructuralNodeModifier> ddns = new ArrayList<>(this.dataDrivenNodes.size());
+		for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
+			ddns.add(ddn.clone());
+		}
+		return ddns;
+	}
+
+	public void setDataDrivenNodes(List<StructuralNodeModifier> dataDrivenNodes) {
+		this.dataDrivenNodes = dataDrivenNodes;
+	}
+
+	public void addDataDrivenNodes(StructuralNodeModifier ddn) {
+		this.dataDrivenNodes.add(ddn.clone());
+	}
+	
+	public String getDefaultDDNName() {
+		int i=1;
+		while (true) {
+			boolean found = false;
+			String name = "DDN" + i;
+			for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
+				if (ddn.getName().equals(name)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				return name;
+			}
+			
+			i++;
 		}
 	}
 
@@ -566,6 +746,7 @@ public class Context {
 		newContext.urlParamParser = this.urlParamParser.clone();
 		newContext.postParamParser = this.postParamParser.clone();
 		newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
+		newContext.dataDrivenNodes = this.getDataDrivenNodes();
 		return newContext;
 	}
 

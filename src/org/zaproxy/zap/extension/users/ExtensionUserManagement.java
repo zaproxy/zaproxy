@@ -40,7 +40,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.authentication.ExtensionAuthentication;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.sessions.ExtensionSessionManagement;
@@ -150,7 +149,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 
 		// Prepare API
 		this.api = new UsersAPI(this);
-		API.getInstance().registerApiImplementor(api);
+		extensionHook.addApiImplementor(api);
 	}
 
 	@Override
@@ -262,10 +261,12 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		try {
 			List<String> encodedUsers = new ArrayList<>();
 			ContextUserAuthManager m = contextManagers.get(context.getIndex());
-			for (User u : m.getUsers()) {
-				encodedUsers.add(User.encode(u));
+			if (m != null) {
+				for (User u : m.getUsers()) {
+					encodedUsers.add(User.encode(u));
+				}
+				session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
 			}
-			session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
 		} catch (Exception ex) {
 			log.error("Unable to persist Users.", ex);
 		}
@@ -308,8 +309,10 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	@Override
 	public void exportContextData(Context ctx, Configuration config) {
 		ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
-		for (User u : m.getUsers()) {
-			config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+		if (m != null) {
+			for (User u : m.getUsers()) {
+				config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+			}
 		}
 	}
 

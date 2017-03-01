@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,16 @@ function Acsrf(clientApi) {
   this.api = clientApi;
 }
 
-Acsrf.prototype.optionTokens = function (callback) {
-  this.api.request('/acsrf/view/optionTokens/', callback);
-};
-
+/**
+ * Lists the names of all anti CSRF tokens
+ **/
 Acsrf.prototype.optionTokensNames = function (callback) {
   this.api.request('/acsrf/view/optionTokensNames/', callback);
 };
 
+/**
+ * Adds an anti CSRF token with the given name, enabled by default
+ **/
 Acsrf.prototype.addOptionToken = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -43,6 +45,9 @@ Acsrf.prototype.addOptionToken = function (string, apikey, callback) {
   this.api.request('/acsrf/action/addOptionToken/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Removes the anti CSRF token with the given name
+ **/
 Acsrf.prototype.removeOptionToken = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

@@ -101,11 +101,13 @@ public final class CoreFunctionality {
 			extensions.add(new org.zaproxy.zap.extension.log4j.ExtensionLog4j());
 			extensions.add(new org.zaproxy.zap.extension.params.ExtensionParams());
 			extensions.add(new org.zaproxy.zap.extension.pscan.ExtensionPassiveScan());
+			extensions.add(new org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig());
 			extensions.add(new org.zaproxy.zap.extension.script.ExtensionScript());
 			extensions.add(new org.zaproxy.zap.extension.search.ExtensionSearch());
 			extensions.add(new org.zaproxy.zap.extension.sessions.ExtensionSessionManagement());
 			extensions.add(new org.zaproxy.zap.extension.siterefresh.ExtensionSitesRefresh());
 			extensions.add(new org.zaproxy.zap.extension.spider.ExtensionSpider());
+			extensions.add(new org.zaproxy.zap.extension.stats.ExtensionStats());
 			extensions.add(new org.zaproxy.zap.extension.stdmenus.ExtensionStdMenus());
 			extensions.add(new org.zaproxy.zap.extension.uiutils.ExtensionUiUtils());
 			extensions.add(new org.zaproxy.zap.extension.users.ExtensionUserManagement());
@@ -160,6 +162,7 @@ public final class CoreFunctionality {
 			ArrayList<PluginPassiveScanner> rules = new ArrayList<>();
 			rules.add(new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner());
 			rules.add(new org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner());
+			rules.add(new org.zaproxy.zap.extension.pscan.scanner.StatsPassiveScanner());
 			rules.trimToSize();
 
 			for (PluginPassiveScanner rule : rules) {

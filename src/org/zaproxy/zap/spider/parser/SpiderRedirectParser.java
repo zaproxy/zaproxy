@@ -49,7 +49,6 @@ public class SpiderRedirectParser extends SpiderParser {
 
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
-		return message.getResponseHeader() != null
-				&& HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode());
+		return HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode());
 	}
 }

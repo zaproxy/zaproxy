@@ -22,6 +22,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
+// ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 
 package org.parosproxy.paros.db;
 
@@ -47,6 +48,7 @@ public class RecordAlert {
 	private int wascId = -1;
     // ZAP: Added sourceHistoryId to RecordAlert - this is the original record that 'caused' the alert
     private int sourceHistoryId = 0;
+    private int sourceId = 0;
     
 	public RecordAlert() {
 		
@@ -55,7 +57,7 @@ public class RecordAlert {
 	public RecordAlert(int alertId, int scanId, int pluginId, String alert, 
 			int risk, int confidence, String description, String uri, String param, String attack, 
 			String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
-			int sourceHistoryId) {
+			int sourceHistoryId, int sourceId) {
 	    setAlertId(alertId);
 	    setScanId(scanId);
 	    setPluginId(pluginId);
@@ -74,6 +76,7 @@ public class RecordAlert {
 	    setEvidence(evidence);
 	    setCweId(cweId);
 	    setWascId(wascId);
+	    setSourceId(sourceId);
 	    
 	    if ((attack == null || attack.length() == 0) && param.indexOf("=") > 0) {
 	    	// 'old' alerts will have attack in the param field
@@ -300,5 +303,26 @@ public class RecordAlert {
 	public void setWascId(int wascId) {
 		this.wascId = wascId;
 	}
+
+	/**
+	 * Sets the ID of the source of the alert.
+	 *
+	 * @param sourceId the ID of the source
+	 * @since TODO add version
+	 * @see org.parosproxy.paros.core.scanner.Alert.Source Source
+	 */
+	public void setSourceId(int sourceId) {
+		this.sourceId = sourceId;
+	}
     
+	/**
+	 * Gets the ID of the source of the alert.
+	 *
+	 * @return the ID of the source
+	 * @since TODO add version
+	 * @see org.parosproxy.paros.core.scanner.Alert.Source Source
+	 */
+	public int getSourceId() {
+		return sourceId;
+	}
 }

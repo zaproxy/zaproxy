@@ -50,6 +50,20 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/04/17 A problem occur when a single node should be scanned because count start from -1
 // ZAP: 2015/05/04 Issue 1566: Improve active scan's reported progress
+// ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
+// ZAP: 2015/10/29 Issue 2005: Active scanning incorrectly performed on sibling nodes 
+// ZAP: 2015/11/27 Issue 2086: Report request counts per plugin
+// ZAP: 2015/12/16 Prevent HostProcess (and plugins run) from becoming in undefined state
+// ZAP: 2016/01/27 Prevent HostProcess from reporting progress higher than 100%
+// ZAP: 2016/04/21 Allow scanners to notify of messages sent (and tweak the progress and request count of each plugin)
+// ZAP: 2016/06/29 Allow to specify and obtain the reason why a scanner was skipped
+// ZAP: 2016/07/12 Do not allow techSet to be null
+// ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
+// ZAP: 2016/09/20 - Reorder statements to prevent (potential) NullPointerException in scanSingleNode
+//                 - JavaDoc tweaks
+// ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
+// ZAP: 2016/12/13 Issue 2951:  Support active scan rule and scan max duration
+// ZAP: 2016/12/20 Include the name of the user when logging the scan info
 
 package org.parosproxy.paros.core.scanner;
 
@@ -61,8 +75,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -70,6 +86,9 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
@@ -90,37 +109,60 @@ public class HostProcess implements Runnable {
     private Analyser analyser = null;
     private Kb kb = null;
     private User user = null;
-    private TechSet techSet = null;
+    private TechSet techSet;
+    private RuleConfigParam ruleConfigParam;
+    private String stopReason = null;
 
-    // time related 
-    // ZAP: changed to Integer because the pluginId is int
-    private final Map<Integer, Long> mapPluginStartTime = new HashMap<>();
-    private final Set<Integer> listPluginIdSkipped = new HashSet<>();
+    /**
+     * A {@code Map} from plugin IDs to corresponding {@link PluginStats}.
+     * 
+     * @see #processPlugin(Plugin)
+     */
+    private final Map<Integer, PluginStats> mapPluginStats = new HashMap<>();
     private long hostProcessStartTime = 0;
 
     // ZAP: progress related
     private int nodeInScopeCount = 0;
-    private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
     private int percentage = 0;
     
     /**
-     * Intantiate a new HostProcess service
+     * Constructs a {@code HostProcess}, with no rules' configurations.
      * 
      * @param hostAndPort the host:port value of the site that need to be processed
      * @param parentScanner the scanner instance which instantiated this process
      * @param scannerParam the session scanner parameters
      * @param connectionParam the connection parameters
-     * @param pluginFactory the Factory object for plugin management and instantiation
+     * @param scanPolicy the scan policy
+     * @deprecated Use {@link #HostProcess(String, Scanner, ScannerParam, ConnectionParam, ScanPolicy, RuleConfigParam)}
+     *             instead. It will be removed in a future version.
+     */
+    @Deprecated
+    public HostProcess(String hostAndPort, Scanner parentScanner, ScannerParam scannerParam,
+            ConnectionParam connectionParam, ScanPolicy scanPolicy) {
+        this(hostAndPort, parentScanner, scannerParam, connectionParam, scanPolicy, null);
+    }
+    
+    /**
+     * Constructs a {@code HostProcess}.
+     * 
+     * @param hostAndPort the host:port value of the site that need to be processed
+     * @param parentScanner the scanner instance which instantiated this process
+     * @param scannerParam the session scanner parameters
+     * @param connectionParam the connection parameters
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since TODO add version
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
-    		ScanPolicy scanPolicy) {
+    		ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
         
         super();
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
 		this.pluginFactory = scanPolicy.getPluginFactory().clone();
+		this.ruleConfigParam = ruleConfigParam;
 		
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
@@ -136,6 +178,7 @@ public class HostProcess implements Runnable {
         }
         
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
+        this.techSet = TechSet.AllTech;
     }
 
     /**
@@ -170,42 +213,76 @@ public class HostProcess implements Runnable {
     public void run() {
         log.debug("HostProcess.run");
 
-        hostProcessStartTime = System.currentTimeMillis();
-        for (StructuralNode node : startNodes) {
-	        // ZAP: before all get back the size of this scan
-	        nodeInScopeCount += getNodeInScopeCount(node, true);
-	        // ZAP: begin to analyze the scope
-	        getAnalyser().start(node);
-        }
-        
-        Plugin plugin;
-        
-        while (!isStop() && pluginFactory.existPluginToRun()) {
-            plugin = pluginFactory.nextPlugin();
-            
-            if (plugin != null) {
-                plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-                plugin.setTechSet(this.techSet);
-                processPlugin(plugin);
-            
-            } else {
-                // waiting for dependency - no test ready yet
-                Util.sleep(1000);
+        try {
+            TraverseCounter counter = new TraverseCounter();
+            hostProcessStartTime = System.currentTimeMillis();
+            for (StructuralNode node : startNodes) {
+    	        // ZAP: before all get back the size of this scan
+    	        traverse(node, true, counter);
+    	        // ZAP: begin to analyze the scope
+    	        getAnalyser().start(node);
             }
+            nodeInScopeCount = counter.getCount();
+
+            logScanInfo();
+            
+            Plugin plugin;
+            
+            while (!isStop() && pluginFactory.existPluginToRun()) {
+                plugin = pluginFactory.nextPlugin();
+                
+                if (plugin != null) {
+                    plugin.setDelayInMs(this.scannerParam.getDelayInMs());
+                    plugin.setTechSet(this.techSet);
+                    processPlugin(plugin);
+                
+                } else {
+                    // waiting for dependency - no test ready yet
+                    Util.sleep(1000);
+                }
+            }
+            threadPool.waitAllThreadComplete(300000);
+        } catch (Exception e) {
+            log.error("An error occurred while active scanning:", e);
+            stop();
+        } finally {
+            notifyHostProgress(null);
+            notifyHostComplete();
+            getHttpSender().shutdown();
         }
-        
-        threadPool.waitAllThreadComplete(300000);
-        notifyHostProgress(null);
-        notifyHostComplete();
-        getHttpSender().shutdown();
     }
 
-    private void processPlugin(Plugin plugin) {
+    /**
+     * Logs information about the scan.
+     * <p>
+     * It logs the {@link #nodeInScopeCount number of nodes} that will be scanned and the name of the {@link #user}, if any.
+     */
+    private void logScanInfo() {
+        StringBuilder strBuilder = new StringBuilder(150);
+        strBuilder.append("Scanning ");
+        strBuilder.append(nodeInScopeCount);
+        strBuilder.append(" node(s) from ");
+        strBuilder.append(hostAndPort);
+        if (user != null) {
+            strBuilder.append(" as ");
+            strBuilder.append(user.getName());
+        }
+        log.info(strBuilder.toString());
+    }
+
+    private void processPlugin(final Plugin plugin) {
+        synchronized (mapPluginStats) {
+            mapPluginStats.put(plugin.getId(), new PluginStats());
+        }
+
+        if (!plugin.targets(techSet)) {
+            pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.techs"));
+            pluginCompleted(plugin);
+            return;
+        }
+
         log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
                 + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
-        
-        mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
-        mapPluginProgress.put(plugin.getId(), 0);
         
         for (StructuralNode startNode : startNodes) {
 	        if (plugin instanceof AbstractHostPlugin) {
@@ -216,49 +293,68 @@ public class HostProcess implements Runnable {
 	            }
 	            
 	        } else if (plugin instanceof AbstractAppPlugin) {
-	            traverse(plugin, startNode, true);
-	            threadPool.waitAllThreadComplete(600000);
-	            pluginCompleted(plugin);
+	            try {
+	                traverse(startNode, true, new TraverseAction() {
+
+                        @Override
+                        public void apply(StructuralNode node) {
+                            log.debug("traverse: plugin=" + plugin.getName() + " url=" + node.getName());
+                            scanSingleNode(plugin, node);
+                        }
+
+                        @Override
+                        public boolean isStopTraversing() {
+                            return isSkipped(plugin);
+                        }
+                    });
+	                threadPool.waitAllThreadComplete(600000);
+	            } finally {
+	                pluginCompleted(plugin);
+	            }
 	        }
         }
     }
 
-    private void traverse(Plugin plugin, StructuralNode node) {
-        this.traverse(plugin, node, false);
+    private void traverse(StructuralNode node, TraverseAction action) {
+        this.traverse(node, false, action);
     }
 
-    private void traverse(Plugin plugin, StructuralNode node, boolean incRelatedSiblings) {
-        if (node == null || plugin == null || isStop()) {
+    private void traverse(StructuralNode node, boolean incRelatedSiblings, TraverseAction action) {
+        if (node == null || isStop()) {
             return;
         }
-        log.debug("traverse: plugin=" + plugin.getName() + " url=" + node.getName());
 
         Set<StructuralNode> parentNodes = new HashSet<>();
         parentNodes.add(node);
 
-        scanSingleNode(plugin, node);
+        action.apply(node);
 
-        if (incRelatedSiblings) {
-            // Also match siblings with the same hierarchic name
-            // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
-            // note that this is only done for the top level.
-            try {
-				Iterator<StructuralNode> iter = node.getParent().getChildIterator();
-				while (iter.hasNext()) {
-				    StructuralNode sibling = iter.next();
-					if (! node.isSameAs(sibling) && ! node.getName().equals(sibling.getName())) {
-				        parentNodes.add(sibling);
-					}
-				}
-			} catch (DatabaseException e) {
-				// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
-			}
-        }
-
-        if (parentScanner.scanChildren()) {
+        if (!action.isStopTraversing() && parentScanner.scanChildren()) {
+            if (incRelatedSiblings) {
+                // Also match siblings with the same hierarchic name
+                // If we dont do this http://localhost/start might match the GET variant 
+            	// in the Sites tree and miss the hierarchic node.
+                // Note that this is only done for the top level
+                try {
+    				Iterator<StructuralNode> iter = node.getParent().getChildIterator();
+    				String nodeName = SessionStructure.getCleanRelativeName(node, false);
+    				while (iter.hasNext()) {
+    				    StructuralNode sibling = iter.next();
+    					if (! node.isSameAs(sibling) && 
+    							nodeName.equals(
+    									SessionStructure.getCleanRelativeName(sibling, false))) {
+    				        log.debug("traverse: including related sibling " + sibling.getName());
+    				        parentNodes.add(sibling);
+    					}
+    				}
+    			} catch (DatabaseException e) {
+    				// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
+    			}
+            }
+        	
         	for (StructuralNode pNode : parentNodes) {
 	        	Iterator<StructuralNode> iter = pNode.getChildIterator();
-	        	while (iter.hasNext() && !isStop() && !isSkipped(plugin)) {
+	        	while (iter.hasNext() && !isStop() && !action.isStopTraversing()) {
 	        		StructuralNode child = iter.next();
 	                // ZAP: Implement pause and resume
 	                while (parentScanner.isPaused() && !isStop()) {
@@ -266,7 +362,7 @@ public class HostProcess implements Runnable {
 	                }
 	
 	                try {
-	                    traverse(plugin, child);
+	                    traverse(child, action);
 	                    
 	                } catch (Exception e) {
 	                    log.error(e.getMessage(), e);
@@ -283,35 +379,34 @@ public class HostProcess implements Runnable {
     /**
      * Create new plugin instance and run against a node
      *
-     * @param plugin
-     * @param node. If node == null, run for server level plugin
+     * @param plugin the scanner
+     * @param node the node to scan, ignored if {@code null}.
      * @return {@code true} if the {@code plugin} was run, {@code false} otherwise.
      */
     private boolean scanSingleNode(Plugin plugin, StructuralNode node) {
         Thread thread;
         Plugin test;
         HttpMessage msg;
-        
-        log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
 
         // do not poll for isStop here to allow every plugin to run but terminate immediately.
         //if (isStop()) return;
 
-        try {
-            if (node == null || node.getHistoryReference() == null) {
-                log.debug("scanSingleNode node or href null, returning: node=" + node);
-                return false;
-            }
-            
-            if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
-                log.debug("Ignoring \"scanner\" type href");
-                return false;
-            }
+        if (node == null || node.getHistoryReference() == null) {
+            log.debug("scanSingleNode node or href null, returning: node=" + node);
+            return false;
+        }
+        
+        if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
+            log.debug("Ignoring \"scanner\" type href");
+            return false;
+        }
 
-            if (!nodeInScope(node.getName())) {
-                log.debug("scanSingleNode node not in scope");
-                return false;
-            }
+        if (!nodeInScope(node.getName())) {
+            log.debug("scanSingleNode node not in scope");
+            return false;
+        }
+
+        try {
             
             msg = node.getHistoryReference().getHttpMessage();
 
@@ -321,8 +416,16 @@ public class HostProcess implements Runnable {
                 return false;
             }
 
+            log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
+
             test = plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
+            if (this.ruleConfigParam != null) {
+	            // Set the configuration rules
+	            for (RuleConfig rc : this.ruleConfigParam.getAllRuleConfigs()) {
+	                test.getConfig().setProperty(rc.getKey(), rc.getValue());
+	            }
+            }
             test.setDelayInMs(plugin.getDelayInMs());
             test.setDefaultAlertThreshold(plugin.getAlertThreshold());
             test.setDefaultAttackStrength(plugin.getAttackStrength());
@@ -346,6 +449,7 @@ public class HostProcess implements Runnable {
             
         } while (thread == null);
 
+        mapPluginStats.get(plugin.getId()).incProgress();
         return true;
     }
 
@@ -363,62 +467,22 @@ public class HostProcess implements Runnable {
      * @return the current managed test count
      */
     public int getTestCurrentCount(Plugin plugin) {
-        return mapPluginProgress.get(plugin.getId());
-    }
-
-    /**
-     * ZAP: method to set the current progress status for a specific plugin
-     * @param plugin the plugin we're setting the progress
-     * @param value the value that need to be set
-     */
-    public void setTestCurrentCount(Plugin plugin, int value) {        
-        mapPluginProgress.put(plugin.getId(), value);
-    }
-
-    /**
-     * ZAP: inner recursive method to count nodes in scope
-     * @param node the starting node
-     * @param incRelatedSiblings true if siblings should be included
-     * @return the number of nodes
-     */
-    private int getNodeInScopeCount(StructuralNode node, boolean incRelatedSiblings) {
-        if (node == null) {
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
             return 0;
         }
-        
-        int nodeCount = 1;
-        if (parentScanner.scanChildren()) {
-            
-            Set<StructuralNode> parentNodes = new HashSet<>();
-            parentNodes.add(node);
-                        
-            if (incRelatedSiblings) {
-                // Also match siblings with the same hierarchic name
-                // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
-                // note that this is only done for the top level.
-                try {
-					Iterator<StructuralNode> iter = node.getParent().getChildIterator();
-					while (iter.hasNext()) {
-					    StructuralNode sibling = iter.next();
-						if (! node.isSameAs(sibling) && ! node.getName().equals(sibling.getName())) {
-					        parentNodes.add(sibling);
-					        nodeCount++;
-						}
-					}
-				} catch (DatabaseException e) {
-					// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
-				}
-            }
-            
-            for (StructuralNode pNode : parentNodes) {
-                Iterator<StructuralNode> iter = pNode.getChildIterator();
-                while (iter.hasNext()) {
-                    nodeCount += getNodeInScopeCount(iter.next(), false);
-                }
-            }
-        }
-        
-        return nodeCount;
+        return pluginStats.getProgress();
+    }
+
+    /**
+     * @deprecated (2.5.0) No longer used/needed, Plugin's progress is automatically updated/maintained by
+     *             {@code HostProcess}.
+     * @param plugin unused
+     * @param value unused
+     */
+    @Deprecated
+    public void setTestCurrentCount(Plugin plugin, int value) {        
+        // No longer used.
     }
     
     /**
@@ -433,6 +497,13 @@ public class HostProcess implements Runnable {
      * @return true if the process has been stopped
      */
     public boolean isStop() {
+        if (this.scannerParam.getMaxScanDurationInMins() > 0) {
+        	if (System.currentTimeMillis() - this.hostProcessStartTime > 
+        			TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxScanDurationInMins())) {
+        	    this.stopReason = Constant.messages.getString("ascan.progress.label.skipped.reason.maxScan");
+        	    this.stop();
+            }
+        }
         return (isStop || parentScanner.isStop());
     }
     
@@ -453,9 +524,18 @@ public class HostProcess implements Runnable {
             percentage = 100;
         } else {
             int numberRunning = 0;
-            float progressRunning = 0;
+            double progressRunning = 0;
             for (Plugin plugin : pluginFactory.getRunning()) {
-                progressRunning += (getTestCurrentCount(plugin) * 100.0) / getTestTotalCount();
+                int scannedNodes = getTestCurrentCount(plugin);
+                double pluginPercentage = (scannedNodes * 100.0) / getTestTotalCount();
+                if (pluginPercentage >= 100) {
+                    // More nodes are being scanned that the ones enumerated at the beginning...
+                    // Update global count and...
+                    nodeInScopeCount = scannedNodes;
+                    // make sure not return 100 (or more).
+                    pluginPercentage = 99;
+                }
+                progressRunning += pluginPercentage;
                 numberRunning++;
             }
 
@@ -473,9 +553,52 @@ public class HostProcess implements Runnable {
         parentScanner.notifyHostComplete(hostAndPort);
     }
 
-    // ZAP: notify parent
+    /**
+     * Notifies interested parties that a new message was sent (and received).
+     * <p>
+     * {@link Plugin Plugins} should call {@link #notifyNewMessage(Plugin)} or {@link #notifyNewMessage(Plugin, HttpMessage)},
+     * instead.
+     * 
+     * @param msg the new HTTP message
+     * @since 1.2.0
+     */
     public void notifyNewMessage(HttpMessage msg) {
         parentScanner.notifyNewMessage(msg);
+    }
+
+    /**
+     * Notifies that the given {@code plugin} sent (and received) the given HTTP message.
+     *
+     * @param plugin the plugin that sent the message
+     * @param message the message sent
+     * @throws IllegalArgumentException if the given {@code plugin} is {@code null}.
+     * @since 2.5.0
+     * @see #notifyNewMessage(Plugin)
+     */
+    public void notifyNewMessage(Plugin plugin, HttpMessage message) {
+        parentScanner.notifyNewMessage(message);
+        notifyNewMessage(plugin);
+    }
+
+    /**
+     * Notifies that the given {@code plugin} sent (and received) a non-HTTP message.
+     * <p>
+     * The call to this method has no effect if there's no {@code Plugin} with the given ID (or, it was not yet started).
+     *
+     * @param plugin the plugin that sent a non-HTTP message
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @since 2.5.0
+     * @see #notifyNewMessage(Plugin, HttpMessage)
+     */
+    public void notifyNewMessage(Plugin plugin) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("Parameter plugin must not be null.");
+        }
+
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats != null) {
+            pluginStats.incMessageCount();
+        }
     }
 
     public void alertFound(Alert alert) {
@@ -499,22 +622,84 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * Skip the current executing plugin
-     * @param plugin the plugin instance that need to be skipped
+     * Skips the given plugin.
+     * <p>
+     * <strong>Note:</strong> Whenever possible callers should use {@link #pluginSkipped(Plugin, String)} instead.
+     * 
+     * @param plugin the plugin that will be skipped, must not be {@code null}
+     * @since 2.4.0
      */
     public void pluginSkipped(Plugin plugin) {
-        if (pluginFactory.isRunning(plugin)) {
-            listPluginIdSkipped.add(plugin.getId());
-        }
+        pluginSkipped(plugin, null);
     }
 
     /**
-     * Check if a specific plugin has been explicitly skipped by the user 
-     * @param plugin the plugin instance currently running
-     * @return true if the user has skipped this instance
+     * Skips the given {@code plugin} with the given {@code reason}.
+     * <p>
+     * Ideally the {@code reason} should be internationalised as it is shown in the GUI.
+     *
+     * @param plugin the plugin that will be skipped, must not be {@code null}
+     * @param reason the reason why the plugin was skipped, might be {@code null}
+     * @since TODO add version
+     */
+    public void pluginSkipped(Plugin plugin, String reason) {
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            return;
+        }
+
+        pluginStats.skipped();
+        pluginStats.setSkippedReason(reason);
+    }
+
+    /**
+     * Tells whether or not the given {@code plugin} was skipped (either programmatically or by the user).
+     * 
+     * @param plugin the plugin that will be checked
+     * @return {@code true} if plugin was skipped, {@code false} otherwise
+     * @since 2.4.0
+     * @see #getSkippedReason(Plugin)
      */
     public boolean isSkipped(Plugin plugin) {
-        return (!listPluginIdSkipped.isEmpty() && listPluginIdSkipped.contains(plugin.getId()));
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+
+        if (pluginStats != null && pluginStats.isSkipped()) {
+            return true;
+        }
+
+        if (plugin.getTimeFinished() == null && stopReason != null) {
+            this.pluginSkipped(plugin, stopReason);
+            return true;
+        
+        } else if (this.scannerParam.getMaxRuleDurationInMins() > 0 && plugin.getTimeStarted() != null) {
+        	long endtime = System.currentTimeMillis();
+        	if (plugin.getTimeFinished() != null) {
+        		endtime = plugin.getTimeFinished().getTime();
+        	}
+        	if (endtime - plugin.getTimeStarted().getTime() > 
+        			TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxRuleDurationInMins())) {
+        	    this.pluginSkipped(plugin,
+        	            Constant.messages.getString("ascan.progress.label.skipped.reason.maxRule"));
+            	return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the reason why the given plugin was skipped.
+     * 
+     * @param plugin the plugin that will be checked
+     * @return the reason why the given plugin was skipped, might be {@code null} if not skipped or there's no reason
+     * @since TODO add version
+     * @see #isSkipped(Plugin)
+     */
+    public String getSkippedReason(Plugin plugin) {
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            return stopReason;
+        }
+        return pluginStats.getSkippedReason();
     }
     
     /**
@@ -522,26 +707,32 @@ public class HostProcess implements Runnable {
      * @param plugin the plugin that need to be marked as completed
      */
     void pluginCompleted(Plugin plugin) {
-        Object obj = mapPluginStartTime.get(plugin.getId());
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            // Plugin was not processed
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
         if (isStop()) {
             sb.append("stopped host/plugin ");
  
         // ZAP: added skipping notifications
-        } else if (isSkipped(plugin)) {
+        } else if (pluginStats.isSkipped()) {
             sb.append("skipped plugin ");
-                    
+            String reason = pluginStats.getSkippedReason();
+            if (reason != null) {
+                sb.append('[').append(reason).append("] ");
+            }
         } else {
             sb.append("completed host/plugin ");
         }
         
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
-        if (obj != null) {
-            long startTimeMillis = (Long)obj;
-            long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-            String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-            sb.append(" in ").append(diffTimeString);
-        }
+        long startTimeMillis = pluginStats.getStartTime();
+        long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
+        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
+        sb.append(" in ").append(diffTimeString);
 
         // Probably too verbose evaluate 4 the future
         log.info(sb.toString());
@@ -550,12 +741,13 @@ public class HostProcess implements Runnable {
         notifyHostProgress(null);
                 
         // ZAP: update progress as finished
-        mapPluginProgress.put(plugin.getId(), nodeInScopeCount);
+        pluginStats.setProgress(nodeInScopeCount);
     }
 
     /**
+     * Gets the knowledge base of the current scan.
      * 
-     * @return 
+     * @return the knowledge base of the current scan, never {@code null}.
      */
     Kb getKb() {
         if (kb == null) {
@@ -583,7 +775,7 @@ public class HostProcess implements Runnable {
 
 	/**
 	 * Set the user to scan as. If null then the current session will be used.
-	 * @param user
+	 * @param user the user to scan as
 	 */
     public void setUser(User user) {
 		this.user = user;
@@ -592,18 +784,34 @@ public class HostProcess implements Runnable {
 		}
 	}
 
+	/**
+	 * Gets the technologies to be used in the scan.
+	 *
+	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @since 2.4.0
+	 */
 	public TechSet getTechSet() {
 		return techSet;
 	}
 
+	/**
+	 * Sets the technologies to be used in the scan.
+	 *
+	 * @param techSet the technologies to be used during the scan
+	 * @since 2.4.0
+	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+	 */
 	public void setTechSet(TechSet techSet) {
+		if (techSet == null) {
+			throw new IllegalArgumentException("Parameter techSet must not be null.");
+		}
 		this.techSet = techSet;
 	}
 	
 	/** 
      * ZAP: abstract plugin will call this method in order to invoke any extensions that have hooked into the active scanner
-     * @param msg
-     * @param plugin
+     * @param msg the message being scanned
+     * @param plugin the plugin being run
      */
     protected synchronized void performScannerHookBeforeScan(HttpMessage msg, AbstractPlugin plugin) {
 		Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
@@ -621,8 +829,8 @@ public class HostProcess implements Runnable {
     
     /** 
      * ZAP: abstract plugin will call this method in order to invoke any extensions that have hooked into the active scanner 
-     * @param msg
-     * @param plugin
+     * @param msg the message being scanned
+     * @param plugin the plugin being run
      */
     protected synchronized void performScannerHookAfterScan(HttpMessage msg, AbstractPlugin plugin) {
 		Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
@@ -641,4 +849,219 @@ public class HostProcess implements Runnable {
 	public String getHostAndPort() {
 		return this.hostAndPort;
 	}
+	
+	/**
+	 * @deprecated (2.5.0) No longer used/needed, Plugin's request count is automatically updated/maintained by
+	 *             {@code HostProcess}.
+     * @param pluginId the ID of the plugin
+     * @param reqCount the number of requests sent
+	 */
+	@Deprecated
+	public void setPluginRequestCount(int pluginId, int reqCount) {
+		// No longer used.
+	}
+	
+	/**
+	 * Gets the request count of the plugin with the give ID.
+	 *
+	 * @param pluginId the ID of the plugin
+	 * @return the request count
+	 * @since 2.4.3
+	 * @see #getRequestCount()
+	 */
+	public int getPluginRequestCount(int pluginId) {
+		PluginStats pluginStats = mapPluginStats.get(pluginId);
+		if (pluginStats != null) {
+			return pluginStats.getMessageCount();
+		}
+		return 0;
+	}
+
+    /**
+     * Gets the count of requests sent (and received) by all {@code Plugin}s and the {@code Analyser}.
+     *
+     * @return the count of request sent
+     * @since 2.5.0
+     * @see #getPluginRequestCount(int)
+     * @see #getAnalyser()
+     */
+    public int getRequestCount() {
+        synchronized (mapPluginStats) {
+            int count = getAnalyser().getRequestCount();
+            for (PluginStats stats : mapPluginStats.values()) {
+                count += stats.getMessageCount();
+            }
+            return count;
+        }
+    }
+
+    /**
+     * An action to be executed for each node traversed during the scan.
+     *
+     * @see #apply(StructuralNode)
+     */
+    private interface TraverseAction {
+
+        /**
+         * Applies an action to the node traversed.
+         *
+         * @param node the node being traversed
+         */
+        void apply(StructuralNode node);
+
+        /**
+         * Called after traversing a node, to know if the traversing should be stopped.
+         *
+         * @return {@code true} if the traversing should be stopped, {@code false} otherwise
+         */
+        boolean isStopTraversing();
+
+    }
+
+    /**
+     * A {@code TraverseAction} that counts the nodes traversed.
+     * 
+     * @see #getCount()
+     */
+    private static class TraverseCounter implements TraverseAction {
+
+        private int count;
+
+        /**
+         * Returns the number of nodes traversed.
+         *
+         * @return the number of nodes traversed
+         */
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public void apply(StructuralNode node) {
+            count++;
+        }
+
+        @Override
+        public boolean isStopTraversing() {
+            return false;
+        }
+    }
+
+    /**
+     * The stats (and skip state and reason) of a {@link Plugin}, when the {@code Plugin} was started, how many messages were
+     * sent and its scan progress.
+     */
+    private static class PluginStats {
+
+        private final long startTime;
+        private int messageCount;
+        private int progress;
+        private boolean skipped;
+        private String skippedReason;
+
+        /**
+         * Constructs a {@code PluginStats}, initialising the starting time of the plugin.
+         */
+        public PluginStats() {
+            startTime = System.currentTimeMillis();
+        }
+
+        /**
+         * Tells whether or not the plugin was skipped.
+         *
+         * @return {@code true} if the plugin was skipped, {@code false} otherwise
+         * @see #skipped()
+         */
+        public boolean isSkipped() {
+            return skipped;
+        }
+
+        /**
+         * Skips the plugin.
+         *
+         * @see #isSkipped()
+         * @see #setSkippedReason(String)
+         */
+        public void skipped() {
+            this.skipped = true;
+        }
+
+        /**
+         * Gets the reason why the plugin was skipped.
+         *
+         * @param reason the reason why the plugin was skipped, might be {@code null}
+         * @see #getSkippedReason()
+         * @see #isSkipped()
+         */
+        public void setSkippedReason(String reason) {
+            this.skippedReason = reason;
+        }
+
+        /**
+         * Gets the reason why the plugin was skipped.
+         *
+         * @return the reason why the plugin was skipped, might be {@code null}
+         * @see #setSkippedReason(String)
+         * @see #isSkipped()
+         */
+        public String getSkippedReason() {
+            return skippedReason;
+        }
+
+        /**
+         * Gets the time when the plugin was started, in milliseconds.
+         *
+         * @return time when the plugin was started
+         * @see System#currentTimeMillis()
+         */
+        public long getStartTime() {
+            return startTime;
+        }
+
+        /**
+         * Gets the count of messages sent by the plugin.
+         *
+         * @return the count of messages sent
+         */
+        public int getMessageCount() {
+            return messageCount;
+        }
+
+        /**
+         * Increments the count of messages sent by the plugin.
+         * <p>
+         * Should be called when the plugin notifies that a message was sent.
+         */
+        public void incMessageCount() {
+            messageCount++;
+        }
+
+        /**
+         * Gets the scan progress of the plugin.
+         *
+         * @return the scan progress
+         */
+        public int getProgress() {
+            return progress;
+        }
+
+        /**
+         * Increments the scan progress of the plugin.
+         * <p>
+         * Should be called after scanning a message.
+         */
+        public void incProgress() {
+            this.progress++;
+        }
+
+        /**
+         * Sets the scan progress of the plugin.
+         *
+         * @param progress the progress to set
+         */
+        public void setProgress(int progress) {
+            this.progress = progress;
+        }
+    }
+
 }

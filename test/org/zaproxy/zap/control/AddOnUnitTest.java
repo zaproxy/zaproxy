@@ -20,10 +20,27 @@
 
 package org.zaproxy.zap.control;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 
 /**
@@ -31,50 +48,65 @@ import static org.junit.Assert.*;
  */
 public class AddOnUnitTest {
 
+	@Rule
+	public TemporaryFolder tempDir = new TemporaryFolder();
+
+	private static final File ZAP_VERSIONS_XML = 
+			Paths.get("test/resources/org/zaproxy/zap/control", "ZapVersions-deps.xml").toFile();
+
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testIsAddon() throws Exception {
 		assertTrue(AddOn.isAddOn("test-alpha-1.zap"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testNotAddonNoState() throws Exception {
 		assertFalse(AddOn.isAddOn("test-1.zap"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testNotAddonBadExt() throws Exception {
 		assertFalse(AddOn.isAddOn("test-beta-1.zip"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testNotAddonBadStatus() throws Exception {
 		assertFalse(AddOn.isAddOn("test-xxx-1.zap"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testNotAddonBadVersion() throws Exception {
 		assertFalse(AddOn.isAddOn("test-beta-A.zap"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testId() throws Exception {
 		AddOn addOn = new AddOn("test-alpha-1.zap");
 		assertThat(addOn.getId(), is("test"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testStatus() throws Exception {
 		AddOn addOn = new AddOn("test-alpha-1.zap");
 		assertThat(addOn.getStatus().name(), is("alpha"));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testVersion() throws Exception {
 		AddOn addOn = new AddOn("test-alpha-1.zap");
 		assertThat(addOn.getFileVersion(), is(1));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testAlpha2UpdatesAlpha1() throws Exception {
 		AddOn addOnA1 = new AddOn("test-alpha-1.zap");
 		AddOn addOnA2 = new AddOn("test-alpha-2.zap");
@@ -82,6 +114,7 @@ public class AddOnUnitTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testAlpha1DoesNotUpdateAlpha2() throws Exception {
 		AddOn addOnA1 = new AddOn("test-alpha-1.zap");
 		AddOn addOnA2 = new AddOn("test-alpha-2.zap");
@@ -89,6 +122,7 @@ public class AddOnUnitTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testAlpha2UpdatesBeta1() throws Exception {
 		AddOn addOnB1 = new AddOn("test-beta-1.zap");
 		AddOn addOnA2 = new AddOn("test-alpha-2.zap");
@@ -96,6 +130,7 @@ public class AddOnUnitTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
+	@SuppressWarnings("deprecation")
 	public void testAlpha2DoesNotUpdateTestyAlpha1() throws Exception {
 		// Given 
 		AddOn addOnA1 = new AddOn("test-alpha-1.zap");
@@ -106,6 +141,7 @@ public class AddOnUnitTest {
 	}
 	
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testCanLoadAddOnNotBefore() throws Exception {
 		AddOn ao = new AddOn("test-alpha-1.zap");
 		ao.setNotBeforeVersion("2.4.0");
@@ -119,6 +155,7 @@ public class AddOnUnitTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testCanLoadAddOnNotFrom() throws Exception {
 		AddOn ao = new AddOn("test-alpha-1.zap");
 		ao.setNotBeforeVersion("2.4.0");
@@ -132,6 +169,7 @@ public class AddOnUnitTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testCanLoadAddOnNotBeforeNotFrom() throws Exception {
 		AddOn ao = new AddOn("test-alpha-1.zap");
 		ao.setNotBeforeVersion("2.4.0");
@@ -144,5 +182,309 @@ public class AddOnUnitTest {
 		assertFalse(ao.canLoadInVersion("2.7.0.1"));
 		assertFalse(ao.canLoadInVersion("2.8.0"));
 		
+	}
+	
+	@Test
+	public void shouldNotBeAddOnFileNameIfNull() throws Exception {
+		// Given
+		String fileName = null;
+		// When
+		boolean addOnFileName = AddOn.isAddOnFileName(fileName);
+		// Then
+		assertThat(addOnFileName, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotBeAddOnFileNameIfNotEndsWithZapExtension() throws Exception {
+		// Given
+		String fileName = "addon.txt";
+		// When
+		boolean addOnFileName = AddOn.isAddOnFileName(fileName);
+		// Then
+		assertThat(addOnFileName, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldBeAddOnFileNameIfEndsWithZapExtension() throws Exception {
+		// Given
+		String fileName = "addon.zap";
+		// When
+		boolean addOnFileName = AddOn.isAddOnFileName(fileName);
+		// Then
+		assertThat(addOnFileName, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldBeAddOnFileNameEvenIfZapExtensionIsUpperCase() throws Exception {
+		// Given
+		String fileName = "addon.ZAP";
+		// When
+		boolean addOnFileName = AddOn.isAddOnFileName(fileName);
+		// Then
+		assertThat(addOnFileName, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeAddOnIfPathIsNull() throws Exception {
+		// Given
+		Path file = null;
+		// When
+		boolean addOnFile = AddOn.isAddOn(file);
+		// Then
+		assertThat(addOnFile, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotBeAddOnIfPathIsDirectory() throws Exception {
+		// Given
+		Path file = tempDir.newFolder("addon.zap").toPath();
+		// When
+		boolean addOnFile = AddOn.isAddOn(file);
+		// Then
+		assertThat(addOnFile, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotBeAddOnIfFileNameNotEndsWithZapExtension() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.txt", "alpha", "1");
+		// When
+		boolean addOnFile = AddOn.isAddOn(file);
+		// Then
+		assertThat(addOnFile, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotBeAddOnIfAddOnDoesNotHaveManifestFile() throws Exception {
+		// Given
+		Path file = createEmptyAddOnFile("addon.zap");
+		// When
+		boolean addOnFile = AddOn.isAddOn(file);
+		// Then
+		assertThat(addOnFile, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldBeAddOnIfPathEndsWithZapExtension() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "alpha", "1");
+		// When
+		boolean addOnFile = AddOn.isAddOn(file);
+		// Then
+		assertThat(addOnFile, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldBeAddOnEvenIfZapExtensionIsUpperCase() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.ZAP", "alpha", "1");
+		// When
+		boolean addOnFile = AddOn.isAddOn(file);
+		// Then
+		assertThat(addOnFile, is(equalTo(true)));
+	}
+
+	@Test(expected = IOException.class)
+	public void shouldFailToCreateAddOnFromNullFile() throws Exception {
+		// Given
+		Path file = null;
+		// When
+		new AddOn(file);
+		// Then = IOException
+	}
+
+	@Test(expected = IOException.class)
+	public void shouldFailToCreateAddOnFromFileWithInvalidFileName() throws Exception {
+		// Given
+		String invalidFileName = "addon.txt";
+		Path file = createAddOnFile(invalidFileName, "alpha", "1");
+		// When
+		new AddOn(file);
+		// Then = IOException
+	}
+
+	@Test
+	public void shouldCreateAddOnFromFileAndUseManifestData() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "beta", "1");
+		// When
+		AddOn addOn = new AddOn(file);
+		// Then
+		assertThat(addOn.getId(), is(equalTo("addon")));
+		assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.beta)));
+		assertThat(addOn.getFileVersion(), is(equalTo(1)));
+	}
+
+	@Test
+	public void shouldIgnoreStatusInFileNameWhenCreatingAddOnFromFile() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon-alpha.zap", "release", "1");
+		// When
+		AddOn addOn = new AddOn(file);
+		// Then
+		assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.release)));
+	}
+
+	@Test
+	public void shouldIgnoreVersionInFileNameWhenCreatingAddOnFromFile() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon-alpha-2.zap", "alpha", "3");
+		// When
+		AddOn addOn = new AddOn(file);
+		// Then
+		assertThat(addOn.getFileVersion(), is(equalTo(3)));
+	}
+
+	@Test
+	public void shouldReturnNormalisedFileName() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "alpha", "2");
+		AddOn addOn = new AddOn(file);
+		// When
+		String normalisedFileName = addOn.getNormalisedFileName();
+		// Then
+		assertThat(normalisedFileName, is(equalTo("addon-2.zap")));
+	}
+	
+	@Test
+	public void shouldDependOnDependency() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
+		AddOn dependency = createAddOn("AddOn3", zapVersionsXml);
+		// When
+		boolean depends = addOn.dependsOn(dependency);
+		// Then
+		assertThat(depends, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotDependIfNoDependencies() throws Exception {
+		// Given
+		AddOn addOn = new AddOn(createAddOnFile("AddOn-release-1.zap", "release", "1"));
+		AddOn nonDependency = createAddOn("AddOn3", createZapVersionsXml());
+		// When
+		boolean depends = addOn.dependsOn(nonDependency);
+		// Then
+		assertThat(depends, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotDependOnNonDependency() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn9", zapVersionsXml);
+		AddOn nonDependency = createAddOn("AddOn3", zapVersionsXml);
+		// When
+		boolean depends = addOn.dependsOn(nonDependency);
+		// Then
+		assertThat(depends, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotDirectlyDependOnNonDirectDependency() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
+		AddOn nonDirectDependency = createAddOn("AddOn8", zapVersionsXml);
+		// When
+		boolean depends = addOn.dependsOn(nonDirectDependency);
+		// Then
+		assertThat(depends, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotDependOnItSelf() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
+		AddOn sameAddOn = createAddOn("AddOn1", zapVersionsXml);
+		// When
+		boolean depends = addOn.dependsOn(sameAddOn);
+		// Then
+		assertThat(depends, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldDependOnDependencies() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
+		AddOn nonDependency = createAddOn("AddOn9", zapVersionsXml);
+		AddOn dependency = createAddOn("AddOn3", zapVersionsXml);
+		Collection<AddOn> addOns = Arrays.asList(new AddOn[] { nonDependency, dependency });
+		// When
+		boolean depends = addOn.dependsOn(addOns);
+		// Then
+		assertThat(depends, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotDirectlyDependOnNonDirectDependencies() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
+		AddOn nonDependency = createAddOn("AddOn9", zapVersionsXml);
+		AddOn nonDirectDependency = createAddOn("AddOn8", zapVersionsXml);
+		Collection<AddOn> addOns = Arrays.asList(new AddOn[] { nonDependency, nonDirectDependency });
+		// When
+		boolean depends = addOn.dependsOn(addOns);
+		// Then
+		assertThat(depends, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotDependOnNonDependencies() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
+		AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
+		AddOn nonDependency1 = createAddOn("AddOn1", zapVersionsXml);
+		AddOn nonDependency2 = createAddOn("AddOn9", zapVersionsXml);
+		Collection<AddOn> addOns = Arrays.asList(new AddOn[] { nonDependency1, nonDependency2 });
+		// When
+		boolean depends = addOn.dependsOn(addOns);
+		// Then
+		assertThat(depends, is(equalTo(false)));
+	}
+
+	private static ZapXmlConfiguration createZapVersionsXml() throws Exception {
+		ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
+		zapVersionsXml.setExpressionEngine(new XPathExpressionEngine());
+		return zapVersionsXml;
+	}
+
+	private Path createEmptyAddOnFile(String fileName) {
+		try {
+			File file = tempDir.newFile(fileName);
+			new ZipOutputStream(new FileOutputStream(file)).close();
+			return file.toPath();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private Path createAddOnFile(String fileName, String status, String version) {
+		try {
+			File file = tempDir.newFile(fileName);
+			try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
+				ZipEntry manifest = new ZipEntry(AddOn.MANIFEST_FILE_NAME);
+				zos.putNextEntry(manifest);
+				StringBuilder strBuilder = new StringBuilder(150);
+				strBuilder.append("<zapaddon>");
+				strBuilder.append("<version>").append(version).append("</version>");
+				strBuilder.append("<status>").append(status).append("</status>");
+				strBuilder.append("</zapaddon>");
+				byte[] bytes = strBuilder.toString().getBytes(StandardCharsets.UTF_8);
+				zos.write(bytes, 0, bytes.length);
+				zos.closeEntry();
+			}
+			return file.toPath();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	protected static AddOn createAddOn(String addOnId, ZapXmlConfiguration zapVersions) throws Exception {
+		return new AddOn(addOnId, Paths.get("").toFile(), zapVersions.configurationAt("addon_" + addOnId));
 	}
 }

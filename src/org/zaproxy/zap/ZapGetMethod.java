@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.zaproxy.zap.network.ZapHttpParser;
 
 /**
- * Do not ignore HTTP status code of 101 and keep {@link Socket} &
+ * Do not ignore HTTP status code of 101 and keep {@link Socket} &amp;
  * {@link InputStream} open, as 101 states a protocol switch.
  * 
  * Is essential for the WebSockets extension.
@@ -66,7 +66,7 @@ public class ZapGetMethod extends GetMethod {
 	/**
 	 * Constructor.
 	 * 
-	 * @param uri
+	 * @param uri the request URI
 	 */
 	public ZapGetMethod(String uri) {
 		super(uri);

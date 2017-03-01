@@ -59,9 +59,18 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/09 Generify Extension.getExtension(Class) to avoid unnecessary casts
+// ZAP: 2015/09/07 Start GUI on EDT
+// ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
+// ZAP: 2016/05/30 Notification of installation status of the add-ons
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2016/08/18 Hook ApiImplementor
+// ZAP: 2016/11/23 Call postInit() when starting an extension, startLifeCycle(Extension).
+// ZAP: 2017/02/19 Hook/remove extensions' components to/from the main tool bar.
 
 package org.parosproxy.paros.extension;
 
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +88,7 @@ import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.control.Proxy;
+import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Scanner;
@@ -94,10 +104,17 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.MainMenuBar;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
+import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.SiteMapListener;
-import org.zaproxy.zap.view.TabbedPanel2;
 
 public class ExtensionLoader {
 
@@ -267,6 +284,34 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * Hooks (adds) the {@code ConnectRequestProxyListener}s of the loaded extensions to the given {@code proxy}.
+     * <p>
+     * <strong>Note:</strong> even if public this method is expected to be called only by core classes (for example,
+     * {@code Control}).
+     *
+     * @param proxy the local proxy
+     * @since 2.5.0
+     */
+    public void hookConnectRequestProxyListeners(Proxy proxy) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            hookConnectRequestProxyListeners(proxy, hook.getConnectRequestProxyListeners());
+        }
+    }
+
+    private static void hookConnectRequestProxyListeners(Proxy proxy, List<ConnectRequestProxyListener> listeners) {
+        for (ConnectRequestProxyListener listener : listeners) {
+            proxy.addConnectRequestProxyListener(listener);
+        }
+    }
+
+    private void removeConnectRequestProxyListener(ExtensionHook hook) {
+        Proxy proxy = Control.getSingleton().getProxy();
+        for (ConnectRequestProxyListener listener : hook.getConnectRequestProxyListeners()) {
+            proxy.removeConnectRequestProxyListener(listener);
         }
     }
 
@@ -494,6 +539,62 @@ public class ExtensionLoader {
             }
         }
     }
+    
+    /**
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was installed.
+     *
+     * @param addOn the add-on that was installed, must not be {@code null}
+     * @since 2.5.0
+     */
+    public void addOnInstalled(AddOn addOn) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.addOnInstalled(addOn);
+                } catch (Exception e) {
+                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was soft uninstalled.
+     *
+     * @param addOn the add-on that was soft uninstalled, must not be {@code null}
+     * @param successfully if the soft uninstallation was successful, that is, no errors occurred while uninstalling it
+     * @since 2.5.0
+     */
+    public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.addOnSoftUninstalled(addOn, successfully);
+                } catch (Exception e) {
+                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was uninstalled.
+     *
+     * @param addOn the add-on that was uninstalled, must not be {@code null}
+     * @param successfully if the uninstallation was successful, that is, no errors occurred while uninstalling it
+     * @since 2.5.0
+     */
+    public void addOnUninstalled(AddOn addOn, boolean successfully) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.addOnUninstalled(addOn, successfully);
+                } catch (Exception e) {
+                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                }
+            }
+        }
+    }
 
     public void startAllExtension(double progressFactor) {
         double factorPerc = progressFactor / getExtensionCount();
@@ -555,14 +656,18 @@ public class ExtensionLoader {
             ext.hook(extHook);
             extensionHooks.put(ext, extHook);
 
+            hookContextDataFactories(ext, extHook);
+            hookApiImplementors(ext, extHook);
+
             if (view != null) {
                 // no need to hook view if no GUI
-                hookView(view, extHook);
+                hookView(ext, view, extHook);
                 hookMenu(view, extHook);
             }
             
             hookOptions(extHook);
             ext.optionsLoaded();
+            ext.postInit();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -573,6 +678,7 @@ public class ExtensionLoader {
         hookProxyListeners(proxy, extHook.getProxyListenerList());
 
         hookPersistentConnectionListeners(proxy, extHook.getPersistentConnectionListener());
+        hookConnectRequestProxyListeners(proxy, extHook.getConnectRequestProxyListeners());
 
         if (view != null) {
             hookSiteMapListeners(view.getSiteTreePanel(), extHook.getSiteMapListenerList());
@@ -617,56 +723,31 @@ public class ExtensionLoader {
         dialog.revalidate();
     }
 
-    /**
-     * Add every panel from panelList to the TabbedPanel2 tab.
-     *
-     * @param panelList
-     * @param tab
-     */
-    private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        for (AbstractPanel panel : panelList) {
-            try {
-                tab.addTab(panel);
-                if (panel.getTabIndex() == 0 && tab.indexOfComponent(panel) != -1) {
-                    // Its now the first one, give it focus
-                    tab.setSelectedComponent(panel);
-                }
-                
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-    }
-
-    private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        for (AbstractPanel panel : panelList) {
-            try {
-                tab.removeTab(panel);
-                
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-        tab.revalidate();
-    }
-
     private void hookAllExtension(double progressFactor) {
-        ExtensionHook extHook;
-        double factorPerc = progressFactor / getExtensionCount();
+        final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
-                Extension ext = getExtension(i);
+                final Extension ext = getExtension(i);
                 logger.info("Initializing " + ext.getDescription());
-                extHook = new ExtensionHook(model, view);
+                final ExtensionHook extHook = new ExtensionHook(model, view);
                 ext.hook(extHook);
                 extensionHooks.put(ext, extHook);
 
+                hookContextDataFactories(ext, extHook);
+                hookApiImplementors(ext, extHook);
+
                 if (view != null) {
-                    // no need to hook view if no GUI
-                    hookView(view, extHook);
-                    hookMenu(view, extHook);
-                    view.addSplashScreenLoadingCompletion(factorPerc);
+                    EventQueue.invokeAndWait(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // no need to hook view if no GUI
+                            hookView(ext, view, extHook);
+                            hookMenu(view, extHook);
+                            view.addSplashScreenLoadingCompletion(factorPerc);
+                        }
+                    });
                 }
                 
                 hookOptions(extHook);
@@ -690,6 +771,26 @@ public class ExtensionLoader {
         if (view != null) {
             view.getMainFrame().getMainMenuBar().validate();
             view.getMainFrame().validate();
+        }
+    }
+
+    private void hookContextDataFactories(Extension extension, ExtensionHook extHook) {
+        for (ContextDataFactory contextDataFactory : extHook.getContextDataFactories()) {
+            try {
+                model.addContextDataFactory(contextDataFactory);
+            } catch (Exception e) {
+                logger.error("Error while adding a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+    }
+
+    private void hookApiImplementors(Extension extension, ExtensionHook extHook) {
+        for (ApiImplementor apiImplementor : extHook.getApiImplementors()) {
+            try {
+                API.getInstance().registerApiImplementor(apiImplementor);
+            } catch (Exception e) {
+                logger.error("Error while adding an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+            }
         }
     }
 
@@ -868,7 +969,7 @@ public class ExtensionLoader {
         }
     }
 
-    private void hookView(View view, ExtensionHook hook) {
+    private void hookView(Extension extension, View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
@@ -878,33 +979,33 @@ public class ExtensionLoader {
             return;
         }
 
-        // Add the three panels to the current window/workbench: add extension tabs to the Full layout
-        // when chosen, otherwise they are as before.
-        int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
-        addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-        addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-        addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-
-        // remember the position of tabs in status position
-        if (displayOption == View.DISPLAY_OPTION_TOP_FULL) {
-            // save the current normal instances to old instance variables, so they are both
-            // referencing the same TabbedPanel2 instances. Used when going into 'Full Layout'
-            // so the state is preserved.
-            view.getWorkbench().setTabbedOldWork(view.getWorkbench().getTabbedWork());
-            view.getWorkbench().setTabbedOldSelect(view.getWorkbench().getTabbedSelect());
-            view.getWorkbench().setTabbedOldStatus(view.getWorkbench().getTabbedStatus());
-
-            // switch the layout to Full Layout
-            addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
-            addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
-            addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        for (ContextPanelFactory contextPanelFactory : pv.getContextPanelFactories()) {
+            try {
+                view.addContextPanelFactory(contextPanelFactory);
+            } catch (Exception e) {
+                logger.error("Error while adding a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+            }
         }
+
+        MainToolbarPanel mainToolBarPanel = view.getMainFrame().getMainToolbarPanel();
+        for (Component component : pv.getMainToolBarComponents()) {
+            try {
+                mainToolBarPanel.addToolBarComponent(component);
+            } catch (Exception e) {
+                logger.error("Error while adding a component to the main tool bar panel, from " +
+                        extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        view.getWorkbench().addPanels(pv.getSelectPanel(), WorkbenchPanel.PanelType.SELECT);
+        view.getWorkbench().addPanels(pv.getWorkPanel(), WorkbenchPanel.PanelType.WORK);
+        view.getWorkbench().addPanels(pv.getStatusPanel(), WorkbenchPanel.PanelType.STATUS);
 
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
 
-    private void removeView(View view, ExtensionHook hook) {
+    private void removeView(Extension extension, View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
@@ -914,23 +1015,27 @@ public class ExtensionLoader {
             return;
         }
 
-        // Remote the three panels to the current window/workbench: remove extension tabs
-        // from the Full layout when chosen.
-        int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
-        switch (displayOption) {
-            case View.DISPLAY_OPTION_TOP_FULL:
-                removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
-                removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
-                removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-                break;
-                
-            case View.DISPLAY_OPTION_LEFT_FULL:
-            case View.DISPLAY_OPTION_BOTTOM_FULL:
-            default:
-                removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-                removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-                removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        for (ContextPanelFactory contextPanelFactory : pv.getContextPanelFactories()) {
+            try {
+                view.removeContextPanelFactory(contextPanelFactory);
+            } catch (Exception e) {
+                logger.error("Error while removing a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+            }
         }
+
+        MainToolbarPanel mainToolBarPanel = view.getMainFrame().getMainToolbarPanel();
+        for (Component component : pv.getMainToolBarComponents()) {
+            try {
+                mainToolBarPanel.removeToolBarComponent(component);
+            } catch (Exception e) {
+                logger.error("Error while removing a component from the main tool bar panel, from "
+                        + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        view.getWorkbench().removePanels(pv.getSelectPanel(), WorkbenchPanel.PanelType.SELECT);
+        view.getWorkbench().removePanels(pv.getWorkPanel(), WorkbenchPanel.PanelType.WORK);
+        view.getWorkbench().removePanels(pv.getStatusPanel(), WorkbenchPanel.PanelType.STATUS);
 
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
@@ -941,7 +1046,7 @@ public class ExtensionLoader {
             return;
         }
         
-        View.getSingleton().getWorkbench().getTabbedStatus().remove(panel);
+        View.getSingleton().getWorkbench().removePanel(panel, WorkbenchPanel.PanelType.STATUS);
     }
 
     public void removeOptionsPanel(AbstractParamPanel panel) {
@@ -961,7 +1066,7 @@ public class ExtensionLoader {
             return;
         }
         
-        View.getSingleton().getWorkbench().getTabbedWork().remove(panel);
+        View.getSingleton().getWorkbench().removePanel(panel, WorkbenchPanel.PanelType.WORK);
     }
 
     public void removePopupMenuItem(ExtensionPopupMenuItem popupMenuItem) {
@@ -1064,17 +1169,24 @@ public class ExtensionLoader {
      * Init all extensions with the same View
      * @param view the View that need to be applied
      */
-    private void initViewAllExtension(View view, double progressFactor) {
+    private void initViewAllExtension(final View view, double progressFactor) {
         if (view == null) {
             return;
         }
 
-        double factorPerc = progressFactor / getExtensionCount();
+        final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
-                getExtension(i).initView(view);                
-                view.addSplashScreenLoadingCompletion(factorPerc);
+                final Extension extension = getExtension(i);
+                EventQueue.invokeAndWait(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        extension.initView(view);
+                        view.addSplashScreenLoadingCompletion(factorPerc);
+                    }
+                });
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -1129,25 +1241,43 @@ public class ExtensionLoader {
 
         removeOverrideMessageProxyListener(hook);
 
+        removeConnectRequestProxyListener(hook);
+
         removeSiteMapListener(hook);
 
-        removeViewInEDT(hook);
+        for (ContextDataFactory contextDataFactory : hook.getContextDataFactories()) {
+            try {
+                model.removeContextDataFactory(contextDataFactory);
+            } catch (Exception e) {
+                logger.error("Error while removing a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        for (ApiImplementor apiImplementor : hook.getApiImplementors()) {
+            try {
+                API.getInstance().removeApiImplementor(apiImplementor);
+            } catch (Exception e) {
+                logger.error("Error while removing an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        removeViewInEDT(extension, hook);
     }
 
-    private void removeViewInEDT(final ExtensionHook hook) {
+    private void removeViewInEDT(final Extension extension, final ExtensionHook hook) {
         if (view == null) {
             return;
         }
 
         if (EventQueue.isDispatchThread()) {
-            removeView(view, hook);
+            removeView(extension, view, hook);
             removeMenu(view, hook);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    removeViewInEDT(hook);
+                    removeViewInEDT(extension, hook);
                 }
             });
         }

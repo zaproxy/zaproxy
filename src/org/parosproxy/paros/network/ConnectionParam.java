@@ -34,9 +34,12 @@
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2014/03/23 Issue 1100: Annotate option methods that shouldn't be exposed in the ZAP API
 // ZAP: 2041/08/14 Issue 1305: Outgoing proxy is disabled when updating from old versions
+// ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
+// ZAP: 2017/01/11 Exclude some options from the API (manually handled to return correct values).
 
 package org.parosproxy.paros.network;
 
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +52,7 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
+import org.zaproxy.zap.network.DomainMatcher;
 
 public class ConnectionParam extends AbstractParam {
 
@@ -81,7 +85,27 @@ public class ConnectionParam extends AbstractParam {
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
 	private static final String SINGLE_COOKIE_REQUEST_HEADER = CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
-    
+	private static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
+
+	private static final String DEFAULT_DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0";
+
+	/**
+	 * The security property for TTL of successful DNS queries.
+	 */
+	private static final String DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY = "networkaddress.cache.ttl";
+
+	/**
+	 * The default TTL (in seconds) of successful DNS queries.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final int DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES = 30;
+
+	/**
+	 * The configuration key for TTL of successful DNS queries.
+	 */
+	private static final String DNS_TTL_SUCCESSFUL_QUERIES_KEY = CONNECTION_BASE_KEY + ".dnsTtlSuccessfulQueries";
+
     private boolean useProxyChain;
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
@@ -92,8 +116,8 @@ public class ConnectionParam extends AbstractParam {
 	private String proxyChainPassword = "";
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
-    private List<ProxyExcludedDomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
-    private List<ProxyExcludedDomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
+    private List<DomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
+    private List<DomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
 
     private String[] securityProtocolsEnabled;
 	
@@ -102,6 +126,12 @@ public class ConnectionParam extends AbstractParam {
 	private int timeoutInSecs = 120;
 
 	private boolean singleCookieRequestHeader = true;
+	private String defaultUserAgent = "";
+
+	/**
+	 * The TTL (in seconds) of successful DNS queries.
+	 */
+	private int dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
 
 	/**
      * @return Returns the httpStateEnabled.
@@ -127,6 +157,14 @@ public class ConnectionParam extends AbstractParam {
 	@Override
 	protected void parse() {
 		updateOptions();
+
+		try {
+			dnsTtlSuccessfulQueries = getConfig().getInt(DNS_TTL_SUCCESSFUL_QUERIES_KEY, 30);
+			Security.setProperty(DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY, Integer.toString(dnsTtlSuccessfulQueries));
+		} catch (ConversionException e) {
+			log.error("Failed to read '" + DNS_TTL_SUCCESSFUL_QUERIES_KEY + "'", e);
+			dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
+		}
 
 		useProxyChain = getConfig().getBoolean(USE_PROXY_CHAIN_KEY, false);
 		useProxyChainAuth = getConfig().getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
@@ -182,7 +220,14 @@ public class ConnectionParam extends AbstractParam {
         } catch (ConversionException e) {
             log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
         }
-
+        
+        try {
+			this.defaultUserAgent = getConfig().getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
+		} catch (Exception e) {
+            log.error("Error while loading the option defaultUserAgent: " + e.getMessage(), e);
+			this.defaultUserAgent = DEFAULT_DEFAULT_USER_AGENT;
+		}
+        
         loadSecurityProtocolsEnabled();
 	}
 	
@@ -214,19 +259,19 @@ public class ConnectionParam extends AbstractParam {
 	}
 	
     private void migrateOldSkipNameOption(String skipNames) {
-        List<ProxyExcludedDomainMatcher> excludedDomains = convertOldSkipNameOption(skipNames);
+        List<DomainMatcher> excludedDomains = convertOldSkipNameOption(skipNames);
 
         if (!excludedDomains.isEmpty()) {
             setProxyExcludedDomains(excludedDomains);
         }
     }
 
-    private static List<ProxyExcludedDomainMatcher> convertOldSkipNameOption(String skipNames) {
+    private static List<DomainMatcher> convertOldSkipNameOption(String skipNames) {
         if (skipNames == null || skipNames.isEmpty()) {
             return Collections.emptyList();
         }
 
-        ArrayList<ProxyExcludedDomainMatcher> excludedDomains = new ArrayList<>();
+        ArrayList<DomainMatcher> excludedDomains = new ArrayList<>();
         String[] names = skipNames.split(";");
         for (String name : names) {
             String excludedDomain = name.trim();
@@ -234,13 +279,13 @@ public class ConnectionParam extends AbstractParam {
                 if (excludedDomain.contains("*")) {
                     excludedDomain = excludedDomain.replace(".", "\\.").replace("*", ".*?");
                     try {
-                        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
-                        excludedDomains.add(new ProxyExcludedDomainMatcher(pattern));
+                        Pattern pattern = Pattern.compile(excludedDomain, Pattern.CASE_INSENSITIVE);
+                        excludedDomains.add(new DomainMatcher(pattern));
                     } catch (IllegalArgumentException e) {
                         log.error("Failed to migrate the excluded domain name: " + name, e);
                     }
                 } else {
-                    excludedDomains.add(new ProxyExcludedDomainMatcher(excludedDomain));
+                    excludedDomains.add(new DomainMatcher(excludedDomain));
                 }
             }
         }
@@ -325,10 +370,11 @@ public class ConnectionParam extends AbstractParam {
 	 *             <strong>Note:</strong> Newer regular expression excluded domains will not be returned by this method.
 	 */
 	@Deprecated
+	@ZapApiIgnore
 	@SuppressWarnings({ "javadoc" })
 	public String getProxyChainSkipName() {
 		StringBuilder skipNamesStringBuilder = new StringBuilder("");
-		for (ProxyExcludedDomainMatcher excludedDomain : proxyExcludedDomains) {
+		for (DomainMatcher excludedDomain : proxyExcludedDomains) {
 			if (!excludedDomain.isRegex()) {
 				skipNamesStringBuilder.append(excludedDomain.getValue()).append(';');
 			}
@@ -440,7 +486,7 @@ public class ConnectionParam extends AbstractParam {
             return false;
         }
 
-        for (ProxyExcludedDomainMatcher excludedDomain : proxyExcludedDomainsEnabled) {
+        for (DomainMatcher excludedDomain : proxyExcludedDomainsEnabled) {
             if (excludedDomain.matches(domainName)) {
                 return true;
             }
@@ -512,7 +558,8 @@ public class ConnectionParam extends AbstractParam {
      * @see #getProxyExcludedDomainsEnabled()
      * @see #setProxyExcludedDomains(List)
      */
-    public List<ProxyExcludedDomainMatcher> getProxyExcludedDomains() {
+    @ZapApiIgnore
+    public List<DomainMatcher> getProxyExcludedDomains() {
         return proxyExcludedDomains;
     }
 
@@ -525,7 +572,8 @@ public class ConnectionParam extends AbstractParam {
      * @see #getProxyExcludedDomains()
      * @see #setProxyExcludedDomains(List)
      */
-    public List<ProxyExcludedDomainMatcher> getProxyExcludedDomainsEnabled() {
+    @ZapApiIgnore
+    public List<DomainMatcher> getProxyExcludedDomainsEnabled() {
         return proxyExcludedDomainsEnabled;
     }
 
@@ -537,7 +585,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #getProxyExcludedDomains()
      * @see #getProxyExcludedDomainsEnabled()
      */
-    public void setProxyExcludedDomains(List<ProxyExcludedDomainMatcher> proxyExcludedDomains) {
+    public void setProxyExcludedDomains(List<DomainMatcher> proxyExcludedDomains) {
         if (proxyExcludedDomains == null || proxyExcludedDomains.isEmpty()) {
             ((HierarchicalConfiguration) getConfig()).clearTree(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
 
@@ -551,10 +599,10 @@ public class ConnectionParam extends AbstractParam {
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
 
         int size = proxyExcludedDomains.size();
-        ArrayList<ProxyExcludedDomainMatcher> enabledExcludedDomains = new ArrayList<>(size);
+        ArrayList<DomainMatcher> enabledExcludedDomains = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             String elementBaseKey = ALL_PROXY_EXCLUDED_DOMAINS_KEY + "(" + i + ").";
-            ProxyExcludedDomainMatcher excludedDomain = proxyExcludedDomains.get(i);
+            DomainMatcher excludedDomain = proxyExcludedDomains.get(i);
 
             getConfig().setProperty(elementBaseKey + PROXY_EXCLUDED_DOMAIN_VALUE_KEY, excludedDomain.getValue());
             getConfig().setProperty(elementBaseKey + PROXY_EXCLUDED_DOMAIN_REGEX_KEY, Boolean.valueOf(excludedDomain.isRegex()));
@@ -574,7 +622,7 @@ public class ConnectionParam extends AbstractParam {
     private void loadProxyExcludedDomains() {
         List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
         this.proxyExcludedDomains = new ArrayList<>(fields.size());
-        ArrayList<ProxyExcludedDomainMatcher> excludedDomainsEnabled = new ArrayList<>(fields.size());
+        ArrayList<DomainMatcher> excludedDomainsEnabled = new ArrayList<>(fields.size());
         for (HierarchicalConfiguration sub : fields) {
             String value = sub.getString(PROXY_EXCLUDED_DOMAIN_VALUE_KEY, "");
             if (value.isEmpty()) {
@@ -582,17 +630,17 @@ public class ConnectionParam extends AbstractParam {
                 continue;
             }
 
-            ProxyExcludedDomainMatcher excludedDomain = null;
+            DomainMatcher excludedDomain = null;
             boolean regex = sub.getBoolean(PROXY_EXCLUDED_DOMAIN_REGEX_KEY, false);
             if (regex) {
                 try {
-                    Pattern pattern = ProxyExcludedDomainMatcher.createPattern(value);
-                    excludedDomain = new ProxyExcludedDomainMatcher(pattern);
+                    Pattern pattern = DomainMatcher.createPattern(value);
+                    excludedDomain = new DomainMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     log.error("Failed to read an outgoing proxy excluded domain entry with regex: " + value, e);
                 }
             } else {
-                excludedDomain = new ProxyExcludedDomainMatcher(value);
+                excludedDomain = new DomainMatcher(value);
             }
 
             if (excludedDomain != null) {
@@ -685,4 +733,47 @@ public class ConnectionParam extends AbstractParam {
             setSecurityProtocolsEnabled(SSLConnector.getClientEnabledProtocols());
         }
     }
+    
+	public String getDefaultUserAgent() {
+		return this.defaultUserAgent;
+	}
+	public void setDefaultUserAgent(String defaultUserAgent) {
+		this.defaultUserAgent = defaultUserAgent;
+		getConfig().setProperty(DEFAULT_USER_AGENT, defaultUserAgent);
+	}
+
+	/**
+	 * Gets the TTL (in seconds) of successful DNS queries.
+	 *
+	 * @return the TTL in seconds
+	 * @since TODO add version
+	 * @see #setDnsTtlSuccessfulQueries(int)
+	 */
+	public int getDnsTtlSuccessfulQueries() {
+		return dnsTtlSuccessfulQueries;
+	}
+
+	/**
+	 * Sets the TTL (in seconds) of successful DNS queries.
+	 * <p>
+	 * Some values have special meaning:
+	 * <ul>
+	 * <li>Negative number, cache forever;</li>
+	 * <li>Zero, disables caching;</li>
+	 * <li>Positive number, the number of seconds the successful DNS queries will be cached.</li>
+	 * </ul>
+	 *
+	 * @param ttl the TTL in seconds
+	 * @since TODO add version
+	 * @see #getDnsTtlSuccessfulQueries()
+	 */
+	public void setDnsTtlSuccessfulQueries(int ttl) {
+		if (dnsTtlSuccessfulQueries == ttl) {
+			return;
+		}
+
+		dnsTtlSuccessfulQueries = ttl;
+		getConfig().setProperty(DNS_TTL_SUCCESSFUL_QUERIES_KEY, ttl);
+	}
+
 }

@@ -46,13 +46,13 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -71,7 +71,6 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * At least, Firefox v3.x does.
  *
  * @author MaWoKi
- * @see org.bouncycastle.x509.examples.AttrCertExample how to manage CAs and stuff
  * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
@@ -143,10 +142,11 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 
 		certGen.addExtension(Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifier(pubKey.getEncoded()));
 		certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
+		certGen.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(new GeneralName(GeneralName.dNSName, hostname)));
 
 		ContentSigner sigGen;
 		try {
-			sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(caPrivKey);
+			sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider("BC").build(caPrivKey);
 		} catch (OperatorCreationException e) {
 			throw new CertificateException(e);
 		}
@@ -166,8 +166,8 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 	/**
 	 * Generates a 2048 bit RSA key pair using SHA1PRNG.
 	 *
-	 * @return
-	 * @throws NoSuchAlgorithmException
+	 * @return the key pair
+	 * @throws NoSuchAlgorithmException if no provider supports the used algorithms.
 	 */
 	private KeyPair createKeyPair() throws NoSuchAlgorithmException {
 		final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");

@@ -109,7 +109,11 @@
         <copy file="${src.src.dir}/lang/Messages.properties" tofile="${dist.dir}/lang/Messages_en_GB.properties"/>
 
         <copy todir="${dist.dir}/license">
-            <fileset dir="${src.src.dir}/license" excludes="**/.svn/** **/_svn/**" />
+            <fileset dir="${src.src.dir}/license">
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+                <exclude name="OrangeExtensions.License.txt" />
+            </fileset>
         </copy>
         <copy todir="${dist.dir}/log">
             <fileset dir="${src.src.dir}/log" excludes="**/.svn/** **/_svn/**" />

@@ -79,9 +79,6 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 	public static class UsersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<User> {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -7216673905642941770L;
 		private static final String REMOVE_DIALOG_TITLE = Constant.messages
 				.getString("users.dialog.remove.title");
@@ -114,6 +111,11 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 		@Override
 		public User showAddDialogue() {
+			boolean valid = uiSharedContext.getAuthenticationMethod().validateCreationOfAuthenticationCredentials();
+			if (!valid) {
+				return null;
+			}
+
 			if (addDialog == null) {
 				addDialog = new DialogAddUser(View.getSingleton().getOptionsDialog(null), this.extension);
 				addDialog.pack();

@@ -21,6 +21,7 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added argument type to generic type.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 
 package org.parosproxy.paros.extension.filter;
 
@@ -36,6 +37,7 @@ import org.parosproxy.paros.view.AbstractParamDialog;
 
 public class FilterDialog extends AbstractParamDialog {
 
+	private static final long serialVersionUID = 1L;
     private static final String[] ROOT = {};
 	private AllFilterPanel allFilterPanel = null;
     public FilterDialog() {
