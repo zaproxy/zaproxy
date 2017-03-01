@@ -225,6 +225,11 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 			UsernamePasswordAuthenticationCredentials cred = (UsernamePasswordAuthenticationCredentials) credentials;
 
+			if (!cred.isConfigured()) {
+				log.warn("No credentials to authenticate user: " + user.getName());
+				return null;
+			}
+			
 			// Prepare login message
 			HttpMessage msg;
 			try {
