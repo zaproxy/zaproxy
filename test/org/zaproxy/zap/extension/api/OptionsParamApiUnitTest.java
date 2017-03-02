@@ -43,6 +43,8 @@ public class OptionsParamApiUnitTest {
     private static final String API_INCERRORDETAILS_KEY = "api.incerrordetails";
     private static final String API_AUTOFILLKEY_KEY = "api.autofillkey";
     private static final String API_ENABLEJSONP_KEY = "api.enablejsonp";
+	private static final String API_NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
+	private static final String API_REPORT_PERM_ERRORS = "api.reportpermerrors";
 
     @Test
     public void shouldNotHaveConfigByDefault() {
@@ -221,6 +223,70 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
+    public void shouldHaveReportPermErrorsDisabledByDefault() {
+        // Given / When
+        OptionsParamApi param = new OptionsParamApi();
+        // Then
+        assertThat(param.isReportPermErrors(), is(equalTo(false)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldFailToSetReportPermErrorsWithoutConfig() {
+        // Given / When
+        OptionsParamApi param = new OptionsParamApi();
+        // When
+        param.setReportPermErrors(true);
+        // Then = NullPointerException
+    }
+
+    @Test
+    public void shouldSetReportPermErrorsWithConfig() {
+        // Given / When
+        OptionsParamApi param = createOptionsParamApiWithConfig();
+        // When
+        param.setReportPermErrors(true);
+        // Then
+        assertThat(param.isReportPermErrors(), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(API_REPORT_PERM_ERRORS), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldHaveNonceTimeToLiveInSecsSetTo5MinsByDefault() {
+        // Given / When
+        OptionsParamApi param = new OptionsParamApi();
+        // Then
+        assertThat(param.getNonceTimeToLiveInSecs(), is(equalTo(5 * 60)));
+    }
+
+    @Test
+    public void shouldHaveNoKeyForViewsOrSafeOthersDisabledByDefault() {
+        // Given / When
+        OptionsParamApi param = new OptionsParamApi();
+        // Then
+        assertThat(param.isNoKeyForSafeOps(), is(equalTo(false)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void shouldFailToSetNoKeyForViewsOrSafeOthersWithoutConfig() {
+        // Given / When
+        OptionsParamApi param = new OptionsParamApi();
+        // When
+        param.setNoKeyForSafeOps(true);
+        // Then = NullPointerException
+    }
+
+    @Test
+    public void shouldSetNoKeyForViewsOrSafeOthersWithConfig() {
+        // Given / When
+        OptionsParamApi param = createOptionsParamApiWithConfig();
+        // When
+        param.setNoKeyForSafeOps(true);
+        // Then
+        assertThat(param.isNoKeyForSafeOps(), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(API_NO_KEY_FOR_SAFE_OPS), is(equalTo(true)));
+    }
+
+    @Test
     public void shouldHaveEmptyRealKeyByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
@@ -370,6 +436,8 @@ public class OptionsParamApiUnitTest {
         config.setProperty(API_INCERRORDETAILS_KEY, "true");
         config.setProperty(API_AUTOFILLKEY_KEY, "true");
         config.setProperty(API_ENABLEJSONP_KEY, "true");
+        config.setProperty(API_NO_KEY_FOR_SAFE_OPS, "true");
+        config.setProperty(API_REPORT_PERM_ERRORS, "true");
         return config;
     }
 
@@ -381,6 +449,8 @@ public class OptionsParamApiUnitTest {
         config.setProperty(API_INCERRORDETAILS_KEY, "Not Boolean");
         config.setProperty(API_AUTOFILLKEY_KEY, "Not Boolean");
         config.setProperty(API_ENABLEJSONP_KEY, "Not Boolean");
+        config.setProperty(API_NO_KEY_FOR_SAFE_OPS, "Not Boolean");
+        config.setProperty(API_REPORT_PERM_ERRORS, "Not Boolean");
         return config;
     }
 
