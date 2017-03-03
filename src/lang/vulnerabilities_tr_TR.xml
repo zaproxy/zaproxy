@@ -53,23 +53,23 @@ Tüm protokollerin katı bir şekilde tanımlandığına emin olun, mesela sın�
 
 Faz: Gereksinimler
 Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
-If possible, choose a language or compiler that performs automatic bounds checking.
+Mümkünse, otomatik sınır kontrolü yapan bir dil veya derleyici seçin.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
+Sayıları beklenmedik sonuçlara izin vermeden kullanabilen kütüphane veya frameworkler kullanın.
+Örnek olarak, SafeInt(C++) veya IntegerLib(C or C++) gibi güvenli integer yönetimi kütüphaneleri projenize ekleyin.
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
-Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
+Faz: Gerçekleme
+Her bir sayısal girdide, sayının beklendik aralığın içinde olduğunu sağlayan girdi doğrulaması yapın. Girdinin beklenen aralıkta hem minimum hem de maksimum gereksinimleri karşıladığına emin olun.
+Mümkün oldukça unsigned integer kullanın. Bu, tamsayı taşması için sağlama yapmayı kolaylaştırır. Eğer signed integer kullanmanız gerekliyse, aralık kontrolünün maksimum değerlerle birlikte minimum değerleri de kontrol ettiğine emin olun.
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+Faz: Gerçekleme
+Programlama dilinizin temelini ve sayısal hesaplamalarla nasıl etkileştiğini anlayın (CWE-681). Bayt boyutu uyumsuzluklarını, hassaslığı, imzalı / imzasız ayrımları, kesimleri, türler arası dönüştürmeyi, "sayı değil" hesaplamalarını ve dilinizin çok büyük ve çok küçük sayıları temel gösterimde nasıl ele aldığını yakından kontrol edin.
+Ayrıca, 32-bit, 64-bit ve sayısal gösterimi etkileyebilecek diğer potansiyel farklılıkları hesaba katmak için de dikkatli olun.
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+Faz: Gerçekleme
+Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzlukları gibi, potansiyel kritik güvenlik sorunlarını bertaraf edin. Zafiyet çok ender olarak sömürülebilir olsa da, küçük bir başarısızlık, bütün sistemi riske atabilir.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
@@ -201,8 +201,8 @@ Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayı
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -240,8 +240,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -280,8 +280,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -481,8 +481,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.
