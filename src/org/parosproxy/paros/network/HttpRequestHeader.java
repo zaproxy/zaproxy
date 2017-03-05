@@ -41,11 +41,13 @@
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 // ZAP: 2016/09/26 JavaDoc tweaks
+// ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
 
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
+import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -85,6 +87,7 @@ public class HttpRequestHeader extends HttpHeader {
     private String mMethod;
     private URI mUri;
     private String mHostName;
+    private InetAddress senderAddress;
     
     /**
      * The host port number of this request message, a non-negative integer.
@@ -753,4 +756,23 @@ public class HttpRequestHeader extends HttpHeader {
         
         return cookies;
     }
+
+    /**
+     * Sets the senders IP address. Note that this is not persisted.
+     * @param inetAddress the senders IP address
+     * @since TODO Add version
+     */
+    public void setSenderAddress(InetAddress inetAddress) {
+        this.senderAddress = inetAddress;
+    }
+
+    /**
+     * Gets the senders IP address
+     * @return the senders IP address
+     * @since TODO Add version
+     */
+    public InetAddress getSenderAddress() {
+        return senderAddress;
+    }
+    
 }

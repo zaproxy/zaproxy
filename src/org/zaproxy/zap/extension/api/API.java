@@ -161,6 +161,15 @@ public class API {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
 	}
 
+	private boolean isPermittedIpAddr(HttpRequestHeader requestHeader) {
+		if (getOptionsParamApi().isPermittedIpAddress(requestHeader.getSenderAddress().getHostAddress())) {
+			return true;
+		}
+		logger.warn("Request to API URL " + requestHeader.getURI().toString() + " from " +
+				requestHeader.getSenderAddress().getHostAddress() + " not permitted");
+		return false;
+	}
+	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut, boolean force) throws IOException {
 		
@@ -171,6 +180,9 @@ public class API {
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
+			if (! isPermittedIpAddr(requestHeader)) {
+				return true;
+			}
 			logger.debug("handleApiRequest Callback: " + url);
 			for (Entry<String, ApiImplementor> callback : callBacks.entrySet()) {
 				if (url.startsWith(callback.getKey())) {
@@ -191,6 +203,9 @@ public class API {
 		
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
+		}
+		if (! isPermittedIpAddr(requestHeader)) {
+			return true;
 		}
 		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
 			// Insecure request with secure only set, always ignore

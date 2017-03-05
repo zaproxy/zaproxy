@@ -72,11 +72,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
+import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
@@ -542,15 +542,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				ConnectionParam connectionParam = Model.getSingleton().getOptionsParam().getConnectionParam();
 				String value = params.getString(PARAM_VALUE);
-				ProxyExcludedDomainMatcher domain;
+				DomainMatcher domain;
 				if (getParam(params, PARAM_IS_REGEX, false)) {
-					domain = new ProxyExcludedDomainMatcher(ProxyExcludedDomainMatcher.createPattern(value));
+					domain = new DomainMatcher(DomainMatcher.createPattern(value));
 				} else {
-					domain = new ProxyExcludedDomainMatcher(value);
+					domain = new DomainMatcher(value);
 				}
 				domain.setEnabled(getParam(params, PARAM_IS_ENABLED, true));
 
-				List<ProxyExcludedDomainMatcher> domains = new ArrayList<>(connectionParam.getProxyExcludedDomains());
+				List<DomainMatcher> domains = new ArrayList<>(connectionParam.getProxyExcludedDomains());
 				domains.add(domain);
 				connectionParam.setProxyExcludedDomains(domains);
 			} catch (IllegalArgumentException e) {
@@ -564,22 +564,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
 				}
 
-				ProxyExcludedDomainMatcher oldDomain = connectionParam.getProxyExcludedDomains().get(idx);
+				DomainMatcher oldDomain = connectionParam.getProxyExcludedDomains().get(idx);
 				String value = getParam(params, PARAM_VALUE, oldDomain.getValue());
 				if (value.isEmpty()) {
 					value = oldDomain.getValue();
 				}
 
-				ProxyExcludedDomainMatcher newDomain;
+				DomainMatcher newDomain;
 				if (getParam(params, PARAM_IS_REGEX, oldDomain.isRegex())) {
-					newDomain = new ProxyExcludedDomainMatcher(ProxyExcludedDomainMatcher.createPattern(value));
+					newDomain = new DomainMatcher(DomainMatcher.createPattern(value));
 				} else {
-					newDomain = new ProxyExcludedDomainMatcher(value);
+					newDomain = new DomainMatcher(value);
 				}
 				newDomain.setEnabled(getParam(params, PARAM_IS_ENABLED, oldDomain.isEnabled()));
 
 				if (!oldDomain.equals(newDomain)) {
-					List<ProxyExcludedDomainMatcher> domains = new ArrayList<>(connectionParam.getProxyExcludedDomains());
+					List<DomainMatcher> domains = new ArrayList<>(connectionParam.getProxyExcludedDomains());
 					domains.set(idx, newDomain);
 					connectionParam.setProxyExcludedDomains(domains);
 				}
@@ -596,7 +596,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
 				}
 
-				List<ProxyExcludedDomainMatcher> domains = new ArrayList<>(
+				List<DomainMatcher> domains = new ArrayList<>(
 						connectionParam.getProxyExcludedDomains());
 				domains.remove(idx);
 				connectionParam.setProxyExcludedDomains(domains);
@@ -615,8 +615,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private void setProxyChainExcludedDomainsEnabled(boolean enabled) {
 		ConnectionParam connectionParam = Model.getSingleton().getOptionsParam().getConnectionParam();
-		List<ProxyExcludedDomainMatcher> domains = connectionParam.getProxyExcludedDomains();
-		for (ProxyExcludedDomainMatcher domain : domains) {
+		List<DomainMatcher> domains = connectionParam.getProxyExcludedDomains();
+		for (DomainMatcher domain : domains) {
 			domain.setEnabled(enabled);
 		}
 		connectionParam.setProxyExcludedDomains(domains);
@@ -906,11 +906,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private ApiResponse proxyChainExcludedDomainsToApiResponseList(
 			String name,
-			List<ProxyExcludedDomainMatcher> domains,
+			List<DomainMatcher> domains,
 			boolean excludeDisabled) {
 		ApiResponseList apiResponse = new ApiResponseList(name);
 		for (int i = 0; i < domains.size(); i++) {
-			ProxyExcludedDomainMatcher domain = domains.get(i);
+			DomainMatcher domain = domains.get(i);
 			if (!domain.isEnabled() && excludeDisabled) {
 				continue;
 			}

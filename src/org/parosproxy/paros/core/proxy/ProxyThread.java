@@ -68,6 +68,7 @@
 // ZAP: 2017/02/08 Differentiate client read timeout after CONNECT, from server read timeout.
 // ZAP: 2017/02/08 Change CONNECT response to contain just the status line, helps Android emulator consume the response.
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
+// ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
 
 package org.parosproxy.paros.core.proxy;
 
@@ -233,6 +234,7 @@ public class ProxyThread implements Runnable {
 			httpOut = new HttpOutputStream(inSocket.getOutputStream());
 			
 			firstHeader = httpIn.readRequestHeader(isSecure);
+			firstHeader.setSenderAddress(inSocket.getInetAddress());
             
 			if (firstHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.CONNECT)) {
 				HttpMessage connectMsg = new HttpMessage(firstHeader);
@@ -255,6 +257,7 @@ public class ProxyThread implements Runnable {
 					}
 			        
 			        firstHeader = httpIn.readRequestHeader(isSecure);
+			        firstHeader.setSenderAddress(inSocket.getInetAddress());
 			        processHttp(firstHeader, isSecure);
 				} catch (MissingRootCertificateException e) {
 					// Unluckily Firefox and Internet Explorer will not show this message.
@@ -396,6 +399,7 @@ public class ProxyThread implements Runnable {
 			} else {
 			    try {
 			        requestHeader = httpIn.readRequestHeader(isSecure);
+			        requestHeader.setSenderAddress(inSocket.getInetAddress());
 
 			    } catch (SocketTimeoutException e) {
 		        	// ZAP: Log the exception

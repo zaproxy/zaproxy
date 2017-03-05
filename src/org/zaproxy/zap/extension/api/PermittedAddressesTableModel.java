@@ -3,21 +3,21 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2014 The ZAP Development Team
+ * Copyright 2017 The ZAP Development Team
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
  */
-package org.parosproxy.paros.extension.option;
+package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,20 +26,20 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTableModel<DomainMatcher> {
+public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableModel<DomainMatcher> {
 
     private static final long serialVersionUID = -5411351965957264957L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.enabled"),
-            Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.regex"),
-            Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.value") };
+            Constant.messages.getString("api.options.ipaddr.table.header.enabled"),
+            Constant.messages.getString("api.options.ipaddr.table.header.regex"),
+            Constant.messages.getString("api.options.ipaddr.table.header.value") };
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    private List<DomainMatcher> excludedDomains = new ArrayList<>(5);
+    private List<DomainMatcher> addresses = new ArrayList<>(5);
 
-    public ProxyExcludedDomainsTableModel() {
+    public PermittedAddressesTableModel() {
         super();
     }
 
@@ -55,7 +55,7 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
 
     @Override
     public int getRowCount() {
-        return excludedDomains.size();
+        return addresses.size();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 0 && aValue instanceof Boolean) {
-            excludedDomains.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            addresses.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
             fireTableCellUpdated(rowIndex, columnIndex);
         }
     }
@@ -92,15 +92,15 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
         return String.class;
     }
 
-    public List<DomainMatcher> getExcludedDomains() {
-        return excludedDomains;
+    public List<DomainMatcher> getAddresses() {
+        return addresses;
     }
 
-    public void setExcludedDomains(List<DomainMatcher> excludedDomains) {
-        this.excludedDomains = new ArrayList<>(excludedDomains.size());
+    public void setAddresses(List<DomainMatcher> addrs) {
+        this.addresses = new ArrayList<>(addrs.size());
 
-        for (DomainMatcher excludedDomain : excludedDomains) {
-            this.excludedDomains.add(new DomainMatcher(excludedDomain));
+        for (DomainMatcher addr : addrs) {
+            this.addresses.add(new DomainMatcher(addr));
         }
 
         fireTableDataChanged();
@@ -108,6 +108,6 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
 
     @Override
     public List<DomainMatcher> getElements() {
-        return excludedDomains;
+        return addresses;
     }
 }
