@@ -229,21 +229,34 @@ public class WebUI {
 					sb.append("</td></tr>\n");
 				}
 				
-				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType)) {
-					String key = getOptionsParamApi().getKey();
-					if (key != null && key.length() > 0) {
+				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType) ||
+						! getOptionsParamApi().isNoKeyForSafeOps()) {
+					String keyType = API.API_KEY_PARAM;
+					if (RequestType.other.equals(reqType)) {
+						// We can use nonces as we know the return type
+						keyType = API.API_NONCE_PARAM;
+					}
+					if (! getOptionsParamApi().isDisableKey()) {
 						sb.append("<tr>");
 						sb.append("<td>");
-						sb.append(API.API_KEY_PARAM);
+						sb.append(keyType);
 						sb.append("*</td>");
 						sb.append("<td>");
 						sb.append("<input id=\"");
-						sb.append(API.API_KEY_PARAM);
+						sb.append(keyType);
 						sb.append("\" name=\"");
-						sb.append(API.API_KEY_PARAM);
+						sb.append(keyType);
 						sb.append("\" value=\"");
-						if (getOptionsParamApi().isAutofillKey()) {
-							sb.append(key);
+						if (RequestType.other.equals(reqType)) {
+							sb.append(api.getOneTimeNonce("/" + 
+									reqType.name().toUpperCase() + "/" + 
+									impl.getPrefix() + "/" + 
+									reqType.name() + "/" + 
+									element.getName() + "/"));
+						} else {
+							if (getOptionsParamApi().isAutofillKey()) {
+								sb.append(getOptionsParamApi().getKey());
+							}
 						}
 						sb.append("\"/>");
 						sb.append("</td>");

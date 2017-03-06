@@ -34,12 +34,16 @@ public class OptionsParamApi extends AbstractParam {
 	private static final Logger LOGGER = Logger.getLogger(OptionsParamApi.class);
 
 	public static final String ENABLED = "api.enabled";
+	public static final String UI_ENABLED = "api.uienabled";
 	public static final String SECURE_ONLY = "api.secure";
 	public static final String API_KEY = "api.key";
 	private static final String DISABLE_KEY = "api.disablekey";
 	private static final String INC_ERROR_DETAILS = "api.incerrordetails";
 	private static final String AUTOFILL_KEY = "api.autofillkey";
 	private static final String ENABLE_JSONP = "api.enablejsonp";
+	private static final String NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
+	private static final String REPORT_PERM_ERRORS = "api.reportpermerrors";
+	private static final String NONCE_TTL_IN_SECS = "api.noncettlsecs";
 	
     private static final String PROXY_PERMITTED_ADDRS_KEY = "api.ipaddrs";
     private static final String ADDRESS_KEY = PROXY_PERMITTED_ADDRS_KEY + ".addr";
@@ -47,16 +51,22 @@ public class OptionsParamApi extends AbstractParam {
     private static final String ADDRESS_REGEX_KEY = "regex";
     private static final String ADDRESS_ENABLED_KEY = "enabled";
     private static final String CONFIRM_REMOVE_EXCLUDED_DOMAIN = "api.ipaddrs.confirmRemoveAddr";
+    
+    private static final int DEFAULT_NONCE_TTL_IN_SECS = 5 * 60; // 5 mins
 
 	private boolean enabled = true;
+	private boolean uiEnabled = true;
 	private boolean secureOnly;
 	private boolean disableKey;
 	private boolean incErrorDetails;
 	private boolean autofillKey;
 	private boolean enableJSONP;
+	private boolean noKeyForSafeOps;
+	private boolean reportPermErrors;
     private boolean confirmRemovePermittedAddress = true;
     private List<DomainMatcher> permittedAddresses = new ArrayList<>(0);
     private List<DomainMatcher> permittedAddressesEnabled = new ArrayList<>(0);
+    private int nonceTimeToLiveInSecs = DEFAULT_NONCE_TTL_IN_SECS;
 
 	private String key = "";
 	
@@ -68,11 +78,15 @@ public class OptionsParamApi extends AbstractParam {
     protected void parse() {
         
 		enabled = getBooleanFromConfig(ENABLED, true);
+		uiEnabled = getBooleanFromConfig(UI_ENABLED, true);
 		secureOnly = getBooleanFromConfig(SECURE_ONLY, false);
 		disableKey = getBooleanFromConfig(DISABLE_KEY, false);
 		incErrorDetails = getBooleanFromConfig(INC_ERROR_DETAILS, false);
 		autofillKey = getBooleanFromConfig(AUTOFILL_KEY, false);
 		enableJSONP = getBooleanFromConfig(ENABLE_JSONP, false);
+		noKeyForSafeOps = getBooleanFromConfig(NO_KEY_FOR_SAFE_OPS, false);
+		reportPermErrors = getBooleanFromConfig(REPORT_PERM_ERRORS, false);
+		nonceTimeToLiveInSecs = getIntFromConfig(NONCE_TTL_IN_SECS, DEFAULT_NONCE_TTL_IN_SECS);
 		try {
 			key = getConfig().getString(API_KEY, "");
 		} catch (ConversionException e) {
@@ -96,6 +110,15 @@ public class OptionsParamApi extends AbstractParam {
 		}
 	}
 
+    private int getIntFromConfig(String key, int defaultValue) {
+        try {
+            return getConfig().getInteger(key, defaultValue);
+        } catch (ConversionException e) {
+            LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
+            return defaultValue;
+        }
+    }
+
 	@Override
 	public OptionsParamApi clone() {
 		return (OptionsParamApi) super.clone();
@@ -109,6 +132,15 @@ public class OptionsParamApi extends AbstractParam {
 		this.enabled = enabled;
 		getConfig().setProperty(ENABLED, enabled);
 	}
+	
+    public boolean isUiEnabled() {
+        return uiEnabled;
+    }
+    
+    public void setUiEnabled(boolean uiEnabled) {
+        this.uiEnabled = uiEnabled;
+        getConfig().setProperty(UI_ENABLED, uiEnabled);
+    }
 
 	public boolean isSecureOnly() {
 		return secureOnly;
@@ -154,12 +186,41 @@ public class OptionsParamApi extends AbstractParam {
 		this.enableJSONP = enableJSONP;
 		getConfig().setProperty(ENABLE_JSONP, enableJSONP);
 	}
+	
+    public boolean isNoKeyForSafeOps() {
+        return noKeyForSafeOps;
+    }
+    
+    public void setNoKeyForSafeOps(boolean noKeyForSafeOps) {
+        this.noKeyForSafeOps = noKeyForSafeOps;
+        getConfig().setProperty(NO_KEY_FOR_SAFE_OPS, noKeyForSafeOps);
+    }
+    
+    public boolean isReportPermErrors() {
+        return reportPermErrors;
+    }
+
+    
+    public void setReportPermErrors(boolean reportErrors) {
+        this.reportPermErrors = reportErrors;
+        getConfig().setProperty(REPORT_PERM_ERRORS, reportErrors);
+    }
+
+	/**
+	 * Gets the time to live for API nonces. This should not be accessible via the API.
+	 * @return the time to live for API nonces
+	 * @since TODO Add Version
+	 */
+	@ZapApiIgnore
+	public int getNonceTimeToLiveInSecs() {
+		return nonceTimeToLiveInSecs;
+	}
 
 	protected String getRealKey() {
 		return key;
 	}
 
-	public String getKey() {
+	protected String getKey() {
 		if (this.isDisableKey()) {
 			return "";
 		} else if (key == null || key.length() == 0) {
