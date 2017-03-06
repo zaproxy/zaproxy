@@ -391,7 +391,9 @@ public class WebUI {
 		sb.append("</head>\n");
 		sb.append("<body>\n");
 		sb.append(Constant.messages.getString("api.home.topmsg"));
-		sb.append(Constant.messages.getString("api.home.proxypac"));
+		sb.append(Constant.messages.getString("api.home.proxypac", 
+				"/?" + API.API_NONCE_PARAM + "=" + 
+				API.getInstance().getLongLivedNonce("/OTHER/core/other/proxy.pac/")));
 		sb.append(Constant.messages.getString("api.home.links.header"));
 		if (apiEnabled) {
 			sb.append(Constant.messages.getString("api.home.links.api.enabled"));
