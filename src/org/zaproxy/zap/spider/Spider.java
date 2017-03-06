@@ -173,12 +173,12 @@ public class Spider {
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
+		this.extension = extension;
 		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
 		this.seedList = new LinkedHashSet<>();
 		this.cookieManager = new CookieManager();
 		this.scanContext = scanContext;
-		this.extension = extension;
 		
 		init();
 	}
@@ -440,6 +440,15 @@ public class Spider {
 						+ isTerminated() + "].");
 			}
 		}
+	}
+
+	/**
+	 * Gets the extension.
+	 *
+	 * @return the extension
+	 */
+	protected ExtensionSpider getExtensionSpider() {
+		return this.extension;
 	}
 
 	/* SPIDER PROCESS maintenance - pause, resume, shutdown, etc. */

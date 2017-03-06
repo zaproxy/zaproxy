@@ -21,20 +21,30 @@ package org.zaproxy.zap.spider.parser;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.DefaultValueGenerator;
+import org.zaproxy.zap.model.ValueGenerator;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.Pair;
 
 import net.htmlparser.jericho.Source;
 
@@ -62,7 +72,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Given
         SpiderParam undefinedSpiderOptions = null;
         // When
-        new SpiderHtmlFormParser(undefinedSpiderOptions);
+        new SpiderHtmlFormParser(undefinedSpiderOptions, new DefaultValueGenerator());
         // Then = IllegalArgumentException
     }
 
@@ -150,7 +160,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions);
+        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("PostGetForms.html");
@@ -333,7 +343,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions);
+        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("POST", "Form.html");
@@ -351,7 +361,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions);
+        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("GET", "Form.html");
@@ -402,7 +412,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions);
+        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("NoMethodForm.html");
@@ -903,11 +913,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     @Test
     public void shouldSetValuesToFieldsWithNoValueWhenParsingGetForm() {
         // Given
-        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        DefaultValueGenerator valueGenerator = new DefaultValueGenerator();
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         Date date = new Date(1474370354555L);
-        htmlParser.setDefaultDate(date);
+        valueGenerator.setDefaultDate(date);
         HttpMessage msg = createMessageWith("GET", "FormNoDefaultValues.html");
         Source source = createSource(msg);
         // When
@@ -939,11 +950,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     @Test
     public void shouldSetValuesToFieldsWithNoValueWhenParsingPostForm() {
         // Given
-        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        DefaultValueGenerator valueGenerator = new DefaultValueGenerator();
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         Date date = new Date(1474370354555L);
-        htmlParser.setDefaultDate(date);
+        valueGenerator.setDefaultDate(date);
         HttpMessage msg = createMessageWith("POST", "FormNoDefaultValues.html");
         Source source = createSource(msg);
         // When
@@ -970,15 +982,198 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         param("submit", "Submit")))));
     }
 
+    @Test
+    public void shouldProvidedCorrectFormDataToValueGenerator() {
+        // Given
+        TestValueGenerator valueGenerator = new TestValueGenerator();
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        HttpMessage msg = createMessageWith("FormsForValueGenerator.html");
+        Source source = createSource(msg);
+        int fieldIndex = 0;
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(valueGenerator.getFields(), hasSize(9));
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/post",
+                        "field1",
+                        "preDefValue1",
+                        list(""),
+                        attributes(
+                                attribute("name", "field1"),
+                                attribute("value","preDefValue1"),
+                                attribute("type", "hidden"),
+                                attribute("id", "id1"),
+                                attribute("Control Type", "HIDDEN")),
+                        attributes(
+                                attribute("action", "http://example.org/post"),
+                                attribute("method", "POST"),
+                                attribute("atta", "valueA"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/post",
+                        "field2",
+                        "preDefValue2",
+                        list(""),
+                        attributes(
+                                attribute("name", "field2"),
+                                attribute("value", "preDefValue2"),
+                                attribute("id", "id2"),
+                                attribute("att1", "value1"),
+                                attribute("Control Type", "TEXT")),
+                        attributes(
+                                attribute("action", "http://example.org/post"),
+                                attribute("method", "POST"),
+                                attribute("atta", "valueA"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/post",
+                        "field3",
+                        "preDefValue3",
+                        list(""),
+                        attributes(
+                        		attribute("name", "field3"),
+                        		attribute("value", "preDefValue3"),
+                        		attribute("type", "text"),
+                        		attribute("Control Type", "TEXT")),
+                        attributes(
+                                attribute("action", "http://example.org/post"),
+                                attribute("method", "POST"),
+                                attribute("atta", "valueA"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/post",
+                        "gender",
+                        "f",
+                        list(("m,f")),
+                        attributes(
+                        		attribute("name", "gender"),
+                        		attribute("type", "radio"),
+                        		attribute("value", "m"),
+                        		attribute("id","male"),
+                        		attribute("Control Type", "RADIO")),
+                        attributes(
+                                attribute("action", "http://example.org/post"),
+                                attribute("method", "POST"),
+                                attribute("atta", "valueA"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/post",
+                        "submit",
+                        "Submit",
+                        list(""),
+                        attributes(
+                                attribute("name", "submit"),
+                                attribute("type", "submit"),
+                                attribute("value", "Submit"),
+                                attribute("Control Type", "SUBMIT")),
+                        attributes(
+                                attribute("action", "http://example.org/post"),
+                                attribute("method", "POST"),
+                                attribute("atta", "valueA"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/get",
+                        "field1",
+                        "",
+                        list(""),
+                        attributes(
+                                attribute("name", "field1"),
+                                attribute("type", "hidden"),
+                                attribute("id", "id1"),
+                                attribute("Control Type", "HIDDEN")),
+                        attributes(
+                                attribute("action", "http://example.org/get"),
+                                attribute("method", "GET"),
+                                attribute("att1", "value1"),
+                                attribute("att2", "value2"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/get",
+                        "field2",
+                        "",
+                        list(""),
+                        attributes(
+                                attribute("name", "field2"),
+                                attribute("id", "id2"),
+                                attribute("att1", "value1"),
+                                attribute("Control Type", "TEXT")),
+                        attributes(
+                                attribute("action", "http://example.org/get"),
+                                attribute("method", "GET"),
+                                attribute("att1", "value1"),
+                                attribute("att2", "value2"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/get",
+                        "field3",
+                        "",
+                        list(""),
+                        attributes(attribute("name", "field3"), attribute("type", "text"), attribute("Control Type", "TEXT")),
+                        attributes(
+                                attribute("action", "http://example.org/get"),
+                                attribute("method", "GET"),
+                                attribute("att1", "value1"),
+                                attribute("att2", "value2"))))));
+                fieldIndex++;
+        assertThat(
+                valueGenerator.getFields().get(fieldIndex),
+                is(equalTo(formField(
+                        "http://example.com/",
+                        "http://example.org/get",
+                        "submit",
+                        "Submit",
+                        list(""),
+                        attributes(
+                                attribute("name", "submit"),
+                                attribute("type", "submit"),
+                                attribute("value", "Submit"),
+                                attribute("Control Type", "SUBMIT")),
+                        attributes(
+                                attribute("action", "http://example.org/get"),
+                                attribute("method", "GET"),
+                                attribute("att1", "value1"),
+                                attribute("att2", "value2"))))));
+    }
+
     private static String formattedDate(String format, Date date) {
         return new SimpleDateFormat(format).format(date);
     }
 
     private SpiderHtmlFormParser createSpiderHtmlFormParser() {
+        return createSpiderHtmlFormParser(new DefaultValueGenerator());
+    }
+
+    private SpiderHtmlFormParser createSpiderHtmlFormParser(ValueGenerator valueGenerator) {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(true);
-        return new SpiderHtmlFormParser(spiderOptions);
+        return new SpiderHtmlFormParser(spiderOptions, valueGenerator);
     }
 
     private static HttpMessage createMessageWith(String filename) {
@@ -1020,5 +1215,217 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
             throw new RuntimeException(e);
         }
         return message;
+    }
+    private static class TestValueGenerator implements ValueGenerator {
+
+        private final List<FormField> fields;
+
+        public TestValueGenerator() {
+            fields = new ArrayList<>();
+        }
+
+        public List<FormField> getFields() {
+            return fields;
+        }
+
+        @Override
+        public String getValue(
+                URI uri,
+                String targetUri,
+                String fieldName,
+                String defaultValue,
+                List<String> values,
+                Map<String, String> formAttributes,
+                Map<String, String> fieldAttributes) {
+                    fields.add(new FormField(uri.toString(), targetUri, fieldName, defaultValue, values, fieldAttributes, formAttributes));
+                    return "";
+                }
+    }
+
+    private static class FormField {
+
+        private final String uri;
+        private final String targetUri;
+        private final String fieldName;
+        private final String defaultValue;
+        private final List<String> values;
+        private final Map<String, String> fieldAttributes;
+        private final Map<String, String> formAttributes;
+
+        public FormField(
+            String uri,
+            String targetUri,
+            String fieldName,
+            String defaultValue,
+            List<String> values,
+            Map<String, String> fieldAttributes,
+            Map<String, String> formAttributes) {
+                this.uri = uri;
+                this.targetUri = targetUri;
+                this.fieldName = fieldName;
+                this.defaultValue = defaultValue;
+                this.values = values;
+                this.fieldAttributes = new HashMap<>(fieldAttributes);
+                this.formAttributes = new HashMap<>(formAttributes);
+            }
+
+        public String getUri() {
+            return uri;
+        }
+
+        public String getTargetUri() {
+            return targetUri;
+        }
+
+        public String getDefaultValue() {
+            return defaultValue;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        public List<String> getValues() {
+            return values;
+        }
+
+        public Map<String, String> getFieldAttributes() {
+            return fieldAttributes;
+        }
+
+        public Map<String, String> getFormAttributes() {
+            return formAttributes;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((fieldAttributes == null) ? 0 : fieldAttributes.hashCode());
+            result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());
+            result = prime * result + ((defaultValue == null) ? 0 : defaultValue.hashCode());
+            result = prime * result + ((values == null) ? 0 : values.hashCode());
+            result = prime * result + ((formAttributes == null) ? 0 : formAttributes.hashCode());
+            result = prime * result + ((targetUri == null) ? 0 : targetUri.hashCode());
+            result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            FormField other = (FormField) obj;
+            if (fieldAttributes == null) {
+                if (other.fieldAttributes != null) {
+                    return false;
+                }
+            } else if (!fieldAttributes.equals(other.fieldAttributes)) {
+                return false;
+              }
+            if (fieldName == null) {
+                if (other.fieldName != null) {
+                    return false;
+                }
+            } else if (!fieldName.equals(other.fieldName)) {
+                return false;
+              }
+            if (defaultValue == null) {
+                if (other.defaultValue != null) {
+                    return false;
+                }
+            } else if (!defaultValue.equals(other.defaultValue)) {
+                return false;
+              }
+            if (values == null) {
+                if (other.values != null) {
+                    return false;
+                }
+            } else if (!values.equals(other.values)) {
+                return false;
+              }
+            if (formAttributes == null) {
+                if (other.formAttributes != null) {
+                    return false;
+                }
+            } else if (!formAttributes.equals(other.formAttributes)) {
+                return false;
+              }
+            if (targetUri == null) {
+                if (other.targetUri != null) {
+                    return false;
+                }
+            } else if (!targetUri.equals(other.targetUri)) {
+                return false;
+              }
+            if (uri == null) {
+                if (other.uri != null) {
+                    return false;
+                }
+            } else if (!uri.equals(other.uri)) {
+                return false;
+              }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder strBuilder = new StringBuilder(250);
+            strBuilder.append("uri=").append(uri);
+            strBuilder.append(", targetUri=").append(targetUri);
+            strBuilder.append(", fieldName=").append(fieldName);
+            strBuilder.append(", defaultValue=").append(defaultValue);
+            strBuilder.append(", values=").append(values);
+            strBuilder.append(", fieldAttributes=").append(fieldAttributes);
+            strBuilder.append(", formAttributes=").append(formAttributes);
+            return strBuilder.toString();
+        }
+    }
+
+    private static FormField formField(
+        String uri,
+        String targetUri,
+        String fieldName,
+        String defaultValue,
+        List<String> values,
+        Map<String, String> fieldAttributes,
+        Map<String, String> formAttributes) {
+            return new FormField(uri, targetUri, fieldName, defaultValue, values, fieldAttributes, formAttributes);
+        }
+
+    @SafeVarargs
+    private static Map<String, String> attributes(Pair<String, String>... attributes) {
+        if (attributes == null || attributes.length == 0) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, String> mapAttributes = new HashMap<>();
+        for (Pair<String, String> attribute : attributes) {
+            mapAttributes.put(attribute.first, attribute.second);
+        }
+        return mapAttributes;
+    }
+
+    private static Pair<String, String> attribute(String name, String value) {
+        return new Pair<>(name, value);
+    }
+
+    private static List<String> list(String preDefValue){
+    	if (preDefValue == null || preDefValue.isEmpty()){
+    		return new ArrayList<String>();
+    	}
+    	List<String> values = new ArrayList<String>();
+    	String[] value = preDefValue.split(",");
+    	for (String val : value){
+    		values.add(val);
+    	}
+    	return values;
     }
 }

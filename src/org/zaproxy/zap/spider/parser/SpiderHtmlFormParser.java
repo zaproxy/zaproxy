@@ -19,25 +19,27 @@ package org.zaproxy.zap.spider.parser;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import net.htmlparser.jericho.Attribute;
 import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.FormControl;
-import net.htmlparser.jericho.FormControlType;
 import net.htmlparser.jericho.FormField;
 import net.htmlparser.jericho.FormFields;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
 
+import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.DefaultValueGenerator;
+import org.zaproxy.zap.model.ValueGenerator;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.URLCanonicalizer;
 
@@ -47,39 +49,47 @@ import org.zaproxy.zap.spider.URLCanonicalizer;
 public class SpiderHtmlFormParser extends SpiderParser {
 
 	private static final String ENCODING_TYPE = "UTF-8";
-	private static final String DEFAULT_NUMBER_VALUE = "1";
-	private static final String DEFAULT_FILE_VALUE = "test_file.txt";
-	private static final String DEFAULT_TEXT_VALUE = org.parosproxy.paros.Constant.PROGRAM_NAME_SHORT;
-
-	private static final String METHOD_POST = "POST";
-	private static final String ATTR_TYPE = "type";
 	private static final String DEFAULT_EMPTY_VALUE = "";
-	private static final String DEFAULT_PASS_VALUE = DEFAULT_TEXT_VALUE;
+	private static final String METHOD_POST = "POST";
+	private URI uri;
+	private String url;
+
+	/** The form attributes*/
+	private Map<String, String> envAttributes = new HashMap<String, String>();
 
 	/** The spider parameters. */
 	private final SpiderParam param;
 
-	/**
-	 * The default {@code Date} to be used for default values of date fields.
-	 * <p>
-	 * Default is {@code null}.
-	 * 
-	 * @see #setDefaultDate(Date)
-	 */
-	private Date defaultDate;
+	/**Create new Value Generator field*/
+	private final ValueGenerator valueGenerator;
 
 	/**
 	 * Instantiates a new spider html form parser.
-	 * 
+	 *
 	 * @param param the parameters for the spider
 	 * @throws IllegalArgumentException if {@code param} is null.
 	 */
 	public SpiderHtmlFormParser(SpiderParam param) {
+		this(param, new DefaultValueGenerator());
+	}
+
+	/**
+	 * Instantiates a new spider html form parser.
+	 *
+	 * @param param the parameters for the spider
+	 * @param param the parameters ValueGenerator
+	 * @throws IllegalArgumentException if {@code param} or {@code valueGenerator} is null.
+	 */
+	public SpiderHtmlFormParser(SpiderParam param, ValueGenerator valueGenerator) {
 		super();
 		if (param == null) {
 			throw new IllegalArgumentException("Parameter param must not be null.");
 		}
+		if (valueGenerator == null){
+			throw new IllegalArgumentException("Parameter valueGenerator must not be null.");
+		}
 		this.param = param;
+		this.valueGenerator = valueGenerator;
 	}
 
 	@Override
@@ -97,6 +107,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 		// Get the context (base url)
 		String baseURL = message.getRequestHeader().getURI().toString();
+		uri = message.getRequestHeader().getURI();
 
 		// Try to see if there's any BASE tag that could change the base URL
 		Element base = source.getFirstElement(HTMLElementName.BASE);
@@ -114,6 +125,11 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		List<Element> forms = source.getAllElements(HTMLElementName.FORM);
 
 		for (Element form : forms) {
+			//Clear the attributes for each form and store their key and values
+			envAttributes.clear();
+			for (Attribute att : form.getAttributes()){
+				envAttributes.put(att.getKey(), att.getValue());
+			}
 			// Get method and action
 			String method = form.getAttributeValue("method");
 			String action = form.getAttributeValue("action");
@@ -137,6 +153,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				action = action.substring(0, fs);
 			}
 
+			url = URLCanonicalizer.getCanonicalURL(action, baseURL);
 			FormData formData = prepareFormDataSet(form.getFormFields());
 
 			// Process the case of a POST method
@@ -241,7 +258,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			if (field.getFormControl().getFormControlType().isSubmit()) {
 				currentList = submitFields;
 			}
-			for (String value : getValues(field)) {
+			for (String value : getDefaultTextValue(field)) {
 				currentList.add(new HtmlParameter(Type.form, field.getName(), value));
 			}
 		}
@@ -251,56 +268,83 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 	/**
 	 * Gets the values for the given {@code field}.
-	 * <p>
-	 * If the field is of submit type it returns its predefined values.
+	 * If the field is of submit type it passes the predefined values to the ValueGenerator and returns its predefined values.
+	 * Gets the default value that the input field, including HTML5 types, should have.
 	 *
 	 * @param field the field
 	 * @return a list with the values
-	 * @see #getDefaultTextValue(FormField)
 	 */
-	private List<String> getValues(FormField field) {
+	private List<String> getDefaultTextValue(FormField field) {
+
+		// Get the Id
+		String fieldId = field.getName();
+
+		// Create new HashMap 'fieldAttributes' and new list 'definedValues'
+		Map<String, String> fieldAttributes = new HashMap<String, String>();
+		List<String> definedValues = new ArrayList<String>();
+
+		//Store all values in the FormFiled field into the Map 'fieldAttributes'
+		fieldAttributes.putAll(field.getFormControl().getAttributesMap());
+
+		// Places a key, Control Type, for each FormControlType
+		fieldAttributes.put("Control Type", field.getFormControl().getFormControlType().name());
+
+
+		//Handles Submit Fields
 		if (field.getFormControl().getFormControlType().isSubmit()) {
-			return new ArrayList<>(field.getPredefinedValues());
+			List<String> submitFields = new ArrayList<String>();
+			for (String value : field.getPredefinedValues()){
+				String finalValue = this.valueGenerator.getValue(uri, url, fieldId, value, definedValues, envAttributes, fieldAttributes);
+				submitFields.add(finalValue);
+			}
+			return submitFields;
 		}
 
 		// Get its value(s)
 		List<String> values = field.getValues();
+		String defaultValue;
+
+		//If the field has a value attribute present(Predefined value)
+		//Should store the value being submitted to be passed to the ValueGenerator
+		if(field.getFormControl().getAttributesMap().containsKey("value")){
+			defaultValue = field.getFormControl().getAttributesMap().get("value");
+		}
+
 		if (log.isDebugEnabled()) {
 			log.debug("Existing values: " + values);
 		}
 
 		// If there are no values at all or only an empty value
 		if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
-			String finalValue = DEFAULT_EMPTY_VALUE;
+			defaultValue = DEFAULT_EMPTY_VALUE;
 
 			// Check if we can use predefined values
 			Collection<String> predefValues = field.getPredefinedValues();
 			if (!predefValues.isEmpty()) {
+				//Store those predefined values in a list for the DefaultValueGenerator
+				definedValues.addAll(predefValues);
 				// Try first elements
 				Iterator<String> iterator = predefValues.iterator();
-				finalValue = iterator.next();
+				defaultValue = iterator.next();
 
 				// If there are more values, don't use the first, as it usually is a "No select"
 				// item
 				if (iterator.hasNext()) {
-					finalValue = iterator.next();
-				}
-			} else {
-				/*
-				 * In all cases, according to Jericho documentation, the only left option is for
-				 * it to be a TEXT field, without any predefined value. We check if it has only
-				 * one userValueCount, and, if so, fill it with a default value.
-				 */
-				if (field.getUserValueCount() > 0) {
-					finalValue = getDefaultTextValue(field);
+					defaultValue = iterator.next();
 				}
 			}
 
-			log.debug("No existing value for field " + field.getName() + ". Generated: " + finalValue);
-
-			values = new ArrayList<>(1);
-			values.add(finalValue);
+		} else {
+			defaultValue = values.get(0);
 		}
+
+		//Get the default value used in DefaultValueGenerator
+		String finalValue = this.valueGenerator.getValue(uri, url, fieldId, defaultValue, definedValues, envAttributes, fieldAttributes);
+
+		log.debug("Generated: " + finalValue + "For field " + field.getName());
+
+		values = new ArrayList<>(1);
+		values.add(finalValue);
 
 		return values;
 	}
@@ -317,122 +361,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	private void notifyPostResourceFound(HttpMessage message, int depth, String url, String requestBody) {
 		log.debug("Submiting form with POST method and message body with form parameters (normal encoding): " + requestBody);
 		notifyListenersPostResourceFound(message, depth + 1, url, requestBody);
-	}
-
-	/**
-	 * Gets the default value that the input field, including HTML5 types, should have.
-	 * 
-	 * <p>
-	 * Generates accurate field values for following types:
-	 * <ul>
-	 * <li>Text/Password/Search - DEFAULT_TEXT_VALUE</li>
-	 * <li>number/range - if min is defined, then use min, otherwise if max is defined use max
-	 * otherwise DEFAULT_NUMBER_VALUE;</li>
-	 * <li>url - http://www.example.com</li>
-	 * <li>email - contact@example.com</li>
-	 * <li>color - #000000</li>
-	 * <li>tel - 9999999999</li>
-	 * <li>date/datetime/time/month/week/datetime-local - current date in the proper format</li>
-	 * <li>file - DEFAULT_FILE_VALUE</li>
-	 * </ul>
-	 * 
-	 * @param field the field
-	 * @return the default text value
-	 * @see #getDefaultDate()
-	 */
-	private String getDefaultTextValue(FormField field) {
-		FormControl fc = field.getFormControl();
-		if (fc.getFormControlType() == FormControlType.TEXT) {
-			// If the control type was reduced to a TEXT type by the Jericho library, check the
-			// HTML5 type and use proper values
-			String type = fc.getAttributesMap().get(ATTR_TYPE);
-			if (type == null || type.equalsIgnoreCase("text")) {
-				return DEFAULT_TEXT_VALUE;
-			}
-
-			if (type.equalsIgnoreCase("number") || type.equalsIgnoreCase("range")) {
-				String min = fc.getAttributesMap().get("min");
-				if (min != null) {
-					return min;
-				}
-				String max = fc.getAttributesMap().get("max");
-				if (max != null) {
-					return max;
-				}
-				return DEFAULT_NUMBER_VALUE;
-			}
-
-			if (type.equalsIgnoreCase("url")) {
-				return "http://www.example.com";
-			}
-
-			if (type.equalsIgnoreCase("email")) {
-				return "foo-bar@example.com";
-			}
-
-			if (type.equalsIgnoreCase("color")) {
-				return "#ffffff";
-			}
-
-			if (type.equalsIgnoreCase("tel")) {
-				return "9999999999";
-			}
-
-			if (type.equalsIgnoreCase("datetime")) {
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-				return format.format(getDefaultDate());
-			}
-			if (type.equalsIgnoreCase("datetime-local")) {
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-				return format.format(getDefaultDate());
-			}
-			if (type.equalsIgnoreCase("date")) {
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				return format.format(getDefaultDate());
-			}
-			if (type.equalsIgnoreCase("time")) {
-				SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-				return format.format(getDefaultDate());
-			}
-			if (type.equalsIgnoreCase("month")) {
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
-				return format.format(getDefaultDate());
-			}
-			if (type.equalsIgnoreCase("week")) {
-				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
-				return format.format(getDefaultDate());
-			}
-		} else if (fc.getFormControlType() == FormControlType.PASSWORD) {
-			return DEFAULT_PASS_VALUE;
-		} else if (fc.getFormControlType() == FormControlType.FILE) {
-			return DEFAULT_FILE_VALUE;
-		}
-		return DEFAULT_EMPTY_VALUE;
-	}
-
-	/**
-	 * Gets the default {@code Date}, to be used for default values of date fields.
-	 *
-	 * @return the date, never {@code null}.
-	 * @see #setDefaultDate(Date)
-	 */
-	private Date getDefaultDate() {
-		if (defaultDate == null) {
-			return new Date();
-		}
-		return defaultDate;
-	}
-
-	/**
-	 * Sets the default {@code Date}, to be used for default values of date fields.
-	 * <p>
-	 * If none ({@code null}) is set it's used the current date when generating the values for the fields.
-	 *
-	 * @param date the default date, might be {@code null}.
-	 * @since TODO add version
-	 */
-	public void setDefaultDate(Date date) {
-		this.defaultDate = date;
 	}
 
 	/**
