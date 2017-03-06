@@ -70,6 +70,7 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2016/06/21 Prevent deadlock between EDT and threads adding messages to the History tab
 // ZAP: 2017/01/30 Use HistoryTableModel.
+// ZAP: 2017/03/02 Issue 1634 Improve URL export.
 
 package org.parosproxy.paros.extension.history;
 
@@ -109,6 +110,7 @@ import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
+import org.zaproxy.zap.extension.history.PopupMenuExportSelectedURLs;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
@@ -135,6 +137,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuTag popupMenuTag = null;
     // ZAP: Added Export URLs
 	private PopupMenuExportURLs popupMenuExportURLs = null;
+	private PopupMenuExportSelectedURLs popupMenuExportSelectedURLs = null;
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
@@ -227,6 +230,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
+            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportSelectedURLs());
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 	    }
@@ -656,12 +660,19 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	private PopupMenuExportURLs getPopupMenuExportURLs() {
 		if (popupMenuExportURLs == null) {
-			popupMenuExportURLs = new PopupMenuExportURLs();
+			popupMenuExportURLs = new PopupMenuExportURLs(Constant.messages.getString("exportUrls.popup"));
 			popupMenuExportURLs.setExtension(this);
 		}
 		return popupMenuExportURLs;
 	}
 
+	private PopupMenuExportSelectedURLs getPopupMenuExportSelectedURLs() {
+		if (popupMenuExportSelectedURLs == null) {
+			popupMenuExportSelectedURLs = new PopupMenuExportSelectedURLs(Constant.messages.getString("exportUrls.popup.selected"));
+			popupMenuExportSelectedURLs.setExtension(this);
+		}
+		return popupMenuExportSelectedURLs;
+	}
 
 	public void showInHistory(HistoryReference href) {
 		this.getLogPanel().display(href);
