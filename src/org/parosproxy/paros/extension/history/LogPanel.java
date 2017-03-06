@@ -40,6 +40,7 @@
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2017/01/30 Use HistoryTable.
+// ZAP: 2017/03/03 Tweak filter label.
 
 package org.parosproxy.paros.extension.history;
 
@@ -216,7 +217,7 @@ public class LogPanel extends AbstractPanel {
 			++gbc.gridx;
 			panelToolbar.add(getFilterButton(), gbc);
 
-			filterStatus = new JLabel(Constant.messages.getString("history.filter.label.filter") + 
+			filterStatus = new JLabel(Constant.messages.getString("history.filter.label.filter") + " " +
 					Constant.messages.getString("history.filter.label.off"));
 
 			++gbc.gridx;
