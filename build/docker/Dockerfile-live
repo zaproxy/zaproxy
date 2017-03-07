@@ -60,7 +60,7 @@ RUN git clone https://github.com/zaproxy/zaproxy.git && \
 	git clone --branch alpha https://github.com/zaproxy/zap-extensions.git zap-extensions_alpha && \
 	git clone https://github.com/zaproxy/zap-core-help.git && \
 	# Download the webdrivers
-	cd zap-extensions_alpha && \
+	cd zap-extensions_beta && \
 	ant -f build/build.xml download-webdrivers && \
 	# Build ZAP
 	cd ../zaproxy && \
