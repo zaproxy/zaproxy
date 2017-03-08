@@ -140,12 +140,6 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 		} else {
 			out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
 		}
-		if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-			// Always add the API key - we've no way of knowing if it will be required or not
-			hasParams = true;
-			out.write("String ");
-			out.write(API.API_KEY_PARAM);
-		}
 
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
@@ -186,13 +180,6 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 
 		if (hasParams) {
 			out.write("\t\tMap<String, String> map = new HashMap<>();\n"); 
-			
-			if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-				// Always add the API key (if not null) - we've no way of knowing if it will be required or not
-				out.write("\t\tif (apikey != null) {\n");
-				out.write("\t\t\tmap.put(\"apikey\", apikey);\n");
-				out.write("\t\t}\n");
-			}
 			if (element.getMandatoryParamNames() != null) {
 				for (String param : element.getMandatoryParamNames()) {
 					out.write("\t\tmap.put(\"" + param + "\", ");
@@ -273,10 +260,20 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 			out.write("/**\n");
 			out.write(" * This file was automatically generated.\n");
 			out.write(" */\n");
-			out.write("public class " + className + " {\n\n");
+			out.write("@SuppressWarnings(\"javadoc\")\n");
+			out.write("public class " + className);
+			boolean extendsClass = false;
+			if (Files.exists(file.resolveSibling(Paths.get("deprecated", className + "Deprecated.java")))) {
+				out.write(" extends org.zaproxy.clientapi.gen.deprecated." + className + "Deprecated");
+				extendsClass = true;
+			}
+			out.write(" {\n\n");
 			
 			out.write("\tprivate final ClientApi api;\n\n");
 			out.write("\tpublic " + className + "(ClientApi api) {\n");
+			if (extendsClass) {
+				out.write("\t\tsuper(api);\n");
+			}
 			out.write("\t\tthis.api = api;\n");
 			out.write("\t}\n\n");
 	
