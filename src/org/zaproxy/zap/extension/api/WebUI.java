@@ -31,6 +31,7 @@ import org.zaproxy.zap.extension.api.API.RequestType;
 public class WebUI {
 	
 	private API api;
+	private boolean isDevTestNonce = false;	// Manually change here to test nonces with the web UI
 
 	public WebUI(API api) {
 		this.api = api;
@@ -155,6 +156,32 @@ public class WebUI {
 
 	}
 
+	private void appendShortcuts(StringBuilder sb, String component, List<String> shortcutList) {
+		Collections.sort(shortcutList);
+		
+		sb.append("\n<table>\n");
+		for (String shortcut : shortcutList) {
+			sb.append("<tr>");
+			sb.append("<td>");
+			sb.append("<a href=\"/");
+			sb.append(shortcut);
+			sb.append("/?");
+			sb.append(API.API_NONCE_PARAM);
+			sb.append("=");
+			sb.append(api.getOneTimeNonce("/" + shortcut + "/"));
+			sb.append("\">");
+			sb.append(shortcut);
+			sb.append("</a>");
+			sb.append("</td><td>");
+
+			sb.append("</td>");
+			
+			sb.append("</tr>\n");
+		}
+		sb.append("</table>\n");
+
+	}
+
 	public String handleRequest(String component, ApiImplementor impl,
 			RequestType reqType, String name) throws ApiException {
 		// Generate HTML UI
@@ -165,7 +192,9 @@ public class WebUI {
 		sb.append(Constant.messages.getString("api.html.title"));
 		sb.append("</title>\n");
 		/* The script version prevents the cache being used if ZAP has been updated in the same day */ 
-		sb.append("<script src=\"/script.js?v=" + CoreAPI.API_SCRIPT_VERSION + "\" type=\"text/javascript\"></script>\n");
+		sb.append("<script src=\"/script.js/?v=" + CoreAPI.API_SCRIPT_VERSION + "&" +
+				API.API_NONCE_PARAM + "=" + api.getOneTimeNonce("/script.js/") + 
+				"\" type=\"text/javascript\"></script>\n");
 		sb.append("</head>\n");
 		sb.append("<body>\n");
 		sb.append("<h1>");
@@ -232,7 +261,7 @@ public class WebUI {
 				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType) ||
 						! getOptionsParamApi().isNoKeyForSafeOps()) {
 					String keyType = API.API_KEY_PARAM;
-					if (RequestType.other.equals(reqType)) {
+					if (this.isDevTestNonce  && RequestType.other.equals(reqType)) {
 						// We can use nonces as we know the return type
 						keyType = API.API_NONCE_PARAM;
 					}
@@ -247,7 +276,7 @@ public class WebUI {
 						sb.append("\" name=\"");
 						sb.append(keyType);
 						sb.append("\" value=\"");
-						if (RequestType.other.equals(reqType)) {
+						if (this.isDevTestNonce && RequestType.other.equals(reqType)) {
 							sb.append(api.getOneTimeNonce("/" + 
 									reqType.name().toUpperCase() + "/" + 
 									impl.getPrefix() + "/" + 
@@ -349,6 +378,20 @@ public class WebUI {
 					elementList = new ArrayList<>();
 					elementList.addAll(otherList);
 					this.appendElements(sb, component, RequestType.other.name(), elementList);
+				}
+
+				if (getOptionsParamApi().isDisableKey() || getOptionsParamApi().isAutofillKey() || 
+						this.isDevTestNonce) {
+					// Only show shortcuts if they will work without the user having to add a key/nonce
+					List<String> shortcutList = impl.getApiShortcuts();
+					if (shortcutList != null && shortcutList.size() > 0) {
+						sb.append("<h3>");
+						sb.append(Constant.messages.getString("api.html.shortcuts"));
+						sb.append("</h3>\n");
+						elementList = new ArrayList<>();
+						elementList.addAll(otherList);
+						this.appendShortcuts(sb, component, shortcutList);
+					}
 				}
 			}
 

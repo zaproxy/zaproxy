@@ -1219,7 +1219,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				return this.handleApiOther(msg, OTHER_PROXY_PAC, null);
 			} else if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SET_PROXY)) {
 				JSONObject params = new JSONObject();
-				params.put(PARAM_PROXY_DETAILS, msg.getRequestBody());
+				params.put(PARAM_PROXY_DETAILS, msg.getRequestBody().toString());
 				return this.handleApiOther(msg, OTHER_SET_PROXY, params);
 			} else if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SCRIPT_JS)) {
 				return this.handleApiOther(msg, OTHER_SCRIPT_JS, null);

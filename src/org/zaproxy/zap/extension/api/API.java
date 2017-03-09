@@ -239,8 +239,14 @@ public class API {
 			JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
 
 			if (shortcutImpl != null) {
+				if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+					if ( ! this.hasValidKey(requestHeader, params)) {
+						throw new ApiException(ApiException.Type.BAD_API_KEY);
+					}
+				}
 				msg = shortcutImpl.handleShortcut(msg);
 			} else if (callbackImpl != null) {
+				// Callbacks have suitably random URLs and therefore don't require keys/nonces
 				response = callbackImpl.handleCallBack(msg);
 			} else {
 			
