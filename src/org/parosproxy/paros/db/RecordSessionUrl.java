@@ -28,6 +28,7 @@ public class RecordSessionUrl {
 	public static final int TYPE_EXCLUDE_FROM_SCOPE = 4;
 	public static final int TYPE_INCLUDE_IN_SCOPE = 5;
 	public static final int TYPE_EXCLUDE_FROM_WEBSOCKET = 6;
+	public static final int TYPE_INCLUDE_IN_PROXY = 7;
 	
     private long urlId = 0;
     private int type = 0;

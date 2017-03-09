@@ -130,6 +130,7 @@ public class Session {
 	private String fileName = "";
 	private String sessionDesc = "";
 	private List<String> excludeFromProxyRegexs = new ArrayList<>();
+	private List<String> includeInProxyRegexs = new ArrayList<>();
 	private List<String> excludeFromScanRegexs = new ArrayList<>();
 	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
 	// ZAP: Added globalExcludeURLRegexs code.
@@ -311,6 +312,9 @@ public class Session {
 	    // Load the session urls
 	    this.setExcludeFromProxyRegexs(
 	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY)));
+
+		this.setIncludeInProxyRegexs(
+				sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_INCLUDE_IN_PROXY)));
 
 	    this.setExcludeFromScanRegexs(
 	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN)));
@@ -671,6 +675,10 @@ public class Session {
 	public List<String> getExcludeFromProxyRegexs() {
 		return excludeFromProxyRegexs;
 	}
+
+	public List<String> getIncludeInProxyRegexs() {
+		return includeInProxyRegexs;
+	}
 	
 	
 	private List<String> stripEmptyLines(List<String> list) {
@@ -940,6 +948,17 @@ public class Session {
 		// Thought for GlobalExcludeURL; we can create addUrls() and call that too - but I don't think it is needed.
 	}
 
+	public void setIncludeInProxyRegexs(List<String> regexs) throws DatabaseException {
+		for (String url : regexs) {
+			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+		}
+
+		this.includeInProxyRegexs = stripEmptyLines(regexs);
+		Control.getSingleton().setIncludeInProxyUrls(this.includeInProxyRegexs);
+
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_PROXY, this.includeInProxyRegexs);
+	}
+
 	public void addExcludeFromProxyRegex(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
@@ -947,6 +966,14 @@ public class Session {
 		this.excludeFromProxyRegexs.add(ignoredRegex);
 		Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
+	}
+
+	public void addIncludeInProxyRegex(String regex) throws DatabaseException {
+		Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+		this.includeInProxyRegexs.add(regex);
+		Control.getSingleton().setIncludeInProxyUrls(this.includeInProxyRegexs);
+		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_INCLUDE_IN_PROXY, this.includeInProxyRegexs);
 	}
 
 	public List<String> getExcludeFromScanRegexs() {

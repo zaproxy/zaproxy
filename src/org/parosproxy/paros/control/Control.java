@@ -355,6 +355,10 @@ public class Control extends AbstractControl implements SessionListener {
     public void setExcludeFromProxyUrls(List<String> urls) {
 		this.getProxy(null).setIgnoreList(urls);
     }
+
+    public void setIncludeInProxyUrls(List<String> urls) {
+    	this.getProxy(null).setWhiteList(urls);
+	}
     
     public void openSession(final File file, final SessionListener callback) {
 	    log.info("Open Session");

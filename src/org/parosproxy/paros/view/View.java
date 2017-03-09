@@ -135,6 +135,7 @@ import org.zaproxy.zap.view.ContextTechnologyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
+import org.zaproxy.zap.view.SessionIncludeInProxyPanel;
 import org.zaproxy.zap.view.SplashScreen;
 import org.zaproxy.zap.view.StatusUI;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -645,6 +646,7 @@ public class View implements ViewDelegate {
             sessionDialog = new SessionDialog(getMainFrame(), true, propertiesTitle, dialogTitle);
             sessionDialog.addParamPanel(ROOT, new SessionGeneralPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromProxyPanel(), false);
+            sessionDialog.addParamPanel(ROOT, new SessionIncludeInProxyPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromScanPanel(), false);
             sessionDialog.addParamPanel(ROOT, new SessionExcludeFromSpiderPanel(), false);
             sessionDialog.addParamPanel(ROOT, new ContextListPanel(), false);

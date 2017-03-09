@@ -102,6 +102,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_SHUTDOWN = "shutdown";
 	private static final String ACTION_EXCLUDE_FROM_PROXY = "excludeFromProxy";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_PROXY = "clearExcludedFromProxy";
+	private static final String ACTION_INCLUDE_IN_PROXY = "includeInProxy";
+	private static final String ACTION_CLEAR_INCLUDED_IN_PROXY = "clearIncludedInProxy";
 	private static final String ACTION_SET_HOME_DIRECTORY = "setHomeDirectory";
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	private static final String ACTION_SEND_REQUEST = "sendRequest";
@@ -127,6 +129,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_NUMBER_OF_MESSAGES = "numberOfMessages";
 	private static final String VIEW_VERSION = "version";
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
+	private static final String VIEW_INCLUDED_IN_PROXY = "includedInProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
 	private static final String VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS = "proxyChainExcludedDomains";
 	private static final String VIEW_OPTION_PROXY_CHAIN_SKIP_NAME = "optionProxyChainSkipName";
@@ -211,6 +214,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_SNAPSHOT_SESSION));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
+		this.addApiAction(new ApiAction(ACTION_CLEAR_INCLUDED_IN_PROXY));
+		this.addApiAction(new ApiAction(ACTION_INCLUDE_IN_PROXY, new String[] {PARAM_REGEX}));
 		this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
 		this.addApiAction(new ApiAction(ACTION_SET_MODE, new String[] {PARAM_MODE}));
 		this.addApiAction(new ApiAction(ACTION_GENERATE_ROOT_CA));
@@ -249,6 +254,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_MODE));
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
+		this.addApiView(new ApiView(VIEW_INCLUDED_IN_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
 		this.addApiView(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS));
 		ApiView apiView = new ApiView(VIEW_OPTION_PROXY_CHAIN_SKIP_NAME);
@@ -455,6 +461,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			String regex = params.getString(PARAM_REGEX);
 			try {
 				session.addExcludeFromProxyRegex(regex);
+			} catch (DatabaseException e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (PatternSyntaxException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
+			}
+		} else if (ACTION_CLEAR_INCLUDED_IN_PROXY.equals(name)) {
+			try {
+				session.setIncludeInProxyRegexs(new ArrayList<String>());
+			} catch (DatabaseException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			}
+		} else if (ACTION_INCLUDE_IN_PROXY.equals(name)) {
+			String regex = params.getString(PARAM_REGEX);
+			try {
+				session.addIncludeInProxyRegex(regex);
 			} catch (DatabaseException e) {
 				logger.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -883,6 +905,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			List<String> regexs = session.getExcludeFromProxyRegexs();
 			for (String regex : regexs) {
 				((ApiResponseList)result).addItem(new ApiResponseElement("regex", regex));
+			}
+		} else if (VIEW_INCLUDED_IN_PROXY.equals(name)) {
+			result = new ApiResponseList(name);
+			List<String> regexs = session.getIncludeInProxyRegexs();
+			for (String regex : regexs) {
+				((ApiResponseList) result).addItem(new ApiResponseElement("regex", regex));
 			}
 		} else if (VIEW_HOME_DIRECTORY.equals(name)) {
 			result = new ApiResponseElement(name, Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());

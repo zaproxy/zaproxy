@@ -76,6 +76,7 @@ public class ProxyServer implements Runnable {
     protected boolean enableCacheProcessing = false;
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<>();
     private List<Pattern> excludeUrls = null;
+    private List<Pattern> includeUrls = null;
     private static Logger log = Logger.getLogger(ProxyServer.class);
 
     /**
@@ -404,6 +405,14 @@ public class ProxyServer implements Runnable {
         }
     }
 
+    public void setIncludeList(List<String> urls) {
+        includeUrls = new ArrayList<>(urls.size());
+        for (String url : urls) {
+            Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+            includeUrls.add(p);
+        }
+    }
+
     public boolean excludeUrl(URI uri) {
         boolean ignore = false;
         if (excludeUrls != null) {
@@ -419,8 +428,29 @@ public class ProxyServer implements Runnable {
                 }
             }
         }
-        
-        return ignore;
+
+        // Ignore it only if it isn't white-listed.
+        return ignore && !includeUrl(uri);
+
+    }
+
+    private boolean includeUrl(URI uri) {
+        boolean include = false;
+        if (includeUrls != null) {
+            String uriString = uri.toString();
+            for (Pattern p : includeUrls) {
+                if (p.matcher(uriString).matches()) {
+                    include = true;
+                    if (log.isDebugEnabled()) {
+                        log.debug("URL whitelisted: " + uriString + " Regex: " + p.pattern());
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return include;
     }
 
     // ZAP: Added the method.
