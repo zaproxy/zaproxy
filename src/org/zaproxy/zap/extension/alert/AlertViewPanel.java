@@ -40,6 +40,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
@@ -62,13 +64,15 @@ public class AlertViewPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AlertViewPanel.class);
 	
+	private static final Insets DEFAULT_INSETS = new Insets(1,1,1,1);
+	
 	private JScrollPane defaultPane = null;
 	private JScrollPane alertPane = null;
 	private ZapTextArea defaultOutput = null;
 	private JPanel alertDisplay = null;
 	private CardLayout cardLayout = null;
 	
-	private ZapTextField alertUrl = null;
+	private ZapLabel alertUrl = null;
 	private ZapLabel alertName = null;
 	private JLabel alertRisk = null;
 	private JLabel alertConfidence = null;
@@ -93,6 +97,16 @@ public class AlertViewPanel extends AbstractPanel {
 	private DefaultComboBoxModel<String> paramListModel = null;
 	private ZapNumberSpinner alertEditCweId = null;
 	private ZapNumberSpinner alertEditWascId = null;
+	
+	private JLabel attackLabel;
+	private JLabel cweidLabel;
+	private JLabel evidenceLabel;
+	private JLabel otherLabel;
+	private JLabel confidenceLabel;
+	private JLabel riskLabel;
+	private JLabel sourceLabel;
+	private JLabel urlLabel;
+	private JLabel wascidLabel;
 	
 	private boolean editable = false;
 	private Alert originalAlert = null;
@@ -221,7 +235,15 @@ public class AlertViewPanel extends AbstractPanel {
 			
 			alertEditEvidence = new ZapTextField();
 			alertEditCweId = new ZapNumberSpinner();
+			if (alertEditCweId.getEditor() instanceof JSpinner.DefaultEditor) {
+				((JSpinner.DefaultEditor) alertEditCweId.getEditor()).getTextField()
+						.setHorizontalAlignment(JTextField.LEFT);
+			}
 			alertEditWascId = new ZapNumberSpinner();
+			if (alertEditWascId.getEditor() instanceof JSpinner.DefaultEditor) {
+				((JSpinner.DefaultEditor) alertEditWascId.getEditor()).getTextField()
+						.setHorizontalAlignment(JTextField.LEFT);
+			}
 
 			// Read only ones
 			alertName = new ZapLabel();
@@ -236,7 +258,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertWascId = new JLabel();
 			alertSource = new JLabel();
 
-			alertUrl = new ZapTextField();
+			alertUrl = new ZapLabel();
 			
 			alertDescription = createZapTextArea();
 			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
@@ -291,134 +313,62 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			int gbcRow = 0;
-			if (editable) {
-				alertDisplay.add(alertEditName, 
-						LayoutHelper.getGBC(0, gbcRow, 2, 0, new Insets(1,1,1,1)));
-				gbcRow++;
 
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.url")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertUrl, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditRisk, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.confidence")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditConfidence, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditParam,
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditAttack,
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.evidence")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditEvidence,
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.cweid")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditCweId, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.wascid")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditWascId, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-			} else {
-				alertUrl.setEditable(false);
-				
-				alertDisplay.add(alertName, 
-						LayoutHelper.getGBC(0, gbcRow, 2, 0, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.url")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertUrl, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.risk")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertRisk, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.confidence")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertConfidence,
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertParam, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.attack")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertAttack,
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.evidence")), 
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEvidence,
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.cweid")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertCweId, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.wascid")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertWascId, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
-				gbcRow++;
-
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.source")),
-						LayoutHelper.getGBC(0, gbcRow, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertSource, 
-						LayoutHelper.getGBC(1, gbcRow, 1, 0.75D, new Insets(1,1,1,1)));
+			alertDisplay.add(editable ? alertEditName : alertName,
+					LayoutHelper.getGBC(0, gbcRow, 2, 0, DEFAULT_INSETS));
+			// Show a blank label instead of the edit button if already editing
+			gbcRow++;
+			alertDisplay.add(getUrlLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(alertUrl, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getRiskLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditRisk : alertRisk,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getConfidenceLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditConfidence : alertConfidence,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getParameterLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditParam : alertParam,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getAttackLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditAttack : alertAttack,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getEvidenceLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditEvidence : alertEvidence,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getCweidLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditCweId : alertCweId,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			alertDisplay.add(getWascidLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+			alertDisplay.add(editable ? alertEditWascId : alertWascId,
+					LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+			gbcRow++;
+			if (!editable) {
+				alertDisplay.add(getSourceLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+				alertDisplay.add(alertSource, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
 				gbcRow++;
 			}
 			
 			alertDisplay.add(descSp, 
-					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(1,1,1,1)));
+					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, DEFAULT_INSETS));
 			gbcRow++;
 
 			alertDisplay.add(otherSp, 
-					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(1,1,1,1)));
+					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, DEFAULT_INSETS));
 			gbcRow++;
 
 			alertDisplay.add(solutionSp, 
-					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(1,1,1,1)));
+					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, DEFAULT_INSETS));
 			gbcRow++;
 
 			alertDisplay.add(referenceSp, 
-					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(1,1,1,1)));
+					LayoutHelper.getGBC(0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, DEFAULT_INSETS));
 			
 		}
 		return alertDisplay;
@@ -692,5 +642,68 @@ public class AlertViewPanel extends AbstractPanel {
 		textArea.discardAllEdits();
 		textArea.setCaretPosition(0);
 	}
+	
+	private JLabel getAttackLabel() {
+		if (attackLabel == null) {
+			attackLabel = new JLabel(Constant.messages.getString("alert.label.attack"));
+		}
+		return attackLabel;
+	}
+	
+	private JLabel getCweidLabel() {
+		if (cweidLabel == null) {
+			cweidLabel = new JLabel(Constant.messages.getString("alert.label.cweid"));
+		}
+		return cweidLabel;
+	}
+	
+	private JLabel getEvidenceLabel() {
+		if (evidenceLabel == null) {
+			evidenceLabel = new JLabel(Constant.messages.getString("alert.label.evidence"));
+		}
+		return evidenceLabel;
+	}
+	
+	private JLabel getParameterLabel() {
+		if (otherLabel == null) {
+			otherLabel = new JLabel(Constant.messages.getString("alert.label.parameter"));
+		}
+		return otherLabel;
+	}
+	
+	private JLabel getConfidenceLabel() {
+		if (confidenceLabel == null) {
+			confidenceLabel = new JLabel(Constant.messages.getString("alert.label.confidence"));
+		}
+		return confidenceLabel;
+	}
+	
+	private JLabel getRiskLabel() {
+		if (riskLabel == null) {
+			riskLabel = new JLabel(Constant.messages.getString("alert.label.risk"));
+		}
+		return riskLabel;
+	}
+	
+	private JLabel getSourceLabel() {
+		if (sourceLabel == null) {
+			sourceLabel = new JLabel(Constant.messages.getString("alert.label.source"));
+		}
+		return sourceLabel;
+	}
 
+	private JLabel getUrlLabel() {
+		if (urlLabel == null) {
+			urlLabel = new JLabel(Constant.messages.getString("alert.label.url"));
+		}
+		return urlLabel;
+	}
+	
+	private JLabel getWascidLabel() {
+		if (wascidLabel == null) {
+			wascidLabel = new JLabel(Constant.messages.getString("alert.label.wascid"));
+		}
+		return wascidLabel;
+	}
+	
 }
