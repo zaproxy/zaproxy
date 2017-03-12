@@ -56,6 +56,8 @@ import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.model.ValueGenerator;
+import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -68,6 +70,8 @@ import org.zaproxy.zap.view.ZapMenuItem;
  * The ExtensionSpider is the Extension that controls the Spider.
  */
 public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ScanController<SpiderScan> {
+
+	private ValueGenerator generator = new DefaultValueGenerator();
 
 	public static final int EXTENSION_ORDER = 30;
 	
@@ -125,6 +129,17 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.customFetchFilters = new LinkedList<>();
 		this.customParseFilters = new LinkedList<>();
 		this.scanController = new SpiderScanController(this);
+	}
+
+	public void setValueGenerator (ValueGenerator generator) {
+		if (generator == null){
+			throw new IllegalArgumentException("Parameter generator must not be null.");
+		}
+		this.generator = generator;
+	}
+
+	public ValueGenerator getValueGenerator() {
+		return generator;
 	}
 
 	@Override

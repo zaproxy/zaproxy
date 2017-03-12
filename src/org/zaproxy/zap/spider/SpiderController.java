@@ -139,7 +139,7 @@ public class SpiderController implements SpiderParserListener {
 		this.parsers.add(parser);
 
 		// HTML Form parser
-		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
+		parser = new SpiderHtmlFormParser(spider.getSpiderParam(), spider.getExtensionSpider().getValueGenerator());
 		this.parsers.add(parser);
 		Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
 		

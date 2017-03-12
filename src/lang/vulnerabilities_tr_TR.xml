@@ -76,12 +76,12 @@ Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzluklar�
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
-	<desc>Insufficient Transport Layer Protection
-Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+	<alert>Yetersiz Taşıma Katmanı Koruması</alert>
+	<desc>Yetersiz Taşıma Katmanı Koruması
+Yetersiz Taşıma Katmanı Koruması, iletişimin güvenilir olmayan üçüncü taraflarca görülebilmesine izin vererek, web uygulamasının ele geçirilebilmesi için saldırı vektörü sağlar ve/veya hassas bilgilerin çalınmasına sebep olur. Web siteleri, genellikle taşıma katmanında şifreleme sağlamak için Güvenli Soket Katmanı / Taşıma Katmanı Güvenliği (SSL/TLS) kullanır. Buna rağmen, web sitesi SSL/TLS kullanacak ya da doğru bir şekilde kullanacak şekilde yapılandırılmadıysa, web sitesi trafik yakalama ve değiştirmeye korumasız hale gelebilir.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Taşıma Katmanı Şifrelemesi Eksikliği
+Taşıma Katmanı şifrelenmediğinde, web sitesi ve istemci arasındaki tüm iletişim açık metin şeklinde yapılır ve bu, iletişimi yakalamaya, enjeksiyona ve yönlendirmeye açık hale getirir. (Aynı zamanda aradaki adam saldırısı olarak da bilinir). Saldırgan pasif olarak iletişimi dinleyerek, kullanıcı adı ve parola gibi hassas bilgilere erişebilir. Saldırgan aktif bir şekilde iletişime içerik enjekte ederek ya da iletişimden içerik çıkararak, zararlı yazılım enjekte edebilir ya da istemcinin güvenilir olmayan uzak içeriğe erişimine sebep olabilir. Saldırgan ayrıca iletişimi yönlendirerek websitesi ve istemcinin artık birbiriyle direk iletişim kurmamasını sağlayıp, farkında olmadan saldırganla iletişim kurmasına sebep olabilir.
 
 Weak Cipher Support
 Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.

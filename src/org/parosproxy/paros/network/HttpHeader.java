@@ -35,6 +35,7 @@
 // ZAP: 2016/06/17 Be lenient when parsing charset and accept single quote chars around the value
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 // ZAP: 2017/02/08 Change isEmpty to check start line instead of headers (if it has the status/request line it's not empty).
+// ZAP: 2017/03/02 Issue 3226: Added API Key and Nonce headers
 
 package org.parosproxy.paros.network;
 
@@ -123,6 +124,8 @@ public abstract class HttpHeader implements java.io.Serializable {
 	public static final String METHODS_ALLOW = "Allow";
 	public static final String METHODS_PUBLIC = "Public";  //IIS specific?
 	public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
+	public static final String X_ZAP_API_KEY = "X-ZAP-API-Key";
+	public static final String X_ZAP_API_NONCE = "X-ZAP-API-Nonce";
 	//ZAP: additional standard/defacto headers
 	public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
 	public static final String X_CSRF_TOKEN = "X-Csrf-Token";

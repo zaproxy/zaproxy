@@ -51,6 +51,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -68,12 +69,12 @@ public class AlertViewPanel extends AbstractPanel {
 	private CardLayout cardLayout = null;
 	
 	private ZapTextField alertUrl = null;
-	private JLabel alertName = null;
+	private ZapLabel alertName = null;
 	private JLabel alertRisk = null;
 	private JLabel alertConfidence = null;
-	private JLabel alertParam = null;
-	private JLabel alertAttack = null;
-	private JLabel alertEvidence = null;
+	private ZapLabel alertParam = null;
+	private ZapLabel alertAttack = null;
+	private ZapLabel alertEvidence = null;
 	private ZapTextArea alertDescription = null;
 	private ZapTextArea alertOtherInfo = null;
 	private ZapTextArea alertSolution = null;
@@ -223,14 +224,14 @@ public class AlertViewPanel extends AbstractPanel {
 			alertEditWascId = new ZapNumberSpinner();
 
 			// Read only ones
-			alertName = new JLabel();
+			alertName = new ZapLabel();
 			alertName.setFont(FontUtils.getFont(Font.BOLD));
 
 			alertRisk = new JLabel();
 			alertConfidence = new JLabel();
-			alertParam = new JLabel();
-			alertAttack = new JLabel();
-			alertEvidence = new JLabel();
+			alertParam = new ZapLabel();
+			alertAttack = new ZapLabel();
+			alertEvidence = new ZapLabel();
 			alertCweId = new JLabel();
 			alertWascId = new JLabel();
 			alertSource = new JLabel();
