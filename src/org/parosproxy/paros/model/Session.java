@@ -68,6 +68,7 @@
 // ZAP: 2016/12/06 Remove contexts before refreshing the UI when discarding the contexts
 // ZAP: 2017/01/04 Remove dependency on ExtensionSpider
 // ZAP: 2017/01/26 Remove dependency on ExtensionActiveScan
+// ZAP: 2017/03/13 Remove global excluded URLs from Session's state.
 
 package org.parosproxy.paros.model;
 
@@ -77,6 +78,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -132,8 +134,6 @@ public class Session {
 	private List<String> excludeFromProxyRegexs = new ArrayList<>();
 	private List<String> excludeFromScanRegexs = new ArrayList<>();
 	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
-	// ZAP: Added globalExcludeURLRegexs code.
-	private List<String> globalExcludeURLRegexs = new ArrayList<>();
 
     private List<Context> contexts = new ArrayList<>();
     private int nextContextIndex = 1;
@@ -920,24 +920,20 @@ public class Session {
 
 		this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
 
-		// ZAP: Added fullList & globalExcludeURLRegexs code.
-	    List<String> fullList = new ArrayList<String>();
-	    fullList.addAll(this.excludeFromProxyRegexs);
-	    fullList.addAll(this.globalExcludeURLRegexs);
-	    
-		Control.getSingleton().setExcludeFromProxyUrls(fullList);
+		setExcludeFromProxyUrls();
 		
-		// For debugging the GlobalExcludeURL functionality. 
-		/*log.warn("setExcludeFromProxyRegexs  (ignored, session.proxy, session.global, fullList");
-	    log.warn(ignoredRegexs.toString());
-	    log.warn(excludeFromProxyRegexs.toString());
-	    log.warn(globalExcludeURLRegexs.toString());
-	    log.warn(fullList);
-	    */
-	    
-	    
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
-		// Thought for GlobalExcludeURL; we can create addUrls() and call that too - but I don't think it is needed.
+	}
+
+	/**
+	 * Sets, into the Local Proxy, the URLs that should be excluded from it (URLs set in the session and global exclude URLs).
+	 */
+	private void setExcludeFromProxyUrls() {
+		List<String> fullList = new ArrayList<>();
+		fullList.addAll(this.excludeFromProxyRegexs);
+		fullList.addAll(getGlobalExcludeURLRegexs());
+
+		Control.getSingleton().setExcludeFromProxyUrls(fullList);
 	}
 
 	public void addExcludeFromProxyRegex(String ignoredRegex) throws DatabaseException {
@@ -1015,45 +1011,55 @@ public class Session {
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
 	}
 
-	// ZAP: Added function.
-	public void forceGlobalExcludeURLRefresh() throws DatabaseException {
-		List<String> temp;
-		
-		temp = getExcludeFromProxyRegexs();
-	    log.debug("forceGlobalExcludeURLRefresh proxy: " + temp.toString());
-		setExcludeFromProxyRegexs(temp);
-		
-		temp = getExcludeFromScanRegexs();
-	    log.debug("forceGlobalExcludeURLRefresh ascan: " + temp.toString());
-		setExcludeFromScanRegexs(temp);
-		
-		temp = getExcludeFromSpiderRegexs();
-	    log.debug("forceGlobalExcludeURLRefresh spider: " + temp.toString());
-		setExcludeFromSpiderRegexs(temp);
+	/**
+	 * Resets the global exclude URLs of the Local Proxy.
+	 * <p>
+	 * This should be considered an internal method, to be called only by core code.
+	 * 
+	 * @since 2.3.0
+	 */
+	public void forceGlobalExcludeURLRefresh() {
+		setExcludeFromProxyUrls();
 	}
 
-	// ZAP: Added function.
+	/**
+	 * Gets the global exclude URLs.
+	 * <p>
+	 * <strong>Note:</strong> This method is only provided as a convenience, the global exclude URLs are not saved in the
+	 * session.
+	 *
+	 * @return an unmodifiable {@code List} containing the URLs that should be excluded globally.
+	 * @since 2.3.0
+	 */
 	public List<String> getGlobalExcludeURLRegexs() {
-		return globalExcludeURLRegexs;
+		return Collections.unmodifiableList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
 	}
 
-	// ZAP: Added function.
-	public void addGlobalExcludeURLRegexs(String ignoredRegex) throws DatabaseException {
-		// Validate its a valid regex first
-		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
-    
-		this.globalExcludeURLRegexs.add(ignoredRegex);
+	/**
+	 * Adds the given regular expression to the list of global exclude URLs.
+	 * <p>
+	 * <strong>Note:</strong> The changes are lost after changing the session.
+	 *
+	 * @param regex the regular expression to add.
+	 * @deprecated (TODO add version) No longer works, modification of global exclude URLs should not be done through the
+	 *             session.
+	 * @since 2.3.0
+	 */
+	@Deprecated
+	public void addGlobalExcludeURLRegexs(String regex) {
 	}
 
-	// ZAP: Added function.
-	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) throws DatabaseException {
-		// Validate its a valid regex first
-	    for (String url : ignoredRegexs) {
-			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-	    }
-		this.globalExcludeURLRegexs = stripEmptyLines(ignoredRegexs);
-
-	    log.debug("setGlobalExcludeURLRegexs" );
+	/**
+	 * Sets the global exclude URLs.
+	 * <p>
+	 * <strong>Note:</strong> The changes are lost after changing the session.
+	 *
+	 * @param ignoredRegexs the global exclude URLs
+	 * @deprecated (TODO add version) No longer works, when needed, the global exclude URLs are obtained from the options.
+	 * @since 2.3.0
+	 */
+	@Deprecated
+	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) {
 	}
 	
 	public void setSessionUrls(int type, List<String> urls) throws DatabaseException {
