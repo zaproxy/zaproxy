@@ -62,6 +62,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/09/06 Hook OverrideMessageProxyListener into the Proxy
 // ZAP: 2016/10/06 Issue 2855: Added method to allow for testing when a model is required
+// ZAP: 2017/03/10 Reset proxy excluded URLs on new session
 
 package org.parosproxy.paros.control;
 
@@ -69,6 +70,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -319,7 +321,7 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
 		model.createAndOpenUntitledDb();
-    	final Session session = model.newSession();
+    	final Session session = createNewSession();
 		model.saveSession(fileName);
 
 		if (View.isInitialised()) {
@@ -339,6 +341,17 @@ public class Control extends AbstractControl implements SessionListener {
 	    log.info("New session file created");
 		control.getExtensionLoader().databaseOpen(model.getDb());
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
+	}
+
+	/**
+	 * Creates a new session and resets session related data in other components (e.g. proxy excluded URLs).
+	 *
+	 * @return the newly created session.
+	 */
+	private Session createNewSession() {
+		Session session = model.newSession();
+		getProxy().setIgnoreList(new ArrayList<String>());
+		return session;
 	}
     
     public void runCommandLineOpenSession(String fileName) throws Exception {
@@ -375,7 +388,7 @@ public class Control extends AbstractControl implements SessionListener {
 	public Session newSession() throws Exception {
 	    log.info("New Session");
 		closeSessionAndCreateAndOpenUntitledDb();
-		final Session session = model.newSession();
+		final Session session = createNewSession();
 		getExtensionLoader().databaseOpen(model.getDb());
 		getExtensionLoader().sessionChangedAllPlugin(session);
 
@@ -419,7 +432,7 @@ public class Control extends AbstractControl implements SessionListener {
         try {
             closeSessionAndCreateAndOpenUntitledDb();
             lastCallback = callback;
-            model.newSession();
+            createNewSession();
             model.saveSession(fileName, this);
         } catch (Exception e) {
             if (lastCallback != null) {
