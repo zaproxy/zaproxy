@@ -20,8 +20,6 @@
  */
 package org.zaproxy.zap.extension.globalexcludeurl;
 
-import java.util.List;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -30,9 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
@@ -83,9 +79,6 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
     }
 
 
-    private static Logger log = Logger.getLogger(OptionsGlobalExcludeURLPanel.class);
-
-
     @Override
     public void saveParam(Object obj) throws Exception {
 
@@ -93,16 +86,6 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 	    GlobalExcludeURLParam globalExcludeURLParam = optionsParam.getGlobalExcludeURLParam();
 	    globalExcludeURLParam.setTokens(getGlobalExcludeURLModel().getElements());
 	    globalExcludeURLParam.setConfirmRemoveToken(!tokensOptionsPanel.isRemoveWithoutConfirmation());
-	    
-	    globalExcludeURLParam.parse();
-	    List<String> ignoredRegexs = globalExcludeURLParam.getTokensNames();
-
-	    Model.getSingleton().getSession().setGlobalExcludeURLRegexs(ignoredRegexs);
-	    // after saving, force the proxy/spider/scanner to refresh the URL lists.
-	    Model.getSingleton().getSession().forceGlobalExcludeURLRefresh();
-	    if (log.isDebugEnabled()) {
-	        log.debug("Done saving Global Exclude URL: " + ignoredRegexs.toString());
-	    }
     }
 
     /**

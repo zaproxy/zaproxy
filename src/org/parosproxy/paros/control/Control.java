@@ -63,6 +63,7 @@
 // ZAP: 2016/09/06 Hook OverrideMessageProxyListener into the Proxy
 // ZAP: 2016/10/06 Issue 2855: Added method to allow for testing when a model is required
 // ZAP: 2017/03/10 Reset proxy excluded URLs on new session
+// ZAP: 2017/03/13 Set global excluded URLs to the proxy when creating a new session or initialising.
 
 package org.parosproxy.paros.control;
 
@@ -70,7 +71,6 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -122,6 +122,7 @@ public class Control extends AbstractControl implements SessionListener {
 
 		// ZAP: Start proxy even if no view
 	    Proxy proxy = getProxy(overrides);
+	    proxy.setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
 	    getExtensionLoader().hookProxyListener(proxy);
 	    getExtensionLoader().hookOverrideMessageProxyListener(proxy);
 	    getExtensionLoader().hookPersistentConnectionListener(proxy);
@@ -350,7 +351,7 @@ public class Control extends AbstractControl implements SessionListener {
 	 */
 	private Session createNewSession() {
 		Session session = model.newSession();
-		getProxy().setIgnoreList(new ArrayList<String>());
+		getProxy().setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
 		return session;
 	}
     
