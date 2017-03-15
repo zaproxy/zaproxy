@@ -31,9 +31,9 @@ public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableMo
     private static final long serialVersionUID = -5411351965957264957L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("api.options.ipaddr.table.header.enabled"),
-            Constant.messages.getString("api.options.ipaddr.table.header.regex"),
-            Constant.messages.getString("api.options.ipaddr.table.header.value") };
+            Constant.messages.getString("api.options.addr.table.header.enabled"),
+            Constant.messages.getString("api.options.addr.table.header.regex"),
+            Constant.messages.getString("api.options.addr.table.header.value") };
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 

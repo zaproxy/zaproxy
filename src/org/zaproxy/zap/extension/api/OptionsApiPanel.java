@@ -98,7 +98,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			JPanel jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
-					Constant.messages.getString("api.options.ipaddr.title"),
+					Constant.messages.getString("api.options.addr.title"),
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
 					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
@@ -332,13 +332,13 @@ public class OptionsApiPanel extends AbstractParamPanel {
         
         private static final long serialVersionUID = 2332044353650231701L;
         
-        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("api.options.ipaddr.dialog.remove.title");
-        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("api.options.ipaddr.dialog.remove.text");
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("api.options.addr.dialog.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("api.options.addr.dialog.remove.text");
         
-        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.ipaddr.dialog.remove.button.confirm");
-        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("api.options.ipaddr.dialog.remove.button.cancel");
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.button.cancel");
         
-        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("api.options.ipaddr.dialog.remove.checkbox.label");
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.checkbox.label");
         
         private DialogAddPermittedAddress addDialog = null;
         private DialogModifyPermittedAddress modifyDialog = null;

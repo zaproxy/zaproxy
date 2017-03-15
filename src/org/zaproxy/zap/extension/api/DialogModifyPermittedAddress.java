@@ -28,9 +28,9 @@ class DialogModifyPermittedAddress extends DialogAddPermittedAddress {
 
     private static final long serialVersionUID = -4031122965844883255L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("api.options.ipaddr.modify.title");
+    private static final String DIALOG_TITLE = Constant.messages.getString("api.options.addr.modify.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.ipaddr.modify.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.addr.modify.button.confirm");
 
     protected DialogModifyPermittedAddress(Dialog owner) {
         super(owner, DIALOG_TITLE);
