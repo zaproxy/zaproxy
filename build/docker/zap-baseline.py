@@ -87,6 +87,8 @@ def usage():
     print ('    -x report_xml     file to write the full ZAP XML report')
     print ('    -a                include the alpha passive scan rules as well')
     print ('    -d                show debug messages')
+    print ('    -P                specify listen port')
+    print ('    -D                delay in seconds to wait for passive scanning ')
     print ('    -i                default rules not in the config file to INFO')
     print ('    -j                use the Ajax spider in addition to the traditional one')
     print ('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
@@ -195,7 +197,7 @@ def main(argv):
   fail_inprog_count = 0
 
   try:
-    opts, args = getopt.getopt(argv,"t:c:u:g:m:n:r:w:x:l:daijp:sz:")
+    opts, args = getopt.getopt(argv,"t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
   except getopt.GetoptError, exc:
     logging.warning ('Invalid option ' + exc.opt + ' : ' + exc.msg)
     usage()
@@ -215,6 +217,10 @@ def main(argv):
       logging.getLogger().setLevel(logging.DEBUG)
     elif opt == '-m':
       mins = int(arg)
+    elif opt == '-P':
+      port = int(arg)
+    elif opt == '-D':
+      delay = int(arg)
     elif opt == '-n':
       context_file = arg
     elif opt == '-p':
@@ -263,13 +269,14 @@ def main(argv):
         usage()
         sys.exit(3)
 
-  # Choose a random 'ephemeral' port and check its available
-  while True:
-    port = randint(32768, 61000)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if not (sock.connect_ex(('127.0.0.1', port)) == 0):
-      # Its free:)
-      break
+  # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option
+  if port == 0:
+    while True:
+      port = randint(32768, 61000)
+      sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      if not (sock.connect_ex(('127.0.0.1', port)) == 0):
+        # Its free:)
+        break
 
   logging.debug ('Using port: ' + str(port))
 
@@ -421,7 +428,12 @@ def main(argv):
         time.sleep(5)
       logging.debug ('Ajax Spider complete')
 
-    # Wait for passive scanning to complete
+    # Wait for passive scanning to complete and make a delay if specified with -D option
+    if (delay):
+      start_scan = datetime.now()
+      while ( (datetime.now() - start_scan).seconds < delay ):
+        time.sleep(5)
+        logging.debug ('Delay passive scan check ' + str(delay - (datetime.now() - start_scan).seconds) + ' seconds')
     rtc = zap.pscan.records_to_scan
     logging.debug ('Records to scan...')
     while (int(zap.pscan.records_to_scan) > 0):
