@@ -69,6 +69,7 @@
 // ZAP: 2017/02/08 Change CONNECT response to contain just the status line, helps Android emulator consume the response.
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 // ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
+// ZAP: 2017/03/15 Disable API by default
 
 package org.parosproxy.paros.core.proxy;
 
@@ -410,7 +411,8 @@ public class ProxyThread implements Runnable {
 			    }
 			}
 
-			if (API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader))) {
+			if (parentServer.isEnableApi() &&
+					API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader))) {
 				// It was an API request
 				return;
 			}

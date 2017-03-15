@@ -45,12 +45,12 @@ public class OptionsParamApi extends AbstractParam {
 	private static final String REPORT_PERM_ERRORS = "api.reportpermerrors";
 	private static final String NONCE_TTL_IN_SECS = "api.noncettlsecs";
 	
-    private static final String PROXY_PERMITTED_ADDRS_KEY = "api.ipaddrs";
+    private static final String PROXY_PERMITTED_ADDRS_KEY = "api.addrs";
     private static final String ADDRESS_KEY = PROXY_PERMITTED_ADDRS_KEY + ".addr";
     private static final String ADDRESS_VALUE_KEY = "name";
     private static final String ADDRESS_REGEX_KEY = "regex";
     private static final String ADDRESS_ENABLED_KEY = "enabled";
-    private static final String CONFIRM_REMOVE_EXCLUDED_DOMAIN = "api.ipaddrs.confirmRemoveAddr";
+    private static final String CONFIRM_REMOVE_ADDRESS = "api.addrs.confirmRemoveAddr";
     
     private static final int DEFAULT_NONCE_TTL_IN_SECS = 5 * 60; // 5 mins
 
@@ -95,7 +95,7 @@ public class OptionsParamApi extends AbstractParam {
 		}
 		loadPermittedAddresses();
         try {
-            this.confirmRemovePermittedAddress = getConfig().getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
+            this.confirmRemovePermittedAddress = getConfig().getBoolean(CONFIRM_REMOVE_ADDRESS, true);
         } catch (ConversionException e) {
             LOGGER.error("Error while loading the confirm remove permitted address option: " + e.getMessage(), e);
         }
@@ -249,7 +249,7 @@ public class OptionsParamApi extends AbstractParam {
      * @return {@code true} if the given client address is allowed to access the API, {@code false} otherwise.
      * @since TODO Add Version
      */
-    public boolean isPermittedIpAddress(String addr) {
+    public boolean isPermittedAddress(String addr) {
         if (addr == null || addr.isEmpty()) {
             return false;
         }
@@ -362,8 +362,16 @@ public class OptionsParamApi extends AbstractParam {
         addrsEnabled.trimToSize();
         
         if (permittedAddresses.size() == 0) {
-            // None specified - always add localhost (which can then be disabled)
+            // None specified - add in the defaults (which can then be disabled)
             DomainMatcher addr = new DomainMatcher("127.0.0.1");
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher("localhost");
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher("zap");
             permittedAddresses.add(addr);
             addrsEnabled.add(addr);
         }
@@ -391,7 +399,7 @@ public class OptionsParamApi extends AbstractParam {
     @ZapApiIgnore
     public void setConfirmRemovePermittedAddress(boolean confirmRemove) {
         this.confirmRemovePermittedAddress = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_EXCLUDED_DOMAIN, Boolean.valueOf(confirmRemovePermittedAddress));
+        getConfig().setProperty(CONFIRM_REMOVE_ADDRESS, Boolean.valueOf(confirmRemovePermittedAddress));
     }
 
 }
