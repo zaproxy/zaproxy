@@ -92,6 +92,28 @@ class AlertTreeModel extends DefaultTreeModel {
     	return null;
     }
     
+	public AlertNode getAlertNode(Alert alert) {
+		AlertNode parent = (AlertNode) getRoot();
+		int risk = alert.getRisk();
+		if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
+			// Special case!
+			risk = -1;
+		}
+
+		AlertNode needle = new AlertNode(risk, alert.getName());
+		needle.setUserObject(alert);
+		int idx = parent.findIndex(needle);
+		if (idx < 0) {
+			return null;
+		}
+		parent = parent.getChildAt(idx);
+		idx = parent.findIndex(needle);
+		if (idx < 0) {
+			return null;
+		}
+		return parent.getChildAt(idx);
+	}
+    
     void updatePath(final Alert originalAlert, final Alert alert) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	updatePathEventHandler(originalAlert, alert);

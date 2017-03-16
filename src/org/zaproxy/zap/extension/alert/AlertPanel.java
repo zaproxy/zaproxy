@@ -29,6 +29,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -37,7 +39,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -131,6 +133,8 @@ public class AlertPanel extends AbstractPanel {
      * </p>
      */
     private DeselectableButtonGroup alertsTreeFiltersButtonGroup;
+    
+    private JButton editButton = null;
 
 	private ExtensionAlert extension = null;
 	private ExtensionHistory extHist = null; 
@@ -194,16 +198,16 @@ public class AlertPanel extends AbstractPanel {
 		if (panelToolbar == null) {
 			
 			panelToolbar = new javax.swing.JToolBar();
-			panelToolbar.setLayout(new java.awt.GridBagLayout());
 			panelToolbar.setEnabled(true);
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
 			panelToolbar.setName("AlertToolbar");
 			
-			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(0, 0, 1, 0.0D));
-			panelToolbar.add(getLinkWithSitesTreeButton(), LayoutHelper.getGBC(1, 0, 1, 0.0D));
-			panelToolbar.add(new JLabel(), LayoutHelper.getGBC(20, 0, 1, 1.0D));	// Spacer
+			panelToolbar.add(getScopeButton());
+			panelToolbar.add(getLinkWithSitesTreeButton());
+			panelToolbar.addSeparator();
+			panelToolbar.add(getEditButton());
 		}
 		return panelToolbar;
 	}
@@ -472,20 +476,7 @@ public class AlertPanel extends AbstractPanel {
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 				    if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1) {
 				    	// Its a double click - edit the alert
-					    DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
-					    if (node != null && node.getUserObject() != null) {
-					        Object obj = node.getUserObject();
-					        if (obj instanceof Alert) {
-					            Alert alert = (Alert) obj;
-					            
-								if (extHist == null) {
-									extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-								}
-								if (extHist != null) {
-									extHist.showAlertAddDialog(alert);
-								}
-					        }
-					    }
+					    editSelectedAlert();
 				    }
 				}
 			});
@@ -509,6 +500,7 @@ public class AlertPanel extends AbstractPanel {
 				}
 			});
 			treeAlert.setCellRenderer(new AlertTreeCellRenderer());
+			treeAlert.setExpandsSelectedPaths(true);
 		}
 		return treeAlert;
 	}
@@ -627,5 +619,38 @@ public class AlertPanel extends AbstractPanel {
             recreateLinkWithSitesTreeModel((SiteNode) e.getPath().getLastPathComponent());
         }
     }
+    
+    private void editSelectedAlert() {
+    	DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
+	    if (node != null && node.getUserObject() != null) {
+	        Object obj = node.getUserObject();
+	        if (obj instanceof Alert) {
+	            Alert alert = (Alert) obj;
+	            
+				if (extHist == null) {
+					extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+				}
+				if (extHist != null) {
+					extHist.showAlertAddDialog(alert);
+				}
+	        }
+	    }
+    }
+    
+	private JButton getEditButton() {
+		if (editButton == null) {
+			editButton = new JButton();
+			editButton.setToolTipText(Constant.messages.getString("alert.edit.button.tooltip"));
+			editButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/018.png")));
+
+			editButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					editSelectedAlert();
+				}
+			});
+		}
+		return editButton;
+	}
 
 }
