@@ -128,6 +128,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_VERSION = "version";
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
+	private static final String VIEW_SESSION_LOCATION = "sessionLocation";
 	private static final String VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS = "proxyChainExcludedDomains";
 	private static final String VIEW_OPTION_PROXY_CHAIN_SKIP_NAME = "optionProxyChainSkipName";
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS = "optionProxyExcludedDomains";
@@ -250,6 +251,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
+		this.addApiView(new ApiView(VIEW_SESSION_LOCATION));
 		this.addApiView(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS));
 		ApiView apiView = new ApiView(VIEW_OPTION_PROXY_CHAIN_SKIP_NAME);
 		apiView.setDeprecated(true);
@@ -887,6 +889,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (VIEW_HOME_DIRECTORY.equals(name)) {
 			result = new ApiResponseElement(name, Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());
 
+		} else if (VIEW_SESSION_LOCATION.equals(name)) {
+			result = new ApiResponseElement(name, session.getFileName());
 		} else if (VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name) || VIEW_OPTION_PROXY_EXCLUDED_DOMAINS.equals(name)
 				|| VIEW_OPTION_PROXY_CHAIN_SKIP_NAME.equals(name)) {
 			result = proxyChainExcludedDomainsToApiResponseList(
