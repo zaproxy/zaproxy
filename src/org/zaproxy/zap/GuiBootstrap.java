@@ -212,7 +212,9 @@ public class GuiBootstrap extends ZapBootstrap {
                     View.getSingleton().hideSplashScreen();
 
                     logger.fatal("Failed to initialise GUI: ", e);
-                    return;
+
+                    // We must exit otherwise EDT would keep ZAP running.
+                    System.exit(1);
                 }
 
                 warnAddOnsAndExtensionsNoLongerRunnable();
