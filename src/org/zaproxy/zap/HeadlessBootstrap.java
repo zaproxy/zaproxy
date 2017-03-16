@@ -49,17 +49,13 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Initialises the {@code Control} singleton without view.
+     * Initialises the {@code Control} singleton without view and proxy.
      *
-     * @param ignoreProxyError Return the {@code Control} even if there is a problem setting up the proxy
-     * @return the initialised {@code Control} singleton, unless theres a problem setting up the proxy 
-     * and ignoreProxyError is false
-     * @see Control#initSingletonWithoutView(org.zaproxy.zap.control.ControlOverrides)
+     * @return the initialised {@code Control} singleton.
+     * @see Control#initSingletonWithoutViewAndProxy(org.zaproxy.zap.control.ControlOverrides)
      */
-    protected Control initControl(boolean ignoreProxyError) {
-    	if (!Control.initSingletonWithoutView(getControlOverrides()) && ! ignoreProxyError) {
-    		return null;
-    	}
+    protected Control initControl() {
+        Control.initSingletonWithoutViewAndProxy(getControlOverrides());
         return Control.getSingleton();
     }
 
