@@ -64,6 +64,7 @@
 // ZAP: 2016/10/06 Issue 2855: Added method to allow for testing when a model is required
 // ZAP: 2017/03/10 Reset proxy excluded URLs on new session
 // ZAP: 2017/03/13 Set global excluded URLs to the proxy when creating a new session or initialising.
+// ZAP: 2017/03/16 Allow to initialise Control without starting the Local Proxy.
 
 package org.parosproxy.paros.control;
 
@@ -115,7 +116,7 @@ public class Control extends AbstractControl implements SessionListener {
 		super(null, null);
 	}
 
-	private boolean init(ControlOverrides overrides) {
+	private boolean init(ControlOverrides overrides, boolean startProxy) {
 
 		// Load extensions first as message bundles are loaded as a side effect
 		loadExtension();
@@ -134,7 +135,11 @@ public class Control extends AbstractControl implements SessionListener {
 		}
 		
 		model.postInit();
-		return proxy.startServer();
+		
+		if (startProxy) {
+			return proxy.startServer();
+		}
+		return false;
     }
 
     public Proxy getProxy() {
@@ -294,12 +299,17 @@ public class Control extends AbstractControl implements SessionListener {
 
     public static boolean initSingletonWithView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), View.getSingleton());
-        return control.init(overrides);
+        return control.init(overrides, true);
     }
     
     public static boolean initSingletonWithoutView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), null);
-        return control.init(overrides);
+        return control.init(overrides, true);
+    }
+
+    public static void initSingletonWithoutViewAndProxy(ControlOverrides overrides) {
+        control = new Control(Model.getSingleton(), null);
+        control.init(overrides, false);
     }
 
     // ZAP: Added method to allow for testing
