@@ -224,9 +224,6 @@ public class ExtensionParams extends ExtensionAdaptor
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
 			String site = en.nextElement().getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
-			}
 			if (getView() != null) {
 				this.getParamsPanel().addSite(site);
 			}
