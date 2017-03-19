@@ -19,13 +19,26 @@
  */
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.Component;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.SortOrder;
 import javax.swing.table.TableModel;
 
+import org.jdesktop.swingx.decorator.AbstractHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.IconAware;
+import org.jdesktop.swingx.renderer.IconValues;
+import org.jdesktop.swingx.renderer.MappedValue;
+import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.extension.spider.SpiderMessagesTableModel.ProcessedCellItem;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 class SpiderMessagesTable extends HistoryReferencesTable {
@@ -41,12 +54,16 @@ class SpiderMessagesTable extends HistoryReferencesTable {
 
         setAutoCreateColumnsFromModel(false);
 
+        getColumnExt(0)
+                .setCellRenderer(new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+        getColumnExt(0).setHighlighters(new ProcessedCellItemIconHighlighter(0));
+
         getColumnExt(Constant.messages.getString("view.href.table.header.hrefid")).setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response")).setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader")).setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody")).setVisible(false);
 
-        setSortOrder(0, SortOrder.ASCENDING);
+        setSortOrder(1, SortOrder.ASCENDING);
 
         extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
     }
@@ -75,5 +92,65 @@ class SpiderMessagesTable extends HistoryReferencesTable {
         }
 
         return historyReference;
+    }
+
+    /**
+     * A {@link org.jdesktop.swingx.decorator.Highlighter Highlighter} for a column that indicates, using icons and text,
+     * whether or not an entry was processed, that is, is or not in scope.
+     * <p>
+     * The expected type/class of the cell values is {@code ProcessedCellItem}.
+     */
+    private static class ProcessedCellItemIconHighlighter extends AbstractHighlighter {
+
+        /** The icon that indicates the entry was processed. */
+        private static final ImageIcon PROCESSED_ICON = new ImageIcon(
+                SpiderMessagesTable.class.getResource("/resource/icon/16/152.png"));
+
+        /** The icon that indicates the entry was not processed. */
+        private static final ImageIcon NOT_PROCESSED_ICON = new ImageIcon(
+                SpiderMessagesTable.class.getResource("/resource/icon/16/149.png"));
+
+        private final int columnIndex;
+
+        public ProcessedCellItemIconHighlighter(final int columnIndex) {
+            this.columnIndex = columnIndex;
+        }
+
+        @Override
+        protected Component doHighlight(Component component, ComponentAdapter adapter) {
+            ProcessedCellItem cell = (ProcessedCellItem) adapter.getValue(columnIndex);
+
+            boolean processed = cell.isSuccessful();
+            Icon icon = getProcessedIcon(processed);
+            if (component instanceof IconAware) {
+                ((IconAware) component).setIcon(icon);
+            } else if (component instanceof JLabel) {
+                ((JLabel) component).setIcon(icon);
+            }
+
+            if (component instanceof JLabel) {
+                ((JLabel) component).setText(processed ? "" : cell.getLabel());
+            }
+
+            return component;
+        }
+
+        private static Icon getProcessedIcon(final boolean processed) {
+            return processed ? PROCESSED_ICON : NOT_PROCESSED_ICON;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to return true if the component is of type IconAware or of type JLabel, false otherwise.
+         * <p>
+         * Note: special casing JLabel is for backward compatibility - application highlighting code which doesn't use the
+         * Swingx renderers would stop working otherwise.
+         */
+        // Method/JavaDoc copied from org.jdesktop.swingx.decorator.IconHighlighter#canHighlight(Component, ComponentAdapter)
+        @Override
+        protected boolean canHighlight(final Component component, final ComponentAdapter adapter) {
+            return component instanceof IconAware || component instanceof JLabel;
+        }
     }
 }

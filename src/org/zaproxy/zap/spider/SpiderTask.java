@@ -22,14 +22,18 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import javax.net.ssl.SSLException;
 
 import net.htmlparser.jericho.Source;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -38,6 +42,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 
@@ -57,7 +62,7 @@ public class SpiderTask implements Runnable {
 	 * 
 	 * @see #cleanup()
 	 * @see #deleteHistoryReference()
-	 * @see #fetchResource()
+	 * @see #prepareHttpMessage()
 	 */
 	private HistoryReference reference;
 
@@ -191,10 +196,21 @@ public class SpiderTask implements Runnable {
 		parent.preTaskExecution();
 
 		// Fetch the resource
-		HttpMessage msg = null;
+		HttpMessage msg;
 		try {
-			msg = fetchResource();
+			msg = prepareHttpMessage();
 		} catch (Exception e) {
+			log.error("Failed to prepare HTTP message: ", e);
+			parent.postTaskExecution();
+			return;
+		}
+
+		try {
+			fetchResource(msg);
+		} catch (Exception e) {
+			setErrorResponse(msg, e);
+			parent.notifyListenersReadURI(msg);
+
 			// The exception was already logged, in fetchResource, with the URL (which we dont have here)
 			parent.postTaskExecution();
 			return;
@@ -246,6 +262,39 @@ public class SpiderTask implements Runnable {
 	}
 
 	/**
+	 * Prepares the HTTP message to be sent to the target server.
+	 * <p>
+	 * The HTTP message is read from the database and set up with common headers (e.g. User-Agent) and properties (e.g. user).
+	 *
+	 * @return the HTTP message
+	 * @throws HttpMalformedHeaderException if an error occurred while parsing the HTTP message read from the database
+	 * @throws DatabaseException if an error occurred while reading the HTTP message from the database
+	 */
+	private HttpMessage prepareHttpMessage() throws HttpMalformedHeaderException, DatabaseException {
+		// Build fetch the request message from the database
+		HttpMessage msg;
+		try {
+			msg = reference.getHttpMessage();
+		} finally {
+			deleteHistoryReference();
+		}
+
+		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
+		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
+
+		// Check if there is a custom user agent
+		if (parent.getSpiderParam().getUserAgent() != null) {
+			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
+		}
+
+		// Check if there's a need to send the message from the point of view of a User
+		if (parent.getScanUser() != null) {
+			msg.setRequestingUser(parent.getScanUser());
+		}
+		return msg;
+	}
+	
+	/**
 	 * Deletes the history reference, should be called when no longer needed.
 	 * <p>
 	 * The call to this method has no effect if the history reference no longer exists (i.e. {@code null}).
@@ -260,6 +309,50 @@ public class SpiderTask implements Runnable {
 		if (getExtensionHistory() != null) {
 			getExtensionHistory().delete(reference);
 			reference = null;
+		}
+	}
+	
+	private void setErrorResponse(HttpMessage msg, Exception cause) {
+		StringBuilder strBuilder = new StringBuilder(250);
+		if (cause instanceof SSLException) {
+			strBuilder.append(Constant.messages.getString("network.ssl.error.connect"));
+			strBuilder.append(msg.getRequestHeader().getURI().toString()).append('\n');
+			strBuilder.append(Constant.messages.getString("network.ssl.error.exception"))
+					.append(cause.getMessage())
+					.append('\n');
+			strBuilder.append(Constant.messages.getString("network.ssl.error.exception.rootcause"))
+					.append(ExceptionUtils.getRootCauseMessage(cause))
+					.append('\n');
+			strBuilder.append(
+					Constant.messages
+							.getString("network.ssl.error.help", Constant.messages.getString("network.ssl.error.help.url")));
+
+			strBuilder.append("\n\nStack Trace:\n");
+			for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+				strBuilder.append(stackTraceFrame).append('\n');
+			}
+		} else {
+			strBuilder.append(cause.getClass().getName())
+					.append(": ")
+					.append(cause.getLocalizedMessage())
+					.append("\n\nStack Trace:\n");
+			for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+				strBuilder.append(stackTraceFrame).append('\n');
+			}
+		}
+
+		String message = strBuilder.toString();
+
+		HttpResponseHeader responseHeader;
+		try {
+			responseHeader = new HttpResponseHeader("HTTP/1.1 400 ZAP IO Error");
+			responseHeader.setHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
+			responseHeader
+					.setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(message.getBytes(StandardCharsets.UTF_8).length));
+			msg.setResponseHeader(responseHeader);
+			msg.setResponseBody(message);
+		} catch (HttpMalformedHeaderException e) {
+			log.error("Failed to create error response:", e);
 		}
 	}
 
@@ -308,59 +401,33 @@ public class SpiderTask implements Runnable {
 	/**
 	 * Fetches a resource.
 	 * 
-	 * @return the response http message
-	 * @throws HttpException the http exception
+	 * @param msg the HTTP message that will be sent to the server
 	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws DatabaseException if an error occurred while reading the HTTP message
 	 */
-	private HttpMessage fetchResource() throws IOException, DatabaseException {
-
-		// Build fetch the request message from the database
-		HttpMessage msg;
+	private void fetchResource(HttpMessage msg) throws IOException {
+		if (parent.getHttpSender() == null) {
+			return;
+		}
+		
 		try {
-			msg = reference.getHttpMessage();
-		} finally {
-			deleteHistoryReference();
+			parent.getHttpSender().sendAndReceive(msg);
+		} catch (ConnectException e) {
+			log.debug("Failed to connect to: " + msg.getRequestHeader().getURI(), e);
+			throw e;
+		} catch (SocketTimeoutException e) {
+			log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
+			throw e;
+		} catch (SocketException e) {
+			log.debug("Socket exception: " + msg.getRequestHeader().getURI(), e);
+			throw e;
+		} catch (UnknownHostException e) {
+			log.debug("Unknown host: " + msg.getRequestHeader().getURI(), e);
+			throw e;
+		} catch (Exception e) {
+			log.error("An error occurred while fetching the resource [" + msg.getRequestHeader().getURI() + "]: "
+						+ e.getMessage(), e);
+			throw e;
 		}
-
-		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-		msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-
-		// Check if there is a custom user agent
-		if (parent.getSpiderParam().getUserAgent() != null) {
-			msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, parent.getSpiderParam().getUserAgent());
-		}
-		
-		//Check if there's a need to send the message from the point of view of a User
-		if(parent.getScanUser()!=null){
-			msg.setRequestingUser(parent.getScanUser());
-		}
-		
-		// Fetch the page
-		if (parent.getHttpSender() != null) {
-			try {
-				parent.getHttpSender().sendAndReceive(msg);
-			} catch (ConnectException e) {
-				log.debug("Failed to connect to: " + msg.getRequestHeader().getURI(), e);
-				throw e;
-			} catch (SocketTimeoutException e) {
-				log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
-				throw e;
-			} catch (SocketException e) {
-				log.debug("Socket exception: " + msg.getRequestHeader().getURI(), e);
-				throw e;
-			} catch (UnknownHostException e) {
-				log.debug("Unknown host: " + msg.getRequestHeader().getURI(), e);
-				throw e;
-			} catch (Exception e) {
-				log.error("An error occurred while fetching the resource [" + msg.getRequestHeader().getURI() + "]: "
-							+ e.getMessage(), e);
-				throw e;
-			}
-		}
-
-		return msg;
-
 	}
 
 	/**

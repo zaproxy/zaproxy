@@ -46,6 +46,7 @@
 // ZAP: 2016/06/20 Add TYPE_ZEST_SCRIPT and deprecate TYPE_RESERVED_11
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
 // ZAP: 2017/02/07 Add TYPE_SPIDER_AJAX_TEMPORARY.
+// ZAP: 2017/03/19 Add TYPE_SPIDER_TEMPORARY.
 
 package org.parosproxy.paros.model;
 
@@ -112,7 +113,9 @@ public class HistoryReference {
      * The type is used to off-load the messages (of resources found but not yet fetched) from the memory.
      * 
      * @since 2.0.0
-     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     * @see #TYPE_SPIDER
+     * @see #TYPE_SPIDER_TEMPORARY
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES 
      */
    public static final int TYPE_SPIDER_TASK = 9;
 
@@ -215,6 +218,18 @@ public class HistoryReference {
      */
    public static final int TYPE_SPIDER_AJAX_TEMPORARY = 18;
 
+    /**
+     * A (temporary) HTTP message of the spider.
+     * <p>
+     * Normally a message that was not processed (i.e. not successfully sent to the server).
+     * 
+     * @since TODO add version
+     * @see #TYPE_SPIDER
+     * @see #TYPE_SPIDER_TASK
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+    public static final int TYPE_SPIDER_TEMPORARY = 19;
+
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
 	// ZAP: Support for multiple tags
@@ -230,6 +245,7 @@ public class HistoryReference {
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_TASK));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SEQUENCE_TEMPORARY));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_TEMPORARY));
 		DEFAULT_TEMPORARY_HISTORY_TYPES = Collections.unmodifiableSet(defaultHistoryTypes);
 
 		TEMPORARY_HISTORY_TYPES.addAll(DEFAULT_TEMPORARY_HISTORY_TYPES);

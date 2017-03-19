@@ -453,10 +453,12 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	public void readURI(final HttpMessage msg) {
 		// Add the read message to the Site Map (tree or db structure)
 		try {
-			final HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(),
-					HistoryReference.TYPE_SPIDER, msg);
+			int type = msg.isResponseFromTargetHost() ? HistoryReference.TYPE_SPIDER : HistoryReference.TYPE_SPIDER_TEMPORARY;
+			HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(), type, msg);
 
-			addMessageToSitesTree(historyRef, msg);
+			if (msg.isResponseFromTargetHost()) {
+				addMessageToSitesTree(historyRef, msg);
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
