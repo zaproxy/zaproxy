@@ -62,6 +62,9 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/09/06 Hook OverrideMessageProxyListener into the Proxy
 // ZAP: 2016/10/06 Issue 2855: Added method to allow for testing when a model is required
+// ZAP: 2017/03/10 Reset proxy excluded URLs on new session
+// ZAP: 2017/03/13 Set global excluded URLs to the proxy when creating a new session or initialising.
+// ZAP: 2017/03/16 Allow to initialise Control without starting the Local Proxy.
 
 package org.parosproxy.paros.control;
 
@@ -113,13 +116,14 @@ public class Control extends AbstractControl implements SessionListener {
 		super(null, null);
 	}
 
-	private boolean init(ControlOverrides overrides) {
+	private boolean init(ControlOverrides overrides, boolean startProxy) {
 
 		// Load extensions first as message bundles are loaded as a side effect
 		loadExtension();
 
 		// ZAP: Start proxy even if no view
 	    Proxy proxy = getProxy(overrides);
+	    proxy.setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
 	    getExtensionLoader().hookProxyListener(proxy);
 	    getExtensionLoader().hookOverrideMessageProxyListener(proxy);
 	    getExtensionLoader().hookPersistentConnectionListener(proxy);
@@ -131,7 +135,11 @@ public class Control extends AbstractControl implements SessionListener {
 		}
 		
 		model.postInit();
-		return proxy.startServer();
+		
+		if (startProxy) {
+			return proxy.startServer();
+		}
+		return false;
     }
 
     public Proxy getProxy() {
@@ -291,12 +299,17 @@ public class Control extends AbstractControl implements SessionListener {
 
     public static boolean initSingletonWithView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), View.getSingleton());
-        return control.init(overrides);
+        return control.init(overrides, true);
     }
     
     public static boolean initSingletonWithoutView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), null);
-        return control.init(overrides);
+        return control.init(overrides, true);
+    }
+
+    public static void initSingletonWithoutViewAndProxy(ControlOverrides overrides) {
+        control = new Control(Model.getSingleton(), null);
+        control.init(overrides, false);
     }
 
     // ZAP: Added method to allow for testing
@@ -319,7 +332,7 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
 		model.createAndOpenUntitledDb();
-    	final Session session = model.newSession();
+    	final Session session = createNewSession();
 		model.saveSession(fileName);
 
 		if (View.isInitialised()) {
@@ -339,6 +352,17 @@ public class Control extends AbstractControl implements SessionListener {
 	    log.info("New session file created");
 		control.getExtensionLoader().databaseOpen(model.getDb());
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
+	}
+
+	/**
+	 * Creates a new session and resets session related data in other components (e.g. proxy excluded URLs).
+	 *
+	 * @return the newly created session.
+	 */
+	private Session createNewSession() {
+		Session session = model.newSession();
+		getProxy().setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
+		return session;
 	}
     
     public void runCommandLineOpenSession(String fileName) throws Exception {
@@ -375,7 +399,7 @@ public class Control extends AbstractControl implements SessionListener {
 	public Session newSession() throws Exception {
 	    log.info("New Session");
 		closeSessionAndCreateAndOpenUntitledDb();
-		final Session session = model.newSession();
+		final Session session = createNewSession();
 		getExtensionLoader().databaseOpen(model.getDb());
 		getExtensionLoader().sessionChangedAllPlugin(session);
 
@@ -419,7 +443,7 @@ public class Control extends AbstractControl implements SessionListener {
         try {
             closeSessionAndCreateAndOpenUntitledDb();
             lastCallback = callback;
-            model.newSession();
+            createNewSession();
             model.saveSession(fileName, this);
         } catch (Exception e) {
             if (lastCallback != null) {

@@ -36,6 +36,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import javax.swing.JTree;
+import javax.swing.tree.TreePath;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -375,7 +378,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         alert.setAlertId(recordAlert.getAlertId());
 
     }
-
+    
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
         logger.debug("updateAlert " + alert.getName() + " " + alert.getUri());
         HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
@@ -410,6 +413,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     		this.getFilteredTreeModel().updatePath(originalAlert, alert);
     	}
     	this.recalcAlerts();
+    	
+    	if (View.isInitialised()) {
+    		JTree alertTree = this.getAlertPanel().getTreeAlert();
+    		TreePath alertPath = new TreePath(getTreeModel().getAlertNode(alert).getPath());
+    		alertTree.setSelectionPath(alertPath);
+    		alertTree.scrollPathToVisible(alertPath);
+    	}
     }
 
     @Override

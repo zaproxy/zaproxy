@@ -28,6 +28,8 @@
 // ZAP: 2015/01/04 Issue 1387: Unable to change the proxy's port/address if the port/address was specified through the command line
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2017/03/15 Enable API
+
 package org.parosproxy.paros.control;
  
 import java.util.List;
@@ -57,8 +59,9 @@ public class Proxy {
 	    this.overrides = overrides;
 	    
 		proxyServer = new ProxyServer();
+		proxyServer.setEnableApi(true);
 		proxyServerSSL = new ProxyServerSSL();
-
+		proxyServerSSL.setEnableApi(true);
 	}
 	
 	public boolean startServer() {

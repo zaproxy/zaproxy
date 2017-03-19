@@ -74,11 +74,7 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
             @Override
             public void run() {
-                Control control = initControl(false);
-                if (control == null) {
-                	// Failed to listen on the specified proxy, no point in continuing (an error will already have been shown)
-                	return;
-                }
+                Control control = initControl();
 
                 warnAddOnsAndExtensionsNoLongerRunnable();
 
@@ -94,6 +90,11 @@ class DaemonBootstrap extends HeadlessBootstrap {
                     logger.error(e.getMessage(), e);
                 }
                 
+                if (!control.getProxy().startServer()) {
+                    // Failed to listen on the specified proxy, no point in continuing (an error will already have been shown)
+                    return;
+                }
+
                 ProxyParam proxyParams = Model.getSingleton().getOptionsParam().getProxyParam();
                 String message = "ZAP is now listening on " + proxyParams.getRawProxyIP() + ":" + proxyParams.getProxyPort();
                 logger.info(message);

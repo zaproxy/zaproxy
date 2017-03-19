@@ -82,6 +82,12 @@ public class API {
 	
 	private Map<String, Nonce> nonces = new HashMap<String, Nonce>();
 	
+	/**
+	 * The options for the API.
+	 * 
+	 * @see #getOptionsParamApi()
+	 */
+	private OptionsParamApi optionsParamApi;
 
 	private Random random = new SecureRandom();
     private static final Logger logger = Logger.getLogger(API.class);
@@ -159,8 +165,15 @@ public class API {
 		return true;
 	}
 	
-	private static OptionsParamApi getOptionsParamApi() {
-		return Model.getSingleton().getOptionsParam().getApiParam();
+	private OptionsParamApi getOptionsParamApi() {
+		if (optionsParamApi == null) {
+			optionsParamApi = Model.getSingleton().getOptionsParam().getApiParam();
+		}
+		return optionsParamApi;
+	}
+
+	void setOptionsParamApi(OptionsParamApi optionsParamApi) {
+		this.optionsParamApi = optionsParamApi;
 	}
 	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
@@ -168,9 +181,14 @@ public class API {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
 	}
 
-	private boolean isPermittedIpAddr(HttpRequestHeader requestHeader) {
-		if (getOptionsParamApi().isPermittedIpAddress(requestHeader.getSenderAddress().getHostAddress())) {
-			return true;
+	private boolean isPermittedAddr(HttpRequestHeader requestHeader) {
+		if (getOptionsParamApi().isPermittedAddress(requestHeader.getSenderAddress().getHostAddress())) {
+			if (getOptionsParamApi().isPermittedAddress(requestHeader.getHostName())) {
+				return true;
+			}
+			logger.warn("Request to API URL " + requestHeader.getURI().toString() + " with host header " +
+					requestHeader.getHostName() + " not permitted");
+			return false;
 		}
 		logger.warn("Request to API URL " + requestHeader.getURI().toString() + " from " +
 				requestHeader.getSenderAddress().getHostAddress() + " not permitted");
@@ -187,7 +205,7 @@ public class API {
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
-			if (! isPermittedIpAddr(requestHeader)) {
+			if (! isPermittedAddr(requestHeader)) {
 				return true;
 			}
 			logger.debug("handleApiRequest Callback: " + url);
@@ -211,7 +229,7 @@ public class API {
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
-		if (! isPermittedIpAddr(requestHeader)) {
+		if (! isPermittedAddr(requestHeader)) {
 			return true;
 		}
 		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
@@ -748,7 +766,7 @@ public class API {
         return sb.toString();
     }
 
-    private static void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
+    private void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
         String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
         if (format == Format.OTHER) {
             boolean logError = true;
@@ -810,7 +828,7 @@ public class API {
         return contentType.substring(idx + 8);
     }
     
-    private static class Nonce {
+    private class Nonce {
         private final String nonceKey;
         private final String apiPath;
         private final boolean oneTime;

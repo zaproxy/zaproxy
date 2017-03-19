@@ -33,6 +33,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/08 Tweak how exception's message is checked to show a specific error/info message
+// ZAP: 2017/03/15 Disable API by default and allow thread name to be set
 
 package org.parosproxy.paros.core.proxy;
 
@@ -76,7 +77,9 @@ public class ProxyServer implements Runnable {
     protected boolean enableCacheProcessing = false;
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<>();
     private List<Pattern> excludeUrls = null;
+    private boolean enableApi = false;
     private static Logger log = Logger.getLogger(ProxyServer.class);
+    private String threadName = "ZAP-ProxyServer";
 
     /**
      * @return Returns the enableCacheProcessing.
@@ -104,7 +107,14 @@ public class ProxyServer implements Runnable {
     }
 
     public ProxyServer() {
+        this(null);
+    }
+
+    public ProxyServer(String threadName) {
         connectRequestProxyListeners = new ArrayList<>(1);
+        if (threadName != null) {
+            this.threadName = threadName;
+        }
     }
 
     public void setProxyParam(ProxyParam param) {
@@ -143,7 +153,7 @@ public class ProxyServer implements Runnable {
         isProxyRunning = false;
 
         // ZAP: Set the name of the thread.
-        thread = new Thread(this, "ZAP-ProxyServer");
+        thread = new Thread(this, threadName);
         thread.setDaemon(true);
         // the priority below should be higher than normal to allow fast accept on the server socket
         thread.setPriority(Thread.NORM_PRIORITY + 1);
@@ -453,4 +463,13 @@ public class ProxyServer implements Runnable {
             };
         }
     }
+
+	public void setEnableApi(boolean enableApi) {
+		this.enableApi = enableApi;
+	}
+
+	public boolean isEnableApi() {
+		return enableApi;
+	}
+    
 }
