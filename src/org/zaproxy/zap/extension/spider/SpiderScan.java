@@ -87,6 +87,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 	private List<SpiderResource> resourcesFound;
 
+	private List<SpiderResource> resourcesIoErrors;
+
 	private Set<String> foundURIsOutOfScope;
 
 	private SpiderThread spiderThread = null;
@@ -146,6 +148,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		numberOfURIsFound = new AtomicInteger();
 		foundURIs = Collections.synchronizedSet(new HashSet<String>());
 		resourcesFound = Collections.synchronizedList(new ArrayList<SpiderResource>());
+		resourcesIoErrors = Collections.synchronizedList(new ArrayList<SpiderResource>());
 		foundURIsOutOfScope = Collections.synchronizedSet(new HashSet<String>());
 
 		state = State.NOT_STARTED;
@@ -297,6 +300,20 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	public List<SpiderResource> getResourcesFound() {
 		return resourcesFound;
 	}
+	
+	/**
+	 * Returns the resources found during the scan that were not successfully obtained because of I/O errors.
+	 * <p>
+	 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
+	 * {@code ConcurrentModificationException}.
+	 * </p>
+	 *
+	 * @return the resources found during the scan that were not successfully obtained
+	 * @since TODO add version
+	 */
+	public List<SpiderResource> getResourcesIoErrors() {
+		return resourcesIoErrors;
+	}
 
 	/**
 	 * Returns the URLs, out of scope, found during the scan.
@@ -316,12 +333,18 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	public void readURI(HttpMessage msg) {
 		HttpRequestHeader requestHeader = msg.getRequestHeader();
 		HttpResponseHeader responseHeader = msg.getResponseHeader();
-		resourcesFound.add(new SpiderResource(
+		SpiderResource resource = new SpiderResource(
 				msg.getHistoryRef().getHistoryId(),
 				requestHeader.getMethod(),
 				requestHeader.getURI().toString(),
 				responseHeader.getStatusCode(),
-				responseHeader.getReasonPhrase()));
+				responseHeader.getReasonPhrase());
+
+		if (msg.isResponseFromTargetHost()) {
+			resourcesFound.add(resource);
+		} else {
+			resourcesIoErrors.add(resource);
+		}
 
 		if (View.isInitialised()) {
 			addMessageToMessagesTableModel(msg);
@@ -337,7 +360,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 			if (messagesTableModel == null) {
 				messagesTableModel = new SpiderMessagesTableModel();
 			}
-			messagesTableModel.addHistoryReference(msg.getHistoryRef());
+			messagesTableModel.addHistoryReference(msg.getHistoryRef(), !msg.isResponseFromTargetHost());
 			return;
 		}
 

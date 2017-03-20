@@ -554,13 +554,7 @@ public class SpiderAPI extends ApiImplementor {
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
 			synchronized (scan.getResourcesFound()) {
 				for (SpiderResource sr : scan.getResourcesFound()) {
-					Map<String, String> map = new HashMap<>();
-					map.put("messageId", Integer.toString(sr.getHistoryId()));
-					map.put("method", sr.getMethod());
-					map.put("url", sr.getUri());
-					map.put("statusCode", Integer.toString(sr.getStatusCode()));
-					map.put("statusReason", sr.getStatusReason());
-					resultList.addItem(new ApiResponseSet<String>("resource", map));
+					resultList.addItem(createApiResponseSet(sr));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -569,6 +563,14 @@ public class SpiderAPI extends ApiImplementor {
 			synchronized (scan.getResultsOutOfScope()) {
 				for (String url : scan.getResultsOutOfScope()) {
 					resultList.addItem(new ApiResponseElement("url", url));
+				}
+			}
+			resultUrls.addItem(resultList);
+
+			resultList = new ApiResponseList("urlsIoError");
+			synchronized (scan.getResourcesIoErrors()) {
+				for (SpiderResource sr : scan.getResourcesIoErrors()) {
+					resultList.addItem(createApiResponseSet(sr));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -631,6 +633,16 @@ public class SpiderAPI extends ApiImplementor {
 		return result;
 	}
 
+	private static ApiResponseSet<String> createApiResponseSet(SpiderResource sr) {
+		Map<String, String> map = new HashMap<>();
+		map.put("messageId", Integer.toString(sr.getHistoryId()));
+		map.put("method", sr.getMethod());
+		map.put("url", sr.getUri());
+		map.put("statusCode", Integer.toString(sr.getStatusCode()));
+		map.put("statusReason", sr.getStatusReason());
+		return new ApiResponseSet<>("resource", map);
+	}
+	
 	private ApiResponse domainMatchersToApiResponseList(
 			String name,
 			List<DomainAlwaysInScopeMatcher> domains,
