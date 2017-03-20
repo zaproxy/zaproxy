@@ -64,6 +64,7 @@
 // ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
 // ZAP: 2016/12/13 Issue 2951:  Support active scan rule and scan max duration
 // ZAP: 2016/12/20 Include the name of the user when logging the scan info
+// ZAP: 2017/03/20 Improve node enumeration in pre-scan phase.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -261,8 +262,11 @@ public class HostProcess implements Runnable {
         StringBuilder strBuilder = new StringBuilder(150);
         strBuilder.append("Scanning ");
         strBuilder.append(nodeInScopeCount);
-        strBuilder.append(" node(s) from ");
-        strBuilder.append(hostAndPort);
+        strBuilder.append(" node(s) ");
+        if (parentScanner.getJustScanInScope()) {
+            strBuilder.append("[just in scope] ");
+        }
+        strBuilder.append("from ").append(hostAndPort);
         if (user != null) {
             strBuilder.append(" as ");
             strBuilder.append(user.getName());
@@ -391,18 +395,7 @@ public class HostProcess implements Runnable {
         // do not poll for isStop here to allow every plugin to run but terminate immediately.
         //if (isStop()) return;
 
-        if (node == null || node.getHistoryReference() == null) {
-            log.debug("scanSingleNode node or href null, returning: node=" + node);
-            return false;
-        }
-        
-        if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
-            log.debug("Ignoring \"scanner\" type href");
-            return false;
-        }
-
-        if (!nodeInScope(node.getName())) {
-            log.debug("scanSingleNode node not in scope");
+        if (!canScanNode(node)) {
             return false;
         }
 
@@ -450,6 +443,47 @@ public class HostProcess implements Runnable {
         } while (thread == null);
 
         mapPluginStats.get(plugin.getId()).incProgress();
+        return true;
+    }
+
+    /**
+     * Tells whether or not the scanner can scan the given node.
+     * <p>
+     * A node must not be null, must contain a valid HistoryReference and be in scope.
+     *
+     * @param node the node to be checked
+     * @return {@code true} if the node can be scanned, {@code false} otherwise.
+     */
+    private boolean canScanNode(StructuralNode node) {
+        if (node == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring null node");
+            }
+            return false;
+        }
+
+        HistoryReference hRef = node.getHistoryReference();
+        if (hRef == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring null history reference for node: " + node.getName());
+            }
+            return false;
+        }
+
+        if (HistoryReference.TYPE_SCANNER == hRef.getHistoryType()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring \"scanner\" type href [id=" + hRef.getHistoryId() + ", URL=" + hRef.getURI() + "]");
+            }
+            return false;
+        }
+
+        if (!nodeInScope(node.getName())) {
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring node not in scope: " + node.getName());
+            }
+            return false;
+        }
+
         return true;
     }
 
@@ -919,18 +953,19 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * A {@code TraverseAction} that counts the nodes traversed.
+     * A {@code TraverseAction} that counts the nodes traversed and that can be scanned.
      * 
      * @see #getCount()
+     * @see HostProcess#canScanNode(StructuralNode)
      */
-    private static class TraverseCounter implements TraverseAction {
+    private class TraverseCounter implements TraverseAction {
 
         private int count;
 
         /**
-         * Returns the number of nodes traversed.
+         * Returns the number of nodes traversed and that can be scanned.
          *
-         * @return the number of nodes traversed
+         * @return the number of nodes traversed and that can be scanned.
          */
         public int getCount() {
             return count;
@@ -938,7 +973,9 @@ public class HostProcess implements Runnable {
 
         @Override
         public void apply(StructuralNode node) {
-            count++;
+            if (canScanNode(node)) {
+                count++;
+            }
         }
 
         @Override
