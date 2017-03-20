@@ -31,6 +31,8 @@ import java.net.URL;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -635,6 +637,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
 		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
+
+		Path defaultScriptsDir = Paths.get(Constant.getZapHome(), SCRIPTS_DIR, SCRIPTS_DIR);
+		for (ScriptType scriptType : typeMap.values()) {
+			Path scriptTypeDir = defaultScriptsDir.resolve(scriptType.getName());
+			if (Files.notExists(scriptTypeDir)) {
+				try {
+					Files.createDirectories(scriptTypeDir);
+				} catch (IOException e) {
+					logger.warn("Failed to create directory for script type: " + scriptType.getName(), e);
+				}
+			}
+		}
     }
 
     private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
