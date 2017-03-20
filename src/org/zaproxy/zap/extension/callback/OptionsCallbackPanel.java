@@ -147,7 +147,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
 
             JLabel testUrlLabel = new JLabel(
                     Constant.messages
-                            .getString("callback.options.label.remoteaddress"));
+                            .getString("callback.options.label.testurl"));
             testUrlLabel.setLabelFor(getTestURL());
             panel.add(testUrlLabel,
                     LayoutHelper.getGBC(0, 4, 1, 0.5D, new Insets(2, 2, 2, 2)));
