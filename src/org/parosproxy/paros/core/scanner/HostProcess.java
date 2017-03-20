@@ -65,6 +65,7 @@
 // ZAP: 2016/12/13 Issue 2951:  Support active scan rule and scan max duration
 // ZAP: 2016/12/20 Include the name of the user when logging the scan info
 // ZAP: 2017/03/20 Improve node enumeration in pre-scan phase.
+// ZAP: 2017/03/20 Log the number of messages sent by the scanners, when finished.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -765,8 +766,9 @@ public class HostProcess implements Runnable {
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
         long startTimeMillis = pluginStats.getStartTime();
         long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-        sb.append(" in ").append(diffTimeString);
+        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0);
+        sb.append(" in ").append(diffTimeString).append('s');
+        sb.append(" with ").append(pluginStats.getMessageCount()).append(" message(s) sent");
 
         // Probably too verbose evaluate 4 the future
         log.info(sb.toString());
