@@ -187,6 +187,7 @@ def main(argv):
   base_dir = ''
   zap_ip = 'localhost'
   zap_options = ''
+  delay = 0
 
   pass_count = 0
   warn_count = 0
@@ -310,6 +311,8 @@ def main(argv):
                 '-port', str(port), 
                 '-host', '0.0.0.0', 
                 '-config', 'api.disablekey=true', 
+                '-config', 'api.addrs.addr.name=.*', 
+                '-config', 'api.addrs.addr.regex=true', 
                 '-config', 'spider.maxDuration=' + str(mins),
                 '-addonupdate', 
                 '-addoninstall', 'pscanrulesBeta']	# In case we're running in the stable container
@@ -354,6 +357,8 @@ def main(argv):
                 '-port', str(port), 
                 '-host', '0.0.0.0', 
                 '-config', 'api.disablekey=true', 
+                '-config', 'api.addrs.addr.name=.*', 
+                '-config', 'api.addrs.addr.regex=true', 
                 '-config', 'spider.maxDuration=' + str(mins),
                 '-addonupdate'])
 
