@@ -54,9 +54,10 @@ Justification for the statements made in the tagline at the top;)
 
 Popularity:
   * ToolsWatch Annual Best Free/Open Source Security Tool Survey: 
-   * 2015 [1st](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
+   * 2016 [2nd](http://www.toolswatch.org/2017/02/2016-top-security-tools-as-voted-by-toolswatch-org-readers/)
+   * 2015 [1st](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
    * 2014 [2nd](http://www.toolswatch.org/2015/01/2014-top-security-tools-as-voted-by-toolswatch-org-readers/)
-   * 2013 [1st] (http://www.toolswatch.org/2013/12/2013-top-security-tools-as-voted-by-toolswatch-org-readers/)
+   * 2013 [1st](http://www.toolswatch.org/2013/12/2013-top-security-tools-as-voted-by-toolswatch-org-readers/)
 
 Contributors:
   * [Code Contributors](https://www.openhub.net/p/zaproxy)
