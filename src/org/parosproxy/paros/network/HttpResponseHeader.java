@@ -30,6 +30,7 @@
 // ZAP: 2014/04/09 i1145: Cookie parsing error if a comma is used
 // ZAP: 2015/02/26 Include json as a text content type
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
+// ZAP: 2017/03/21 Add method to check if response type is json (isJson())
 
 package org.parosproxy.paros.network;
 
@@ -220,6 +221,18 @@ public class HttpResponseHeader extends HttpHeader {
 		
 	}
 	
+	public boolean isJson() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JSON) > -1) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+
 	
 	public boolean isJavaScript() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
