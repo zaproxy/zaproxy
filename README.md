@@ -14,7 +14,7 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
 
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
 
-####Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/1-k-vcj_sSxlil6XLxCFade-m-IQVeE2h9gduA-2ZPPA/viewform)!
+#### Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/1-k-vcj_sSxlil6XLxCFade-m-IQVeE2h9gduA-2ZPPA/viewform)!
 
 For general information about ZAP:
   * [Home page](https://www.owasp.org/index.php/ZAP) - the official ZAP page on the OWASP wiki (includes a donate button;)
@@ -53,11 +53,11 @@ To learn more about ZAP development:
 Justification for the statements made in the tagline at the top;)
 
 Popularity:
-  * ToolsWatch Annual Best Free/Open Source Security Tool Survey: 
-   * 2016 [2nd](http://www.toolswatch.org/2017/02/2016-top-security-tools-as-voted-by-toolswatch-org-readers/)
-   * 2015 [1st](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
-   * 2014 [2nd](http://www.toolswatch.org/2015/01/2014-top-security-tools-as-voted-by-toolswatch-org-readers/)
-   * 2013 [1st](http://www.toolswatch.org/2013/12/2013-top-security-tools-as-voted-by-toolswatch-org-readers/)
+  * ToolsWatch Annual Best Free/Open Source Security Tool Survey:
+    * 2016 [2nd](http://www.toolswatch.org/2017/02/2016-top-security-tools-as-voted-by-toolswatch-org-readers/)
+    * 2015 [1st](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
+    * 2014 [2nd](http://www.toolswatch.org/2015/01/2014-top-security-tools-as-voted-by-toolswatch-org-readers/)
+    * 2013 [1st](http://www.toolswatch.org/2013/12/2013-top-security-tools-as-voted-by-toolswatch-org-readers/)
 
 Contributors:
   * [Code Contributors](https://www.openhub.net/p/zaproxy)
