@@ -158,7 +158,13 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 							}
 						}
 					} catch (Exception e) {
-						logger.error("Parser failed on record " + currentId + " from History table", e);
+						if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Temporary record " + currentId + " no longer available:", e);
+							}
+						} else {
+							logger.error("Parser failed on record " + currentId + " from History table", e);
+						}
 					}
 					
 				}
