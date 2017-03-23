@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class HtmlParameter implements Comparable<HtmlParameter> {
 	public enum Type {
-		cookie, form, url
+		cookie, form, url, header
 	};
 
 	public enum Flags {
