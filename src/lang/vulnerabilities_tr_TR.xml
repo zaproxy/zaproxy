@@ -83,21 +83,21 @@ Yetersiz Taşıma Katmanı Koruması, iletişimin güvenilir olmayan üçüncü 
 Taşıma Katmanı Şifrelemesi Eksikliği
 Taşıma Katmanı şifrelenmediğinde, web sitesi ve istemci arasındaki tüm iletişim açık metin şeklinde yapılır ve bu, iletişimi yakalamaya, enjeksiyona ve yönlendirmeye açık hale getirir. (Aynı zamanda aradaki adam saldırısı olarak da bilinir). Saldırgan pasif olarak iletişimi dinleyerek, kullanıcı adı ve parola gibi hassas bilgilere erişebilir. Saldırgan aktif bir şekilde iletişime içerik enjekte ederek ya da iletişimden içerik çıkararak, zararlı yazılım enjekte edebilir ya da istemcinin güvenilir olmayan uzak içeriğe erişimine sebep olabilir. Saldırgan ayrıca iletişimi yönlendirerek websitesi ve istemcinin artık birbiriyle direk iletişim kurmamasını sağlayıp, farkında olmadan saldırganla iletişim kurmasına sebep olabilir.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+Zayıf Şifreleme Desteği
+Tarihte, yüksek dereceli şifreleme'nin Amerika Birleşik Devletleri dışına ihracı yasaklanmıştı. Bu yüzden, web siteleri sadece zayıf şifreleme kullanmasına izin verilen kullanıcılar için zayıf kriptografik seçenekleri destekleyecek şekilde yapılandırılmıştı. Zayıf şifreleme, kırılmaya açık olduğu için saldırıya karşı zafiyetlidir; tipik bir ev bilgisayarında iki haftadan kısa veya adanmış bir donanımda bir kaç saniyede kırılabilir.
+Günümüzde, tüm modern tarayıcılar ve web siteleri çok daha güçlü şifreleme kullanmaktadır, fakat web siteleri hala modası geçmiş zayıf şifrelemeyi destekleyecek şekilde yapılandırılmışlardır. Bu sebeple, saldırgan kullanıcıyı bir websitesine bağlanırken daha zayıf bir şifreleme kullanmaya zorlayabilir, böylece saldırgan zayıf şifrelemeyi kırabilir. Bu sebeple, sunucu sadece güçlü şifreleme kabul edecek ve zayıf şifreleme kullanan müşteriye hizmet vermeyecek şekilde yapılandırılmalıdır. Buna ek olarak, bazı web siteleri, müşterisi güçlü sifreleme destekliyorken bile zayıf şifreleme seçecek şekilde yanlış yapılandırılmıştır. OWASP, SSL/TLS sorunlarını test etmek için bir rehber yayınladı ve bu rehber zayıf şifreleme desteği, yanlış yapılandırma, bazı kaynak ve araçları içermektedir.</desc>
+	<solution>Faz: Gereksinimler
+Hangi veri ve kaynakların şifreli bir şekilde korunacak kadar değerli olduğunu düzgün bir şekilde belirleyin. Bu veri/kaynağa herhangi bir iletişim veya depolama, iyi denetlenmiş bir şifreleme algoritması gerektirmelidir.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Faz: Mimari ve Tasarım
+Tehdit modellemesi ve diğer teknikleri kullanarak, verinizin ayrı bir zafiyet veya zayıflık yoluyla ele geçirilebileceğini varsayarak, şifrelemenin nerede en etkili olacağına karar verin. Özel tutulması gereken verilerin, güvenli olmayan izinler (CWE-732) gibi zafiyetlerin kullanılmasına kazara maruz kalmadığına emin olun.
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
+Faz: Mimari ve Tasarım
+Şifrelemeyi sistem tasarımınıza düzgün bir şekilde entegre ederken aşağıdaki hususları içerdiğine ama sadece bunlara bağlı kalmadığına emin olun:
+     Sistemdeki kullanıcıların özel bilgilerinin depolaması ve iletimindeki şifreleme
+     Sistemin yetkisiz ifşaası veya kurcalanmasına karşı koruyacak şifreleme
+Şifreleme için gerekleri ve bağlamı tanımlayın:
+    Tek-yönlü (mesela, sadece kullanıcı veya alıcının anahtara sahip olması gerektiği). Bu, açık anahtar şifrelemesi veya şifreleme yapan kısmın (mesela yazılım) özel anahtara erişmesine gerek duymadığı diğer tekniklerle başarılabilir.
       Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
 
 Phase: Architecture and Design
