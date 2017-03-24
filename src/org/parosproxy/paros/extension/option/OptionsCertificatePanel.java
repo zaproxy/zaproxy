@@ -59,6 +59,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextField;
 
 import ch.csnc.extension.httpclient.PKCS11Configuration;
@@ -632,8 +633,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					//   - Missing library.
 					//   - Malformed configuration.
 					//   - ...
-					showGenericErrorMessagePkcs11CouldNotBeAdded();
-					logger.warn("Couldn't add key from "+name, e.getCause());
+					logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
 				} else if ("Initialization failed".equals(e.getCause().getMessage())) {
 					// The initialisation may fail because of:
 					//   - no smart card reader or smart card detected.
@@ -656,12 +656,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 						logger.warn("Couldn't add key from "+name, e);
 					}
 				} else {
-					showGenericErrorMessagePkcs11CouldNotBeAdded();
-					logger.warn("Couldn't add key from "+name, e);
+					logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
 				}
 			} else {
-				showGenericErrorMessagePkcs11CouldNotBeAdded();
-				logger.error("Couldn't add key from "+name, e);
+				logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
 			}
 		} catch (java.io.IOException e) {
 			if (e.getMessage().equals("load failed") && e.getCause().getClass().getName().equals("javax.security.auth.login.FailedLoginException")) {
@@ -684,15 +682,12 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					logger.warn("PKCS#11: Incorrect PIN or password"+attempts+": "+name);
 				}
 			}else{
-				showGenericErrorMessagePkcs11CouldNotBeAdded();
-				logger.warn("Couldn't add key from "+name, e);
+				logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
 			}
 		} catch (KeyStoreException e) {
-			showGenericErrorMessagePkcs11CouldNotBeAdded();
-			logger.warn("Couldn't add key from "+name, e);
+			logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
 		} catch (Exception e) {
-			showGenericErrorMessagePkcs11CouldNotBeAdded();
-			logger.error("Couldn't add key from "+name, e);
+			logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(true, name, e);
 		}
 
 
@@ -735,11 +730,23 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
 	}
 
-	private void showGenericErrorMessagePkcs11CouldNotBeAdded() {
-		JOptionPane.showMessageDialog(null, new String[] {
-				Constant.messages.getString("options.cert.error"),
-				Constant.messages.getString("options.cert.error.password")}, 
-				Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+	private void logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(boolean isErrorLevel, String name, Exception e) {
+		if(pkcs11PasswordField.getPassword().length == 0) {
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.error"),
+					Constant.messages.getString("options.cert.error.password.blank")}, 
+					Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(null, new String[] {
+					Constant.messages.getString("options.cert.error"),
+					Constant.messages.getString("options.cert.error.password")}, 
+					Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
+			if (isErrorLevel) {
+				logger.error("Couldn't add key from "+name, e);
+			} else {
+				logger.warn("Couldn't add key from "+name, e);
+			}
+		}
 	}
 	
 	private void driverButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_driverButtonActionPerformed
