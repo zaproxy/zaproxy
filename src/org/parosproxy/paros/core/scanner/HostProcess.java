@@ -66,9 +66,11 @@
 // ZAP: 2016/12/20 Include the name of the user when logging the scan info
 // ZAP: 2017/03/20 Improve node enumeration in pre-scan phase.
 // ZAP: 2017/03/20 Log the number of messages sent by the scanners, when finished.
+// ZAP: 2017/03/25 Ensure messages to be scanned have a response.
 
 package org.parosproxy.paros.core.scanner;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,6 +128,11 @@ public class HostProcess implements Runnable {
     // ZAP: progress related
     private int nodeInScopeCount = 0;
     private int percentage = 0;
+
+    /**
+     * The count of requests sent by the {@code HostProcess} itself.
+     */
+    private int requestCount;
     
     /**
      * Constructs a {@code HostProcess}, with no rules' configurations.
@@ -402,12 +409,22 @@ public class HostProcess implements Runnable {
 
         try {
             
-            msg = node.getHistoryReference().getHttpMessage();
+            HistoryReference hRef = node.getHistoryReference();
+            msg = hRef.getHttpMessage();
 
             if (msg == null) {
                 // Likely to be a temporary node
                 log.debug("scanSingleNode msg null");
                 return false;
+            }
+
+            // Ensure the temporary nodes, added automatically to Sites tree, have a response.
+            // The scanners might base the logic/attacks on the state of the response (e.g. status code).
+            if (msg.getResponseHeader().isEmpty()) {
+                msg = msg.cloneRequest();
+                if (!obtainResponse(hRef, msg)) {
+                    return false;
+                }
             }
 
             log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
@@ -445,6 +462,20 @@ public class HostProcess implements Runnable {
 
         mapPluginStats.get(plugin.getId()).incProgress();
         return true;
+    }
+
+    private boolean obtainResponse(HistoryReference hRef, HttpMessage message) {
+        try {
+            getHttpSender().sendAndReceive(message);
+            notifyNewMessage(message);
+            requestCount++;
+            return true;
+        } catch (IOException e) {
+            log.warn(
+                    "Failed to obtain the HTTP response for href [id=" + hRef.getHistoryId() + ", type=" + hRef.getHistoryType()
+                            + ", URL=" + hRef.getURI() + "]: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -923,7 +954,7 @@ public class HostProcess implements Runnable {
      */
     public int getRequestCount() {
         synchronized (mapPluginStats) {
-            int count = getAnalyser().getRequestCount();
+            int count = requestCount + getAnalyser().getRequestCount();
             for (PluginStats stats : mapPluginStats.values()) {
                 count += stats.getMessageCount();
             }
