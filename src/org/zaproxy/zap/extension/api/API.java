@@ -80,7 +80,7 @@ public class API {
 
 	private Map<String, ApiImplementor> shortcuts = new HashMap<>();
 	
-	private Map<String, Nonce> nonces = new HashMap<String, Nonce>();
+	private Map<String, Nonce> nonces = Collections.synchronizedMap(new HashMap<String, Nonce>());
 	
 	/**
 	 * The options for the API.
@@ -720,9 +720,11 @@ public class API {
 			
 			return true;
 		} finally {
-			for (Entry<String, Nonce> entry : nonces.entrySet()) {
-				if (! entry.getValue().isValid()) {
-					nonces.remove(entry.getKey());
+			synchronized (nonces) {
+				for (Entry<String, Nonce> entry : nonces.entrySet()) {
+					if (! entry.getValue().isValid()) {
+						nonces.remove(entry.getKey());
+					}
 				}
 			}
 		}
