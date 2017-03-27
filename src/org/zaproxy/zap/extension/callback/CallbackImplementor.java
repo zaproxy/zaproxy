@@ -24,7 +24,7 @@ import java.util.List;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * @since TODO Add Version
+ * @since 2.6.0
  * @author psiinon
  *
  */

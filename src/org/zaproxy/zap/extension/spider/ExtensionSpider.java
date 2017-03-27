@@ -445,7 +445,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * 
 	 * @param parser the parser
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addCustomParser(SpiderParser)
 	 */
 	public void removeCustomParser(SpiderParser parser) {
@@ -475,7 +475,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * 
 	 * @param filter the filter
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addCustomFetchFilter(FetchFilter)
 	 */
 	public void removeCustomFetchFilter(FetchFilter filter) {
@@ -505,7 +505,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * 
 	 * @param filter the filter
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addCustomParseFilter(ParseFilter)
 	 */
 	public void removeCustomParseFilter(ParseFilter filter) {

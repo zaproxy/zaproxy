@@ -79,7 +79,7 @@ public class CommandLine {
      * Command line option to disable the default logging through standard output.
      * 
      * @see #isNoStdOutLog()
-     * @since TODO add version
+     * @since 2.6.0
      */
     public static final String NOSTDOUT = "-nostdout";
 
@@ -437,7 +437,7 @@ public class CommandLine {
      * Gets the {@code config} command line arguments, in no specific order.
      *
      * @return the {@code config} command line arguments.
-     * @deprecated (TODO add version) Use {@link #getOrderedConfigs()} instead, which are in the order they were specified.
+     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they were specified.
      */
     @Deprecated
     public Hashtable<String, String> getConfigs() {
@@ -448,7 +448,7 @@ public class CommandLine {
      * Gets the {@code config} command line arguments, in the order they were specified.
      *
      * @return the {@code config} command line arguments.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public Map<String, String> getOrderedConfigs() {
         return configs;
@@ -466,7 +466,7 @@ public class CommandLine {
      * Tells whether or not the default logging through standard output should be disabled.
      *
      * @return {@code true} if the default logging through standard output should be disabled, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public boolean isNoStdOutLog() {
         return noStdOutLog;

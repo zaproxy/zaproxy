@@ -38,7 +38,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * Reads:
  * <ul>
  * <li>name;</li>
- * <li>status (since TODO add version);</li>
+ * <li>status (since 2.6.0);</li>
  * <li>version;</li>
  * <li>semver;</li>
  * <li>description;</li>
@@ -219,7 +219,7 @@ public abstract class BaseZapAddOnXmlData {
      * Returns the status of the add-on, "alpha", "beta" or "release".
      *
      * @return the status of the add-on
-     * @since TODO add version
+     * @since 2.6.0
      */
     public String getStatus() {
         return status;

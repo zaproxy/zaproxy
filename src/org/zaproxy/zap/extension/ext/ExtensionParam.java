@@ -91,7 +91,7 @@ public class ExtensionParam extends AbstractParam {
      *
      * @param extensionName the name of the extension to check.
      * @return {@code true} if extension is enabled, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public boolean isExtensionEnabled(String extensionName) {
         Boolean state = extensionsState.get(extensionName);

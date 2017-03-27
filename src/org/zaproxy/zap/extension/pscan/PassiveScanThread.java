@@ -51,7 +51,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * @param passiveScannerList the passive scanners, must not be {@code null}.
 	 * @param extHist the extension to obtain the (cached) history references, might be {@code null}.
 	 * @param extensionAlert the extension used to raise the alerts, must not be {@code null}.
-	 * @deprecated (TODO add version) Use
+	 * @deprecated (2.6.0) Use
 	 *             {@link #PassiveScanThread(PassiveScannerList, ExtensionHistory, ExtensionAlert, PassiveScanParam)} instead.
 	 *             It will be removed in a future release.
 	 */
@@ -67,7 +67,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * @param extHist the extension to obtain the (cached) history references, might be {@code null}.
 	 * @param extensionAlert the extension used to raise the alerts, must not be {@code null}.
 	 * @param pscanOptions the passive scanner options, must not be {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert,
 			PassiveScanParam pscanOptions) {

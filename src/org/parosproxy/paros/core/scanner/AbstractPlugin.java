@@ -978,7 +978,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * Returns the technologies enabled for the scan.
      *
-     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null} (since TODO add version).
+     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null} (since 2.6.0).
      * @since 2.4.0
      * @see #inScope(Tech)
      * @see #targets(TechSet)

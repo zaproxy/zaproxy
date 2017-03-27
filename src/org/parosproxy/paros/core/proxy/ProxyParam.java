@@ -270,7 +270,7 @@ public class ProxyParam extends AbstractParam {
      * @param modifyAcceptEncodingHeader {@code true} if the proxy should
      * modify/remove the "Accept-Encoding" request-header field, {@code false}
      * otherwise
-     * @deprecated (TODO add version) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
+     * @deprecated (2.6.0) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
      * @since 2.0.0
      */
     @Deprecated
@@ -284,7 +284,7 @@ public class ProxyParam extends AbstractParam {
      *
      * @return {@code true} if the proxy should modify/remove the
      * "Accept-Encoding" request-header field, {@code false} otherwise
-     * @deprecated (TODO add version) Use {@link #isRemoveUnsupportedEncodings()} instead.
+     * @deprecated (2.6.0) Use {@link #isRemoveUnsupportedEncodings()} instead.
      * @since 2.0.0
      */
     @Deprecated
@@ -298,7 +298,7 @@ public class ProxyParam extends AbstractParam {
      * The whole header is removed if empty after the removal of unsupported encodings.
      *
      * @param remove {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.6.0
      * @see #isRemoveUnsupportedEncodings()
      */
     public void setRemoveUnsupportedEncodings(boolean remove) {
@@ -314,7 +314,7 @@ public class ProxyParam extends AbstractParam {
      * The whole header is removed if empty after the removal of unsupported encodings.
      *
      * @return {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.6.0
      * @see #setRemoveUnsupportedEncodings(boolean)
      */
     public boolean isRemoveUnsupportedEncodings() {

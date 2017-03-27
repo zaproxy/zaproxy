@@ -760,7 +760,7 @@ public class HttpRequestHeader extends HttpHeader {
     /**
      * Sets the senders IP address. Note that this is not persisted.
      * @param inetAddress the senders IP address
-     * @since TODO Add version
+     * @since 2.6.0
      */
     public void setSenderAddress(InetAddress inetAddress) {
         this.senderAddress = inetAddress;
@@ -769,7 +769,7 @@ public class HttpRequestHeader extends HttpHeader {
     /**
      * Gets the senders IP address
      * @return the senders IP address
-     * @since TODO Add version
+     * @since 2.6.0
      */
     public InetAddress getSenderAddress() {
         return senderAddress;

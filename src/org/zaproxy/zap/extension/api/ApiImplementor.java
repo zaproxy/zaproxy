@@ -399,7 +399,7 @@ public abstract class ApiImplementor {
 	 * @param parameters the parameters
 	 * @param name the name of the parameter that must exist
 	 * @throws ApiException if the parameter with the given name does not exist or it has no value.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	protected void validateParamExists(JSONObject parameters, String name) throws ApiException {
 		if (!parameters.has(name) || parameters.getString(name).length() == 0) {

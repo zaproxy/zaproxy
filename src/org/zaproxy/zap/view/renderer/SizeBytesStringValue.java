@@ -65,7 +65,7 @@ public class SizeBytesStringValue implements StringValue {
      * Default is {@code true}.
      *
      * @return {@code true} if it should use just bytes, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public boolean isUseJustBytesUnit() {
         return useJustBytesUnit;
@@ -76,7 +76,7 @@ public class SizeBytesStringValue implements StringValue {
      * (e.g. KiB, MiB).
      *
      * @param useJustBytesUnit {@code true} if it should use just bytes, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public void setUseJustBytesUnit(boolean useJustBytesUnit) {
         this.useJustBytesUnit = useJustBytesUnit;

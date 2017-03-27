@@ -71,7 +71,7 @@ public class Alert implements Comparable<Alert>  {
     /**
      * The source of the alerts.
      *
-     * @since TODO add version
+     * @since 2.6.0
      */
     public enum Source {
         /**
@@ -695,7 +695,7 @@ public class Alert implements Comparable<Alert>  {
     /**
      * Gets the correctly scaled icon for this alert.
      * @return the correctly scaled icon for this alert
-     * @since TODO add version
+     * @since 2.6.0
      */
     public ImageIcon getIcon() {
         if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
@@ -847,7 +847,7 @@ public class Alert implements Comparable<Alert>  {
 	 * Gets the source of the alert.
 	 *
 	 * @return the source of the alert, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public Source getSource() {
 		return source;
@@ -861,7 +861,7 @@ public class Alert implements Comparable<Alert>  {
 	 *
 	 * @param source the source of the alert.
 	 * @throws IllegalArgumentException if the given {@code source} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public void setSource(Source source) {
 		if (source == null) {

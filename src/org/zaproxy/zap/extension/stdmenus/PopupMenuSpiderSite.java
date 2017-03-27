@@ -28,7 +28,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
 /**
- * @deprecated (TODO add version) Superseded by {@link PopupMenuSpiderDialog}.
+ * @deprecated (2.6.0) Superseded by {@link PopupMenuSpiderDialog}.
  */
 @Deprecated
 public class PopupMenuSpiderSite extends PopupMenuItemSiteNodeContainer {

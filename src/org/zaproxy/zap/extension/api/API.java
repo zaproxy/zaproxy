@@ -631,7 +631,7 @@ public class API {
 	 * Returns a one time nonce to be used with the API call specified by the URL
 	 * @param apiUrl the API URL
 	 * @return a one time nonce
-	 * @since TODO Add Version
+	 * @since 2.6.0
 	 */
 	public String getOneTimeNonce(String apiUrl) {
 		String nonce = Long.toHexString(random.nextLong());
@@ -643,7 +643,7 @@ public class API {
 	 * Returns a nonce that will be valid for the lifetime of the ZAP process to used with the API call specified by the URL
 	 * @param apiUrl the API URL
 	 * @return a nonce that will be valid for the lifetime of the ZAP process
-	 * @since TODO Add Version
+	 * @since 2.6.0
 	 */
 	public String getLongLivedNonce(String apiUrl) {
 		String nonce = Long.toHexString(random.nextLong());
@@ -655,7 +655,7 @@ public class API {
 	 * Returns true if the API call has a valid key
 	 * @param msg the message
 	 * @return true if the API call has a valid key
-	 * @since TODO Add Version
+	 * @since 2.6.0
 	 */
 	public boolean hasValidKey(HttpMessage msg) {
 		try {
@@ -671,7 +671,7 @@ public class API {
 	 * @param reqHeader the request header
 	 * @param params the parameters
 	 * @return true if the API call has a valid key
-	 * @since TODO Add Version
+	 * @since 2.6.0
 	 */
 	public boolean hasValidKey(HttpRequestHeader reqHeader, JSONObject params) {
 		try {

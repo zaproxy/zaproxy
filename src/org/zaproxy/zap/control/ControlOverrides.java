@@ -59,7 +59,7 @@ public class ControlOverrides {
 	 * Gets the {@code config} command line arguments, in the order they were specified.
 	 *
 	 * @return the {@code config} command line arguments.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public Map<String, String> getOrderedConfigs() {
 		return configs;
@@ -69,7 +69,7 @@ public class ControlOverrides {
 	 * Sets the {@code config} command line arguments, in the order they were specified.
 	 *
 	 * @param configs the {@code config} command line arguments.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public void setOrderedConfigs(Map<String, String> configs) {
 		this.configs = configs;
@@ -79,7 +79,7 @@ public class ControlOverrides {
 	 * Gets the {@code config} command line arguments, in no specific order.
 	 *
 	 * @return the {@code config} command line arguments.
-	 * @deprecated (TODO add version) Use {@link #getOrderedConfigs()} instead.
+	 * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead.
 	 */
 	@Deprecated
 	public Hashtable<String, String> getConfigs() {
@@ -90,7 +90,7 @@ public class ControlOverrides {
 	 * Sets the {@code config} command line arguments, in no specific order.
 	 *
 	 * @param configs the {@code config} command line arguments.
-	 * @deprecated (TODO add version) Use {@link #setOrderedConfigs(Map)} instead.
+	 * @deprecated (2.6.0) Use {@link #setOrderedConfigs(Map)} instead.
 	 */
 	@Deprecated
 	public void setConfigs(Hashtable<String, String> configs) {

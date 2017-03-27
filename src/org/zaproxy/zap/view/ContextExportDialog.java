@@ -102,7 +102,7 @@ public class ContextExportDialog extends StandardFieldsDialog {
 	 * The call to this method has no effect if the context does not exist in the session.
 	 *
 	 * @param context the context to be selected, {@code null} to clear the selection.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public void setSelectedContext(Context context) {
 		setContextValue(CONTEXT_FIELD, context);

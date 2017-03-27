@@ -146,7 +146,7 @@ public interface Extension {
      * Should be called only by core functionality (e.g. to unload the hooked components).
      * 
      * @return the {@code ExtensionHook} used to hook the components.
-     * @since TODO add version
+     * @since 2.6.0
      * @see #hook(ExtensionHook)
      */
     ExtensionHook getExtensionHook();

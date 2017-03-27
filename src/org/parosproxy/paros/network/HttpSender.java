@@ -839,7 +839,7 @@ public class HttpSender {
      * @param validator the validator responsible for validation of redirections
      * @throws IllegalArgumentException if any of the parameters is {@code null}
      * @throws IOException if an error occurred while sending the message or following the redirections
-     * @since TODO add version
+     * @since 2.6.0
      * @see #sendAndReceive(HttpMessage, boolean)
      */
     public void sendAndReceive(HttpMessage message, RedirectionValidator validator) throws IOException {
@@ -964,7 +964,7 @@ public class HttpSender {
      * As convenience the validator will also be notified of the HTTP messages sent and received (first message and followed
      * redirections, if any).
      * 
-     * @since TODO add version
+     * @since 2.6.0
      */
     public interface RedirectionValidator {
 

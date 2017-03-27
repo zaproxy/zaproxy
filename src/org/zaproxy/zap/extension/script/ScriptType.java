@@ -55,7 +55,7 @@ public class ScriptType {
 	 * @param enableable {@code true} if the scripts of the script type can be enabled, {@code false} otherwise.
 	 * @param enabledByDefault {@code true} if the scripts of the script type should be enabled by default, {@code false}
 	 *			otherwise. Ignored if {@code enableable} is false.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public ScriptType(String name, String i18nKey, ImageIcon icon, boolean enableable, boolean enabledByDefault) {
 		this(name, i18nKey, icon, enableable, enabledByDefault, null);
@@ -86,7 +86,7 @@ public class ScriptType {
 	 * @param enabledByDefault {@code true} if the scripts should be enabled by default, {@code false} otherwise. Ignored if
 	 *			{@code enableable} is false.
 	 * @param capabilities the capabilities of the scripts of the script type.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public ScriptType(String name, String i18nKey, ImageIcon icon, boolean enableable, boolean enabledByDefault,
 			String[] capabilities) {
@@ -131,7 +131,7 @@ public class ScriptType {
 	 * Only meaningful if the script type is {@link #isEnableable() enableable}.
 	 * 
 	 * @return {@code true} if the scripts should be enabled by default, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public boolean isEnabledByDefault() {
 		return enabledByDefault;
