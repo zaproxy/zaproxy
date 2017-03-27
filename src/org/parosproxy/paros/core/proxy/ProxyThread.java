@@ -70,6 +70,7 @@
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 // ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
 // ZAP: 2017/03/15 Disable API by default
+// ZAP: 2017/03/26 Check the public address when behind NAT.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -84,6 +85,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -96,6 +98,8 @@ import javax.net.ssl.SSLException;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.ice4j.TransportAddress;
+import org.ice4j.ice.harvest.AwsCandidateHarvester;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
@@ -149,6 +153,16 @@ public class ProxyThread implements Runnable {
 	private static int id = 1;
     
     private static Vector<Thread> proxyThreadList = new Vector<>();
+
+    /**
+     * Used to obtain the public address of AWS EC2 instance.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getAwsCandidateHarvester()
+     * @see #isOwnPublicAddress(InetAddress)
+     */
+    private static AwsCandidateHarvester awsCandidateHarvester;
     
 	protected ProxyThread(ProxyServer server, Socket socket) {
 		this(server, socket, null);
@@ -759,7 +773,7 @@ public class ProxyThread implements Runnable {
      */
     private boolean isProxyAddress(InetAddress address) {
         if (parentServer.getProxyParam().isProxyIpAnyLocalAddress()) {
-            if (isLocalAddress(address) || isNetworkInterfaceAddress(address)) {
+            if (isLocalAddress(address) || isNetworkInterfaceAddress(address) || isOwnPublicAddress(address)) {
                 return true;
             }
         } else if (address.equals(inSocket.getLocalAddress())) {
@@ -797,6 +811,45 @@ public class ProxyThread implements Runnable {
             log.warn("Failed to check if an address is from a network interface:", e);
         }
         return false;
+    }
+
+    /**
+     * Tells whether or not the given {@code address} is a public address of the host, when behind NAT.
+     * <p>
+     * Returns {@code false} if the proxy is not behind NAT.
+     * <p>
+     * <strong>Implementation Note:</strong> Only AWS EC2 NAT detection is supported, by requesting the public IP address from
+     * <a href= "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html#working-with-ip-addresses">
+     * AWS EC2 instance's metadata</a>.
+     * 
+     * @param address the address that will be checked
+     * @return {@code true} if the address is public address of the host, {@code false} otherwise.
+     * @see ProxyParam#isBehindNat()
+     */
+    private boolean isOwnPublicAddress(InetAddress address) {
+        if (!proxyParam.isBehindNat()) {
+            return false;
+        }
+
+        // Support just AWS for now.
+        TransportAddress publicAddress = getAwsCandidateHarvester().getMask();
+        if (publicAddress == null) {
+            return false;
+        }
+        return Arrays.equals(address.getAddress(), publicAddress.getAddress().getAddress());
+    }
+
+    private static AwsCandidateHarvester getAwsCandidateHarvester() {
+        if (awsCandidateHarvester == null) {
+            createAwsCandidateHarvester();
+        }
+        return awsCandidateHarvester;
+    }
+
+    private static synchronized void createAwsCandidateHarvester() {
+        if (awsCandidateHarvester == null) {
+            awsCandidateHarvester = new AwsCandidateHarvester();
+        }
     }
     
     private void removeUnsupportedEncodings(HttpMessage msg) {

@@ -31,6 +31,7 @@
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
+// ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -39,6 +40,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -65,6 +67,10 @@ public class ProxyParam extends AbstractParam {
     private static final String REVERSE_PROXY_HTTP_PORT = "proxy.reverseProxy.httpPort";
     private static final String REVERSE_PROXY_HTTPS_PORT = "proxy.reverseProxy.httpsPort";
 
+    /**
+     * The configuration key to save/load the option {@link #behindNat}.
+     */
+    private static final String PROXY_BEHIND_NAT = PROXY_BASE_KEY + ".behindnat";
 
     private static final String SECURITY_PROTOCOLS_ENABLED = PROXY_BASE_KEY + ".securityProtocolsEnabled";
     private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + ".protocol";
@@ -110,6 +116,13 @@ public class ProxyParam extends AbstractParam {
      */
     private boolean alwaysDecodeGzip = true;
 
+    /**
+     * Flag that controls whether or not the local proxy is behind NAT.
+     * <p>
+     * Default is {@code false}.
+     */
+    private boolean behindNat;
+
     private String[] securityProtocolsEnabled;
 
     public ProxyParam() {
@@ -149,6 +162,12 @@ public class ProxyParam extends AbstractParam {
         alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
 
         loadSecurityProtocolsEnabled();
+
+        try {
+            behindNat = getConfig().getBoolean(PROXY_BEHIND_NAT, false);
+        } catch (ConversionException e) {
+            logger.error("Failed to read '" + PROXY_BEHIND_NAT + "'", e);
+        }
     }
 
     public String getProxyIp() {
@@ -402,5 +421,24 @@ public class ProxyParam extends AbstractParam {
         } catch (UnknownHostException e) {
             proxyIpAnyLocalAddress = false;
         }
+    }
+
+    /**
+     * Tells whether or not the proxy is behind NAT.
+     *
+     * @return {@code true} if the proxy is behind NAT, {@code false} otherwise.
+     */
+    public boolean isBehindNat() {
+        return behindNat;
+    }
+
+    /**
+     * Sets whether or not the proxy is behind NAT.
+     *
+     * @param behindNat {@code true} if the proxy is behind NAT, {@code false} otherwise.
+     */
+    public void setBehindNat(boolean behindNat) {
+        this.behindNat = behindNat;
+        getConfig().setProperty(PROXY_BEHIND_NAT, Boolean.valueOf(behindNat));
     }
 }
