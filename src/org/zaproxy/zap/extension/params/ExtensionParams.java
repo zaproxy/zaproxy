@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.params;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -349,6 +352,17 @@ public class ExtensionParams extends ExtensionAdaptor
 			persist(sps.addParam(site, iter.next(), msg));
 		}
 
+		// Header "Parameters"
+		List<HttpHeaderField> headersList = msg.getResponseHeader().getHeaders();
+		List<String> setCookieHeaders = Arrays.asList(HttpHeader.SET_COOKIE.toLowerCase(), HttpHeader.SET_COOKIE2.toLowerCase());
+		for (HttpHeaderField hdrField:headersList) {
+			if (setCookieHeaders.contains(hdrField.getName().toLowerCase())) {
+				continue;
+			}
+			HtmlParameter headerParam = new HtmlParameter(HtmlParameter.Type.header, hdrField.getName(), hdrField.getValue());
+			persist(sps.addParam(site, headerParam, msg));
+		}
+		
 		// TODO Only do if response URL different to request? 
 		// URL Parameters
 		/*
@@ -385,6 +399,8 @@ public class ExtensionParams extends ExtensionAdaptor
 					extSearch.search("[?&]" + item.getName() + "=.*", ExtensionSearch.Type.URL, true, false);
 				} else if (HtmlParameter.Type.cookie.equals(item.getType())) {
 						extSearch.search(/*".*" + */item.getName() + "=.*", ExtensionSearch.Type.Header, true, false);
+				} else if (HtmlParameter.Type.header.equals(item.getType())) {
+					extSearch.search(item.getName() + ":.*", ExtensionSearch.Type.Header, true, false);
 				} else {
 					// FORM
 					extSearch.search(/*".*" + */item.getName() + "=.*", ExtensionSearch.Type.Request, true, false);
