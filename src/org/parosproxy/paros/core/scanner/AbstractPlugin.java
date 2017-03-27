@@ -52,6 +52,7 @@
 // ZAP: 2016/05/03 Remove exceptions' stack trace prints
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
 // ZAP: 2016/07/12 Do not allow techSet to be null
+// ZAP: 2017/03/27 Use HttpRequestConfig.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -73,12 +74,13 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
@@ -111,13 +113,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private AddOn.Status status = AddOn.Status.unknown;
 
     /**
-     * The redirection validator that ensures the followed redirections are in scan's scope.
+     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
+     * scan's scope.
      * <p>
      * Lazily initialised.
      * 
-     * @see #getRedirectionValidator()
+     * @see #getHttpRequestConfig()
      */
-    private HttpSender.RedirectionValidator redirectionValidator;
+    private HttpRequestConfig httpRequestConfig;
 
     /**
      * Default Constructor
@@ -311,7 +314,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.performScannerHookBeforeScan(message, this);
 
         if (isFollowRedirect) {
-            parent.getHttpSender().sendAndReceive(message, getRedirectionValidator());
+            parent.getHttpSender().sendAndReceive(message, getHttpRequestConfig());
         } else {
             parent.getHttpSender().sendAndReceive(message, false);
         }
@@ -324,13 +327,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Gets the redirection validator, that ensures the followed redirections are in scan's scope.
+     * Gets the HTTP request configuration, that ensures the followed redirections are in scan's scope.
      *
-     * @return scan's scope redirection validator, never {@code null}
+     * @return the HTTP request configuration, never {@code null}.
+     * @see #httpRequestConfig
      */
-    private HttpSender.RedirectionValidator getRedirectionValidator() {
-        if (redirectionValidator == null) {
-            redirectionValidator = new HttpSender.RedirectionValidator() {
+    private HttpRequestConfig getHttpRequestConfig() {
+        if (httpRequestConfig == null) {
+            httpRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(new HttpRedirectionValidator() {
 
                 @Override
                 public boolean isValid(URI redirection) {
@@ -347,9 +351,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 public void notifyMessageReceived(HttpMessage message) {
                     // Nothing to do with the message.
                 }
-            };
+            }).build();
         }
-        return redirectionValidator;
+        return httpRequestConfig;
     }
 
     private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
