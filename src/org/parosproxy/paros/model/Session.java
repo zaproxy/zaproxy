@@ -1041,7 +1041,7 @@ public class Session {
 	 * <strong>Note:</strong> The changes are lost after changing the session.
 	 *
 	 * @param regex the regular expression to add.
-	 * @deprecated (TODO add version) No longer works, modification of global exclude URLs should not be done through the
+	 * @deprecated (2.6.0) No longer works, modification of global exclude URLs should not be done through the
 	 *             session.
 	 * @since 2.3.0
 	 */
@@ -1055,7 +1055,7 @@ public class Session {
 	 * <strong>Note:</strong> The changes are lost after changing the session.
 	 *
 	 * @param ignoredRegexs the global exclude URLs
-	 * @deprecated (TODO add version) No longer works, when needed, the global exclude URLs are obtained from the options.
+	 * @deprecated (2.6.0) No longer works, when needed, the global exclude URLs are obtained from the options.
 	 * @since 2.3.0
 	 */
 	@Deprecated
@@ -1167,7 +1167,7 @@ public class Session {
 	 *
 	 * @param name the name of the context
 	 * @return the new {@code Context}.
-	 * @throws IllegalContextNameException (since TODO add version) if the given name is {@code null} or empty or if a context
+	 * @throws IllegalContextNameException (since 2.6.0) if the given name is {@code null} or empty or if a context
 	 *             with the given name already exists.
 	 */
 	public Context getNewContext(String name) {
@@ -1215,8 +1215,8 @@ public class Session {
 	 * Adds the given context.
 	 *
 	 * @param c the context to be added
-	 * @throws IllegalArgumentException (since TODO add version) if the given context is {@code null}.
-	 * @throws IllegalContextNameException (since TODO add version) if context's name is {@code null} or empty or if a context
+	 * @throws IllegalArgumentException (since 2.6.0) if the given context is {@code null}.
+	 * @throws IllegalContextNameException (since 2.6.0) if context's name is {@code null} or empty or if a context
 	 *             with the same name already exists.
 	 */
 	public void addContext(Context c) {
@@ -1349,7 +1349,7 @@ public class Session {
 	 * @throws InvocationTargetException
 	 * @throws NoSuchMethodException
 	 * @throws SecurityException
-	 * @throws IllegalContextNameException (since TODO add version) if context's name is not provided or it's empty or if a
+	 * @throws IllegalContextNameException (since 2.6.0) if context's name is not provided or it's empty or if a
 	 *             context with the same name already exists.
 	 */
 	public Context importContext (File file) throws ConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {

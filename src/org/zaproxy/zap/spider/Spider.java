@@ -144,7 +144,7 @@ public class Spider {
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
-	 * @deprecated (TODO add version) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam, Model, Context)}
+	 * @deprecated (2.6.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam, Model, Context)}
 	 *             instead.
 	 */
 	@Deprecated
@@ -162,7 +162,7 @@ public class Spider {
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public Spider(String id, ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
 			Model model, Context scanContext) {

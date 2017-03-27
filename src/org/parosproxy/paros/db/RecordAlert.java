@@ -308,7 +308,7 @@ public class RecordAlert {
 	 * Sets the ID of the source of the alert.
 	 *
 	 * @param sourceId the ID of the source
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see org.parosproxy.paros.core.scanner.Alert.Source Source
 	 */
 	public void setSourceId(int sourceId) {
@@ -319,7 +319,7 @@ public class RecordAlert {
 	 * Gets the ID of the source of the alert.
 	 *
 	 * @return the ID of the source
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see org.parosproxy.paros.core.scanner.Alert.Source Source
 	 */
 	public int getSourceId() {

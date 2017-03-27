@@ -143,12 +143,12 @@ public class HistoryReference {
      * (for example, Zest Active Rules will use the types of the active scanner, {@link #TYPE_SCANNER_TEMPORARY} or
      * {@link #TYPE_SCANNER}).
      * 
-     * @since TODO add version
+     * @since 2.6.0
      */
     public static final int TYPE_ZEST_SCRIPT = 12;
 
     /**
-     * @deprecated (TODO add version) Use {@link #TYPE_ZEST_SCRIPT} instead.
+     * @deprecated (2.6.0) Use {@link #TYPE_ZEST_SCRIPT} instead.
      * @since 2.1.0
      */
     @Deprecated
@@ -202,7 +202,7 @@ public class HistoryReference {
     /**
      * A (temporary) HTTP message created/used when active scanning sequences.
      * 
-     * @since TODO add version
+     * @since 2.6.0
      * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
      */
     public static final int TYPE_SEQUENCE_TEMPORARY = 17;
@@ -212,7 +212,7 @@ public class HistoryReference {
      * <p>
      * Normally a message that was not processed (i.e. not on spider scope).
      * 
-     * @since TODO add version
+     * @since 2.6.0
      * @see #TYPE_SPIDER_AJAX
      * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
      */
@@ -223,7 +223,7 @@ public class HistoryReference {
      * <p>
      * Normally a message that was not processed (i.e. not successfully sent to the server).
      * 
-     * @since TODO add version
+     * @since 2.6.0
      * @see #TYPE_SPIDER
      * @see #TYPE_SPIDER_TASK
      * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
@@ -577,7 +577,7 @@ public class HistoryReference {
      *
      * @param alert the alert to check
      * @return {@code true} if it has the given alert, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      * @see #hasAlerts()
      * @see #addAlert(Alert)
      */
@@ -592,7 +592,7 @@ public class HistoryReference {
      * Tells whether or not this history reference has alerts.
      *
      * @return {@code true} if it has alerts, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      * @see #hasAlert(Alert)
      * @see #addAlert(Alert)
      */

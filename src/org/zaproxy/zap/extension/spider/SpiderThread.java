@@ -119,7 +119,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @param spiderParams the spider options
 	 * @param site the name that identifies the target site
 	 * @param listenner the scan listener
-	 * @deprecated (TODO add version) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String, ScanListenner)}
+	 * @deprecated (2.6.0) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String, ScanListenner)}
 	 */
 	@Deprecated
 	public SpiderThread(ExtensionSpider extension, SpiderParam spiderParams, String site, ScanListenner listenner) {
@@ -134,7 +134,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @param spiderParams the spider options
 	 * @param site the name that identifies the target site
 	 * @param listenner the scan listener
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public SpiderThread(String id, ExtensionSpider extension, SpiderParam spiderParams, String site, ScanListenner listenner) {
 		super(site, listenner);

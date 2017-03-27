@@ -126,7 +126,7 @@ public class ApiElement {
 	 * Tells whether or not the API element is deprecated.
 	 *
 	 * @return {@code true} if the API element is deprecated, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #getDeprecatedDescription()
 	 */
 	public boolean isDeprecated() {
@@ -140,7 +140,7 @@ public class ApiElement {
 	 * API generators might also mark the elements as deprecated.
 	 * 
 	 * @param deprecated {@code true} if the API element is deprecated, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #setDeprecatedDescription(String)
 	 */
 	public void setDeprecated(boolean deprecated) {
@@ -151,7 +151,7 @@ public class ApiElement {
 	 * Gets the description of the deprecation.
 	 *
 	 * @return the description of the deprecation, might be {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #isDeprecated()
 	 */
 	public String getDeprecatedDescription() {
@@ -166,7 +166,7 @@ public class ApiElement {
 	 * <strong>Note:</strong> It should be in plain text (i.e. no HTML tags).
 	 *
 	 * @param description the description of the deprecation.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #setDeprecated(boolean)
 	 */
 	public void setDeprecatedDescription(String description) {

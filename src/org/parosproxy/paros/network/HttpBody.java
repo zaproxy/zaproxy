@@ -172,7 +172,7 @@ public abstract class HttpBody {
 	 * 
 	 * @param contents the contents being set to the body
 	 * @return the {@code Charset}, or {@code null} if not known.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	protected Charset determineCharset(String contents) {
 		return null;
@@ -184,7 +184,7 @@ public abstract class HttpBody {
 	 * An attempt to prevent data loss when {@link #setBody(String) new contents} are set without a {@code Charset}.
 	 *
 	 * @param determine {@code true} if the {@code Charset} should be determined, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #isDetermineCharset()
 	 * @see #setCharset(String)
 	 */
@@ -200,7 +200,7 @@ public abstract class HttpBody {
 	 * By default returns {@code true}.
 	 *
 	 * @return {@code true} if the {@code Charset} should be determined, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #setDetermineCharset(boolean)
 	 * @see #setCharset(String)
 	 */

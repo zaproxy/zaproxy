@@ -66,7 +66,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener, OptionsChangedListener {
 
     /**
-     * @deprecated (TODO add version) Should not be used/relied on, breakpoint dialogues should be modal.
+     * @deprecated (2.6.0) Should not be used/relied on, breakpoint dialogues should be modal.
      */
     @Deprecated
     public enum DialogType {NONE, ADD, EDIT, REMOVE};
@@ -120,7 +120,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	/**
-	 * @deprecated (TODO add version) Classes outside of this package should not access the UI directly
+	 * @deprecated (2.6.0) Classes outside of this package should not access the UI directly
 	 */
     @Deprecated
 	public BreakPanel getBreakPanel() {
@@ -481,7 +481,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     }
 
 	/**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
 	 */
     @Deprecated
 	public boolean canAddBreakpoint() {
@@ -489,7 +489,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
     
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public boolean canEditBreakpoint() {
@@ -497,7 +497,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public boolean canRemoveBreakpoint() {
@@ -505,7 +505,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public void dialogShown(DialogType type) {
@@ -513,7 +513,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public void dialogClosed() {

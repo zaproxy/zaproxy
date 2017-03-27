@@ -127,7 +127,7 @@ public class Scanner implements Runnable {
      * @param param the connection parameters
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public Scanner(ScannerParam scannerParam, ConnectionParam param, 
     		ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
@@ -512,7 +512,7 @@ public class Scanner implements Runnable {
 	/**
 	 * Gets the technologies used in the scan.
 	 *
-	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @return the technologies, never {@code null} (since 2.6.0)
 	 * @since 2.4.0
 	 */
 	public TechSet getTechSet() {
@@ -524,7 +524,7 @@ public class Scanner implements Runnable {
 	 *
 	 * @param techSet the technologies to be used during the scan
 	 * @since 2.4.0
-	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}
+	 * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}
 	 */
 	public void setTechSet(TechSet techSet) {
 		if (techSet == null) {

@@ -162,7 +162,7 @@ public class SessionDialog extends AbstractParamDialog {
 	 * Should be called when a new context is added to the session and before adding its panels.
 	 * 
 	 * @param context the context
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public void createUISharedContext(Context context) {
 		if (session != null) {

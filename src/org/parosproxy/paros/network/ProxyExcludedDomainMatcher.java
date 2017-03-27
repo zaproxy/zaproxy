@@ -30,7 +30,7 @@ import org.zaproxy.zap.network.DomainMatcher;
  * </p>
  * 
  * @see #matches(String)
- * @deprecated (TODO Add Version) Replaced By {@link org.zaproxy.zap.network.DomainMatcher}
+ * @deprecated (2.6.0) Replaced By {@link org.zaproxy.zap.network.DomainMatcher}
  */
 @Deprecated
 public class ProxyExcludedDomainMatcher extends DomainMatcher {

@@ -97,7 +97,7 @@ public class ConnectionParam extends AbstractParam {
 	/**
 	 * The default TTL (in seconds) of successful DNS queries.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final int DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES = 30;
 
@@ -746,7 +746,7 @@ public class ConnectionParam extends AbstractParam {
 	 * Gets the TTL (in seconds) of successful DNS queries.
 	 *
 	 * @return the TTL in seconds
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #setDnsTtlSuccessfulQueries(int)
 	 */
 	public int getDnsTtlSuccessfulQueries() {
@@ -764,7 +764,7 @@ public class ConnectionParam extends AbstractParam {
 	 * </ul>
 	 *
 	 * @param ttl the TTL in seconds
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #getDnsTtlSuccessfulQueries()
 	 */
 	public void setDnsTtlSuccessfulQueries(int ttl) {

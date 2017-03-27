@@ -145,7 +145,7 @@ public class PassiveScanParam extends AbstractParam {
      *
      * @param scanOnlyInScope {@code true} if the scan should be performed only on messages that are in scope, {@code false}
      *            otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      * @see #isScanOnlyInScope()
      * @see org.parosproxy.paros.model.Session#isInScope(String) Session.isInScope(String)
      */
@@ -158,7 +158,7 @@ public class PassiveScanParam extends AbstractParam {
      * Tells whether or not the passive scan should be performed only on messages that are in scope.
      *
      * @return {@code true} if the scan should be performed only on messages that are in scope, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      * @see #setScanOnlyInScope(boolean)
      */
     public boolean isScanOnlyInScope() {

@@ -929,7 +929,7 @@ public class SpiderParam extends AbstractParam {
      * Gets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
      * 
      * @return the maximum number of child nodes that can be crawled.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public int getMaxChildren() {
         return maxChildren;
@@ -939,7 +939,7 @@ public class SpiderParam extends AbstractParam {
      * Sets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
      * 
      * @param maxChildren the maximum number of child nodes that can be crawled.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public void setMaxChildren(int maxChildren) {
         this.maxChildren = maxChildren;

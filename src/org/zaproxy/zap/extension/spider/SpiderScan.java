@@ -120,7 +120,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * @param spiderURI the starting URI, may be {@code null}.
 	 * @param scanUser the user to be used in the scan, may be {@code null}.
 	 * @param scanId the ID of the scan
-	 * @deprecated (TODO add version) Use {@link #SpiderScan(ExtensionSpider, SpiderParam, Target, URI, User, int, String)}
+	 * @deprecated (2.6.0) Use {@link #SpiderScan(ExtensionSpider, SpiderParam, Target, URI, User, int, String)}
 	 *             instead.
 	 */
 	@Deprecated
@@ -138,7 +138,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * @param scanUser the user to be used in the scan, may be {@code null}.
 	 * @param scanId the ID of the scan
 	 * @param name the name that identifies the target
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId, String name) {
 		lock = new ReentrantLock();
@@ -309,7 +309,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * </p>
 	 *
 	 * @return the resources found during the scan that were not successfully obtained
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public List<SpiderResource> getResourcesIoErrors() {
 		return resourcesIoErrors;

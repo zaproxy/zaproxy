@@ -54,7 +54,7 @@ public class DisplayUtils {
 	 * Gets a correctly scaled icon from the specified url
 	 * @param url
 	 * @return
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static ImageIcon getScaledIcon(URL url) {
 		if (url == null) {

@@ -61,7 +61,7 @@ public class AddOn  {
 	/**
 	 * The name of the manifest file, contained in the add-ons.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String MANIFEST_FILE_NAME = "ZapAddOn.xml";
 
@@ -114,7 +114,7 @@ public class AddOn  {
 	/**
 	 * The file extension of ZAP add-ons.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String FILE_EXTENSION = ".zap";
 
@@ -186,7 +186,7 @@ public class AddOn  {
 	 *
 	 * @param fileName the name of the file to check
 	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
-	 * @deprecated (TODO add version) Use {@link #isAddOnFileName(String)} instead, the checks done in this method are more
+	 * @deprecated (2.6.0) Use {@link #isAddOnFileName(String)} instead, the checks done in this method are more
 	 *             strict than it needs to.
 	 * @see #isAddOnFileName(String)
 	 */
@@ -217,7 +217,7 @@ public class AddOn  {
 	 *
 	 * @param fileName the name of the file to check
 	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static boolean isAddOnFileName(String fileName) {
 		if (fileName == null) {
@@ -231,7 +231,7 @@ public class AddOn  {
 	 *
 	 * @param f the file to be checked
 	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
-	 * @deprecated (TODO add version) Use {@link #isAddOn(Path)} instead.
+	 * @deprecated (2.6.0) Use {@link #isAddOn(Path)} instead.
 	 */
 	@Deprecated
 	public static boolean isAddOn(File f) {
@@ -245,7 +245,7 @@ public class AddOn  {
 	 * 
 	 * @param file the file to be checked
 	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #isAddOnFileName(String)
 	 */
 	public static boolean isAddOn(Path file) {
@@ -276,7 +276,7 @@ public class AddOn  {
 	 *
 	 * @param fileName the file name of the add-on
 	 * @throws Exception if the file name is not valid.
-	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
+	 * @deprecated (2.6.0) Use {@link #AddOn(Path)} instead.
 	 */
 	@Deprecated
 	public AddOn(String fileName) throws Exception {
@@ -301,7 +301,7 @@ public class AddOn  {
 	 * @param file the file of the add-on
 	 * @throws Exception if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
 	 *             while reading the {@code value #ZAP_ADD_ON_XML} ZIP file entry
-	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
+	 * @deprecated (2.6.0) Use {@link #AddOn(Path)} instead.
 	 */
 	@Deprecated
 	public AddOn(File file) throws Exception {
@@ -478,7 +478,7 @@ public class AddOn  {
 	 * Should be used when copying the file from an "unknown" source (e.g. manually installed).
 	 *
 	 * @return the normalised file name.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #getFile()
 	 */
 	public String getNormalisedFileName() {

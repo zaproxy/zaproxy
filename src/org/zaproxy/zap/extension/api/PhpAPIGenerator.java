@@ -78,7 +78,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
      *
      * @param implementors the implementors
      * @throws IOException if an error occurred while generating the APIs.
-     * @deprecated (TODO add version) Use {@link #generateAPIFiles(List)} instead.
+     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
      */
     @Deprecated
     public void generatePhpFiles(List<ApiImplementor> implementors) throws IOException {

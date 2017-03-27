@@ -160,7 +160,7 @@ public class HostProcess implements Runnable {
      * @param connectionParam the connection parameters
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
@@ -706,7 +706,7 @@ public class HostProcess implements Runnable {
      *
      * @param plugin the plugin that will be skipped, must not be {@code null}
      * @param reason the reason why the plugin was skipped, might be {@code null}
-     * @since TODO add version
+     * @since 2.6.0
      */
     public void pluginSkipped(Plugin plugin, String reason) {
         PluginStats pluginStats = mapPluginStats.get(plugin.getId());
@@ -757,7 +757,7 @@ public class HostProcess implements Runnable {
      * 
      * @param plugin the plugin that will be checked
      * @return the reason why the given plugin was skipped, might be {@code null} if not skipped or there's no reason
-     * @since TODO add version
+     * @since 2.6.0
      * @see #isSkipped(Plugin)
      */
     public String getSkippedReason(Plugin plugin) {
@@ -854,7 +854,7 @@ public class HostProcess implements Runnable {
 	/**
 	 * Gets the technologies to be used in the scan.
 	 *
-	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @return the technologies, never {@code null} (since 2.6.0)
 	 * @since 2.4.0
 	 */
 	public TechSet getTechSet() {
@@ -866,7 +866,7 @@ public class HostProcess implements Runnable {
 	 *
 	 * @param techSet the technologies to be used during the scan
 	 * @since 2.4.0
-	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+	 * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}.
 	 */
 	public void setTechSet(TechSet techSet) {
 		if (techSet == null) {

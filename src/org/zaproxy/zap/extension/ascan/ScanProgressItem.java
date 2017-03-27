@@ -144,7 +144,7 @@ public class ScanProgressItem {
      * Gets the reason why the plugin was skipped.
      *
      * @return the reason why the plugin was skipped, might be {@code null} if there's no reason
-     * @since TODO add version
+     * @since 2.6.0
      * @see #isSkipped()
      */
     public String getSkippedReason() {

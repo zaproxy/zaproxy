@@ -186,7 +186,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * The default is {@code true}.
 	 * 
 	 * @return {@code true} if the dialogue should be hidden, {@code false} otherwise.
-	 * @since TODO Add version
+	 * @since 2.6.0
 	 * @see #setHideOnSave(boolean)
 	 */
 	protected boolean isHideOnSave() {
@@ -197,7 +197,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * Sets whether or not the dialogue is automatically hidden when {@link #save() saved}.
 	 *
 	 * @param hideOnSave {@code true} if the dialogue should be hidden, {@code false} otherwise.
-	 * @since TODO Add version
+	 * @since 2.6.0
 	 * @see #isHideOnSave()
 	 */
 	protected void setHideOnSave(boolean hideOnSave) {
@@ -528,7 +528,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param fieldLabel the label of the field
 	 * @param value the value of the field, might be {@code null}
 	 * @throws IllegalArgumentException if the dialogue is a tabbed dialogue
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addPasswordField(int, String, String)
 	 * @see #getPasswordValue(String)
 	 */
@@ -552,7 +552,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param value the value of the field, might be {@code null}
 	 * @throws IllegalArgumentException if the dialogue is not a tabbed dialogue or if the index does not correspond to an
 	 *			 existing tab
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addPasswordField(String, String)
 	 * @see #getPasswordValue(String)
 	 */
@@ -713,7 +713,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param tabIndex the index of the tab where the combo box should be added.
 	 * @param fieldLabel the name of the label of the combo box field.
 	 * @param comboBoxModel the model to set into the combo box.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @throws IllegalArgumentException if any of the following conditions is true:
 	 *             <ul>
 	 *             <li>the dialogue does not have tabs;</li>
@@ -738,7 +738,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param fieldLabel the name of the label of the combo box field.
 	 * @param comboBoxModel the model to set into the combo box.
 	 * @param editable {@code true} if the combo box should be editable, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @throws IllegalArgumentException if any of the following conditions is true:
 	 *             <ul>
 	 *             <li>the dialogue does not have tabs;</li>
@@ -775,7 +775,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 *             <li>the dialogue has tabs;</li>
 	 *             <li>a field with the given label already exists.</li>
 	 *             </ul>
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addComboField(String, ComboBoxModel, boolean)
 	 * @see #addComboField(int, String, ComboBoxModel)
 	 * @see #setComboBoxModel(String, ComboBoxModel)
@@ -798,7 +798,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 *             <li>the dialogue has tabs;</li>
 	 *             <li>a field with the given label already exists.</li>
 	 *             </ul>
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addComboField(String, ComboBoxModel)
 	 * @see #addComboField(int, String, ComboBoxModel, boolean)
 	 * @see #setComboBoxModel(String, ComboBoxModel)
@@ -978,7 +978,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param <E> the type of the elements of the combo box model.
 	 * @param fieldLabel the name of the label of the combo box field
 	 * @param comboBoxModel the model to set into the combo box
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addComboField(String, ComboBoxModel)
 	 * @see #addComboField(int, String, ComboBoxModel)
 	 */
@@ -1380,7 +1380,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * 
 	 * @param fieldLabel the label of the field
 	 * @return the contents of the field, {@code null} if not a {@code JPassword} field.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #setFieldValue(String, String)
 	 * @see #addPasswordField(String, String)
 	 */
@@ -1412,7 +1412,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * 
 	 * @param fieldLabel the label of the field
 	 * @param context the context to be set/selected, {@code null} to clear the selection. 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #getContextValue(String)
 	 * @see #addContextSelectField(String, Context)
 	 */

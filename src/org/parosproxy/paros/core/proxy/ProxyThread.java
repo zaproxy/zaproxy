@@ -174,7 +174,7 @@ public class ProxyThread implements Runnable {
 	 * @param server the parent proxy server.
 	 * @param socket the connected socket to read/write the messages.
 	 * @param httpSender the object used to send the messages, might be {@code null} in which case a default is used.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	protected ProxyThread(ProxyServer server, Socket socket, HttpSender httpSender) {
 		parentServer = server;
