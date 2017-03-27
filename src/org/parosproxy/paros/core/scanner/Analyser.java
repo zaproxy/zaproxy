@@ -35,6 +35,7 @@
 // ZAP: 2016/04/21 Allow to obtain the number of requests sent during the analysis
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
 // ZAP: 2016/09/20 JavaDoc tweaks
+// ZAP: 2017/03/27 Use HttpRequestConfig.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -56,6 +57,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 public class Analyser {
 
@@ -84,6 +87,16 @@ public class Analyser {
      * @see #getRequestCount()
      */
     private int requestCount;
+
+    /**
+     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
+     * scan's scope.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getHttpRequestConfig()
+     */
+    private HttpRequestConfig httpRequestConfig;
 
     // ZAP: Added parent
     HostProcess parent = null;
@@ -482,30 +495,43 @@ public class Analyser {
             }
         }
 
-        httpSender.sendAndReceive(msg, new HttpSender.RedirectionValidator() {
-
-            @Override
-            public boolean isValid(URI redirection) {
-                if (!parent.nodeInScope(redirection.getEscapedURI())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Skipping redirection out of scan's scope: " + redirection);
-                    }
-                    return false;
-                }
-                return true;
-            }
-
-            @Override
-            public void notifyMessageReceived(HttpMessage message) {
-                // Nothing to do with the message.
-            }
-        });
+        httpSender.sendAndReceive(msg, getHttpRequestConfig());
         requestCount++;
 
         // ZAP: Notify parent
         if (parent != null) {
             parent.notifyNewMessage(msg);
         }
+    }
+
+    /**
+     * Gets the HTTP request configuration, that ensures the followed redirections are in scan's scope.
+     *
+     * @return the HTTP request configuration, never {@code null}.
+     * @see #httpRequestConfig
+     */
+    private HttpRequestConfig getHttpRequestConfig() {
+        if (httpRequestConfig == null) {
+            httpRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(new HttpRedirectionValidator() {
+
+                @Override
+                public boolean isValid(URI redirection) {
+                    if (!parent.nodeInScope(redirection.getEscapedURI())) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Skipping redirection out of scan's scope: " + redirection);
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void notifyMessageReceived(HttpMessage message) {
+                    // Nothing to do with the message.
+                }
+            }).build();
+        }
+        return httpRequestConfig;
     }
 
     public int getDelayInMs() {

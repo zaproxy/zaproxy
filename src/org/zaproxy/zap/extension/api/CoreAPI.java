@@ -77,6 +77,8 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.network.DomainMatcher;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
@@ -713,7 +715,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			if (followRedirects) {
 				ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
-				sender.sendAndReceive(request, redirector);
+				sender.sendAndReceive(request, HttpRequestConfig.builder().setRedirectionValidator(redirector).build());
 
 				if (!redirector.isRequestValid()) {
 					throw new ApiException(ApiException.Type.MODE_VIOLATION);
@@ -1459,11 +1461,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	}
 
 	/**
-	 * A {@code RedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
+	 * A {@link HttpRedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
 	 *
 	 * @see #isRequestValid()
 	 */
-	private static class ModeRedirectionValidator implements HttpSender.RedirectionValidator {
+	private static class ModeRedirectionValidator implements HttpRedirectionValidator {
 
 		private final Processor<HttpMessage> processor;
 		private boolean isRequestValid;

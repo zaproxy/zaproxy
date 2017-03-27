@@ -50,6 +50,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 /**
  * Knows how to send {@link HttpMessage} objects.
@@ -89,7 +91,9 @@ public class HttpPanelSender implements MessageSender {
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
             if (getButtonFollowRedirects().isSelected()) {
-                getDelegate().sendAndReceive(httpMessage, redirectionValidator);
+                getDelegate().sendAndReceive(
+                        httpMessage,
+                        HttpRequestConfig.builder().setRedirectionValidator(redirectionValidator).build());
             } else {
                 getDelegate().sendAndReceive(httpMessage, false);
             }
@@ -237,11 +241,11 @@ public class HttpPanelSender implements MessageSender {
     }
 
     /**
-     * A {@code RedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
+     * A {@link HttpRedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
      *
      * @see #isRequestValid()
      */
-    private static class ModeRedirectionValidator implements HttpSender.RedirectionValidator {
+    private static class ModeRedirectionValidator implements HttpRedirectionValidator {
 
         private boolean isRequestValid;
         private URI invalidRedirection;
@@ -252,6 +256,7 @@ public class HttpPanelSender implements MessageSender {
 
         @Override
         public void notifyMessageReceived(HttpMessage message) {
+            // Nothing to do with the message.
         }
 
         @Override
