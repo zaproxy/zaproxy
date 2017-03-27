@@ -55,7 +55,7 @@ abstract class ZapBootstrap {
         controlOverrides = new ControlOverrides();
         controlOverrides.setProxyPort(getArgs().getPort());
         controlOverrides.setProxyHost(getArgs().getHost());
-        controlOverrides.setConfigs(getArgs().getConfigs());
+        controlOverrides.setOrderedConfigs(getArgs().getOrderedConfigs());
         controlOverrides.setExperimentalDb(getArgs().isExperimentalDb());
     }
 
