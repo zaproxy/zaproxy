@@ -12,6 +12,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
 
@@ -32,18 +33,16 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		return index + ":" + name;
 	}
 
-	public ContextGeneralPanel(String name, int index) {
-		super(index);
-		this.setName(name);
-		initialize();
-	}
-
 	/**
-	 * This method initializes this
+	 * Constructs a {@code ContextGeneralPanel} for the given context.
 	 * 
-	 * @return void
+	 * @param name the name of the panel
+	 * @param contextId the context id
 	 */
-	private void initialize() {
+	public ContextGeneralPanel(String name, int contextId) {
+		super(contextId);
+		this.setName(name);
+
 		this.setLayout(new CardLayout());
 		this.add(getPanelSession(), this.getName() + "gen");
 	}
@@ -151,9 +150,19 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 	}
 
 	@Override
-	public void validateContextData(Session session) {
-		// no validation needed
+	public void validateContextData(Session session) throws Exception {
+		String name = getTxtName().getText();
+		if (name == null || name.isEmpty()) {
+			throw new IllegalContextNameException(
+					IllegalContextNameException.Reason.EMPTY_NAME,
+					Constant.messages.getString("context.error.name.empty"));
+		}
 
+		if (!this.getName().equals(getPanelName(this.getContextIndex(), name)) && session.getContext(name) != null) {
+			throw new IllegalContextNameException(
+					IllegalContextNameException.Reason.DUPLICATED_NAME,
+					Constant.messages.getString("context.error.name.duplicated"));
+		}
 	}
 
 	@Override

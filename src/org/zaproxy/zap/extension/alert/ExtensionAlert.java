@@ -20,15 +20,24 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.awt.EventQueue;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
+
+import javax.swing.JTree;
+import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -41,11 +50,13 @@ import org.parosproxy.paros.db.RecordScan;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -60,7 +71,8 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
 
-public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
+public class ExtensionAlert extends ExtensionAdaptor implements 
+		SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
@@ -75,27 +87,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
 	private AlertParam alertParam = null;
 	private OptionsAlertPanel optionsPanel = null;
+	private Properties alertOverrides = new Properties();
 
-    /**
-     *
-     */
     public ExtensionAlert() {
-        super();
-        initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionAlert(String name) {
-        super(name);
-    }
-
-    /**
-     * This method initializes this
-     */
-    private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(27);
     }
 
@@ -115,8 +110,39 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
         }
         extensionHook.addSessionListener(this);
+        extensionHook.addOptionsChangedListener(this);
 
     }
+
+	@Override
+	public void optionsLoaded() {
+		reloadOverridesFile();
+	}
+
+	@Override
+	public void optionsChanged(OptionsParam optionsParam) {
+		reloadOverridesFile();
+	}
+	
+	private void reloadOverridesFile() {
+		this.alertOverrides.clear();
+
+		String filename = this.getAlertParam().getOverridesFilename();
+		if (filename != null && filename.length() > 0) {
+			File file = new File(filename);
+			if (! file.isFile() || ! file.canRead()) {
+				logger.error("Cannot read alert overrides file " + file.getAbsolutePath());
+			} else {
+				try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+					this.alertOverrides.load(br);
+					logger.info("Read " + this.alertOverrides.size() + 
+							" overrides from " + file.getAbsolutePath());
+				} catch (IOException e) {
+					logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
+				}
+			}
+		}
+	}
 
 	private OptionsAlertPanel getOptionsPanel() {
 		if (optionsPanel == null) {
@@ -143,9 +169,15 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.setHistoryRef(ref);
             }
 
+            if (alert.getSource() == Alert.Source.UNKNOWN) {
+                alert.setSource(Alert.Source.TOOL);
+            }
+
             alert.setSourceHistoryId(ref.getHistoryId());
 
             hrefs.put(Integer.valueOf(ref.getHistoryId()), ref);
+            
+            this.applyOverrides(alert);
 
             writeAlertToDB(alert, ref);
 
@@ -178,6 +210,54 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    /*
+     * This method is intended for internal use only, and should only
+     * be called by other classes for unit testing.
+     */
+    protected void applyOverrides(Alert alert) {
+        if (this.alertOverrides.isEmpty()) {
+            // Nothing to do
+            return;
+        }
+        String changedName = this.alertOverrides.getProperty(alert.getPluginId() + ".name");
+        if (changedName != null) {
+            alert.setName(applyOverride(alert.getName(), changedName));
+        }
+        String changedDesc = this.alertOverrides.getProperty(alert.getPluginId() + ".description");
+        if (changedDesc != null) {
+            alert.setDescription(applyOverride(alert.getDescription(), changedDesc));
+        }
+        String changedSolution = this.alertOverrides.getProperty(alert.getPluginId() + ".solution");
+        if (changedSolution != null) {
+            alert.setSolution(applyOverride(alert.getSolution(), changedSolution));
+        }
+        String changedOther = this.alertOverrides.getProperty(alert.getPluginId() + ".otherInfo");
+        if (changedOther != null) {
+            alert.setOtherInfo(applyOverride(alert.getOtherInfo(), changedOther));
+        }
+        String changedReference = this.alertOverrides.getProperty(alert.getPluginId() + ".reference");
+        if (changedReference != null) {
+            alert.setReference(applyOverride(alert.getReference(), changedReference));
+        }
+    }
+    
+    /*
+     * This method should only be used for testing
+     */
+    protected void setAlertOverrideProperty(String key, String value) {
+        this.alertOverrides.put(key, value);
+    }
+
+    private String applyOverride(String original, String override) {
+        if (override.startsWith("+")) {
+            return original + override.substring(1);
+        } else if (override.startsWith("-")) {
+            return override.substring(1) + original;
+        } else {
+            return override;
         }
     }
 
@@ -293,12 +373,12 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.getDescription(), alert.getUri(), alert.getParam(), alert.getAttack(),
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(),
-                ref.getHistoryId(), alert.getSourceHistoryId());
+                ref.getHistoryId(), alert.getSourceHistoryId(), alert.getSource().getId());
         
         alert.setAlertId(recordAlert.getAlertId());
 
     }
-
+    
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
         logger.debug("updateAlert " + alert.getName() + " " + alert.getUri());
         HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
@@ -333,6 +413,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     		this.getFilteredTreeModel().updatePath(originalAlert, alert);
     	}
     	this.recalcAlerts();
+    	
+    	if (View.isInitialised()) {
+    		JTree alertTree = this.getAlertPanel().getTreeAlert();
+    		TreePath alertPath = new TreePath(getTreeModel().getAlertNode(alert).getPath());
+    		alertTree.setSelectionPath(alertPath);
+    		alertTree.scrollPathToVisible(alertPath);
+    	}
     }
 
     @Override
@@ -424,7 +511,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertEdit getPopupMenuAlertEdit() {
         if (popupMenuAlertEdit == null) {
             popupMenuAlertEdit = new PopupMenuAlertEdit();
-            popupMenuAlertEdit.setExtension(this);
         }
         return popupMenuAlertEdit;
     }
@@ -432,7 +518,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertDelete getPopupMenuAlertDelete() {
         if (popupMenuAlertDelete == null) {
             popupMenuAlertDelete = new PopupMenuAlertDelete();
-            popupMenuAlertDelete.setExtension(this);
         }
         return popupMenuAlertDelete;
     }
@@ -440,7 +525,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertsRefresh getPopupMenuAlertsRefresh() {
         if (popupMenuAlertsRefresh == null) {
             popupMenuAlertsRefresh = new PopupMenuAlertsRefresh();
-            popupMenuAlertsRefresh.setExtension(this);
         }
         return popupMenuAlertsRefresh;
     }
@@ -519,9 +603,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         	this.getFilteredTreeModel().deletePath(alert);
             List<HistoryReference> toDelete = new ArrayList<>();
             for (HistoryReference href : hrefs.values()) {
-                if (href.getAlerts().contains(alert)) {
+                if (href.hasAlert(alert)) {
                     href.deleteAlert(alert);
-                    if (href.getAlerts().size() == 0) {
+                    if (!href.hasAlerts()) {
                         toDelete.add(href);
                     }
                 }
@@ -624,8 +708,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 int alertId = v.get(i).intValue();
                 RecordAlert recAlert = tableAlert.read(alertId);
                 Alert alert = new Alert(recAlert);
-                if (!allAlerts.contains(alert)) {
-                    allAlerts.add(alert);
+                if (alert.getHistoryRef() != null) {
+                    // Only use the alert if it has a history reference.
+                    if (!allAlerts.contains(alert)) {
+                        allAlerts.add(alert);
+                    }
                 }
             }
         } catch (DatabaseException e) {

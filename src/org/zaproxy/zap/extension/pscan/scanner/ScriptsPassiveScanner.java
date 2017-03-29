@@ -38,9 +38,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 	
 	private ExtensionScript extension = null;
 	private PassiveScanThread parent = null;
-	private String name = null;
 	
-	// private Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
 
 	private int currentHRefId;
 
@@ -49,14 +47,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 	
 	@Override
 	public String getName() {
-		if (name == null) {
-			// Cache to prevent an NPE when unloaded
-	    	if (Constant.messages.containsKey("pscan.scripts.passivescanner.title")) {
-	    		name = Constant.messages.getString("pscan.scripts.passivescanner.title");
-	    	}
-	    	name = "Script passive scan rules";
-		}
-		return name;
+		return Constant.messages.getString("pscan.scripts.passivescanner.title");
 	}
 
 	private ExtensionScript getExtension() {

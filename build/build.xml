@@ -28,8 +28,8 @@
 	<property name="app.executable" value="${app.bundle}/Contents/MacOS/OWASP ZAP.sh" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
 	<!--This version downloaded from http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html -->
-	<property name="app.jrearchive" value="jre-8u92-macosx-x64.tar.gz" />
-	<property name="app.jredir" value="jre1.8.0_92.jre" />
+	<property name="app.jrearchive" value="jre-8u121-macosx-x64.tar.gz" />
+	<property name="app.jredir" value="jre1.8.0_121.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
@@ -129,7 +129,7 @@
 
 	</target>
 
-	<target name="dist" depends="compile" description="Generates the distribution">
+	<target name="dist" depends="setup, compile" description="Generates the distribution">
 		<echo message="Creating the distribution set..." />
 
 		<!-- Create the distribution directory -->
@@ -148,17 +148,11 @@
 		<copy todir="${dist}/db">
 			<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
 		</copy>
-		<copy todir="${dist}/filter">
-			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
-		</copy>
 		<copy todir="${dist}/plugin">
 			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 		<copy todir="${dist}/scripts">
 			<fileset dir="${src}/scripts" excludes="**/.svn/** **/_svn/**" />
-		</copy>
-		<copy todir="${dist}/session">
-			<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 		<copy todir="${dist}/lang">
 			<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
@@ -170,9 +164,6 @@
 				<exclude name="**/_svn/**" />
 				<exclude name="OrangeExtensions.License.txt" />
 			</fileset>
-		</copy>
-		<copy todir="${dist}/log">
-			<fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 		<copy todir="${dist}/lib">
 			<fileset dir="${dist.lib.dir}">
@@ -216,13 +207,8 @@
 			<classpath>
 				<fileset dir="${dist}/lib">
 					<include name="**/*.jar" />
-					<exclude name="**/JBroFuzz.jar"/>
 				</fileset>
-				<!-- include JBroFuzz.jar at the end of the classpath, since it has old versions of SQLite that cause issues -->
-				<fileset dir="${dist}/lib">
-					<include name="**/JBroFuzz.jar"/>
-				</fileset>
-				<!--path location="lang"/-->
+				<path location="${dist}/lang/" />
 			</classpath>
 		</manifestclasspath>
 
@@ -246,6 +232,7 @@
 		<replace file="${dist}/zap.bat" token="zap-dev.jar" value="${zap.jar}"/>
 		<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
 
+		<chmod perm="755" file="${dist}/zap.sh" />
 	</target>
 
 	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
@@ -359,13 +346,13 @@
 		</java>
 	</target>
 
-    <target name="copy-jar-to-extension-projects" depends="setup, dist">
+    <target name="copy-jar-to-extension-projects" depends="dist">
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
     </target>
 
-	<target name="test" depends="setup, dist">
+	<target name="test" depends="dist">
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
@@ -487,6 +474,8 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
+				<exclude name="**/plugin/*macos*" />
+				<exclude name="**/plugin/*windows*" />
 				<exclude name="zap.sh" />
 			</tarfileset>
 			<tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
@@ -555,16 +544,9 @@
 	<target name="package-macosx">
 		<echo message="Packaging the Mac OS X build..." />
 
-		<!-- We can't store the JRE in SVN currently, so error out if it isn't manually put there -->
-		<fail message="Note that ${app.jrearchive} must be in ${mac-skeleton}/${app.name}/Contents/PlugIns for build to complete.">
-			<condition>
-				<not>
-					<resourcecount count="1" >
-						<fileset id="fs" dir="${mac-skeleton}/${app.name}/Contents/PlugIns" includes="${app.jrearchive}" />
-					</resourcecount>
-				</not>
-			</condition>
-		</fail>
+		<!-- Pull down the latest JRE in zap-libs-->
+		<get src="https://github.com/zaproxy/zap-libs/raw/master/files/jre/${app.jrearchive}" 
+			dest="${mac-skeleton}/${app.name}/Contents/PlugIns/${app.jrearchive}"/>
 
 		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
 		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
@@ -579,6 +561,8 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
+				<exclude name="**/plugin/*linux*" />
+				<exclude name="**/plugin/*windows*" />
 				<exclude name="**/*.bat" />
 				<exclude name="**/*.ico" />
 			</fileset>
@@ -664,7 +648,11 @@
 
 	<!-- Load the version from version.txt, set ${zap.jar} -->
 	<target name="setup">
-		<loadfile property="version" srcfile="version.txt" />
+		<loadfile property="version" srcfile="version.txt">
+			<filterchain>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
 		<if>
 			<equals arg1="${version}" arg2="Dev Build" />
 			<then>
@@ -679,10 +667,10 @@
 		<echo message="Jar file for build is: ${zap.jar}" />
 	</target>
 
-	<target name="lite-release" depends="setup, dist, package-lite"
+	<target name="lite-release" depends="dist, package-lite"
 		description="Generates the distribution and (lite) cross-platform packages" />
 
-	<target name="full-release" depends="setup, dist, package-linux, package-macosx"
+	<target name="full-release" depends="dist, package-linux, package-macosx"
 		description="Generates the distribution and Linux/MacOS X packages [default]" />
 
 	<target name="day-stamped-release" description="Generates the day-stamped package, as well as the distribution and help jars">
@@ -691,7 +679,6 @@
 		</tstamp>
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
-		<property name="zap.jar" value="zap-${version}.jar" />
 
 		<antcall target="generate-help-jars" />
 		<!-- Set to compile with debug information -->

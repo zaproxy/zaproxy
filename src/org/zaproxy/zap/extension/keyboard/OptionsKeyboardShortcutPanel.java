@@ -51,9 +51,6 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
 	private KeyboardShortcutTableModel keyboardModel = null;
 	
-    /**
-     * 
-     */
     public OptionsKeyboardShortcutPanel(ExtensionKeyboard extension) {
         super();
         this.extension = extension;
@@ -112,11 +109,6 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 	public void addShortcut(KeyboardShortcut shortcut) {
 		getShortcutModel().addShortcut(shortcut);
 	}
-    
-    @Override
-    public void validateParam(Object obj) throws Exception {
-    	// Nothing to do
-    }
 
 	private JButton getResetButton() {
 		if (resetButton == null) {

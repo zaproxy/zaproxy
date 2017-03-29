@@ -22,6 +22,8 @@
 // ZAP: 2012/03/15 Changed to use byte[] instead of StringBuffer.
 // ZAP: 2014/11/26 Issue: 1415 Fixed file uploads > 128k
 // ZAP: 2016/05/18 Always use charset set when changing the HTTP body
+// ZAP: 2016/10/18 Attempt to determine the charset when setting a String with unknown charset
+// ZAP: 2017/02/01 Allow to set whether or not the charset should be determined.
 
 package org.parosproxy.paros.network;
 
@@ -60,6 +62,7 @@ public abstract class HttpBody {
 	private int pos;
     private String cachedString;
 	private Charset charset;
+	private boolean determineCharset = true;
 
 	/**
 	 * Constructs a {@code HttpBody} with no contents (that is, zero length).
@@ -150,10 +153,59 @@ public abstract class HttpBody {
 		}
 		
 		cachedString = null;
+		if (charset == null && isDetermineCharset()) {
+			// Attempt to determine the charset to avoid data loss.
+			charset = determineCharset(contents);
+		}
 		
 		body = contents.getBytes(getCharsetImpl());
 		
 		pos = body.length;
+	}
+
+	/**
+	 * Determines the {@code Charset} of the given {@code contents}, that are being set to the body.
+	 * <p>
+	 * An attempt to prevent data loss when {@link #setBody(String) new contents} are set without a {@code Charset}.
+	 * <p>
+	 * By default returns {@code null}.
+	 * 
+	 * @param contents the contents being set to the body
+	 * @return the {@code Charset}, or {@code null} if not known.
+	 * @since 2.6.0
+	 */
+	protected Charset determineCharset(String contents) {
+		return null;
+	}
+	
+	/**
+	 * Sets whether or not the {@code Charset} of the response should be determined, when no {@code Charset} is set.
+	 * <p>
+	 * An attempt to prevent data loss when {@link #setBody(String) new contents} are set without a {@code Charset}.
+	 *
+	 * @param determine {@code true} if the {@code Charset} should be determined, {@code false} otherwise.
+	 * @since 2.6.0
+	 * @see #isDetermineCharset()
+	 * @see #setCharset(String)
+	 */
+	public void setDetermineCharset(boolean determine) {
+		determineCharset = determine;
+	}
+
+	/**
+	 * Tells whether or not the {@code Charset} of the response should be determined, when no {@code Charset} is set.
+	 * <p>
+	 * An attempt to prevent data loss when {@link #setBody(String) new contents} are set without a {@code Charset}.
+	 * <p>
+	 * By default returns {@code true}.
+	 *
+	 * @return {@code true} if the {@code Charset} should be determined, {@code false} otherwise.
+	 * @since 2.6.0
+	 * @see #setDetermineCharset(boolean)
+	 * @see #setCharset(String)
+	 */
+	public boolean isDetermineCharset() {
+		return determineCharset;
 	}
 
 	/**

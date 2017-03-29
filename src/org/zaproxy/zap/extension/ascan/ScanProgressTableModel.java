@@ -47,9 +47,6 @@ public class ScanProgressTableModel extends AbstractTableModel {
     private String totRequests;
     private String totTime;
 
-    /**
-     *
-     */
     public ScanProgressTableModel() {
         super();
         values = new ArrayList<ScanProgressItem>();

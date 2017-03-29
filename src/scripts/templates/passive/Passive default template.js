@@ -1,9 +1,22 @@
-// The scan function will be called for request/response made via ZAP, excluding some of the automated tools
 // Passive scan rules should not make any requests 
 
 // Note that new passive scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
+/**
+ * Passively scans an HTTP message. The scan function will be called for 
+ * request/response made via ZAP, excluding some of the automated tools.
+ * 
+ * @param ps - the PassiveScan parent object that will do all the core interface tasks 
+ *     (i.e.: providing access to Threshold settings, raising alerts, etc.). 
+ *     This is an ScriptsPassiveScanner object.
+ * @param msg - the HTTP Message being scanned. This is an HttpMessage object.
+ * @param src - the Jericho Source representation of the message being scanned.
+ */
 function scan(ps, msg, src) {
 	// Test the request and/or response here
 	if (true) {	// Change to a test which detects the vulnerability

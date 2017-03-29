@@ -48,8 +48,9 @@ public class ScanProgressActionIcon extends JLabel {
     private ScanProgressItem item;
 
     /**
+     * Constructs a {@code ScanProgressActionIcon} for the given scan progress item.
      *
-     * @param plugin
+     * @param item the scan progress item
      */
     public ScanProgressActionIcon(ScanProgressItem item) {
         this.item = item;
@@ -60,22 +61,20 @@ public class ScanProgressActionIcon extends JLabel {
     }
 
     /**
+     * Updates this action icon with the given scan progress item.
      * 
-     * @param item 
+     * @param item new the scan progress item
      */
     public void updateStatus(ScanProgressItem item) {
         this.item = item;
         this.changeIcon();
     }
 
-    /**
-     * 
-     */
     private void changeIcon() {
 
         if (item.isSkipped()) {
             setIcon(skippedIcon);
-            setToolTipText(Constant.messages.getString("ascan.progress.label.skipped"));
+            setToolTipText(getSkipText());
 
         } else if (item.isRunning()) {
             ImageIcon icon = null;
@@ -103,24 +102,28 @@ public class ScanProgressActionIcon extends JLabel {
     }
 
     /**
-     * 
+     * Gets the text that should be shown when the plugin is/was skipped.
+     *
+     * @return the text to show when the plugin is skipped.
      */
+    private String getSkipText(){
+        String reason = item.getSkippedReason();
+        if (reason != null) {
+            return Constant.messages.getString("ascan.progress.label.skippedWithReason", reason);
+        }
+        return Constant.messages.getString("ascan.progress.label.skipped");
+    }
+
     public void invokeAction() {
         // do the Action
         item.skip();
     }
 
-    /**
-     * 
-     */
     public void setPressed() {
         state = STATE_PRESSED;
         changeIcon();
     }
 
-    /**
-     * 
-     */
     public void setReleased() {
         if (state == STATE_PRESSED) {
             state = STATE_FOCUSED;
@@ -128,9 +131,6 @@ public class ScanProgressActionIcon extends JLabel {
         }
     }
 
-    /**
-     * 
-     */
     public void setOver() {
         if (state == STATE_NORMAL) {
             state = STATE_FOCUSED;
@@ -146,7 +146,7 @@ public class ScanProgressActionIcon extends JLabel {
     @Override
     public String toString() {
         if (item.isSkipped()) {
-            return Constant.messages.getString("ascan.progress.label.skipped");
+            return getSkipText();
         }
         return item.getStatusLabel();
     }

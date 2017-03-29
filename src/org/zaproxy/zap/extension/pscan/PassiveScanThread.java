@@ -39,11 +39,38 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	
 	private final ExtensionHistory extHist;
 	private final ExtensionAlert extAlert;
+	private final PassiveScanParam pscanOptions;
 
 	private TableHistory historyTable = null;
 	private HistoryReference href = null;
+	private Session session;
 
-	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert) {
+	/**
+	 * Constructs a {@code PassiveScanThread} with the given data.
+	 *
+	 * @param passiveScannerList the passive scanners, must not be {@code null}.
+	 * @param extHist the extension to obtain the (cached) history references, might be {@code null}.
+	 * @param extensionAlert the extension used to raise the alerts, must not be {@code null}.
+	 * @deprecated (2.6.0) Use
+	 *             {@link #PassiveScanThread(PassiveScannerList, ExtensionHistory, ExtensionAlert, PassiveScanParam)} instead.
+	 *             It will be removed in a future release.
+	 */
+	@Deprecated
+	public PassiveScanThread(PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert) {
+		this(passiveScannerList, extHist, extensionAlert, new PassiveScanParam());
+	}
+
+	/**
+	 * Constructs a {@code PassiveScanThread} with the given data.
+	 *
+	 * @param passiveScannerList the passive scanners, must not be {@code null}.
+	 * @param extHist the extension to obtain the (cached) history references, might be {@code null}.
+	 * @param extensionAlert the extension used to raise the alerts, must not be {@code null}.
+	 * @param pscanOptions the passive scanner options, must not be {@code null}.
+	 * @since 2.6.0
+	 */
+	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert,
+			PassiveScanParam pscanOptions) {
 		super("ZAP-PassiveScanner");
 		this.setDaemon(true);
 		
@@ -60,11 +87,13 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 		extAlert = extensionAlert;
 		this.extHist = extHist;
+		this.pscanOptions = pscanOptions;
 	}
 	
 	@Override
 	public void run() {
 		historyTable = Model.getSingleton().getDb().getTableHistory();
+		session = Model.getSingleton().getSession();
 		// Get the last id - in case we've just opened an existing session
 		currentId = this.getLastHistoryId();
 		lastId = currentId;
@@ -100,7 +129,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					logger.error("Failed to read record " + currentId + " from History table", e);
 				}
 
-				if (href != null) {
+				if (href != null && (!pscanOptions.isScanOnlyInScope() || session.isInScope(href))) {
 					try {
 						// Parse the record
 						HttpMessage msg = href.getHttpMessage();
@@ -129,7 +158,13 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 							}
 						}
 					} catch (Exception e) {
-						logger.error("Parser failed on record " + currentId + " from History table", e);
+						if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Temporary record " + currentId + " no longer available:", e);
+							}
+						} else {
+							logger.error("Parser failed on record " + currentId + " from History table", e);
+						}
 					}
 					
 				}
@@ -178,6 +213,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		if (currentId != id) {
 			logger.error("Alert id != currentId! " + id + " " + currentId);
 		}
+
+		alert.setSource(Alert.Source.PASSIVE);
 	    // Raise the alert
 		extAlert.alertFound(alert, href);
 

@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.sessions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,10 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType;
+import org.zaproxy.zap.session.HttpAuthSessionManagementMethodType;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -96,7 +97,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 		// Register the api
 		this.api = new SessionManagementAPI(this);
-		API.getInstance().registerApiImplementor(api);
+		extensionHook.addApiImplementor(api);
 	}
 
 	@Override
@@ -128,13 +129,14 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	}
 
 	/**
-	 * Load session management method types using reflection.
+	 * Loads session management method types and hooks them up.
 	 * 
 	 * @param extensionHook the extension hook
 	 */
 	private void loadSesssionManagementMethodTypes(ExtensionHook extensionHook) {
-		this.sessionManagementMethodTypes = ExtensionFactory.getAddOnLoader().getImplementors(
-				"org.zaproxy.zap", SessionManagementMethodType.class);
+		this.sessionManagementMethodTypes = new ArrayList<>();
+		this.sessionManagementMethodTypes.add(new CookieBasedSessionManagementMethodType());
+		this.sessionManagementMethodTypes.add(new HttpAuthSessionManagementMethodType());
 
 		for (SessionManagementMethodType t : sessionManagementMethodTypes) {
 			t.hook(extensionHook);
@@ -200,7 +202,9 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 	@Override
 	public void exportContextData(Context ctx, Configuration config) {
-		config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, ctx.getSessionManagementMethod().getType().getUniqueIdentifier());
+		SessionManagementMethodType type = ctx.getSessionManagementMethod().getType();
+		config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, type.getUniqueIdentifier());
+		type.exportData(config, ctx.getSessionManagementMethod());
 	}
 
 	@Override

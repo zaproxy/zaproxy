@@ -19,9 +19,11 @@
  */
 package org.zaproxy.zap.extension.ext;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -62,32 +64,41 @@ public class ExtensionParam extends AbstractParam {
     /**
      * The extensions' state, never {@code null}.
      */
-    private List<ExtensionState> extensions = Collections.emptyList();
+    private Map<String, Boolean> extensionsState = Collections.emptyMap();
 
     @Override
     protected void parse() {
         try {
             List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig())
                     .configurationsAt(ALL_EXTENSIONS_KEY);
-            extensions = new ArrayList<>(fields.size());
+            Map<String, Boolean> extensions = new HashMap<>();
             for (HierarchicalConfiguration sub : fields) {
-                String name = sub.getString(EXTENSION_NAME_KEY, "");
-                boolean enabled = sub.getBoolean(EXTENSION_ENABLED_KEY, true);
-                extensions.add(new ExtensionState(name, enabled));
+                if (!sub.getBoolean(EXTENSION_ENABLED_KEY, true)) {
+                    extensions.put(sub.getString(EXTENSION_NAME_KEY, ""), Boolean.FALSE);
+                }
             }
+            extensionsState = Collections.unmodifiableMap(extensions);
         } catch (ConversionException e) {
             LOGGER.error("Error while loading extensions' state: " + e.getMessage(), e);
-            extensions = Collections.emptyList();
+            extensionsState = Collections.emptyMap();
         }
     }
 
     /**
-     * Gets the extensions' state (as saved in the configuration file).
+     * Tells whether or not the extension with the given name is enabled.
+     * <p>
+     * Extensions are enabled by default.
      *
-     * @return an unmodifiable list with the extensions' state, never {@code null}
+     * @param extensionName the name of the extension to check.
+     * @return {@code true} if extension is enabled, {@code false} otherwise.
+     * @since 2.6.0
      */
-    List<ExtensionState> getExtensions() {
-        return Collections.unmodifiableList(extensions);
+    public boolean isExtensionEnabled(String extensionName) {
+        Boolean state = extensionsState.get(extensionName);
+        if (state == null) {
+            return true;
+        }
+        return state;
     }
 
     /**
@@ -95,45 +106,34 @@ public class ExtensionParam extends AbstractParam {
      *
      * @param extensionsState the extensions' state
      */
-    void setExtensions(List<ExtensionState> extensionsState) {
+    void setExtensionsState(Map<String, Boolean> extensionsState) {
         if (extensionsState == null) {
             throw new IllegalArgumentException("Parameter extensionsState must not be null.");
         }
 
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_EXTENSIONS_KEY);
-        for (int i = 0; i < extensionsState.size(); i++) {
-            ExtensionState elem = extensionsState.get(i);
+        int enabledCount = 0;
+        for (Iterator<Map.Entry<String, Boolean>> it = extensionsState.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Boolean> entry = it.next();
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+
             // Don't persist if enabled, extensions are enabled by default.
-            if (!elem.isEnabled()) {
-                String elementBaseKey = ALL_EXTENSIONS_KEY + "(" + i + ").";
-                getConfig().setProperty(elementBaseKey + EXTENSION_NAME_KEY, elem.getName());
-                getConfig().setProperty(elementBaseKey + EXTENSION_ENABLED_KEY, Boolean.valueOf(elem.isEnabled()));
+            if (!entry.getValue()) {
+                String elementBaseKey = ALL_EXTENSIONS_KEY + "(" + enabledCount + ").";
+                getConfig().setProperty(elementBaseKey + EXTENSION_NAME_KEY, entry.getKey());
+                getConfig().setProperty(elementBaseKey + EXTENSION_ENABLED_KEY, Boolean.FALSE);
+
+                enabledCount++;
             }
         }
-        this.extensions = extensionsState;
+        this.extensionsState = Collections.unmodifiableMap(extensionsState);
     }
 
-    /**
-     * An extension's state.
-     * <p>
-     * Contains the name of the extension and the enabled state.
-     */
-    static class ExtensionState {
-
-        private final String name;
-        private final boolean enabled;
-
-        public ExtensionState(String name, boolean enabled) {
-            this.name = name;
-            this.enabled = enabled;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isEnabled() {
-            return enabled;
-        }
+    @Override
+    public ExtensionParam clone() {
+        return (ExtensionParam) super.clone();
     }
+
 }

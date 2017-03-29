@@ -26,13 +26,19 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.network.DomainMatcher;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsApiPanel extends AbstractParamPanel {
@@ -40,13 +46,19 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelMisc = null;
 	private JCheckBox chkEnabled = null;
+	private JCheckBox chkUiEnabled = null;
 	private JCheckBox chkSecureOnly = null;
+	private JCheckBox reportPermErrors = null;
 	private JCheckBox disableKey = null;
 	private JCheckBox incErrorDetails = null;
 	private JCheckBox autofillKey = null;
 	private JCheckBox enableJSONP = null;
+	private JCheckBox noKeyForSafeOps = null;
 	private ZapTextField keyField = null; 
 	private JButton generateKeyButton = null;
+
+	private PermittedAddressesPanel permittedAddressesPanel;
+	private PermittedAddressesTableModel permittedAddressesTableModel;
 
 	//private JCheckBox chkPostActions = null;
 	
@@ -73,23 +85,38 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		if (panelMisc == null) {
 			panelMisc = new JPanel();
 			panelMisc.setLayout(new GridBagLayout());
-			panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, 0, 1, 0.5));
-			panelMisc.add(getChkSecureOnly(), LayoutHelper.getGBC(0, 1, 1, 0.5));
+			int y = 0;
+			panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getChkUiEnabled(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getChkSecureOnly(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			
 			panelMisc.add(new JLabel(Constant.messages.getString("api.options.label.apiKey")), 
-					LayoutHelper.getGBC(0, 2, 1, 0.5));
-			panelMisc.add(getKeyField(), LayoutHelper.getGBC(1, 2, 1, 0.5));
-			panelMisc.add(getGenerateKeyButton(), LayoutHelper.getGBC(1, 3, 1, 0.5));
+					LayoutHelper.getGBC(0, y, 1, 0.5));
+			panelMisc.add(getKeyField(), LayoutHelper.getGBC(1, y++, 1, 0.5));
+			panelMisc.add(getGenerateKeyButton(), LayoutHelper.getGBC(1, y++, 1, 0.5));
+			
+			JPanel jPanel = new JPanel();
+			jPanel.setLayout(new GridBagLayout());
+			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
+					Constant.messages.getString("api.options.addr.title"),
+					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
+
+			jPanel.add(getProxyPermittedAddressesPanel(), LayoutHelper.getGBC(0, 0, 1, 1.0, 1.0));
+			panelMisc.add(jPanel, LayoutHelper.getGBC(0, y++, 2, 1.0, 1.0));
 
 			JLabel warning = new JLabel(Constant.messages.getString("api.options.label.testingWarning"));
 			warning.setForeground(Color.RED);
-			panelMisc.add(warning, LayoutHelper.getGBC(0, 4, 2, 0.5D));
-			panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, 5, 1, 0.5));
-			panelMisc.add(getIncErrorDetails(), LayoutHelper.getGBC(0, 6, 1, 0.5));
-			panelMisc.add(getAutofillKey(), LayoutHelper.getGBC(0, 7, 1, 0.5));
-			panelMisc.add(getEnableJSONP(), LayoutHelper.getGBC(0, 8, 1, 0.5));
+			panelMisc.add(warning, LayoutHelper.getGBC(0, y++, 2, 0.5D));
+			panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getNoKeyForSafeOps(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getReportPermErrors(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getIncErrorDetails(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getAutofillKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getEnableJSONP(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			
-			panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
+			panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, y, 1, 0.5D, 1.0D));	// Spacer
 		}
 		return panelMisc;
 	}
@@ -108,6 +135,16 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		return chkEnabled;
 	}
 	
+    private JCheckBox getChkUiEnabled() {
+        if (chkUiEnabled == null) {
+            chkUiEnabled = new JCheckBox();
+            chkUiEnabled.setText(Constant.messages.getString("api.options.uiEnabled"));
+            chkUiEnabled.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            chkUiEnabled.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        }
+        return chkUiEnabled;
+    }
+    
 	private JCheckBox getChkSecureOnly() {
 		if (chkSecureOnly == null) {
 			chkSecureOnly = new JCheckBox();
@@ -149,6 +186,25 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		return enableJSONP;
 	}
 
+    private JCheckBox getReportPermErrors() {
+        if (reportPermErrors == null) {
+            reportPermErrors = new JCheckBox();
+            reportPermErrors.setText(Constant.messages.getString("api.options.reportPermErrors"));
+            reportPermErrors.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            reportPermErrors.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        }
+        return reportPermErrors;
+    }
+
+    private JCheckBox getNoKeyForSafeOps() {
+        if (noKeyForSafeOps == null) {
+            noKeyForSafeOps = new JCheckBox();
+            noKeyForSafeOps.setText(Constant.messages.getString("api.options.noKeyForSafeOps"));
+            noKeyForSafeOps.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            noKeyForSafeOps.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        }
+        return noKeyForSafeOps;
+    }
 
 	private JCheckBox getIncErrorDetails() {
 		if (incErrorDetails == null) {
@@ -205,17 +261,22 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkEnabled().setSelected(options.getApiParam().isEnabled());
+	    getChkUiEnabled().setSelected(options.getApiParam().isUiEnabled());
 	    getChkSecureOnly().setSelected(options.getApiParam().isSecureOnly());
 	    getDisableKey().setSelected(options.getApiParam().isDisableKey());
 	    getIncErrorDetails().setSelected(options.getApiParam().isIncErrorDetails());
 	    getAutofillKey().setSelected(options.getApiParam().isAutofillKey());
 	    getEnableJSONP().setSelected(options.getApiParam().isEnableJSONP());
+	    getReportPermErrors().setSelected(options.getApiParam().isReportPermErrors());
+	    getNoKeyForSafeOps().setSelected(options.getApiParam().isNoKeyForSafeOps());
 	    getKeyField().setText(options.getApiParam().getKey());
 	    //getChkPostActions().setSelected(options.getApiParam().isPostActions());
 
 		getKeyField().setEnabled(!disableKey.isSelected());
 		getGenerateKeyButton().setEnabled(!disableKey.isSelected());
-}
+		getPermittedAddressesTableModel().setAddresses(options.getApiParam().getPermittedAddresses());
+		getProxyPermittedAddressesPanel().setRemoveWithoutConfirmation(!options.getApiParam().isConfirmRemovePermittedAddress());
+	}
 	
 	@Override
 	public void validateParam(Object obj) throws Exception {
@@ -228,17 +289,23 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getApiParam().setEnabled(getChkEnabled().isSelected());
+	    options.getApiParam().setUiEnabled(getChkUiEnabled().isSelected());
 	    options.getApiParam().setSecureOnly(getChkSecureOnly().isSelected());
 	    options.getApiParam().setDisableKey(getDisableKey().isSelected());
 	    options.getApiParam().setIncErrorDetails(getIncErrorDetails().isSelected());
 	    options.getApiParam().setAutofillKey(getAutofillKey().isSelected());
 	    options.getApiParam().setEnableJSONP(getEnableJSONP().isSelected());
-	    
+	    options.getApiParam().setReportPermErrors(getReportPermErrors().isSelected());
+	    options.getApiParam().setNoKeyForSafeOps(getNoKeyForSafeOps().isSelected());
+
 	    if (!getDisableKey().isSelected()) {
 	    	// Dont loose the old value on disabling
 	    	options.getApiParam().setKey(getKeyField().getText());
 	    }
 	    //options.getApiParam().setPostActions(getChkPostActions().isEnabled());
+
+	    options.getApiParam().setPermittedAddresses(getPermittedAddressesTableModel().getElements());
+	    options.getApiParam().setConfirmRemovePermittedAddress(!getProxyPermittedAddressesPanel().isRemoveWithoutConfirmation());
 	    
 	}
 	
@@ -246,4 +313,98 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public String getHelpIndex() {
 		return "ui.dialogs.options.api";
 	}
+	
+	private PermittedAddressesPanel getProxyPermittedAddressesPanel() {
+	    if (permittedAddressesPanel == null) {
+	        permittedAddressesPanel = new PermittedAddressesPanel(getPermittedAddressesTableModel());
+	    }
+	    return permittedAddressesPanel;
+	}
+
+	private PermittedAddressesTableModel getPermittedAddressesTableModel() {
+	    if (permittedAddressesTableModel == null) {
+	        permittedAddressesTableModel = new PermittedAddressesTableModel();
+	    }
+	    return permittedAddressesTableModel;
+	}
+
+    private static class PermittedAddressesPanel extends AbstractMultipleOptionsTablePanel<DomainMatcher> {
+        
+        private static final long serialVersionUID = 2332044353650231701L;
+        
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("api.options.addr.dialog.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("api.options.addr.dialog.remove.text");
+        
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.button.cancel");
+        
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.checkbox.label");
+        
+        private DialogAddPermittedAddress addDialog = null;
+        private DialogModifyPermittedAddress modifyDialog = null;
+        
+        public PermittedAddressesPanel(PermittedAddressesTableModel model) {
+            super(model);
+        
+            getTable().setVisibleRowCount(5);
+            getTable().setSortOrder(2, SortOrder.ASCENDING);
+        }
+        
+        @Override
+        public DomainMatcher showAddDialogue() {
+            if (addDialog == null) {
+                addDialog = new DialogAddPermittedAddress(View.getSingleton().getOptionsDialog(null));
+                addDialog.pack();
+            }
+            addDialog.setVisible(true);
+        
+            DomainMatcher hostAuthentication = addDialog.getAddress();
+            addDialog.clear();
+        
+            return hostAuthentication;
+        }
+        
+        @Override
+        public DomainMatcher showModifyDialogue(DomainMatcher e) {
+            if (modifyDialog == null) {
+                modifyDialog = new DialogModifyPermittedAddress(View.getSingleton().getOptionsDialog(null));
+                modifyDialog.pack();
+            }
+            modifyDialog.setAddress(e);
+            modifyDialog.setVisible(true);
+        
+            DomainMatcher addr = modifyDialog.getAddress();
+            modifyDialog.clear();
+        
+            if (!addr.equals(e)) {
+                return addr;
+            }
+        
+            return null;
+        }
+        
+        @Override
+        public boolean showRemoveDialogue(DomainMatcher e) {
+            JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
+            int option = JOptionPane.showOptionDialog(
+                    View.getSingleton().getMainFrame(),
+                    messages,
+                    REMOVE_DIALOG_TITLE,
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL },
+                    null);
+        
+            if (option == JOptionPane.OK_OPTION) {
+                setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+        
+                return true;
+            }
+        
+            return false;
+        }
+    }
+
 }

@@ -80,7 +80,6 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		case 2:
 			return result.uri;
 		case 3:
-			// TODO: Internationalize flags
 			return result.flags;
 		default:
 			return null;
@@ -91,10 +90,8 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 * Removes all the elements. Method is synchronized internally.
 	 */
 	public void removeAllElements() {
-		synchronized (scanResults) {
-			scanResults.clear();
-			fireTableDataChanged();
-		}
+		scanResults.clear();
+		fireTableDataChanged();
 	}
 
 	/**
@@ -107,14 +104,8 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 */
 	public void addScanResult(String uri, String method, String flags, boolean skipped) {
 		SpiderScanResult result = new SpiderScanResult(uri, method, flags, !skipped);
-		synchronized (scanResults) {
-			scanResults.add(result);
-			try {
-				fireTableRowsInserted(scanResults.size() - 1, scanResults.size() - 1);
-			} catch (IndexOutOfBoundsException e) {
-				// Happens occasionally but seems benign
-			}
-		}
+		scanResults.add(result);
+		fireTableRowsInserted(scanResults.size() - 1, scanResults.size() - 1);
 	}
 
 	/**
@@ -125,12 +116,10 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 */
 	public void removesScanResult(String uri, String method) {
 		SpiderScanResult toRemove = new SpiderScanResult(uri, method);
-		synchronized (scanResults) {
-			int index = scanResults.indexOf(toRemove);
-			if (index >= 0) {
-				scanResults.remove(index);
-				fireTableRowsDeleted(index, index);
-			}
+		int index = scanResults.indexOf(toRemove);
+		if (index >= 0) {
+			scanResults.remove(index);
+			fireTableRowsDeleted(index, index);
 		}
 	}
 

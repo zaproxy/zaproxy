@@ -215,7 +215,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 			Map<String, String> values = new HashMap<>();
 			values.put("type", API_NAME);
 			values.put("sessionName", selectedSession != null ? selectedSession.getName() : "");
-			return new ApiResponseSet("credentials", values);
+			return new ApiResponseSet<String>("credentials", values);
 		}
 	}
 
@@ -406,7 +406,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
 				// Make sure the type of authentication method is compatible
 				if (!isTypeForMethod(context.getAuthenticationMethod())) {
-					throw new ApiException(ApiException.Type.BAD_TYPE,
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER,
 							"User's credentials should match authentication method type of the context: "
 									+ context.getAuthenticationMethod().getType().getName());
 				}

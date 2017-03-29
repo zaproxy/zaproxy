@@ -44,9 +44,6 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    /**
-     * 
-     */
     public UninstalledAddOnsTableModel(AddOnCollection installedAddOns) {
         super(installedAddOns, 4);
     }

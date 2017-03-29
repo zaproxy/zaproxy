@@ -24,6 +24,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2016/06/07 Use ZAP's home filter directory
 
 package org.parosproxy.paros.extension.filter;
 
@@ -31,6 +32,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -39,10 +41,10 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class FilterLogRequestResponse extends FilterAdaptor {
 
-    private static final String logFile = "filter/message.txt";
+    private static final String logFile = Paths.get(Constant.FOLDER_FILTER, "message.txt").toString();
     private static final String delim = "====================================";   
     private static final String CRLF = "\r\n";
-    private File outFile = new File(logFile);
+    private File outFile = new File(Constant.getZapHome(), logFile);
     private BufferedWriter writer = null;
     private long lastWriteTime = System.currentTimeMillis();
     private int counter = 1;

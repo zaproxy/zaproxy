@@ -41,8 +41,6 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
-import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
 import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
@@ -90,8 +88,6 @@ public class SpiderDialog extends StandardFieldsDialog {
 			.getExtension(ExtensionUserManagement.NAME);
     
     private Target target = null;
-    private int maxChildrenToCrawl = 0;	// This is not persisted anywhere
-    private int maxDuration = 0;	// This is not persisted anywhere
 
     public SpiderDialog(ExtensionSpider ext, Frame owner, Dimension dim) {
         super(owner, "spider.custom.title", dim, new String[]{
@@ -124,8 +120,8 @@ public class SpiderDialog extends StandardFieldsDialog {
 
         // Advanced options
         this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
-        this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, maxChildrenToCrawl);
-        this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, maxDuration);
+        this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
+        this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
         this.addCheckBoxField(1, FIELD_SEND_REFERER, getSpiderParam().isSendRefererHeader());
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
         this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
@@ -306,6 +302,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	// Set the advanced options
         	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
         	spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
+        	spiderParam.setMaxChildren(this.getIntValue(FIELD_MAX_CHILDREN));
         	spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
         	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
         	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
@@ -317,22 +314,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
         	spiderParam.setThreadCount(extension.getSpiderParam().getThreadCount());
         	
-        	maxChildrenToCrawl = this.getIntValue(FIELD_MAX_CHILDREN);
-        	
         	contextSpecificObjects.add(spiderParam);
-        	if (maxChildrenToCrawl > 0) {
-        		// Add the filters to filter on maximum number of children
-        		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
-        		maxChildrenFetchFilter.setMaxChildren(maxChildrenToCrawl);
-        		maxChildrenFetchFilter.setModel(extension.getModel());
-        		
-        		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
-        		maxChildrenParseFilter.setMaxChildren(maxChildrenToCrawl);
-        		maxChildrenParseFilter.setModel(extension.getModel());
-        		
-        		contextSpecificObjects.add(maxChildrenFetchFilter);
-        		contextSpecificObjects.add(maxChildrenParseFilter);
-        	}
     	}
 
 		if (startUri != null) {

@@ -29,21 +29,19 @@ import net.htmlparser.jericho.StartTagType;
 
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
- * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.<br/>
- * 
+ * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.
  * <p>
- * NOTE: Handling of HTML Forms is not done in this Parser. Instead see {@link SpiderHtmlFormParser}
- * </p>
- * .
+ * <strong>NOTE:</strong> Handling of HTML Forms is not done in this Parser. Instead see {@link SpiderHtmlFormParser}.
  */
 public class SpiderHtmlParser extends SpiderParser {
 
 	/** The Constant urlPattern defining the pattern for a meta url. */
 	private static final Pattern urlPattern = Pattern.compile("url\\s*=\\s*([^;]+)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern PLAIN_COMMENTS_URL_PATTERN = Pattern
-			.compile("(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#]+", Pattern.CASE_INSENSITIVE);
+			.compile("(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+", Pattern.CASE_INSENSITIVE);
 
 	/** The params. */
 	private SpiderParam params;
@@ -84,7 +82,7 @@ public class SpiderHtmlParser extends SpiderParser {
 			}
 			String href = base.getAttributeValue("href");
 			if (href != null && !href.isEmpty()) {
-				baseURL = href;
+				baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
 			}
 		}
 

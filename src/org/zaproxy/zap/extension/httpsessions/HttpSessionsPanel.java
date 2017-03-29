@@ -45,6 +45,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 
@@ -150,7 +151,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString("httpsessions.toolbar.options.button"));
-			optionsButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/041.png"))));
 			optionsButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -171,7 +172,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 		if (newSessionButton == null) {
 			newSessionButton = new JButton();
 			newSessionButton.setText(Constant.messages.getString("httpsessions.toolbar.newsession.label"));
-			newSessionButton.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/103.png")));
+			newSessionButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/103.png"))));
 			newSessionButton.setToolTipText(Constant.messages.getString("httpsessions.toolbar.newsession.tooltip"));
 
 			newSessionButton.addActionListener(new ActionListener() {

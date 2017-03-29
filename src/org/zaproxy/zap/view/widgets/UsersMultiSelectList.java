@@ -32,8 +32,8 @@ import org.zaproxy.zap.view.renderer.UserListCellRenderer;
 /**
  * A {@link JList} widget that displays the list of {@link User Users} for a given context and
  * allows selection of multiple users.
- * <p/>
- * NOTE: Does not automatically refresh when the Users have changed. For this, make sure you
+ * <p>
+ * <strong>NOTE:</strong> Does not automatically refresh when the Users have changed. For this, make sure you
  * manually call {@link #reloadUsers(int)}.
  * 
  */
@@ -71,6 +71,7 @@ public class UsersMultiSelectList extends JList<User> {
 
 	/**
 	 * Reloads/refreshes the list of {@link User users} associated to the context.
+	 * @param contextId the ID of the context
 	 */
 	public void reloadUsers(int contextId) {
 		List<User> users = usersExtension.getContextUserAuthManager(contextId).getUsers();

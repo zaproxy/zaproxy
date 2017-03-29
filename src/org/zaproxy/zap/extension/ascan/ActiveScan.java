@@ -45,6 +45,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.Target;
 
@@ -82,9 +83,15 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
+	@Deprecated
 	public ActiveScan(String displayName, ScannerParam scannerParam, 
 			ConnectionParam param, ScanPolicy scanPolicy) {
-		super(scannerParam, param, scanPolicy);
+		this(displayName, scannerParam, param, scanPolicy, null);
+	}
+
+	public ActiveScan(String displayName, ScannerParam scannerParam, 
+			ConnectionParam param, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
+		super(scannerParam, param, scanPolicy, ruleConfigParam);
 		this.displayName = displayName;
 		this.maxResultsToList = scannerParam.getMaxResultsToList();
 		// Easiest way to get the messages and alerts ;) 
@@ -164,7 +171,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	            	rcLastSnapshot = currentSnapshot;
 	            }
 	        };
-	        schedHandle = scheduler.scheduleAtFixedRate(requestCounter, period, period, TimeUnit.SECONDS);
+	        schedHandle = scheduler.scheduleWithFixedDelay(requestCounter, period, period, TimeUnit.SECONDS);
 		}
 	}
 

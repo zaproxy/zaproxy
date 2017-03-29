@@ -1,29 +1,22 @@
 package org.zaproxy.zap.extension.api;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
-import org.parosproxy.paros.Constant;
 
-public class GoAPIGenerator {
+public class GoAPIGenerator extends AbstractAPIGenerator {
 
-	private File dir;
-	private boolean optional = false;
 	private boolean addImports = false;
 
 	private final String HEADER = "// Zed Attack Proxy (ZAP) and its related class files.\n" + "//\n"
@@ -39,11 +32,6 @@ public class GoAPIGenerator {
 			+ "// See the License for the specific language governing permissions and\n"
 			+ "// limitations under the License.\n";
 
-	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed";
-
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
-			ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
-
 	/**
 	 * Map any names which are reserved in Go to something legal
 	 */
@@ -52,59 +40,64 @@ public class GoAPIGenerator {
 	static {
 		Map<String, String> initMap = new HashMap<>();
 		initMap.put("break", "brk");
+		initMap.put("continue", "cont");
 		nameMap = Collections.unmodifiableMap(initMap);
 	}
 
 	public GoAPIGenerator() {
-		dir = new File("../zap-api-go/zap/");
+		super("../zap-api-go/zap/");
 	}
 
 	public GoAPIGenerator(String path, boolean optional) {
-		dir = new File(path);
-		this.optional = optional;
+		super(path, optional);
 	}
 
+	/**
+	 * Generates the API client files of the given API implementors.
+	 *
+	 * @param implementors the implementors
+	 * @throws IOException if an error occurred while generating the APIs.
+	 * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
+	 */
+	@Deprecated
 	public void generateGoFiles(List<ApiImplementor> implementors) throws IOException {
-		for (ApiImplementor imp : implementors) {
-			this.generateGoComponent(imp);
-		}
+		this.generateAPIFiles(implementors);
 	}
 
-	private void generateGoComponent(ApiImplementor imp) throws IOException {
+	@Override
+	protected void generateAPIFiles(ApiImplementor imp) throws IOException {
 		String className = imp.getPrefix().substring(0, 1).toUpperCase() + imp.getPrefix().substring(1);
 		String pkgName = safeName(camelCaseToLowerCaseDash(className));
 
-		File f = new File(dir, pkgName + ".go");
-		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
+		Path file = getDirectory().resolve(pkgName + ".go");
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			out.write(HEADER);
+			out.write("//\n");
+			out.write("// *** This file was automatically generated. ***\n");
+			out.write("//\n\n");
+			out.write("package zap\n\n");
+			out.write("_imports_");
+			out.write("type " + className + " struct {}" + "\n\n");
 
-		out.write(HEADER);
-		out.write("//\n");
-		out.write("// *** This file was automatically generated. ***\n");
-		out.write("//\n\n");
-		out.write("package zap\n\n");
-		out.write("_imports_");
-		out.write("type " + className + " struct {}" + "\n\n");
-
-		for (ApiElement view : imp.getApiViews()) {
-			this.generateGoElement(view, className, imp.getPrefix(), "view", out);
+			for (ApiElement view : imp.getApiViews()) {
+				this.generateGoElement(view, className, imp.getPrefix(), VIEW_ENDPOINT, out);
+			}
+			for (ApiElement action : imp.getApiActions()) {
+				this.generateGoElement(action, className, imp.getPrefix(), ACTION_ENDPOINT, out);
+			}
+			for (ApiElement other : imp.getApiOthers()) {
+				this.generateGoElement(other, className, imp.getPrefix(), OTHER_ENDPOINT, out);
+			}
 		}
-		for (ApiElement action : imp.getApiActions()) {
-			this.generateGoElement(action, className, imp.getPrefix(), "action", out);
-		}
-		for (ApiElement other : imp.getApiOthers()) {
-			this.generateGoElement(other, className, imp.getPrefix(), "other", out);
-		}
-
-		out.close();
-		addImports(f, addImports);
+		addImports(file, addImports);
 		addImports = false;
 	}
 
 	private void generateGoElement(ApiElement element, String className, String component, String type, Writer out)
 			throws IOException {
 
-		boolean typeOther = type.equals("other");
+		boolean typeOther = type.equals(OTHER_ENDPOINT);
 		boolean hasParams = (element.getMandatoryParamNames() != null && element.getMandatoryParamNames().size() > 0)
 				|| (element.getOptionalParamNames() != null && element.getOptionalParamNames().size() > 0);
 
@@ -115,17 +108,17 @@ public class GoAPIGenerator {
 			descTag = component + ".api." + type + "." + element.getName();
 		}
 		try {
-			String desc = msgs.getString(descTag);
+			String desc = getMessages().getString(descTag);
 			out.write("// " + desc + "\n");
-			if (optional) {
+			if (isOptional()) {
 				out.write("//\n");
-				out.write("// " + OPTIONAL_MASSAGE + "\n");
+				out.write("// " + OPTIONAL_MESSAGE + "\n");
 			}
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
-			if (optional) {
-				out.write("// " + OPTIONAL_MASSAGE + "\n");
+			if (isOptional()) {
+				out.write("// " + OPTIONAL_MESSAGE + "\n");
 			}
 		}
 
@@ -273,22 +266,21 @@ public class GoAPIGenerator {
 
 	// It replaces the placeholder _imports_ with the proper import packages,
 	// or removes it in case there isn't any packages to import
-	private static void addImports(File file, boolean addImports) throws IOException {
-		Path path = Paths.get(file.getPath());
+	private static void addImports(Path file, boolean addImports) throws IOException {
 		Charset charset = StandardCharsets.UTF_8;
-		String content = new String(Files.readAllBytes(path), charset);
+		String content = new String(Files.readAllBytes(file), charset);
 		if (addImports) {
 			content = content.replaceAll("_imports_", "import \"strconv\"\n\n");
 		} else {
 			content = content.replaceAll("_imports_", "");
 		}
-		Files.write(path, content.getBytes(charset));
+		Files.write(file, content.getBytes(charset));
 	}
 
 	public static void main(String[] args) throws Exception {
 		// Command for generating a java version of the ZAP API
 		GoAPIGenerator gapi = new GoAPIGenerator();
-		gapi.generateGoFiles(ApiGeneratorUtils.getAllImplementors());
+		gapi.generateCoreAPIFiles();
 	}
 
 }

@@ -25,17 +25,14 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.utils.DisplayUtils;
 
 public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
@@ -43,9 +40,7 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 	private static final long serialVersionUID = -8337361808959321380L;
 
 	private JPanel panelSession = null;
-	private JTable tableIgnore = null;
-	private JScrollPane jScrollPane = null;
-	private SingleColumnTableModel model = null;
+	private MultipleRegexesOptionsPanel regexesPanel;
 
     /**
      * Returns the name of the panel "Include in context" for the given {@code contextIndex}.
@@ -61,25 +56,27 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 	}
 
     /**
+     * Gets the name of the panel for the given context.
+     * 
+     * @param context the context
+     * @return the name of the panel
      * @deprecated (2.2.0) Replaced by {@link #getPanelName(int)}. It will be removed in a future release.
      */
     @Deprecated
-    @SuppressWarnings("javadoc")
     public static String getPanelName(Context context) {
         return getPanelName(context.getIndex());
     }
 
+	/**
+	 * Constructs a {@code ContextIncludePanel} for the given context.
+	 * 
+	 * @param context the target context, must not be {@code null}.
+	 */
 	public ContextIncludePanel(Context context) {
 		super(context.getIndex());
-		initialize();
-	}
 
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize() {
+		regexesPanel = new MultipleRegexesOptionsPanel(View.getSingleton().getSessionDialog());
+
 		this.setLayout(new CardLayout());
 		this.setName(getPanelName(getContextIndex()));
 		this.add(getPanelSession(), getPanelSession().getName());
@@ -120,38 +117,9 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 			gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			panelSession.add(jLabel, gridBagConstraints1);
-			panelSession.add(getJScrollPane(), gridBagConstraints2);
+			panelSession.add(regexesPanel, gridBagConstraints2);
 		}
 		return panelSession;
-	}
-
-	private JTable getTableIgnore() {
-		if (tableIgnore == null) {
-			tableIgnore = new JTable();
-			tableIgnore.setModel(getModel());
-			tableIgnore.setRowHeight(DisplayUtils.getScaledSize(18));
-			// Issue 954: Force the JTable cell to auto-save when the focus changes.
-			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
-			tableIgnore.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-		}
-		return tableIgnore;
-	}
-
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTableIgnore());
-			jScrollPane.setBorder(javax.swing.BorderFactory
-					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-		}
-		return jScrollPane;
-	}
-
-	private SingleColumnTableModel getModel() {
-		if (model == null) {
-			model = new SingleColumnTableModel(Constant.messages.getString("context.table.header.include"));
-		}
-		return model;
 	}
 
 	@Override
@@ -161,33 +129,24 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void initContextData(Session session, Context uiContext) {
-		getModel().setLines(uiContext.getIncludeInContextRegexs());
-
+		regexesPanel.setRegexes(uiContext.getIncludeInContextRegexs());
 	}
 
 	@Override
 	public void validateContextData(Session session) {
-		// Check for valid regexs
-		for (String regex : getModel().getLines()) {
-			if (regex.trim().length() > 0) {
-				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
-			}
-		}
+		// Nothing to do, the regular expressions are already validated when manually added and
+		// regular expressions added programmatically are expected to be valid.
 	}
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
 		Context context = session.getContext(getContextIndex());
-		context.setIncludeInContextRegexs(getModel().getLines());
+		context.setIncludeInContextRegexs(regexesPanel.getRegexes());
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		try {
-			uiSharedContext.setIncludeInContextRegexs(getModel().getLines());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		uiSharedContext.setIncludeInContextRegexs(regexesPanel.getRegexes());
 	}
 
 }

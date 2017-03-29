@@ -24,6 +24,7 @@
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Changed to a JMenuItem.
+// ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
 
 package org.parosproxy.paros.extension.history;
 
@@ -51,27 +52,8 @@ public class PopupMenuExportResponse extends JMenuItem {
 
     private ExtensionHistory extension = null;
     
-    /**
-     * 
-     */
     public PopupMenuExportResponse() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuExportResponse(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("history.export.response.popup"));	// ZAP: i18n
+        super(Constant.messages.getString("history.export.response.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

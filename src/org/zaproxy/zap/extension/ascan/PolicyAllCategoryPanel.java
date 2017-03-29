@@ -22,6 +22,7 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2016/01/19 Allow to obtain the ScanPolicy
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
+// ZAP: 2016/07/25 Use new AllCategoryTableModel's constructor
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
@@ -88,9 +89,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     
     private static final int[] width = {300, 100, 100};
 
-    /**
-     *
-     */
     public PolicyAllCategoryPanel(Window parent, ExtensionActiveScan extension, ScanPolicy policy) {
     	this(parent, extension, policy, false);
     }
@@ -494,8 +492,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     private AllCategoryTableModel getAllCategoryTableModel() {
         if (allCategoryTableModel == null) {
-            allCategoryTableModel = new AllCategoryTableModel(this);
-            allCategoryTableModel.setPluginFactory(this.policy.getPluginFactory());
+            allCategoryTableModel = new AllCategoryTableModel(policy.getPluginFactory());
         }
         
         return allCategoryTableModel;
@@ -580,10 +577,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         return comboStrength;
     }
 
-    /**
-     * 
-     * @return 
-     */
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.scanpolicy";

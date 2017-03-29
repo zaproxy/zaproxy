@@ -41,6 +41,8 @@
 // ZAP: 2015/03/25 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2015/10/01 Issue 1944:  Chart responses per second in ascan progress
 // ZAP: 2016/01/20 Issue 1959: Allow to active scan headers of all requests
+// ZAP: 2016/10/24 Issue 2951:  Support active scan rule and scan max duration
+// ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -53,6 +55,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class ScannerParam extends AbstractParam {
 
@@ -75,6 +78,9 @@ public class ScannerParam extends AbstractParam {
     private static final String ATTACK_POLICY = ACTIVE_SCAN_BASE_KEY + ".attackPolicy";
     private static final String ALLOW_ATTACK_ON_START = ACTIVE_SCAN_BASE_KEY + ".attackOnStart";
     private static final String MAX_CHART_TIME_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".chartTimeInMins";
+
+    private static final String MAX_RULE_DURATION_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".maxRuleDurationInMins";
+    private static final String MAX_SCAN_DURATION_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".maxScanDurationInMins";
 
     // ZAP: Excluded Parameters
     private static final String EXCLUDED_PARAMS_KEY = ACTIVE_SCAN_BASE_KEY + ".excludedParameters";
@@ -131,6 +137,8 @@ public class ScannerParam extends AbstractParam {
     private String defaultPolicy;
     private String attackPolicy;
     private int maxChartTimeInMins = DEFAULT_MAX_CHART_TIME_IN_MINS;
+    private int maxRuleDurationInMins = 0;
+    private int maxScanDurationInMins = 0;
 
     // ZAP: Variants Configuration
     private int targetParamsInjectable = TARGET_INJECTABLE_DEFAULT;
@@ -180,6 +188,16 @@ public class ScannerParam extends AbstractParam {
 
         try {
             this.maxResultsToList = getConfig().getInt(MAX_RESULTS_LIST, 1000);
+        } catch (Exception e) {
+        }
+
+        try {
+            this.maxRuleDurationInMins = getConfig().getInt(MAX_RULE_DURATION_IN_MINS, 0);
+        } catch (Exception e) {
+        }
+
+        try {
+            this.maxScanDurationInMins = getConfig().getInt(MAX_SCAN_DURATION_IN_MINS, 0);
         } catch (Exception e) {
         }
 
@@ -322,6 +340,7 @@ public class ScannerParam extends AbstractParam {
         subList.add(filter);
     }
 
+    @ZapApiIgnore
     public List<ScannerParamFilter> getExcludedParamList() {
         return excludedParams;
     }
@@ -407,7 +426,25 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(MAX_RESULTS_LIST, Integer.toString(this.maxResultsToList));
     }
 
-    /**
+    public int getMaxRuleDurationInMins() {
+		return maxRuleDurationInMins;
+	}
+
+	public void setMaxRuleDurationInMins(int maxRuleDurationInMins) {
+		this.maxRuleDurationInMins = maxRuleDurationInMins;
+        getConfig().setProperty(MAX_RULE_DURATION_IN_MINS, Integer.toString(this.maxRuleDurationInMins));
+	}
+
+	public int getMaxScanDurationInMins() {
+		return maxScanDurationInMins;
+	}
+
+	public void setMaxScanDurationInMins(int maxScanDurationInMins) {
+		this.maxScanDurationInMins = maxScanDurationInMins;
+        getConfig().setProperty(MAX_SCAN_DURATION_IN_MINS, Integer.toString(this.maxScanDurationInMins));
+	}
+
+	/**
      *
      * @param delayInMs
      */

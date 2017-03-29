@@ -113,31 +113,37 @@ public class OptionsJvmPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) throws Exception {
+    public void reset() {
+        getJvmOptionsField().setText("");
+        saveJvmFile();
     }
 
     @Override
     public void saveParam(Object obj) throws Exception {
-		try {
-			String opts = getJvmOptionsField().getText();
-			if (opts.length() == 0) {
-				// Delete the file so that the 'normal' defaults apply
-				Files.deleteIfExists(JVM_PROPERTIES_FILE);
-			} else {
-				if (! JVM_PROPERTIES_FILE.getParent().toFile().exists()) {
-					// Can happen if the user has only run the dev version not the release one
-					JVM_PROPERTIES_FILE.getParent().toFile().mkdirs();
-				}
-				// Replace the file contents, even if its just with whitespace
-				Files.write(JVM_PROPERTIES_FILE, opts.getBytes(StandardCharsets.UTF_8));
-			}
-		} catch (IOException e) {
-			View.getSingleton().showWarningDialog(this, 
-					MessageFormat.format(
-							Constant.messages.getString("jvm.options.error.writing"),
-							JVM_PROPERTIES_FILE.toAbsolutePath(),
-							e.getMessage()));
-		}
+        saveJvmFile();
+    }
+    
+    private void saveJvmFile() {
+        try {
+            String opts = getJvmOptionsField().getText();
+            if (opts.length() == 0) {
+                // Delete the file so that the 'normal' defaults apply
+                Files.deleteIfExists(JVM_PROPERTIES_FILE);
+            } else {
+                if (! JVM_PROPERTIES_FILE.getParent().toFile().exists()) {
+                    // Can happen if the user has only run the dev version not the release one
+                    JVM_PROPERTIES_FILE.getParent().toFile().mkdirs();
+                }
+                // Replace the file contents, even if its just with whitespace
+                Files.write(JVM_PROPERTIES_FILE, opts.getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (IOException e) {
+            View.getSingleton().showWarningDialog(this, 
+                    MessageFormat.format(
+                            Constant.messages.getString("jvm.options.error.writing"),
+                            JVM_PROPERTIES_FILE.toAbsolutePath(),
+                            e.getMessage()));
+        }
     }
     
     @Override

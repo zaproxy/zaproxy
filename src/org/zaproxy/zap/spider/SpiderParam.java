@@ -86,6 +86,8 @@ public class SpiderParam extends AbstractParam {
     private static final String SHOW_ADV_DIALOG = "spider.advDialog";
     private static final String MAX_DURATION = "spider.maxDuration";
 
+    private static final String MAX_CHILDREN = "spider.maxChildren";
+
 	/**
 	 * Configuration key to write/read the {@code sendRefererHeader} flag.
 	 * 
@@ -156,6 +158,11 @@ public class SpiderParam extends AbstractParam {
 	/** The maximum duration in minutes that the spider is allowed to run for, 0 meaning no limit */
 	private int maxDuration = 0;
 
+	/**
+	 * The maximum number of child nodes (per node) that can be crawled, 0 means no limit.
+	 */
+	private int maxChildren;
+
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(0);
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScopeEnabled = new ArrayList<>(0);
     private boolean confirmRemoveDomainAlwaysInScope;
@@ -204,6 +211,12 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			this.maxDuration = getConfig().getInt(MAX_DURATION, 0);
+		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
+			this.maxChildren = getConfig().getInt(MAX_CHILDREN, 0);
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -336,7 +349,7 @@ public class SpiderParam extends AbstractParam {
                 if (domain.contains("*")) {
                     domain = domain.replace(".", "\\.").replace("+", "\\+").replace("*", ".*?");
                     try {
-                        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+                        Pattern pattern = Pattern.compile(domain, Pattern.CASE_INSENSITIVE);
                         domainsInScope.add(new DomainAlwaysInScopeMatcher(pattern));
                     } catch (IllegalArgumentException e) {
                         log.error("Failed to migrate a domain always in scope, name: " + name, e);
@@ -696,8 +709,9 @@ public class SpiderParam extends AbstractParam {
 	 * {@code "USE_ALL"}, {@code "IGNORE_VALUE"}, {@code "IGNORE_COMPLETELY"}.
 	 * 
 	 * @param handleParametersVisited the new handle parameters visited value
+	 * @throws IllegalArgumentException if the given parameter is not a value of {@code HandleParametersOption}.
 	 */
-	public void setHandleParameters(String handleParametersVisited) throws IllegalArgumentException {
+	public void setHandleParameters(String handleParametersVisited) {
 		this.handleParametersVisited = HandleParametersOption.valueOf(handleParametersVisited);
 		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, this.handleParametersVisited.toString());
 	}
@@ -730,6 +744,7 @@ public class SpiderParam extends AbstractParam {
      * @see #getDomainsAlwaysInScopeEnabled()
      * @see #setDomainsAlwaysInScope(List)
      */
+    @ZapApiIgnore
     public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScope() {
         return domainsAlwaysInScope;
     }
@@ -742,6 +757,7 @@ public class SpiderParam extends AbstractParam {
      * @see #getDomainsAlwaysInScope()
      * @see #setDomainsAlwaysInScope(List)
      */
+    @ZapApiIgnore
     public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScopeEnabled() {
         return domainsAlwaysInScopeEnabled;
     }
@@ -894,7 +910,7 @@ public class SpiderParam extends AbstractParam {
 
 	/**
 	 * Returns the maximum duration in minutes that the spider should run for. Zero means no limit.
-	 * @return
+	 * @return the maximum time, in minutes, that the spider should run
 	 */
     public int getMaxDuration() {
     	return maxDuration; 
@@ -902,11 +918,32 @@ public class SpiderParam extends AbstractParam {
 
     /**
      * Sets the maximum duration in minutes that the spider should run for. Zero means no limit.
-     * @param maxDuration
+     * @param maxDuration the maximum time, in minutes, that the spider should run
      */
     public void setMaxDuration(int maxDuration) {
         this.maxDuration = maxDuration;
         getConfig().setProperty(MAX_DURATION, Integer.valueOf(maxDuration));
+    }
+
+    /**
+     * Gets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
+     * 
+     * @return the maximum number of child nodes that can be crawled.
+     * @since 2.6.0
+     */
+    public int getMaxChildren() {
+        return maxChildren;
+    }
+
+    /**
+     * Sets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
+     * 
+     * @param maxChildren the maximum number of child nodes that can be crawled.
+     * @since 2.6.0
+     */
+    public void setMaxChildren(int maxChildren) {
+        this.maxChildren = maxChildren;
+        getConfig().setProperty(MAX_CHILDREN, Integer.valueOf(maxChildren));
     }
 
 }

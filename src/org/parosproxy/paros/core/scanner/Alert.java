@@ -42,10 +42,17 @@
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/02/26 Deprecate alert as an element of Alert in favour of name
 // ZAP: 2016/05/25 Normalise equals/hashCode/compareTo
+// ZAP: 2016/08/10 Issue 2757: Alerts with different request method are considered the same
+// ZAP: 2016/08/25 Initialise the method to an empty string
+// ZAP: 2016/09/20 JavaDoc tweaks
+// ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
+// ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
+
+import javax.swing.ImageIcon;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
@@ -56,9 +63,91 @@ import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 
 public class Alert implements Comparable<Alert>  {
+
+    /**
+     * The source of the alerts.
+     *
+     * @since 2.6.0
+     */
+    public enum Source {
+        /**
+         * An alert raised by unknown tool/functionality, mostly for old alerts which source is not (well) known.
+         */
+        UNKNOWN(0, "alert.source.unknown"),
+        /**
+         * An alert raised by an active scanner.
+         */
+        ACTIVE(1, "alert.source.active"),
+        /**
+         * An alert raised manually (by the user).
+         */
+        MANUAL(2, "alert.source.manual"),
+        /**
+         * An alert raised by a passive scanner.
+         */
+        PASSIVE(3, "alert.source.passive"),
+        /**
+         * An alert raised by other tools/functionalities in ZAP (for example, fuzzer, HTTPS Info add-on, custom scripts...).
+         */
+        TOOL(4, "alert.source.tool");
+
+        private final int id;
+        private final String i18nKey;
+
+        private Source(int id, String i18nKey) {
+            this.id = id;
+            this.i18nKey = i18nKey;
+        }
+
+        /**
+         * Gets the identifier of this {@code Source}.
+         * <p>
+         * Should be used for persistence.
+         *
+         * @return the identifier.
+         * @see #getSource(int)
+         */
+        public int getId() {
+            return id;
+        }
+
+        /**
+         * Gets the key for the internationalised name.
+         *
+         * @return the key for the internationalised name.
+         */
+        public String getI18nKey() {
+            return i18nKey;
+        }
+
+        /**
+         * Gets the {@code Source} with the given identifier.
+         *
+         * @param id the identifier of the {@code Source}
+         * @return the {@code Source} with the given identifier, or {@link #UNKNOWN} if not a recognised identifier.
+         * @see #getId()
+         */
+        public static Source getSource(int id) {
+            switch (id) {
+            case 0:
+                return UNKNOWN;
+            case 1:
+                return ACTIVE;
+            case 2:
+                return MANUAL;
+            case 3:
+                return PASSIVE;
+            case 4:
+                return TOOL;
+            default:
+                return UNKNOWN;
+            }
+        }
+    }
 
 	public static final int RISK_INFO 	= 0;
 	public static final int RISK_LOW 	= 1;
@@ -99,12 +188,6 @@ public class Alert implements Comparable<Alert>  {
 	private int		pluginId = 0;
 	private String name = "";
 	private int risk = RISK_INFO;
-	/**
-	 * @deprecated
-	 * Use of reliability has been deprecated in favour of using confidence
-	 */
-	@Deprecated
-	private int reliability = CONFIDENCE_MEDIUM;
 	private int confidence = CONFIDENCE_MEDIUM;
 	private String 	description = "";
 	private String 	uri = "";
@@ -124,9 +207,10 @@ public class Alert implements Comparable<Alert>  {
 	// ZAP: Added logger
 	private static final Logger logger = Logger.getLogger(Alert.class);
 	// Cache this info so that we dont have to keep a ref to the HttpMessage
-	private String method = null;
+	private String method = "";
 	private String postData;
 	private URI msgUri = null;
+	private Source source = Source.UNKNOWN;
 	
 	public Alert(int pluginId) {
 		this.pluginId = pluginId;
@@ -143,6 +227,7 @@ public class Alert implements Comparable<Alert>  {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
+	    this.source = Source.getSource(recordAlert.getSourceId());
         try {
         	HistoryReference hRef = new HistoryReference(recordAlert.getHistoryId());
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
@@ -176,6 +261,8 @@ public class Alert implements Comparable<Alert>  {
 	/**
 	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}.
 	 * Use of reliability has been deprecated in favour of using confidence
+	 * @param risk the new risk
+	 * @param confidence the new confidence
 	 */
 	@Deprecated
 	public void setRiskReliability(int risk, int confidence) {
@@ -190,6 +277,7 @@ public class Alert implements Comparable<Alert>  {
 	/**
 	 * @deprecated (2.5.0) Replaced by {@link #setName}.
 	 * Use of alert has been deprecated in favour of using name.
+	 * @param alert the new name
 	 */
 	@Deprecated
 	public void setAlert(String alert) {
@@ -206,18 +294,40 @@ public class Alert implements Comparable<Alert>  {
 	}
 	
 	/**
+	 * Sets the details of the alert.
+	 * 
+	 * @param description the description of the alert
+	 * @param uri the URI that has the issue
+	 * @param param the parameter that has the issue
+	 * @param attack the attack that triggers the issue
+	 * @param otherInfo other information about the issue
+	 * @param solution the solution for the issue
+	 * @param reference references about the issue
+	 * @param msg the HTTP message that triggers/triggered the issue
 	 * @deprecated (2.2.0) Replaced by
 	 *             {@link #setDetail(String, String, String, String, String, String, String, String, int, int, HttpMessage)}. It
 	 *             will be removed in a future release.
 	 */
 	@Deprecated
-	@SuppressWarnings("javadoc")
 	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
 			String solution, String reference, HttpMessage msg) {
 		setDetail(description, uri, param, attack, otherInfo, solution, reference, "", -1, -1, msg);
 	}
 
 	/**
+	 * Sets the details of the alert.
+	 * 
+	 * @param description the description of the alert
+	 * @param uri the URI that has the issue
+	 * @param param the parameter that has the issue
+	 * @param attack the attack that triggers the issue
+	 * @param otherInfo other information about the issue
+	 * @param solution the solution for the issue
+	 * @param reference references about the issue
+	 * @param evidence the evidence (in the HTTP response) that the issue exists
+	 * @param cweId the CWE ID of the issue
+	 * @param wascId the WASC ID of the issue
+	 * @param msg the HTTP message that triggers/triggered the issue
 	 * @since 2.2.0
 	 */
 	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
@@ -324,6 +434,11 @@ public class Alert implements Comparable<Alert>  {
 		if (result != 0) {
 			return result;
 		}
+
+		result = method.compareToIgnoreCase(alert2.method);
+		if (result != 0) {
+			return result;
+		}
 		
 		// ZAP: changed to compare the field uri with alert2.uri
 		result = uri.compareToIgnoreCase(alert2.uri);
@@ -391,6 +506,9 @@ public class Alert implements Comparable<Alert>  {
 		if (!name.equals(item.name)) {
 			return false;
 		}
+		if (!method.equalsIgnoreCase(item.method)) {
+			return false;
+		}
 		if (!uri.equalsIgnoreCase(item.uri)) {
 			return false;
 		}
@@ -428,19 +546,22 @@ public class Alert implements Comparable<Alert>  {
 		result = prime * result + otherInfo.hashCode();
 		result = prime * result + param.hashCode();
 		result = prime * result + pluginId;
+		result = prime * result + method.hashCode();
 		result = prime * result + uri.hashCode();
 		result = prime * result + ((attack == null) ? 0 : attack.hashCode());
 		return result;
 	}
 
 	/**
-	Create a new instance of AlertItem with same members.
-	*/
+	 * Creates a new instance of {@code Alert} with same members.
+	 * @return a new {@code Alert} instance
+	 */
 	public Alert newInstance() {
 		Alert item = new Alert(this.pluginId);
 		item.setRiskConfidence(this.risk, this.confidence);
 		item.setName(this.name);
 		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.historyRef);
+		item.setSource(this.source);
 		return item;
 	}
 	
@@ -469,6 +590,7 @@ public class Alert implements Comparable<Alert>  {
 		if (wascId > 0) {
 			sb.append("  <wascid>" ).append(wascId).append("</wascid>\r\n");
 		}
+		sb.append("  <sourceid>" ).append(source.getId()).append("</sourceid>\r\n");
 		
 		sb.append("</alertitem>\r\n");
 		return sb.toString();
@@ -570,9 +692,33 @@ public class Alert implements Comparable<Alert>  {
         return risk;
     }
     
+    /**
+     * Gets the correctly scaled icon for this alert.
+     * @return the correctly scaled icon for this alert
+     * @since 2.6.0
+     */
+    public ImageIcon getIcon() {
+        if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
+            // Special case - theres no risk - use the green flag
+            return DisplayUtils.getScaledIcon(Constant.OK_FLAG_IMAGE_URL);
+        }
+
+        switch (risk) {
+        case Alert.RISK_INFO:
+            return DisplayUtils.getScaledIcon(Constant.INFO_FLAG_IMAGE_URL);
+        case Alert.RISK_LOW:
+            return DisplayUtils.getScaledIcon(Constant.LOW_FLAG_IMAGE_URL);
+        case Alert.RISK_MEDIUM:
+            return DisplayUtils.getScaledIcon(Constant.MED_FLAG_IMAGE_URL);
+        case Alert.RISK_HIGH:
+            return DisplayUtils.getScaledIcon(Constant.HIGH_FLAG_IMAGE_URL);
+        }
+        return null;
+    }
+    
+    @Deprecated
     public URL getIconUrl() {
-    	//TODO: Shouldn't be necessary to check both but let's be careful
-    	if (reliability == Alert.CONFIDENCE_FALSE_POSITIVE || confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
+    	if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
     		// Special case - theres no risk - use the green flag
 			return Constant.OK_FLAG_IMAGE_URL;
     	}
@@ -617,6 +763,7 @@ public class Alert implements Comparable<Alert>  {
     public String getUrlParamXML() {
     	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
         sb.append("  <uri>").append(replaceEntity(uri)).append("</uri>\r\n");
+        sb.append("  <method>").append(replaceEntity(method)).append("</method>\r\n");
         if (param != null && param.length() > 0) {
         	sb.append("  <param>").append(replaceEntity(param)).append("</param>\r\n");
         }
@@ -695,5 +842,31 @@ public class Alert implements Comparable<Alert>  {
 	public void setWascId(int wascId) {
 		this.wascId = wascId;
 	}
+
+	/**
+	 * Gets the source of the alert.
+	 *
+	 * @return the source of the alert, never {@code null}.
+	 * @since 2.6.0
+	 */
+	public Source getSource() {
+		return source;
+	}
     
+	/**
+	 * Sets the source of the alert.
+	 * <p>
+	 * <strong>Note:</strong> The source should be considered immutable and should be set before the alert is persisted
+	 * (normally by the tool/functionality raising the alert).
+	 *
+	 * @param source the source of the alert.
+	 * @throws IllegalArgumentException if the given {@code source} is {@code null}.
+	 * @since 2.6.0
+	 */
+	public void setSource(Source source) {
+		if (source == null) {
+			throw new IllegalArgumentException("Parameter source must not be null.");
+		}
+		this.source = source;
+	}
 }	

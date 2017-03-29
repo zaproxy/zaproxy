@@ -17,10 +17,9 @@ import org.zaproxy.zap.model.Context;
 
 /**
  * A ComboBox widget that displays the list of existing {@link Context Contexts}.
- * 
- * NOTE: Does not automatically refresh when the Contexts have changed. For this, make sure you
- * manually call {@link #reloadContexts()}.
- * 
+ * <p>
+ * <strong>NOTE:</strong> Does not automatically refresh when the Contexts have changed. For this, make sure you
+ * manually call {@link #reloadContexts(boolean)}.
  */
 public class ContextSelectComboBox extends JComboBox<Context> {
 

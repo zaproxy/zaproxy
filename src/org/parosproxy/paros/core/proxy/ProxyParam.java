@@ -30,6 +30,8 @@
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
+// ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
+// ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -38,6 +40,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -64,15 +67,18 @@ public class ProxyParam extends AbstractParam {
     private static final String REVERSE_PROXY_HTTP_PORT = "proxy.reverseProxy.httpPort";
     private static final String REVERSE_PROXY_HTTPS_PORT = "proxy.reverseProxy.httpsPort";
 
+    /**
+     * The configuration key to save/load the option {@link #behindNat}.
+     */
+    private static final String PROXY_BEHIND_NAT = PROXY_BASE_KEY + ".behindnat";
 
     private static final String SECURITY_PROTOCOLS_ENABLED = PROXY_BASE_KEY + ".securityProtocolsEnabled";
     private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + ".protocol";
 
     /**
-     * The configuration key for the option that controls whether the proxy
-     * should modify/remove the "Accept-Encoding" request-header field or not.
+     * The configuration key to save/load the option {@link #removeUnsupportedEncodings}.
      */
-    private static final String MODIFY_ACCEPT_ENCODING_HEADER = "proxy.modifyAcceptEncoding";
+    private static final String REMOVE_UNSUPPORTED_ENCODINGS = "proxy.removeUnsupportedEncodings";
 
     /**
      * The configuration key for the option that controls whether the proxy
@@ -96,14 +102,26 @@ public class ProxyParam extends AbstractParam {
     private boolean proxyIpAnyLocalAddress;
 
     /**
-     * The option that controls whether the proxy should modify/remove the
-     * "Accept-Encoding" request-header field or not.
+     * Flag that controls whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding"
+     * request-header field.
+     * <p>
+     * Default is {@code true}.
+     * 
+     * @see #REMOVE_UNSUPPORTED_ENCODINGS
+     * @see #setRemoveUnsupportedEncodings(boolean)
      */
-    private boolean modifyAcceptEncodingHeader = true;
+    private boolean removeUnsupportedEncodings = true;
     /**
      * The option that controls whether the proxy should always decode gzipped content or not.
      */
     private boolean alwaysDecodeGzip = true;
+
+    /**
+     * Flag that controls whether or not the local proxy is behind NAT.
+     * <p>
+     * Default is {@code false}.
+     */
+    private boolean behindNat;
 
     private String[] securityProtocolsEnabled;
 
@@ -140,10 +158,16 @@ public class ProxyParam extends AbstractParam {
         reverseProxyHttpsPort = getConfig().getInt(REVERSE_PROXY_HTTPS_PORT, 443);
         useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
 
-        modifyAcceptEncodingHeader = getConfig().getBoolean(MODIFY_ACCEPT_ENCODING_HEADER, true);
+        removeUnsupportedEncodings = getConfig().getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
         alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
 
         loadSecurityProtocolsEnabled();
+
+        try {
+            behindNat = getConfig().getBoolean(PROXY_BEHIND_NAT, false);
+        } catch (ConversionException e) {
+            logger.error("Failed to read '" + PROXY_BEHIND_NAT + "'", e);
+        }
     }
 
     public String getProxyIp() {
@@ -246,10 +270,12 @@ public class ProxyParam extends AbstractParam {
      * @param modifyAcceptEncodingHeader {@code true} if the proxy should
      * modify/remove the "Accept-Encoding" request-header field, {@code false}
      * otherwise
+     * @deprecated (2.6.0) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
+     * @since 2.0.0
      */
+    @Deprecated
     public void setModifyAcceptEncodingHeader(boolean modifyAcceptEncodingHeader) {
-        this.modifyAcceptEncodingHeader = modifyAcceptEncodingHeader;
-        getConfig().setProperty(MODIFY_ACCEPT_ENCODING_HEADER, Boolean.valueOf(modifyAcceptEncodingHeader));
+        setRemoveUnsupportedEncodings(modifyAcceptEncodingHeader);
     }
 
     /**
@@ -258,9 +284,41 @@ public class ProxyParam extends AbstractParam {
      *
      * @return {@code true} if the proxy should modify/remove the
      * "Accept-Encoding" request-header field, {@code false} otherwise
+     * @deprecated (2.6.0) Use {@link #isRemoveUnsupportedEncodings()} instead.
+     * @since 2.0.0
      */
+    @Deprecated
     public boolean isModifyAcceptEncodingHeader() {
-        return modifyAcceptEncodingHeader;
+        return isRemoveUnsupportedEncodings();
+    }
+
+    /**
+     * Sets whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding" request-header field.
+     * <p>
+     * The whole header is removed if empty after the removal of unsupported encodings.
+     *
+     * @param remove {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
+     * @since 2.6.0
+     * @see #isRemoveUnsupportedEncodings()
+     */
+    public void setRemoveUnsupportedEncodings(boolean remove) {
+        if (removeUnsupportedEncodings != remove) {
+            this.removeUnsupportedEncodings = remove;
+            getConfig().setProperty(REMOVE_UNSUPPORTED_ENCODINGS, Boolean.valueOf(removeUnsupportedEncodings));
+        }
+    }
+
+    /**
+     * Tells whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding" request-header field.
+     * <p>
+     * The whole header is removed if empty after the removal of unsupported encodings.
+     *
+     * @return {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
+     * @since 2.6.0
+     * @see #setRemoveUnsupportedEncodings(boolean)
+     */
+    public boolean isRemoveUnsupportedEncodings() {
+        return removeUnsupportedEncodings;
     }
 
     /**
@@ -363,5 +421,24 @@ public class ProxyParam extends AbstractParam {
         } catch (UnknownHostException e) {
             proxyIpAnyLocalAddress = false;
         }
+    }
+
+    /**
+     * Tells whether or not the proxy is behind NAT.
+     *
+     * @return {@code true} if the proxy is behind NAT, {@code false} otherwise.
+     */
+    public boolean isBehindNat() {
+        return behindNat;
+    }
+
+    /**
+     * Sets whether or not the proxy is behind NAT.
+     *
+     * @param behindNat {@code true} if the proxy is behind NAT, {@code false} otherwise.
+     */
+    public void setBehindNat(boolean behindNat) {
+        this.behindNat = behindNat;
+        getConfig().setProperty(PROXY_BEHIND_NAT, Boolean.valueOf(behindNat));
     }
 }

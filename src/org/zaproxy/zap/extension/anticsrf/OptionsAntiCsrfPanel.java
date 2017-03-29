@@ -41,9 +41,6 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
 
 	private OptionsAntiCsrfTableModel antiCsrfModel = null;
 	
-    /**
-     * 
-     */
     public OptionsAntiCsrfPanel() {
         super();
  		initialize();
@@ -81,10 +78,6 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
     }
 
 
-    @Override
-    public void validateParam(Object obj) throws Exception {
-
-    }
 
 
     @Override

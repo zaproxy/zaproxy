@@ -64,9 +64,13 @@
 // ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
 // ZAP: 2016/05/30 Notification of installation status of the add-ons
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2016/08/18 Hook ApiImplementor
+// ZAP: 2016/11/23 Call postInit() when starting an extension, startLifeCycle(Extension).
+// ZAP: 2017/02/19 Hook/remove extensions' components to/from the main tool bar.
 
 package org.parosproxy.paros.extension;
 
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,9 +108,12 @@ import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionLoader {
@@ -650,6 +657,7 @@ public class ExtensionLoader {
             extensionHooks.put(ext, extHook);
 
             hookContextDataFactories(ext, extHook);
+            hookApiImplementors(ext, extHook);
 
             if (view != null) {
                 // no need to hook view if no GUI
@@ -659,6 +667,7 @@ public class ExtensionLoader {
             
             hookOptions(extHook);
             ext.optionsLoaded();
+            ext.postInit();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -726,6 +735,7 @@ public class ExtensionLoader {
                 extensionHooks.put(ext, extHook);
 
                 hookContextDataFactories(ext, extHook);
+                hookApiImplementors(ext, extHook);
 
                 if (view != null) {
                     EventQueue.invokeAndWait(new Runnable() {
@@ -770,6 +780,16 @@ public class ExtensionLoader {
                 model.addContextDataFactory(contextDataFactory);
             } catch (Exception e) {
                 logger.error("Error while adding a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+    }
+
+    private void hookApiImplementors(Extension extension, ExtensionHook extHook) {
+        for (ApiImplementor apiImplementor : extHook.getApiImplementors()) {
+            try {
+                API.getInstance().registerApiImplementor(apiImplementor);
+            } catch (Exception e) {
+                logger.error("Error while adding an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
             }
         }
     }
@@ -967,6 +987,16 @@ public class ExtensionLoader {
             }
         }
 
+        MainToolbarPanel mainToolBarPanel = view.getMainFrame().getMainToolbarPanel();
+        for (Component component : pv.getMainToolBarComponents()) {
+            try {
+                mainToolBarPanel.addToolBarComponent(component);
+            } catch (Exception e) {
+                logger.error("Error while adding a component to the main tool bar panel, from " +
+                        extension.getClass().getCanonicalName(), e);
+            }
+        }
+
         view.getWorkbench().addPanels(pv.getSelectPanel(), WorkbenchPanel.PanelType.SELECT);
         view.getWorkbench().addPanels(pv.getWorkPanel(), WorkbenchPanel.PanelType.WORK);
         view.getWorkbench().addPanels(pv.getStatusPanel(), WorkbenchPanel.PanelType.STATUS);
@@ -990,6 +1020,16 @@ public class ExtensionLoader {
                 view.removeContextPanelFactory(contextPanelFactory);
             } catch (Exception e) {
                 logger.error("Error while removing a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        MainToolbarPanel mainToolBarPanel = view.getMainFrame().getMainToolbarPanel();
+        for (Component component : pv.getMainToolBarComponents()) {
+            try {
+                mainToolBarPanel.removeToolBarComponent(component);
+            } catch (Exception e) {
+                logger.error("Error while removing a component from the main tool bar panel, from "
+                        + extension.getClass().getCanonicalName(), e);
             }
         }
 
@@ -1210,6 +1250,14 @@ public class ExtensionLoader {
                 model.removeContextDataFactory(contextDataFactory);
             } catch (Exception e) {
                 logger.error("Error while removing a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        for (ApiImplementor apiImplementor : hook.getApiImplementors()) {
+            try {
+                API.getInstance().removeApiImplementor(apiImplementor);
+            } catch (Exception e) {
+                logger.error("Error while removing an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
             }
         }
 

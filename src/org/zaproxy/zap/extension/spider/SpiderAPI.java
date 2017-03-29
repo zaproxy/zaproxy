@@ -18,11 +18,15 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.URI;
@@ -30,8 +34,12 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.RecordHistory;
+import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -49,6 +57,7 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
 import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
+import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
@@ -73,6 +82,12 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String ACTION_REMOVE_SCAN = "removeScan";
 	private static final String ACTION_REMOVE_ALL_SCANS = "removeAllScans";
 
+	private static final String ACTION_ADD_DOMAIN_ALWAYS_IN_SCOPE = "addDomainAlwaysInScope";
+	private static final String ACTION_MODIFY_DOMAIN_ALWAYS_IN_SCOPE = "modifyDomainAlwaysInScope";
+	private static final String ACTION_REMOVE_DOMAIN_ALWAYS_IN_SCOPE = "removeDomainAlwaysInScope";
+	private static final String ACTION_ENABLE_ALL_DOMAINS_ALWAYS_IN_SCOPE = "enableAllDomainsAlwaysInScope";
+	private static final String ACTION_DISABLE_ALL_DOMAINS_ALWAYS_IN_SCOPE = "disableAllDomainsAlwaysInScope";
+
 	/**
 	 * The Constant VIEW_STATUS that defines the view which describes the current status of the
 	 * scan.
@@ -86,6 +101,11 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String VIEW_RESULTS = "results";
 	private static final String VIEW_FULL_RESULTS = "fullResults";
 	private static final String VIEW_SCANS = "scans";
+	private static final String VIEW_ALL_URLS = "allUrls";
+
+	private static final String VIEW_DOMAINS_ALWAYS_IN_SCOPE = "domainsAlwaysInScope";
+	private static final String VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE = "optionDomainsAlwaysInScope";
+	private static final String VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE_ENABLED = "optionDomainsAlwaysInScopeEnabled";
 
 	/**
 	 * The Constant PARAM_URL that defines the parameter defining the url of the scan.
@@ -99,6 +119,10 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String PARAM_SCAN_ID = "scanId";
 	private static final String PARAM_MAX_CHILDREN = "maxChildren";
 	private static final String PARAM_SUBTREE_ONLY = "subtreeOnly";
+	private static final String PARAM_VALUE = "value";
+	private static final String PARAM_IDX = "idx";
+	private static final String PARAM_IS_REGEX = "isRegex";
+	private static final String PARAM_IS_ENABLED = "isEnabled";
 
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
@@ -132,12 +156,35 @@ public class SpiderAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] { PARAM_REGEX }));
 
+		this.addApiAction(
+				new ApiAction(
+						ACTION_ADD_DOMAIN_ALWAYS_IN_SCOPE,
+						new String[] { PARAM_VALUE },
+						new String[] { PARAM_IS_REGEX, PARAM_IS_ENABLED }));
+		this.addApiAction(
+				new ApiAction(
+						ACTION_MODIFY_DOMAIN_ALWAYS_IN_SCOPE,
+						new String[] { PARAM_IDX },
+						new String[] { PARAM_VALUE, PARAM_IS_REGEX, PARAM_IS_ENABLED }));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, new String[] { PARAM_IDX }));
+		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_DOMAINS_ALWAYS_IN_SCOPE));
+		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_DOMAINS_ALWAYS_IN_SCOPE));
+
 		// Register the views
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_RESULTS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_FULL_RESULTS, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCANS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
+		this.addApiView(new ApiView(VIEW_ALL_URLS));
+
+		this.addApiView(new ApiView(VIEW_DOMAINS_ALWAYS_IN_SCOPE));
+		ApiView view = new ApiView(VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE);
+		view.setDeprecated(true);
+		this.addApiView(view);
+		view = new ApiView(VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE_ENABLED);
+		view.setDeprecated(true);
+		this.addApiView(view);
 
 	}
 
@@ -267,10 +314,94 @@ public class SpiderAPI extends ApiImplementor {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 			}
 			break;
+
+		case ACTION_ADD_DOMAIN_ALWAYS_IN_SCOPE:
+			try {
+				String value = params.getString(PARAM_VALUE);
+				DomainAlwaysInScopeMatcher domainAlwaysInScope;
+				if (getParam(params, PARAM_IS_REGEX, false)) {
+					domainAlwaysInScope = new DomainAlwaysInScopeMatcher(DomainAlwaysInScopeMatcher.createPattern(value));
+				} else {
+					domainAlwaysInScope = new DomainAlwaysInScopeMatcher(value);
+				}
+				domainAlwaysInScope.setEnabled(getParam(params, PARAM_IS_ENABLED, true));
+
+				List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(
+						extension.getSpiderParam().getDomainsAlwaysInScope());
+				domainsAlwaysInScope.add(domainAlwaysInScope);
+				extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
+			} catch (IllegalArgumentException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_VALUE, e);
+			}
+			break;
+		case ACTION_MODIFY_DOMAIN_ALWAYS_IN_SCOPE:
+			try {
+				int idx = params.getInt(PARAM_IDX);
+				if (idx < 0 || idx >= extension.getSpiderParam().getDomainsAlwaysInScope().size()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
+				}
+
+				DomainAlwaysInScopeMatcher oldDomain = extension.getSpiderParam().getDomainsAlwaysInScope().get(idx);
+				String value = getParam(params, PARAM_VALUE, oldDomain.getValue());
+				if (value.isEmpty()) {
+					value = oldDomain.getValue();
+				}
+
+				DomainAlwaysInScopeMatcher newDomain;
+				if (getParam(params, PARAM_IS_REGEX, oldDomain.isRegex())) {
+					newDomain = new DomainAlwaysInScopeMatcher(DomainAlwaysInScopeMatcher.createPattern(value));
+				} else {
+					newDomain = new DomainAlwaysInScopeMatcher(value);
+				}
+				newDomain.setEnabled(getParam(params, PARAM_IS_ENABLED, oldDomain.isEnabled()));
+
+				if (oldDomain.equals(newDomain)) {
+					break;
+				}
+
+				List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(
+						extension.getSpiderParam().getDomainsAlwaysInScope());
+				domainsAlwaysInScope.set(idx, newDomain);
+				extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
+			} catch (IllegalArgumentException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_VALUE, e);
+			}
+			break;
+		case ACTION_REMOVE_DOMAIN_ALWAYS_IN_SCOPE:
+			try {
+				int idx = params.getInt(PARAM_IDX);
+				if (idx < 0 || idx >= extension.getSpiderParam().getDomainsAlwaysInScope().size()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
+				}
+
+				List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(
+						extension.getSpiderParam().getDomainsAlwaysInScope());
+				domainsAlwaysInScope.remove(idx);
+				extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
+			}
+			break;
+		case ACTION_ENABLE_ALL_DOMAINS_ALWAYS_IN_SCOPE:
+			setDomainsAlwaysInScopeEnabled(true);
+			break;
+		case ACTION_DISABLE_ALL_DOMAINS_ALWAYS_IN_SCOPE:
+			setDomainsAlwaysInScopeEnabled(false);
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private void setDomainsAlwaysInScopeEnabled(boolean enabled) {
+		List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = extension.getSpiderParam().getDomainsAlwaysInScope();
+		for (DomainAlwaysInScopeMatcher x : extension.getSpiderParam().getDomainsAlwaysInScope()) {
+			x.setEnabled(enabled);
+		}
+		extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
 	}
 
 	/**
@@ -299,10 +430,6 @@ public class SpiderAPI extends ApiImplementor {
 
 	/**
 	 * Starts a spider scan at the given {@code url} and, optionally, with the perspective of the given {@code user}.
-	 * <p>
-	 * The {@code scanIdCounter} is used to generate the ID of the started spider scan. The started {@code SpiderScan} is saved
-	 * in {@code spiderScans} for later access/control, accessible with the returned ID.
-	 * </p>
 	 * 
 	 * @param url the url to start the spider scan
 	 * @param user the user to scan as, or null if the scan is done without the perspective of any user
@@ -312,8 +439,6 @@ public class SpiderAPI extends ApiImplementor {
 	 * @param subtreeOnly if the scan should be done only under a site's subtree
 	 * @return the ID of the newly started scan
 	 * @throws ApiException if the {@code url} is not valid
-	 * @see #scanIdCounter
-	 * @see #spiderScans
 	 */
 	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context, boolean subtreeOnly) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
@@ -429,13 +554,7 @@ public class SpiderAPI extends ApiImplementor {
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
 			synchronized (scan.getResourcesFound()) {
 				for (SpiderResource sr : scan.getResourcesFound()) {
-					Map<String, String> map = new HashMap<>();
-					map.put("messageId", Integer.toString(sr.getHistoryId()));
-					map.put("method", sr.getMethod());
-					map.put("url", sr.getUri());
-					map.put("statusCode", Integer.toString(sr.getStatusCode()));
-					map.put("statusReason", sr.getStatusReason());
-					resultList.addItem(new ApiResponseSet("resource", map));
+					resultList.addItem(createApiResponseSet(sr));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -444,6 +563,14 @@ public class SpiderAPI extends ApiImplementor {
 			synchronized (scan.getResultsOutOfScope()) {
 				for (String url : scan.getResultsOutOfScope()) {
 					resultList.addItem(new ApiResponseElement("url", url));
+				}
+			}
+			resultUrls.addItem(resultList);
+
+			resultList = new ApiResponseList("urlsIoError");
+			synchronized (scan.getResourcesIoErrors()) {
+				for (SpiderResource sr : scan.getResourcesIoErrors()) {
+					resultList.addItem(createApiResponseSet(sr));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -463,12 +590,76 @@ public class SpiderAPI extends ApiImplementor {
 				map.put("id", Integer.toString(spiderScan.getScanId()));
 				map.put("progress", Integer.toString(spiderScan.getProgress()));
 				map.put("state", spiderScan.getState());
-				resultList.addItem(new ApiResponseSet("scan", map));
+				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
+		} else if (VIEW_ALL_URLS.equals(name)) {
+			ApiResponseList resultUrls = new ApiResponseList(name);
+			Set<String> urlSet=new HashSet<String>();
+			
+			TableHistory tableHistory = extension.getModel().getDb().getTableHistory();
+			List<Integer> ids = Collections.emptyList();
+			
+			try {
+				ids = tableHistory.getHistoryIdsOfHistType(extension.getModel().getSession().getSessionId(),
+						HistoryReference.TYPE_SPIDER, HistoryReference.TYPE_SPIDER_TASK);
+			} catch (DatabaseException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			}
+			
+			String url;
+			for (Integer id : ids) {
+				try {
+					RecordHistory rh = tableHistory.read(id.intValue());
+					if (rh != null) {
+						url = rh.getHttpMessage().getRequestHeader().getURI().toString();
+						if (urlSet.add(url)) {
+							resultUrls.addItem(new ApiResponseElement("url", url));
+						}
+					}
+				} catch (HttpMalformedHeaderException | DatabaseException e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
+			}
+			
+			result = resultUrls;
+		} else if (VIEW_DOMAINS_ALWAYS_IN_SCOPE.equals(name) || VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE.equals(name)) {
+			result = domainMatchersToApiResponseList(name, extension.getSpiderParam().getDomainsAlwaysInScope(), false);
+		} else if (VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE_ENABLED.equals(name)) {
+			result = domainMatchersToApiResponseList(name, extension.getSpiderParam().getDomainsAlwaysInScope(), true);
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
+	}
+
+	private static ApiResponseSet<String> createApiResponseSet(SpiderResource sr) {
+		Map<String, String> map = new HashMap<>();
+		map.put("messageId", Integer.toString(sr.getHistoryId()));
+		map.put("method", sr.getMethod());
+		map.put("url", sr.getUri());
+		map.put("statusCode", Integer.toString(sr.getStatusCode()));
+		map.put("statusReason", sr.getStatusReason());
+		return new ApiResponseSet<>("resource", map);
+	}
+	
+	private ApiResponse domainMatchersToApiResponseList(
+			String name,
+			List<DomainAlwaysInScopeMatcher> domains,
+			boolean excludeDisabled) {
+		ApiResponseList apiResponse = new ApiResponseList(name);
+		for (int i = 0; i < domains.size(); i++) {
+			DomainAlwaysInScopeMatcher domain = domains.get(i);
+			if (!domain.isEnabled() && excludeDisabled) {
+				continue;
+			}
+			Map<String, Object> domainData = new HashMap<>();
+			domainData.put("idx", i);
+			domainData.put("value", domain.getValue());
+			domainData.put("regex", domain.isRegex());
+			domainData.put("enabled", domain.isEnabled());
+			apiResponse.addItem(new ApiResponseSet<Object>("domain", domainData));
+		}
+		return apiResponse;
 	}
 }

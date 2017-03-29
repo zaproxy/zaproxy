@@ -27,6 +27,7 @@
 // ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2017/01/09 Remove method no longer needed.
 
 package org.parosproxy.paros.extension.option;
 
@@ -579,11 +580,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 	}
 
-	@Override
-	public void validateParam(Object obj) {
-	    // no validation needed
-	}
-	
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;

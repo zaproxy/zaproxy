@@ -78,6 +78,9 @@ public class HttpSessionsAPI extends ApiImplementor {
 	/** The mandatory parameter required for setting the value of a session token. */
 	private static final String ACTION_PARAM_TOKEN_VALUE = "tokenValue";
 
+	/** The view which lists all of the sites with session tokens. */
+	private static final String VIEW_SITES = "sites";
+
 	/** The view which describes the current existing sessions for a site. */
 	private static final String VIEW_SESSIONS = "sessions";
 
@@ -122,6 +125,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 				ACTION_PARAM_SESSION_OLD_NAME, ACTION_PARAM_SESSION_NEW_NAME }));
 
 		// Register the views
+		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_SESSIONS, new String[] { VIEW_PARAM_SITE },
 				new String[] { VIEW_PARAM_SESSION }));
 		this.addApiView(new ApiView(VIEW_ACTIVE_SESSION, new String[] { VIEW_PARAM_SITE }));
@@ -231,6 +235,13 @@ public class HttpSessionsAPI extends ApiImplementor {
 
 		HttpSessionsSite site;
 		switch (name) {
+		case VIEW_SITES:
+			// Get all sites with sessions
+			ApiResponseList responseSites = new ApiResponseList(name);
+			for (String s : extension.getSites()) {
+				responseSites.addItem(new ApiResponseElement("site", s));
+			}
+			return responseSites;
 		case VIEW_SESSIONS:
 			// Get existing sessions
 			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
@@ -239,7 +250,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			}
 
 			ApiResponseList response = new ApiResponseList(name);
-			String vsName = params.getString(VIEW_PARAM_SESSION);
+			String vsName = getParam(params, VIEW_PARAM_SESSION, "");
 			// If a session name was not provided
 			if (vsName == null || vsName.isEmpty()) {
 				Set<HttpSession> sessions = site.getHttpSessions();
@@ -311,7 +322,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 		return sessionResult;
 	}
 
-	private static class TokenValuesResponseSet extends ApiResponseSet {
+	private static class TokenValuesResponseSet extends ApiResponseSet<Cookie> {
 
 		private final List<List<Pair<String, String>>> xmlTokenElements;
 

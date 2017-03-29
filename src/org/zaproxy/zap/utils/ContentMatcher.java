@@ -50,7 +50,7 @@ public class ContentMatcher {
      * Direct method for a complete ContentMatcher instance creation.
      * Use the ClassLoader for the resource detection and loading, be careful regarding the 
      * relative file name use (this class is in another package).
-     * @param xmlfileName the name of the XML file that need to be used for initialization
+     * @param xmlFileName the name of the XML file that need to be used for initialization
      * @return a ContentMatcher instance
      */
     public static ContentMatcher getInstance(String xmlFileName) {
@@ -88,9 +88,12 @@ public class ContentMatcher {
     
     /**
      * Load a pattern list from an XML formatted file.
-     * Pattern should be enclosed around a <Patterns> tag and should be
-     * defined as <Pattern type="xxx"></Pattern>. Use "regex" to define
+     * Pattern should be enclosed around a {@code <Patterns>} tag and should be
+     * defined as {@code <Pattern type="xxx"></Pattern>}. Use "regex" to define
      * a Regex formatted pattern or "string" for an exact matching pattern.
+     * @param xmlInputStream the {@code InputStream} used to read the patterns
+     * @throws JDOMException if an error occurred while parsing
+     * @throws IOException if an I/O error occurred while reading the {@code InputStream}
      */
     protected void loadXMLPatternDefinitions(InputStream xmlInputStream) throws JDOMException, IOException {
         strings = new ArrayList<BoyerMooreMatcher>();

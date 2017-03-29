@@ -643,7 +643,8 @@ public class AddOnLoader extends URLClassLoader {
 	/**
 	 * Returns all the {@code Extension}s of all the installed add-ons.
 	 * <p>
-	 * The discovery of {@code Extension}s is done by resorting to the {@code ZapAddOn.xml} file bundled in the add-ons.
+	 * The discovery of {@code Extension}s is done by resorting to the {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in
+	 * the add-ons.
 	 * <p>
 	 * Extensions with unfulfilled dependencies are not be returned.
 	 *
@@ -664,7 +665,8 @@ public class AddOnLoader extends URLClassLoader {
     /**
      * Returns all {@code Extension}s of the given {@code addOn}.
      * <p>
-     * The discovery of {@code Extension}s is done by resorting to {@code ZapAddOn.xml} file bundled in the add-on.
+     * The discovery of {@code Extension}s is done by resorting to {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in the
+     * add-on.
      * <p>
      * Extensions with unfulfilled dependencies are not be returned.
      * <p>
@@ -737,7 +739,8 @@ public class AddOnLoader extends URLClassLoader {
 	/**
 	 * Gets the active scan rules of all the loaded add-ons.
 	 * <p>
-	 * The discovery of active scan rules is done by resorting to {@code ZapAddOn.xml} file bundled in the add-ons.
+	 * The discovery of active scan rules is done by resorting to  {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in the
+	 * add-ons.
 	 *
 	 * @return an unmodifiable {@code List} with all the active scan rules, never {@code null}
 	 * @since 2.4.0
@@ -758,7 +761,8 @@ public class AddOnLoader extends URLClassLoader {
 	/**
 	 * Gets the passive scan rules of all the loaded add-ons.
 	 * <p>
-	 * The discovery of passive scan rules is done by resorting to {@code ZapAddOn.xml} file bundled in the add-ons.
+	 * The discovery of passive scan rules is done by resorting to {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in the
+	 * add-ons.
 	 *
 	 * @return an unmodifiable {@code List} with all the passive scan rules, never {@code null}
 	 * @since 2.4.0
@@ -805,15 +809,17 @@ public class AddOnLoader extends URLClassLoader {
                 }
             } catch (Throwable e) {
             	// Often not an error
-            	logger.debug(e.getMessage());
+            	logger.debug(e.getMessage(), e);
             }
         }
         return listClass;
 	}
 
     /**
-     * Check local jar (paros.jar) or related package if any target file is found.
-     *
+     * Check local jar (zap.jar) or related package if any target file is found.
+     * 
+     * @param packageName the package name that the class must belong too
+     * @return a {@code List} with all the classes belonging to the given package
      */
     private List<ClassNameWrapper> getLocalClassNames (String packageName) {
     

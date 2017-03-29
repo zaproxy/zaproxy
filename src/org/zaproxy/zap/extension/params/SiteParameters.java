@@ -39,6 +39,7 @@ public class SiteParameters {
 	private Map<String, HtmlParameterStats> cookieParams = new HashMap<>();
 	private Map<String, HtmlParameterStats> urlParams = new HashMap<>();
 	private Map<String, HtmlParameterStats> formParams = new HashMap<>();
+	private Map<String, HtmlParameterStats> headerParams = new HashMap<>();
 
 	public SiteParameters(ExtensionParams extension, String site) {
 		this.extension = extension;
@@ -54,13 +55,15 @@ public class SiteParameters {
 	}
 
 	/**
-	 * Tells whether or not this site has any parameters (cookies, query or form parameters).
+	 * Tells whether or not this site has any parameters (cookies, query, form
+	 * parameters, or response header fields).
 	 *
-	 * @return {@code true} if this site has parameters, {@code false} otherwise.
+	 * @return {@code true} if this site has parameters, {@code false}
+	 *         otherwise.
 	 * @since 2.5.0
 	 */
 	public boolean hasParams() {
-		return !cookieParams.isEmpty() || !urlParams.isEmpty() || !formParams.isEmpty();
+		return !cookieParams.isEmpty() || !urlParams.isEmpty() || !formParams.isEmpty() || !headerParams.isEmpty();
 	}
 
 	public HtmlParameterStats getParam(HtmlParameter.Type type, String name) {
@@ -71,6 +74,8 @@ public class SiteParameters {
 			return urlParams.get(name);
 		case form:
 			return formParams.get(name);
+		case header:
+			return headerParams.get(name);
 		}
 		return null;
 	}
@@ -79,19 +84,16 @@ public class SiteParameters {
 		List<HtmlParameterStats> params = new ArrayList<>();
 		switch (type) {
 		case cookie:
-			for (HtmlParameterStats param : this.cookieParams.values()) {
-				params.add(param);
-			}
+			params.addAll(this.cookieParams.values());
 			break;
 		case url:
-			for (HtmlParameterStats param : this.urlParams.values()) {
-				params.add(param);
-			}
+			params.addAll(this.urlParams.values());
 			break;
 		case form:
-			for (HtmlParameterStats param : this.formParams.values()) {
-				params.add(param);
-			}
+			params.addAll(this.formParams.values());
+			break;
+		case header:
+			params.addAll(this.headerParams.values());
 			break;
 		}
 		return params;
@@ -99,15 +101,10 @@ public class SiteParameters {
 
 	public List<HtmlParameterStats> getParams() {
 		List<HtmlParameterStats> params = new ArrayList<>();
-		for (HtmlParameterStats param : this.cookieParams.values()) {
-			params.add(param);
-		}
-		for (HtmlParameterStats param : this.urlParams.values()) {
-			params.add(param);
-		}
-		for (HtmlParameterStats param : this.formParams.values()) {
-			params.add(param);
-		}
+		params.addAll(this.cookieParams.values());
+		params.addAll(this.urlParams.values());
+		params.addAll(this.formParams.values());
+		params.addAll(this.headerParams.values());
 		return params;
 	}
 
@@ -124,6 +121,9 @@ public class SiteParameters {
 			break;
 		case form:
 			params = formParams;
+			break;
+		case header:
+			params = headerParams;
 			break;
 		}
 
@@ -182,6 +182,9 @@ public class SiteParameters {
 			break;
 		case form:
 			params = formParams;
+			break;
+		case header:
+			params = headerParams;
 			break;
 		}
 		// These should all be new

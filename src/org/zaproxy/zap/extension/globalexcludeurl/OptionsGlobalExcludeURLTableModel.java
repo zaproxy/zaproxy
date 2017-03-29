@@ -27,7 +27,6 @@ import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class OptionsGlobalExcludeURLTableModel extends AbstractMultipleOptionsTableModel<GlobalExcludeURLParamToken> {
 
 	private static final long serialVersionUID = 1L;

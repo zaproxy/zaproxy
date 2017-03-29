@@ -80,6 +80,25 @@ public class HttpResponseBody extends HttpBody {
 	public HttpResponseBody(byte[] contents) {
 		super(contents);
 	}
+	
+	@Override
+	protected Charset determineCharset(String contents) {
+		Matcher matcher = patternCharset.matcher(contents);
+		if (matcher.find()) {
+			try {
+				return Charset.forName(matcher.group(1));
+			} catch (IllegalArgumentException e) {
+				log.warn("Unable to determine (valid) charset with the (X)HTML meta charset: " + e.getMessage());
+			}
+		} else if (isUtf8String(contents)) {
+			return StandardCharsets.UTF_8;
+		}
+		return null;
+	}
+
+	private static boolean isUtf8String(String string) {
+		return new String(string.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8).length() == string.length();
+	}
 
 	@Override
 	protected String createString(Charset currentCharset) {

@@ -122,10 +122,6 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) throws Exception {
-    }
-
-    @Override
     public void saveParam(Object obj) throws Exception {
         final OptionsParam options = (OptionsParam) obj;
         final BreakpointsParam param = options.getParamSet(BreakpointsParam.class);

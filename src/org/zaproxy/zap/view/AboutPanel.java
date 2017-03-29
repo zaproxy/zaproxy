@@ -24,7 +24,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.LayoutManager;
 import java.util.Calendar;
 
 import javax.swing.BorderFactory;
@@ -43,7 +42,7 @@ public class AboutPanel extends JPanel {
 	private static final String PRODUCT = Constant.PROGRAM_NAME;
 	private static final String VERSION = "Version " + Constant.PROGRAM_VERSION;
 	private static final String YEAR_TOKEN = "<<YEAR>>";
-	private static final String COPYRIGHT = "Copyright (C) 2010-" + YEAR_TOKEN + " OWASP ZAP Project";
+	private static final String COPYRIGHT = "Copyright (C) 2010-" + YEAR_TOKEN + " ZAP Development Team";
 	private static final String LICENSE_DETAIL = "<html><body><p>This program is free software; "
 		+ "you can redistribute it and/or modify it under the terms of the Apache License, "
 		+ "Version 2.0.  This program is distributed in the hope that it will be useful, but "
@@ -63,43 +62,12 @@ public class AboutPanel extends JPanel {
 	
 	private static final String HOMEPAGE = "<html><body><p><a>https://www.owasp.org/index.php/ZAP</a></p></body></html>";
 
-
+	/**
+	 * Constructs an {@code AboutPanel}.
+	 */
 	public AboutPanel() {
-		super();
-		initialize();
-	}
+		super(new GridBagLayout(), true);
 
-	/**
-	 * @param arg0
-	 */
-	public AboutPanel(boolean arg0) {
-		super(arg0);
-		initialize();
-	}
-
-	/**
-	 * @param arg0
-	 */
-	public AboutPanel(LayoutManager arg0) {
-		super(arg0);
-		initialize();
-	}
-
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public AboutPanel(LayoutManager arg0, boolean arg1) {
-		super(arg0, arg1);
-		initialize();
-	}
-
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-		
 		GridBagConstraints gbcOtherCopyright = new GridBagConstraints();
 		GridBagConstraints gbcCopyrightDetail = new GridBagConstraints();
 		GridBagConstraints gbcDisclaimer = new GridBagConstraints();
@@ -109,7 +77,6 @@ public class AboutPanel extends JPanel {
 		GridBagConstraints gbcProgramName = new GridBagConstraints();
 		GridBagConstraints gbcLogo = new GridBagConstraints();
 		
-		this.setLayout(new GridBagLayout());
 		this.setPreferredSize(new Dimension(420, 460));
 		this.setBackground(Color.white);
 		this.setBorder(BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));

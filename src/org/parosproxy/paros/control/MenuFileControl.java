@@ -42,6 +42,8 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/04/02 Issue 321: Support multiple databases
 // ZAP: 2015/12/14 Log exception and internationalise error message
+// ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
+// ZAP: 2017/02/25 Issue 2618: Let the user select the name for snapshots
 
 package org.parosproxy.paros.control;
  
@@ -57,6 +59,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
@@ -68,6 +71,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
 import org.zaproxy.zap.view.SessionTableSelectDialog;
@@ -411,15 +415,15 @@ public class MenuFileControl implements SessionListener {
 	public void saveSnapshot() {
 	    Session session = model.getSession();
 
-	    // This code has been deliberately left here in case people dont like the auto naming of snapshots
-	    // It can be deleted at some point in the future if there are no complaints
-	    /*
 	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
 	    // ZAP: set session name as file name proposal
 	    File fileproposal = new File(session.getSessionName());
 	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
-	    	// if there is already a file name, use it
-	    	fileproposal = new File(session.getFileName());
+		    String proposedFileName;
+	    	// if there is already a file name, use it and add a timestamp
+	    	proposedFileName = StringUtils.removeEnd(session.getFileName(), ".session");
+	    	proposedFileName += "-" + dateFormat.format(new Date()) + ".session";
+	    	fileproposal = new File(proposedFileName);
 	    }
 		chooser.setSelectedFile(fileproposal);
 	    chooser.setFileFilter(new FileFilter() {
@@ -445,36 +449,20 @@ public class MenuFileControl implements SessionListener {
     			return;
     		}
             model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-    		String fileName = file.getAbsolutePath();
+            String fileName = file.getAbsolutePath();
     		if (!fileName.endsWith(".session")) {
     		    fileName += ".session";
     		}
     		
     		try {
-	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSession"));	// ZAP: i18n
+	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSnapshot"));	// ZAP: i18n
 	    	    control.snapshotSession(fileName, this);
-        	    log.info("snapshot as session file " + session.getFileName());
+        	    log.info("Snapshotting: " + session.getFileName() + " as " + fileName);
         	    waitMessageDialog.setVisible(true);
     		} catch (Exception e) {
                 log.error(e.getMessage(), e);
     		}
 	    }
-	    */
-		String fileName = session.getFileName();
-		
-		if (fileName.endsWith(".session")) {
-		    fileName = fileName.substring(0, fileName.length() - 8);
-		}
-		fileName += "-" + dateFormat.format(new Date()) + ".session";
-		
-		try {
-    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSnapshot"));	// ZAP: i18n
-    	    control.snapshotSession(fileName, this);
-    	    log.info("snapshot as session file " + fileName);
-    	    waitMessageDialog.setVisible(true);
-		} catch (Exception e) {
-            log.error(e.getMessage(), e);
-		}
 	}
 	
 	private void setTitle() {
@@ -593,6 +581,17 @@ public class MenuFileControl implements SessionListener {
 			    		Model.getSingleton().getSession(), 
 			    		Constant.messages.getString("context.list"), true);
 				
+			} catch (IllegalContextNameException e) {
+				String detailError;
+				if (e.getReason() == IllegalContextNameException.Reason.EMPTY_NAME) {
+					detailError = Constant.messages.getString("context.error.name.empty");
+				} else if (e.getReason() == IllegalContextNameException.Reason.DUPLICATED_NAME) {
+					detailError = Constant.messages.getString("context.error.name.duplicated");
+				} else {
+					detailError = Constant.messages.getString("context.error.name.unknown");
+				}
+				View.getSingleton().showWarningDialog(
+						MessageFormat.format(Constant.messages.getString("context.import.error"), detailError));
 			} catch (Exception e1) {
 				log.debug(e1.getMessage(), e1);
 				View.getSingleton().showWarningDialog(MessageFormat.format(

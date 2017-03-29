@@ -21,7 +21,6 @@
 
 package org.zaproxy.zap.spider;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
@@ -38,9 +37,8 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
  * The URLCanonicalizer is used for the process of converting an URL into a canonical (normalized) form. See
- * <a href="http://en.wikipedia.org/wiki/URL_normalization">URL Normalization</a> for a reference. <br/>
- * <br/>
- * 
+ * <a href="http://en.wikipedia.org/wiki/URL_normalization">URL Normalization</a> for a reference.
+ * <p>
  * Note: some parts of the code are adapted from: <a
  * href="http://stackoverflow.com/a/4057470/405418">stackoverflow</a>
  * 
@@ -50,6 +48,12 @@ public final class URLCanonicalizer {
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(URLCanonicalizer.class);
+
+	private static final String HTTP_SCHEME = "http";
+	private static final int HTTP_DEFAULT_PORT = 80;
+
+	private static final String HTTPS_SCHEME = "https";
+	private static final int HTTPS_DEFAULT_PORT = 443;
 
 	/** The Constant IRRELEVANT_PARAMETERS defining the parameter names which are ignored in the URL. */
 	private static final Set<String> IRRELEVANT_PARAMETERS = new HashSet<>(3);
@@ -117,17 +121,18 @@ public final class URLCanonicalizer {
 
 			/* Some checking. */
 			if (canonicalURI.getScheme() == null) {
-				throw new MalformedURLException("Protocol could not be reliably evaluated from uri: " + canonicalURI
-						+ " and base url: " + baseURL);
+				log.warn("Protocol could not be reliably evaluated from uri: " + canonicalURI + " and base url: " + baseURL);
+				return null;
 			}
 
 			if (canonicalURI.getRawAuthority() == null) {
-				log.debug("Ignoring URI with no authority (host[\":\"port]): " + canonicalURI);
+				log.debug("Ignoring URI with no authority (host[\":\"port]): " + canonicalURI + " (on base " + baseURL + ")");
 				return null;
 			}
 
 			if (canonicalURI.getHost() == null) {
-				throw new MalformedURLException("Host could not be reliably evaluated from: " + canonicalURI);
+				log.warn("Host could not be reliably evaluated from: " + canonicalURI + " (on base " + baseURL + ")");
+				return null;
 			}
 
 			/*
@@ -164,7 +169,7 @@ public final class URLCanonicalizer {
 
 			/* Drop default port: example.com:80 -> example.com */
 			int port = canonicalURI.getPort();
-			if (port == 80) {
+			if (isDefaultPort(canonicalURI.getScheme(), port)) {
 				port = -1;
 			}
 
@@ -177,10 +182,24 @@ public final class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (Exception ex) {
-			log.warn("Error while Processing URL in the spidering process (on base " + baseURL + "): "
+			log.warn("Error while Processing URL [" + url + "] in the spidering process (on base " + baseURL + "): "
 					+ ex.getMessage());
 			return null;
 		}
+	}
+
+	/**
+	 * Tells whether or not the given port is the default for the given scheme.
+	 * <p>
+	 * <strong>Note:</strong> Only HTTP and HTTPS schemes are taken into account.
+	 *
+	 * @param scheme the scheme
+	 * @param port the port
+	 * @return {@code true} if given the port is the default port for the given scheme, {@code false} otherwise.
+	 */
+	private static boolean isDefaultPort(String scheme, int port) {
+		return HTTP_SCHEME.equalsIgnoreCase(scheme) && port == HTTP_DEFAULT_PORT
+				|| HTTPS_SCHEME.equalsIgnoreCase(scheme) && port == HTTPS_DEFAULT_PORT;
 	}
 
 	/**

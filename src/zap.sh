@@ -39,10 +39,9 @@ if [ "`echo ${JAVA_OUTPUT} | grep "continuing with system-provided Java"`" ] ; t
   echo "    " $JAVA_OUTPUT
   echo "Unsetting JAVA_HOME and continuing with ZAP start-up"
   unset JAVA_HOME
-  JAVA_OUTPUT=$(java -version 2>&1)
 fi
 
-JAVA_VERSION=$(echo ${JAVA_OUTPUT} | awk -F\" 'NR == 1 { print $2 }')
+JAVA_VERSION=$(java -version 2>&1 | awk -F\" '/version/ { print $2 }')
 JAVA_MAJOR_VERSION=${JAVA_VERSION%%.*}
 JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
 
@@ -79,19 +78,10 @@ elif [ -z "$MEM" ]; then
   echo "Failed to obtain current memory, using jvm default memory settings"
 else
   echo "Available memory: $MEM MB"
-  if [ "$MEM" -gt 1500 ]
-  then
-    JMEM="-Xmx512m"
-  else
-    if [ "$MEM" -gt 900 ]
-    then
-      JMEM="-Xmx256m"
-    else
-      if [ "$MEM" -gt 512 ]
-      then
-        JMEM="-Xmx128m"
-      fi
-    fi
+  if [ "$MEM" -gt 512 ]; then
+    # Always go with 1/4 of the available memory - specific JVMs may round this up or down
+    QMEM=$(($MEM/4))
+    JMEM="-Xmx${QMEM}m"
   fi
 fi
 

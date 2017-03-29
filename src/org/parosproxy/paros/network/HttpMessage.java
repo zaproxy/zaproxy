@@ -45,6 +45,7 @@
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2015/08/19 Deprecate/change methods with unused parameters 
 // ZAP: 2016/05/31 Implement hashCode()
+// ZAP: 2017/02/01 Set whether or not the charset should be determined when setting a (String) response.
 
 package org.parosproxy.paros.network;
 
@@ -315,6 +316,7 @@ public class HttpMessage implements Message {
 
 	public void setResponseBody(String body) {
 	    getResponseBody().setCharset(getResponseHeader().getCharset());
+	    getResponseBody().setDetermineCharset(getResponseHeader().isText());
 		getResponseBody().setBody(body);
 
 	}

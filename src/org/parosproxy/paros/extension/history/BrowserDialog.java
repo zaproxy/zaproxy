@@ -298,22 +298,6 @@ public class BrowserDialog extends AbstractDialog {
         return jPanel;
     }
 
-    /**
-     * This method initializes embeddedBrowser	
-     * 	
-     * @return org.parosproxy.paros.extension.history.EmbeddedBrowser	
-     */
-    // ZAP: Disabled the platform specific browser
-    /*
-    EmbeddedBrowser getEmbeddedBrowser() {
-        if (embeddedBrowser == null) {
-            embeddedBrowser = new EmbeddedBrowser();
-            embeddedBrowser.setName("embeddedBrowser");
-        }
-        return embeddedBrowser;
-    }
-    */
-
     void setURLTitle(String url) {
         setTitle(TITLE + url);
     }

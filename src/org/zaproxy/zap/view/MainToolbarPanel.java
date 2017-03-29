@@ -20,6 +20,7 @@
 
 package org.zaproxy.zap.view;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -112,6 +113,54 @@ public class MainToolbarPanel extends JPanel {
 			toolbar.setBorder(BorderFactory.createEmptyBorder());
 		}
 		return toolbar;
+	}
+
+	/**
+	 * Adds the given component to the tool bar.
+	 * <p>
+	 * The icons of the buttons ({@code JButton} and {@code JToggleButton}) added are automatically scaled.
+	 * 
+	 * @param component the component to add.
+	 * @throws IllegalArgumentException if the component is {@code null}.
+	 * @since 2.6.0
+	 * @see DisplayUtils#scaleIcon(JButton)
+	 * @see DisplayUtils#scaleIcon(JToggleButton)
+	 */
+	public void addToolBarComponent(Component component) {
+		validateComponentNonNull(component);
+
+		if (component instanceof JButton) {
+			addButton((JButton) component);
+		} else if (component instanceof JToggleButton) {
+			addButton((JToggleButton) component);
+		} else {
+			getToolbar().add(component);
+		}
+	}
+
+	/**
+	 * Validates that the given component is non-{@code null}.
+	 *
+	 * @param component the component to validate.
+	 * @throws IllegalArgumentException if the component is {@code null}.
+	 */
+	private void validateComponentNonNull(Component component) {
+		if (component == null) {
+			throw new IllegalArgumentException("The component must not be null.");
+		}
+	}
+
+	/**
+	 * Removes the given component to the tool bar.
+	 * 
+	 * @param component the component to remove.
+	 * @throws IllegalArgumentException if the component is {@code null}.
+	 * @since 2.6.0
+	 */
+	public void removeToolBarComponent(Component component) {
+		validateComponentNonNull(component);
+
+		getToolbar().remove(component);
 	}
 	
 	public void addButton (JButton button) {

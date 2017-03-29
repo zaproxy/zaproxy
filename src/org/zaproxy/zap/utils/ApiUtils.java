@@ -87,11 +87,13 @@ public final class ApiUtils {
 	}
 
 	/**
-	 * Gets an optional enum param, returning <code>null</code> if the parameter was not found.
+	 * Gets an optional enum param, returning {@code null} if the parameter was not found.
 	 *
+	 * @param <E> the type of the enum that will be returned
 	 * @param params the params
 	 * @param paramName the param name
-	 * @return the enum, or <code>null</code>
+	 * @param enumType the type of the enum
+	 * @return the enum, or {@code null}
 	 * @throws ApiException if the param value does not match any of the possible enum values
 	 */
 	public static <E extends Enum<E>> E getOptionalEnumParam(JSONObject params, String paramName,

@@ -104,17 +104,15 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		/**
 		 * Load a script and fills in the method's filled according to the values specified by the
 		 * script.
-		 * 
-		 * If an error occurs while loading the script, an {@link IllegalArgumentException} is
-		 * thrown.
-		 * 
+		 * <p>
 		 * If the method already had a loaded script and a set of values for the parameters, it
 		 * tries to provide new values for the new parameters if they match any previous parameter
 		 * names.
 		 * 
 		 * @param scriptW the script wrapper
+		 * @throws IllegalArgumentException if an error occurs while loading the script.
 		 */
-		public void loadScript(ScriptWrapper scriptW) throws IllegalArgumentException {
+		public void loadScript(ScriptWrapper scriptW) {
 			AuthenticationScript script = getScriptInterfaceV2(scriptW);
 			if (script == null) {
 				script = getScriptInterface(scriptW);
@@ -268,7 +266,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			values.put("methodName", API_METHOD_NAME);
 			values.put("scriptName", script.getName());
 			values.putAll(paramValues);
-			return new ApiResponseSet("method", values);
+			return new ApiResponseSet<String>("method", values);
 		}
 
 	}
@@ -782,6 +780,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 					if (log.isDebugEnabled())
 						log.debug("Loaded authentication script parameters:" + paramValues);
 
+				} catch (ApiException e) {
+					throw e;
 				} catch (Exception e) {
 					getScriptsExtension().handleScriptException(script, e);
 					log.error("Unable to load Script Based Authentication method. The script "

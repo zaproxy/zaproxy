@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 
@@ -46,6 +48,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -209,11 +212,6 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
-		// nothing to do here ...
-	}
-
-	@Override
 	public void saveParam(Object obj) throws Exception {
 		final OptionsParam options = (OptionsParam) obj;
 		final DynSSLParam param = options.getParamSet(DynSSLParam.class);
@@ -299,28 +297,106 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				logger.info("Loading Root CA certificate from " + f);
 			}
 			KeyStore ks = null;
-			try {
-				if (f.getName().toLowerCase().endsWith("pem")) {
-					ks = SslCertificateUtils.pem2Keystore(f);
-				} else {
+			if (f.getName().toLowerCase().endsWith("pem")) {
+				ks = convertPemFileToKeyStore(f.toPath());
+			} else {
+				try {
 					final ZapXmlConfiguration conf = new ZapXmlConfiguration(f);
 					final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
 					ks = SslCertificateUtils.string2Keystore(rootcastr);
+				} catch (final Exception e) {
+					logger.error("Error importing Root CA cert from config file:", e);
+					JOptionPane.showMessageDialog(this,
+							Constant.messages.getString("dynssl.message1.filecouldntloaded"),
+							Constant.messages.getString("dynssl.message1.title"),
+							JOptionPane.ERROR_MESSAGE);
 				}
-			} catch (final Exception e) {
-				logger.error("Error importing foreign Root CA!", e);
-				// Constant.messages.getString("dynssl.label.rootca")
-				JOptionPane.showMessageDialog(this,
-						Constant.messages.getString("dynssl.message1.filecouldnloaded")
-						+ "\n"
-						+ Constant.messages.getString("dynssl.message1.seelogfiles"),
-						Constant.messages.getString("dynssl.message1.title"),
-						JOptionPane.ERROR_MESSAGE);
 			}
 			if (ks != null) {
 				setRootca(ks);
 			}
 
+		}
+	}
+
+	/**
+	 * Converts the given {@code .pem} file into a {@link KeyStore}.
+	 *
+	 * @param pemFile the {@code .pem} file that contains the certificate and the private key.
+	 * @return the {@code KeyStore} with the certificate, or {@code null} if the conversion failed.
+	 */
+	private KeyStore convertPemFileToKeyStore(Path pemFile) {
+		String pem;
+		try {
+			pem = FileUtils.readFileToString(pemFile.toFile(), StandardCharsets.US_ASCII);
+		} catch (IOException e) {
+			logger.warn("Failed to read .pem file:", e);
+			JOptionPane.showMessageDialog(
+					this,
+					Constant.messages.getString("dynssl.importpem.failedreadfile", e.getLocalizedMessage()),
+					Constant.messages.getString("dynssl.importpem.failed.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+
+		byte[] cert;
+		try {
+			cert = SslCertificateUtils.extractCertificate(pem);
+			if (cert.length == 0) {
+				JOptionPane.showMessageDialog(
+						this,
+						Constant.messages.getString(
+								"dynssl.importpem.nocertsection",
+								SslCertificateUtils.BEGIN_CERTIFICATE_TOKEN,
+								SslCertificateUtils.END_CERTIFICATE_TOKEN),
+						Constant.messages.getString("dynssl.importpem.failed.title"),
+						JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
+		} catch (IllegalArgumentException e) {
+			logger.warn("Failed to base64 decode the certificate from .pem file:", e);
+			JOptionPane.showMessageDialog(
+					this,
+					Constant.messages.getString("dynssl.importpem.certnobase64"),
+					Constant.messages.getString("dynssl.importpem.failed.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+
+		byte[] key;
+		try {
+			key = SslCertificateUtils.extractPrivateKey(pem);
+			if (key.length == 0) {
+				JOptionPane.showMessageDialog(
+						this,
+						Constant.messages.getString(
+								"dynssl.importpem.noprivkeysection",
+								SslCertificateUtils.BEGIN_PRIVATE_KEY_TOKEN,
+								SslCertificateUtils.END_PRIVATE_KEY_TOKEN),
+						Constant.messages.getString("dynssl.importpem.failed.title"),
+						JOptionPane.ERROR_MESSAGE);
+				return null;
+			}
+		} catch (IllegalArgumentException e) {
+			logger.warn("Failed to base64 decode the private key from .pem file:", e);
+			JOptionPane.showMessageDialog(
+					this,
+					Constant.messages.getString("dynssl.importpem.privkeynobase64"),
+					Constant.messages.getString("dynssl.importpem.failed.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return null;
+		}
+
+		try {
+			return SslCertificateUtils.pem2KeyStore(cert, key);
+		} catch (Exception e) {
+			logger.error("Error creating KeyStore for Root CA cert from .pem file:", e);
+			JOptionPane.showMessageDialog(
+					this,
+					Constant.messages.getString("dynssl.importpem.failedkeystore", e.getLocalizedMessage()),
+					Constant.messages.getString("dynssl.importpem.failed.title"),
+					JOptionPane.ERROR_MESSAGE);
+			return null;
 		}
 	}
 

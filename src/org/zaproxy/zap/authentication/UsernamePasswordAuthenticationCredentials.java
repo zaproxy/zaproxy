@@ -84,7 +84,10 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 
 	@Override
 	public String encode(String parentStringSeparator) {
-		assert (!FIELD_SEPARATOR.equals(parentStringSeparator));
+		if (FIELD_SEPARATOR.equals(parentStringSeparator)) {
+			throw new IllegalArgumentException(
+					"The string separator must not be the same as Field Separator (" + FIELD_SEPARATOR + ").");
+		}
 		if (username == null) {
 			return NULL_CREDENTIALS;
 		}
@@ -178,7 +181,7 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 		values.put("type", API_NAME);
 		values.put("username", username);
 		values.put("password", password);
-		return new ApiResponseSet("credentials", values);
+		return new ApiResponseSet<String>("credentials", values);
 	}
 
 	private static final String ACTION_SET_CREDENTIALS = "formBasedAuthenticationCredentials";
@@ -203,7 +206,7 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
 				// Make sure the type of authentication method is compatible
 				if (!methodType.isTypeForMethod(context.getAuthenticationMethod()))
-					throw new ApiException(ApiException.Type.BAD_TYPE,
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER,
 							"User's credentials should match authentication method type of the context: "
 									+ context.getAuthenticationMethod().getType().getName());
 

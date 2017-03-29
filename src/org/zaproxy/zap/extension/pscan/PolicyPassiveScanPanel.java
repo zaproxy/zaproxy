@@ -56,9 +56,6 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
     private JComboBox<String> applyToThreshold = null;
     private JComboBox<String> applyToThresholdTarget = null;
 
-    /**
-     *
-     */
     public PolicyPassiveScanPanel() {
         super();
         initialize();
@@ -194,12 +191,14 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) throws Exception {
-    }
-
-    @Override
     public void saveParam(Object obj) throws Exception {
     	this.getPassiveScanTableModel().persistChanges();
+    }
+    
+    @Override
+    public void reset() {
+        this.getPassiveScanTableModel().applyThresholdToAll(AlertThreshold.MEDIUM);
+        this.getPassiveScanTableModel().persistChanges();
     }
 
     /**

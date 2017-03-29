@@ -165,6 +165,7 @@ public class SearchAPI extends ApiImplementor {
 					public void processRecordHistory(RecordHistory recordHistory) {
 						result.addItem(ApiResponseConversionUtils.httpMessageToSet(
 								recordHistory.getHistoryId(),
+								recordHistory.getHistoryType(),
 								recordHistory.getHttpMessage()));
 					}
 				};
@@ -181,7 +182,7 @@ public class SearchAPI extends ApiImplementor {
 						map.put("url", msg.getRequestHeader().getURI().toString());
 						map.put("code", String.valueOf(msg.getResponseHeader().getStatusCode()));
 						map.put("time", String.valueOf(msg.getTimeElapsedMillis()));
-						result.addItem(new ApiResponseSet(name, map));
+						result.addItem(new ApiResponseSet<String>(name, map));
 					}
 				};
 			}

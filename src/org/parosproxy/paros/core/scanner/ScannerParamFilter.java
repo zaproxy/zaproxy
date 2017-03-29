@@ -20,6 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -180,5 +181,15 @@ public class ScannerParamFilter implements Cloneable {
     
     public static final String getStringType(int paramType) {
         return typeMap.get(paramType);        
+    }
+
+    /**
+     * Gets the parameter types (IDs and corresponding name).
+     *
+     * @return the parameter types.
+     * @since 2.6.0
+     */
+    public static Map<Integer, String> getTypes() {
+        return Collections.unmodifiableMap(typeMap);
     }
 }

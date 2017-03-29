@@ -111,8 +111,8 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
     @Override
     public boolean isButtonEnabledForSiteNode(SiteNode sn) {
         if (context == null) {
-            // New context
-            return true;
+            // New context, if it doesn't already exist one with same name.
+            return Model.getSingleton().getSession().getContext(sn.getNodeName()) == null;
         }
         if (context.isIncluded(sn) || context.isExcluded(sn)) {
             // Either explicitly included or excluded, so would have to change that regex in a non

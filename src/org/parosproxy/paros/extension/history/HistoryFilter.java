@@ -89,11 +89,11 @@ public class HistoryFilter {
 				return false;
 			}
 			boolean foundTag = false;
-			List <String> historyTags = historyRef.getTags();
 			if (tagList.size() > 0) {
-				for (String tag: historyTags) {
+				for (String tag: historyRef.getTags()) {
 					if (tagList.contains(tag)) {
 						foundTag = true;
+						break;
 					}
 				}
 				if (! foundTag) {
@@ -101,14 +101,14 @@ public class HistoryFilter {
 				}
 			}
 			boolean foundAlert = false;
-			List <Alert> historyAlerts = historyRef.getAlerts();
 			if (riskList.size() > 0 || confidenceList.size() > 0) {
-				for (Alert alert: historyAlerts) {
+				for (Alert alert: historyRef.getAlerts()) {
 					if ((riskList.size() == 0 || 
 							riskList.contains(Alert.MSG_RISK[alert.getRisk()])) &&
 						(confidenceList.size() == 0 ||
 								confidenceList.contains(Alert.MSG_CONFIDENCE[alert.getConfidence()]))) {
 						foundAlert = true;
+						break;
 					}
 				}
 				if (! foundAlert) {
@@ -151,80 +151,55 @@ public class HistoryFilter {
 	}
 	
 	public String toShortString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(Constant.messages.getString("history.filter.label.filter"));
-		sb.append(" ");
-		boolean empty = true;
+		StringBuilder sb = new StringBuilder(250);
 		if (methodList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.methods"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.methods"));
 		}
 		if (codeList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.codes"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.codes"));
 		}
 		if (tagList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.tags"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.tags"));
 		}
 		if (riskList.size() > 0 || confidenceList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.alerts"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.alerts"));
 		}
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.notes"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.notes"));
 		}
 		if (urlIncPatternList != null && urlIncPatternList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.urlincregex"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.urlincregex"));
 		}
 		if (urlExcPatternList != null && urlExcPatternList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.urlexcregex"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.urlexcregex"));
 		}
 		
-		if (empty) {
+		if (sb.length() > 0) {
+			sb.insert(0, ' ');
+			sb.insert(0, Constant.messages.getString("history.filter.label.on"));
+			sb.insert(0, ' ');
+			sb.insert(0, Constant.messages.getString("history.filter.label.filter"));
+		} else {
+			sb.append(Constant.messages.getString("history.filter.label.filter"));
+			sb.append(' ');
 			sb.append(Constant.messages.getString("history.filter.label.off"));
 		}
 		return sb.toString();
@@ -238,7 +213,7 @@ public class HistoryFilter {
 		if (methodList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.methods"));
-			sb.append(": ");
+			sb.append(' ');
 			for (String method : methodList) {
 				sb.append(method);
 				sb.append(' ');
@@ -247,7 +222,7 @@ public class HistoryFilter {
 		if (codeList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.codes"));
-			sb.append(": ");
+			sb.append(' ');
 			Integer lastCode = null;
 			boolean inBlock = false;
 			for (Integer code : codeList) {
@@ -275,13 +250,13 @@ public class HistoryFilter {
 				// finish off the series
 				sb.append('-');
 				sb.append(lastCode);
-				sb.append(' ');
 			}
+			sb.append(' ');
 		}
 		if (tagList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.tags"));
-			sb.append(": ");
+			sb.append(' ');
 			for (String tag : tagList) {
 				sb.append(tag);
 				sb.append(' ');
@@ -290,7 +265,7 @@ public class HistoryFilter {
 		if (riskList.size() > 0 || confidenceList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.alerts"));
-			sb.append(": ");
+			sb.append(' ');
 			for (String risk : riskList) {
 				sb.append(risk);
 				sb.append(' ');
@@ -303,7 +278,7 @@ public class HistoryFilter {
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.notes"));
-			sb.append(": ");
+			sb.append(' ');
 			sb.append(note);
 		}
 		if (empty) {

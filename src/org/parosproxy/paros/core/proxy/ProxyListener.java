@@ -22,6 +22,7 @@
 // ZAP: 2012/03/15 Added the method getProxyListenerOrder.
 // ZAP: 2012/06/17 Documented the interface.
 // ZAP: 2012/12/27 Extend from ArrangeableListener.
+// ZAP: 2016/09/22 JavaDoc tweaks
 package org.parosproxy.paros.core.proxy;
 
 import org.parosproxy.paros.network.HttpMessage;
@@ -46,8 +47,6 @@ public interface ProxyListener extends ArrangeableProxyListener {
      * the value is {@code false} the message <i>will not</i> be forwarded and
      * no more listeners will be notified.
      * <p>
-     * 
-     * <p>
      * <strong>Note:</strong> In the presence of more than one listener there
      * are <i>no</i> guarantees that:
      * <ul>
@@ -57,7 +56,6 @@ public interface ProxyListener extends ArrangeableProxyListener {
      * return value is {@code true}, as the following listeners may return
      * {@code false}.</li>
      * </ul>
-     * </p>
      * 
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the server
@@ -77,8 +75,6 @@ public interface ProxyListener extends ArrangeableProxyListener {
      * the value is {@code false} the message <i>will not</i> be forwarded and
      * no more listeners will be notified.
      * <p>
-     * 
-     * <p>
      * <strong>Note:</strong> In the presence of more than one listener there
      * are <i>no</i> guarantees that:
      * <ul>
@@ -88,7 +84,6 @@ public interface ProxyListener extends ArrangeableProxyListener {
      * return value is {@code true}, as the following listeners may return
      * {@code false}.</li>
      * </ul>
-     * </p>
      * 
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the client

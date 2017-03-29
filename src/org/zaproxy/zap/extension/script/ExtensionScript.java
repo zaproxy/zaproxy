@@ -23,13 +23,16 @@ import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -69,7 +72,6 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.api.API;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
@@ -129,22 +131,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	private boolean shouldLoadTemplatesOnScriptTypeRegistration;
 	
     public ExtensionScript() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionScript(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(EXTENSION_ORDER);
         
         ScriptEngine se = mgr.getEngineByName("ECMAScript");
@@ -181,7 +168,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         	this.addWriter(new PrintWriter(System.out));
 		}
 
-        API.getInstance().registerApiImplementor(new ScriptAPI(this));
+		extensionHook.addApiImplementor(new ScriptAPI(this));
 
 	}
 	
@@ -550,9 +537,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void saveScript(ScriptWrapper script) throws IOException {
 		refreshScript(script);
-	    BufferedWriter fw = new BufferedWriter(new FileWriter(script.getFile(), false));
-        fw.append(script.getContents());
-        fw.close();
+        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+            bw.append(script.getContents());
+        }
         this.setChanged(script, false);
         // The removal is required for script that use wrappers, like Zest
 		this.getScriptParam().removeScript(script);
@@ -625,12 +612,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 					logger.warn(
 							"Failed to add script \"" + script.getName() + "\", script type not found: "
 									+ script.getTypeName());
-					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(),
+							Constant.messages.getString("script.info.scriptsNotAdded.error.missingType", script.getTypeName()) });
 				}
 				
+			} catch (MalformedInputException e) {
+				logger.warn("Failed to add script \"" + script.getName() + "\", contains invalid character sequence (UTF-8).");
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(),
+						Constant.messages.getString("script.info.scriptsNotAdded.error.invalidChars") });
 			} catch (InvalidParameterException | IOException e) {
 				logger.error(e.getMessage(), e);
-				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(), 
+						Constant.messages.getString("script.info.scriptsNotAdded.error.other") });
 			}
 		}
 
@@ -644,6 +637,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
 		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
+
+		Path defaultScriptsDir = Paths.get(Constant.getZapHome(), SCRIPTS_DIR, SCRIPTS_DIR);
+		for (ScriptType scriptType : typeMap.values()) {
+			Path scriptTypeDir = defaultScriptsDir.resolve(scriptType.getName());
+			if (Files.notExists(scriptTypeDir)) {
+				try {
+					Files.createDirectories(scriptTypeDir);
+				} catch (IOException e) {
+					logger.warn("Failed to create directory for script type: " + scriptType.getName(), e);
+				}
+			}
+		}
     }
 
     private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
@@ -662,8 +667,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             public String getColumnName(int column) {
                 if (column == 0) {
                     return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptName");
+                } else if (column == 1) {
+                    return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
                 }
-                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
+                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.errorCause");
             }
 
             @Override
@@ -678,7 +685,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
             @Override
             public int getColumnCount() {
-                return 2;
+                return 3;
             }
         });
 
@@ -901,16 +908,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 	
 	public ScriptWrapper loadScript(ScriptWrapper script) throws IOException {
-	    BufferedReader fr = new BufferedReader(new FileReader(script.getFile()));
 	    StringBuilder sb = new StringBuilder();
-        String line;
-        try {
-			while ((line = fr.readLine()) != null) {
-			    sb.append(line);
-			    sb.append("\n");
+        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+			int len;
+			char[] buf = new char[1024];
+			while ((len = br.read(buf)) != -1) {
+			    sb.append(buf, 0, len);
 			}
-		} finally {
-	        fr.close();
 		}
         script.setContents(sb.toString());
         script.setChanged(false);

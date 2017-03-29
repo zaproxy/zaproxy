@@ -51,7 +51,6 @@ import org.parosproxy.paros.Constant;
  * <li>{@code UndoManagerPolicy.ALWAYS_DISABLED}</li>
  * </ul>
  * The policy can be changed with the method {@code setUndoManagerPolicy}.
- * </p>
  * <p>
  * The {@code ZapTextComponentUndoManager} listens to changes to the
  * {@code Document} of the {@code JTextComponent} used with the
@@ -59,6 +58,7 @@ import org.parosproxy.paros.Constant;
  * the document is changed.
  * </p>
  * 
+ * @since 1.4.1
  * @see #setLimit(int)
  * @see #setUndoManagerPolicy(UndoManagerPolicy)
  * @see UndoManagerPolicy

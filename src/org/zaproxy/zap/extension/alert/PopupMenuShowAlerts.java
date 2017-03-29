@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
@@ -37,7 +35,9 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 	private static final long serialVersionUID = 1L;
 
     /**
-     * @param label
+     * Constructs a {@code PopupMenuShowAlerts} with the given label.
+     * 
+     * @param label the text shown in the pop up menu
      */
     public PopupMenuShowAlerts(String label) {
         super(label);
@@ -58,9 +58,11 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 
 	@Override
     public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
-		List<Alert> alerts = href.getAlerts();
+		List<Alert> alerts;
 		if (href.getSiteNode() != null) {
 			alerts = href.getSiteNode().getAlerts();
+		} else {
+			alerts = href.getAlerts();
 		}
 		URI hrefURI = href.getURI();
 		List<PopupMenuShowAlert> alertList = new ArrayList<>(alerts.size()); 
@@ -70,7 +72,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 				continue;
 			}
 			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getName(), alert);
-			menuItem.setIcon(new ImageIcon(alert.getIconUrl()));
+			menuItem.setIcon(alert.getIcon());
 			
 			alertList.add(menuItem);
 		}

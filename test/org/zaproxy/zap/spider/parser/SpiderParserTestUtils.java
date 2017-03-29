@@ -20,6 +20,8 @@
 package org.zaproxy.zap.spider.parser;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,26 +81,70 @@ public class SpiderParserTestUtils {
             return urls;
         }
 
+        public int getNumberOfResourcesFound() {
+            return resources.size();
+        }
+
+        public List<SpiderResource> getResourcesFound() {
+            return resources;
+        }
+
         @Override
         public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
             urls.add(uri);
-            resources.add(SpiderResource.createUriResource(responseMessage, depth, uri));
+            resources.add(uriResource(responseMessage, depth, uri));
         }
 
         @Override
         public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
             urls.add(uri);
-            resources.add(SpiderResource.createUriResource(responseMessage, depth, uri, shouldIgnore));
+            resources.add(uriResource(responseMessage, depth, uri, shouldIgnore));
         }
 
         @Override
         public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
             urls.add(uri);
-            resources.add(SpiderResource.createPostResource(responseMessage, depth, uri, requestBody));
+            resources.add(postResource(responseMessage, depth, uri, requestBody));
         }
 
         public boolean isResourceFound() {
             return false;
+        }
+    }
+
+    public static SpiderResource uriResource(HttpMessage message, int depth, String uri) {
+        return new SpiderResource(message, depth, uri);
+    }
+
+    public static SpiderResource uriResource(HttpMessage message, int depth, String uri, boolean shouldIgnore) {
+        return new SpiderResource(message, depth, uri, shouldIgnore);
+    }
+
+    public static SpiderResource postResource(HttpMessage message, int depth, String uri, String requestBody) {
+        return new SpiderResource(message, depth, uri, requestBody);
+    }
+
+    public static String params(String... params) {
+        if (params == null || params.length == 0) {
+            return "";
+        }
+
+        StringBuilder strBuilder = new StringBuilder();
+        for (String param : params) {
+            if (strBuilder.length() > 0) {
+                strBuilder.append('&');
+            }
+            strBuilder.append(param);
+        }
+        return strBuilder.toString();
+    }
+
+    public static String param(String name, String value) {
+        try {
+            return URLEncoder.encode(name, StandardCharsets.UTF_8.name()) + "="
+                    + URLEncoder.encode(value, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -156,18 +202,6 @@ public class SpiderParserTestUtils {
             return requestBody;
         }
 
-        public static SpiderResource createUriResource(HttpMessage message, int depth, String uri) {
-            return new SpiderResource(message, depth, uri);
-        }
-
-        public static SpiderResource createUriResource(HttpMessage message, int depth, String uri, boolean shouldIgnore) {
-            return new SpiderResource(message, depth, uri, shouldIgnore);
-        }
-
-        public static SpiderResource createPostResource(HttpMessage message, int depth, String uri, String requestBody) {
-            return new SpiderResource(message, depth, uri, requestBody);
-        }
-
         @Override
         public int hashCode() {
             int result = 31 + depth;
@@ -220,5 +254,15 @@ public class SpiderParserTestUtils {
             return true;
         }
 
+        @Override
+        public String toString() {
+            StringBuilder strBuilder = new StringBuilder(250);
+            strBuilder.append("URI=").append(uri);
+            strBuilder.append(", Depth=").append(depth);
+            strBuilder.append(", RequestBody=").append(requestBody);
+            strBuilder.append(", ShouldIgnore=").append(shouldIgnore);
+            strBuilder.append(", Message=").append(message.hashCode());
+            return strBuilder.toString();
+        }
     }
 }

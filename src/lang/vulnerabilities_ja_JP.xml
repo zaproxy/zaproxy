@@ -68,17 +68,17 @@ http://example.com/RecordView?id=12345
 
 フェーズ： 実装
 プログラミング言語の基になる表現と数値計算 (CWE-681) とがどのように影響し合うのかを理解してください。 バイトサイズの不一致、精度、符号付き/符号なしの区別、切り捨て、変換とキャストの種類、非数の計算や過大小数値の操作における基礎表現へ細心の注意を払ってください。
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+また、32 / 64 ビット、その他の潜在的な違いによる計算が数値表現に影響を与える可能性に注意してください。
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+フェーズ：実装
+コンパイラの警告を注意深く分析し、符号付き/符号なしの不一致など、潜在的なセキュリティ上の重要な問題を取り除いてください。 脆弱性がまれにしか悪用可能でないとしても、ひとつの間違いがシステム全体の信用低下をもたらすかもしれません。</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
+	<alert>不適切なトランスポート層保護</alert>
 	<desc>Insufficient Transport Layer Protection
 Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
  
@@ -236,7 +236,7 @@ Replace unbounded copy functions with analogous functions that support length ar
 <vuln_items>wasc_8</vuln_items>
 <vuln_item_wasc_8>
 	<alert>クロスサイト スクリプティング(XSS)</alert>
-	<desc>Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
+	<desc>クロス サイト スクリプティング (XSS) は、攻撃者が指定したコードを反射的にユーザーのブラウザ インスタンスに紛れ込ませる攻撃手法です。 ブラウザ インスタンスは、標準的な Web ブラウザ クライアントまたは WinAmp、RSS リーダー、メール クライアントなどのソフトウェア製品に埋め込まれたブラウザ オブジェクトとして利用可能です。 The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
 When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.
 
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
@@ -284,7 +284,7 @@ CSRF attacks are effective in a number of situations, including:
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
 	<solution>フェーズ： アーキテクチャと設計
 同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
-For example, use anti-CSRF packages such as the OWASP CSRFGuard.
+たとえば、OWASP CSRFGuard などのアンチCSRFパッケージを使用します。
 
 Phase: Implementation
 Ensure that your application is free of cross-site scripting issues, because most CSRF defenses can be bypassed using attacker-controlled script.
@@ -391,8 +391,8 @@ In order to fill in the missing information the hacker can guess the missing inf
 
 <vuln_items>wasc_12</vuln_items>
 <vuln_item_wasc_12>
-	<alert>Content Spoofing</alert>
-	<desc>Content Spoofing is an attack technique that allows an attacker to inject a malicious payload that is later misrepresented as legitimate content of a web application.
+	<alert>コンテンツ・スプーフィング</alert>
+	<desc>コンテンツ スプーフィングは、攻撃者が web アプリケーションの正当なコンテンツとして悪意のあるペイロードを注入することができる攻撃手法です。
  
 Text Only Content Spoofing
 A common approach to dynamically build pages involves passing the body or portions thereof into the page via a query string value. This approach is common on error pages, or sites providing story or news entries. The content specified in this parameter is later reflected into the page to provide the content for the page.
@@ -412,7 +412,7 @@ This attack exploits the trust relationship established between the user and the
 <vuln_items>wasc_13</vuln_items>
 <vuln_item_wasc_13>
 	<alert>情報漏洩</alert>
-	<desc>Information Leakage is an application weakness where an application reveals sensitive data, such as technical details of the web application, environment, or user-specific data. Sensitive data may be used by an attacker to exploit the target web application, its hosting network, or its users. Therefore, leakage of sensitive data should be limited or prevented whenever possible. Information Leakage, in its most common form, is the result of one or more of the following conditions: A failure to scrub out HTML/Script comments containing sensitive information, improper application or server configurations, or differences in page responses for valid versus invalid data.
+	<desc>情報漏洩は、web アプリケーション、環境、またはユーザー固有データの技術的な詳細などの機密データをアプリケーションが明らかにしてしまうアプリケーションの脆弱性です。 Sensitive data may be used by an attacker to exploit the target web application, its hosting network, or its users. Therefore, leakage of sensitive data should be limited or prevented whenever possible. Information Leakage, in its most common form, is the result of one or more of the following conditions: A failure to scrub out HTML/Script comments containing sensitive information, improper application or server configurations, or differences in page responses for valid versus invalid data.
 
 Failure to scrub HTML/Script comments prior to a push to the production environment can result in the leak of sensitive, contextual, information such as server directory structure, SQL query structure, and internal network information. Often a developer will leave comments within the HTML and/or script code to help facilitate the debugging or integration process during the pre-production phase. Although there is no harm in allowing developers to include inline comments within the content they develop, these comments should all be removed prior to the content's public release.
 
@@ -459,7 +459,7 @@ Likewise, default installations may include well-known usernames and passwords, 
 
 <vuln_items>wasc_17</vuln_items>
 <vuln_item_wasc_17>
-	<alert>Improper Filesystem Permissions</alert>
+	<alert>不適切なファイルシステムのパーミッション</alert>
 	<desc>Improper filesystem permissions are a threat to the confidentiality, integrity and availability of a web application. The problem arises when incorrect filesystem permissions are set on files, folders, and symbolic links. When improper permissions are set, an attacker may be able to access restricted files or directories and modify or delete their contents. For example, if an anonymous user account has write permission to a file, then an attacker may be able to modify the contents of the file influencing the web application in undesirable ways. An attacker may also exploit improper symlinks to escalate their privileges and/or access unauthorized files; for example, a symlink that points to a directory outside of the web root.</desc>
 	<solution>Very carefully manage the setting, management and handling of permissions. Explicitly manage trust zones in the software.</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
@@ -515,8 +515,8 @@ When feasible, it may be safest to disallow meta-characters entirely, instead of
 
 <vuln_items>wasc_20</vuln_items>
 <vuln_item_wasc_20>
-	<alert>Improper Input Handling</alert>
-	<desc>Improper input handling is one of the most common weaknesses identified across applications today. Poorly handled input is a leading cause behind critical vulnerabilities that exist in systems and applications.
+	<alert>不適切な入力処理</alert>
+	<desc>不適切な入力処理は、今日のアプリケーション上で認識される最も一般的な脆弱性のひとつです。 不十分な処理入力は、システムおよびアプリケーションの重要な脆弱性の背後にある主要な原因です。
 	
 Generally, the term input handing is used to describe functions like validation, sanitization, filtering, encoding and/or decoding of input data. Applications receive input from various sources including human users, software agents (browsers), and network/peripheral devices to name a few. In the case of web applications, input can be transferred in various formats (name value pairs, JSON, SOAP, etc...) and obtained via URL query strings, POST data, HTTP headers, Cookies, etc... Non-web application input can be obtained via application variables, environment variables, the registry, configuration files, etc... Regardless of the data format or source/location of the input, all input should be considered untrusted and potentially malicious. Applications which process untrusted input may become vulnerable to attacks such as Buffer Overflows, SQL Injection, OS Commanding, Denial of Service just to name a few.
 
@@ -580,7 +580,7 @@ Web application functionality that is often a target for automation attacks may 
 
 <vuln_items>wasc_22</vuln_items>
 <vuln_item_wasc_22>
-	<alert>Improper Output Handling</alert>
+	<alert>不適切な出力処理</alert>
 	<desc>Output handling refers to how an application generates outgoing data.  If an application has improper output handling, the output data may be consumed leading to vulnerabilities and actions never intended by the application developer.  In many cases, this unintended interpretation is classified as one or more forms of critical application vulnerabilities.
 
 Any location where data leaves an application boundary may be subject to improper output handling.  Application boundaries exist where data leaves one context and enters another.  This includes applications passing data to other applications via web services, sockets, command line, environmental variables, etc...  It also includes passing data between tiers within an application architecture, such as a database, directory server, HTML/JavaScript interpreter (browser), or operating system.  More detail on where improper output handling can occur can be found in the section below titled "Common Data Output Locations”.
@@ -644,14 +644,14 @@ Appropriately filter or quote CRLF sequences in user-controlled input.</solution
 The essence of HTTP Response Splitting is the attacker's ability to send a single HTTP request that forces the web server to form an output stream, which is then interpreted by the target as two HTTP responses instead of one response, in the normal case. The first response may be partially controlled by the attacker, but this is less important. What is material is that the attacker completely controls the form of the second response from the HTTP status line to the last byte of the HTTP response body. Once this is possible, the attacker realizes the attack by sending two requests through the target. The first one invokes two responses from the web server, and the second request would typically be to some "innocent" resource on the web server. However, the second request would be matched, by the target, to the second HTTP response, which is fully controlled by the attacker. The attacker, therefore, tricks the target into believing that a particular resource on the web server (designated by the second request) is the server's HTTP response (server content), while it is in fact some data, which is forged by the attacker through the web server - this is the second response.
 
 HTTP Response Splitting attacks take place where the server script embeds user data in HTTP response headers. This typically happens when the script embeds user data in the redirection URL of a redirection response (HTTP status code 3xx), or when the script embeds user data in a cookie value or name when the response sets a cookie.</desc>
-	<solution>Construct HTTP headers very carefully, avoiding the use of non-validated input data.</solution>
+	<solution>検証されていない入力データの使用を避けるよう、非常に慎重にHTTP ヘッダーを構築してください。</solution>
 	<reference>http://projects.webappsec.org/HTTP-Response-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/113.html</reference>
 </vuln_item_wasc_25>
 
 <vuln_items>wasc_26</vuln_items>
 <vuln_item_wasc_26>
-	<alert>HTTP Request Smuggling</alert>
+	<alert>HTTP リクエストスマグリング</alert>
 	<desc>HTTP Request Smuggling is an attack technique that abuses the discrepancy in parsing of non RFC compliant HTTP requests between two HTTP devices (typically a front-end proxy or HTTP-enabled firewall and a back-end web server) to smuggle a request to the second device "through" the first device. This technique enables the attacker to send one set of requests to the second device while the first device sees a different set of requests. In turn, this facilitates several possible exploitations, such as partial cache poisoning, bypassing firewall protection and XSS.</desc>
 	<solution>Use a web server that employs a strict HTTP parsing procedure, such as Apache (See paper in reference).
 
@@ -802,7 +802,7 @@ Most web sites restrict user access to a specific portion of the file-system, ty
 The most basic Path Traversal attack uses the "../" special-character sequence to alter the resource location requested in the URL. Although most popular web servers will prevent this technique from escaping the web document root, alternate encodings of the "../" sequence may help bypass the security filters. These method variations include valid and invalid Unicode-encoding ("..%u2216" or "..%c0%af") of the forward slash character, backslash characters ("..\") on Windows-based servers, URL encoded characters "%2e%2e%2f"), and double URL encoding ("..%255c") of the backslash character.
 
 Even if the web server properly restricts Path Traversal attempts in the URL path, a web application itself may still be vulnerable due to improper handling of user-supplied input. This is a common problem of web applications that use template mechanisms or load static text from files. In variations of the attack, the original URL parameter value is substituted with the file name of one of the web application's dynamic scripts. Consequently, the results can reveal source code because the file is interpreted as text instead of an executable script. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
-	<solution>Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+	<solution>すべての入力が悪意あるものと仮定してください。 Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
 When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
@@ -831,12 +831,12 @@ This may not be a feasible solution, and it only limits the impact to the operat
 <vuln_items>wasc_34</vuln_items>
 <vuln_item_wasc_34>
 	<alert>推測可能なリソースの位置</alert>
-	<desc>Predictable Resource Location is an attack technique used to uncover hidden web site content and functionality. By making educated guesses via brute forcing an attacker can guess file and directory names not intended for public viewing. Brute forcing filenames is easy because files/paths often have common naming convention and reside in standard locations. These can include temporary files, backup files, logs, administrative site sections, configuration files, demo applications, and sample files. These files may disclose sensitive information about the website, web application internals, database information, passwords, machine names, file paths to other sensitive areas, etc...
+	<desc>推測可能なリソースの位置は、隠された web サイトのコンテンツと機能を明らかにするために使用される攻撃手法です。 経験則に基づく総当たりによって、攻撃者は公衆への提供を意図しないファイルおよびディレクトリ名を推測できます。 Brute forcing filenames is easy because files/paths often have common naming convention and reside in standard locations. These can include temporary files, backup files, logs, administrative site sections, configuration files, demo applications, and sample files. These files may disclose sensitive information about the website, web application internals, database information, passwords, machine names, file paths to other sensitive areas, etc...
 
 This will not only assist with identifying site surface which may lead to additional site vulnerabilities, but also may disclose valuable information to an attacker about the environment or its users. Predictable Resource Location is also known as Forced Browsing, Forceful Browsing, File Enumeration, and Directory Enumeration.</desc>
-	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
+	<solution>すべての制限された Url、スクリプトまたはファイルにアクセスする毎に、適切なアクセス権限制御を適用してください。
 
-Consider using MVC based frameworks such as Struts.</solution>
+ Struts などのフレームワーク ベースの MVC を使用することを検討してください。</solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
@@ -960,7 +960,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 <vuln_items>wasc_42</vuln_items>
 <vuln_item_wasc_42>
 	<alert>機能の悪用</alert>
-	<desc>Abuse of Functionality is an attack technique that uses a web site's own features and functionality to attack itself or others. Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
+	<desc>機能の悪用は、web サイトの特徴や機能を使用してサイト自身や他のサイトを攻撃する攻撃手法です。 Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
 	<solution>Always utilize APIs in the specified manner.</solution>
 	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
 	<reference>http://cwe.mitre.org/data/definitions/227.html</reference>
@@ -1021,15 +1021,15 @@ Since HTTP is a stateless protocol, Web sites commonly use cookies to store sess
 Session expiration is comprised of two timeout types: inactivity and absolute. An absolute timeout is defined by the total amount of time a session can be valid without re-authentication and an inactivity timeout is the amount of idle time allowed before the session is invalidated. The lack of proper session expiration may increase the likelihood of success of certain attacks. A long expiration time increases an attacker's chance of successfully guessing a valid session ID. The longer the expiration time, the more concurrent open sessions will exist at any given time. The larger the pool of sessions, the more likely it will be for an attacker to guess one at random. Although a short session inactivity timeout does not help if a token is immediately used, the short timeout helps to insure that the token is harder to capture while it is still valid.
 
 A Web application should invalidate a session after a predefined idle time has passed (a timeout) and provide the user the means to invalidate their own session, i.e. logout; this helps to keep the lifespan of a session ID as short as possible and is necessary in a shared computing environment where more than one person has unrestricted physical access to a computer. The logout function should be prominently visible to the user, explicitly invalidate a user’s session and disallow reuse of the session token.</desc>
-	<solution>Set sessions/credentials expiration date.</solution>
+	<solution>セッション/資格情報の有効期限を設定してください。</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Session-Expiration</reference>
 	<reference>http://cwe.mitre.org/data/definitions/613.html</reference>
 </vuln_item_wasc_47>
 
 <vuln_items>wasc_48</vuln_items>
 <vuln_item_wasc_48>
-	<alert>Insecure Indexing</alert>
-	<desc>Insecure Indexing is a threat to the data confidentiality of the web-site. Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
+	<alert>安全でないインデックス</alert>
+	<desc>安全でないインデックスは、web サイトのデータの機密性への脅威です。 Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
 	<solution>後日発表</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
 	<reference></reference>
@@ -1037,7 +1037,7 @@ A Web application should invalidate a session after a predefined idle time has p
 
 <vuln_items>wasc_49</vuln_items>
 <vuln_item_wasc_49>
-	<alert>Insufficient Password Recovery</alert>
+	<alert>不適切なパスワード回復</alert>
 	<desc>Insufficient Password Recovery is when a web site permits an attacker to illegally obtain, change or recover another user's password. Conventional web site authentication methods require users to select and remember a password or passphrase. The user should be the only person that knows the password and it must be remembered precisely. As time passes, a user's ability to remember a password fades. The matter is further complicated when the average user visits 20 sites requiring them to supply a password.  (RSA Survey: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Thus, password recovery is an important part in servicing online users.
 
 Examples of automated password recovery processes include requiring the user to answer a "secret question" defined as part of the user registration process. This question can either be selected from a list of canned questions or supplied by the user. Another mechanism in use is having the user provide a "hint" during registration that will help the user remember his password. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. After the user has proven who they are, the recovery system will display or e-mail them a new password.

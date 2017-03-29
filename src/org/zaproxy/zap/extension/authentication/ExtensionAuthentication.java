@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.authentication;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +41,11 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
-import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.authentication.HttpAuthenticationMethodType;
+import org.zaproxy.zap.authentication.ManualAuthenticationMethodType;
+import org.zaproxy.zap.authentication.ScriptBasedAuthenticationMethodType;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -107,7 +110,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 
 		// Register the api
 		this.api = new AuthenticationAPI(this);
-		API.getInstance().registerApiImplementor(api);
+		extensionHook.addApiImplementor(api);
 	}
 
 	@Override
@@ -179,13 +182,17 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	/**
-	 * Load authentication method types using reflection and hooks them up.
+	 * Loads the authentication method types and hooks them up.
 	 * 
 	 * @param hook the extension hook
 	 */
 	private void loadAuthenticationMethodTypes(ExtensionHook hook) {
-		this.authenticationMethodTypes = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap",
-				AuthenticationMethodType.class);
+		this.authenticationMethodTypes = new ArrayList<>();
+		this.authenticationMethodTypes.add(new FormBasedAuthenticationMethodType());
+		this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
+		this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
+		this.authenticationMethodTypes.add(new ScriptBasedAuthenticationMethodType());
+
 		for (AuthenticationMethodType a : authenticationMethodTypes) {
 			a.hook(hook);
 		}

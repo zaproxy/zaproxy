@@ -25,13 +25,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.MessageFormat;
@@ -52,7 +53,6 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
@@ -87,21 +87,18 @@ public class ScanProgressDialog extends AbstractDialog {
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(ScanProgressDialog.class);
 
-    // Default table background color
-    //private static final Color JTABLE_ALTERNATE_BACKGROUND = UIManager.getColor("Table.alternateRowColor");
     private transient Color JTABLE_ALTERNATE_BACKGROUND = (Color)LookAndFeel.getDesktopPropertyValue("Table.alternateRowColor", new Color(0xf2f2f2));
     
     private ExtensionActiveScan extension;
-    private JScrollPane jScrollPane = null;
+    private JScrollPane jScrollPane;
     private JTable table;
     private ScanProgressTableModel model;
-    private JButton closeButton = null;
+    private JButton closeButton;
     private JButton copyToClipboardButton;
-    private JComboBox<String> hostSelect = null;
+    private JComboBox<String> hostSelect;
     
-    private String site = null;
-    private ActiveScan scan = null;
-    private boolean stopThread = false;
+    private ActiveScan scan;
+    private boolean stopThread;
 
     private JFreeChart chart;
     private List<String> labelsAdded = new ArrayList<String>();
@@ -115,29 +112,25 @@ public class ScanProgressDialog extends AbstractDialog {
     private double lastCentre = -1;
 
     /**
+     * Constructs a modal {@code ScanProgressDialog} with the given owner, target and active scan extension.
      * 
-     * @param owner
-     * @param site 
-     * @param extension 
+     * @param owner the {@code Frame} from which the dialog is displayed
+     * @param target the scan target, shown as title if not {@code null}
+     * @param extension the active scan extension, to obtain chart options
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
-    public ScanProgressDialog(Frame owner, String site, ExtensionActiveScan extension) {
+    public ScanProgressDialog(Frame owner, String target, ExtensionActiveScan extension) {
         super(owner, false);
-        this.site = site;
+        if (target != null) {
+            this.setTitle(MessageFormat.format(Constant.messages.getString("ascan.progress.title"), target));
+        }
         this.extension = extension;
         this.initialize();
     }
 
-    /**
-     * 
-     */
     private void initialize() {
         this.setSize(new Dimension(580, 504));
 
-        if (site != null) {
-            this.setTitle(MessageFormat.format(
-                    Constant.messages.getString("ascan.progress.title"), site));
-        }
-        
         JTabbedPane tabbedPane = new JTabbedPane();
         JPanel tab1 = new JPanel();
         tab1.setLayout(new GridBagLayout());
@@ -172,12 +165,13 @@ public class ScanProgressDialog extends AbstractDialog {
 	        this.series400 = new TimeSeries(Constant.messages.getString("ascan.progress.chart.4xx"));
 	        this.series500 = new TimeSeries(Constant.messages.getString("ascan.progress.chart.5xx"));
 	        
-	        this.seriesTotal.setMaximumItemAge(mins * 60);
-	        this.series100.setMaximumItemAge(mins * 60);
-	        this.series200.setMaximumItemAge(mins * 60);
-	        this.series300.setMaximumItemAge(mins * 60);
-	        this.series400.setMaximumItemAge(mins * 60);
-	        this.series500.setMaximumItemAge(mins * 60);
+	        long maxAge = mins * 60;
+	        this.seriesTotal.setMaximumItemAge(maxAge);
+	        this.series100.setMaximumItemAge(maxAge);
+	        this.series200.setMaximumItemAge(maxAge);
+	        this.series300.setMaximumItemAge(maxAge);
+	        this.series400.setMaximumItemAge(maxAge);
+	        this.series500.setMaximumItemAge(maxAge);
 	        
 	        dataset.addSeries(series100);
 	        dataset.addSeries(series200);
@@ -351,7 +345,7 @@ public class ScanProgressDialog extends AbstractDialog {
             table.getColumnModel().getColumn(5).setPreferredWidth(40);                  
             table.getColumnModel().getColumn(5).setCellRenderer(new ScanProgressActionRenderer());
 
-            ScanProgressActionListener listener = new ScanProgressActionListener(table);
+            ScanProgressActionListener listener = new ScanProgressActionListener(table, model);
             table.addMouseListener(listener);
             table.addMouseMotionListener(listener);
         }
@@ -360,12 +354,9 @@ public class ScanProgressDialog extends AbstractDialog {
     }
     
     /**
-     * Update the current Scan progress and
-     * prepare actions and scan summary
+     * Updates the scan progress shown by the dialogue (scanners' progress/state and chart).
      */
-    
-    
-    private void showProgress() {
+    private void updateProgress() {
         // Start panel data settings
     	HostProcess hp = getSelectedHostProcess();
         if (scan.getHostProcesses() != null && hp != null) {
@@ -427,6 +418,7 @@ public class ScanProgressDialog extends AbstractDialog {
 			            }
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
+						snapshot = null;
 					}
 	            }
             }
@@ -447,8 +439,9 @@ public class ScanProgressDialog extends AbstractDialog {
     }
 
     /**
-     * Set the scan that need to be used for this dialog
-     * @param scan the active scan
+     * Set the scan that will be shown in this dialog.
+     * 
+     * @param scan the active scan, might be {@code null}.
      */
     public void setActiveScan(ActiveScan scan) {
         this.scan = scan;
@@ -468,7 +461,7 @@ public class ScanProgressDialog extends AbstractDialog {
                 	SwingUtilities.invokeLater(new Runnable(){
 						@Override
 						public void run() {
-							showProgress();
+							updateProgress();
 						}});
                     
                     try {
@@ -491,7 +484,7 @@ public class ScanProgressDialog extends AbstractDialog {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// Switch results, esp necessary when the scan has finished
-					showProgress();
+					updateProgress();
 				}});
     	}
     	return hostSelect;
@@ -499,22 +492,10 @@ public class ScanProgressDialog extends AbstractDialog {
 
 
     /**
-     * --------------------------------------------------
      * Custom Renderer for the progress bar plugin column
-     * -------------------------------------------------- 
      */
     private class ScanProgressBarRenderer implements TableCellRenderer {
 
-        /**
-         *
-         * @param table
-         * @param value
-         * @param isSelected
-         * @param hasFocus
-         * @param row
-         * @param column
-         * @return
-         */
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             JComponent result;
@@ -539,22 +520,10 @@ public class ScanProgressDialog extends AbstractDialog {
     }    
     
     /**
-     * --------------------------------------------------
      * Custom Renderer for the actions column (skipping)
-     * --------------------------------------------------
      */
     private class ScanProgressActionRenderer implements TableCellRenderer {
         
-        /**
-         *
-         * @param table
-         * @param value
-         * @param isSelected
-         * @param hasFocus
-         * @param row
-         * @param column
-         * @return
-         */
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             JComponent result;
@@ -582,62 +551,43 @@ public class ScanProgressDialog extends AbstractDialog {
     }
 
     /**
-     * --------------------------------------------------
      * Listener for all Action's management (skipping for now)
-     * --------------------------------------------------
      */
-    private class ScanProgressActionListener implements MouseListener, MouseMotionListener {
-
-        private JTable table;
+    private static class ScanProgressActionListener extends MouseAdapter {
 
         /**
-         * 
-         * @param table 
+         * Constant that indicates that a column or row was not found.
          */
-        public ScanProgressActionListener(JTable table) {
+        private static final int NOT_FOUND = -1;
+
+        private final JTable table;
+        private final ScanProgressTableModel model;
+        
+        public ScanProgressActionListener(JTable table, ScanProgressTableModel model) {
             this.table = table;
+            this.model = model;
         }
-
-        /**
-         * 
-         * @param e 
-         */
+        
         @Override
         public void mouseClicked(MouseEvent e) {
-            ScanProgressActionIcon action = getScanProgressAction(e);
+            ScanProgressActionIcon action = getScanProgressAction(e.getPoint());
             if (action != null) {
                 action.invokeAction();
             }            
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-
-        /**
-         * 
-         * @param e 
-         */
-        @Override
         public void mousePressed(MouseEvent e) {
-            ScanProgressActionIcon action = getScanProgressAction(e);
+            ScanProgressActionIcon action = getScanProgressAction(e.getPoint());
             if (action != null) {
                 action.setPressed();
                 action.repaint();
             }
         }
 
-        /**
-         * 
-         * @param e 
-         */
         @Override
         public void mouseReleased(MouseEvent e) {
-            ScanProgressActionIcon action = getScanProgressAction(e);
+            ScanProgressActionIcon action = getScanProgressAction(e.getPoint());
             if (action != null) {
                 action.setReleased();
                 action.repaint();
@@ -645,16 +595,8 @@ public class ScanProgressDialog extends AbstractDialog {
         }
 
         @Override
-        public void mouseDragged(MouseEvent me) {
-        }
-
-        /**
-         * 
-         * @param me 
-         */
-        @Override
         public void mouseMoved(MouseEvent me) {
-            ScanProgressActionIcon action = getScanProgressAction(me);
+            ScanProgressActionIcon action = getScanProgressAction(me.getPoint());
             if (action != null) {
                 model.setFocusedAction(action);
                 action.repaint();
@@ -666,22 +608,25 @@ public class ScanProgressDialog extends AbstractDialog {
         }
 
         /**
+         * Gets the {@code ScanProgressActionIcon} at the given point, if any.
          * 
-         * @param e
-         * @return 
+         * @param point the point to get the scan progress action icon
+         * @return the {@code ScanProgressActionIcon} at the given point, or {@code null} if none
          */
-        private ScanProgressActionIcon getScanProgressAction(MouseEvent e) {
-            TableColumnModel columnModel = table.getColumnModel();
-            int column = columnModel.getColumnIndexAtX(e.getX());
-            int row = e.getY() / table.getRowHeight();
+        private ScanProgressActionIcon getScanProgressAction(Point point) {
+            int column = table.columnAtPoint(point);
+            if (column == NOT_FOUND) {
+                return null;
+            }
 
-            if ((row < table.getRowCount()) && (row >= 0) && 
-                (column < table.getColumnCount()) && (column >= 0)) {
+            int row = table.rowAtPoint(point);
+            if (row == NOT_FOUND) {
+                return null;
+            }
 
-                Object value = table.getValueAt(row, column);
-                if (value instanceof ScanProgressActionIcon) {
-                    return (ScanProgressActionIcon)value;
-                }
+            Object value = table.getValueAt(row, column);
+            if (value instanceof ScanProgressActionIcon) {
+                return (ScanProgressActionIcon)value;
             }
             
             return null;

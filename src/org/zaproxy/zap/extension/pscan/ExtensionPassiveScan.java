@@ -46,7 +46,6 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
@@ -72,6 +71,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
         DEPENDENCIES = Collections.unmodifiableList(dep);
     }
+
+    private PassiveScannerOptionsPanel passiveScannerOptionsPanel;
 
     public ExtensionPassiveScan() {
         super();
@@ -99,6 +100,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         extensionHook.addProxyListener(getPassiveScanThread());
         extensionHook.addSessionListener(this);
         if (getView() != null) {
+            extensionHook.getHookView().addOptionPanel(getPassiveScannerOptionsPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
         }
@@ -109,7 +111,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
 
 
-        API.getInstance().registerApiImplementor(new PassiveScanAPI(this));
+        extensionHook.addApiImplementor(new PassiveScanAPI(this));
     }
 
     @Override
@@ -250,6 +252,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             }
             
             logger.info("loaded passive scan rule: " + scanner.getName());
+            if (scanner.getPluginId() == -1) {
+                logger.error(
+                        "The passive scan rule \"" + scanner.getName() + "\" [" + scanner.getClass().getCanonicalName()
+                                + "] does not have a defined ID.");
+            }
             
         } catch (Exception e) {
             logger.error("Failed to load passive scanner " + scanner.getName(), e);
@@ -402,18 +409,25 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             final ExtensionHistory extHist = (ExtensionHistory) extensionLoader.getExtension(ExtensionHistory.NAME);
             final ExtensionAlert extAlert = (ExtensionAlert) extensionLoader.getExtension(ExtensionAlert.NAME);
 
-            pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert);
+            pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
 
             pst.start();
         }
         return pst;
     }
 
-    private PassiveScanParam getPassiveScanParam() {
+    PassiveScanParam getPassiveScanParam() {
         if (passiveScanParam == null) {
             passiveScanParam = new PassiveScanParam();
         }
         return passiveScanParam;
+    }
+
+    private PassiveScannerOptionsPanel getPassiveScannerOptionsPanel() {
+        if (passiveScannerOptionsPanel == null) {
+            passiveScannerOptionsPanel = new PassiveScannerOptionsPanel(Constant.messages);
+        }
+        return passiveScannerOptionsPanel;
     }
 
     private OptionsPassiveScan getOptionsPassiveScan(PassiveScanThread passiveScanThread) {

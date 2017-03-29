@@ -84,6 +84,12 @@ public class HttpMethodDirector {
      */
     public static final String PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS = "remove.user.defined.auth.headers";
 
+    /**
+     * Parameter to set/obtain the default {@code User-Agent} of internal CONNECT requests (if {@code null} no
+     * {@code User-Agent} is set).
+     */
+    public static final String PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS = "method.connect.default.user.agent";
+
     /** The www authenticate challange header. */
     public static final String WWW_AUTH_CHALLENGE = "WWW-Authenticate";
 
@@ -545,6 +551,10 @@ public class HttpMethodDirector {
 
         this.connectMethod = new ConnectMethod(this.hostConfiguration);
         this.connectMethod.getParams().setDefaults(this.hostConfiguration.getParams());
+        String agent = (String) getParams().getParameter(PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS);
+        if (agent != null) {
+            this.connectMethod.setRequestHeader("User-Agent", agent);
+        }
         
         int code;
         for (;;) {
@@ -593,9 +603,7 @@ public class HttpMethodDirector {
     /**
      * Fake response
      * @param method
-     * @return
      */
-    
     private void fakeResponse(final HttpMethod method)
         throws IOException, HttpException {
         // What is to follow is an ugly hack.

@@ -46,7 +46,7 @@ public abstract class PopupContextMenuItemFactory extends ExtensionPopupMenuItem
 		super("ContextMenuFactory");
 		this.parentMenu = parentMenu;
 	}
-	/**/
+
     @Override
     public String getParentMenuName() {
     	return parentMenu;

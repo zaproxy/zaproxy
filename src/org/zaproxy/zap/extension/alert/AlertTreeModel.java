@@ -43,10 +43,6 @@ class AlertTreeModel extends DefaultTreeModel {
         super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title"), GROUP_ALERT_CHILD_COMPARATOR));
     }
     
-    private String getRiskString (Alert alert) {
-		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getName() + "<html>";
-    }
-    
     void addPath(final Alert alert) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	addPathEventHandler(alert);
@@ -66,9 +62,7 @@ class AlertTreeModel extends DefaultTreeModel {
     
     private synchronized void addPathEventHandler(Alert alert) {
         AlertNode parent = (AlertNode) getRoot();
-        String alertNodeName = getRiskString(alert);
-    
-        parent = findAndAddChild(parent, alertNodeName, alert);
+        parent = findAndAddChild(parent, alert.getName(), alert);
         // Show the method first, if present
         String method = "";
         if (alert.getMethod() != null) {
@@ -97,6 +91,28 @@ class AlertTreeModel extends DefaultTreeModel {
         }
     	return null;
     }
+    
+	public AlertNode getAlertNode(Alert alert) {
+		AlertNode parent = (AlertNode) getRoot();
+		int risk = alert.getRisk();
+		if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
+			// Special case!
+			risk = -1;
+		}
+
+		AlertNode needle = new AlertNode(risk, alert.getName());
+		needle.setUserObject(alert);
+		int idx = parent.findIndex(needle);
+		if (idx < 0) {
+			return null;
+		}
+		parent = parent.getChildAt(idx);
+		idx = parent.findIndex(needle);
+		if (idx < 0) {
+			return null;
+		}
+		return parent.getChildAt(idx);
+	}
     
     void updatePath(final Alert originalAlert, final Alert alert) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {

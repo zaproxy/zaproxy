@@ -14,6 +14,7 @@
 // 		7	CHECK_FOR_UPDATES_INITIATOR
 // 		8	BEAN_SHELL_INITIATOR
 // 		9	ACCESS_CONTROL_SCANNER_INITIATOR
+// 		10	AJAX_SPIDER_INITIATOR
 // For the latest list of values see the HttpSender class:
 // https://github.com/zaproxy/zaproxy/blob/master/src/org/parosproxy/paros/network/HttpSender.java
 // 'helper' just has one method at the moment: helper.getHttpSender() which returns the HttpSender 
@@ -23,6 +24,10 @@
 // msg2 = msg.cloneAll() // msg2 can then be safely changed as required without affecting msg
 // helper.getHttpSender().sendAndReceive(msg2, false);
 // println('msg2 response=' + msg2.getResponseHeader().getStatusCode())
+
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
 
 function sendingRequest(msg, initiator, helper) {
 	// Debugging can be done using println like this

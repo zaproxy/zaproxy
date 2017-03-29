@@ -46,6 +46,11 @@ public class ApiException extends Exception {
 		 * @see API.Format
 		 */
 		BAD_FORMAT,
+		/**
+		 * Indicates that the requested type is not valid.
+		 * 
+		 * @see API.RequestType
+		 */
 		BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
 		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST,
 		/**
@@ -59,11 +64,20 @@ public class ApiException extends Exception {
 		 */
 		ILLEGAL_PARAMETER,
 		CONTEXT_NOT_FOUND,
+		CONTENT_TYPE_NOT_SUPPORTED,
 		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT, NO_ACCESS,
 		/*
 		 * Indicates that the requested operation is not allowed in the current mode
 		 */
-		MODE_VIOLATION};
+		MODE_VIOLATION,
+		/**
+		 * Indicates that the external data (provided by other means other than the API parameters, for example, obtained from
+		 * the file system) is not correct.
+		 * 
+		 * @since 2.6.0
+		 */
+		BAD_EXTERNAL_DATA
+	}
 	
 	private final Type type;
 	private final String detail;

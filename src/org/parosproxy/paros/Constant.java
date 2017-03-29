@@ -62,11 +62,16 @@
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 // ZAP: 2016/02/17 Convert extensions' options to not use extensions' names as XML element names
 // ZAP: 2016/05/12 Use dev/weekly dir for plugin downloads when copying the existing 'release' config file
+// ZAP: 2016/06/07 Remove commented constants and statement that had no (actual) effect, add doc to a constant and init other
+// ZAP: 2016/06/07 Use filter directory in ZAP's home directory
+// ZAP: 2016/06/13 Migrate config option "proxy.modifyAcceptEncoding" 
+// ZAP: 2016/07/07 Convert passive scanners options to new structure
+// ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 
 package org.parosproxy.paros;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -79,11 +84,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -120,9 +127,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2004003;
+    private static final long VERSION_TAG = 2005000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
     private static final long V_2_2_0_TAG = 2002000;
@@ -147,13 +155,6 @@ public final class Constant {
     
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
     
-//  public static final String FILE_CONFIG = "xml/config.xml";
-//  public static final String FOLDER_PLUGIN = "plugin";
-//  public static final String FOLDER_FILTER = "filter";
-//  public static final String FOLDER_SESSION = "session";
-//  public static final String DBNAME_TEMPLATE = "db/parosdb";
-//  public static final String DBNAME_UNTITLED = FOLDER_SESSION + "/untitled";
-
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
     /**
@@ -164,7 +165,19 @@ public final class Constant {
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
+    /**
+     * The name of the directory for filter related files (the path should be built using {@link #getZapHome()} as the parent
+     * directory).
+     * 
+     * @since 1.0.0
+     */
     public static final String FOLDER_FILTER = "filter";
+
+    /**
+     * The name of the directory where the (file) sessions are saved by default.
+     * 
+     * @since 1.0.0
+     */
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
 
@@ -186,7 +199,7 @@ public final class Constant {
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 
     public String FILE_CONFIG = FILE_CONFIG_NAME;
-    public String FOLDER_SESSION = "session";
+    public String FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
     public String DBNAME_UNTITLED = FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
     public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
     public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
@@ -283,6 +296,8 @@ public final class Constant {
 	public static final URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
 	public static final URL SPIDER_IMAGE_URL = Constant.class.getResource("/resource/icon/10/spider.png");
 
+    private static Logger LOG = Logger.getLogger(Constant.class);
+
     public static String getEyeCatcher() {
         return staticEyeCatcher;
     }
@@ -334,15 +349,39 @@ public final class Constant {
         return zapStd;
     		
     }
+    
+    public void copyDefaultConfigs(File f, boolean forceReset) throws IOException, ConfigurationException {
+        FileCopier copier = new FileCopier();
+        File oldf;
+        if (isDevBuild() || isDailyBuild()) {
+            // try standard location
+            oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
+        } else {
+            // try old location
+            oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
+        }
+        
+        if (!forceReset && oldf.exists() && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
+            // Dont copy old configs if forcedReset or they've specified a non std directory
+            LOG.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
+            copier.copy(oldf,f);
+            
+            if (isDevBuild() || isDailyBuild()) {
+                ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
+                newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
+                newConfig.save();
+            }
+        } else {
+            LOG.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
+            copier.copy(getPathDefaultConfigFile().toFile(),f);
+        }
+
+    }
     	
-    private void initializeFilesAndDirectories() {
+    public void initializeFilesAndDirectories() {
 
     	FileCopier copier = new FileCopier();
         File f = null;
-        Logger log = null;
-
-        // default to use application directory 'log'
-        System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
 
         // Set up the version from the manifest
         PROGRAM_VERSION = getVersionFromManifest();
@@ -380,38 +419,15 @@ public final class Constant {
             }
             System.setProperty("log4j.configuration", logFile.getAbsolutePath());
             PropertyConfigurator.configure(logFile.getAbsolutePath());
-            log = Logger.getLogger(Constant.class);
             
             f = new File(FILE_CONFIG);
             if (!f.isFile()) {
-            	File oldf;
-                if (isDevBuild() || isDailyBuild()) {
-                	// try standard location
-                	oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
-                } else {
-                	// try old location
-                	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
-                }
-            	
-            	if (oldf.exists() && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
-            		// Dont copy old configs if they've specified a non std directory
-            		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
-            		copier.copy(oldf,f);
-            		
-            		if (isDevBuild() || isDailyBuild()) {
-            		    ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
-            		    newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
-            		    newConfig.save();
-            		}
-            	} else {
-            		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
-            		copier.copy(getPathDefaultConfigFile().toFile(),f);
-            	}
+                this.copyDefaultConfigs(f, false);
             }
             
             f = new File(FOLDER_SESSION);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FOLDER_SESSION);
+                LOG.info("Creating directory " + FOLDER_SESSION);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -419,7 +435,7 @@ public final class Constant {
             }
             f = new File(DIRBUSTER_CUSTOM_DIR);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
+                LOG.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -427,7 +443,7 @@ public final class Constant {
             }
             f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FUZZER_DIR);
+                LOG.info("Creating directory " + FUZZER_DIR);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -435,10 +451,17 @@ public final class Constant {
             }
             f = new File(FOLDER_LOCAL_PLUGIN);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
+                LOG.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
+            f = new File(zapHome, FOLDER_FILTER);
+            if (!f.isDirectory()) {
+                LOG.info("Creating directory: " + f.getAbsolutePath());
+                if (!f.mkdir()) {
+                    System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
 
@@ -465,7 +488,7 @@ public final class Constant {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
-	            	log.info("Backing up config file to " + FILE_CONFIG + ".bak");
+	            	LOG.info("Backing up config file to " + FILE_CONFIG + ".bak");
             		f = new File(FILE_CONFIG);
 	                try {
 						copier.copy(f, new File(FILE_CONFIG + ".bak"));
@@ -473,7 +496,7 @@ public final class Constant {
 						String msg = "Failed to backup config file " + 
 	            			FILE_CONFIG + " to " + FILE_CONFIG + ".bak " + e.getMessage();
 			            System.err.println(msg);
-			            log.error(msg, e);
+			            LOG.error(msg, e);
 					}
 	                
 		            if (ver == V_PAROS_TAG) {
@@ -516,7 +539,10 @@ public final class Constant {
                     if (ver <= V_2_4_3_TAG) {
                         upgradeFrom2_4_3(config);
                     }
-	            	log.info("Upgraded from " + ver);
+                    if (ver <= V_2_5_0_TAG) {
+                        upgradeFrom2_5_0(config);
+                    }
+	            	LOG.info("Upgraded from " + ver);
             		
             		// Update the version
             		config.setProperty("version", VERSION_TAG);
@@ -798,6 +824,42 @@ public final class Constant {
         }
     }
 
+    private static void upgradeFrom2_5_0(XMLConfiguration config) {
+        String oldConfigKey = "proxy.modifyAcceptEncoding";
+        config.setProperty("proxy.removeUnsupportedEncodings", config.getBoolean(oldConfigKey, true));
+        config.clearProperty(oldConfigKey);
+
+        // Convert passive scanners options to new structure
+        Set<String> classnames = new HashSet<>();
+        for (Iterator<String> it = config.getKeys(); it.hasNext();) {
+            String key = it.next();
+            if (!key.startsWith("pscans.org")) {
+                continue;
+            }
+            classnames.add(key.substring(7, key.lastIndexOf('.')));
+        }
+
+        List<Object[]> oldData = new ArrayList<>();
+        for (String classname : classnames) {
+            Object[] data = new Object[3];
+            data[0] = classname;
+            data[1] = config.getBoolean("pscans." + classname + ".enabled", true);
+            data[2] = config.getString("pscans." + classname + ".level", "");
+            oldData.add(data);
+        }
+
+        config.clearTree("pscans.org");
+
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "pscans.pscanner(" + i + ").";
+            Object[] data = oldData.get(i);
+
+            config.setProperty(elementBaseKey + "classname", data[0]);
+            config.setProperty(elementBaseKey + "enabled", data[1]);
+            config.setProperty(elementBaseKey + "level", data[2]);
+        }
+    }
+
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
         Locale locale = new Locale(langArray[0], langArray[1]);
@@ -815,13 +877,12 @@ public final class Constant {
 	}
 
     /**
-     * Returns the system's {@code Locale} (as determined by the JVM at startup, {@code Locale#getDefault()}). Should be used to
+     * Returns the system's {@code Locale} (as determined by the JVM at startup, {@link Locale#getDefault()}). Should be used to
      * show locale dependent information in the system's locale.
      * <p>
      * <strong>Note:</strong> The default locale is overridden with the ZAP's user defined locale/language.
      *
      * @return the system's {@code Locale}
-     * @see Locale#getDefault()
      * @see Locale#setDefault(Locale)
      */
     public static Locale getSystemsLocale() {
@@ -1060,30 +1121,29 @@ public final class Constant {
     }
     
     /**
-     * Returns true if running on Kali and not a daily build 
+     * Tells whether or not ZAP is running in Kali (and it's not a daily build).
+     *
+     * @return {@code true} if running in Kali (and it's not daily build), {@code false} otherwise
      */
 	public static boolean isKali() {
 		if (onKali == null) {
-	    	onKali = false;
+	    	onKali = Boolean.FALSE;
     		File osReleaseFile = new File ("/etc/os-release");
 	    	if (isLinux() && ! isDailyBuild() && osReleaseFile.exists()) {
 	    		// Ignore the fact we're on Kali if this is a daily build - they will only have been installed manually
-		    	try {
-		    		InputStream in = null;
+		    	try (InputStream in = Files.newInputStream(osReleaseFile.toPath())){
 		    		Properties osProps = new Properties();    		
-		    		in = new FileInputStream(osReleaseFile);   
 		    		osProps.load(in);
 		    		String osLikeValue = osProps.getProperty("ID");
 		    		if (osLikeValue != null) { 
 			    		String [] oSLikes = osLikeValue.split(" ");
 			    		for (String osLike: oSLikes) {
 			    			if (osLike.toLowerCase().equals("kali")) {    				
-			    				onKali = true;
+			    				onKali = Boolean.TRUE;
 			    				break;
 			    			}
 			    		}
 		    		}
-		    		in.close();
 		    	} catch (Exception e) {
 		    		// Ignore
 		    	}

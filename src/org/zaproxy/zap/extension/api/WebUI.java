@@ -31,6 +31,7 @@ import org.zaproxy.zap.extension.api.API.RequestType;
 public class WebUI {
 	
 	private API api;
+	private boolean isDevTestNonce = false;	// Manually change here to test nonces with the web UI
 
 	public WebUI(API api) {
 		this.api = api;
@@ -90,7 +91,7 @@ public class WebUI {
 				return ae1.getName().compareTo(ae2.getName());
 			}});
 		
-		sb.append("<table>\n");
+		sb.append("\n<table>\n");
 		for (ApiElement element : elementList) {
 			List<String> mandatoryParams = element.getMandatoryParamNames();
 			List<String> optionalParams = element.getOptionalParamNames();
@@ -124,6 +125,16 @@ public class WebUI {
 			}
 			sb.append("</a>");
 			sb.append("</td><td>");
+
+			if (element.isDeprecated()) {
+				sb.append(Constant.messages.getString("api.html.deprecated.endpoint"));
+				sb.append("<br />");
+				String text = element.getDeprecatedDescription();
+				if (text != null && !text.isEmpty()) {
+					sb.append(text);
+					sb.append("<br />");
+				}
+			}
 			
 			String descTag = element.getDescriptionTag();
 			if (descTag == null) {
@@ -145,31 +156,47 @@ public class WebUI {
 
 	}
 
+	private void appendShortcuts(StringBuilder sb, String component, List<String> shortcutList) {
+		Collections.sort(shortcutList);
+		
+		sb.append("\n<table>\n");
+		for (String shortcut : shortcutList) {
+			sb.append("<tr>");
+			sb.append("<td>");
+			sb.append("<a href=\"/");
+			sb.append(shortcut);
+			sb.append("/?");
+			sb.append(API.API_NONCE_PARAM);
+			sb.append("=");
+			sb.append(api.getOneTimeNonce("/" + shortcut + "/"));
+			sb.append("\">");
+			sb.append(shortcut);
+			sb.append("</a>");
+			sb.append("</td><td>");
+
+			sb.append("</td>");
+			
+			sb.append("</tr>\n");
+		}
+		sb.append("</table>\n");
+
+	}
+
 	public String handleRequest(String component, ApiImplementor impl,
 			RequestType reqType, String name) throws ApiException {
 		// Generate HTML UI
 		StringBuilder sb = new StringBuilder();
+		sb.append("<!DOCTYPE html>\n");
 		sb.append("<head>\n");
 		sb.append("<title>");
 		sb.append(Constant.messages.getString("api.html.title"));
 		sb.append("</title>\n");
+		/* The script version prevents the cache being used if ZAP has been updated in the same day */ 
+		sb.append("<script src=\"/script.js/?v=" + CoreAPI.API_SCRIPT_VERSION + "&" +
+				API.API_NONCE_PARAM + "=" + api.getOneTimeNonce("/script.js/") + 
+				"\" type=\"text/javascript\"></script>\n");
 		sb.append("</head>\n");
 		sb.append("<body>\n");
-		if (component != null && reqType != null) {
-			sb.append("<script>\n");
-			sb.append("function submitScript() {\n");
-			if (RequestType.other.equals(reqType)) {
-				sb.append("var format = '" + Format.OTHER.name() + "'\n");
-			} else {
-				sb.append("var format = document.getElementById('zapapiformat').value\n");
-			}
-			sb.append("var url = '/' + format + '/" + component + "/" + reqType.name() + "/" + name + "/'\n");
-			sb.append("var form=document.getElementById('zapform');\n");
-			sb.append("form.action = url;\n");
-			sb.append("form.submit();\n");
-			sb.append("}\n");
-			sb.append("</script>\n");
-		}
 		sb.append("<h1>");
 		sb.append("<a href=\"/");
 		sb.append(Format.UI.name());
@@ -211,7 +238,7 @@ public class WebUI {
 					// Might not be set, so ignore failures
 				}
 				
-				sb.append("<form id=\"zapform\" name=\"zapform\">");
+				sb.append("\n<form id=\"zapform\" name=\"zapform\" action=\"override\">");
 				sb.append("<table>\n");
 				if ( ! RequestType.other.equals(reqType)) {
 					sb.append("<tr><td>");
@@ -231,26 +258,50 @@ public class WebUI {
 					sb.append("</td></tr>\n");
 				}
 				
-				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType)) {
-					String key = getOptionsParamApi().getKey();
-					if (key != null && key.length() > 0) {
+				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType) ||
+						! getOptionsParamApi().isNoKeyForSafeOps()) {
+					String keyType = API.API_KEY_PARAM;
+					if (this.isDevTestNonce  && RequestType.other.equals(reqType)) {
+						// We can use nonces as we know the return type
+						keyType = API.API_NONCE_PARAM;
+					}
+					if (! getOptionsParamApi().isDisableKey()) {
 						sb.append("<tr>");
 						sb.append("<td>");
-						sb.append(API.API_KEY_PARAM);
+						sb.append(keyType);
 						sb.append("*</td>");
 						sb.append("<td>");
 						sb.append("<input id=\"");
-						sb.append(API.API_KEY_PARAM);
+						sb.append(keyType);
 						sb.append("\" name=\"");
-						sb.append(API.API_KEY_PARAM);
+						sb.append(keyType);
 						sb.append("\" value=\"");
-						if (getOptionsParamApi().isAutofillKey()) {
-							sb.append(key);
+						if (this.isDevTestNonce && RequestType.other.equals(reqType)) {
+							sb.append(api.getOneTimeNonce("/" + 
+									reqType.name().toUpperCase() + "/" + 
+									impl.getPrefix() + "/" + 
+									reqType.name() + "/" + 
+									element.getName() + "/"));
+						} else {
+							if (getOptionsParamApi().isAutofillKey()) {
+								sb.append(getOptionsParamApi().getKey());
+							}
 						}
-						sb.append("\"></input>");
+						sb.append("\"/>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
+					sb.append("<tr>");
+					sb.append("<td>");
+					sb.append(Constant.messages.getString("api.html.formMethod"));
+					sb.append("</td>");
+					sb.append("<td>");
+					sb.append("<select name=\"formMethod\">\n");
+					sb.append("<option value=\"GET\" selected>GET</option>\n");
+					sb.append("<option value=\"POST\">POST</option>\n");
+					sb.append("</select>\n");
+					sb.append("</td>");
+					sb.append("</tr>\n");
 				}
 				
 				if (mandatoryParams != null) {
@@ -264,7 +315,7 @@ public class WebUI {
 						sb.append(param);
 						sb.append("\" name=\"");
 						sb.append(param);
-						sb.append("\"></input>");
+						sb.append("\"/>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
@@ -280,7 +331,7 @@ public class WebUI {
 						sb.append(param);
 						sb.append("\" name=\"");
 						sb.append(param);
-						sb.append("\"></input>");
+						sb.append("\"/>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
@@ -291,7 +342,8 @@ public class WebUI {
 				sb.append("<td>");
 				sb.append("<input id=\"button\" value=\"");
 				sb.append(element.getName());
-				sb.append("\" type=\"button\" onclick=\"submitScript();\">");
+				sb.append("\" type=\"button\" zap-component=\"" + component + 
+						"\" zap-type=\"" + reqType + "\" zap-name=\"" + name + "\"/>\n");
 				sb.append("</td>");
 				sb.append("</tr>\n");
 				sb.append("</table>\n");
@@ -326,6 +378,20 @@ public class WebUI {
 					elementList = new ArrayList<>();
 					elementList.addAll(otherList);
 					this.appendElements(sb, component, RequestType.other.name(), elementList);
+				}
+
+				if (getOptionsParamApi().isDisableKey() || getOptionsParamApi().isAutofillKey() || 
+						this.isDevTestNonce) {
+					// Only show shortcuts if they will work without the user having to add a key/nonce
+					List<String> shortcutList = impl.getApiShortcuts();
+					if (shortcutList != null && shortcutList.size() > 0) {
+						sb.append("<h3>");
+						sb.append(Constant.messages.getString("api.html.shortcuts"));
+						sb.append("</h3>\n");
+						elementList = new ArrayList<>();
+						elementList.addAll(otherList);
+						this.appendShortcuts(sb, component, shortcutList);
+					}
 				}
 			}
 
@@ -368,7 +434,9 @@ public class WebUI {
 		sb.append("</head>\n");
 		sb.append("<body>\n");
 		sb.append(Constant.messages.getString("api.home.topmsg"));
-		sb.append(Constant.messages.getString("api.home.proxypac"));
+		sb.append(Constant.messages.getString("api.home.proxypac", 
+				"/?" + API.API_NONCE_PARAM + "=" + 
+				API.getInstance().getLongLivedNonce("/OTHER/core/other/proxy.pac/")));
 		sb.append(Constant.messages.getString("api.home.links.header"));
 		if (apiEnabled) {
 			sb.append(Constant.messages.getString("api.home.links.api.enabled"));

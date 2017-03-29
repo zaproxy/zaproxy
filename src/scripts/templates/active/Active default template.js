@@ -1,10 +1,19 @@
-// The scanNode function will typically be called once for every page 
-// The scan function will typically be called for every parameter in every URL and Form for every page 
-
 // Note that new active scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
 
+/**
+ * Scans a "node", i.e. an individual entry in the Sites Tree.
+ * The scanNode function will typically be called once for every page. 
+ * 
+ * @param as - the ActiveScan parent object that will do all the core interface tasks 
+ *     (i.e.: sending and receiving messages, providing access to Strength and Threshold settings,
+ *     raising alerts, etc.). This is an ScriptsActiveScanner object.
+ * @param msg - the HTTP Message being scanned. This is an HttpMessage object.
+ */
 function scanNode(as, msg) {
 	// Debugging can be done using println like this
 	println('scan called for url=' + msg.getRequestHeader().getURI().toString());
@@ -36,6 +45,17 @@ function scanNode(as, msg) {
 	}
 }
 
+/**
+ * Scans a specific parameter in an HTTP message.
+ * The scan function will typically be called for every parameter in every URL and Form for every page.
+ * 
+ * @param as - the ActiveScan parent object that will do all the core interface tasks 
+ *     (i.e.: sending and receiving messages, providing access to Strength and Threshold settings,
+ *     raising alerts, etc.). This is an ScriptsActiveScanner object.
+ * @param msg - the HTTP Message being scanned. This is an HttpMessage object.
+ * @param {string} param - the name of the parameter being manipulated for this test/scan.
+ * @param {string} value - the original parameter value.
+ */
 function scan(as, msg, param, value) {
 	// Debugging can be done using println like this
 	println('scan called for url=' + msg.getRequestHeader().getURI().toString() + 

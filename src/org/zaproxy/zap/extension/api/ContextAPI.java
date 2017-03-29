@@ -35,6 +35,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ApiUtils;
@@ -122,15 +123,24 @@ public class ContextAPI extends ApiImplementor {
         case EXCLUDE_FROM_CONTEXT_REGEX:
         	try {
 				addExcludeToContext(getContext(params), params.getString(REGEX_PARAM));
-			} catch (Exception e) {
-	            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (IllegalArgumentException e) {
+	            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
 			}
         	break;
         case INCLUDE_IN_CONTEXT_REGEX:
-        	addIncludeToContext(getContext(params), params.getString(REGEX_PARAM));
+            try {
+                addIncludeToContext(getContext(params), params.getString(REGEX_PARAM));
+            } catch (IllegalArgumentException e) {
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
+            }
         	break;
         case ACTION_NEW_CONTEXT:
-            context = Model.getSingleton().getSession().getNewContext(params.getString(CONTEXT_NAME));
+            String contextName = params.getString(CONTEXT_NAME);
+            try {
+                context = Model.getSingleton().getSession().getNewContext(contextName);
+            } catch (IllegalContextNameException e) {
+                throw new ApiException(ApiException.Type.ALREADY_EXISTS, contextName, e);
+            }
             Model.getSingleton().getSession().saveContext(context);
             return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
         case ACTION_REMOVE_CONTEXT:
@@ -154,6 +164,8 @@ public class ContextAPI extends ApiImplementor {
             } else {
             	try {
 					context = Model.getSingleton().getSession().importContext(f);
+				} catch (IllegalContextNameException e) {
+					throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, e);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -219,7 +231,7 @@ public class ContextAPI extends ApiImplementor {
         return ApiResponseElement.OK;
     }
 
-    private void addExcludeToContext(Context context, String regex) throws Exception {
+    private void addExcludeToContext(Context context, String regex) {
     	List<String> incRegexes = new ArrayList<String>(context.getIncludeInContextRegexs());
     	if (incRegexes.remove(regex)) {
     		// Its already explicitly included, removing it from the include list is safer and more useful
@@ -341,7 +353,7 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("postParameterParserClass", c.getPostParamParser().getClass().getCanonicalName());
 		fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 		
-		return new ApiResponseSet("context", fields);
+		return new ApiResponseSet<String>("context", fields);
 	}
 	
 	/**

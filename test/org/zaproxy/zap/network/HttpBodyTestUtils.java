@@ -28,12 +28,11 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.BeforeClass;
-import org.parosproxy.paros.core.scanner.Plugin;
 
 /**
  * Class with helper/utility methods to help testing classes involving {@code HttpBody} class and its implementations.
  *
- * @see Plugin
+ * @see org.parosproxy.paros.network.HttpBody HttpBody
  */
 public class HttpBodyTestUtils {
 

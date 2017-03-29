@@ -48,11 +48,6 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
     }
 
     @Override
-    public boolean isButtonEnabledForHistoryReference(HistoryReference href) {
-        return (extension.canAddBreakpoint() && super.isButtonEnabledForHistoryReference(href));
-    }
-
-    @Override
     public void performAction(HistoryReference href) {
         try {
             extension.addUiBreakpoint(href.getHttpMessage());

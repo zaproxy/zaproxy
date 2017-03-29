@@ -33,7 +33,6 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 
 public class HttpPanelManager {
-	//private static Logger log = Logger.getLogger(HttpPanelManager.class);
 	
 	private static HttpPanelManager instance = null;
 	

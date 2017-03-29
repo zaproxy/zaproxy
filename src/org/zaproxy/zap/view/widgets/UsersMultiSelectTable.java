@@ -32,8 +32,8 @@ import org.zaproxy.zap.users.User;
 /**
  * A {@link JTable} based widget that displays the list of {@link User Users} for a given context
  * and allows selection of multiple users.
- * <p/>
- * NOTE: Does not automatically refresh when the Users have changed. For this, make sure you
+ * <p>
+ * <strong>NOTE:</strong> Does not automatically refresh when the Users have changed. For this, make sure you
  * manually call {@link #reloadUsers(int)}.
  * 
  */
@@ -73,6 +73,7 @@ public class UsersMultiSelectTable extends JTable {
 
 	/**
 	 * Reloads/refreshes the list of {@link User users} associated to the context.
+	 * @param contextId the ID of the context
 	 */
 	public void reloadUsers(int contextId) {
 		List<User> users = new ArrayList<User>(usersExtension.getContextUserAuthManager(contextId).getUsers());
@@ -102,6 +103,7 @@ public class UsersMultiSelectTable extends JTable {
 	/**
 	 * Allows adding a 'custom' users besides the ones already loaded from the context. Can be used,
 	 * for example, to add a 'Any User' entry.
+	 * @param user the custom user to add
 	 */
 	public void addCustomUser(User user) {
 		tableModel.addUser(user);

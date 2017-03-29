@@ -51,9 +51,7 @@ public class AllFilterTableModel extends DefaultTableModel {
     private void setAllFilters(List<Filter> allFilters) {
         this.allFilters = allFilters;
     }
-    /**
-     * 
-     */
+
     public AllFilterTableModel() {
         // ZAP: Added the type argument.
         allFilters = new Vector<>();

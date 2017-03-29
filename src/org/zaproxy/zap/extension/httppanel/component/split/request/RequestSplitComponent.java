@@ -42,6 +42,7 @@ import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
 import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 
@@ -81,7 +82,7 @@ public class RequestSplitComponent<T extends Message> implements HttpPanelCompon
 	}
 
 	protected void initUi() {
-		buttonShowView = new JToggleButton(new ImageIcon(RequestSplitComponent.class.getResource("/resource/icon/view_split.png")));
+		buttonShowView = new JToggleButton(DisplayUtils.getScaledIcon(new ImageIcon(RequestSplitComponent.class.getResource("/resource/icon/view_split.png"))));
 		buttonShowView.setToolTipText(BUTTON_TOOL_TIP);
 		
 		panelOptions = new JPanel();

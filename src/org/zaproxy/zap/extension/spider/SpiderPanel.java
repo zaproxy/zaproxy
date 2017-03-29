@@ -54,6 +54,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter;
@@ -168,8 +169,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	 * @param spiderScanParam the spider scan parameters
 	 */
 	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
-		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension,
-				spiderScanParam);
+		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension);
 
 		tabbedPane = new JTabbedPane();
 
@@ -399,7 +399,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	public JButton getNewScanButton() {
 		if (scanButton == null) {
 			scanButton = new JButton(Constant.messages.getString("spider.toolbar.button.new"));
-			scanButton.setIcon(new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")));
+			scanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png"))));
 			scanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {

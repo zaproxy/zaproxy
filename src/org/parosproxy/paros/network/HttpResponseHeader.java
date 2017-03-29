@@ -29,6 +29,8 @@
 // ZAP: 2014/02/21 i1046: The getHttpCookies() method in the HttpResponseHeader does not properly set the domain
 // ZAP: 2014/04/09 i1145: Cookie parsing error if a comma is used
 // ZAP: 2015/02/26 Include json as a text content type
+// ZAP: 2016/06/17 Remove redundant initialisations of instance variables
+// ZAP: 2017/03/21 Add method to check if response type is json (isJson())
 
 package org.parosproxy.paros.network;
 
@@ -63,17 +65,17 @@ public class HttpResponseHeader extends HttpHeader {
 	private static final Pattern patternPartialStatusLine 
 		= Pattern.compile("\\A *" + p_VERSION, Pattern.CASE_INSENSITIVE);
 
-    private String mStatusCodeString = "";
-    private int mStatusCode = 0;
-    private String mReasonPhrase	= "";
+    private String mStatusCodeString;
+    private int mStatusCode;
+    private String mReasonPhrase;
 	
     public HttpResponseHeader() {
-		clear();
+        mStatusCodeString = "";
+        mReasonPhrase = "";
     }
 
     public HttpResponseHeader(String data) throws HttpMalformedHeaderException {
-        this();
-        setMessage(data);
+        super(data);
     }
 
     @Override
@@ -121,9 +123,7 @@ public class HttpResponseHeader extends HttpHeader {
 		mStatusCodeString	= matcher.group(2);
 		String tmp 			= matcher.group(3);
 
-		if (tmp != null) {
-			mReasonPhrase		= tmp;
-		}
+		mReasonPhrase = (tmp != null) ? tmp : "";
 		 
         if (!mVersion.equalsIgnoreCase(HTTP10) && !mVersion.equalsIgnoreCase(HTTP11)) {
 			mMalformedHeader = true;
@@ -221,6 +221,18 @@ public class HttpResponseHeader extends HttpHeader {
 		
 	}
 	
+	public boolean isJson() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JSON) > -1) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+
 	
 	public boolean isJavaScript() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());

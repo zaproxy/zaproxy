@@ -64,6 +64,7 @@ import org.parosproxy.paros.network.HttpHeader;
  *  - Always add the "?" character to the request URI (Issue 1180) in the method #generateRequestLine(HttpConnection, String, 
  *  String, String, String) to preserve the intended request URI.
  *  - Change the way cookie headers are handled when using forced user mode, put all the headers in a single line see ISSUE 1874
+ *  - Do not add a User-Agent header by default.
  * 
  */
 /**
@@ -1550,7 +1551,6 @@ public abstract class HttpMethodBase implements HttpMethod {
         LOG.trace("enter HttpMethodBase.addRequestHeaders(HttpState, "
             + "HttpConnection)");
 
-        addUserAgentRequestHeader(state, conn);
         addHostRequestHeader(state, conn);
         addCookieRequestHeader(state, conn);
         addProxyConnectionHeader(state, conn);
@@ -1848,7 +1848,6 @@ public abstract class HttpMethodBase implements HttpMethod {
      * Subclasses may want to override one or more of the above methods to to
      * customize the processing. (Or they may choose to override this method
      * if dramatically different processing is required.)
-     * </p>
      *
      * @param state the {@link HttpState state} information associated with this method
      * @param conn the {@link HttpConnection connection} used to execute

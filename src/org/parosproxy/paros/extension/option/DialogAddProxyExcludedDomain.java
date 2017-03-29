@@ -31,7 +31,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
+import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
@@ -54,7 +54,7 @@ class DialogAddProxyExcludedDomain extends AbstractFormDialog {
     private JCheckBox regexCheckBox;
     private JCheckBox enabledCheckBox;
 
-    protected ProxyExcludedDomainMatcher proxyExcludedDomain;
+    protected DomainMatcher proxyExcludedDomain;
 
     private ConfirmButtonValidatorDocListener confirmButtonValidatorDocListener;
 
@@ -125,7 +125,7 @@ class DialogAddProxyExcludedDomain extends AbstractFormDialog {
     protected boolean validateFields() {
         if (getRegexCheckBox().isSelected()) {
             try {
-                ProxyExcludedDomainMatcher.createPattern(getDomainTextField().getText());
+                DomainMatcher.createPattern(getDomainTextField().getText());
             } catch (IllegalArgumentException e) {
                 JOptionPane.showMessageDialog(
                         this,
@@ -144,10 +144,10 @@ class DialogAddProxyExcludedDomain extends AbstractFormDialog {
     protected void performAction() {
         String value = getDomainTextField().getText();
         if (getRegexCheckBox().isSelected()) {
-            Pattern pattern = ProxyExcludedDomainMatcher.createPattern(value);
-            proxyExcludedDomain = new ProxyExcludedDomainMatcher(pattern);
+            Pattern pattern = DomainMatcher.createPattern(value);
+            proxyExcludedDomain = new DomainMatcher(pattern);
         } else {
-            proxyExcludedDomain = new ProxyExcludedDomainMatcher(value);
+            proxyExcludedDomain = new DomainMatcher(value);
         }
 
         proxyExcludedDomain.setEnabled(getEnabledCheckBox().isSelected());
@@ -159,7 +159,7 @@ class DialogAddProxyExcludedDomain extends AbstractFormDialog {
         getDomainTextField().discardAllEdits();
     }
 
-    public ProxyExcludedDomainMatcher getProxyExcludedDomain() {
+    public DomainMatcher getProxyExcludedDomain() {
         return proxyExcludedDomain;
     }
 

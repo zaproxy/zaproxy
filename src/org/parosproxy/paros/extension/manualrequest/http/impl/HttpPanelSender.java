@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.EventQueue;
@@ -24,12 +25,15 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.SSLException;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
@@ -38,6 +42,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
@@ -45,6 +50,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 /**
  * Knows how to send {@link HttpMessage} objects.
@@ -82,7 +89,14 @@ public class HttpPanelSender implements MessageSender {
     public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         try {
-            getDelegate().sendAndReceive(httpMessage, getButtonFollowRedirects().isSelected());
+            final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
+            if (getButtonFollowRedirects().isSelected()) {
+                getDelegate().sendAndReceive(
+                        httpMessage,
+                        HttpRequestConfig.builder().setRedirectionValidator(redirectionValidator).build());
+            } else {
+                getDelegate().sendAndReceive(httpMessage, false);
+            }
 
             EventQueue.invokeAndWait(new Runnable() {
                 @Override
@@ -102,6 +116,13 @@ public class HttpPanelSender implements MessageSender {
                         } catch (final Exception e) {
                             logger.error(e.getMessage(), e);
                         }
+
+                        if (!redirectionValidator.isRequestValid()) {
+                            View.getSingleton().showWarningDialog(
+                                    Constant.messages.getString(
+                                            "manReq.outofscope.redirection.warning",
+                                            redirectionValidator.getInvalidRedirection()));
+                        }
                     }
                 }
             });
@@ -115,6 +136,8 @@ public class HttpPanelSender implements MessageSender {
         } catch (final UnknownHostException uhe) {
             throw new IOException("Error forwarding to an Unknown host: " + uhe.getMessage(), uhe);
 
+        } catch (final SSLException sslEx) {
+        	throw sslEx;
         } catch (final IOException ioe) {
             throw new IOException("IO error in sending request: " + ioe.getClass() + ": " + ioe.getMessage(), ioe);
 
@@ -215,5 +238,66 @@ public class HttpPanelSender implements MessageSender {
 
     public void removePersistentConnectionListener(PersistentConnectionListener listener) {
         persistentConnectionListener.remove(listener);
+    }
+
+    /**
+     * A {@link HttpRedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
+     *
+     * @see #isRequestValid()
+     */
+    private static class ModeRedirectionValidator implements HttpRedirectionValidator {
+
+        private boolean isRequestValid;
+        private URI invalidRedirection;
+
+        public ModeRedirectionValidator() {
+            isRequestValid = true;
+        }
+
+        @Override
+        public void notifyMessageReceived(HttpMessage message) {
+            // Nothing to do with the message.
+        }
+
+        @Override
+        public boolean isValid(URI redirection) {
+            if (!isValidForCurrentMode(redirection)) {
+                isRequestValid = false;
+                invalidRedirection = redirection;
+                return false;
+            }
+            return true;
+        }
+
+        private boolean isValidForCurrentMode(URI uri) {
+            switch (Control.getSingleton().getMode()) {
+            case safe:
+                return false;
+            case protect:
+                return Model.getSingleton().getSession().isInScope(uri.toString());
+            default:
+                return true;
+            }
+        }
+
+        /**
+         * Tells whether or not the request is valid, that is, all redirections were valid for the current {@link Mode}.
+         *
+         * @return {@code true} is the request is valid, {@code false} otherwise.
+         * @see #getInvalidRedirection()
+         */
+        public boolean isRequestValid() {
+            return isRequestValid;
+        }
+
+        /**
+         * Gets the invalid redirection, if any.
+         *
+         * @return the invalid redirection, {@code null} if there was none.
+         * @see #isRequestValid()
+         */
+        public URI getInvalidRedirection() {
+            return invalidRedirection;
+        }
     }
 }

@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -91,8 +92,8 @@ public class JCheckBoxTree extends JTree {
     // Override
     @Override
     public void setModel(TreeModel newModel) {
+        resetCheckingState(newModel != null ? (DefaultMutableTreeNode) newModel.getRoot() : null);
         super.setModel(newModel);
-        resetCheckingState();
     }
 
     // New method that returns only the checked paths (totally ignores original "selection" mechanism)
@@ -111,14 +112,13 @@ public class JCheckBoxTree extends JTree {
         return cn.isSelected && cn.hasChildren && !cn.allChildrenSelected;
     }
 
-    private void resetCheckingState() { 
+    private void resetCheckingState(DefaultMutableTreeNode rootNode) { 
         nodesCheckingState = new HashMap<TreePath, CheckedNode>();
         checkedPaths = new HashSet<TreePath>();
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)getModel().getRoot();
-        if (node == null) {
+        if (rootNode == null) {
             return;
         }
-        addSubtreeToCheckingStateTracking(node);
+        addSubtreeToCheckingStateTracking(rootNode);
     }
 
     // Creating data structure of the current model for the checking mechanism
@@ -155,18 +155,18 @@ public class JCheckBoxTree extends JTree {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
             Object obj = node.getUserObject();          
             TreePath tp = new TreePath(node.getPath());
+            altLabel.setText(obj != null ? obj.toString() : "");
+            altLabel.setForeground(UIManager.getColor(selected ? "Tree.selectionForeground" : "Tree.textForeground"));
             CheckedNode cn = nodesCheckingState.get(tp);
             if (cn == null) {
+                checkBox.setVisible(false);
                 return this;
             }
-            String textRepresentation = obj != null ? obj.toString() : "";
             if (cn.isCheckBoxEnabled) {
 	            checkBox.setSelected(cn.isSelected);
 	            checkBox.setOpaque(cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected);
 	        	checkBox.setVisible(true);
 	        	checkBox.setEnabled(true);
-	        	// TODO nasty hack to prevent top level node text being truncated - need a better fix for this :/
-	        	textRepresentation += "          ";
 	        	/* Looks ok, but doesnt work correctly
 	            if (cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected) {
 	                checkBox.getModel().setPressed(true);
@@ -180,7 +180,6 @@ public class JCheckBoxTree extends JTree {
             	checkBox.setVisible(false);
             	checkBox.setEnabled(false);
             }
-            altLabel.setText(textRepresentation);
 
             return this;
         }       

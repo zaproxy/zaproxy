@@ -36,6 +36,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2016/05/26 Delete temporary history types sequentially
 // ZAP: 2016/05/27 Change to use HistoryReference to obtain the temporary types
+// ZAP: 2016/08/30 Issue 2836: Change to delete temporary history types in batches to prevent out-of-memory-exception(s)
 
 package org.parosproxy.paros.db.paros;
 
@@ -136,7 +137,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			// updatable recordset does not work in hsqldb jdbc impelementation!
 			//psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");
-			psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " = ?");
+			psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " IN (?) LIMIT 1000");
 			psContainsURI = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
 
 			
@@ -716,8 +717,13 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     public void deleteTemporary() throws DatabaseException {
         try {
             for (Integer type : HistoryReference.getTemporaryTypes()) {
-                psDeleteTemp.setInt(1, type);
-                psDeleteTemp.execute();
+                while (true) {
+                    psDeleteTemp.setInt(1, type);
+                    int result = psDeleteTemp.executeUpdate();
+                    if (result == 0) {
+                        break;
+                    }
+                }
             }
 		} catch (SQLException e) {
 			throw new DatabaseException(e);

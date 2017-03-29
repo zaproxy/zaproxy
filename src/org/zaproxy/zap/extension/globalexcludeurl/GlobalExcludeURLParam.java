@@ -27,9 +27,9 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class GlobalExcludeURLParam extends AbstractParam {
 
     private static final Logger logger = Logger.getLogger(GlobalExcludeURLParam.class);
@@ -110,7 +110,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"Site - Bing API queries",
 				"false"
 			}, {
-				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
+				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com/.*$",
 				"Site - Google malware detector updates",
 				"false"
 			}, {
@@ -118,7 +118,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"Site - Lastpass manager",
 				"false"
 			}, {
-				"^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
+				"^https?://(.*addons|aus[0-9])\\.mozilla\\.(org|net|com)/.*$",
 				"Site - Mozilla Firefox browser updates",
 				"false"
 			}, {
@@ -216,6 +216,9 @@ public class GlobalExcludeURLParam extends AbstractParam {
         
         enabledTokens.trimToSize();
         this.enabledTokensNames = enabledTokens;
+
+        // after saving, force the proxy to refresh the URL lists.
+        Model.getSingleton().getSession().forceGlobalExcludeURLRefresh();
     }
 
     public void addToken(String regex) {

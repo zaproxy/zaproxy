@@ -291,6 +291,9 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
         case "ForcedBrowseMessageContainer":
             invoker = Invoker.FORCED_BROWSE_PANEL;
             break;
+        case "fuzz.httpfuzzerResultsContentPanel":
+            invoker = Invoker.FUZZER_PANEL;
+            break;
         default:
             invoker = Invoker.UNKNOWN;
         }

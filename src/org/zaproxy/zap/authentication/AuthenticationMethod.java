@@ -34,8 +34,8 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.Stats;
 
 /**
- * The AuthenticationMethod represents an authentication method that can be used to authenticate an
- * entity in a particular WebApplication.
+ * The {@code AuthenticationMethod} represents an authentication method that can be used to authenticate an
+ * entity in a particular web application.
  */
 public abstract class AuthenticationMethod {
 
@@ -118,6 +118,7 @@ public abstract class AuthenticationMethod {
 	 * @param sessionManagementMethod the set up session management method is provided so it can be
 	 *            used, if needed, to automatically extract session information from Http Messages.
 	 * @param credentials the credentials
+	 * @param user the user to authenticate
 	 * @return an authenticated web session
 	 * @throws UnsupportedAuthenticationCredentialsException the unsupported authentication
 	 *             credentials exception {@link WebSession}.

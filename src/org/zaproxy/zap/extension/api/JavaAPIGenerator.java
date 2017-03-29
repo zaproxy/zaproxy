@@ -17,22 +17,19 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
-import org.parosproxy.paros.Constant;
-
-public class JavaAPIGenerator {
+public class JavaAPIGenerator extends AbstractAPIGenerator {
 
 	/**
 	 * The path of the package where the generated classes are deployed.
@@ -44,10 +41,7 @@ public class JavaAPIGenerator {
 	 */
 	private static final String DEFAULT_OUTPUT_DIR = "../zap-api-java/subprojects/zap-clientapi/src/main/java/" + TARGET_PACKAGE;
 
-	private File dir; 
-	private boolean optional = false;
-	
-	private final String HEADER = 
+	private static final String HEADER = 
 			"/* Zed Attack Proxy (ZAP) and its related class files.\n" +
 			" *\n" +
 			" * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
@@ -68,11 +62,6 @@ public class JavaAPIGenerator {
 			" */\n" +
 			"\n\n";
 
-	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed"; 
-
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
-		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
-
 	/**
 	 * Map any names which are reserved in java to something legal
 	 */
@@ -80,24 +69,30 @@ public class JavaAPIGenerator {
     static {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
+        initMap.put("continue", "cont");
         nameMap = Collections.unmodifiableMap(initMap);
     }
     
     public JavaAPIGenerator() {
-    	dir = new File(DEFAULT_OUTPUT_DIR); 
+    	super(DEFAULT_OUTPUT_DIR);
     }
 
     public JavaAPIGenerator(String path, boolean optional) {
-    	dir = new File(path); 
-    	this.optional = optional;
+    	super(path, optional);
     }
 
-	public void generateJavaFiles(List<ApiImplementor> implementors) throws IOException {
-		for (ApiImplementor imp : implementors) {
-			this.generateJavaComponent(imp);
-		}
-	}
-	
+    /**
+     * Generates the API client files of the given API implementors.
+     *
+     * @param implementors the implementors
+     * @throws IOException if an error occurred while generating the APIs.
+     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
+     */
+    @Deprecated
+    public void generateJavaFiles(List<ApiImplementor> implementors) throws IOException {
+        generateAPIFiles(implementors);
+    }
+
 	private void generateJavaElement(ApiElement element, String component, 
 			String type, Writer out) throws IOException {
 		boolean hasParams = false;
@@ -109,33 +104,41 @@ public class JavaAPIGenerator {
 			descTag = component + ".api." + type + "." + element.getName();
 		}
 		try {
-			String desc = msgs.getString(descTag);
+			String desc = getMessages().getString(descTag);
 			out.write("\t/**\n");
 			out.write("\t * " + desc + "\n");
-			if (optional) {
-				out.write("\t * " + OPTIONAL_MASSAGE + "\n");
+			if (isOptional()) {
+				out.write("\t * <p>\n");
+				out.write("\t * " + OPTIONAL_MESSAGE + "\n");
+			}
+
+			if (element.isDeprecated()) {
+				out.write("\t * @deprecated");
+				String deprecationDesc = element.getDeprecatedDescription();
+				if (deprecationDesc != null && !deprecationDesc.isEmpty()) {
+					out.write(" " + deprecationDesc);
+				}
+				out.write("\n");
 			}
 			out.write("\t */\n");
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
-			if (optional) {
+			if (isOptional()) {
 				out.write("\t/**\n");
-				out.write("\t * " + OPTIONAL_MASSAGE + "\n");
+				out.write("\t * " + OPTIONAL_MESSAGE + "\n");
 				out.write("\t */\n");
 			}
 		}
 
-		if (type.equals("other")) {
+		if (element.isDeprecated()) {
+			out.write("\t@Deprecated\n");
+		}
+
+		if (type.equals(OTHER_ENDPOINT)) {
 			out.write("\tpublic byte[] " + createMethodName(element.getName()) + "(");
 		} else {
 			out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
-		}
-		if (type.equals("action") || type.equals("other")) {
-			// Always add the API key - we've no way of knowing if it will be required or not
-			hasParams = true;
-			out.write("String ");
-			out.write(API.API_KEY_PARAM);
 		}
 
 		if (element.getMandatoryParamNames() != null) {
@@ -175,17 +178,8 @@ public class JavaAPIGenerator {
 		out.write(") throws ClientApiException {\n");
 
 
-		out.write("\t\tMap<String, String> map = null;\n"); 
-		
 		if (hasParams) {
-			out.write("\t\tmap = new HashMap<String, String>();\n"); 
-			
-			if (type.equals("action") || type.equals("other")) {
-				// Always add the API key (if not null) - we've no way of knowing if it will be required or not
-				out.write("\t\tif (apikey != null) {\n");
-				out.write("\t\t\tmap.put(\"apikey\", apikey);\n");
-				out.write("\t\t}\n");
-			}
+			out.write("\t\tMap<String, String> map = new HashMap<>();\n"); 
 			if (element.getMandatoryParamNames() != null) {
 				for (String param : element.getMandatoryParamNames()) {
 					out.write("\t\tmap.put(\"" + param + "\", ");
@@ -218,12 +212,16 @@ public class JavaAPIGenerator {
 			}
 		}
 		
-		if (type.equals("other")) {
-			out.write("\t\treturn api.callApiOther(\"" + 
-					component + "\", \"" + type + "\", \"" + element.getName() + "\", map);\n"); 
+		out.write("\t\treturn api.callApi");
+		if (type.equals(OTHER_ENDPOINT)) {
+			out.write("Other"); 
+		}
+		out.write("(\"" + component + "\", \"" + type + "\", \"" + element.getName() + "\"");
+
+		if (hasParams) {
+			out.write(", map);\n");
 		} else {
-			out.write("\t\treturn api.callApi(\"" + 
-					component + "\", \"" + type + "\", \"" + element.getName() + "\", map);\n"); 
+			out.write(", null);\n");
 		}
 		
 		out.write("\t}\n\n");
@@ -241,44 +239,55 @@ public class JavaAPIGenerator {
 		return string.replaceAll("\\.", "");
 	}
 
-	private void generateJavaComponent(ApiImplementor imp) throws IOException {
+	@Override
+	protected void generateAPIFiles(ApiImplementor imp) throws IOException {
 		String className = imp.getPrefix().substring(0, 1).toUpperCase() + imp.getPrefix().substring(1);
 	
-		File f = new File(this.dir, className + ".java");
-		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
-		out.write(HEADER);
-		out.write("package org.zaproxy.clientapi.gen;\n\n");
-		
-		out.write("import java.util.HashMap;\n");
-		out.write("import java.util.Map;\n");
-		out.write("import org.zaproxy.clientapi.core.ApiResponse;\n");
-		out.write("import org.zaproxy.clientapi.core.ClientApi;\n");
-		out.write("import org.zaproxy.clientapi.core.ClientApiException;\n");
-		out.write("\n");
-		
-		out.write("\n");
-		out.write("/**\n");
-		out.write(" * This file was automatically generated.\n");
-		out.write(" */\n");
-		out.write("public class " + className + " {\n\n");
-		
-		out.write("\tprivate ClientApi api = null;\n\n");
-		out.write("\tpublic " + className + "(ClientApi api) {\n");
-		out.write("\t\tthis.api = api;\n");
-		out.write("\t}\n\n");
-
-		for (ApiElement view : imp.getApiViews()) {
-			this.generateJavaElement(view, imp.getPrefix(), "view", out);
+		Path file = getDirectory().resolve(className + ".java");
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			out.write(HEADER);
+			out.write("package org.zaproxy.clientapi.gen;\n\n");
+			
+			out.write("import java.util.HashMap;\n");
+			out.write("import java.util.Map;\n");
+			out.write("import org.zaproxy.clientapi.core.ApiResponse;\n");
+			out.write("import org.zaproxy.clientapi.core.ClientApi;\n");
+			out.write("import org.zaproxy.clientapi.core.ClientApiException;\n");
+			out.write("\n");
+			
+			out.write("\n");
+			out.write("/**\n");
+			out.write(" * This file was automatically generated.\n");
+			out.write(" */\n");
+			out.write("@SuppressWarnings(\"javadoc\")\n");
+			out.write("public class " + className);
+			boolean extendsClass = false;
+			if (Files.exists(file.resolveSibling(Paths.get("deprecated", className + "Deprecated.java")))) {
+				out.write(" extends org.zaproxy.clientapi.gen.deprecated." + className + "Deprecated");
+				extendsClass = true;
+			}
+			out.write(" {\n\n");
+			
+			out.write("\tprivate final ClientApi api;\n\n");
+			out.write("\tpublic " + className + "(ClientApi api) {\n");
+			if (extendsClass) {
+				out.write("\t\tsuper(api);\n");
+			}
+			out.write("\t\tthis.api = api;\n");
+			out.write("\t}\n\n");
+	
+			for (ApiElement view : imp.getApiViews()) {
+				this.generateJavaElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);
+			}
+			for (ApiElement action : imp.getApiActions()) {
+				this.generateJavaElement(action, imp.getPrefix(), ACTION_ENDPOINT, out);
+			}
+			for (ApiElement other : imp.getApiOthers()) {
+				this.generateJavaElement(other, imp.getPrefix(), OTHER_ENDPOINT, out);
+			}
+			out.write("}\n");
 		}
-		for (ApiElement action : imp.getApiActions()) {
-			this.generateJavaElement(action, imp.getPrefix(), "action", out);
-		}
-		for (ApiElement other : imp.getApiOthers()) {
-			this.generateJavaElement(other, imp.getPrefix(), "other", out);
-		}
-		out.write("}\n");
-		out.close();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -290,7 +299,7 @@ public class JavaAPIGenerator {
 		}
 
 		JavaAPIGenerator wapi = new JavaAPIGenerator();
-		wapi.generateJavaFiles(ApiGeneratorUtils.getAllImplementors());
+		wapi.generateCoreAPIFiles();
 		
 	}
 

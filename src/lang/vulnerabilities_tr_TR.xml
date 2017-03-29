@@ -3,12 +3,12 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
-	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+	<alert>Yetersiz Kimlik Doğrulaması</alert>
+	<desc>Yetersiz Kimlik Doğrulaması, bir web sitesinin saldırgana uygun kimlik doğrulaması yapmadan, hassas içeriğe veya işlevlere erişmesine izin verdiğinde oluşur. Web-tabanlı yönetim araçları, hassas işlevlere erişim sağlamaya izin veren web sitelerine güzel bir örnektir. Spesifik çevrimiçi kaynağa bağlı olarak, bu web uygulamaları kullanıcıların kimliklerini düzgün bir şekilde doğrulamadan doğrudan erişilebilir olmamalıdır.
 
-To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+Kimlik Doğrulama kurulumunun çevresinden dolaşmak için, bazı kaynaklar özel bir konumda "saklanmakta" ve bu konumların, ana web sayfasında veya diğer herkese açık yerlerde bağlantısı verilmemektedir. Fakat, bu yaklaşım "gizleyerek güvenlik"'ten başka bir şey değildir. Şunu anlamak önemli ki, bir kaynak saldırgan tarafından bilinmese de, bu kaynak hala ona özgü URL ile erişilebilir durumdadır. Bu spesifik URL, yaygın dosya ve dizin konumlarına (mesela /admin), hata mesajlarına, yönlendirme kayıtlarına veya yardım dosyaları gibi dökümanlara kaba kuvvet yoklamasıyla keşfedilebilir. Bu kaynaklar, ister içerik ister islevsellik temelli olsun, yeterli şekilde korunmalıdır.</desc>
+	<solution>Faz: Mimari ve Tasarım
+OWASP ESAPI Kimlik Kontrolü özelliği gibi, bir Kimlik Doğrulama çerçevesi veya kütüphanesi kullanınız.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -16,90 +16,88 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<alert>Yetersiz Yetkilendirme</alert>
+	<desc>Yetersiz Yetkilendirme, bir uygulama bir kullanıcının güvenlik politikasıyla uyumlu bilgilere eriştiği veya işlemler gerçekleştirdiğine dair yeterli yetkilendirme kontrolleri sağlamadığında ortaya çıkar. Yetkilendirme prosedürleri bir kullanıcıyı, servisi veya uygulamayı, ona izin verilen şeyleri yapmasına zorlamalıdır. Bir kullanıcının bir web sitesinde kimliği doğrulandığında, bu o kullanıcının her içeriğe ve işleve erişim hakkı olduğu anlamına gelmez.
 
-Insufficient Function Authorization
+Pek çok uygulama, farklı kullanıcılara, farklı uygulama işlevlerini kullanma hakkı verir. Bir haber sitesi, kullanıcılara haberleri görüntüleme izni verir, haber yayınlama izni vermez. Bir muhasebe sisteminde, borçlu hesaplar müşterisiyle, alacaklı hesaplar müşterisinin izinleri farklıdır. Yetersiz İşlev Yetkilendirmesi, bir uygulamın kullanıcılarına, güvenlik politikasını ihlal eden uygulama işlevlerine erişimini engellemediğinde oluşur.
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
-
-A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
+Bunun en bilinen örneği, 2005 yılı Harvard İşletme Okulu başvuru işleminin hacklenmesidir. Bir yetkilendirme hatası, kullanıcıların, web sitesinin o bölümüne erişim iznine sahip olmaması gerekirken, kendi bilgilerini görüntülemesine izin vermiştir.
  
-Insufficient Data Authorization
+Yetersiz Veri Yetkilendirmesi
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+Pek çok uygulama, URL'in altındaki veri bilgilerini sergilemektedir. Mesela, sistemdeki bir tıbbi kayda erişirken, URL şu şekilde olabilir:
 
-http://example.com/RecordView?id=12345
+ http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Eğer uygulama, kimliği doğrulanmış kullanıcının okuma hakkı olup olmadığını kontrol etmezse, kullanıcının görmemesi gerekn veriyi gösterebilir.
 
-Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software.
+Yetersiz Veri yetkilendirmesi, Yetersiz İşlev Yetkilendirmesinden daha yaygındır, çünkü programcılar genellikle uygulama işlevleri açısından tam bilgiye sahiptir, fakat uygulamanın erişebileceği veri hakkında tam bir eşleştirmeye sahip değildir. Programcılar sıklıkla işlev yetkilendirme mekanizmaları hakkında sıkı bir kontrole sahiptir, fakat veri yetkilendirmesi için veritabanları gibi başka sistemlere güvenirler.</desc>
+	<solution>Fazlar: Mimari ve Tasarım: Operasyon
+Ayarları, yönetimi ve ayrıcalıkların ele alınmasını çok dikkatli bir şekilde yönetin. Yazılımdaki güven sınırlarını kesin bir şekilde yönetin.
 
 Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
-	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
+Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Mimarlar ve tasarımcılar, sistem ayrıcalıklarının kullanılması ve bırakılmasının uygun olduğuna karar verdiği durumlarda en düşük ayrıcalık prensiplerine güvenmeliler.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
-	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 </vuln_item_wasc_2>
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<alert>Tamsayı taşması</alert>
+	<desc>Bir tamsayı taşması, çarpma veya ekleme gibi bir aritmetik işlemin sonucu, onu saklayan integer tipinin boyutunu aştığı durumda gerçekleşir. Bir tamsayı taşması oluştuğunda, bir saatin 13.00'ı belirttiğinde 1.00'ı göstermesi gibi, belirtilen değer, maksimum değer ile sarmalanıp, minimum değerden başlayacak şekilde gösterilecektir.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+Örnek olarak, 8 bit signed integer, çoğu bilgisayar mimarisinde maksimum 127, minimum -128 değerine sahiptir. Eğer bir programcı, bu tipte bir değişkende 127 değerini tutar ve bu değere 1 eklerse, sonuç 128 olmalıdır. Fakat, bu değer integer tipinin maksimum değerini aşacağı için, belirtilen değer sarmalanacak ve -128 olacaktır.</desc>
+	<solution>Faz: Gereksinimler
+Tüm protokollerin katı bir şekilde tanımlandığına emin olun, mesela sınır dışı davranışların basit bir şekilde tanımlandığı ve protokole sıkı bir şekilde uyumlandığı gibi.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-If possible, choose a language or compiler that performs automatic bounds checking.
+Faz: Gereksinimler
+Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
+Mümkünse, otomatik sınır kontrolü yapan bir dil veya derleyici seçin.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
+Sayıları beklenmedik sonuçlara izin vermeden kullanabilen kütüphane veya frameworkler kullanın.
+Örnek olarak, SafeInt(C++) veya IntegerLib(C or C++) gibi güvenli integer yönetimi kütüphaneleri projenize ekleyin.
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
-Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
+Faz: Gerçekleme
+Her bir sayısal girdide, sayının beklendik aralığın içinde olduğunu sağlayan girdi doğrulaması yapın. Girdinin beklenen aralıkta hem minimum hem de maksimum gereksinimleri karşıladığına emin olun.
+Mümkün oldukça unsigned integer kullanın. Bu, tamsayı taşması için sağlama yapmayı kolaylaştırır. Eğer signed integer kullanmanız gerekliyse, aralık kontrolünün maksimum değerlerle birlikte minimum değerleri de kontrol ettiğine emin olun.
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+Faz: Gerçekleme
+Programlama dilinizin temelini ve sayısal hesaplamalarla nasıl etkileştiğini anlayın (CWE-681). Bayt boyutu uyumsuzluklarını, hassaslığı, imzalı / imzasız ayrımları, kesimleri, türler arası dönüştürmeyi, "sayı değil" hesaplamalarını ve dilinizin çok büyük ve çok küçük sayıları temel gösterimde nasıl ele aldığını yakından kontrol edin.
+Ayrıca, 32-bit, 64-bit ve sayısal gösterimi etkileyebilecek diğer potansiyel farklılıkları hesaba katmak için de dikkatli olun.
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+Faz: Gerçekleme
+Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzlukları gibi, potansiyel kritik güvenlik sorunlarını bertaraf edin. Zafiyet çok ender olarak sömürülebilir olsa da, küçük bir başarısızlık, bütün sistemi riske atabilir.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
-	<desc>Insufficient Transport Layer Protection
-Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+	<alert>Yetersiz Taşıma Katmanı Koruması</alert>
+	<desc>Yetersiz Taşıma Katmanı Koruması
+Yetersiz Taşıma Katmanı Koruması, iletişimin güvenilir olmayan üçüncü taraflarca görülebilmesine izin vererek, web uygulamasının ele geçirilebilmesi için saldırı vektörü sağlar ve/veya hassas bilgilerin çalınmasına sebep olur. Web siteleri, genellikle taşıma katmanında şifreleme sağlamak için Güvenli Soket Katmanı / Taşıma Katmanı Güvenliği (SSL/TLS) kullanır. Buna rağmen, web sitesi SSL/TLS kullanacak ya da doğru bir şekilde kullanacak şekilde yapılandırılmadıysa, web sitesi trafik yakalama ve değiştirmeye korumasız hale gelebilir.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Taşıma Katmanı Şifrelemesi Eksikliği
+Taşıma Katmanı şifrelenmediğinde, web sitesi ve istemci arasındaki tüm iletişim açık metin şeklinde yapılır ve bu, iletişimi yakalamaya, enjeksiyona ve yönlendirmeye açık hale getirir. (Aynı zamanda aradaki adam saldırısı olarak da bilinir). Saldırgan pasif olarak iletişimi dinleyerek, kullanıcı adı ve parola gibi hassas bilgilere erişebilir. Saldırgan aktif bir şekilde iletişime içerik enjekte ederek ya da iletişimden içerik çıkararak, zararlı yazılım enjekte edebilir ya da istemcinin güvenilir olmayan uzak içeriğe erişimine sebep olabilir. Saldırgan ayrıca iletişimi yönlendirerek websitesi ve istemcinin artık birbiriyle direk iletişim kurmamasını sağlayıp, farkında olmadan saldırganla iletişim kurmasına sebep olabilir.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+Zayıf Şifreleme Desteği
+Tarihte, yüksek dereceli şifreleme'nin Amerika Birleşik Devletleri dışına ihracı yasaklanmıştı. Bu yüzden, web siteleri sadece zayıf şifreleme kullanmasına izin verilen kullanıcılar için zayıf kriptografik seçenekleri destekleyecek şekilde yapılandırılmıştı. Zayıf şifreleme, kırılmaya açık olduğu için saldırıya karşı zafiyetlidir; tipik bir ev bilgisayarında iki haftadan kısa veya adanmış bir donanımda bir kaç saniyede kırılabilir.
+Günümüzde, tüm modern tarayıcılar ve web siteleri çok daha güçlü şifreleme kullanmaktadır, fakat web siteleri hala modası geçmiş zayıf şifrelemeyi destekleyecek şekilde yapılandırılmışlardır. Bu sebeple, saldırgan kullanıcıyı bir websitesine bağlanırken daha zayıf bir şifreleme kullanmaya zorlayabilir, böylece saldırgan zayıf şifrelemeyi kırabilir. Bu sebeple, sunucu sadece güçlü şifreleme kabul edecek ve zayıf şifreleme kullanan müşteriye hizmet vermeyecek şekilde yapılandırılmalıdır. Buna ek olarak, bazı web siteleri, müşterisi güçlü sifreleme destekliyorken bile zayıf şifreleme seçecek şekilde yanlış yapılandırılmıştır. OWASP, SSL/TLS sorunlarını test etmek için bir rehber yayınladı ve bu rehber zayıf şifreleme desteği, yanlış yapılandırma, bazı kaynak ve araçları içermektedir.</desc>
+	<solution>Faz: Gereksinimler
+Hangi veri ve kaynakların şifreli bir şekilde korunacak kadar değerli olduğunu düzgün bir şekilde belirleyin. Bu veri/kaynağa herhangi bir iletişim veya depolama, iyi denetlenmiş bir şifreleme algoritması gerektirmelidir.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Faz: Mimari ve Tasarım
+Tehdit modellemesi ve diğer teknikleri kullanarak, verinizin ayrı bir zafiyet veya zayıflık yoluyla ele geçirilebileceğini varsayarak, şifrelemenin nerede en etkili olacağına karar verin. Özel tutulması gereken verilerin, güvenli olmayan izinler (CWE-732) gibi zafiyetlerin kullanılmasına kazara maruz kalmadığına emin olun.
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
+Faz: Mimari ve Tasarım
+Şifrelemeyi sistem tasarımınıza düzgün bir şekilde entegre ederken aşağıdaki hususları içerdiğine ama sadece bunlara bağlı kalmadığına emin olun:
+     Sistemdeki kullanıcıların özel bilgilerinin depolaması ve iletimindeki şifreleme
+     Sistemin yetkisiz ifşaası veya kurcalanmasına karşı koruyacak şifreleme
+Şifreleme için gerekleri ve bağlamı tanımlayın:
+    Tek-yönlü (mesela, sadece kullanıcı veya alıcının anahtara sahip olması gerektiği). Bu, açık anahtar şifrelemesi veya şifreleme yapan kısmın (mesela yazılım) özel anahtara erişmesine gerek duymadığı diğer tekniklerle başarılabilir.
       Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
 
 Phase: Architecture and Design
@@ -198,13 +196,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Gereksinimler
+Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -242,8 +240,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -282,8 +280,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -483,8 +481,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.

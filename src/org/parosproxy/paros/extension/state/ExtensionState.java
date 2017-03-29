@@ -31,6 +31,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2016/06/20 Removed unnecessary/unused constructor
 
 package org.parosproxy.paros.extension.state;
 
@@ -51,26 +52,9 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	private JCheckBoxMenuItem menuSessionTrackingEnable = null;
 
 	private ZapMenuItem menuResetSessionState = null;
-    /**
-     * 
-     */
+
     public ExtensionState() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionState(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName("ExtensionState");
+        super("ExtensionState");
         this.setOrder(12);
 	}
 	

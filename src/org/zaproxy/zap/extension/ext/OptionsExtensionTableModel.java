@@ -45,9 +45,6 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     
     private static Logger log = Logger.getLogger(OptionsExtensionTableModel.class);
 
-    /**
-     * 
-     */
     public OptionsExtensionTableModel() {
         super();
         // Sort extensions by name

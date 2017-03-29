@@ -202,12 +202,6 @@ public class AlertAddDialog extends AbstractDialog {
 							// Its an existing alert so save it
 							if (extAlert != null) {
 								extAlert.updateAlert(alert);
-
-								// Update alert display
-								extAlert.displayAlert(alert);
-								
-								// Update alert tree
-								extAlert.updateAlertInTree(alertViewPanel.getOriginalAlert(), alert);
 							} else if (historyRef != null) { // Update history tree
 								historyRef.updateAlert(alert);
 			                    extension.notifyHistoryItemChanged(historyRef);
@@ -218,6 +212,7 @@ public class AlertAddDialog extends AbstractDialog {
 						        historyRef = new HistoryReference(Model.getSingleton().getSession(), historyType, httpMessage);
 						    }
 						    
+						    alert.setSource(Alert.Source.MANUAL);
 						    // Raise it
 							if (extAlert != null) {
 								extAlert.alertFound(alert, historyRef);

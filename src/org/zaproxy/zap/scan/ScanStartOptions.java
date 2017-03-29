@@ -22,7 +22,7 @@ package org.zaproxy.zap.scan;
  * that should be used for fully specifying the configuration for a particular scan. The scan
  * options should be provided to the Scanner Thread before being started via the
  * {@link BaseScannerThread#setStartOptions(ScanStartOptions)} method.
- * <p/>
+ * <p>
  * Examples of configuration required might include: context and/or site node to scan, user to scan
  * as, policy etc.
  * 

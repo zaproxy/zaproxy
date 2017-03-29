@@ -20,8 +20,8 @@ package org.zaproxy.zap.utils;
 /**
  * Simple class that represents a tuple.
  * 
- * @param <X>
- * @param <Y>
+ * @param <X> the type of the first element
+ * @param <Y> the type of the second element
  */
 public class Pair<X, Y> {
 	public final X first;

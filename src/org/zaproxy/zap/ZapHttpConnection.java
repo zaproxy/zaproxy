@@ -50,7 +50,7 @@ public class ZapHttpConnection extends HttpConnection {
 	}
 	
 	/**
-	 * Avoid closing in- & output stream as that would close the underlying
+	 * Avoid closing in- &amp; output stream as that would close the underlying
 	 * socket also. We have to keep it for our WebSocket connection.
 	 */
 	@Override

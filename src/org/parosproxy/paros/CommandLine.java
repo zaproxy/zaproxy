@@ -31,14 +31,22 @@
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
+// ZAP: 2016/08/19 Issue 2782: Support -configfile
+// ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/07 Allow to disable default standard output logging
+// ZAP: 2017/03/26 Allow to obtain configs in the order specified
 
 package org.parosproxy.paros;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.CommandLineArgument;
@@ -63,8 +71,17 @@ public class CommandLine {
     public static final String CMD = "-cmd";
     public static final String INSTALL_DIR = "-installdir";
     public static final String CONFIG = "-config";
+    public static final String CONFIG_FILE = "-configfile";
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
+
+    /**
+     * Command line option to disable the default logging through standard output.
+     * 
+     * @see #isNoStdOutLog()
+     * @since 2.6.0
+     */
+    public static final String NOSTDOUT = "-nostdout";
 
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
@@ -77,9 +94,14 @@ public class CommandLine {
     private int port = -1;
     private String host = null;
     private String[] args = null;
-    private final Hashtable<String, String> configs = new Hashtable<>();
+    private final Map<String, String> configs = new LinkedHashMap<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
     private List<CommandLineArgument[]> commandList = null;
+
+    /**
+     * Flag that indicates whether or not the default logging through standard output should be disabled.
+     */
+    private boolean noStdOutLog;
 
     public CommandLine(String[] args) throws Exception {
         this.args = args;
@@ -292,6 +314,8 @@ public class CommandLine {
             reportVersion = true;
             setDaemon(false);
             setGUI(false);
+        } else if (checkSwitch(args, NOSTDOUT, i)) {
+            noStdOutLog = true;
         }
 
         return result;
@@ -328,20 +352,46 @@ public class CommandLine {
                 this.configs.put(pair.substring(0, eqIndex), pair.substring(eqIndex + 1));
                 result = true;
             }
+        } else if (checkPair(args, CONFIG_FILE, i)) {
+            String conf = keywords.get(CONFIG_FILE);
+            File confFile = new File(conf);
+            if (! confFile.isFile()) {
+                // We cant use i18n here as the messages wont have been loaded
+                String error = "No such file: " + confFile.getAbsolutePath();
+                System.out.println(error);
+                throw new Exception(error);
+            } else if (! confFile.canRead()) {
+                // We cant use i18n here as the messages wont have been loaded
+                String error = "File not readable: " + confFile.getAbsolutePath();
+                System.out.println(error);
+                throw new Exception(error);
+            }
+            Properties prop = new Properties();
+            try (FileInputStream inStream = new FileInputStream(confFile)) {
+                prop.load(inStream);
+            }
+            
+            for (Entry<Object, Object> keyValue : prop.entrySet()) {
+                this.configs.put((String)keyValue.getKey(), (String)keyValue.getValue());
+            }
         }
         
         return result;
     }
 
     /**
-     * @return Returns the noGUI.
+     * Tells whether or not ZAP was started with GUI.
+     * 
+     * @return {@code true} if ZAP was started with GUI, {@code false} otherwise
      */
     public boolean isGUI() {
         return GUI;
     }
 
     /**
-     * @param GUI The noGUI to set.
+     * Sets whether or not ZAP was started with GUI.
+     * 
+     * @param GUI {@code true} if ZAP was started with GUI, {@code false} otherwise
      */
     public void setGUI(boolean GUI) {
         this.GUI = GUI;
@@ -383,7 +433,24 @@ public class CommandLine {
         return host;
     }
 
+    /**
+     * Gets the {@code config} command line arguments, in no specific order.
+     *
+     * @return the {@code config} command line arguments.
+     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they were specified.
+     */
+    @Deprecated
     public Hashtable<String, String> getConfigs() {
+        return new Hashtable<>(configs);
+    }
+
+    /**
+     * Gets the {@code config} command line arguments, in the order they were specified.
+     *
+     * @return the {@code config} command line arguments.
+     * @since 2.6.0
+     */
+    public Map<String, String> getOrderedConfigs() {
         return configs;
     }
 
@@ -393,6 +460,16 @@ public class CommandLine {
 
     public String getHelp() {
     	return CommandLine.getHelp(commandList);
+    }
+
+    /**
+     * Tells whether or not the default logging through standard output should be disabled.
+     *
+     * @return {@code true} if the default logging through standard output should be disabled, {@code false} otherwise.
+     * @since 2.6.0
+     */
+    public boolean isNoStdOutLog() {
+        return noStdOutLog;
     }
 
     public static String getHelp(List<CommandLineArgument[]> cmdList) {
@@ -424,10 +501,9 @@ public class CommandLine {
     }
     
     /**
-     * A method for reporting informational messages in CommandLineListener.execute(..) implementations.
-     * It ensures that messages are written to the log file and/or written to stdout as appropriate.
-     * @param str
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     * A method for reporting informational messages in {@link CommandLineListener#execute(CommandLineArgument[])}
+     * implementations. It ensures that messages are written to the log file and/or written to stdout as appropriate.
+     * @param str the informational message
      */
     public static void info(String str) {
     	switch (ZAP.getProcessType()) {
@@ -439,10 +515,9 @@ public class CommandLine {
     }
     
     /**
-     * A method for reporting error messages in CommandLineListener.execute(..) implementations.
+     * A method for reporting error messages in {@link CommandLineListener#execute(CommandLineArgument[])} implementations.
      * It ensures that messages are written to the log file and/or written to stderr as appropriate.
-     * @param str
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     * @param str the error message
      */
     public static void error(String str) {
     	switch (ZAP.getProcessType()) {
@@ -454,10 +529,10 @@ public class CommandLine {
     }
     
     /**
-     * A method for reporting error messages in CommandLineListener.execute(..) implementations.
+     * A method for reporting error messages in {@link CommandLineListener#execute(CommandLineArgument[])} implementations.
      * It ensures that messages are written to the log file and/or written to stderr as appropriate.
-     * @param str
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     * @param str the error message
+     * @param e the cause of the error
      */
     public static void error(String str, Throwable e) {
     	switch (ZAP.getProcessType()) {

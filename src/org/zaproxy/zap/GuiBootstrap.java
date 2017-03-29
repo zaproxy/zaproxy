@@ -71,6 +71,13 @@ public class GuiBootstrap extends ZapBootstrap {
 
     private final Logger logger = Logger.getLogger(GuiBootstrap.class);
 
+    /**
+     * Flag that indicates whether or not the look and feel was already set.
+     * 
+     * @see #setupLookAndFeel()
+     */
+    private boolean lookAndFeelSet;
+
     public GuiBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
     }
@@ -82,7 +89,9 @@ public class GuiBootstrap extends ZapBootstrap {
             return rc;
         }
 
-        BasicConfigurator.configure();
+        if (!getArgs().isNoStdOutLog()) {
+            BasicConfigurator.configure();
+        }
 
         logger.info(getStartingMessage());
 
@@ -106,12 +115,27 @@ public class GuiBootstrap extends ZapBootstrap {
     private void startImpl() {
         setX11AwtAppClassName();
         setDefaultViewLocale(Constant.getLocale());
-        setupLookAndFeel();
 
-        if (isFirstTime()) {
+        if (isShowLicense()) {
+            setupLookAndFeel();
             showLicense();
         } else {
-            init(false);
+            boolean firstTime = isFirstTime();
+            if (firstTime) {
+                createAcceptedLicenseFile();
+            }
+            init(firstTime);
+        }
+    }
+
+    private void createAcceptedLicenseFile() {
+        try {
+            Files.createFile(Paths.get(Constant.getInstance().ACCEPTED_LICENSE));
+
+        } catch (final IOException ie) {
+            JOptionPane.showMessageDialog(null, Constant.messages.getString("start.unknown.error"));
+            logger.error("Failed to create 'accepted license' file: ", ie);
+            return;
         }
     }
 
@@ -140,7 +164,9 @@ public class GuiBootstrap extends ZapBootstrap {
     private void init(final boolean firstTime) {
         try {
             initModel();
+            setupLookAndFeel();
         } catch (Exception e) {
+            setupLookAndFeel();
             if (e instanceof FileNotFoundException) {
                 JOptionPane.showMessageDialog(
                         null,
@@ -186,7 +212,9 @@ public class GuiBootstrap extends ZapBootstrap {
                     View.getSingleton().hideSplashScreen();
 
                     logger.fatal("Failed to initialise GUI: ", e);
-                    return;
+
+                    // We must exit otherwise EDT would keep ZAP running.
+                    System.exit(1);
                 }
 
                 warnAddOnsAndExtensionsNoLongerRunnable();
@@ -308,8 +336,31 @@ public class GuiBootstrap extends ZapBootstrap {
 
     /**
      * Setups Swing's look and feel.
+     * <p>
+     * <strong>Note:</strong> Should be called only after calling {@link #initModel()}, if not initialising ZAP for the
+     * {@link #isFirstTime() first time}. The look and feel set up might initialise some network classes (e.g.
+     * {@link java.net.InetAddress InetAddress}) preventing some ZAP options from being correctly applied.
      */
     private void setupLookAndFeel() {
+        if (lookAndFeelSet) {
+            return;
+        }
+        lookAndFeelSet = true;
+
+        String lookAndFeelClassname = System.getProperty("swing.defaultlaf");
+        if (lookAndFeelClassname != null) {
+            try {
+                UIManager.setLookAndFeel(lookAndFeelClassname);
+                return;
+            } catch (final UnsupportedLookAndFeelException
+                     | ClassNotFoundException
+                     | ClassCastException
+                     | InstantiationException
+                     | IllegalAccessException e) {
+                logger.warn("Failed to set the specified look and feel: " + e.getMessage());
+            }
+        }
+
         try {
             // Set the systems Look and Feel
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -329,7 +380,7 @@ public class GuiBootstrap extends ZapBootstrap {
                  | ClassNotFoundException
                  | InstantiationException
                  | IllegalAccessException e) {
-            // handle exception
+            logger.warn("Failed to set the \"default\" look and feel: " + e.getMessage());
         }
     }
 
@@ -375,11 +426,11 @@ public class GuiBootstrap extends ZapBootstrap {
     /**
      * Determines the {@link Locale} of the current user's system.
      * <p>
-     * It will match the {@link Constant#getSystemsLocale()} with the available locales from ZAPs translation files.
+     * It will match the {@link Constant#getSystemsLocale()} with the available locales from ZAP's translation files.
      * <p>
-     * It may return {@code null}, if the users system locale is not in the list of available translations of ZAP.
+     * It may return {@code null}, if the user's system locale is not in the list of available translations of ZAP.
      *
-     * @return
+     * @return the {@code Locale} that best matches the user's locale, or {@code null} if none found
      */
     private static Locale determineUsersSystemLocale() {
         Locale userloc = null;
@@ -471,14 +522,7 @@ public class GuiBootstrap extends ZapBootstrap {
                     return;
                 }
 
-                try {
-                    Files.createFile(Paths.get(Constant.getInstance().ACCEPTED_LICENSE));
-
-                } catch (final IOException ie) {
-                    JOptionPane.showMessageDialog(null, Constant.messages.getString("start.unknown.error"));
-                    logger.error("Failed to create 'accepted license' file: ", ie);
-                    return;
-                }
+                createAcceptedLicenseFile();
 
                 init(true);
             }
@@ -506,6 +550,22 @@ public class GuiBootstrap extends ZapBootstrap {
                 Constant.messages.getString("start.gui.warn.addOnsOrExtensionsNoLongerRunning"),
                 addOnLoader.getAddOnCollection(),
                 addOnsNoLongerRunning);
+    }
+
+    /**
+     * Tells whether or not ZAP license should be shown, if the license was already accepted it does not need to be shown again.
+     * <p>
+     * The license is considered accepted if a file named {@link Constant#ACCEPTED_LICENSE_DEFAULT AcceptedLicense} exists in
+     * the installation and/or home directory.
+     *
+     * @return {@code true} if the license should be shown, {@code false} otherwise.
+     */
+    private static boolean isShowLicense() {
+        Path acceptedLicenseFile = Paths.get(Constant.getZapInstall(), Constant.getInstance().ACCEPTED_LICENSE_DEFAULT);
+        if (Files.exists(acceptedLicenseFile)) {
+            return false;
+        }
+        return isFirstTime();
     }
 
     /**

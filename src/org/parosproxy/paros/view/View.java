@@ -69,6 +69,8 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/14 Allow to display a message
+// ZAP: 2016/10/26 Create UI shared context in the session dialogue when adding a context
+// ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
 
 package org.parosproxy.paros.view;
 
@@ -121,6 +123,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextExcludePanel;
 import org.zaproxy.zap.view.ContextGeneralPanel;
@@ -370,7 +373,7 @@ public class View implements ViewDelegate {
                 ap.getDefaultAccelerator());
         tabMenu.setMnemonic(ap.getMnemonic());
         if (ap.getIcon() != null) {
-            tabMenu.setIcon(ap.getIcon());
+            tabMenu.setIcon(DisplayUtils.getScaledIcon(ap.getIcon()));
         }
         tabMenu.addActionListener(new ActionListener() {
             @Override
@@ -693,6 +696,8 @@ public class View implements ViewDelegate {
     }
 
     public void addContext(Context c) {
+        getSessionDialog().createUISharedContext(c);
+
         String contextsNodeName = Constant.messages.getString("context.list");
         ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
         contextGenPanel.setSessionDialog(getSessionDialog());

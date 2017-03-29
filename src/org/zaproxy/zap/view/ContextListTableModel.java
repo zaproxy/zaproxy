@@ -38,11 +38,6 @@ public class ContextListTableModel extends AbstractTableModel {
     
     private List<Object[]> values = Collections.emptyList();
     
-    //private static Logger log = Logger.getLogger(ContextListTableModel.class);
-
-    /**
-     * 
-     */
     public ContextListTableModel() {
         super();
     }
