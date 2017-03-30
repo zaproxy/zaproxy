@@ -98,7 +98,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
         		return Constant.messages.getString("cfu.table.label.new");
         	} else {
         		// TODO change to date ??
-        		return getAddOnWrapper(rowIndex).getAddOn().getFileVersion();
+        		return getAddOnWrapper(rowIndex).getAddOn().getVersion();
         	}
         case 5:
             return getAddOnWrapper(rowIndex).isEnabled();

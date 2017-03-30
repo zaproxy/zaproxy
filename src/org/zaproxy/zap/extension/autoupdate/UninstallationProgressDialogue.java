@@ -159,7 +159,7 @@ class UninstallationProgressDialogue extends AbstractDialog {
                 MessageFormat.format(
                         Constant.messages.getString("cfu.uninstallation.progress.dialogue.currentAddOn"),
                         addOn.getName(),
-                        Integer.valueOf(addOn.getFileVersion())));
+                        addOn.getVersion()));
     }
 
     private void setCustomMessage(String message) {

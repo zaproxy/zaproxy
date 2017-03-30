@@ -50,7 +50,7 @@
 			<addons>
 				<addon>
 					<id>AddOn3</id>
-					<semver>2.*</semver>
+					<version>2.*</version>
 				</addon>
 			</addons>
 		</dependencies>

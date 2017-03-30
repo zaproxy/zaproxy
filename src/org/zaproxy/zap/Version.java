@@ -21,6 +21,8 @@ package org.zaproxy.zap;
 
 import org.apache.commons.lang.Validate;
 
+import com.github.zafarkhaja.semver.expr.ExpressionParser;
+
 /**
  * A semantic version.
  *
@@ -84,6 +86,7 @@ public final class Version implements Comparable<Version> {
      * @param versionRange the range version
      * @return {@code true} if this version matches the given version range, {@code false} otherwise
      * @throws IllegalArgumentException if {@code versionRange} is null or empty, or not valid range version
+     * @see #isValidVersionRange(String)
      */
     public boolean matches(String versionRange) throws IllegalArgumentException {
         Validate.notEmpty(versionRange, "Parameter versionRange must not be null nor empty.");
@@ -93,6 +96,24 @@ public final class Version implements Comparable<Version> {
         } catch (com.github.zafarkhaja.semver.ParseException e) {
             throw new IllegalArgumentException("Parameter versionRange [" + versionRange + "] is not valid: " + e.getMessage());
         }
+    }
+
+    /**
+     * Tells whether or not the given version range is valid.
+     *
+     * @param versionRange the version range to test.
+     * @return {@code true} if the version range is valid, {@code false} otherwise.
+     * @since TODO add version
+     * @see #matches(String)
+     */
+    public static boolean isValidVersionRange(String versionRange) {
+        try {
+            ExpressionParser.newInstance().parse(versionRange);
+            return true;
+        } catch (com.github.zafarkhaja.semver.ParseException ignore) {
+            // Ignore.
+        }
+        return false;
     }
 
     @Override

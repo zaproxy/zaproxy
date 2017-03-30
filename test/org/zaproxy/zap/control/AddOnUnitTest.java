@@ -102,6 +102,7 @@ public class AddOnUnitTest {
 	@SuppressWarnings("deprecation")
 	public void testVersion() throws Exception {
 		AddOn addOn = new AddOn("test-alpha-1.zap");
+		assertThat(addOn.getVersion().toString(), is(equalTo("1.0.0")));
 		assertThat(addOn.getFileVersion(), is(1));
 	}
 
@@ -304,14 +305,16 @@ public class AddOnUnitTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void shouldCreateAddOnFromFileAndUseManifestData() throws Exception {
 		// Given
-		Path file = createAddOnFile("addon.zap", "beta", "1");
+		Path file = createAddOnFile("addon.zap", "beta", "1.6.7");
 		// When
 		AddOn addOn = new AddOn(file);
 		// Then
 		assertThat(addOn.getId(), is(equalTo("addon")));
 		assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.beta)));
+		assertThat(addOn.getVersion().toString(), is(equalTo("1.6.7")));
 		assertThat(addOn.getFileVersion(), is(equalTo(1)));
 	}
 
@@ -326,24 +329,26 @@ public class AddOnUnitTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void shouldIgnoreVersionInFileNameWhenCreatingAddOnFromFile() throws Exception {
 		// Given
-		Path file = createAddOnFile("addon-alpha-2.zap", "alpha", "3");
+		Path file = createAddOnFile("addon-alpha-2.zap", "alpha", "3.2.10");
 		// When
 		AddOn addOn = new AddOn(file);
 		// Then
+		assertThat(addOn.getVersion().toString(), is(equalTo("3.2.10")));
 		assertThat(addOn.getFileVersion(), is(equalTo(3)));
 	}
 
 	@Test
 	public void shouldReturnNormalisedFileName() throws Exception {
 		// Given
-		Path file = createAddOnFile("addon.zap", "alpha", "2");
+		Path file = createAddOnFile("addon.zap", "alpha", "2.8.1");
 		AddOn addOn = new AddOn(file);
 		// When
 		String normalisedFileName = addOn.getNormalisedFileName();
 		// Then
-		assertThat(normalisedFileName, is(equalTo("addon-2.zap")));
+		assertThat(normalisedFileName, is(equalTo("addon-2.8.1.zap")));
 	}
 	
 	@Test
@@ -445,6 +450,28 @@ public class AddOnUnitTest {
 		boolean depends = addOn.dependsOn(addOns);
 		// Then
 		assertThat(depends, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldBeUpdateToOlderVersionIfNewer() throws Exception {
+		// Given
+		AddOn olderAddOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8"));
+		AddOn newerAddOn = new AddOn(createAddOnFile("addon-3.5.9.zap", "release", "3.5.9"));
+		// When
+		boolean update = newerAddOn.isUpdateTo(olderAddOn);
+		// Then
+		assertThat(update, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeUpdateToNewerVersionIfOlder() throws Exception {
+		// Given
+		AddOn olderAddOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8"));
+		AddOn newerAddOn = new AddOn(createAddOnFile("addon-3.5.9.zap", "release", "3.5.9"));
+		// When
+		boolean update = olderAddOn.isUpdateTo(newerAddOn);
+		// Then
+		assertThat(update, is(equalTo(false)));
 	}
 
 	private static ZapXmlConfiguration createZapVersionsXml() throws Exception {

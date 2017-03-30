@@ -278,9 +278,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				View.getSingleton().showWarningDialog(
 						MessageFormat.format(
 								Constant.messages.getString("cfu.warn.addOnOlderVersion"),
-								installedAddOn.getFileVersion(),
+								installedAddOn.getVersion(),
 								View.getSingleton().getStatusUI(installedAddOn.getStatus()).toString(),
-								ao.getFileVersion(),
+								ao.getVersion(),
 								View.getSingleton().getStatusUI(ao.getStatus()).toString()));
 				return;
 			}
@@ -1045,14 +1045,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	            return;
 			}
 		}
-		logger.info("Installing new addon " + ao.getId() + " v" + ao.getFileVersion());
+		logger.info("Installing new addon " + ao.getId() + " v" + ao.getVersion());
 		if (View.isInitialised()) {
 			// Report info to the Output tab
 			View.getSingleton().getOutputPanel().append(
 					MessageFormat.format(
 							Constant.messages.getString("cfu.output.installing") + "\n", 
 							ao.getName(),
-							Integer.valueOf(ao.getFileVersion())));
+							ao.getVersion()));
 		}
 
 		ExtensionFactory.getAddOnLoader().addAddon(ao);
@@ -1070,7 +1070,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
     private boolean uninstall(AddOn addOn, boolean upgrading, AddOnUninstallationProgressCallback callback) {
-        logger.debug("Trying to uninstall addon " + addOn.getId() + " v" + addOn.getFileVersion());
+        logger.debug("Trying to uninstall addon " + addOn.getId() + " v" + addOn.getVersion());
 
         boolean removedDynamically = ExtensionFactory.getAddOnLoader().removeAddOn(addOn, upgrading, callback);
         if (removedDynamically) {
@@ -1083,7 +1083,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 }
             }
         } else {
-            logger.debug("Failed to uninstall add-on " + addOn.getId() + " v" + addOn.getFileVersion());
+            logger.debug("Failed to uninstall add-on " + addOn.getId() + " v" + addOn.getVersion());
         }
         return removedDynamically;
     }
@@ -1478,7 +1478,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                     String message = MessageFormat.format(
                             Constant.messages.getString("cfu.output.replacing") + "\n",
                             addOn.getName(),
-                            Integer.valueOf(addOn.getFileVersion()));
+                            addOn.getVersion());
                     getView().getOutputPanel().append(message);
                 }
             }
@@ -1493,7 +1493,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                     String message = MessageFormat.format(
                             Constant.messages.getString("cfu.output.uninstalled") + "\n",
                             addOn.getName(),
-                            Integer.valueOf(addOn.getFileVersion()));
+                            addOn.getVersion());
                     getView().getOutputPanel().append(message);
                 } else {
                     if (addonsDialog != null) {
@@ -1505,12 +1505,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                         message = MessageFormat.format(
                                 Constant.messages.getString("cfu.output.replace.failed") + "\n",
                                 addOn.getName(),
-                                Integer.valueOf(addOn.getFileVersion()));
+                                addOn.getVersion());
                     } else {
                         message = MessageFormat.format(
                                 Constant.messages.getString("cfu.output.uninstall.failed") + "\n",
                                 addOn.getName(),
-                                Integer.valueOf(addOn.getFileVersion()));
+                                addOn.getVersion());
                     }
                     getView().getOutputPanel().append(message);
                 }
@@ -1794,7 +1794,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 			for (AddOn addon : aolist) {
 				CommandLine.info(addon.getName() + "\t" + addon.getId() + 
-						"\tv" + addon.getFileVersion() + "\t" + addon.getStatus().name() +
+						"\tv" + addon.getVersion() + "\t" + addon.getStatus().name() +
 						"\t" + addon.getDescription());
 			}
         }
