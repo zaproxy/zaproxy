@@ -25,6 +25,7 @@ For general information about ZAP:
 For help using ZAP:
   * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.6.0/ZAPGettingStartedGuide-2.6.pdf) - an introductory guide you can print
   * [Tutorial Videos](https://www.youtube.com/playlist?list=PLEBitBW-Hlsv8cEIUntAO8st2UGhmrjUB)
+  * [Articles](https://github.com/zaproxy/zaproxy/wiki/ZAP-Articles) - that go into ZAP features in more depth
   * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
   * [User Guide](https://github.com/zaproxy/zap-core-help/wiki) - online version of the User Guide included with ZAP
   * [User Group](https://groups.google.com/group/zaproxy-users) - ask questions about using ZAP
