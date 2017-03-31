@@ -909,7 +909,7 @@ class AddOnDependencyChecker {
             case 0:
                 return addOn.getName();
             case 1:
-                return Integer.valueOf(addOn.getFileVersion());
+                return addOn.getVersion();
             case 2:
                 return addOn.getMinimumJavaVersion();
             default:

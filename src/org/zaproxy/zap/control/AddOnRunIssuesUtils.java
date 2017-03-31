@@ -207,36 +207,13 @@ public final class AddOnRunIssuesUtils {
                             addOn.getName());
                 }
                 break;
-            case PACKAGE_VERSION_NOT_BEFORE:
-                addOn = (AddOn) issueDetails.get(0);
-                message = MessageFormat.format(
-                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.version.notBefore"),
-                        addOn.getName(),
-                        issueDetails.get(1),
-                        Integer.valueOf(addOn.getFileVersion()));
-                break;
-            case PACKAGE_VERSION_NOT_FROM:
-                addOn = (AddOn) issueDetails.get(0);
-                message = MessageFormat.format(
-                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.version.notAfter"),
-                        addOn.getName(),
-                        issueDetails.get(1),
-                        Integer.valueOf(addOn.getFileVersion()));
-                break;
             case VERSION:
                 addOn = (AddOn) issueDetails.get(0);
-                if (addOn.getVersion() == null) {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.semver.notAvailable"),
-                            addOn.getName(),
-                            issueDetails.get(1));
-                } else {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.semver"),
-                            addOn.getName(),
-                            issueDetails.get(1),
-                            addOn.getVersion());
-                }
+                message = MessageFormat.format(
+                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.version"),
+                        addOn.getName(),
+                        issueDetails.get(1),
+                        addOn.getVersion());
                 break;
             default:
                 message = Constant.messages.getString("cfu.warn.addon.with.missing.requirements.unknown");
@@ -366,30 +343,10 @@ public final class AddOnRunIssuesUtils {
         case MISSING:
             String addOnId = (String) issueDetails.get(0);
             return MessageFormat.format("Add-On with ID \"{0}\"", addOnId);
-        case PACKAGE_VERSION_NOT_BEFORE:
+        case VERSION:
             AddOn addOn = (AddOn) issueDetails.get(0);
             return MessageFormat.format(
-                    "Add-on \"{0}\" with version not before {1} (found version {2})",
-                    addOn.getName(),
-                    issueDetails.get(1),
-                    Integer.valueOf(addOn.getFileVersion()));
-        case PACKAGE_VERSION_NOT_FROM:
-            addOn = (AddOn) issueDetails.get(0);
-            return MessageFormat.format(
-                    "Add-on \"{0}\" with version not after {1} (found version {2})",
-                    addOn.getName(),
-                    issueDetails.get(1),
-                    Integer.valueOf(addOn.getFileVersion()));
-        case VERSION:
-            addOn = (AddOn) issueDetails.get(0);
-            if (addOn.getVersion() == null) {
-                return MessageFormat.format(
-                        "Add-on \"{0}\" with semantic version >= {1} (found no semantic version)",
-                        addOn.getName(),
-                        issueDetails.get(1));
-            }
-            return MessageFormat.format(
-                    "Add-on \"{0}\" with semantic version >= {1} (found version {2})",
+                    "Add-on \"{0}\" with version matching {1} (found version {2})",
                     addOn.getName(),
                     issueDetails.get(1),
                     addOn.getVersion());

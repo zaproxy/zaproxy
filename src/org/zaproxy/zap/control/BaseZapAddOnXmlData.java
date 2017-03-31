@@ -40,7 +40,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <li>name;</li>
  * <li>status (since 2.6.0);</li>
  * <li>version;</li>
- * <li>semver;</li>
+ * <li>semver (since TODO add version, deprecated in favour of using version);</li>
  * <li>description;</li>
  * <li>author;</li>
  * <li>url;</li>
@@ -53,9 +53,10 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <li>addon:
  * <ul>
  * <li>id;</li>
- * <li>not-before-version;</li>
- * <li>not-from-version;</li>
- * <li>semver;</li>
+ * <li>version;</li>
+ * <li>not-before-version (since TODO add version, deprecated in favour of using version);</li>
+ * <li>not-from-version (since TODO add version, deprecated in favour of using version);</li>
+ * <li>semver (since TODO add version, deprecated in favour of using version).</li>
  * </ul>
  * </li>
  * </ul>
@@ -72,9 +73,10 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <li>addon:
  * <ul>
  * <li>id;</li>
- * <li>not-before-version;</li>
- * <li>not-from-version;</li>
- * <li>semver.</li>
+ * <li>version;</li>
+ * <li>not-before-version (since TODO add version, deprecated in favour of using version);</li>
+ * <li>not-from-version (since TODO add version, deprecated in favour of using version);</li>
+ * <li>semver (since TODO add version, deprecated in favour of using version).</li>
  * </ul>
  * </li>
  * </ul>
@@ -108,6 +110,12 @@ public abstract class BaseZapAddOnXmlData {
     private static final String ZAPADDON_ID_ELEMENT = "id";
     private static final String ZAPADDON_NOT_BEFORE_VERSION_ELEMENT = "not-before-version";
     private static final String ZAPADDON_NOT_FROM_VERSION_ELEMENT = "not-from-version";
+    private static final String ZAPADDON_VERSION_ELEMENT = "version";
+    /**
+     * Alias of {@link #ZAPADDON_VERSION_ELEMENT}.
+     * <p>
+     * To be deprecated/removed in future versions of ZAP.
+     */
     private static final String ZAPADDON_SEMVER_ELEMENT = "semver";
 
     private static final String EXTENSION_ELEMENT = "extension";
@@ -122,8 +130,8 @@ public abstract class BaseZapAddOnXmlData {
 
     private String name;
     private String status;
-    private int packageVersion;
     private Version version;
+    private Version semVer;
     private String description;
     private String author;
     private String url;
@@ -173,9 +181,19 @@ public abstract class BaseZapAddOnXmlData {
 
     private void readDataImpl(HierarchicalConfiguration zapAddOnXml) {
         name = zapAddOnXml.getString(NAME_ELEMENT, "");
-        packageVersion = zapAddOnXml.getInt(VERSION_ELEMENT, 0);
+
+        String v = zapAddOnXml.getString(VERSION_ELEMENT, "1.0.0");
+        try {
+            version = new Version(v);
+        } catch (IllegalArgumentException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Falling back to integer version [" + v + "] for add-on " + name);
+            }
+            version = new Version(Integer.parseInt(v) + ".0.0");
+        }
+
         status = zapAddOnXml.getString(STATUS, "alpha");
-        version = createVersion(zapAddOnXml.getString(SEM_VER_ELEMENT, ""));
+        semVer = createVersion(zapAddOnXml.getString(SEM_VER_ELEMENT, ""));
         description = zapAddOnXml.getString(DESCRIPTION_ELEMENT, "");
         author = zapAddOnXml.getString(AUTHOR_ELEMENT, "");
         url = zapAddOnXml.getString(URL_ELEMENT, "");
@@ -233,12 +251,23 @@ public abstract class BaseZapAddOnXmlData {
         return author;
     }
 
+    /**
+     * Gets the package/file version of the add-on.
+     *
+     * @return the package/file version
+     * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+     */
+    @Deprecated
     public int getPackageVersion() {
-        return packageVersion;
+        return version.getMajorVersion();
     }
 
     public Version getVersion() {
         return version;
+    }
+    
+    public Version getSemVer() {
+        return semVer;
     }
 
     public String getChanges() {
@@ -326,9 +355,14 @@ public abstract class BaseZapAddOnXmlData {
                 malformedFile("an add-on dependency has empty \"" + ZAPADDON_ID_ELEMENT + "\".");
             }
 
+            String version = sub.getString(ZAPADDON_VERSION_ELEMENT, "");
+            if (version.isEmpty()) {
+                // Fallback to alias element.
+                version = sub.getString(ZAPADDON_SEMVER_ELEMENT, "");
+            }
+
             AddOnDep addOnDep = new AddOnDep(id, sub.getString(ZAPADDON_NOT_BEFORE_VERSION_ELEMENT, ""), sub.getString(
-                    ZAPADDON_NOT_FROM_VERSION_ELEMENT,
-                    ""), sub.getString(ZAPADDON_SEMVER_ELEMENT, ""));
+                    ZAPADDON_NOT_FROM_VERSION_ELEMENT, ""), version);
 
             addOns.add(addOnDep);
         }
@@ -407,13 +441,32 @@ public abstract class BaseZapAddOnXmlData {
         private final String id;
         private final int notBeforeVersion;
         private final int notFromVersion;
-        private final String semVer;
+        private final String version;
 
-        public AddOnDep(String id, String notBeforeVersion, String notFromVersion, String semVer) {
+        public AddOnDep(String id, String notBeforeVersion, String notFromVersion, String version) {
             this.id = id;
             this.notBeforeVersion = convertToInt(notBeforeVersion, -1, "not-before-version");
             this.notFromVersion = convertToInt(notFromVersion, -1, "not-from-version");
-            this.semVer = semVer;
+
+            if (version.isEmpty()) {
+                StringBuilder versionMatch = new StringBuilder();
+                if (this.notBeforeVersion != -1) {
+                    versionMatch.append(" >= ").append(this.notBeforeVersion).append(".0.0");
+                }
+
+                if (this.notFromVersion != -1) {
+                    if (versionMatch.length() != 0) {
+                        versionMatch.append(" &");
+                    }
+                    versionMatch.append(" < ").append(this.notFromVersion).append(".0.0");
+                }
+                this.version = versionMatch.toString();
+            } else {
+                if (!Version.isValidVersionRange(version)) {
+                    throw new IllegalArgumentException("Invalid version range: " + version);
+                }
+                this.version = version;
+            }
         }
 
         private static int convertToInt(String value, int defaultValue, String element) {
@@ -432,16 +485,48 @@ public abstract class BaseZapAddOnXmlData {
             return id;
         }
 
+        /**
+         * Gets the required version of the add-on, might not be an exact version (e.g. {@literal 1.*} or
+         * {@literal >= 1.4.0 & < 2.0.0}).
+         *
+         * @return the required version of the add-on, never {@code null}.
+         * @since TODO add version
+         */
+        public String getVersion() {
+            return version;
+        }
+
+        /**
+         * Gets the "not before version" of the add-on (e.g. {@literal 2}).
+         *
+         * @return the "not before version" of the add-on
+         * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+         */
+        @Deprecated
         public int getNotBeforeVersion() {
             return notBeforeVersion;
         }
 
+        /**
+         * Gets the "not from version" of the add-on (e.g. {@literal 5}).
+         *
+         * @return the "not from version" of the add-on
+         * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+         */
+        @Deprecated
         public int getNotFromVersion() {
             return notFromVersion;
         }
 
+        /**
+         * Gets the required version of the add-on, might not be an exact version (e.g. {@literal 1.*}).
+         *
+         * @return the required version of the add-on.
+         * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+         */
+        @Deprecated
         public String getSemVer() {
-            return semVer;
+            return version;
         }
     }
 
