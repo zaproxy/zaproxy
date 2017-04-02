@@ -30,7 +30,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
- * @deprecated (TODO add version) Use {@link BreakpointMessageHandler2} instead
+ * @deprecated (2.6.0) Use {@link BreakpointMessageHandler2} instead
  */
 @Deprecated
 public class BreakpointMessageHandler {

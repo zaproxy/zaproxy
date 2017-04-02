@@ -74,28 +74,28 @@ public class SslCertificateUtils {
 	/**
 	 * The token that indicates the start of the section that contains the certificate, contained in a {@code .pem} file.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String BEGIN_CERTIFICATE_TOKEN = "-----BEGIN CERTIFICATE-----";
 
 	/**
 	 * The token that indicates the end of the section that contains the certificate, contained in a {@code .pem} file.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String END_CERTIFICATE_TOKEN = "-----END CERTIFICATE-----";
 
 	/**
 	 * The token that indicates the start of the section that contains the private key, contained in a {@code .pem} file.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String BEGIN_PRIVATE_KEY_TOKEN = "-----BEGIN PRIVATE KEY-----";
 
 	/**
 	 * The token that indicates the end of the section that contains the private key, contained in a {@code .pem} file.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String END_PRIVATE_KEY_TOKEN = "-----END PRIVATE KEY-----";
 
@@ -224,7 +224,7 @@ public class SslCertificateUtils {
 	 *
 	 * @param pem the contents of the {@code .pem} file.
 	 * @return the certificate, or empty array if the certificate was not found.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @throws IllegalArgumentException if the certificate data is not properly {@code base64} encoded.
 	 */
 	public static byte[] extractCertificate(String pem) {
@@ -236,7 +236,7 @@ public class SslCertificateUtils {
 	 *
 	 * @param pem the contents of the {@code .pem} file.
 	 * @return the private key, or empty array if the private key was not found.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @throws IllegalArgumentException if the private key data is not properly {@code base64} encoded.
 	 */
 	public static byte[] extractPrivateKey(String pem) {

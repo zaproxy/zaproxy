@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
@@ -145,7 +144,7 @@ public class Spider {
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
-	 * @deprecated (TODO add version) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam, Model, Context)}
+	 * @deprecated (2.6.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam, Model, Context)}
 	 *             instead.
 	 */
 	@Deprecated
@@ -163,7 +162,7 @@ public class Spider {
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public Spider(String id, ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
 			Model model, Context scanContext) {
@@ -244,99 +243,129 @@ public class Spider {
 		this.seedList.add(uri);
 		// Add the appropriate 'robots.txt' as a seed
 		if (getSpiderParam().isParseRobotsTxt()) {
-			try {
-				// Build the URI of the robots.txt file
-				URI robotsUri;
-				// If the port is not 80 or 443, add it to the URI
-				if (uri.getPort() == 80 || uri.getPort() == 443) {
-					robotsUri = new URI(uri.getScheme() + "://" + host + "/robots.txt", true);
-				} else {
-					robotsUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/robots.txt",
-							true);
-				}
-				this.seedList.add(robotsUri);
-			} catch (Exception e) {
-				log.warn("Error while creating URI for robots.txt file for site " + uri, e);
-			}
+			addRootFileSeed(uri, "robots.txt");
 		}
 		// Add the appropriate 'sitemap.xml' as a seed
 		if (getSpiderParam().isParseSitemapXml()) {
-			try {
-				// Build the URI of the sitemap.xml file
-				URI sitemapUri;
-				// If the port is not 80 or 443, add it to the URI
-				if (uri.getPort() == 80 || uri.getPort() == 443) {
-					sitemapUri = new URI(uri.getScheme() + "://" + host + "/sitemap.xml", true);
-				} else {
-					sitemapUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/sitemap.xml",
-							true);
-				}
-				this.seedList.add(sitemapUri);
-			} catch (Exception e) {
-				log.warn("Error while creating URI for sitemap.xml file for site " + uri, e);
-			}
+			addRootFileSeed(uri, "sitemap.xml");
 		}
 		// And add '.svn/entries' as a seed, for SVN based spidering
 		if (getSpiderParam().isParseSVNEntries()) {
-			try {
-				URI svnEntriesURI1, svnEntriesURI2;
-				// If the port is not 80 or 443, add it to the URI
-				// SVN entries can exist in multiple directories, so make sure to add in the full path.
-				String fullpath = uri.getPath();
-				String name = uri.getName();				
-				if (fullpath==null) fullpath="";
-				if (name==null) name="";
-				
-				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
-				if (pathminusfilename.equals("")) pathminusfilename="/";
-				
-				//if it's not an svn folder, add the seeds.
-				Matcher matcherSvnUrl = svnUrlPattern.matcher(pathminusfilename);
-				if (! matcherSvnUrl.find()) {
-					if (uri.getPort() == 80 || uri.getPort() == 443) {
-						svnEntriesURI1 = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".svn/entries", true);
-						svnEntriesURI2 = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".svn/wc.db", true);
-					} else {
-						svnEntriesURI1 = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".svn/entries", true);
-						svnEntriesURI2 = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".svn/wc.db", true);
-					}
-					this.seedList.add(svnEntriesURI1);
-					this.seedList.add(svnEntriesURI2);
-				}
-			} catch (Exception e) {
-				log.warn("Error while creating a seed URI for the SVN files for site " + uri, e);
-			}
+			addFileSeed(uri, ".svn/entries", svnUrlPattern);
+			addFileSeed(uri, ".svn/wc.db", svnUrlPattern);
 		}
 
 		// And add '.git/index' as a seed, for Git based spidering
 		if (getSpiderParam().isParseGit()) {
-			try {
-				URI gitEntriesURI;
-				// If the port is not 80 or 443, add it to the URI
-				// Make sure to add in the full path.
-				String fullpath = uri.getPath();
-				String name = uri.getName();
-				if (fullpath==null) fullpath="";
-				if (name==null) name="";
-				
-				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
-				if (pathminusfilename.equals("")) pathminusfilename="/";
-				
-				//if it's not in a Git folder, add the seed.
-				Matcher matcherGitUrl = gitUrlPattern.matcher(pathminusfilename);
-				if (! matcherGitUrl.find()) {
-					if (uri.getPort() == 80 || uri.getPort() == 443) {
-						gitEntriesURI = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".git/index", true);
-					} else {
-						gitEntriesURI = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".git/index", true);
-					}
-					this.seedList.add(gitEntriesURI);					
-				}
-			} catch (Exception e) {
-				log.warn("Error while creating a seed URI for the Git files for site " + uri, e);
-			}
+			addFileSeed(uri, ".git/index", gitUrlPattern);
 		}
 
+	}
+
+	/**
+	 * Adds a file seed, with the given file name, at the root of the base URI.
+	 * <p>
+	 * For example, with base URI as {@code http://example.com/some/path/file.html} and file name as {@code sitemap.xml} it's
+	 * added the seed {@code http://example.com/sitemap.xml}.
+	 *
+	 * @param baseUri the base URI.
+	 * @param fileName the file name.
+	 */
+	private void addRootFileSeed(URI baseUri, String fileName) {
+		String seed = buildUri(baseUri.getScheme(), baseUri.getRawHost(), baseUri.getPort(), "/" + fileName);
+		try {
+			this.seedList.add(new URI(seed, true));
+		} catch (Exception e) {
+			log.warn("Error while creating [" + fileName + "] seed: " + seed, e);
+		}
+	}
+
+	/**
+	 * Creates a URI (string) with the given scheme, host, port and path. The port is only added if not the default for the
+	 * given scheme.
+	 *
+	 * @param scheme the scheme, {@code http} or {@code https}.
+	 * @param host the name of the host.
+	 * @param port the port.
+	 * @param path the path, should start with {@code /}.
+	 * @return the URI with the provided components.
+	 */
+	private static String buildUri(String scheme, char[] host, int port, String path) {
+		StringBuilder strBuilder = new StringBuilder(150);
+		strBuilder.append(scheme).append("://").append(host);
+		if (!isDefaultPort(scheme, port)) {
+			strBuilder.append(':').append(port);
+		}
+		strBuilder.append(path);
+		return strBuilder.toString();
+	}
+
+	/**
+	 * Adds a file seed using the given base URI, file name and condition.
+	 * <p>
+	 * The file is added as part of the path, without existing file name. For example, with base URI as
+	 * {@code http://example.com/some/path/file.html} and file name as {@code .git/index} it's added the seed
+	 * {@code http://example.com/some/path/.git/index}.
+	 * <p>
+	 * If the given condition matches the base URI's path without the file name, the file seed is not added (this prevents
+	 * adding the seed once again).
+	 *
+	 * @param baseUri the base URI to construct the file seed.
+	 * @param fileName the name of the file seed.
+	 * @param condition the condition to add the file seed.
+	 */
+	private void addFileSeed(URI baseUri, String fileName, Pattern condition) {
+		String fullpath = baseUri.getEscapedPath();
+		if (fullpath == null) {
+			fullpath = "";
+		}
+
+		String name = baseUri.getEscapedName();
+		if (name == null) {
+			name = "";
+		}
+
+		String pathminusfilename = fullpath.substring(0, fullpath.lastIndexOf(name));
+		if (pathminusfilename.isEmpty()) {
+			pathminusfilename = "/";
+		}
+
+		if (condition.matcher(pathminusfilename).find()) {
+			return;
+		}
+
+		String uri = buildUri(baseUri.getScheme(), baseUri.getRawHost(), baseUri.getPort(), pathminusfilename + fileName);
+		try {
+			this.seedList.add(new URI(uri, true));
+		} catch (Exception e) {
+			log.warn("Error while creating a seed URI for file [" + fileName + "] from [" + baseUri + "] using [" + uri + "]:",
+					e);
+		}
+	}
+
+	/**
+	 * Tells whether or not the given port is the default for the given scheme.
+	 * <p>
+	 * Only intended to be used with HTTP/S schemes.
+	 *
+	 * @param scheme the scheme.
+	 * @param port the port.
+	 * @return {@code true} if the given port is the default for the given scheme, {@code false} otherwise.
+	 */
+	private static boolean isDefaultPort(String scheme, int port) {
+		if (port == -1) {
+			return true;
+		}
+
+		if ("http".equalsIgnoreCase(scheme)) {
+			return port == 80;
+		}
+
+		if ("https".equalsIgnoreCase(scheme)) {
+			return port == 443;
+		}
+
+		return false;
 	}
 
 	/**

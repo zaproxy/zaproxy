@@ -461,7 +461,7 @@ public class Context {
 	/**
 	 * Gets the name of the context.
 	 *
-	 * @return the name of the context, never {@code null} (since TODO add version).
+	 * @return the name of the context, never {@code null} (since 2.6.0).
 	 */
 	public String getName() {
 		return name;
@@ -471,7 +471,7 @@ public class Context {
 	 * Sets the name of the context.
 	 *
 	 * @param name the new name of the context
-	 * @throws IllegalContextNameException (since TODO add version) if the given name is {@code null} or empty.
+	 * @throws IllegalContextNameException (since 2.6.0) if the given name is {@code null} or empty.
 	 */
 	public void setName(String name) {
 		if (name == null || name.isEmpty()) {

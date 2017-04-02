@@ -143,7 +143,7 @@ public class ExtensionHookView {
      * By default, the {@code Component}s added are removed from the main tool bar panel when the extension is unloaded.
      *
      * @param component the {@code component} that will be added to the main tool bar panel
-     * @since TODO add version
+     * @since 2.6.0
      * @see org.zaproxy.zap.view.MainToolbarPanel#addToolBarComponent(Component)
      * @see org.zaproxy.zap.view.MainToolbarPanel#removeToolBarComponent(Component)
      */
@@ -158,7 +158,7 @@ public class ExtensionHookView {
      * Gets the {@link Component}s added to this hook, for the main tool bar panel.
      *
      * @return an unmodifiable {@code List} containing the added {@code Component}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.6.0
      */
     List<Component> getMainToolBarComponents() {
         if (mainToolBarComponents == null) {

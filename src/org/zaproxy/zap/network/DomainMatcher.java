@@ -29,7 +29,7 @@ import org.zaproxy.zap.utils.Enableable;
  * It supports both plain text and regular expression checks.
  * </p>
  * 
- * @since TODO Add Version
+ * @since 2.6.0
  * @see #matches(String)
  */
 public class DomainMatcher extends Enableable {

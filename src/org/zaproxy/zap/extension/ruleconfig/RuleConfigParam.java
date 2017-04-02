@@ -33,7 +33,7 @@ import org.parosproxy.paros.common.AbstractParam;
  * It also exposes the names of the (core) rules that can be accessed by the scanners (through the {@code Configuration}
  * set/used by the passive/active scans).
  * 
- * @since TODO add version
+ * @since 2.6.0
  */
 public class RuleConfigParam extends AbstractParam {
 

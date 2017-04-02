@@ -74,7 +74,7 @@ public class ApiException extends Exception {
 		 * Indicates that the external data (provided by other means other than the API parameters, for example, obtained from
 		 * the file system) is not correct.
 		 * 
-		 * @since TODO add version
+		 * @since 2.6.0
 		 */
 		BAD_EXTERNAL_DATA
 	}

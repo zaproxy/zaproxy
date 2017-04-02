@@ -277,7 +277,7 @@ public interface Plugin extends Runnable {
      * Sets the technologies enabled for the scan.
      *
      * @param ts the technologies enabled for the scan
-     * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+     * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}.
      * @since 2.0.0
      * @see #targets(TechSet)
      */

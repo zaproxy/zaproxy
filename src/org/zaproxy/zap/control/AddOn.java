@@ -61,7 +61,7 @@ public class AddOn  {
 	/**
 	 * The name of the manifest file, contained in the add-ons.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String MANIFEST_FILE_NAME = "ZapAddOn.xml";
 
@@ -114,7 +114,7 @@ public class AddOn  {
 	/**
 	 * The file extension of ZAP add-ons.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final String FILE_EXTENSION = ".zap";
 
@@ -122,8 +122,18 @@ public class AddOn  {
 	private String name;
 	private String description = "";
 	private String author = "";
-	private int fileVersion;
+	/**
+	 * The version declared in the manifest file.
+	 * <p>
+	 * Never {@code null}.
+	 */
 	private Version version;
+	/**
+	 * The (semantic) version declared in the manifest file, to be replaced by {@link #version}.
+	 * <p>
+	 * Might be {@code null}.
+	 */
+	private Version semVer;
 
 	private Status status;
 	private String changes = "";
@@ -186,7 +196,7 @@ public class AddOn  {
 	 *
 	 * @param fileName the name of the file to check
 	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
-	 * @deprecated (TODO add version) Use {@link #isAddOnFileName(String)} instead, the checks done in this method are more
+	 * @deprecated (2.6.0) Use {@link #isAddOnFileName(String)} instead, the checks done in this method are more
 	 *             strict than it needs to.
 	 * @see #isAddOnFileName(String)
 	 */
@@ -217,7 +227,7 @@ public class AddOn  {
 	 *
 	 * @param fileName the name of the file to check
 	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static boolean isAddOnFileName(String fileName) {
 		if (fileName == null) {
@@ -231,7 +241,7 @@ public class AddOn  {
 	 *
 	 * @param f the file to be checked
 	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
-	 * @deprecated (TODO add version) Use {@link #isAddOn(Path)} instead.
+	 * @deprecated (2.6.0) Use {@link #isAddOn(Path)} instead.
 	 */
 	@Deprecated
 	public static boolean isAddOn(File f) {
@@ -245,7 +255,7 @@ public class AddOn  {
 	 * 
 	 * @param file the file to be checked
 	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #isAddOnFileName(String)
 	 */
 	public static boolean isAddOn(Path file) {
@@ -276,7 +286,7 @@ public class AddOn  {
 	 *
 	 * @param fileName the file name of the add-on
 	 * @throws Exception if the file name is not valid.
-	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
+	 * @deprecated (2.6.0) Use {@link #AddOn(Path)} instead.
 	 */
 	@Deprecated
 	public AddOn(String fileName) throws Exception {
@@ -288,7 +298,7 @@ public class AddOn  {
 		this.id = strArray[0];
 		this.name = this.id;	// Will be overriden if theres a ZapAddOn.xml file
 		this.status = Status.valueOf(strArray[1]);
-		this.fileVersion = Integer.parseInt(strArray[2]);
+		this.version = new Version(Integer.parseInt(strArray[2]) + ".0.0");
 	}
 
 	/**
@@ -301,7 +311,7 @@ public class AddOn  {
 	 * @param file the file of the add-on
 	 * @throws Exception if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
 	 *             while reading the {@code value #ZAP_ADD_ON_XML} ZIP file entry
-	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
+	 * @deprecated (2.6.0) Use {@link #AddOn(Path)} instead.
 	 */
 	@Deprecated
 	public AddOn(File file) throws Exception {
@@ -347,8 +357,8 @@ public class AddOn  {
 					ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
 
 					this.name = zapAddOnXml.getName();
-					this.fileVersion = zapAddOnXml.getPackageVersion();
 					this.version = zapAddOnXml.getVersion();
+					this.semVer = zapAddOnXml.getSemVer();
 					this.status = AddOn.Status.valueOf(zapAddOnXml.getStatus());
 					this.description = zapAddOnXml.getDescription();
 					this.changes = zapAddOnXml.getChanges();
@@ -393,10 +403,10 @@ public class AddOn  {
 		this.name = addOnData.getName();
 		this.description = addOnData.getDescription();
 		this.author = addOnData.getAuthor();
-		this.fileVersion = addOnData.getPackageVersion();
 		this.dependencies = addOnData.getDependencies();
 		this.extensionsWithDeps = addOnData.getExtensionsWithDeps();
 		this.version = addOnData.getVersion();
+		this.semVer = addOnData.getSemVer();
 		this.status = AddOn.Status.valueOf(addOnData.getStatus());
 		this.changes = addOnData.getChanges();
 		this.url = new URL(addOnData.getUrl());
@@ -442,14 +452,24 @@ public class AddOn  {
 		this.description = description;
 	}
 	
+	/**
+	 * Gets the file version of the add-on.
+	 *
+	 * @return the file version.
+	 * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+	 */
+	@Deprecated
 	public int getFileVersion() {
-		return fileVersion;
+		return getVersion().getMajorVersion();
 	}
 
 	/**
 	 * Gets the semantic version of this add-on.
+	 * <p>
+	 * Since TODO add version, for add-ons that use just an integer as the version it's appended ".0.0", for example, for
+	 * version {@literal 14} it returns the version {@literal 14.0.0}.
 	 *
-	 * @return the semantic version of the add-on, or {@code null} if none
+	 * @return the semantic version of the add-on, since TODO add version, never {@code null}.
 	 * @since 2.4.0
 	 */
 	public Version getVersion() {
@@ -478,11 +498,11 @@ public class AddOn  {
 	 * Should be used when copying the file from an "unknown" source (e.g. manually installed).
 	 *
 	 * @return the normalised file name.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #getFile()
 	 */
 	public String getNormalisedFileName() {
-		return getId() + "-" + getFileVersion() + FILE_EXTENSION;
+		return getId() + "-" + getVersion() + FILE_EXTENSION;
 	}
 
 	/**
@@ -868,7 +888,7 @@ public class AddOn  {
 		if (! this.isSameAddOn(addOn)) {
 			throw new IllegalArgumentException("Different addons: " + this.getId() + " != " + addOn.getId());
 		}
-		if (this.getFileVersion() > addOn.getFileVersion()) {
+		if (this.getVersion().compareTo(addOn.getVersion()) > 0) {
 			return true;
 		}
 		return this.getStatus().ordinal() > addOn.getStatus().ordinal();
@@ -999,25 +1019,9 @@ public class AddOn  {
 					return;
 				}
 
-				if (dependency.getNotBeforeVersion() > -1 && addOnDep.fileVersion < dependency.getNotBeforeVersion()) {
-					requirements.setIssue(
-					        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
-							addOnDep,
-							Integer.valueOf(dependency.getNotBeforeVersion()));
-					return;
-				}
-
-				if (dependency.getNotFromVersion() > -1 && addOnDep.fileVersion > dependency.getNotFromVersion()) {
-					requirements.setIssue(
-					        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
-							addOnDep,
-							Integer.valueOf(dependency.getNotFromVersion()));
-					return;
-				}
-
-				if (!dependency.getSemVer().isEmpty()) {
-					if (addOnDep.version == null || !addOnDep.version.matches(dependency.getSemVer())) {
-						requirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
+				if (!dependency.getVersion().isEmpty()) {
+					if (!versionMatches(addOnDep, dependency)) {
+						requirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getVersion());
 						return;
 					}
 				}
@@ -1063,43 +1067,13 @@ public class AddOn  {
                 continue;
             }
 
-            if (dependency.getNotBeforeVersion() > -1 && addOnDep.fileVersion < dependency.getNotBeforeVersion()) {
-                if (addOn.hasOnlyOneExtensionWithDependencies()) {
-                    requirements.setIssue(
-                            BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
-                            addOnDep,
-                            Integer.valueOf(dependency.getNotBeforeVersion()));
-                    return;
-                }
-                extensionRequirements.setIssue(
-                        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
-                        addOnDep,
-                        Integer.valueOf(dependency.getNotBeforeVersion()));
-                continue;
-            }
-
-            if (dependency.getNotFromVersion() > -1 && addOnDep.fileVersion > dependency.getNotFromVersion()) {
-                if (addOn.hasOnlyOneExtensionWithDependencies()) {
-                    requirements.setIssue(
-                            BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
-                            addOnDep,
-                            Integer.valueOf(dependency.getNotFromVersion()));
-                    return;
-                }
-                extensionRequirements.setIssue(
-                        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
-                        addOnDep,
-                        Integer.valueOf(dependency.getNotFromVersion()));
-                continue;
-            }
-
-            if (!dependency.getSemVer().isEmpty()) {
-                if (addOnDep.version == null || !addOnDep.version.matches(dependency.getSemVer())) {
+            if (!dependency.getVersion().isEmpty()) {
+                if (!versionMatches(addOnDep, dependency)) {
                     if (addOn.hasOnlyOneExtensionWithDependencies()) {
-                        requirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
+                        requirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getVersion());
                         return;
                     }
-                    extensionRequirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
+                    extensionRequirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getVersion());
                     continue;
                 }
             }
@@ -1186,24 +1160,33 @@ public class AddOn  {
     private static boolean dependsOn(List<AddOnDep> dependencies, AddOn addOn) {
         for (AddOnDep dependency : dependencies) {
             if (dependency.getId().equals(addOn.id)) {
-                if (dependency.getNotBeforeVersion() > -1 && addOn.fileVersion < dependency.getNotBeforeVersion()) {
-                    return false;
-                }
-
-                if (dependency.getNotFromVersion() > -1 && addOn.fileVersion > dependency.getNotFromVersion()) {
-                    return false;
-                }
-
-                if (!dependency.getSemVer().isEmpty()) {
-                    if (addOn.version == null) {
-                        return false;
-                    } else if (!addOn.version.matches(dependency.getSemVer())) {
-                        return false;
-                    }
+                if (!dependency.getVersion().isEmpty()) {
+                    return versionMatches(addOn, dependency);
                 }
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * Tells whether or not the given add-on version matches the one required by the dependency.
+     * <p>
+     * This methods is required to also check the {@code semVer} of the add-on, once removed it can match the version directly.
+     *
+     * @param addOn the add-on to check
+     * @param dependency the dependency
+     * @return {@code true} if the version matches, {@code false} otherwise.
+     */
+    private static boolean versionMatches(AddOn addOn, AddOnDep dependency) {
+        if (addOn.version.matches(dependency.getVersion())) {
+            return true;
+        }
+
+        if (addOn.semVer != null && addOn.semVer.matches(dependency.getVersion())) {
+            return true;
+        }
+
         return false;
     }
 
@@ -1370,10 +1353,7 @@ public class AddOn  {
 	public String toString() {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append("[id=").append(id);
-		strBuilder.append(", fileVersion=").append(fileVersion);
-		if (version != null) {
-			strBuilder.append(", version=").append(version);
-		}
+		strBuilder.append(", version=").append(version);
 		strBuilder.append(']');
 
 		return strBuilder.toString();
@@ -1384,13 +1364,12 @@ public class AddOn  {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + fileVersion;
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		result = prime * result + version.hashCode();
 		return result;
 	}
 
 	/**
-	 * Two add-ons are considered equal if both add-ons have the same ID, file version and semantic version.
+	 * Two add-ons are considered equal if both add-ons have the same ID and version.
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -1411,17 +1390,7 @@ public class AddOn  {
 		} else if (!id.equals(other.id)) {
 			return false;
 		}
-		if (fileVersion != other.fileVersion) {
-			return false;
-		}
-		if (version == null) {
-			if (other.version != null) {
-				return false;
-			}
-		} else if (!version.equals(other.version)) {
-			return false;
-		}
-		return true;
+		return version.equals(other.version);
 	}
 
 	public static abstract class BaseRunRequirements {
@@ -1461,18 +1430,24 @@ public class AddOn  {
 			 * The dependency found has a older version than the version required.
 			 * <p>
 			 * Issue details contain the instance of the {@code AddOn} and the required version.
+			 * 
+			 * @deprecated (TODO add version) No longer in use. It should be used just {@link #VERSION}. 
 			 */
+			@Deprecated
 			PACKAGE_VERSION_NOT_BEFORE,
 
 			/**
 			 * The dependency found has a newer version than the version required.
 			 * <p>
 			 * Issue details contain the instance of the {@code AddOn} and the required version.
+			 * 
+			 * @deprecated (TODO add version) No longer in use. It should be used just {@link #VERSION}.
 			 */
+			@Deprecated
 			PACKAGE_VERSION_NOT_FROM,
 
 			/**
-			 * The dependency found has a different semantic version.
+			 * The dependency found has a different version.
 			 * <p>
 			 * Issue details contain the instance of the {@code AddOn} and the required version.
 			 */

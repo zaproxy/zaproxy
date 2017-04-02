@@ -40,7 +40,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 /**
  * An {@link ExtensionPopupMenuItem} that exposes the selected {@link Alert alerts} of the Alerts tree.
  * 
- * @since TODO add version
+ * @since 2.6.0
  * @see #performAction(Alert)
  */
 public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {

@@ -28,6 +28,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
+// ZAP: 2017/03/26 Obtain configs in the order specified
 
 package org.parosproxy.paros.common;
 
@@ -78,7 +79,7 @@ public abstract class AbstractParam implements Cloneable {
         try {
             config = new ZapXmlConfiguration(filePath);
             if (overrides != null) {
-                for (Entry<String,String> entry : overrides.getConfigs().entrySet()) {
+                for (Entry<String,String> entry : overrides.getOrderedConfigs().entrySet()) {
                 	logger.info("Setting config " + entry.getKey() + " = " + entry.getValue() + 
                 			" was " + config.getString(entry.getKey()));
                 	config.setProperty(entry.getKey(), entry.getValue());

@@ -366,7 +366,7 @@ public class ParamsPanel extends AbstractPanel{
 	 *
 	 * @return {@code true} if only one parameter is selected, {@code false} otherwise.
 	 * @see #getSelectedParam()
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	boolean isOnlyOneParamSelected() {
 		return getParamsTable().getSelectedRowCount() == 1;

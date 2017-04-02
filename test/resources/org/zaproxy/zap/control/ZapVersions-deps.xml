@@ -4,12 +4,11 @@
 		<name>AddOn1</name>
 		<description>AddOn1</description>
 		<author>ZAP Dev Team</author>
-		<version>1</version>
-		<semver>2.3.4</semver>
-		<file>AddOn1-beta-1.zap</file>
+		<version>2.5.1</version>
+		<file>AddOn1-2.5.1.zap</file>
 		<status>beta</status>
 		<changes />
-		<url>http://localhost/add-ons/AddOn1-beta-1.zap</url>
+		<url>http://localhost/add-ons/AddOn1-2.5.1.zap</url>
 		<info />
 		<size>1024</size>
 		<date>2015-01-01</date>
@@ -19,12 +18,14 @@
 			<addons>
 				<addon>
 					<id>AddOn2</id>
+					<semver>2.*</semver>
 				</addon>
 				<addon>
 					<id>AddOn3</id>
 				</addon>
 				<addon>
 					<id>AddOn4</id>
+					<version>5.1.*</version>
 				</addon>
 			</addons>
 		</dependencies>
@@ -84,12 +85,12 @@
 		<name>AddOn4</name>
 		<description>AddOn4</description>
 		<author>ZAP Dev Team</author>
-		<version>1</version>
-		<semver>2.3.4</semver>
-		<file>AddOn4-beta-1.zap</file>
+		<version>2</version>
+		<semver>5.1.6</semver>
+		<file>AddOn4-5.1.6.zap</file>
 		<status>beta</status>
 		<changes />
-		<url>http://localhost/add-ons/AddOn4-beta-1.zap</url>
+		<url>http://localhost/add-ons/AddOn4-5.1.6.zap</url>
 		<info />
 		<size>1024</size>
 		<date>2015-01-01</date>
@@ -99,6 +100,8 @@
 			<addons>
 				<addon>
 					<id>AddOn5</id>
+					<not-before-version>7</not-before-version>
+					<not-from-version>15</not-from-version>
 				</addon>
 			</addons>
 		</dependencies>
@@ -109,12 +112,11 @@
 		<name>AddOn5</name>
 		<description>AddOn5</description>
 		<author>ZAP Dev Team</author>
-		<version>1</version>
-		<semver>2.3.4</semver>
-		<file>AddOn5-beta-1.zap</file>
+		<version>8</version>
+		<file>AddOn5-8.zap</file>
 		<status>beta</status>
 		<changes />
-		<url>http://localhost/add-ons/AddOn5-beta-1.zap</url>
+		<url>http://localhost/add-ons/AddOn5-8.zap</url>
 		<info />
 		<size>1024</size>
 		<date>2015-01-01</date>
@@ -124,6 +126,7 @@
 			<addons>
 				<addon>
 					<id>AddOn6</id>
+					<version>2.3.4</version>
 				</addon>
 				<addon>
 					<id>AddOn7</id>
@@ -137,12 +140,12 @@
 		<name>AddOn6</name>
 		<description>AddOn6</description>
 		<author>ZAP Dev Team</author>
-		<version>1</version>
+		<version>2.3.4</version>
 		<semver>2.3.4</semver>
-		<file>AddOn6-beta-1.zap</file>
+		<file>AddOn6-beta-2.3.4.zap</file>
 		<status>beta</status>
 		<changes />
-		<url>http://localhost/add-ons/AddOn6-beta-1.zap</url>
+		<url>http://localhost/add-ons/AddOn6-beta-2.3.4.zap</url>
 		<info />
 		<size>1024</size>
 		<date>2015-01-01</date>
@@ -152,6 +155,7 @@
 			<addons>
 				<addon>
 					<id>AddOn7</id>
+					<semver>6.*</semver>
 				</addon>
 			</addons>
 		</dependencies>
@@ -162,12 +166,12 @@
 		<name>AddOn7</name>
 		<description>AddOn7</description>
 		<author>ZAP Dev Team</author>
-		<version>1</version>
-		<semver>2.3.4</semver>
-		<file>AddOn7-beta-1.zap</file>
+		<version>6</version>
+		<semver>6.0.8</semver>
+		<file>AddOn7-beta-6.zap</file>
 		<status>beta</status>
 		<changes />
-		<url>http://localhost/add-ons/AddOn7-beta-1.zap</url>
+		<url>http://localhost/add-ons/AddOn7-beta-6.zap</url>
 		<info />
 		<size>1024</size>
 		<date>2015-01-01</date>

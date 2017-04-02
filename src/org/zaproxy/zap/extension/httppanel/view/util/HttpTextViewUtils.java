@@ -28,7 +28,7 @@ import org.parosproxy.paros.network.HttpHeader;
 /**
  * Utility methods related to text views of HTTP messages.
  * 
- * @since TODO add version
+ * @since 2.6.0
  */
 public final class HttpTextViewUtils {
 

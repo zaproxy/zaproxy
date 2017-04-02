@@ -153,7 +153,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     /**
      * Gets any custom icons that have been set for this node
      * @return any custom icons that have been set for this node
-     * @since TODO add version
+     * @since 2.6.0
      */
     public List<ImageIcon> getCustomIcons() {
         List<ImageIcon> iconList = new ArrayList<ImageIcon>();

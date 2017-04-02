@@ -66,9 +66,11 @@
 // ZAP: 2016/12/20 Include the name of the user when logging the scan info
 // ZAP: 2017/03/20 Improve node enumeration in pre-scan phase.
 // ZAP: 2017/03/20 Log the number of messages sent by the scanners, when finished.
+// ZAP: 2017/03/25 Ensure messages to be scanned have a response.
 
 package org.parosproxy.paros.core.scanner;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,6 +128,11 @@ public class HostProcess implements Runnable {
     // ZAP: progress related
     private int nodeInScopeCount = 0;
     private int percentage = 0;
+
+    /**
+     * The count of requests sent by the {@code HostProcess} itself.
+     */
+    private int requestCount;
     
     /**
      * Constructs a {@code HostProcess}, with no rules' configurations.
@@ -153,7 +160,7 @@ public class HostProcess implements Runnable {
      * @param connectionParam the connection parameters
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
@@ -402,12 +409,22 @@ public class HostProcess implements Runnable {
 
         try {
             
-            msg = node.getHistoryReference().getHttpMessage();
+            HistoryReference hRef = node.getHistoryReference();
+            msg = hRef.getHttpMessage();
 
             if (msg == null) {
                 // Likely to be a temporary node
                 log.debug("scanSingleNode msg null");
                 return false;
+            }
+
+            // Ensure the temporary nodes, added automatically to Sites tree, have a response.
+            // The scanners might base the logic/attacks on the state of the response (e.g. status code).
+            if (msg.getResponseHeader().isEmpty()) {
+                msg = msg.cloneRequest();
+                if (!obtainResponse(hRef, msg)) {
+                    return false;
+                }
             }
 
             log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
@@ -445,6 +462,20 @@ public class HostProcess implements Runnable {
 
         mapPluginStats.get(plugin.getId()).incProgress();
         return true;
+    }
+
+    private boolean obtainResponse(HistoryReference hRef, HttpMessage message) {
+        try {
+            getHttpSender().sendAndReceive(message);
+            notifyNewMessage(message);
+            requestCount++;
+            return true;
+        } catch (IOException e) {
+            log.warn(
+                    "Failed to obtain the HTTP response for href [id=" + hRef.getHistoryId() + ", type=" + hRef.getHistoryType()
+                            + ", URL=" + hRef.getURI() + "]: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -675,7 +706,7 @@ public class HostProcess implements Runnable {
      *
      * @param plugin the plugin that will be skipped, must not be {@code null}
      * @param reason the reason why the plugin was skipped, might be {@code null}
-     * @since TODO add version
+     * @since 2.6.0
      */
     public void pluginSkipped(Plugin plugin, String reason) {
         PluginStats pluginStats = mapPluginStats.get(plugin.getId());
@@ -726,7 +757,7 @@ public class HostProcess implements Runnable {
      * 
      * @param plugin the plugin that will be checked
      * @return the reason why the given plugin was skipped, might be {@code null} if not skipped or there's no reason
-     * @since TODO add version
+     * @since 2.6.0
      * @see #isSkipped(Plugin)
      */
     public String getSkippedReason(Plugin plugin) {
@@ -823,7 +854,7 @@ public class HostProcess implements Runnable {
 	/**
 	 * Gets the technologies to be used in the scan.
 	 *
-	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @return the technologies, never {@code null} (since 2.6.0)
 	 * @since 2.4.0
 	 */
 	public TechSet getTechSet() {
@@ -835,7 +866,7 @@ public class HostProcess implements Runnable {
 	 *
 	 * @param techSet the technologies to be used during the scan
 	 * @since 2.4.0
-	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+	 * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}.
 	 */
 	public void setTechSet(TechSet techSet) {
 		if (techSet == null) {
@@ -923,7 +954,7 @@ public class HostProcess implements Runnable {
      */
     public int getRequestCount() {
         synchronized (mapPluginStats) {
-            int count = getAnalyser().getRequestCount();
+            int count = requestCount + getAnalyser().getRequestCount();
             for (PluginStats stats : mapPluginStats.values()) {
                 count += stats.getMessageCount();
             }

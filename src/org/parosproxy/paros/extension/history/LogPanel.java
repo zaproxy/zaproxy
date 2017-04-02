@@ -343,7 +343,7 @@ public class LogPanel extends AbstractPanel {
     }
 
     /**
-     * @deprecated (TODO add version) No longer used/needed.
+     * @deprecated (2.6.0) No longer used/needed.
      */
     @Deprecated
     public void clearDisplayQueue() {

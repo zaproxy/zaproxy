@@ -21,6 +21,8 @@
 package org.zaproxy.zap.control;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Used to override options in the configuration file.
@@ -30,7 +32,7 @@ import java.util.Hashtable;
 public class ControlOverrides {
 	private int proxyPort = -1;
 	private String proxyHost = null;
-	private Hashtable<String, String> configs = new Hashtable<String, String>();
+	private Map<String, String> configs = new LinkedHashMap<>();
 	private boolean experimentalDb = false;
 
 	public int getProxyPort() {
@@ -53,12 +55,46 @@ public class ControlOverrides {
 		this.proxyHost = proxyHost;
 	}
 
-	public Hashtable<String, String> getConfigs() {
+	/**
+	 * Gets the {@code config} command line arguments, in the order they were specified.
+	 *
+	 * @return the {@code config} command line arguments.
+	 * @since 2.6.0
+	 */
+	public Map<String, String> getOrderedConfigs() {
 		return configs;
 	}
 
-	public void setConfigs(Hashtable<String, String> configs) {
+	/**
+	 * Sets the {@code config} command line arguments, in the order they were specified.
+	 *
+	 * @param configs the {@code config} command line arguments.
+	 * @since 2.6.0
+	 */
+	public void setOrderedConfigs(Map<String, String> configs) {
 		this.configs = configs;
+	}
+
+	/**
+	 * Gets the {@code config} command line arguments, in no specific order.
+	 *
+	 * @return the {@code config} command line arguments.
+	 * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead.
+	 */
+	@Deprecated
+	public Hashtable<String, String> getConfigs() {
+		return new Hashtable<>(configs);
+	}
+
+	/**
+	 * Sets the {@code config} command line arguments, in no specific order.
+	 *
+	 * @param configs the {@code config} command line arguments.
+	 * @deprecated (2.6.0) Use {@link #setOrderedConfigs(Map)} instead.
+	 */
+	@Deprecated
+	public void setConfigs(Hashtable<String, String> configs) {
+		this.configs = new LinkedHashMap<>(configs);
 	}
 
 	public boolean isExperimentalDb() {

@@ -169,7 +169,6 @@ public class AutoUpdateAPI extends ApiImplementor {
 		map.put("sizeInBytes", String.valueOf(ao.getSize()));
 		map.put("status", ao.getStatus().toString());
 		map.put("url", ObjectUtils.toString(ao.getUrl()));
-		map.put("fileVersion", String.valueOf(ao.getFileVersion()));
 		map.put("version", ObjectUtils.toString(ao.getVersion()));
 		return new ApiResponseSet<String>("addon", map);
 	}

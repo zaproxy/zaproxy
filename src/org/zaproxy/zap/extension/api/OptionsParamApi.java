@@ -209,7 +209,7 @@ public class OptionsParamApi extends AbstractParam {
 	/**
 	 * Gets the time to live for API nonces. This should not be accessible via the API.
 	 * @return the time to live for API nonces
-	 * @since TODO Add Version
+	 * @since 2.6.0
 	 */
 	@ZapApiIgnore
 	public int getNonceTimeToLiveInSecs() {
@@ -247,7 +247,7 @@ public class OptionsParamApi extends AbstractParam {
      * 
      * @param addr the client address to be checked
      * @return {@code true} if the given client address is allowed to access the API, {@code false} otherwise.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     public boolean isPermittedAddress(String addr) {
         if (addr == null || addr.isEmpty()) {
@@ -266,7 +266,7 @@ public class OptionsParamApi extends AbstractParam {
      * Returns the client addresses that are allowed to access the API.
      *
      * @return the client addresses that are allowed to access the API.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     @ZapApiIgnore
     public List<DomainMatcher> getPermittedAddresses() {
@@ -277,7 +277,7 @@ public class OptionsParamApi extends AbstractParam {
      * Returns the enabled client addresses that are allowed to access the API.
      *
      * @return the enabled client addresses that are allowed to access the API.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     @ZapApiIgnore
     public List<DomainMatcher> getPermittedAddressesEnabled() {
@@ -288,7 +288,7 @@ public class OptionsParamApi extends AbstractParam {
      * Sets the client addresses that will be allowed to access the API.
      * 
      * @param addrs the client addresses that will be allowed to access the API.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     public void setPermittedAddresses(List<DomainMatcher> addrs) {
         if (addrs == null || addrs.isEmpty()) {

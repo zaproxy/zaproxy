@@ -35,7 +35,7 @@ import org.zaproxy.zap.utils.I18N;
  * <li>Scan only in scope - allows to set if the passive scan should be performed only on messages that are in scope.</li>
  * </ul>
  * 
- * @since TODO add version
+ * @since 2.6.0
  */
 class PassiveScannerOptionsPanel extends AbstractParamPanel {
 

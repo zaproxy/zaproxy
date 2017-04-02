@@ -187,7 +187,7 @@ public class ScannerParamFilter implements Cloneable {
      * Gets the parameter types (IDs and corresponding name).
      *
      * @return the parameter types.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public static Map<Integer, String> getTypes() {
         return Collections.unmodifiableMap(typeMap);

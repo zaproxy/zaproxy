@@ -54,6 +54,7 @@ import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.Version;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOn.ExtensionRunRequirements;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
@@ -79,6 +80,7 @@ public class AddOnLoader extends URLClassLoader {
     private static final String ADDONS_RUNNABLE_KEY = ADDONS_RUNNABLE_BASE_KEY + ".addon";
     private static final String ADDON_RUNNABLE_ID_KEY = "id";
     private static final String ADDON_RUNNABLE_VERSION_KEY = "version";
+    private static final String ADDON_RUNNABLE_FULL_VERSION_KEY = "fullversion";
     private static final String ADDON_RUNNABLE_ALL_EXTENSIONS_KEY = "extensions.extension";
 
     /**
@@ -1014,8 +1016,12 @@ public class AddOnLoader extends URLClassLoader {
                 // No longer exists, skip it.
                 continue;
             }
-            int version = savedAddOn.getInt(ADDON_RUNNABLE_VERSION_KEY, -1);
-            if (version == -1 || addOn.getFileVersion() != version) {
+            String version = savedAddOn.getString(ADDON_RUNNABLE_FULL_VERSION_KEY, "");
+            if (version.isEmpty()) {
+                // Try read the old version, which was an integer.
+                version = savedAddOn.getString(ADDON_RUNNABLE_VERSION_KEY, "");
+            }
+            if (version.isEmpty() || !addOn.getVersion().equals(createLegacyVersion(version, addOn.getName()))) {
                 // No version or not the same version, skip it.
                 continue;
             }
@@ -1032,6 +1038,30 @@ public class AddOnLoader extends URLClassLoader {
         return runnableAddOns;
     }
 
+    private static Version createLegacyVersion(String version, String addOnName) {
+        try {
+            return new Version(version);
+        } catch (IllegalArgumentException e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                        "Failed to create (legacy?) version with [" + version + "] for runnable add-on [" + addOnName + "]",
+                        e);
+            }
+        }
+
+        try {
+            return new Version(version + ".0.0");
+        } catch (IllegalArgumentException e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(
+                        "Failed to create legacy version with [" + version + ".0.0] for runnable add-on [" + addOnName + "]",
+                        e);
+            }
+        }
+
+        return null;
+    }
+
     private static void saveAddOnsRunState(Map<AddOn, List<String>> runnableAddOns) {
         HierarchicalConfiguration config = (HierarchicalConfiguration) Model.getSingleton().getOptionsParam().getConfig();
         config.clearTree(ADDONS_RUNNABLE_BASE_KEY);
@@ -1042,7 +1072,9 @@ public class AddOnLoader extends URLClassLoader {
             AddOn addOn = runnableAddOnEntry.getKey();
 
             config.setProperty(elementBaseKey + ADDON_RUNNABLE_ID_KEY, addOn.getId());
-            config.setProperty(elementBaseKey + ADDON_RUNNABLE_VERSION_KEY, Integer.valueOf(addOn.getFileVersion()));
+            config.setProperty(elementBaseKey + ADDON_RUNNABLE_FULL_VERSION_KEY, addOn.getVersion());
+            // For older ZAP versions, which can't read the semantic version, just an integer.
+            config.setProperty(elementBaseKey + ADDON_RUNNABLE_VERSION_KEY, addOn.getVersion().getMajorVersion());
 
             String extensionBaseKey = elementBaseKey + ADDON_RUNNABLE_ALL_EXTENSIONS_KEY;
             for (String extension : runnableAddOnEntry.getValue()) {

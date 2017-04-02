@@ -34,6 +34,7 @@
 // ZAP: 2016/08/19 Issue 2782: Support -configfile
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/07 Allow to disable default standard output logging
+// ZAP: 2017/03/26 Allow to obtain configs in the order specified
 
 package org.parosproxy.paros;
 
@@ -41,6 +42,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -77,7 +79,7 @@ public class CommandLine {
      * Command line option to disable the default logging through standard output.
      * 
      * @see #isNoStdOutLog()
-     * @since TODO add version
+     * @since 2.6.0
      */
     public static final String NOSTDOUT = "-nostdout";
 
@@ -92,7 +94,7 @@ public class CommandLine {
     private int port = -1;
     private String host = null;
     private String[] args = null;
-    private final Hashtable<String, String> configs = new Hashtable<>();
+    private final Map<String, String> configs = new LinkedHashMap<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
     private List<CommandLineArgument[]> commandList = null;
 
@@ -431,7 +433,24 @@ public class CommandLine {
         return host;
     }
 
+    /**
+     * Gets the {@code config} command line arguments, in no specific order.
+     *
+     * @return the {@code config} command line arguments.
+     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they were specified.
+     */
+    @Deprecated
     public Hashtable<String, String> getConfigs() {
+        return new Hashtable<>(configs);
+    }
+
+    /**
+     * Gets the {@code config} command line arguments, in the order they were specified.
+     *
+     * @return the {@code config} command line arguments.
+     * @since 2.6.0
+     */
+    public Map<String, String> getOrderedConfigs() {
         return configs;
     }
 
@@ -447,7 +466,7 @@ public class CommandLine {
      * Tells whether or not the default logging through standard output should be disabled.
      *
      * @return {@code true} if the default logging through standard output should be disabled, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public boolean isNoStdOutLog() {
         return noStdOutLog;

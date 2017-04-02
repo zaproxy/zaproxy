@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
  * A {@code JPanel} containing two {@code JTree} shown one above the other, used to display the contexts and sites trees in the
  * same panel.
  *
- * @since TODO add version
+ * @since 2.6.0
  */
 public class ContextsSitesPanel extends JPanel {
 

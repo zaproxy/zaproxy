@@ -29,7 +29,7 @@ import javax.swing.UIManager;
  * Use this class instead of JLabel where the text could include HTML that you
  * do not want to render.
  * @author psiinon
- * @since TODO add version
+ * @since 2.6.0
  *
  */
 public class ZapLabel extends JTextArea {

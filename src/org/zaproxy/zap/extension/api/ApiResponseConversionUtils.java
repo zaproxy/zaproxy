@@ -63,7 +63,7 @@ public final class ApiResponseConversionUtils {
      * @param historyType the type of the message
      * @param msg the HTTP message to be converted
      * @return the {@code ApiResponseSet} with the ID, type and the HTTP message
-     * @since TODO add version
+     * @since 2.6.0
      */
     public static ApiResponseSet<String> httpMessageToSet(int historyId, int historyType, HttpMessage msg) {
         Map<String, String> map = new HashMap<>();

@@ -22,7 +22,7 @@ package org.zaproxy.zap.model;
 /**
  * An {@code IllegalArgumentException} that indicates why a context name is illegal.
  *
- * @since TODO add version
+ * @since 2.6.0
  * @see Reason
  */
 public class IllegalContextNameException extends IllegalArgumentException {

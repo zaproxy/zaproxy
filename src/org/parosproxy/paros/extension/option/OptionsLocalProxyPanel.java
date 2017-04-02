@@ -29,6 +29,7 @@
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2016/06/13 Change option "Modify/Remove Accept-Encoding" to "Remove Unsupported Encodings"
 // ZAP: 2016/06/13 Internationalise string and remove unused instance variable
+// ZAP: 2017/03/26 Allow to set the Local Proxy behind NAT.
 
 package org.parosproxy.paros.extension.option;
 
@@ -49,7 +50,6 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
-import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
@@ -62,6 +62,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
     private ZapTextField txtProxyIp = null;
     private ZapTextField txtReverseProxyIp = null;
 
+    private JCheckBox chkBehindNat;
     private JCheckBox chkRemoveUnsupportedEncodings = null;
     private JCheckBox chkAlwaysDecodeGzip = null;
 
@@ -166,12 +167,11 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             gbc.weightx = 1.0D;
             gbc.gridwidth = java.awt.GridBagConstraints.REMAINDER;
             gbc.anchor = java.awt.GridBagConstraints.PAGE_START;
+            panelLocalProxy.add(getChkBehindNat(), gbc);
             panelLocalProxy.add(getChkRemoveUnsupportedEncodings(), gbc);
 
             // TODO hacking
-            panelLocalProxy.add(this.getChkAlwaysDecodeGzip(), 
-            		LayoutHelper.getGBC(0, 6, 1, 1.0D, 0.0D, GridBagConstraints.HORIZONTAL, 
-            				GridBagConstraints.PAGE_START, new java.awt.Insets(2, 2, 2, 2)));
+            panelLocalProxy.add(this.getChkAlwaysDecodeGzip(), gbc);
 
         }
         
@@ -405,6 +405,14 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         return txtReverseProxyIp;
     }
 
+    private JCheckBox getChkBehindNat() {
+        if (chkBehindNat == null) {
+            chkBehindNat = new JCheckBox(Constant.messages.getString("options.proxy.local.label.behindnat"));
+            chkBehindNat.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.behindnat"));
+        }
+        return chkBehindNat;
+    }
+
     public JCheckBox getChkRemoveUnsupportedEncodings() {
         if (chkRemoveUnsupportedEncodings == null) {
             chkRemoveUnsupportedEncodings = new JCheckBox(Constant.messages.getString("options.proxy.local.label.removeUnsupportedEncodings"));
@@ -480,6 +488,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         // ZAP: Do not allow invalid port numbers
         spinnerProxyPort.setValue(proxyParam.getProxyPort());
 
+        chkBehindNat.setSelected(proxyParam.isBehindNat());
         chkRemoveUnsupportedEncodings.setSelected(proxyParam.isRemoveUnsupportedEncodings());
         chkAlwaysDecodeGzip.setSelected(proxyParam.isAlwaysDecodeGzip());
 
@@ -511,6 +520,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         // ZAP: Do not allow invalid port numbers
         proxyParam.setProxyPort(spinnerProxyPort.getValue());
 
+        proxyParam.setBehindNat(getChkBehindNat().isSelected());
         proxyParam.setRemoveUnsupportedEncodings(getChkRemoveUnsupportedEncodings().isSelected());
         // TODO hacking
         proxyParam.setAlwaysDecodeGzip(getChkAlwaysDecodeGzip().isSelected());
