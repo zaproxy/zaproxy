@@ -71,6 +71,7 @@
 // ZAP: 2016/06/21 Prevent deadlock between EDT and threads adding messages to the History tab
 // ZAP: 2017/01/30 Use HistoryTableModel.
 // ZAP: 2017/03/02 Issue 1634 Improve URL export.
+// ZAP: 2017/03/28 Issue 3253 Allow URLs to be exported per context.
 
 package org.parosproxy.paros.extension.history;
 
@@ -110,6 +111,7 @@ import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
+import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.extension.history.PopupMenuExportSelectedURLs;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
@@ -138,6 +140,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     // ZAP: Added Export URLs
 	private PopupMenuExportURLs popupMenuExportURLs = null;
 	private PopupMenuExportSelectedURLs popupMenuExportSelectedURLs = null;
+	private PopupMenuExportContextURLs popupMenuExportContextURLs = null;
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
@@ -229,8 +232,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             // ZAP: Move 'export' menu items to Report menu
 	        extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
+            extensionHook.getHookMenu().addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportSelectedURLs());
+            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportContextURLs());
+            extensionHook.getHookMenu().addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 	    }
@@ -672,6 +678,15 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 			popupMenuExportSelectedURLs.setExtension(this);
 		}
 		return popupMenuExportSelectedURLs;
+	}
+	
+	private PopupMenuExportContextURLs getPopupMenuExportContextURLs() {
+		if (popupMenuExportContextURLs == null) {
+			popupMenuExportContextURLs = new PopupMenuExportContextURLs(
+					Constant.messages.getString("context.export.urls.menu"));
+			popupMenuExportContextURLs.setExtension(this);
+		}
+		return popupMenuExportContextURLs;
 	}
 
 	public void showInHistory(HistoryReference href) {
