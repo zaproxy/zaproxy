@@ -200,7 +200,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 * Sets the alert threshold that should be returned when set to {@link AlertThreshold#DEFAULT}.
 	 *
 	 * @param level the value of default alert threshold
-	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@codeAlertThreshold.DEFAULT}.
+	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@code AlertThreshold.DEFAULT}.
 	 * @since 2.0.0
 	 * @see #setLevel(AlertThreshold)
 	 */

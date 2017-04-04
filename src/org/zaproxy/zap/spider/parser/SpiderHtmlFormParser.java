@@ -77,7 +77,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * Instantiates a new spider html form parser.
 	 *
 	 * @param param the parameters for the spider
-	 * @param param the parameters ValueGenerator
+	 * @param valueGenerator the ValueGenerator
 	 * @throws IllegalArgumentException if {@code param} or {@code valueGenerator} is null.
 	 */
 	public SpiderHtmlFormParser(SpiderParam param, ValueGenerator valueGenerator) {

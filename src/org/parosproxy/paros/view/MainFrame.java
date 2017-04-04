@@ -179,7 +179,7 @@ public class MainFrame extends AbstractFrame {
 	private ZapToggleButton panelsResponsePanelPositionButton;
 
 	/**
-	 * @deprecated (2.5.0) Use {@link #MainFrame(OptionsParam, HttpPanelRequest, HttpPanelResponse)} instead.
+	 * @deprecated (2.5.0) Use {@link #MainFrame(OptionsParam, AbstractPanel, AbstractPanel)} instead.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
