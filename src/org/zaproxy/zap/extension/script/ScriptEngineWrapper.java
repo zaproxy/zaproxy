@@ -64,9 +64,8 @@ public abstract class ScriptEngineWrapper {
 	public abstract boolean isRawEngine();
 	
 	/**
-	 * Returns true if this engine supported script types without defined templates.
-	 * @param type
-	 * @return
+	 * Returns true if this engine supports script types without defined templates.
+	 * @return {@code true} if the engine doesn't require templates, {@code false} otherwise.
 	 */
 	public abstract boolean isSupportsMissingTemplates();
 	
