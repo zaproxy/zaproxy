@@ -58,11 +58,9 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ComponentMaximiser;
 import org.zaproxy.zap.view.ComponentMaximiserMouseListener;
-import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.TabbedPanel2;
 
 /**
@@ -337,8 +335,7 @@ public class WorkbenchPanel extends JPanel {
 	private boolean showTabNames;
 
 	/**
-	 * @deprecated (2.5.0) Use
-	 *			 {@link WorkbenchPanel#WorkbenchPanel(OptionsParam, AbstractPanel, AbstractPanel, MainToolbarPanel)} instead.
+	 * @deprecated (2.5.0) Use {@link WorkbenchPanel#WorkbenchPanel(OptionsParamView, AbstractPanel, AbstractPanel)} instead.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
