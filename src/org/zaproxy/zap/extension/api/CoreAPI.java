@@ -135,6 +135,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_OPTION_PROXY_CHAIN_SKIP_NAME = "optionProxyChainSkipName";
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS = "optionProxyExcludedDomains";
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED = "optionProxyExcludedDomainsEnabled";
+	private static final String VIEW_ZAP_HOME_PATH = "zapHomePath";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
@@ -264,6 +265,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED);
 		apiView.setDeprecated(true);
 		this.addApiView(apiView);
+		this.addApiView(new ApiView(VIEW_ZAP_HOME_PATH));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
@@ -904,6 +906,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					name,
 					Model.getSingleton().getOptionsParam().getConnectionParam().getProxyExcludedDomains(),
 					true);
+		} else if (VIEW_ZAP_HOME_PATH.equals(name)) {
+			result = new ApiResponseElement(name, Constant.getZapHome());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
