@@ -134,6 +134,22 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"^https?://clients2\\.google\\.com/service/update2/crx.*$",
 				"Site - Google Chrome extension updates",
 				"false"
+			}, {
+				"^https?://detectportal\\.firefox\\.com.*$",
+				"Site - Firefox captive portal detection",
+				"false"
+			}, {
+				"^https?://www\\.google-analytics\\.com.*$",
+				"Site - Google Analytics",
+				"false"
+			}, {
+				"^https?://ciscobinary\\.openh264\\.org.*$",
+				"Site - Firefox h264 codec download", // https://support.mozilla.org/t5/Firefox/Where-is-a-check-that-http-ciscobinary-openh264-org-openh264-is/m-p/1316497#M1005892
+				"false"
+			}, {
+				"^https?://fonts.*$",
+				"Site - Fonts CDNs such as fonts.gstatic.com, etc",
+				"false"
 			}
     	};
     	
