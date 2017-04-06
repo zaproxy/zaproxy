@@ -144,11 +144,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 				}
 				
 			}
-			if (sel) {
-				component.add(wrap(node.toString(), Color.WHITE));
-			} else {
-				component.add(wrap(node.toString()));
-			}
+			component.add(wrap(node.toString(), sel ? getTextSelectionColor() : getTextNonSelectionColor()));
 
 	        for (SiteMapListener listener : listeners) {
 	        	listener.onReturnNodeRendererComponent(this, leaf, node);
