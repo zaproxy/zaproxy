@@ -72,6 +72,7 @@
 // ZAP: 2017/01/30 Use HistoryTableModel.
 // ZAP: 2017/03/02 Issue 1634 Improve URL export.
 // ZAP: 2017/03/28 Issue 3253 Allow URLs to be exported per context.
+// ZAP: 2017/04/07 Added getUIName()
 
 package org.parosproxy.paros.extension.history;
 
@@ -163,6 +164,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         this.setOrder(16);
 
 	}
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("history.name");
+    }
 	
 	/**
 	 * This method initializes logPanel	

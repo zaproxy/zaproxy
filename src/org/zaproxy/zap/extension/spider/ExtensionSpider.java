@@ -143,6 +143,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("spider.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		// Register for listeners

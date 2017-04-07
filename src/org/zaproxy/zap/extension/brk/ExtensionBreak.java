@@ -114,6 +114,11 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         super(NAME);
         this.setOrder(24);
 	}
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("brk.name");
+    }
 	
 	public BreakpointManagementInterface getBreakpointManagementInterface() {
 		return this.breakpointManagementInterface;

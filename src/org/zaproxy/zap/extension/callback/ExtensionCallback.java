@@ -39,6 +39,7 @@ public class ExtensionCallback extends ExtensionAdaptor implements
         OptionsChangedListener {
 
     private static final String TEST_PREFIX = "ZapTest";
+    private static final String NAME = "ExtensionCallback";
 
     private ProxyServer proxyServer;
     private CallbackParam callbackParam;
@@ -58,6 +59,11 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                 .addOverrideMessageProxyListener(new CallbackProxyListener());
     }
 
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("callback.name");
+    }
+    
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);

@@ -55,6 +55,11 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("dynssl.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 	    if (getView() != null) {

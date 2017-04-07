@@ -127,6 +127,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
     
     @Override
+    public String getUIName() {
+    	return Constant.messages.getString("ascan.name");
+    }
+    
+    @Override
     public void postInit() {
     	policyManager.init();
 

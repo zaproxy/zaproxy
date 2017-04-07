@@ -110,6 +110,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		this.setName(NAME);
 		this.setOrder(202);
 	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("forcedUser.name");
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

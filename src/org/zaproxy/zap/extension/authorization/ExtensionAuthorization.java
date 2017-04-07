@@ -73,6 +73,11 @@ public class ExtensionAuthorization extends ExtensionAdaptor implements ContextP
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("autorization.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 

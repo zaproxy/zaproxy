@@ -62,6 +62,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		implements SessionChangedListener, /*ProxyListener, */ SiteMapListener{
 
 	public static final String NAME = "ExtensionParams"; 
+
 	private ParamsPanel paramsPanel = null;
 	private PopupMenuParamSearch popupMenuSearch = null;
 	private PopupMenuAddAntiCSRF popupMenuAddAntiCsrf = null;
@@ -80,6 +81,11 @@ public class ExtensionParams extends ExtensionAdaptor
         this.setOrder(58);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("params.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

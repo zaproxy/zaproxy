@@ -58,6 +58,11 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("keyboard.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    if (getView() != null) {
 	    	// Usually options are loaded in daemon mode, but really no point for keyboard shortcuts;)

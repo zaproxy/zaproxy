@@ -93,6 +93,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         super(NAME);
         this.setOrder(27);
     }
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("alerts.name");
+    }
 
     @Override
     public void hook(ExtensionHook extensionHook) {

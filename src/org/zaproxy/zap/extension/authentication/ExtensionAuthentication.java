@@ -92,6 +92,11 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("authentication.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		// Register this as a context data factory

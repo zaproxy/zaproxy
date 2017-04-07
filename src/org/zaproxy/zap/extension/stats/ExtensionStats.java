@@ -54,6 +54,11 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("stats.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
