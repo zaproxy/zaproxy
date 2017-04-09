@@ -38,6 +38,7 @@
 // ZAP: 2015/06/01 Issue 1653: Support context menu key for trees
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2016/07/01 Issue 2642: Slow mouse wheel scrolling in site tree
+// ZAP: 2017/03/28 Issue 3253: Facilitate exporting URLs by context (add getSelectedContext)
 
 package org.parosproxy.paros.view;
 
@@ -390,6 +391,25 @@ public class SiteMapPanel extends AbstractPanel {
 		this.contextTree.nodeStructureChanged(root);
 	}
 
+	/**
+	 * Returns the Context which is selected in the Site Map panel of the UI
+	 * or {@code null} if nothing is selected or the selection is the root node.
+	 * 
+	 * @return Context the context which is selected in the UI
+	 * @since TODO add version
+	 */
+	public Context getSelectedContext() {
+		SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();
+		if (node == null || node.isRoot()) {
+			return null;
+		}
+		Target target = (Target) node.getUserObject();
+		if (target != null) {
+			return target.getContext();
+		}
+		return null;
+	}
+	
 	private JTree getTreeContext() {
 		if (treeContext == null) {
 			reloadContextTree();

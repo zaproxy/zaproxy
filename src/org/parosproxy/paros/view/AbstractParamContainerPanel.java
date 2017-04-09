@@ -60,7 +60,12 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class AbstractParamContainerPanel extends JSplitPane {
 
-    private static final String DEFAULT_ROOT_NODE_NAME = "Root";
+    /**
+     * The default name used for the root node of the tree showing the option panel names.
+     * 
+     * @since TODO add version
+     */
+    public static final String DEFAULT_ROOT_NODE_NAME = "Root";
 
     private static final long serialVersionUID = -5223178126156052670L;
     protected Object paramObject = null;

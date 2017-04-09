@@ -41,6 +41,7 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextExportDialog;
@@ -70,6 +71,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
 	private PopupContextTreeMenu popupContextTreeMenuDelete = null;
 	private PopupContextTreeMenu popupContextTreeMenuExport;
+	private PopupMenuExportContextURLs popupContextTreeMenuExportUrls;
 
 	// Still being developed
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
@@ -131,6 +133,9 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExport());
+			if (isExtensionHistoryEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExportUrls());
+			}
 		}
 	}
 	
@@ -178,6 +183,16 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             });
 		}
 		return popupContextTreeMenuOutScope;
+	}
+	
+	private PopupMenuExportContextURLs getPopupContextTreeMenuExportUrls() {
+		if (popupContextTreeMenuExportUrls == null) {
+			popupContextTreeMenuExportUrls = new PopupMenuExportContextURLs(
+					Constant.messages.getString("context.export.urls.menu"));
+			popupContextTreeMenuExportUrls.setExtension(
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
+		}
+		return popupContextTreeMenuExportUrls;
 	}
 
 	private PopupContextTreeMenu getPopupContextTreeMenuDelete() {

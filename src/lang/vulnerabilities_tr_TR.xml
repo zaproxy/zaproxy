@@ -100,26 +100,26 @@ Faz: Mimari ve Tasarım
     Tek-yönlü (mesela, sadece kullanıcı veya alıcının anahtara sahip olması gerektiği). Bu, açık anahtar şifrelemesi veya şifreleme yapan kısmın (mesela yazılım) özel anahtara erişmesine gerek duymadığı diğer tekniklerle başarılabilir.
       Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. They will likely be exposed to attacks that are well-understood by cryptographers. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Faz: Mimari ve Tasarım
+Kendi kriptografik algoritmanızı geliştirmeyin. Onlar, muhtemelen kriptograflar tarafından iyi anlaşılmış saldırılara maruz kalacaklar. Tersine mühendislik teknikleri olgun. Eğer algoritmanız açığa çıkar, saldırganlar nasıl çalıştığını çözerlerse, o zayıftır.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-For example, US government systems require FIPS 140-2 certification.
-As with all cryptographic mechanisms, the source code should be available for analysis.
-Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+Faz: Mimari ve Tasarım
+Bu alanda uzmanlarca güçlü kabul edilen, iyi onaylanmış algoritmaları ve bunların iyi test edilmiş gerçeklemelerini kullanın.
+Mesela, ABD hükümet sistemleri FIPS 140-2 sertifikası gerektiriyor.
+Tüm kriptografik mekanizmalarla, kaynak kodu analiz için açık bulunmalı.
+Periyodik olarak, geçerliliğini yitirmiş kriptografi kullanılmadığı kontrol edilmeli. Bir zamanlar kırılması için milyarlarca hesaplama yılı gerektiği düşünülen eski algoritmalar, günümüzde bir kaç gün veya saatte kırılabilmektedir. Bunlardan MD4, MD5, SHA1, DES, ve diğer algoritmalar bir zamanlar güçlü kabul ediliyordu.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Faz: Mimari ve Tasarım
+Sisteminizi sınırları tartışmasız bir şekilde çizilmiş, "güvenli" alanlar oluşturacak şekilde bölümlere ayırın. Hassas bilginin güven sınırları dışına gitmesine izin vermeyin ve güvenli alan dışındaki bir bölümle karşılaştığınızda her zaman dikkatli olun.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Faz: Gerçekleme; Mimari ve Tasarım
+endüstri tarafından onaylanmış teknikler kullanırken, onları dikkatli kullanmalısınız. Yoğun kaynaklı adımları atlayarak kestirmeden gitmeyin (CWE-325). Bu adımlar, yaygın saldırıları önlemek için genellikle gereklidir.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
-This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
-	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
-	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
+Faz: Gerçekleme
+İsimlendirme kurallarını ve güçlü tipleri, hassas bilgi kullanılırken daha kolay farkedebilmek için kullanın. Nesne, yapı ve diğer kompleks yapıları kullanırken, hassas ve hassas olmayan veriyi mümkün oldukça ayırın.
+Bu, şifrelenmemiş veriyi kodda daha kolay farkedebilmenizi sağlar.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
+	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 </vuln_item_wasc_4>
 
 <vuln_items>wasc_5</vuln_items>
@@ -417,7 +417,7 @@ Failure to scrub HTML/Script comments prior to a push to the production environm
 Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
 
 Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</solution>
+	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Hassas bilginin güven sınırları dışına gitmesine izin vermeyin ve güvenli alan dışındaki bir bölümle karşılaştığınızda her zaman dikkatli olun.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
