@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -78,6 +79,19 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public static final int EXTENSION_ORDER = 60;
 	public static final String NAME = "ExtensionScript";
 	public static final ImageIcon ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/059.png")); // Script icon
+	
+	/**
+	 * The {@code Charset} used to load/save the scripts from/to the file.
+	 * <p>
+	 * While the scripts can be loaded with any {@code Charset} (defaulting to this one) they are always saved with this
+	 * {@code Charset}.
+	 *
+	 * @since TODO add version
+	 * @see #loadScript(ScriptWrapper)
+	 * @see #loadScript(ScriptWrapper, Charset)
+	 * @see #saveScript(ScriptWrapper)
+	 */
+	public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 	
 	public static final String SCRIPTS_DIR = "scripts";
 	public static final String TEMPLATES_DIR = SCRIPTS_DIR + File.separator + "templates";
@@ -537,7 +551,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void saveScript(ScriptWrapper script) throws IOException {
 		refreshScript(script);
-        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), DEFAULT_CHARSET)) {
             bw.append(script.getContents());
         }
         this.setChanged(script, false);
@@ -907,9 +921,58 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 	}
 	
+	/**
+	 * Loads the script from the file, using {@link #DEFAULT_CHARSET}.
+	 * <p>
+	 * If the file contains invalid byte sequences (for {@code DEFAULT_CHARSET}) it will be loaded again using the
+	 * {@link Charset#defaultCharset() (JVM) default charset}, to load scripts saved with older ZAP versions (which relied on
+	 * default charset).
+	 *
+	 * @param script the ScriptWrapper to be loaded (read script from file).
+	 * @return the {@code ScriptWrapper} with the actual script read from the file.
+	 * @throws IOException if an error occurred while reading the script from the file.
+	 * @throws IllegalArgumentException if the {@code script} is {@code null}.
+	 * @see #loadScript(ScriptWrapper, Charset)
+	 */
 	public ScriptWrapper loadScript(ScriptWrapper script) throws IOException {
+		try {
+			return loadScript(script, DEFAULT_CHARSET);
+		} catch (MalformedInputException e) {
+			if (Charset.defaultCharset() == DEFAULT_CHARSET) {
+				// No point trying the (JVM) default charset if it's the same...
+				throw e;
+			}
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(
+						"Failed to load script [" + script.getName() + "] using [" + DEFAULT_CHARSET + "], falling back to ["
+								+ Charset.defaultCharset() + "].",
+						e);
+			}
+			return loadScript(script, Charset.defaultCharset());
+		}
+	}
+
+	/**
+	 * Loads the script from the file, using the given charset.
+	 *
+	 * @param script the ScriptWrapper to be loaded (read script from file).
+	 * @param charset the charset to use when reading the script from the file.
+	 * @return the {@code ScriptWrapper} with the actual script read from the file.
+	 * @throws IOException if an error occurred while reading the script from the file.
+	 * @throws IllegalArgumentException if the {@code script} or the {@code charset} is {@code null}.
+	 * @since TODO add version
+	 * @see #loadScript(ScriptWrapper)
+	 */
+	public ScriptWrapper loadScript(ScriptWrapper script, Charset charset) throws IOException {
+		if (script == null) {
+			throw new IllegalArgumentException("Parameter script must not be null.");
+		}
+		if (charset == null) {
+			throw new IllegalArgumentException("Parameter charset must not be null.");
+		}
 	    StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), charset)) {
 			int len;
 			char[] buf = new char[1024];
 			while ((len = br.read(buf)) != -1) {
