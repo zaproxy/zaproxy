@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.script;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -140,9 +141,11 @@ public class ScriptAPI extends ApiImplementor {
 			if (type == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_TYPE);
 			}
-			ScriptEngineWrapper engine = extension.getEngineWrapper(params.getString(ACTION_PARAM_SCRIPT_ENGINE));
-			if (engine == null) {
-				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_ENGINE);
+			ScriptEngineWrapper engine;
+			try {
+				engine = extension.getEngineWrapper(params.getString(ACTION_PARAM_SCRIPT_ENGINE));
+			} catch (InvalidParameterException e) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_ENGINE, e);
 			}
 			File file = new File(params.getString(ACTION_PARAM_FILE_NAME));
 			if (!file.exists()) {
