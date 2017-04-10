@@ -264,12 +264,11 @@ public class ContextAPI extends ApiImplementor {
         	result = new ApiResponseElement(name, getContext(params).getIncludeInContextRegexs().toString());
         	break;
         case VIEW_CONTEXT_LIST:
-        	List<String> contextNames = new ArrayList<>();
-            List<Context> contexts = Model.getSingleton().getSession().getContexts();
-            for (Context context : contexts){
-                contextNames.add(context.getName());
+            resultList = new ApiResponseList(name);
+            for (Context context : Model.getSingleton().getSession().getContexts()){
+                resultList.addItem(new ApiResponseElement(CONTEXT_NAME, context.getName()));
             }
-            result = new ApiResponseElement(name, contextNames.toString());
+            result = resultList;
             break;
         case VIEW_CONTEXT:
         	result = new ApiResponseElement(buildResponseFromContext(getContext(params)));
