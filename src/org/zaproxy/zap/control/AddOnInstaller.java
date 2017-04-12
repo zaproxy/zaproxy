@@ -415,7 +415,7 @@ public final class AddOnInstaller {
             File file = new File(Constant.getZapHome(), name);
             try {
                 File parent = file.getParentFile();
-                if (!file.delete()) {
+                if (file.exists() && !file.delete()) {
                     logger.error("Failed to delete: " + file.getAbsolutePath());
                     uninstalledWithoutErrors = false;
                 }
