@@ -68,6 +68,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static final String HELP_SET_FILE_NAME = "helpset";
 	public static final ImageIcon HELP_ICON = DisplayUtils.getScaledIcon(
 			new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+	
+	private static final String NAME = "ExtensionHelp";
 
 	private ZapMenuItem menuHelpZap = null;
 	private JButton helpButton = null;
@@ -96,10 +98,15 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static final Logger logger = Logger.getLogger(ExtensionHelp.class);
 	
     public ExtensionHelp() {
-        super("ExtensionHelp");
+        super(NAME);
         this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("help.name");
+    }
+    
 	@Override
 	public void initView(ViewDelegate view) {
 		super.initView(view);

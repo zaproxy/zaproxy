@@ -57,16 +57,23 @@ import org.zaproxy.zap.utils.DesktopUtils;
 
 public class ExtensionCompare extends ExtensionAdaptor implements SessionChangedListener, SessionListener {
 
+	private static final String NAME = "ExtensionCompare";
+	
 	private static final String CRLF = "\r\n";
 	private JMenuItem menuCompare = null;
 
     private static Logger log = Logger.getLogger(ExtensionCompare.class);
 
     public ExtensionCompare() {
-        super("ExtensionCompare");
+        super(NAME);
         this.setOrder(44);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("cmp.name");
+    }
+    
 	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {

@@ -51,6 +51,11 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("uiutils.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

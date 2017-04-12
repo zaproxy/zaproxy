@@ -51,6 +51,11 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
         this.setName(NAME);
         //this.setOrder(0);
 	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("ext.name");
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

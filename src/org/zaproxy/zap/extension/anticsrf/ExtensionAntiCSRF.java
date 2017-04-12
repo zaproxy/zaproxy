@@ -88,6 +88,11 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
     public void init() {
         antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
     }
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("acsrf.name");
+    }
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

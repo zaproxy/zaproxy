@@ -39,6 +39,7 @@
 // ZAP: 2014/12/12 Issue 1449: Added help button
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2017/04/07 Added getUIName()
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -67,7 +68,6 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 	 * Name of this extension.
 	 */
 	public static final String NAME = "ExtensionManualRequest";
-
 	
 	public ExtensionManualRequestEditor() {
 		super(NAME);
@@ -75,6 +75,11 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
         
 	}
 
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("manReq.name");
+	}
+	
     @Override
     public void initView(ViewDelegate view) {
         super.initView(view);

@@ -88,6 +88,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		this.setName(NAME);
 		this.setOrder(31);
 	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("std.menu.ext.name");
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

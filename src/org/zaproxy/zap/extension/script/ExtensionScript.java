@@ -157,6 +157,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("script.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

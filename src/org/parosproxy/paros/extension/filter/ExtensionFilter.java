@@ -37,6 +37,7 @@
 // ZAP: 2014/11/26 Fixed an issue in the implementation of searchFilterIndex.
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/06/28 Do not start the timer thread if no filter is enabled
+// ZAP: 2017/04/07 Added getUIName()
 
 package org.parosproxy.paros.extension.filter;
 
@@ -67,6 +68,11 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener {
     public ExtensionFilter() {
         super();
         this.setOrder(8);
+    }
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("filter.name");
     }
     
     @Override

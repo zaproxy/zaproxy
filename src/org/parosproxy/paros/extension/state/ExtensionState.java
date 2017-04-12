@@ -32,6 +32,7 @@
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2017/04/07 Added getUIName()
 
 package org.parosproxy.paros.extension.state;
 
@@ -48,17 +49,23 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionState extends ExtensionAdaptor implements SessionChangedListener {
+	
+	private static final String NAME = "ExtensionState";
 
 	private JCheckBoxMenuItem menuSessionTrackingEnable = null;
 
 	private ZapMenuItem menuResetSessionState = null;
 
     public ExtensionState() {
-        super("ExtensionState");
+        super(NAME);
         this.setOrder(12);
 	}
 	
-
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("state.name");
+    }
+    
 	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {

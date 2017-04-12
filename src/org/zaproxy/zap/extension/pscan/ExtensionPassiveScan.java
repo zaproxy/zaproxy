@@ -92,6 +92,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
+    public String getUIName() {
+    	return Constant.messages.getString("pscan.name");
+    }
+    
+    @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
 

@@ -38,6 +38,11 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
         super(NAME);
     }
 
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("ruleconfig.name");
+    }
+    
     public void addRuleconfig (RuleConfig rc) {
         this.getRuleConfigParam().addRuleConfig(rc);
     }
