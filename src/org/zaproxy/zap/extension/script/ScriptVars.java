@@ -28,7 +28,7 @@ import javax.script.ScriptContext;
 public class ScriptVars {
 	
 	private static int MAX_KEY_SIZE = 30;
-	private static int MAX_VALUE_SIZE = 1024;
+	private static int MAX_VALUE_SIZE = 1024*1024;
 	private static int MAX_SCRIPT_VARS = 20;
 	private static int MAX_GLOBAL_VARS = 50;
 
