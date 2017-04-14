@@ -23,8 +23,8 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -276,10 +276,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
         if (paramsTable == null) {
             paramsTable = new JTable();
             paramsTable.setModel(getParamsModel());
-            paramsTable.addMouseListener(new MouseListener() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                }
+            paramsTable.addMouseListener(new MouseAdapter() {
 
                 @Override
                 public void mousePressed(MouseEvent e) {
@@ -296,18 +293,6 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                             }
                         }
                     }
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
                 }
             });
             paramsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
