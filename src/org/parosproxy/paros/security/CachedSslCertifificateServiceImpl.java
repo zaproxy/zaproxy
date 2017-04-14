@@ -71,8 +71,9 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 	}
 
 	@Override
-	public void initializeRootCA(KeyStore keystore) throws KeyStoreException,
+	public synchronized void initializeRootCA(KeyStore keystore) throws KeyStoreException,
 			UnrecoverableKeyException, NoSuchAlgorithmException {
+		this.cache.clear();
 		this.delegate.initializeRootCA(keystore);
 	}
 

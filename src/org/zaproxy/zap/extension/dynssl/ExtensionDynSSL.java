@@ -33,8 +33,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
 import org.parosproxy.paros.security.SslCertificateService;
-import org.parosproxy.paros.security.SslCertificateServiceImpl;
 import org.parosproxy.paros.view.View;
 
 /**
@@ -135,7 +135,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	}
 
 	public void setRootCa(KeyStore rootca) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
-		SslCertificateServiceImpl.getService().initializeRootCA(rootca);
+		CachedSslCertifificateServiceImpl.getService().initializeRootCA(rootca);
 	}
 	
 	public Certificate getRootCA() throws KeyStoreException {
