@@ -30,6 +30,7 @@
 // ZAP: 2014/08/14 Issue 1274: ZAP Error [javax.net.ssl.SSLException]: Unsupported record version SSLv2Hello
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 // ZAP: 2015/10/13 Issue 1975: Allow use of default disabled cipher suites (such as RC4-SHA)
+// ZAP: 2017/04/14 Validate that SSLv2Hello is set in conjunction with at least one SSL/TLS version.
 
 package org.parosproxy.paros.network;
 
@@ -252,6 +253,16 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 				"Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
 	}
 
+	/**
+	 * Gets the SSL/TLS versions that can be safely used (known to be supported by the JRE).
+	 *
+	 * @return the SSL/TLS versions that can be safely used.
+	 * @since TODO add version
+	 */
+	public static String[] getFailSafeProtocols() {
+		return Arrays.copyOf(FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS, FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS.length);
+	}
+
 	public static String[] getSupportedProtocols() {
 		if (supportedProtocols == null) {
 			readSupportedProtocols(null);
@@ -328,6 +339,10 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 		if (enabledSupportedProtocols.isEmpty()) {
 			throw new IllegalArgumentException("No supported protocol(s) set.");
+		}
+
+		if (enabledSupportedProtocols.size() == 1 && enabledSupportedProtocols.contains(SECURITY_PROTOCOL_SSL_V2_HELLO)) {
+			throw new IllegalArgumentException("Only SSLv2Hello set, must have at least one SSL/TLS version enabled.");
 		}
 
 		String[] extractedSupportedProtocols = new String[enabledSupportedProtocols.size()];
