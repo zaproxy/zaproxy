@@ -120,7 +120,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 		for (Extension ext : exts) {
 			ext.setEnabled(extParam.isExtensionEnabled(ext.getName()));
 		}
-    	extensionModel.fireTableRowsUpdated(0, extensionModel.getRowCount());
+    	extensionModel.fireTableRowsUpdated(0, extensionModel.getRowCount() - 1);
     }
 
 
