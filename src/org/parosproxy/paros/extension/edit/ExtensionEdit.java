@@ -25,6 +25,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2017/04/07 Added name constants and getUIName()
 
 package org.parosproxy.paros.extension.edit;
 
@@ -42,16 +43,22 @@ import org.parosproxy.paros.view.FindDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionEdit extends ExtensionAdaptor {
+	
+	private static final String NAME = "ExtensionEdit";
 
     private FindDialog findDialog = null;
     private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
 
     public ExtensionEdit() {
-        super("ExtensionEdit");
+        super(NAME);
         this.setOrder(4);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("edit.name");
+    }
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

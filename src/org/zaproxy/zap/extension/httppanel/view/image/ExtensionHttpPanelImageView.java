@@ -36,6 +36,11 @@ public class ExtensionHttpPanelImageView extends ExtensionAdaptor {
 	public ExtensionHttpPanelImageView() {
 		super(NAME);
 	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("http.panel.view.image.ext.name");
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

@@ -45,6 +45,11 @@ public class ExtensionAPI extends ExtensionAdaptor {
         super(NAME);
         this.setOrder(10);
 	}
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("api.name");
+    }
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

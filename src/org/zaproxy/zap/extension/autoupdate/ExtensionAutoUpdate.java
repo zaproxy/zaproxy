@@ -95,6 +95,8 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback, CommandLineListener {
 	
+	private static final String NAME = "ExtensionAutoUpdate";
+	
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
     
@@ -161,7 +163,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setName("ExtensionAutoUpdate");
+        this.setName(NAME);
         this.setOrder(1);	// High order so that cmdline updates are installed asap
         this.downloadManager = new DownloadManager(Model.getSingleton().getOptionsParam().getConnectionParam());
         this.downloadManager.start();
@@ -169,6 +171,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         this.getPreviousVersionInfo();
 	}
 
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("autoupdate.name");
+	}
+	
 	@Override
 	public void postInit() {
 		switch (ZAP.getProcessType()) {

@@ -29,6 +29,7 @@
 // ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2016/09/22 Issue 2886: Support Markdown format
+// ZAP: 2017/04/07 Added getUIName()
 
 package org.parosproxy.paros.extension.report;
 
@@ -45,6 +46,8 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionReport extends ExtensionAdaptor implements CommandLineListener {
 
+	private static final String NAME = "ExtensionReport";
+	
     private static final int ARG_LAST_SCAN_REPORT_IDX = 0;
 
 	private ZapMenuItem menuItemHtmlReport = null;
@@ -53,10 +56,15 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 
     public ExtensionReport() {
-        super("ExtensionReport");
+        super(NAME);
         this.setOrder(14);
     }
 
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("report.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

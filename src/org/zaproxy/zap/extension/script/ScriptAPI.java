@@ -22,6 +22,9 @@ package org.zaproxy.zap.extension.script;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +54,7 @@ public class ScriptAPI extends ApiImplementor {
 	private static final String ACTION_PARAM_SCRIPT_TYPE = "scriptType";
 	private static final String ACTION_PARAM_SCRIPT_ENGINE = "scriptEngine";
 	private static final String ACTION_PARAM_FILE_NAME = "fileName";
+	private static final String ACTION_PARAM_CHARSET = "charset";
 
 	private ExtensionScript extension;
 	
@@ -64,7 +68,7 @@ public class ScriptAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_LOAD, 
 				new String[]{ACTION_PARAM_SCRIPT_NAME, ACTION_PARAM_SCRIPT_TYPE, 
 							ACTION_PARAM_SCRIPT_ENGINE, ACTION_PARAM_FILE_NAME}, 
-				new String[]{ACTION_PARAM_SCRIPT_DESC}));
+				new String[]{ACTION_PARAM_SCRIPT_DESC, ACTION_PARAM_CHARSET}));
 		this.addApiAction(new ApiAction(ACTION_REMOVE, new String[]{ACTION_PARAM_SCRIPT_NAME}, new String[]{}));
 		this.addApiAction(new ApiAction(ACTION_RUN_STANDALONE, new String[]{ACTION_PARAM_SCRIPT_NAME}, new String[]{}));
 
@@ -140,9 +144,11 @@ public class ScriptAPI extends ApiImplementor {
 			if (type == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_TYPE);
 			}
-			ScriptEngineWrapper engine = extension.getEngineWrapper(params.getString(ACTION_PARAM_SCRIPT_ENGINE));
-			if (engine == null) {
-				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_ENGINE);
+			ScriptEngineWrapper engine;
+			try {
+				engine = extension.getEngineWrapper(params.getString(ACTION_PARAM_SCRIPT_ENGINE));
+			} catch (InvalidParameterException e) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_ENGINE, e);
 			}
 			File file = new File(params.getString(ACTION_PARAM_FILE_NAME));
 			if (!file.exists()) {
@@ -157,8 +163,18 @@ public class ScriptAPI extends ApiImplementor {
 					true,
 					file);
 
+			Charset charset = getCharset(params);
 			try {
-				extension.loadScript(script);
+				if (charset != null) {
+					extension.loadScript(script, charset);
+				} else {
+					extension.loadScript(script);
+				}
+			} catch (MalformedInputException e) {
+				throw new ApiException(
+						charset != null ? ApiException.Type.ILLEGAL_PARAMETER : ApiException.Type.MISSING_PARAMETER,
+						ACTION_PARAM_CHARSET,
+						e);
 			} catch (IOException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 			}
@@ -192,6 +208,23 @@ public class ScriptAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		
+	}
+
+	private static Charset getCharset(JSONObject params) throws ApiException {
+		if (!params.has(ACTION_PARAM_CHARSET)) {
+			return null;
+		}
+
+		String charsetName = params.getString(ACTION_PARAM_CHARSET);
+		if (charsetName.isEmpty()) {
+			return null;
+		}
+
+		try {
+			return Charset.forName(charsetName);
+		} catch (IllegalArgumentException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_CHARSET, e);
+		}
 	}
 
 }

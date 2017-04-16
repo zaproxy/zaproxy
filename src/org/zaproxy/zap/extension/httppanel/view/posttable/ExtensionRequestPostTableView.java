@@ -35,6 +35,11 @@ public class ExtensionRequestPostTableView extends ExtensionAdaptor {
 
 		setOrder(80);
 	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("http.panel.view.posttable.ext.name");
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {

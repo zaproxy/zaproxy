@@ -132,6 +132,11 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("users.name");
+	}
+	
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}

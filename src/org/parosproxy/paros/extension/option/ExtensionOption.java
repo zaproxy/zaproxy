@@ -29,6 +29,7 @@
 // ZAP: 2015/08/17 Issue 1795: Allow JVM options to be configured via GUI
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2017/04/07 Added getUIName()
 
 package org.parosproxy.paros.extension.option;
 
@@ -42,6 +43,8 @@ import org.zaproxy.zap.extension.lang.OptionsLangPanel;
 
 
 public class ExtensionOption extends ExtensionAdaptor {
+	
+	private static final String NAME = "ExtensionViewOption";
 
 	private JCheckBoxMenuItem menuViewImage = null;
 	private OptionsConnectionPanel optionsConnectionPanel = null;
@@ -60,10 +63,15 @@ public class ExtensionOption extends ExtensionAdaptor {
 
 	
     public ExtensionOption() {
-        super("ExtensionViewOption");
+        super(NAME);
         this.setOrder(2);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("options.name");
+    }
+    
 	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
