@@ -57,6 +57,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
     private static final String FIELD_MAX_DURATION = "spider.custom.label.maxDuration"; 
     private static final String FIELD_SEND_REFERER = "spider.custom.label.sendReferer";
+    private static final String FIELD_ACCEPT_COOKIES = "spider.custom.label.acceptcookies";
     private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
     private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
     private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments"; 
@@ -123,6 +124,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
         this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
         this.addCheckBoxField(1, FIELD_SEND_REFERER, getSpiderParam().isSendRefererHeader());
+        this.addCheckBoxField(1, FIELD_ACCEPT_COOKIES, getSpiderParam().isAcceptCookies());
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
         this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
         this.addCheckBoxField(1, FIELD_PARSE_COMMENTS, getSpiderParam().isParseComments());
@@ -304,6 +306,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
         	spiderParam.setMaxChildren(this.getIntValue(FIELD_MAX_CHILDREN));
         	spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
+        	spiderParam.setAcceptCookies(this.getBoolValue(FIELD_ACCEPT_COOKIES));
         	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
         	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
         	spiderParam.setParseComments(this.getBoolValue(FIELD_PARSE_COMMENTS));

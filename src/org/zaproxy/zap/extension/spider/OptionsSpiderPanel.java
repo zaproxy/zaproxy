@@ -85,6 +85,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox parseGit = null;
 	private JCheckBox handleODataSpecificParameters = null;
 	private JCheckBox chkSendRefererHeader;
+	private JCheckBox chkAcceptCookies;
 	private DomainsAlwaysInScopeMultipleOptionsPanel domainsAlwaysInScopePanel;
 	private DomainsAlwaysInScopeTableModel domainsAlwaysInScopeTableModel;
 
@@ -171,6 +172,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.weighty = 0;
 			innerPanel.add(getChkSendRefererHeader(), gbc);
+			innerPanel.add(getChkAcceptCookies(), gbc);
 			innerPanel.add(handleParametersLabel, gbc);
 			innerPanel.add(getComboHandleParameters(), gbc);
 			innerPanel.add(getChkProcessForm(), gbc);
@@ -205,6 +207,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getDomainsAlwaysInScopePanel().setRemoveWithoutConfirmation(param.isConfirmRemoveDomainAlwaysInScope());
 		getChkProcessForm().setSelected(param.isProcessForm());
 		getChkSendRefererHeader().setSelected(param.isSendRefererHeader());
+		getChkAcceptCookies().setSelected(param.isAcceptCookies());
 		getChkPostForm().setSelected(param.isPostForm());
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
@@ -227,6 +230,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());
 		param.setConfirmRemoveDomainAlwaysInScope(getDomainsAlwaysInScopePanel().isRemoveWithoutConfirmation());
 		param.setSendRefererHeader(getChkSendRefererHeader().isSelected());
+		param.setAcceptCookies(getChkAcceptCookies().isSelected());
 		param.setProcessForm(getChkProcessForm().isSelected());
 		param.setPostForm(getChkPostForm().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
@@ -290,6 +294,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			chkSendRefererHeader = new JCheckBox(Constant.messages.getString("spider.options.label.sendRefererHeader"));
 		}
 		return chkSendRefererHeader;
+	}
+
+	private JCheckBox getChkAcceptCookies() {
+		if (chkAcceptCookies == null) {
+			chkAcceptCookies = new JCheckBox(Constant.messages.getString("spider.options.label.acceptcookies"));
+		}
+		return chkAcceptCookies;
 	}
 
 	/**
