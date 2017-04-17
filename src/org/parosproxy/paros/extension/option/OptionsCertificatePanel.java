@@ -59,7 +59,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextField;
 
 import ch.csnc.extension.httpclient.PKCS11Configuration;
