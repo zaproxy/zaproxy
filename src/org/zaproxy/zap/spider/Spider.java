@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.spider;
 
-import java.net.CookieManager;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -109,9 +108,6 @@ public class Spider {
 	/** The total count of all the submitted tasks. */
 	private int tasksTotalCount;
 
-	/** The cookie manager. */
-	private CookieManager cookieManager;
-	
 	/** The scan context. If null, the scan is not performed in a context. */
 	private Context scanContext;
 
@@ -176,7 +172,6 @@ public class Spider {
 		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
 		this.seedList = new LinkedHashSet<>();
-		this.cookieManager = new CookieManager();
 		this.scanContext = scanContext;
 		
 		init();
@@ -426,15 +421,6 @@ public class Spider {
 	 */
 	protected SpiderController getController() {
 		return controller;
-	}
-
-	/**
-	 * Gets the cookie manager.
-	 * 
-	 * @return the cookie manager
-	 */
-	protected CookieManager getCookieManager() {
-		return cookieManager;
 	}
 
 	/**
