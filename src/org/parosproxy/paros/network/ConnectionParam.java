@@ -225,7 +225,7 @@ public class ConnectionParam extends AbstractParam {
         }
         
         try {
-            this.httpStateEnabled = getConfig().getBoolean(HTTP_STATE_ENABLED, true);
+            this.httpStateEnabled = getConfig().getBoolean(HTTP_STATE_ENABLED, false);
         } catch (ConversionException e) {
             log.error("Error while loading the option httpStateEnabled: " + e.getMessage(), e);
         }
