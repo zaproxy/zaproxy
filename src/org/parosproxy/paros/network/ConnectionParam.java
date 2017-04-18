@@ -36,6 +36,7 @@
 // ZAP: 2041/08/14 Issue 1305: Outgoing proxy is disabled when updating from old versions
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 // ZAP: 2017/01/11 Exclude some options from the API (manually handled to return correct values).
+// ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
 
 package org.parosproxy.paros.network;
 
@@ -720,7 +721,7 @@ public class ConnectionParam extends AbstractParam {
         }
 
         this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
-        SSLConnector.setClientEnabledProtocols(enabledProtocols);
+        setClientEnabledProtocols();
     }
 
     private void loadSecurityProtocolsEnabled() {
@@ -728,9 +729,21 @@ public class ConnectionParam extends AbstractParam {
         if (protocols.size() != 0) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
-            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
+            setClientEnabledProtocols();
         } else {
             setSecurityProtocolsEnabled(SSLConnector.getClientEnabledProtocols());
+        }
+    }
+
+    private void setClientEnabledProtocols() {
+        try {
+            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
+        } catch (IllegalArgumentException e) {
+            log.warn(
+                    "Failed to set persisted protocols " + Arrays.toString(securityProtocolsEnabled) + " falling back to "
+                            + Arrays.toString(SSLConnector.getFailSafeProtocols()) + " caused by: " + e.getMessage());
+            securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
+            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
         }
     }
     

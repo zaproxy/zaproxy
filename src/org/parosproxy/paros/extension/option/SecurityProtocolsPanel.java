@@ -122,8 +122,8 @@ public class SecurityProtocolsPanel extends JPanel {
         }
     }
 
-    public void validateSecurityProtocols() throws Exception {
-        boolean protocolsSelected = false;
+    public void validateSecurityProtocols() {
+        int protocolsSelected = 0;
         JCheckBox checkBoxEnabledProtocol = null;
         for (Entry<String, JCheckBox> entry : checkBoxesSslTlsProtocols.entrySet()) {
             JCheckBox checkBox = entry.getValue();
@@ -132,16 +132,27 @@ public class SecurityProtocolsPanel extends JPanel {
                     checkBoxEnabledProtocol = checkBox;
                 }
                 if (checkBox.isSelected()) {
-                    protocolsSelected = true;
-                    break;
+                    protocolsSelected++;
+                    if (protocolsSelected > 1) {
+                        break;
+                    }
                 }
             }
         }
 
-        if (checkBoxEnabledProtocol != null && !protocolsSelected) {
-            checkBoxEnabledProtocol.requestFocusInWindow();
-            throw new Exception(
-                    Constant.messages.getString("generic.options.panel.security.protocols.error.no.protocols.selected"));
+        if (checkBoxEnabledProtocol != null) {
+            if (protocolsSelected == 0) {
+                checkBoxEnabledProtocol.requestFocusInWindow();
+                throw new IllegalArgumentException(
+                        Constant.messages.getString("generic.options.panel.security.protocols.error.no.protocols.selected"));
+            }
+
+            if (protocolsSelected == 1
+                    && checkBoxesSslTlsProtocols.get(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO).isSelected()) {
+                checkBoxEnabledProtocol.requestFocusInWindow();
+                throw new IllegalArgumentException(
+                        Constant.messages.getString("generic.options.panel.security.protocols.error.just.sslv2hello.selected"));
+            }
         }
     }
 
