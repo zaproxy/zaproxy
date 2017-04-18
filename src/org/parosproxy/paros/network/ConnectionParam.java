@@ -229,8 +229,7 @@ public class ConnectionParam extends AbstractParam {
         } catch (ConversionException e) {
             log.error("Error while loading the option httpStateEnabled: " + e.getMessage(), e);
         }
-        
-        
+                
         try {
 			this.defaultUserAgent = getConfig().getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
 		} catch (Exception e) {

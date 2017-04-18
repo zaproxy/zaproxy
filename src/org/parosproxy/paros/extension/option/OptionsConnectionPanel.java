@@ -859,11 +859,12 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     }
 
     public JCheckBox getCheckBoxHttpStateEnabled() {
-    	if (checkBoxHttpStateEnabled == null) {
-    		checkBoxHttpStateEnabled = new JCheckBox(Constant.messages.getString("conn.options.httpStateEnabled"));
-    	}
-		return checkBoxHttpStateEnabled;
-	}
+        if (checkBoxHttpStateEnabled == null) {
+            checkBoxHttpStateEnabled =
+                    new JCheckBox(Constant.messages.getString("conn.options.httpStateEnabled"));
+        }
+        return checkBoxHttpStateEnabled;
+    }
 
 	public void setCheckBoxHttpStateEnabled(JCheckBox checkBoxHttpStateEnabled) {
 		this.checkBoxHttpStateEnabled = checkBoxHttpStateEnabled;
