@@ -26,6 +26,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -33,6 +35,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.security.SslCertificateServiceImpl;
+import org.parosproxy.paros.view.View;
 
 /**
  * Extension enables configuration for Root CA certificate
@@ -84,6 +87,9 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 			setRootCa(rootca);
 		} catch (final Exception e) {
 			logger.error("Couldn't initialize Root CA", e);
+		}
+		if (isCertExpired(getRootCaCertificate())) {
+			warnRooCaCertExpired();
 		}
 	}
 	
@@ -146,4 +152,51 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	public boolean supportsDb(String type) {
     	return true;
     }
+	
+	/**
+	 * Gets ZAPs current Root CA Certificate in X.509 format. 
+	 * Could return {@code null} if there is a problem getting the certificate.
+	 * 
+	 * @return The X.509 version of ZAPs current Root CA certificate.
+	 * @since TODO add version
+	 */
+	public X509Certificate getRootCaCertificate() {
+		try {
+			return (X509Certificate) getRootCA();
+		} catch (KeyStoreException e) {
+			logger.error("Couldn't get ZAP's Root CA Certificate", e);
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns true if the certificate expired before the current date, otherwise false.
+	 * 
+	 * @param cert the X.509 certificate for which expiration should be checked.
+	 * @return true if the certificate has expired, otherwise false.
+	 */
+	private boolean isCertExpired(X509Certificate cert) {
+		if (cert != null && cert.getNotAfter().before(new Date())) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Displays a warning dialog, and logs a warning message if ZAPs Root CA certificate has expired.
+	 * 
+	 * @see #isCertExpired(X509Certificate)
+	 */
+	private void warnRooCaCertExpired() {
+		X509Certificate cert = getRootCaCertificate();
+		if (cert == null) {
+			return;
+		}
+		String warnMsg = Constant.messages.getString("dynssl.warn.cert.expired", cert.getNotAfter().toString(),
+				new Date().toString());
+		if (View.isInitialised()) {
+			getView().showWarningDialog(warnMsg);
+		}
+		logger.warn(warnMsg);
+	}
 }
