@@ -67,21 +67,17 @@ public class HttpRequestHeader extends HttpHeader {
     private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
   
     // method list
-    public static final String CONNECT = "CONNECT";
-    public static final String DELETE = "DELETE";
+    public static final String OPTIONS = "OPTIONS";
     public static final String GET = "GET";
     public static final String HEAD = "HEAD";
-    public static final String OPTIONS = "OPTIONS";
-    public static final String PATCH = "PATCH";
     public static final String POST = "POST";
     public static final String PUT = "PUT";
+    public static final String DELETE = "DELETE";
     public static final String TRACE = "TRACE";
-    public static final String TRACK = "TRACK";
-
+    public static final String CONNECT = "CONNECT";
+    
     // ZAP: Added method array
-	public static final String[] METHODS = {
-        CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE, TRACK
-	};
+    public static final String[] METHODS = {OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT};
     public static final String HOST = "Host";
     private static final Pattern patternRequestLine = Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
     // private static final Pattern patternHostHeader
