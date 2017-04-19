@@ -41,7 +41,8 @@
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 // ZAP: 2016/09/26 JavaDoc tweaks
-// ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
+// ZAP: 2017/02/23 Issue 3227: Limit API access to whitelisted IP addresses
+// ZAP: 2017/04/24 Added more HTTP methods
 
 package org.parosproxy.paros.network;
 
@@ -67,17 +68,21 @@ public class HttpRequestHeader extends HttpHeader {
     private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
   
     // method list
-    public static final String OPTIONS = "OPTIONS";
+    public static final String CONNECT = "CONNECT";
+    public static final String DELETE = "DELETE";
     public static final String GET = "GET";
     public static final String HEAD = "HEAD";
+    public static final String OPTIONS = "OPTIONS";
+    public static final String PATCH = "PATCH";
     public static final String POST = "POST";
     public static final String PUT = "PUT";
-    public static final String DELETE = "DELETE";
     public static final String TRACE = "TRACE";
-    public static final String CONNECT = "CONNECT";
-    
+    public static final String TRACK = "TRACK";
+
     // ZAP: Added method array
-    public static final String[] METHODS = {OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT};
+    public static final String[] METHODS = {
+        CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE, TRACK
+    };
     public static final String HOST = "Host";
     private static final Pattern patternRequestLine = Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
     // private static final Pattern patternHostHeader
