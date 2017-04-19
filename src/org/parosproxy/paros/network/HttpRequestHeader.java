@@ -79,9 +79,9 @@ public class HttpRequestHeader extends HttpHeader {
     public static final String TRACK = "TRACK";
 
     // ZAP: Added method array
-	public static final String[] METHODS = {
+    public static final String[] METHODS = {
         CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE, TRACK
-	};
+    };
     public static final String HOST = "Host";
     private static final Pattern patternRequestLine = Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
     // private static final Pattern patternHostHeader
