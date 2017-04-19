@@ -43,7 +43,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.script.Invocable;
 import javax.script.ScriptContext;
@@ -1547,21 +1546,14 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void execute(CommandLineArgument[] args) {
-        if (arguments[ARG_SCRIPT_IDX].isEnabled()) {
-            for (CommandLineArgument arg : args) {
-            	Vector<String> params = arg.getArguments();
-                if (params != null) {
-                	for (String script : params) {
-                		try {
-                			openCmdLineFile(new File(script));
-                		} catch (Exception e) {
-                			logger.error(e.getMessage(), e);
-                		}
-                	}
+        if (args[ARG_SCRIPT_IDX].isEnabled()) {
+            for (String script : args[ARG_SCRIPT_IDX].getArguments()) {
+                try {
+                    openCmdLineFile(new File(script));
+                } catch (Exception e) {
+                    CommandLine.error(e.getMessage(), e);
                 }
             }
-        } else {
-            return;
         }
     }
 
