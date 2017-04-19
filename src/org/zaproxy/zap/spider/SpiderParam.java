@@ -101,6 +101,17 @@ public class SpiderParam extends AbstractParam {
 	 */
 	private static final String SPIDER_ACCEPT_COOKIES = "spider.acceptCookies";
 
+	/**
+     * Configuration key to write/read the {@link #maxParseSizeBytes} flag.
+     */
+    private static final String SPIDER_MAX_PARSE_SIZE_BYTES = "spider.maxParseSizeBytes";
+
+    /**
+     * Default maximum size, in bytes, that a response might have to be parsed.
+     * 
+     * @see #maxParseSizeBytes
+     */
+    private static final int DEFAULT_MAX_PARSE_SIZE_BYTES = 2621440; // 2.5 MiB
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -199,6 +210,17 @@ public class SpiderParam extends AbstractParam {
 	 * @see #setAcceptCookies(boolean)
 	 */
 	private boolean acceptCookies = true;
+
+	/**
+	 * The maximum size, in bytes, that a response might have to be parsed.
+	 * <p>
+	 * Default value is {@value #DEFAULT_MAX_PARSE_SIZE_BYTES} bytes.
+	 * 
+	 * @see #SPIDER_MAX_PARSE_SIZE_BYTES
+	 * @see #getMaxParseSizeBytes()
+	 * @see #setMaxParseSizeBytes(int)
+	 */
+	private int maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
 
 	/**
 	 * Instantiates a new spider param.
@@ -341,6 +363,14 @@ public class SpiderParam extends AbstractParam {
 			log.error("Error while loading the option \"" + SPIDER_ACCEPT_COOKIES + "\": " + e.getMessage(), e);
 			acceptCookies = true;
 		}
+
+        try {
+            this.maxParseSizeBytes = getConfig().getInteger(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
+        } catch (ConversionException e) {
+            log.error("Error while loading the option \"" + SPIDER_MAX_PARSE_SIZE_BYTES + "\": " + e.getMessage(), e);
+            maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
+        }
+		
 	}
 
     private void updateOptions() {
@@ -1002,6 +1032,31 @@ public class SpiderParam extends AbstractParam {
      */
     public boolean isAcceptCookies() {
         return acceptCookies;
+    }
+
+    /**
+     * Sets the maximum size, in bytes, that a response might have to be parsed.
+     * <p>
+     * This allows the spider to skip big responses/files.
+     * 
+     * @param maxParseSizeBytes the maximum size, in bytes, that a response might have to be parsed.
+     * @since TODO add version
+     * @see #getMaxParseSizeBytes()
+     */
+    public void setMaxParseSizeBytes(int maxParseSizeBytes) {
+        this.maxParseSizeBytes = maxParseSizeBytes;
+        getConfig().setProperty(SPIDER_MAX_PARSE_SIZE_BYTES, maxParseSizeBytes);
+    }
+
+    /**
+     * Gets the maximum size, in bytes, that a response might have to be parsed.
+     *
+     * @return the maximum size, in bytes, that a response might have to be parsed.
+     * @since TODO add version
+     * @see #setMaxParseSizeBytes(int)
+     */
+    public int getMaxParseSizeBytes() {
+        return maxParseSizeBytes;
     }
 
 }
