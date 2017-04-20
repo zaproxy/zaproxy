@@ -76,6 +76,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JSlider sliderThreads = null;
 	private ZapNumberSpinner durationNumberSpinner = null;
 	private ZapNumberSpinner maxChildrenNumberSpinner;
+	private ZapNumberSpinner maxParseSizeBytesNumberSpinner;
 	private JCheckBox chkPostForm = null;
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox parseComments = null;
@@ -163,6 +164,12 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 					new JLabel(Constant.messages.getString("spider.options.label.maxChildren")),
 					LayoutHelper.getGBC(0, 1, 1, 1.0D));
 			inlineOptionsPanel.add(getMaxChildrenNumberSpinner(), LayoutHelper.getGBC(1, 1, 1, 1.0D));
+
+			inlineOptionsPanel.add(
+					new JLabel(Constant.messages.getString("spider.options.label.maxParseSizeBytes")),
+					LayoutHelper.getGBC(0, 2, 1, 1.0D));
+			inlineOptionsPanel.add(getMaxParseSizeBytesNumberSpinner(), LayoutHelper.getGBC(1, 2, 1, 1.0D));
+
 			innerPanel.add(inlineOptionsPanel, gbc);
 			
 			innerPanel.add(domainsLabel, gbc);
@@ -203,6 +210,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getSliderThreads().setValue(param.getThreadCount());
 		getDurationNumberSpinner().setValue(param.getMaxDuration());
 		getMaxChildrenNumberSpinner().setValue(param.getMaxChildren());
+		getMaxParseSizeBytesNumberSpinner().setValue(param.getMaxParseSizeBytes());
 		getDomainsAlwaysInScopeTableModel().setDomainsAlwaysInScope(param.getDomainsAlwaysInScope());
 		getDomainsAlwaysInScopePanel().setRemoveWithoutConfirmation(param.isConfirmRemoveDomainAlwaysInScope());
 		getChkProcessForm().setSelected(param.isProcessForm());
@@ -227,6 +235,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setThreadCount(getSliderThreads().getValue());
 		param.setMaxDuration(getDurationNumberSpinner().getValue());
 		param.setMaxChildren(getMaxChildrenNumberSpinner().getValue());
+		param.setMaxParseSizeBytes(getMaxParseSizeBytesNumberSpinner().getValue());
 		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());
 		param.setConfirmRemoveDomainAlwaysInScope(getDomainsAlwaysInScopePanel().isRemoveWithoutConfirmation());
 		param.setSendRefererHeader(getChkSendRefererHeader().isSelected());
@@ -287,6 +296,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			maxChildrenNumberSpinner = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
 		}
 		return maxChildrenNumberSpinner;
+	}
+
+	private ZapNumberSpinner getMaxParseSizeBytesNumberSpinner() {
+		if (maxParseSizeBytesNumberSpinner == null) {
+			maxParseSizeBytesNumberSpinner = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
+		}
+		return maxParseSizeBytesNumberSpinner;
 	}
 
 	private JCheckBox getChkSendRefererHeader() {

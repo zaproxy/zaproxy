@@ -17,19 +17,18 @@
  */
 package org.zaproxy.zap.spider.filters;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The DefaultParseFilter is an implementation of a {@link ParseFilter} that is default for
  * spidering process. Its filter rules are the following:
  * <ul>
- * <li>the resource body should be under MAX_RESPONSE_BODY_SIZE bytes, otherwise it's probably a
- * binary resource.</li>
+ * <li>the resource body should be under a {@link SpiderParam#getMaxParseSizeBytes() number of bytes}, otherwise it's considered
+ * a binary resource.</li>
  * <li>the resource must be of parsable type (text, html, xml, javascript). Actually, the content
  * type should be text/...</li>
  * </ul>
@@ -39,48 +38,75 @@ public class DefaultParseFilter extends ParseFilter {
 	/**
 	 * The Constant MAX_RESPONSE_BODY_SIZE defining the size of response body that is considered too
 	 * big for a parsable file.
+	 * 
+	 * @deprecated (TODO add version) No longer in use, replaced by {@link SpiderParam#getMaxParseSizeBytes()}.
 	 */
+	@Deprecated
 	public static final int MAX_RESPONSE_BODY_SIZE = 512000;
 
 	/**
 	 * a pattern to match the SQLite based ".svn/wc.db" file name.
 	 */
-	private static final Pattern svnSQLiteFilenamePattern = Pattern.compile (".*/\\.svn/wc.db$");
+	private static final Pattern SVN_SQLITE_FILENAME_PATTERN = Pattern.compile (".*/\\.svn/wc.db$");
 
 	/**
 	 * a pattern to match the XML based ".svn/entries" file name.
 	 */
-	private static final Pattern svnXMLFilenamePattern = Pattern.compile (".*/\\.svn/entries$");
+	private static final Pattern SVN_XML_FILENAME_PATTERN = Pattern.compile (".*/\\.svn/entries$");
 
 	/**
 	 * a pattern to match the Git index file.
 	 */
-	private static final Pattern gitFilenamePattern = Pattern.compile (".*/\\.git/index$");
+	private static final Pattern GIT_FILENAME_PATTERN = Pattern.compile (".*/\\.git/index$");
 
+	/**
+	 * The configurations of the spider, never {@code null}.
+	 */
+	private final SpiderParam params;
+	
+	/**
+	 * Constructs a {@code DefaultParseFilter} with default configurations.
+	 *
+	 * @deprecated (TODO add version) Replaced by {@link #DefaultParseFilter(SpiderParam)}.
+	 */
+	@Deprecated
+	public DefaultParseFilter() {
+		this(new SpiderParam());
+	}
+
+	/**
+	 * Constructs a {@code DefaultParseFilter} with the given configurations.
+	 *
+	 * @param params the spider configurations
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 * @see SpiderParam#getMaxParseSizeBytes()
+	 */
+	public DefaultParseFilter(SpiderParam params) {
+		if (params == null) {
+			throw new IllegalArgumentException("Parameter params must not be null.");
+		}
+		this.params = params;
+	}
+	
 	@Override
 	public boolean isFiltered(HttpMessage responseMessage) {
+		if (responseMessage == null || responseMessage.getRequestHeader().isEmpty()
+				|| responseMessage.getResponseHeader().isEmpty()) {
+			return true;
+		}
 
 		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it 
 		//regardless of type, and regardless of whether it exceeds the file size restriction below.
-		
-		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher, gitFilenameMatcher;
-		try {
-			String fullfilename = responseMessage.getRequestHeader().getURI().getPath();
-			//handle null paths
-			if (fullfilename == null) fullfilename = "";
-			svnSQLiteFilenameMatcher = svnSQLiteFilenamePattern.matcher(fullfilename);
-			svnXMLFilenameMatcher = svnXMLFilenamePattern.matcher(fullfilename);
-			gitFilenameMatcher = gitFilenamePattern.matcher(fullfilename);
-			
-			if ( svnSQLiteFilenameMatcher.find() || svnXMLFilenameMatcher.find() || gitFilenameMatcher.find())
-				return false;
-		} catch (URIException e) {
-			//give other parsers a chance to parse it.
-			log.error(e);			
+		String fullfilename = responseMessage.getRequestHeader().getURI().getEscapedPath();
+		if (fullfilename != null && (SVN_SQLITE_FILENAME_PATTERN.matcher(fullfilename).find()
+				|| SVN_XML_FILENAME_PATTERN.matcher(fullfilename).find()
+				|| GIT_FILENAME_PATTERN.matcher(fullfilename).find())) {
+			return false;
 		}
 
 		// Check response body size
-		if (responseMessage.getResponseBody().length() > MAX_RESPONSE_BODY_SIZE) {
+		if (responseMessage.getResponseBody().length() > params.getMaxParseSizeBytes()) {
 			if (log.isDebugEnabled()) {
 				log.debug("Resource too large: " + responseMessage.getRequestHeader().getURI());
 			}
@@ -88,8 +114,9 @@ public class DefaultParseFilter extends ParseFilter {
 		}
 
 		// If it's a redirection, accept it, as the SpiderRedirectParser will process it
-		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
+		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode())) {
 			return false;
+		}
 		
 		// Check response type.
 		if (!responseMessage.getResponseHeader().isText()) {

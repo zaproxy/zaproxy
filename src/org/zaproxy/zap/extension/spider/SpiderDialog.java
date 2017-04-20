@@ -56,6 +56,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
     private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
     private static final String FIELD_MAX_DURATION = "spider.custom.label.maxDuration"; 
+    private static final String FIELD_MAX_PARSE_SIZE_BYTES = "spider.custom.label.maxParseSizeBytes";
     private static final String FIELD_SEND_REFERER = "spider.custom.label.sendReferer";
     private static final String FIELD_ACCEPT_COOKIES = "spider.custom.label.acceptcookies";
     private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
@@ -123,6 +124,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
         this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
         this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
+        this.addNumberField(1, FIELD_MAX_PARSE_SIZE_BYTES, 0, Integer.MAX_VALUE, getSpiderParam().getMaxParseSizeBytes());
         this.addCheckBoxField(1, FIELD_SEND_REFERER, getSpiderParam().isSendRefererHeader());
         this.addCheckBoxField(1, FIELD_ACCEPT_COOKIES, getSpiderParam().isAcceptCookies());
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
@@ -305,6 +307,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
         	spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
         	spiderParam.setMaxChildren(this.getIntValue(FIELD_MAX_CHILDREN));
+        	spiderParam.setMaxParseSizeBytes(this.getIntValue(FIELD_MAX_PARSE_SIZE_BYTES));
         	spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
         	spiderParam.setAcceptCookies(this.getBoolValue(FIELD_ACCEPT_COOKIES));
         	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));

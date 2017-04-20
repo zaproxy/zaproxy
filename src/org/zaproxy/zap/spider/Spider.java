@@ -196,7 +196,7 @@ public class Spider {
 		}
 
 		// Add a default parse filter and any custom ones
-		this.addParseFilter(new DefaultParseFilter());
+		this.addParseFilter(new DefaultParseFilter(spiderParam));
 		for (ParseFilter filter : extension.getCustomParseFilters())
 			this.addParseFilter(filter);
 		
