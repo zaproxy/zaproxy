@@ -38,15 +38,15 @@ public class ContextExportDialog extends StandardFieldsDialog {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final String CONTEXT_FIELD = "context.import.label.context"; 
-	private static final String DIR_FIELD = "context.import.label.dir"; 
-	private static final String FILE_FIELD = "context.import.label.file"; 
-	private static final String OVERWRITE_FIELD = "context.import.label.overwrite"; 
+	private static final String CONTEXT_FIELD = "context.export.label.context"; 
+	private static final String DIR_FIELD = "context.export.label.dir"; 
+	private static final String FILE_FIELD = "context.export.label.file"; 
+	private static final String OVERWRITE_FIELD = "context.export.label.overwrite"; 
 
 	private static final String CONTEXT_EXT = ".context";
 
 	public ContextExportDialog(Frame owner) {
-		super(owner, "context.import.title", new Dimension(400,250));
+		super(owner, "context.export.title", new Dimension(400,250));
 		this.addContextSelectField(CONTEXT_FIELD, null);
 		this.addFileSelectField(DIR_FIELD, Constant.getContextsDir(), JFileChooser.DIRECTORIES_ONLY, null);
 		this.addTextField(FILE_FIELD, null);
@@ -76,7 +76,7 @@ public class ContextExportDialog extends StandardFieldsDialog {
 			Model.getSingleton().getSession().exportContext(getContextValue(CONTEXT_FIELD), getSelectedFile());
 		} catch (ConfigurationException e) {
 			View.getSingleton().showWarningDialog(this, 
-					MessageFormat.format(Constant.messages.getString("context.import.error"), e.getMessage()));
+					MessageFormat.format(Constant.messages.getString("context.export.error"), e.getMessage()));
 		}
 	}
 
@@ -84,14 +84,14 @@ public class ContextExportDialog extends StandardFieldsDialog {
 	public String validateFields() {
 		File f = this.getSelectedFile();
 		if (this.getContextValue(CONTEXT_FIELD) == null) {
-			return Constant.messages.getString("context.import.error.nocontext");
+			return Constant.messages.getString("context.export.error.nocontext");
 		}
 		if (f == null) {
-			return Constant.messages.getString("context.import.error.nofile");
+			return Constant.messages.getString("context.export.error.nofile");
 		} else if (f.exists() & ! this.getBoolValue(OVERWRITE_FIELD)) {
-			return Constant.messages.getString("context.import.error.exists");
+			return Constant.messages.getString("context.export.error.exists");
 		} else if (! f.getParentFile().canWrite()) {
-			return Constant.messages.getString("context.import.error.noaccess");
+			return Constant.messages.getString("context.export.error.noaccess");
 		}
 		return null;
 	}
