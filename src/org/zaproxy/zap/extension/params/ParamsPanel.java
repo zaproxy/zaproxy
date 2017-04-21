@@ -204,23 +204,26 @@ public class ParamsPanel extends AbstractPanel{
 	
 	private void setParamsTableColumnSizes() {
 		
-		paramsTable.getColumnModel().getColumn(0).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(0).setPreferredWidth(100);	// type
+		paramsTable.getColumnModel().getColumn(0).setMinWidth(60);
+		paramsTable.getColumnModel().getColumn(0).setPreferredWidth(60);	// type
 		
 		paramsTable.getColumnModel().getColumn(1).setMinWidth(100);
-		paramsTable.getColumnModel().getColumn(1).setPreferredWidth(200);	// name
+		paramsTable.getColumnModel().getColumn(1).setPreferredWidth(100);	// name
 		
-		paramsTable.getColumnModel().getColumn(2).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(2).setPreferredWidth(100);	// used
+		paramsTable.getColumnModel().getColumn(2).setMinWidth(40);
+		paramsTable.getColumnModel().getColumn(2).setPreferredWidth(40);	// used
 		
-		paramsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(3).setPreferredWidth(100);	// numvals
+		paramsTable.getColumnModel().getColumn(3).setMinWidth(40);
+		paramsTable.getColumnModel().getColumn(3).setPreferredWidth(40);	// numvals
 		
-		paramsTable.getColumnModel().getColumn(4).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(4).setPreferredWidth(100);	// % change
+		paramsTable.getColumnModel().getColumn(4).setMinWidth(40);
+		paramsTable.getColumnModel().getColumn(4).setPreferredWidth(40);	// % change
 		
 		paramsTable.getColumnModel().getColumn(5).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(5).setPreferredWidth(200);	// flags
+		paramsTable.getColumnModel().getColumn(5).setPreferredWidth(100);	// flags
+		
+		paramsTable.getColumnModel().getColumn(6).setMinWidth(100);
+		paramsTable.getColumnModel().getColumn(6).setPreferredWidth(999);	// values
 		
 	}
 	
