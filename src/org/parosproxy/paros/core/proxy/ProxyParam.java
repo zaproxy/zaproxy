@@ -32,6 +32,7 @@
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
 // ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
+// ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -379,7 +380,7 @@ public class ProxyParam extends AbstractParam {
         }
 
         this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
-        SSLConnector.setServerEnabledProtocols(enabledProtocols);
+        setServerEnabledProtocols();
     }
 
     private void loadSecurityProtocolsEnabled() {
@@ -387,9 +388,21 @@ public class ProxyParam extends AbstractParam {
         if (protocols.size() != 0) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
-            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+            setServerEnabledProtocols();
         } else {
             setSecurityProtocolsEnabled(SSLConnector.getServerEnabledProtocols());
+        }
+    }
+
+    private void setServerEnabledProtocols() {
+        try {
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+        } catch (IllegalArgumentException e) {
+            logger.warn(
+                    "Failed to set persisted protocols " + Arrays.toString(securityProtocolsEnabled) + " falling back to "
+                            + Arrays.toString(SSLConnector.getFailSafeProtocols()) + " caused by: " + e.getMessage());
+            securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
         }
     }
 

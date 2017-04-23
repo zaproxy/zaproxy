@@ -119,6 +119,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
+	private static final String VIEW_ALERTS_SUMMARY = "alertsSummary";
 	private static final String VIEW_NUMBER_OF_ALERTS= "numberOfAlerts";
 	private static final String VIEW_HOSTS = "hosts";
 	private static final String VIEW_SITES = "sites";
@@ -167,6 +168,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_IDX = "idx";
 	private static final String PARAM_IS_REGEX = "isRegex";
 	private static final String PARAM_IS_ENABLED = "isEnabled";
+	private static final String PARAM_RISK = "riskId";
 
 	/* Update the version whenever the script is changed (once per release) */
 	protected static final int API_SCRIPT_VERSION = 1;
@@ -241,8 +243,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
-				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL }));
+				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK}));
+		this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
+		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }));
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS));
@@ -822,10 +825,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseElement(alertToSet(new Alert(recordAlert)));
 		} else if (VIEW_ALERTS.equals(name)) {
 			final ApiResponseList resultList = new ApiResponseList(name);
+			
 			processAlerts(
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1), new Processor<Alert>() {
+					this.getParam(params, PARAM_COUNT, -1), 
+					this.getParam(params, PARAM_RISK,  -1), new Processor<Alert>() {
 
 						@Override
 						public void process(Alert alert) {
@@ -838,9 +843,26 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			processAlerts(
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1), counter);
+					this.getParam(params, PARAM_COUNT, -1), 
+					this.getParam(params, PARAM_RISK, -1), counter);
 			
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+		} else if (VIEW_ALERTS_SUMMARY.equals(name)) {
+			final int[] riskSummary = { 0, 0, 0, 0 };
+			Processor<Alert> counter = new Processor<Alert>() {
+
+				@Override
+				public void process(Alert alert) {
+					riskSummary[alert.getRisk()]++;
+				}
+			};
+			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, -1, counter);
+
+			Map<String, Object> alertData = new HashMap<>();
+			for (int i = 0; i < riskSummary.length; i++) {
+				alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
+			}
+			result = new ApiResponseSet<Object>("risk", alertData);
 		} else if (VIEW_MESSAGE.equals(name)) {
 			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 			RecordHistory recordHistory;
@@ -1295,7 +1317,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return new ApiResponseSet<String>("alert", map);
 	}
 
-	private void processAlerts(String baseUrl, int start, int count, Processor<Alert> processor) throws ApiException {
+	private void processAlerts(String baseUrl, int start, int count, int riskId, Processor<Alert> processor) throws ApiException {
 		List<Alert> alerts = new ArrayList<>();
 		try {
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
@@ -1313,6 +1335,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						&& !alerts.contains(alert)) {
 					if (baseUrl != null && ! alert.getUri().startsWith(baseUrl)) {
 						// Not subordinate to the specified URL
+						continue;
+					}
+					if (riskId != -1 && alert.getRisk() != riskId) {
 						continue;
 					}
 

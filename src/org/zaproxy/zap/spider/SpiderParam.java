@@ -96,6 +96,22 @@ public class SpiderParam extends AbstractParam {
 	 */
 	private static final String SPIDER_SENDER_REFERER_HEADER = "spider.sendRefererHeader";
 
+	/**
+	 * Configuration key to write/read the {@link #acceptCookies} flag.
+	 */
+	private static final String SPIDER_ACCEPT_COOKIES = "spider.acceptCookies";
+
+	/**
+     * Configuration key to write/read the {@link #maxParseSizeBytes} flag.
+     */
+    private static final String SPIDER_MAX_PARSE_SIZE_BYTES = "spider.maxParseSizeBytes";
+
+    /**
+     * Default maximum size, in bytes, that a response might have to be parsed.
+     * 
+     * @see #maxParseSizeBytes
+     */
+    private static final int DEFAULT_MAX_PARSE_SIZE_BYTES = 2621440; // 2.5 MiB
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -183,6 +199,28 @@ public class SpiderParam extends AbstractParam {
 	 * @see #setSendRefererHeader(boolean)
 	 */
 	private boolean sendRefererHeader = true;
+
+	/**
+	 * Flag that indicates if a spider process should accept cookies.
+	 * <p>
+	 * Default value is {@code true}.
+	 * 
+	 * @see #SPIDER_ACCEPT_COOKIES
+	 * @see #isAcceptCookies()
+	 * @see #setAcceptCookies(boolean)
+	 */
+	private boolean acceptCookies = true;
+
+	/**
+	 * The maximum size, in bytes, that a response might have to be parsed.
+	 * <p>
+	 * Default value is {@value #DEFAULT_MAX_PARSE_SIZE_BYTES} bytes.
+	 * 
+	 * @see #SPIDER_MAX_PARSE_SIZE_BYTES
+	 * @see #getMaxParseSizeBytes()
+	 * @see #setMaxParseSizeBytes(int)
+	 */
+	private int maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
 
 	/**
 	 * Instantiates a new spider param.
@@ -318,6 +356,21 @@ public class SpiderParam extends AbstractParam {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 			sendRefererHeader = true;
 		}
+
+		try {
+			this.acceptCookies = getConfig().getBoolean(SPIDER_ACCEPT_COOKIES, true);
+		} catch (ConversionException e) {
+			log.error("Error while loading the option \"" + SPIDER_ACCEPT_COOKIES + "\": " + e.getMessage(), e);
+			acceptCookies = true;
+		}
+
+        try {
+            this.maxParseSizeBytes = getConfig().getInteger(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
+        } catch (ConversionException e) {
+            log.error("Error while loading the option \"" + SPIDER_MAX_PARSE_SIZE_BYTES + "\": " + e.getMessage(), e);
+            maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
+        }
+		
 	}
 
     private void updateOptions() {
@@ -944,6 +997,66 @@ public class SpiderParam extends AbstractParam {
     public void setMaxChildren(int maxChildren) {
         this.maxChildren = maxChildren;
         getConfig().setProperty(MAX_CHILDREN, Integer.valueOf(maxChildren));
+    }
+
+    /**
+     * Sets whether or not a spider process should accept cookies while spidering.
+     * <p>
+     * For example, this might control whether or not the Spider uses the same session throughout a spidering process.
+     * <p>
+     * <strong>Notes:</strong>
+     * <ul>
+     * <li>This option has low priority, the Spider will respect other (global) options related to the HTTP state. This option
+     * is ignored if, for example, a {@link org.zaproxy.zap.users.User User} was set or the option
+     * {@link org.parosproxy.paros.network.ConnectionParam#isHttpStateEnabled() Session Tracking (Cookie)} is enabled.</li>
+     * <li>The cookies are not shared between spider processes, each process has its own cookie jar.</li>
+     * </ul>
+     * 
+     * @param acceptCookies {@code true} if the spider should accept cookies, {@code false} otherwise.
+     * @since TODO add version
+     * @see #isAcceptCookies()
+     */
+    public void setAcceptCookies(boolean acceptCookies) {
+        this.acceptCookies = acceptCookies;
+        getConfig().setProperty(SPIDER_ACCEPT_COOKIES, acceptCookies);
+    }
+
+    /**
+     * Tells whether or not a spider process should accept cookies while spidering.
+     * <p>
+     * For example, this might control whether or not the Spider uses the same session throughout a spidering process.
+     *
+     * @return {@code true} if the spider should accept cookies, {@code false} otherwise.
+     * @since TODO add version
+     * @see #setAcceptCookies(boolean)
+     */
+    public boolean isAcceptCookies() {
+        return acceptCookies;
+    }
+
+    /**
+     * Sets the maximum size, in bytes, that a response might have to be parsed.
+     * <p>
+     * This allows the spider to skip big responses/files.
+     * 
+     * @param maxParseSizeBytes the maximum size, in bytes, that a response might have to be parsed.
+     * @since TODO add version
+     * @see #getMaxParseSizeBytes()
+     */
+    public void setMaxParseSizeBytes(int maxParseSizeBytes) {
+        this.maxParseSizeBytes = maxParseSizeBytes;
+        getConfig().setProperty(SPIDER_MAX_PARSE_SIZE_BYTES, maxParseSizeBytes);
+    }
+
+    /**
+     * Gets the maximum size, in bytes, that a response might have to be parsed.
+     *
+     * @return the maximum size, in bytes, that a response might have to be parsed.
+     * @since TODO add version
+     * @see #setMaxParseSizeBytes(int)
+     */
+    public int getMaxParseSizeBytes() {
+        return maxParseSizeBytes;
     }
 
 }
