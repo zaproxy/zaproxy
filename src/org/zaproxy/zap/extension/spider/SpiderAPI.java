@@ -514,7 +514,7 @@ public class SpiderAPI extends ApiImplementor {
     		maxChildrenFetchFilter.setMaxChildren(maxChildren);
     		maxChildrenFetchFilter.setModel(extension.getModel());
     		
-    		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
+    		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter(extension.getMessages());
     		maxChildrenParseFilter.setMaxChildren(maxChildren);
     		maxChildrenParseFilter.setModel(extension.getModel());
 			objs.add(maxChildrenFetchFilter);
@@ -554,7 +554,7 @@ public class SpiderAPI extends ApiImplementor {
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
 			synchronized (scan.getResourcesFound()) {
 				for (SpiderResource sr : scan.getResourcesFound()) {
-					resultList.addItem(createApiResponseSet(sr));
+					resultList.addItem(createApiResponseSet(sr, sr.isProcessed(), sr.getReasonNotProcessed()));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -570,7 +570,7 @@ public class SpiderAPI extends ApiImplementor {
 			resultList = new ApiResponseList("urlsIoError");
 			synchronized (scan.getResourcesIoErrors()) {
 				for (SpiderResource sr : scan.getResourcesIoErrors()) {
-					resultList.addItem(createApiResponseSet(sr));
+					resultList.addItem(createApiResponseSet(sr, sr.isProcessed(), sr.getReasonNotProcessed()));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -633,13 +633,15 @@ public class SpiderAPI extends ApiImplementor {
 		return result;
 	}
 
-	private static ApiResponseSet<String> createApiResponseSet(SpiderResource sr) {
+	private static ApiResponseSet<String> createApiResponseSet(SpiderResource sr, boolean processed, String reasonNotProcessed) {
 		Map<String, String> map = new HashMap<>();
 		map.put("messageId", Integer.toString(sr.getHistoryId()));
 		map.put("method", sr.getMethod());
 		map.put("url", sr.getUri());
 		map.put("statusCode", Integer.toString(sr.getStatusCode()));
 		map.put("statusReason", sr.getStatusReason());
+		map.put("processed", Boolean.toString(processed));
+		map.put("reasonNotProcessed", reasonNotProcessed);
 		return new ApiResponseSet<>("resource", map);
 	}
 	

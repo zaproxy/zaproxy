@@ -18,7 +18,6 @@
 
 package org.zaproxy.zap.spider;
 
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /**
@@ -51,11 +50,11 @@ public interface SpiderListener {
 	void foundURI(String uri, String method, FetchStatus status);
 
 	/**
-	 * Event triggered when a new uri was read.
+	 * Notifies that a new {@link SpiderTask}'s result is available.
 	 * 
-	 * @param msg the message
+	 * @param spiderTaskResult the result of the spider task.
 	 */
-	void readURI(HttpMessage msg);
+	void notifySpiderTaskResult(SpiderTaskResult spiderTaskResult);
 
 	/**
 	 * Event triggered when the spider is finished. This event is triggered either when the spider

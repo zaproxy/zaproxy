@@ -34,6 +34,103 @@ public abstract class ParseFilter {
 	 * 
 	 * @param responseMessage the response message after the resource was fetched
 	 * @return true, if is filtered
+	 * @deprecated (TODO add version) Use {@link #filtered(HttpMessage)} instead, which allows to provide the reason why the
+	 *             message was filtered.
 	 */
-	public abstract boolean isFiltered(HttpMessage responseMessage);
+	@Deprecated
+	public boolean isFiltered(HttpMessage responseMessage) {
+		return filtered(responseMessage).isFiltered();
+	}
+
+	/**
+	 * Tells whether or not the given resource is filtered. Filtered resources are not parsed.
+	 * <p>
+	 * Default is not filtered.
+	 *
+	 * @param responseMessage the HTTP message containing the response to be or not parsed.
+	 * @return the filter result, must not be {@code null}.
+	 * @since TODO add version
+	 */
+	public FilterResult filtered(HttpMessage responseMessage) {
+		return FilterResult.NOT_FILTERED;
+	}
+
+	/**
+	 * The result of a {@link ParseFilter}'s check.
+	 * <p>
+	 * Used to indicate if a resource was filtered and why.
+	 *
+	 * @since TODO add version
+	 * @see #NOT_FILTERED
+	 * @see #ParseFilter(String)
+	 */
+	public static final class FilterResult {
+
+		/**
+		 * Indicates that the resource was not filtered.
+		 */
+		public static final FilterResult NOT_FILTERED = new FilterResult();
+
+		/**
+		 * Indicates that the resource was filtered, with no specific reason.
+		 */
+		public static final FilterResult FILTERED = new FilterResult("");
+
+		private final boolean filtered;
+		private final String reason;
+
+		/**
+		 * Constructs a {@code FilterResult}, not filtered and with empty reason.
+		 */
+		private FilterResult() {
+			this(false, "");
+		}
+
+		/**
+		 * Constructs a {@code FilterResult} with the reason why the resource will not be parsed.
+		 *
+		 * @param reason the reason why the resource was filtered.
+		 * @see #NOT_FILTERED
+		 */
+		public FilterResult(String reason) {
+			this(true, reason);
+		}
+
+		/**
+		 * Constructs a {@code FilterResult} with the given filtered state and reason.
+		 *
+		 * @param filtered {@code true} if the resource was filtered, {@code false} otherwise.
+		 * @param reason the reason why the resource was filtered.
+		 * @throws IllegalArgumentException if the given {@code reason} is {@code null}.
+		 */
+		private FilterResult(boolean filtered, String reason) {
+			if (reason == null) {
+				throw new IllegalArgumentException("Parameter reason must not be null.");
+			}
+			this.filtered = filtered;
+			this.reason = reason;
+		}
+
+		/**
+		 * Tells whether or not the resource was filtered.
+		 * <p>
+		 * Filtered resources are not parsed.
+		 *
+		 * @return {@code true} if the resource was filtered, {@code false} otherwise.
+		 * @see #getReason()
+		 */
+		public boolean isFiltered() {
+			return filtered;
+		}
+
+		/**
+		 * Gets the reason why the resource was filtered.
+		 *
+		 * @return the reason why the resource was filtered, never {@code null}.
+		 * @see #isFiltered()
+		 */
+		public String getReason() {
+			return reason;
+		}
+	}
 }
