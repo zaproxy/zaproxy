@@ -1657,7 +1657,6 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				String name = Constant.messages.getString(label);
 				JPanel tabPanel = this.tabNameMap.get(label);
 				tabbedPane.addTab(name, tabPanel);
-				this.tabPanels.add(tabPanel);
 			}
     	} else {
 			for (String label : tabLabels) {
