@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Event;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
@@ -32,6 +33,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
@@ -204,23 +208,21 @@ public class ParamsPanel extends AbstractPanel{
 	
 	private void setParamsTableColumnSizes() {
 		
-		paramsTable.getColumnModel().getColumn(0).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(0).setPreferredWidth(100);	// type
-		
-		paramsTable.getColumnModel().getColumn(1).setMinWidth(100);
-		paramsTable.getColumnModel().getColumn(1).setPreferredWidth(200);	// name
-		
-		paramsTable.getColumnModel().getColumn(2).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(2).setPreferredWidth(100);	// used
-		
-		paramsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(3).setPreferredWidth(100);	// numvals
-		
-		paramsTable.getColumnModel().getColumn(4).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(4).setPreferredWidth(100);	// % change
-		
-		paramsTable.getColumnModel().getColumn(5).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(5).setPreferredWidth(200);	// flags
+		for (int i = 0; i < paramsTable.getColumnCount(); i++) {
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) paramsTable.getColumnModel();
+			TableColumn col = colModel.getColumn(i);
+			int width = 0;
+
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			if (renderer == null) {
+				renderer = paramsTable.getTableHeader().getDefaultRenderer();
+			}
+			Component comp = renderer.getTableCellRendererComponent(paramsTable, col.getHeaderValue(), false, false, 0,
+					0);
+			width = comp.getPreferredSize().width;
+			col.setPreferredWidth(width + 2);
+		}
+		paramsTable.getColumnModel().getColumn(6).setPreferredWidth(999);	// value
 		
 	}
 	
