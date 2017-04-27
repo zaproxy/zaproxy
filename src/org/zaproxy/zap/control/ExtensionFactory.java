@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +73,15 @@ public class ExtensionFactory {
             	dirs [2+i] = extraDirs.get(i);
         	}
             addOnLoader = new AddOnLoader(dirs);
-            log.info("Installed add-ons: " + addOnLoader.getAddOnCollection().getInstalledAddOns());
+            List<AddOn> sortedAddOns = new ArrayList<>(addOnLoader.getAddOnCollection().getInstalledAddOns());
+            Collections.sort(sortedAddOns, new Comparator<AddOn>() {
+
+                @Override
+                public int compare(AddOn addOn, AddOn otherAddOn) {
+                    return addOn.getId().compareTo(otherAddOn.getId());
+                }
+            });
+            log.info("Installed add-ons: " + sortedAddOns);
         } else {
         	log.error("AddOnLoader initialised without additional directories");
         }
