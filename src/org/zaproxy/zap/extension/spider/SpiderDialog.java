@@ -177,6 +177,8 @@ public class SpiderDialog extends StandardFieldsDialog {
         	this.setAdvancedTabs(false);
         }
         
+        setTabScrollable("spider.custom.tab.adv", true);
+
         this.pack();
     }
     
