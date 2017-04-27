@@ -86,10 +86,12 @@ public class AlertParam extends AbstractParam {
      * @param maximumInstances the maximum number of instances for each alert
      */
     public void setMaximumInstances(int maximumInstances) {
-        if (this.maximumInstances != maximumInstances) {
-            this.maximumInstances = maximumInstances;
+        int newValue = maximumInstances < 0 ? 0 : maximumInstances;
 
-            getConfig().setProperty(PARAM_MAXIMUM_INSTANCES, Integer.valueOf(maximumInstances));
+        if (this.maximumInstances != newValue) {
+            this.maximumInstances = newValue;
+
+            getConfig().setProperty(PARAM_MAXIMUM_INSTANCES, Integer.valueOf(this.maximumInstances));
         }
     }
 

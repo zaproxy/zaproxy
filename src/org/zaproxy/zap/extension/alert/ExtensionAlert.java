@@ -129,7 +129,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 		reloadOverridesFile();
 	}
 	
-	private void reloadOverridesFile() {
+	public boolean reloadOverridesFile() {
 		this.alertOverrides.clear();
 
 		String filename = this.getAlertParam().getOverridesFilename();
@@ -137,16 +137,20 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 			File file = new File(filename);
 			if (! file.isFile() || ! file.canRead()) {
 				logger.error("Cannot read alert overrides file " + file.getAbsolutePath());
-			} else {
-				try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
-					this.alertOverrides.load(br);
-					logger.info("Read " + this.alertOverrides.size() + 
-							" overrides from " + file.getAbsolutePath());
-				} catch (IOException e) {
-					logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
-				}
+				return false;
+			}
+
+			try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+				this.alertOverrides.load(br);
+				logger.info("Read " + this.alertOverrides.size() + 
+						" overrides from " + file.getAbsolutePath());
+				return true;
+			} catch (IOException e) {
+				logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
+				return false;
 			}
 		}
+		return true;
 	}
 
 	private OptionsAlertPanel getOptionsPanel() {
