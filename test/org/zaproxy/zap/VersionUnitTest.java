@@ -81,6 +81,15 @@ public class VersionUnitTest {
     }
 
     @Test
+    public void shouldAcceptVersionWithPreReleaseIdentifier() {
+        // Given
+        String versionWithPreReleaseIdentifiers = "1.2.3-SNAPSHOT";
+        // When
+        new Version(versionWithPreReleaseIdentifiers);
+        // Then = no exception
+    }
+
+    @Test
     public void shouldReturnTrueWhenEqualingToTheSameVersionNumber() {
         // Given
         Version version = new Version("1.0.0");
