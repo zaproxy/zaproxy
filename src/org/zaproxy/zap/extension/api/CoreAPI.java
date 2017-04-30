@@ -73,6 +73,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
@@ -116,6 +117,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN = "removeProxyChainExcludedDomain";
 	private static final String ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "enableAllProxyChainExcludedDomains";
 	private static final String ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "disableAllProxyChainExcludedDomains";
+
+	private static final String ACTION_OPTION_MAXIMUM_ALERT_INSTANCES = "setOptionMaximumAlertInstances";
+	private static final String ACTION_OPTION_MERGE_RELATED_ALERTS = "setOptionMergeRelatedAlerts";
+	private static final String ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH = "setOptionAlertOverridesFilePath";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -137,6 +142,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS = "optionProxyExcludedDomains";
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED = "optionProxyExcludedDomainsEnabled";
 	private static final String VIEW_ZAP_HOME_PATH = "zapHomePath";
+
+	private static final String VIEW_OPTION_MAXIMUM_ALERT_INSTANCES = "optionMaximumAlertInstances";
+	private static final String VIEW_OPTION_MERGE_RELATED_ALERTS = "optionMergeRelatedAlerts";
+	private static final String VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH = "optionAlertOverridesFilePath";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
@@ -169,6 +178,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_IS_REGEX = "isRegex";
 	private static final String PARAM_IS_ENABLED = "isEnabled";
 	private static final String PARAM_RISK = "riskId";
+	private static final String PARAM_NUMBER_OF_INSTANCES = "numberOfInstances";
+	private static final String PARAM_ENABLED = "enabled";
+	private static final String PARAM_FILE_PATH = "filePath";
 
 	/* Update the version whenever the script is changed (once per release) */
 	protected static final int API_SCRIPT_VERSION = 1;
@@ -240,6 +252,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN, new String[] { PARAM_IDX }));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
+
+		this.addApiAction(new ApiAction(ACTION_OPTION_MAXIMUM_ALERT_INSTANCES, new String[] { PARAM_NUMBER_OF_INSTANCES }));
+		this.addApiAction(new ApiAction(ACTION_OPTION_MERGE_RELATED_ALERTS, new String[] { PARAM_ENABLED }));
+		this.addApiAction(new ApiAction(ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH, null, new String[] { PARAM_FILE_PATH }));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
@@ -269,6 +285,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		apiView.setDeprecated(true);
 		this.addApiView(apiView);
 		this.addApiView(new ApiView(VIEW_ZAP_HOME_PATH));
+
+		this.addApiView(new ApiView(VIEW_OPTION_MAXIMUM_ALERT_INSTANCES));
+		this.addApiView(new ApiView(VIEW_OPTION_MERGE_RELATED_ALERTS));
+		this.addApiView(new ApiView(VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
@@ -616,6 +636,30 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			setProxyChainExcludedDomainsEnabled(true);
 		} else if (ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name)) {
 			setProxyChainExcludedDomainsEnabled(false);
+		} else if (ACTION_OPTION_MAXIMUM_ALERT_INSTANCES.equals(name)) {
+			try {
+				getAlertParam(ApiException.Type.BAD_ACTION).setMaximumInstances(params.getInt(PARAM_NUMBER_OF_INSTANCES));
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_NUMBER_OF_INSTANCES, e);
+			}
+		} else if (ACTION_OPTION_MERGE_RELATED_ALERTS.equals(name)) {
+			try {
+				getAlertParam(ApiException.Type.BAD_ACTION).setMergeRelatedIssues(params.getBoolean(PARAM_ENABLED));
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ENABLED, e);
+			}
+		} else if (ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH.equals(name)) {
+			String filePath = getParam(params, PARAM_FILE_PATH, "");
+			if (!filePath.isEmpty()) {
+				File file = new File(filePath);
+				if (!file.isFile() || !file.canRead()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
+				}
+			}
+			getAlertParam(ApiException.Type.BAD_ACTION).setOverridesFilename(filePath);
+			if (!Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class).reloadOverridesFile()) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -629,6 +673,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			domain.setEnabled(enabled);
 		}
 		connectionParam.setProxyExcludedDomains(domains);
+	}
+
+	private AlertParam getAlertParam(ApiException.Type type) throws ApiException {
+		AlertParam alertOptions = Model.getSingleton().getOptionsParam().getParamSet(AlertParam.class);
+		if (alertOptions == null) {
+			throw new ApiException(type);
+		}
+		return alertOptions;
 	}
 
 	/**
@@ -930,6 +982,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					true);
 		} else if (VIEW_ZAP_HOME_PATH.equals(name)) {
 			result = new ApiResponseElement(name, Constant.getZapHome());
+		} else if (VIEW_OPTION_MAXIMUM_ALERT_INSTANCES.equals(name)) {
+			result = new ApiResponseElement(
+					name,
+					String.valueOf(getAlertParam(ApiException.Type.BAD_VIEW).getMaximumInstances()));
+		} else if (VIEW_OPTION_MERGE_RELATED_ALERTS.equals(name)) {
+			result = new ApiResponseElement(
+					name,
+					String.valueOf(getAlertParam(ApiException.Type.BAD_VIEW).isMergeRelatedIssues()));
+		} else if (VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH.equals(name)) {
+			result = new ApiResponseElement(name, getAlertParam(ApiException.Type.BAD_VIEW).getOverridesFilename());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
