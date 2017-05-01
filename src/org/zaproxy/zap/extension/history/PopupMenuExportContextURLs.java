@@ -44,7 +44,7 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
 	
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
-		if (invoker.getName().equals(SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME)) {
+		if (SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
 			Context ctx = View.getSingleton().getSiteTreePanel().getSelectedContext();
 			if (ctx != null) {
 				return true;
