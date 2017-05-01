@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.history;
 
+import java.awt.Component;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -27,12 +28,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.JFileChooser;
+import javax.swing.JTree;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
@@ -40,12 +42,24 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;
-    protected ExtensionHistory extension = null;
+    protected final Extension extension;
 
     private static Logger log = Logger.getLogger(PopupMenuExportURLs.class);
 
-    public PopupMenuExportURLs(String menuItem) {
-        super(menuItem);
+    /**
+     * Constructs a {@code PopupMenuExportURLs} with the given label and extension.
+     *
+     * @param label the label of the menu item
+     * @param extension the extension to access the model and view, must not be {@code null}.
+     * @throws IllegalArgumentException if the given {@code extension} is {@code null}.
+     */
+    public PopupMenuExportURLs(String label, Extension extension) {
+        super(label);
+
+        if (extension == null) {
+            throw new IllegalArgumentException("Parameter extension must not be null.");
+        }
+        this.extension = extension;
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -56,6 +70,16 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
         });
 
     }
+
+    @Override
+    public boolean isEnableForComponent(Component invoker) {
+        if ("treeSite".equals(invoker.getName())) {
+            JTree sitesTree = (JTree) invoker;
+            setEnabled(sitesTree.getRowCount() > 1);
+            return true;
+        }
+        return false;
+    }
     
     protected void performAction() {
         File file = getOutputFile();
@@ -64,10 +88,6 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
         }
         writeURLs(file, getOutputSet(
                 (SiteNode) extension.getView().getSiteTreePanel().getTreeSite().getModel().getRoot()));
-    }
-
-    public void setExtension(ExtensionHistory extension) {
-        this.extension = extension;
     }
 
     protected SortedSet<String> getOutputSet(SiteNode startingPoint) {

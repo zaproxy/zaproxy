@@ -73,6 +73,7 @@
 // ZAP: 2017/03/02 Issue 1634 Improve URL export.
 // ZAP: 2017/03/28 Issue 3253 Allow URLs to be exported per context.
 // ZAP: 2017/04/07 Added getUIName()
+// ZAP: 2017/05/01 Issue 3446 - Add ability to export a Site Map via Context Menu.
 
 package org.parosproxy.paros.extension.history;
 
@@ -243,6 +244,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportSelectedURLs());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportContextURLs());
             extensionHook.getHookMenu().addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
+
+            extensionHook.getHookMenu().addPopupMenuItem(createPopupMenuExportURLs());
+            extensionHook.getHookMenu().addPopupMenuItem(createPopupMenuExportSelectedURLs());
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 	    }
@@ -672,25 +676,30 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	private PopupMenuExportURLs getPopupMenuExportURLs() {
 		if (popupMenuExportURLs == null) {
-			popupMenuExportURLs = new PopupMenuExportURLs(Constant.messages.getString("exportUrls.popup"));
-			popupMenuExportURLs.setExtension(this);
+			popupMenuExportURLs = createPopupMenuExportURLs();
 		}
 		return popupMenuExportURLs;
 	}
 
+	private PopupMenuExportURLs createPopupMenuExportURLs() {
+		return new PopupMenuExportURLs(Constant.messages.getString("exportUrls.popup"), this);
+	}
+
 	private PopupMenuExportSelectedURLs getPopupMenuExportSelectedURLs() {
 		if (popupMenuExportSelectedURLs == null) {
-			popupMenuExportSelectedURLs = new PopupMenuExportSelectedURLs(Constant.messages.getString("exportUrls.popup.selected"));
-			popupMenuExportSelectedURLs.setExtension(this);
+			popupMenuExportSelectedURLs = createPopupMenuExportSelectedURLs();
 		}
 		return popupMenuExportSelectedURLs;
+	}
+
+	private PopupMenuExportSelectedURLs createPopupMenuExportSelectedURLs() {
+		return new PopupMenuExportSelectedURLs(Constant.messages.getString("exportUrls.popup.selected"), this);
 	}
 	
 	private PopupMenuExportContextURLs getPopupMenuExportContextURLs() {
 		if (popupMenuExportContextURLs == null) {
 			popupMenuExportContextURLs = new PopupMenuExportContextURLs(
-					Constant.messages.getString("context.export.urls.menu"));
-			popupMenuExportContextURLs.setExtension(this);
+					Constant.messages.getString("context.export.urls.menu"), this);
 		}
 		return popupMenuExportContextURLs;
 	}
