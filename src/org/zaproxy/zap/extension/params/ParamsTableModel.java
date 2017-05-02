@@ -68,6 +68,10 @@ public class ParamsTableModel extends AbstractTableModel {
 	public String getColumnName(int col) {
 		return columnNames.get(col);
 	}
+	
+	public List<String> getColumnNames() {
+		return new ArrayList<String>(columnNames);
+	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
