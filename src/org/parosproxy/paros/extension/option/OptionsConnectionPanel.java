@@ -96,6 +96,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
     private JCheckBox checkBoxSingleCookieRequestHeader;
+    private JCheckBox checkBoxHttpStateEnabled;
     private JComboBox<String> commonUserAgents = null;
 	private ZapTextField defaultUserAgent = null;
 
@@ -540,6 +541,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    txtTimeoutInSecs.discardAllEdits();
 	    
 	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
+	    checkBoxHttpStateEnabled.setSelected(connectionParam.isHttpStateEnabled());
         
 	    getProxyExcludedDomainsTableModel().setExcludedDomains(connectionParam.getProxyExcludedDomains());
 	    getProxyExcludedDomainsPanel().setRemoveWithoutConfirmation(!connectionParam.isConfirmRemoveProxyExcludedDomain());
@@ -695,6 +697,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
+	    connectionParam.setHttpStateEnabled(checkBoxHttpStateEnabled.isSelected());
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
@@ -818,16 +821,17 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc.insets = new java.awt.Insets(2,2,2,2);
 			gbc.anchor = java.awt.GridBagConstraints.WEST;
-            
+
 			JLabel uaLabel = new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
 			uaLabel.setLabelFor(this.getDefaultUserAgent());
 			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1,0.5D));
-			panelGeneral.add(this.getCommonUserAgents(), 
+			panelGeneral.add(getCommonUserAgents(), 
 					LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2,2,2,2)));
-			panelGeneral.add(this.getDefaultUserAgent(), 
+			panelGeneral.add(getDefaultUserAgent(), 
 					LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2,2,2,2)));
 
             panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
+            panelGeneral.add(getCheckBoxHttpStateEnabled(), LayoutHelper.getGBC(0, 4, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
 }
 		return panelGeneral;
@@ -854,7 +858,19 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         return checkBoxSingleCookieRequestHeader;
     }
 
-    private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
+    public JCheckBox getCheckBoxHttpStateEnabled() {
+        if (checkBoxHttpStateEnabled == null) {
+            checkBoxHttpStateEnabled =
+                    new JCheckBox(Constant.messages.getString("conn.options.httpStateEnabled"));
+        }
+        return checkBoxHttpStateEnabled;
+    }
+
+	public void setCheckBoxHttpStateEnabled(JCheckBox checkBoxHttpStateEnabled) {
+		this.checkBoxHttpStateEnabled = checkBoxHttpStateEnabled;
+	}
+
+	private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
         if (proxyExcludedDomainsPanel == null) {
             proxyExcludedDomainsPanel = new ProxyExcludedDomainsMultipleOptionsPanel(getProxyExcludedDomainsTableModel());
         }
