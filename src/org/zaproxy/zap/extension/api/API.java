@@ -60,11 +60,28 @@ public class API {
 	public enum Format {XML, HTML, JSON, JSONP, UI, OTHER};
 	public enum RequestType {action, view, other};
 	
-	public static String API_DOMAIN = "zap";
-	public static String API_URL = "http://" + API_DOMAIN + "/";
-	public static String API_URL_S = "https://" + API_DOMAIN + "/";
-	public static String API_KEY_PARAM = "apikey";
-	public static String API_NONCE_PARAM = "apinonce";
+	/**
+	 * The custom domain to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_DOMAIN = "zap";
+
+	/**
+	 * The HTTP URL to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_URL = "http://" + API_DOMAIN + "/";
+
+	/**
+	 * The HTTPS URL to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_URL_S = "https://" + API_DOMAIN + "/";
+	public static final String API_KEY_PARAM = "apikey";
+	public static final String API_NONCE_PARAM = "apinonce";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
@@ -522,27 +539,38 @@ public class API {
 	 * @param name the name of the endpoint
 	 * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will start with http://zap/..
 	 * @return the URL to access the defined endpoint
+	 * @see #getBaseURL(boolean)
 	 */
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String apiPath = format.name() + "/" + prefix + "/" + type.name() + "/" + name + "/";
-		String base = API_URL;
-		if (getOptionsParamApi().isSecureOnly()) {
-			base = API_URL_S;
-		}
-		if (!proxy) {
-			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			if (getOptionsParamApi().isSecureOnly()) {
-				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
-			} else {
-				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
-			}
-		}
-		
 		if (!RequestType.view.equals(type)) {
-			return base + apiPath + "/?" + API_NONCE_PARAM + "=" + this.getOneTimeNonce(apiPath) + "&";
-		} else {
-			return base + apiPath;
+			return getBaseURL(proxy) + apiPath + "/?" + API_NONCE_PARAM + "=" + this.getOneTimeNonce(apiPath) + "&";
 		}
+		return getBaseURL(proxy) + apiPath;
+	}
+
+	/**
+	 * Gets the base URL to access the ZAP API, possibly proxying through ZAP.
+	 * <p>
+	 * If proxying through ZAP the base URL will use the custom domain, {@value #API_DOMAIN}.
+	 * 
+	 * @param proxy {@code true} if the URL will be accessed while proxying through ZAP, {@code false} otherwise.
+	 * @return the base URL to access the ZAP API.
+	 * @since TODO add version
+	 */
+	public String getBaseURL(boolean proxy) {
+		if (proxy) {
+			return getOptionsParamApi().isSecureOnly() ? API_URL_S : API_URL;
+		}
+
+		ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+		StringBuilder strBuilder = new StringBuilder(50);
+		strBuilder.append("http");
+		if (getOptionsParamApi().isSecureOnly()) {
+			strBuilder.append('s');
+		}
+		strBuilder.append("://").append(proxyParam.getProxyIp()).append(':').append(proxyParam.getProxyPort()).append('/');
+		return strBuilder.toString();
 	}
 	
 	private String responseToHtml(String name, ApiResponse res) {
