@@ -35,6 +35,7 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/07 Allow to disable default standard output logging
 // ZAP: 2017/03/26 Allow to obtain configs in the order specified
+// ZAP: 2017/05/12 Issue 3460: Support -suppinfo 
 
 package org.parosproxy.paros;
 
@@ -74,6 +75,7 @@ public class CommandLine {
     public static final String CONFIG_FILE = "-configfile";
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
+    public static final String SUPPORT_INFO = "-suppinfo";
 
     /**
      * Command line option to disable the default logging through standard output.
@@ -89,6 +91,7 @@ public class CommandLine {
     private boolean GUI = true;
     private boolean daemon = false;
     private boolean reportVersion = false;
+    private boolean displaySupportInfo = false;
     private boolean lowMem = false;
     private boolean experimentalDb = false;
     private int port = -1;
@@ -316,6 +319,10 @@ public class CommandLine {
             setGUI(false);
         } else if (checkSwitch(args, NOSTDOUT, i)) {
             noStdOutLog = true;
+        } else if (checkSwitch(args, SUPPORT_INFO, i)) {
+            displaySupportInfo = true;
+            setDaemon(false);
+            setGUI(false);
         }
 
         return result;
@@ -423,6 +430,10 @@ public class CommandLine {
 
 	public boolean isReportVersion() {
         return this.reportVersion;
+    }
+
+    public boolean isDisplaySupportInfo() {
+        return this.displaySupportInfo;
     }
 
     public int getPort() {

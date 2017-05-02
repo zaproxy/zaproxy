@@ -29,6 +29,7 @@
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
+// ZAP: 2017/05/10 Issue 3460: Add Show Support Info help menuitem
 
 package org.parosproxy.paros.view;
 
@@ -51,6 +52,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.view.AboutDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
+import org.zaproxy.zap.view.ZapSupportDialog;
 
 public class MainMenuBar extends JMenuBar {
 
@@ -74,6 +76,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem menuFileProperties = null;
 	private JMenu menuHelp = null;
 	private ZapMenuItem menuHelpAbout = null;
+	private ZapMenuItem menuHelpSupport = null;
     private JMenu menuAnalyse = null;
     // ZAP: Added standard report menu
 	private JMenu menuReport = null;
@@ -427,6 +430,7 @@ public class MainMenuBar extends JMenuBar {
 			menuHelp.setText(Constant.messages.getString("menu.help")); // ZAP: i18n
 			menuHelp.setMnemonic(Constant.messages.getChar("menu.help.mnemonic"));
 			menuHelp.add(getMenuHelpAbout());
+			menuHelp.add(getMenuHelpSupport());
 		}
 		return menuHelp;
 	}
@@ -468,6 +472,21 @@ public class MainMenuBar extends JMenuBar {
 		}
 		return menuHelpAbout;
 	}
+	
+	private ZapMenuItem getMenuHelpSupport() {
+		if (menuHelpSupport == null) {			
+			menuHelpSupport = new ZapMenuItem("menu.help.zap.support");
+			menuHelpSupport.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					ZapSupportDialog zsd = new ZapSupportDialog(View.getSingleton().getMainFrame(), true);
+					zsd.setVisible(true);
+				}
+			});
+		}
+		return menuHelpSupport;
+	}
+	
     /**
      * This method initializes jMenu1	
      * 	
