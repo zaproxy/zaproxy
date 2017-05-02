@@ -1,6 +1,9 @@
 language: java
 script: ant -buildfile build/build.xml test
 
+jdk:
+  - oraclejdk8
+
 env:
   global:
    # COVERITY_SCAN_TOKEN
