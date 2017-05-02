@@ -75,8 +75,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
 	// Still being developed
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
-	private PopupMenuAlert popupMenuAlert = null;
-
     private static Logger log = Logger.getLogger(ExtensionStdMenus.class);
 
 	public ExtensionStdMenus() {
@@ -123,8 +121,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			if (isExtensionHistoryEnabled) {
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
 			}
-
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
 
 			if (isExtensionHistoryEnabled) {
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
@@ -371,14 +367,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			popupMenuShowInHistory.setMenuIndex(menuIndex);
 		}
 		return popupMenuShowInHistory;
-	}
-
-	private PopupMenuAlert getPopupMenuAlert(int menuIndex) {
-		if (popupMenuAlert == null) {
-			popupMenuAlert = new PopupMenuAlert(Constant.messages.getString("history.alert.popup"));
-			popupMenuAlert.setMenuIndex(menuIndex);
-		}
-		return popupMenuAlert;
 	}
 
 	private PopupMenuItemContextInclude getPopupContextIncludeMenu(int menuIndex) {
