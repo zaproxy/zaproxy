@@ -138,9 +138,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExport());
-			if (isExtensionHistoryEnabled) {
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExportUrls());
-			}
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExportUrls());
 		}
 	}
 	
@@ -193,9 +191,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuExportContextURLs getPopupContextTreeMenuExportUrls() {
 		if (popupContextTreeMenuExportUrls == null) {
 			popupContextTreeMenuExportUrls = new PopupMenuExportContextURLs(
-					Constant.messages.getString("context.export.urls.menu"));
-			popupContextTreeMenuExportUrls.setExtension(
-					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
+					Constant.messages.getString("context.export.urls.menu"), this);
 		}
 		return popupContextTreeMenuExportUrls;
 	}
