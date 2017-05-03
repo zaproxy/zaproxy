@@ -577,9 +577,14 @@ def main(argv):
     # Stop ZAP
     zap.core.shutdown()
 
-  except IOError as (errno, strerror):
-    print("ERROR " + str(strerror))
-    logging.warning ('I/O error(' + str(errno) + '): ' + str(strerror))
+  except IOError as e:
+    if hasattr(e, 'args') and len(e.args) > 1:
+      errno, strerror = e
+      print("ERROR " + str(strerror))
+      logging.warning ('I/O error(' + str(errno) + '): ' + str(strerror))
+    else:
+      print("ERROR %s" % e)
+      logging.warning ('I/O error: ' + str(e))
     dump_log_file(cid)
 
   except:
