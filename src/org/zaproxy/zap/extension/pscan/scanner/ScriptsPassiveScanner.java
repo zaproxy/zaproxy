@@ -41,6 +41,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 	
 
 	private int currentHRefId;
+	private int currentHistoryType;
 
 	public ScriptsPassiveScanner() {
 	}
@@ -78,7 +79,9 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 						PassiveScript s = extension.getInterface(script, PassiveScript.class);
 						
 						if (s != null) {
-							s.scan(this, msg, source);
+							if (s.appliesToHistoryType(currentHistoryType)) {
+								s.scan(this, msg, source);
+							}
 							
 						} else {
 							extension.handleFailedScriptInterface(
@@ -112,4 +115,9 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 		this.parent = parent;
 	}
 
+	@Override
+	public boolean appliesToHistoryType(int historyType) {
+		this.currentHistoryType = historyType;
+		return true;
+	}
 }
