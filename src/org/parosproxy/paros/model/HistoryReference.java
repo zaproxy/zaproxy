@@ -47,14 +47,17 @@
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
 // ZAP: 2017/02/07 Add TYPE_SPIDER_AJAX_TEMPORARY.
 // ZAP: 2017/03/19 Add TYPE_SPIDER_TEMPORARY.
+// ZAP: 2017/05/03 Notify tag changes.
 
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -70,6 +73,9 @@ import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.db.TableTag;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.model.Target;
 
 
 /**
@@ -474,22 +480,46 @@ public class HistoryReference {
    
    	// ZAP: Support for multiple tags
    	public void addTag(String tag) {
-   		try {
-   			staticTableTag.insert(historyId, tag);
+   		if (insertTagDb(tag)) {
    			this.tags.add(tag);
-   		} catch (DatabaseException e) {
-   			log.error(e.getMessage(), e);
+   			notifyTagEvent(HistoryReferenceEventPublisher.EVENT_TAG_ADDED);
    		}
    	}
+
+    private boolean insertTagDb(String tag) {
+        try {
+            staticTableTag.insert(historyId, tag);
+            return true;
+        } catch (DatabaseException e) {
+            log.error("Failed to persist tag: " + e.getMessage(), e);
+        }
+        return false;
+    }
+
+    private void notifyTagEvent(String event) {
+        Map<String, String> map = new HashMap<>();
+        map.put(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID, Integer.toString(historyId));
+        ZAP.getEventBus().publishSyncEvent(
+                HistoryReferenceEventPublisher.getPublisher(),
+                new Event(HistoryReferenceEventPublisher.getPublisher(), event, new Target(getSiteNode()), map));
+    }
    
    	public void deleteTag(String tag) {
-   		try {
-   			staticTableTag.delete(historyId, tag);
+   		if (deleteTagDb(tag)) {
    			this.tags.remove(tag);
-   		} catch (DatabaseException e) {
-   			log.error(e.getMessage(), e);
+   			notifyTagEvent(HistoryReferenceEventPublisher.EVENT_TAG_REMOVED);
    		}
    	}
+
+    private boolean deleteTagDb(String tag) {
+        try {
+            staticTableTag.delete(historyId, tag);
+            return true;
+        } catch (DatabaseException e) {
+            log.error("Failed to delete tag: " + e.getMessage(), e);
+        }
+        return false;
+    }
 
 	public List<String> getTags() {
 		return this.tags;
@@ -651,8 +681,46 @@ public class HistoryReference {
 		return httpMessageCachedData.getRtt();
 	}
 
+	/**
+	 * Sets the tags for the HTTP message.
+	 *
+	 * @param tags the new tags.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 * @see #addTag(String)
+	 * @see #deleteTag(String)
+	 */
+	public void setTags(List<String> tags) {
+		if (tags == null) {
+			throw new IllegalArgumentException("Parameter tags must not be null.");
+		}
+
+		for (String tag : tags) {
+			if (!this.tags.contains(tag)) {
+				insertTagDb(tag);
+			}
+		}
+
+		for (String tag : this.tags) {
+			if (!tags.contains(tag)) {
+				deleteTagDb(tag);
+			}
+		}
+
+		this.tags = new ArrayList<>(tags);
+		notifyTagEvent(HistoryReferenceEventPublisher.EVENT_TAGS_SET);
+	}
+
+	/**
+	 * Sets the tags for the HTTP message.
+	 *
+	 * @param tags the new tags.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @deprecated (TODO add version) Use {@link #setTags(List)} instead.
+	 */
+	@Deprecated
 	public void setTags(Vector<String> tags) {
-		this.tags = tags;
+		setTags((List<String>) tags);
 	}
 	
 	public boolean hasNote() {

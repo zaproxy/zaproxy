@@ -220,12 +220,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 	}
 
-    private void notifyHistoryItemChanged(HistoryReference historyReference) {
-        if (extHist != null) {
-            extHist.notifyHistoryItemChanged(historyReference);
-        }
-    }
-	
 	public void addTag(int id, String tag) {
 		if (shutDown) {
 			return;
@@ -234,7 +228,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		try {
 			if (! href.getTags().contains(tag)) {
 				href.addTag(tag);
-				notifyHistoryItemChanged(href);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

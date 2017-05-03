@@ -23,11 +23,9 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -38,9 +36,10 @@ import javax.swing.ListSelectionModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.utils.SortedListModel;
 
 public class ManageTagsDialog extends AbstractDialog {
 
@@ -54,16 +53,12 @@ public class ManageTagsDialog extends AbstractDialog {
 	private JButton btnSave = null;
 	private JButton btnCancel = null;
 	private JList<String> tagList = null;
-	private DefaultListModel<String> tagListModel = null;
+	private SortedListModel<String> tagListModel = null;
 
-	private ExtensionHistory extension = null;
 	private HistoryReference historyRef;
 	
 	private JScrollPane jScrollPane = null;
-	private DefaultComboBoxModel<String> tagAddModel = null;
-	
-	private Vector<String> addedTags = new Vector<>();
-	private Vector<String> deletedTags = new Vector<>();
+	private SortedComboBoxModel<String> tagAddModel = null;
 	
     /**
      * @throws HeadlessException
@@ -191,15 +186,13 @@ public class ManageTagsDialog extends AbstractDialog {
 			tagList.setLayoutOrientation(JList.VERTICAL);
 			tagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			
-			tagListModel = new DefaultListModel<>();
+			tagListModel = new SortedListModel<>();
 			tagList.setModel(tagListModel);
 		}
 		return tagList;
 	}
 	
 	public void setTags (List<String> tags) {
-		addedTags.clear();
-		deletedTags.clear();
 		tagListModel.clear();
 		for (String tag : tags) {
 			tagListModel.addElement(tag);
@@ -207,25 +200,9 @@ public class ManageTagsDialog extends AbstractDialog {
 		}
 	}
 	
-	private void save() {
-		for (String tag : addedTags) {
-			historyRef.addTag(tag);
-		}
-		for (String tag : deletedTags) {
-			historyRef.deleteTag(tag);
-		}
-        extension.notifyHistoryItemChanged(historyRef);
-	}
-	
 	private void addTag (String tag) {
 		if (tag != null && tag.length() > 0 && ! tagListModel.contains(tag)) {
 			tagListModel.addElement(tag);
-			if (deletedTags.contains(tag)) {
-				deletedTags.remove(tag);
-			} else {
-				addedTags.add(tag);
-			}
-            // Remove this tag from the list, if its there?)
             getAllTagsModel().removeElement(tag);
 		}
 	}
@@ -233,12 +210,6 @@ public class ManageTagsDialog extends AbstractDialog {
 	private void deleteTags (List<String> tags) {
 		for (String tag : tags) {
 			tagListModel.removeElement(tag);
-			if (addedTags.contains(tag)) {
-				addedTags.remove(tag);
-			} else {
-				deletedTags.add(tag.toString());
-			}
-            // TODO put this tag back on the list? - needs to be in order??
 
             getAllTagsModel().addElement(tag);
 		}
@@ -256,9 +227,9 @@ public class ManageTagsDialog extends AbstractDialog {
 		return txtTagAdd;
 	}
 	
-	private DefaultComboBoxModel<String> getAllTagsModel () {
+	private SortedComboBoxModel<String> getAllTagsModel () {
 		if (tagAddModel == null) {
-			tagAddModel = new DefaultComboBoxModel<>();
+			tagAddModel = new SortedComboBoxModel<>();
 		}
 		return tagAddModel;
 	}
@@ -324,8 +295,8 @@ public class ManageTagsDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					save();
-					extension.hideManageTagsDialog();
+					historyRef.setTags(Collections.list(tagListModel.elements()));
+					dispose();
 				}
 			});
 
@@ -345,16 +316,12 @@ public class ManageTagsDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					extension.hideManageTagsDialog();
+					dispose();
 				}
 			});
 
 		}
 		return btnCancel;
-	}
-	
-	public void setPlugin(ExtensionHistory plugin) {
-	    this.extension = plugin;
 	}
 	
 	/**
