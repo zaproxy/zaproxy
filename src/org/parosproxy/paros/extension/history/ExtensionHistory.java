@@ -74,6 +74,7 @@
 // ZAP: 2017/03/28 Issue 3253 Allow URLs to be exported per context.
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/05/01 Issue 3446 - Add ability to export a Site Map via Context Menu.
+// ZAP: 2017/05/03 Register and process events from HistoryReference.
 
 package org.parosproxy.paros.extension.history;
 
@@ -97,6 +98,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
@@ -211,7 +213,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		super.init();
 
 		historyTableModel = new HistoryTableModel();
-		ZAP.getEventBus().registerConsumer(new AlertEventConsumer(), AlertEventPublisher.getPublisher().getPublisherName());
+		EventConsumerImpl eventConsumerImpl = new EventConsumerImpl();
+		ZAP.getEventBus().registerConsumer(eventConsumerImpl, AlertEventPublisher.getPublisher().getPublisherName());
+		ZAP.getEventBus().registerConsumer(eventConsumerImpl, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
 	}
 
 	@SuppressWarnings("deprecation")
@@ -663,16 +667,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void showManageTagsDialog(HistoryReference ref, List<String> tags) {
     	if (manageTags == null) {
 	    	manageTags = new ManageTagsDialog(getView().getMainFrame(), false);
-	    	manageTags.setPlugin(this);
 	    	populateManageTagsDialogAndSetVisible(ref, tags);
     	} else if (!manageTags.isVisible()) {
     		populateManageTagsDialogAndSetVisible(ref, tags);
     	}
     }
-
-	public void hideManageTagsDialog() {
-		manageTags.dispose();
-	}
 	
 	private PopupMenuExportURLs getPopupMenuExportURLs() {
 		if (popupMenuExportURLs == null) {
@@ -844,11 +843,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	return true;
     }
 
-    private class AlertEventConsumer implements EventConsumer {
+    private class EventConsumerImpl implements EventConsumer {
 
         @Override
         public void eventReceived(Event event) {
             switch (event.getEventType()) {
+            case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
+            case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
+            case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
+                notifyHistoryItemChanged(
+                        Integer.valueOf(event.getParameters().get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID)));
+                break;
             case AlertEventPublisher.ALERT_ADDED_EVENT:
             case AlertEventPublisher.ALERT_CHANGED_EVENT:
             case AlertEventPublisher.ALERT_REMOVED_EVENT:
