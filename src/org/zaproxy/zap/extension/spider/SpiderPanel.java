@@ -42,6 +42,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
@@ -55,6 +57,7 @@ import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter;
@@ -160,6 +163,8 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	/** The found count value label. */
 	private JLabel foundCountValueLabel;
 	
+	private TableExportButton exportButton;
+	
 	private ExtensionSpider extension = null;
 
 	/**
@@ -172,6 +177,19 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension);
 
 		tabbedPane = new JTabbedPane();
+		tabbedPane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				switch(tabbedPane.getSelectedIndex()) {
+				case 0:
+					getExportButton().setTable(getUrlsTable());
+					break;
+				case 1:
+					getExportButton().setTable(getMessagesTable());
+					break;
+				}
+			}
+		});
 
 		this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
@@ -300,6 +318,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 			toolBar.add(getFoundCountValueLabel(), getGBC(gridX++, 0));
 			toolBar.add(new JToolBar.Separator(), getGBC(gridX++, 0));
 			toolBar.add(getShowMessagesToggleButton(), getGBC(gridX++, 0));
+			toolBar.add(getExportButton(), getGBC(gridX++, 0));
 		}
 		return gridX;
 	}
@@ -325,6 +344,13 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		return showMessageToggleButton;
 	}
 
+	private TableExportButton getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton(getUrlsTable());
+		}
+		return exportButton;
+	}
+	
 	/**
 	 * Shows both tabs, the one of the URLs found and the other of the HTTP messages sent.
 	 *
@@ -355,6 +381,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 
 		mainPanel.add(getUrlsTableScrollPane());
 		mainPanel.revalidate();
+		getExportButton().setTable(getUrlsTable());
 	}
 
 	/**
