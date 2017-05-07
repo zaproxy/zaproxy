@@ -2,7 +2,7 @@
 	<description>Build ZAP.</description>
 	<!-- set global properties for this build -->
 	<property name="src" location="../src" />
-	<property name="src.version" value="1.7" />
+	<property name="src.version" value="1.8" />
 	<property name="build" location="build" />
 	<property name="build.lib.dir" location="lib" />
 	<property name="dist" location="zap" />

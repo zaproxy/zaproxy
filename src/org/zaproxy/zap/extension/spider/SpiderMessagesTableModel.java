@@ -31,6 +31,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventConsumer;
@@ -68,7 +69,7 @@ class SpiderMessagesTableModel
     private static final ProcessedCellItem IO_ERROR_CELL_ITEM;
 
     private final ExtensionHistory extensionHistory;
-    private AlertEventConsumer alertEventConsumer;
+    private EventConsumerImpl eventConsumer;
 
     private List<SpiderTableEntry> resources;
     private Map<Integer, Integer> idsToRows;
@@ -93,11 +94,12 @@ class SpiderMessagesTableModel
         idsToRows = new HashMap<>();
 
         if (createAlertEventConsumer) {
-            alertEventConsumer = new AlertEventConsumer();
+            eventConsumer = new EventConsumerImpl();
             extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
-            ZAP.getEventBus().registerConsumer(alertEventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus().registerConsumer(eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus().registerConsumer(eventConsumer, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
         } else {
-            alertEventConsumer = null;
+            eventConsumer = null;
             extensionHistory = null;
         }
     }
@@ -131,9 +133,10 @@ class SpiderMessagesTableModel
         idsToRows = new HashMap<>();
         fireTableDataChanged();
 
-        if (alertEventConsumer != null) {
-            ZAP.getEventBus().unregisterConsumer(alertEventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
-            alertEventConsumer = null;
+        if (eventConsumer != null) {
+            ZAP.getEventBus().unregisterConsumer(eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus().unregisterConsumer(eventConsumer, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
+            eventConsumer = null;
         }
     }
 
@@ -321,11 +324,17 @@ class SpiderMessagesTableModel
         }
     }
 
-    private class AlertEventConsumer implements EventConsumer {
+    private class EventConsumerImpl implements EventConsumer {
 
         @Override
         public void eventReceived(Event event) {
             switch (event.getEventType()) {
+            case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
+            case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
+            case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
+                refreshEntry(
+                        Integer.valueOf(event.getParameters().get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID)));
+                break;
             case AlertEventPublisher.ALERT_ADDED_EVENT:
             case AlertEventPublisher.ALERT_CHANGED_EVENT:
             case AlertEventPublisher.ALERT_REMOVED_EVENT:

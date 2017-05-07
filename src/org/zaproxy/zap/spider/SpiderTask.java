@@ -275,6 +275,8 @@ public class SpiderTask implements Runnable {
 		HttpMessage msg;
 		try {
 			msg = reference.getHttpMessage();
+			// HistoryReference is about to be deleted, so no point keeping referencing it.
+			msg.setHistoryRef(null);
 		} finally {
 			deleteHistoryReference();
 		}

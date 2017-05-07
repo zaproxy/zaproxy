@@ -26,6 +26,7 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SiteMapPanel;
@@ -38,13 +39,13 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
 	
 	private static Logger LOG = Logger.getLogger(PopupMenuExportURLs.class);
 
-	public PopupMenuExportContextURLs(String menuItem) {
-		super(menuItem);
+	public PopupMenuExportContextURLs(String menuItem, Extension extension) {
+		super(menuItem, extension);
 	}
 	
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
-		if (invoker.getName().equals(SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME)) {
+		if (SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
 			Context ctx = View.getSingleton().getSiteTreePanel().getSelectedContext();
 			if (ctx != null) {
 				return true;

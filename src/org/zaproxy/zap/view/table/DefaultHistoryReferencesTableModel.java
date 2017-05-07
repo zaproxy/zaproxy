@@ -148,13 +148,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
             entry.refreshCachedValues();
         }
 
-        fireTableChanged(
-                new TableModelEvent(
-                        this,
-                        0,
-                        hrefList.size() - 1,
-                        getColumnIndex(Column.HIGHEST_ALERT),
-                        TableModelEvent.UPDATE));
+        fireTableChanged(new TableModelEvent(this, 0, hrefList.size() - 1));
     }
 
     @Override

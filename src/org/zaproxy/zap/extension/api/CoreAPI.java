@@ -264,7 +264,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }));
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
-		this.addApiView(new ApiView(VIEW_URLS));
+		this.addApiView(new ApiView(VIEW_URLS, null, new String[] { PARAM_BASE_URL }));
 		this.addApiView(new ApiView(VIEW_MESSAGE, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
@@ -862,7 +862,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-			this.getURLs(root, (ApiResponseList)result);
+			this.getURLs(getParam(params, PARAM_BASE_URL, ""), root, (ApiResponseList)result);
 		} else if (VIEW_ALERT.equals(name)){
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
 			RecordAlert recordAlert;
@@ -1335,21 +1335,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return sb.toString();
 	}
 
-	private void getURLs(SiteNode parent, ApiResponseList list) {
+	private void getURLs(String baseUrl, SiteNode parent, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = parent.children();
 		while (en.hasMoreElements()) {
 			SiteNode child = en.nextElement();
-			String site = child.getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
+			String uri = child.getHistoryReference().getURI().toString();
+			if (baseUrl.isEmpty() || uri.startsWith(baseUrl)) {
+				list.addItem(new ApiResponseElement("url", uri));
 			}
-			try {
-				list.addItem(new ApiResponseElement("url", child.getHistoryReference().getURI().toString()));
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			getURLs(child, list);
+
+			getURLs(baseUrl, child, list);
 		}
 	}
 

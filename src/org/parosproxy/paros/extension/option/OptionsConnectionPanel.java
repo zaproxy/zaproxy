@@ -33,6 +33,7 @@
 // ZAP: 2016/03/08 Issue 646: Outgoing proxy password as JPasswordField (pips) instead of ZapTextField
 // ZAP: 2016/03/18 Add checkbox to allow showing of the password
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
+// ZAP: 2017/05/02 Checkbox to Enable / Disable HTTP State
 
 package org.parosproxy.paros.extension.option;
 
@@ -95,8 +96,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox chkProxyChainPrompt = null;
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
-    private JCheckBox checkBoxSingleCookieRequestHeader;
-    private JComboBox<String> commonUserAgents = null;
+	private JCheckBox checkBoxSingleCookieRequestHeader;
+	private JCheckBox checkBoxHttpStateEnabled;
+	private JComboBox<String> commonUserAgents = null;
 	private ZapTextField defaultUserAgent = null;
 
 	private JPanel dnsPanel;
@@ -540,6 +542,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    txtTimeoutInSecs.discardAllEdits();
 	    
 	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
+	    checkBoxHttpStateEnabled.setSelected(connectionParam.isHttpStateEnabled());
         
 	    getProxyExcludedDomainsTableModel().setExcludedDomains(connectionParam.getProxyExcludedDomains());
 	    getProxyExcludedDomainsPanel().setRemoveWithoutConfirmation(!connectionParam.isConfirmRemoveProxyExcludedDomain());
@@ -695,6 +698,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
+	    connectionParam.setHttpStateEnabled(checkBoxHttpStateEnabled.isSelected());
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
@@ -821,24 +825,24 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             
 			JLabel uaLabel = new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
 			uaLabel.setLabelFor(this.getDefaultUserAgent());
-			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1,0.5D));
-			panelGeneral.add(this.getCommonUserAgents(), 
-					LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2,2,2,2)));
-			panelGeneral.add(this.getDefaultUserAgent(), 
-					LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2,2,2,2)));
+			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1, 0.5D));
+			panelGeneral.add(getCommonUserAgents(), LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2, 2, 2, 2)));
+			panelGeneral.add(getDefaultUserAgent(), LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2, 2, 2, 2)));
 
-            panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
+			panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
+			panelGeneral.add(getCheckBoxHttpStateEnabled(), LayoutHelper.getGBC(0, 4, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
 }
 		return panelGeneral;
 	}
 
-    private SecurityProtocolsPanel getSecurityProtocolsPanel() {
-        if (securityProtocolsPanel == null) {
-            securityProtocolsPanel = new SecurityProtocolsPanel();
-        }
-        return securityProtocolsPanel;
-    }
+	private SecurityProtocolsPanel getSecurityProtocolsPanel() {
+
+		if (securityProtocolsPanel == null) {
+			securityProtocolsPanel = new SecurityProtocolsPanel();
+		}
+		return securityProtocolsPanel;
+	}
 
 	private ZapTextField getTxtTimeoutInSecs() {
 		if (txtTimeoutInSecs == null) {
@@ -846,28 +850,44 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return txtTimeoutInSecs;
 	}
-	
-    private JCheckBox getCheckBoxSingleCookeRequestHeader() {
-        if (checkBoxSingleCookieRequestHeader == null) {
-            checkBoxSingleCookieRequestHeader = new JCheckBox(Constant.messages.getString("conn.options.singleCookieRequestHeader"));
-        }
-        return checkBoxSingleCookieRequestHeader;
-    }
 
-    private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
-        if (proxyExcludedDomainsPanel == null) {
-            proxyExcludedDomainsPanel = new ProxyExcludedDomainsMultipleOptionsPanel(getProxyExcludedDomainsTableModel());
-        }
-        return proxyExcludedDomainsPanel;
-    }
+	private JCheckBox getCheckBoxSingleCookeRequestHeader() {
 
-    private ProxyExcludedDomainsTableModel getProxyExcludedDomainsTableModel() {
-        if (proxyExcludedDomainsTableModel == null) {
-            proxyExcludedDomainsTableModel = new ProxyExcludedDomainsTableModel();
-        }
-        return proxyExcludedDomainsTableModel;
-    }
-	
+		if (checkBoxSingleCookieRequestHeader == null) {
+			checkBoxSingleCookieRequestHeader = new JCheckBox(Constant.messages.getString("conn.options.singleCookieRequestHeader"));
+		}
+		return checkBoxSingleCookieRequestHeader;
+	}
+
+	public JCheckBox getCheckBoxHttpStateEnabled() {
+
+		if (checkBoxHttpStateEnabled == null) {
+			checkBoxHttpStateEnabled = new JCheckBox(Constant.messages.getString("conn.options.httpStateEnabled"));
+		}
+		return checkBoxHttpStateEnabled;
+	}
+
+	public void setCheckBoxHttpStateEnabled(JCheckBox checkBoxHttpStateEnabled) {
+
+		this.checkBoxHttpStateEnabled = checkBoxHttpStateEnabled;
+	}
+
+	private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
+
+		if (proxyExcludedDomainsPanel == null) {
+			proxyExcludedDomainsPanel = new ProxyExcludedDomainsMultipleOptionsPanel(getProxyExcludedDomainsTableModel());
+		}
+		return proxyExcludedDomainsPanel;
+	}
+
+	private ProxyExcludedDomainsTableModel getProxyExcludedDomainsTableModel() {
+
+		if (proxyExcludedDomainsTableModel == null) {
+			proxyExcludedDomainsTableModel = new ProxyExcludedDomainsTableModel();
+		}
+		return proxyExcludedDomainsTableModel;
+	}
+
 	@Override
 	public String getHelpIndex() {
 		// ZAP: added help index

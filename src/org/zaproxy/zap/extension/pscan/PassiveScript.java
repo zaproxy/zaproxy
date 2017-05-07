@@ -32,4 +32,16 @@ public interface PassiveScript {
 	void scan(ScriptsPassiveScanner scriptsPassiveScanner,
 			HttpMessage msg, Source source) throws ScriptException;
 
+	/**
+	 * Tells whether or not the scanner applies to the given history type.
+	 * <p>
+	 * By default it scans the {@link PluginPassiveScanner#getDefaultHistoryTypes() default history types}.
+	 *
+	 * @param historyType the history type of the message to be scanned.
+	 * @return {@code true} if the scanner applies to the given history type, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	default boolean appliesToHistoryType(int historyType) {
+		return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
+	}
 }
