@@ -277,19 +277,27 @@ public class AddOnLoader extends URLClassLoader {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
-        try {
-			return loadClass(name, false);
-		} catch (ClassNotFoundException e) {
-			// Continue for now
-		}
-        for (AddOnClassLoader loader : addOnLoaders.values()) {
+        synchronized (getClassLoadingLock(name)) {
             try {
-    			return loader.loadClass(name);
+    			return loadClass(name, false);
     		} catch (ClassNotFoundException e) {
     			// Continue for now
     		}
+            for (AddOnClassLoader loader : addOnLoaders.values()) {
+                try {
+        			return loader.loadClass(name);
+        		} catch (ClassNotFoundException e) {
+        			// Continue for now
+        		}
+            }
+            throw new ClassNotFoundException(name);
         }
-        throw new ClassNotFoundException(name);
+    }
+
+    @Override
+    protected Object getClassLoadingLock(String className) {
+        // Allow AddOnClassLoader to use the same locks.
+        return super.getClassLoadingLock(className);
     }
     
     @Override
