@@ -74,6 +74,7 @@
 // ZAP: 2017/03/28 Issue 3253 Allow URLs to be exported per context.
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/05/01 Issue 3446 - Add ability to export a Site Map via Context Menu.
+// ZAP: 2017/05/02 Move alert related code to ExtensionAlert.
 // ZAP: 2017/05/03 Register and process events from HistoryReference.
 
 package org.parosproxy.paros.extension.history;
@@ -111,7 +112,6 @@ import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
@@ -148,7 +148,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
-	private AlertAddDialog dialogAlertAdd = null;
 	private ManageTagsDialog manageTags = null;
 	
 	private boolean showJustInScope = false;
@@ -602,13 +601,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		dialogNotesAdd.dispose();
 	}
 	
+    /**
+     * @deprecated (TODO add version) Use {@link ExtensionAlert#showAlertAddDialog(HistoryReference)} instead.
+     * @param ref the {@code HistoryReference} that will have the new alert, if created.
+     */
+    @Deprecated
     public void showAlertAddDialog(HistoryReference ref) {
-		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
-			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-	    	dialogAlertAdd.setPlugin(this);
-	    	dialogAlertAdd.setVisible(true);
-	    	dialogAlertAdd.setHistoryRef(ref);
-		}
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extAlert == null) {
+            return;
+        }
+        extAlert.showAlertAddDialog(ref);
     }
 
     /**
@@ -623,6 +626,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * deleted when the session is closed.
      * </p>
      * 
+     * @deprecated (TODO add version) Use {@link ExtensionAlert#showAlertAddDialog(HttpMessage, int)} instead.
      * @param httpMessage
      *            the {@code HttpMessage} that will be used to create the
      *            {@code HistoryReference}, must not be {@code null}
@@ -634,23 +638,26 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session,
      *      int, HttpMessage)
      */
-    // ZAP: Added the method.
+    @Deprecated
     public void showAlertAddDialog(HttpMessage httpMessage, int historyType) {
-        if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
-            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-            dialogAlertAdd.setPlugin(this);
-            dialogAlertAdd.setHttpMessage(httpMessage, historyType);
-            dialogAlertAdd.setVisible(true);
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extAlert == null) {
+            return;
         }
+        extAlert.showAlertAddDialog(httpMessage, historyType);
     }
 
+    /**
+     * @deprecated (TODO add version) Use {@link ExtensionAlert#showAlertEditDialog(Alert)} instead.
+     * @param alert the alert to edit
+     */
+    @Deprecated
     public void showAlertAddDialog(Alert alert) {
-		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
-			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-	    	dialogAlertAdd.setPlugin(this);
-	    	dialogAlertAdd.setVisible(true);
-	    	dialogAlertAdd.setAlert(alert);
-		}
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extAlert == null) {
+            return;
+        }
+        extAlert.showAlertEditDialog(alert);
     }
 
 	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, List<String> tags) {

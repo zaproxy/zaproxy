@@ -17,12 +17,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.stdmenus;
+package org.zaproxy.zap.extension.alert;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
@@ -35,13 +33,18 @@ public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
 	private static final Logger logger = Logger.getLogger(PopupMenuAlert.class);
 
-    private ExtensionHistory extension = null;
+    private final ExtensionAlert extension;
 
     /**
-     * @param label
+     * Constructs a {@code PopupMenuAlert} with the given label and extension.
+     *
+     * @param label the label of the menu item.
+     * @param extension the {@code ExtensionAlert} to show the Add Alert dialogue.
      */
-    public PopupMenuAlert(String label) {
+    public PopupMenuAlert(String label, ExtensionAlert extension) {
         super(label);
+
+        this.extension = extension;
     }
 	
 	@Override
@@ -49,33 +52,23 @@ public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 	    Invoker invoker = getInvoker();
 	    if (invoker == Invoker.ACTIVE_SCANNER_PANEL) {
 	        try {
-	            getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
+	            extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
 	        } catch (HttpMalformedHeaderException | DatabaseException e) {
 	            logger.error(e.getMessage(), e);
 	        }
 	    } else if (invoker == Invoker.FUZZER_PANEL) {
 	        try {
-	            getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
+	            extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
     	    } catch (HttpMalformedHeaderException | DatabaseException e) {
                 logger.error(e.getMessage(), e);
             }
 	    } else {
-	        getExtensionHistory().showAlertAddDialog(href);
+	        extension.showAlertAddDialog(href);
 	    }
 	}
 
-    private ExtensionHistory getExtensionHistory() {
-    	if (extension == null) {
-    		extension = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-    	}
-    	return extension;
-    }
-
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		if (getExtensionHistory() == null) {
-			return false;
-		}
 		switch (invoker) {
 		case ALERTS_PANEL:
 			return false;
