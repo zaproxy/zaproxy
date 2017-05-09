@@ -65,7 +65,6 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -434,8 +433,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	protected ScriptParam getScriptParam() {
 		if (this.scriptParam == null) {
 			this.scriptParam = new ScriptParam();
-			// NASTY! Need to find a cleaner way of getting the configs to load before the UI
-			this.scriptParam.load(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return this.scriptParam;
 	}
