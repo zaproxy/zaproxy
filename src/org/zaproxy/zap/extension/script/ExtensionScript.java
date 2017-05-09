@@ -620,8 +620,21 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void postInit() {
+		ScriptEngineWrapper ecmaScriptEngineWrapper = null;
 		final List<String[]> scriptsNotAdded = new ArrayList<>(1);
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
+			// Change scripts using Rhino (Java 7) script engine to Nashorn (Java 8+).
+			if (script.getEngine() == null && isRhinoScriptEngine(script.getEngineName())) {
+				if (ecmaScriptEngineWrapper == null) {
+					ecmaScriptEngineWrapper = getEcmaScriptEngineWrapper();
+				}
+				if (ecmaScriptEngineWrapper != null) {
+					logger.info("Changing [" + script.getName() + "] (ECMAScript) script engine from [" + script.getEngineName()
+									+ "] to [" + ecmaScriptEngineWrapper.getEngineName() + "].");
+					script.setEngine(ecmaScriptEngineWrapper);
+				}
+			}
+
 			try {
 				this.loadScript(script);
 				if (script.getType() != null) {
@@ -667,6 +680,19 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				}
 			}
 		}
+    }
+
+    private static boolean isRhinoScriptEngine(String engineName) {
+        return "Mozilla Rhino".equals(engineName) || "Rhino".equals(engineName);
+    }
+    
+    private ScriptEngineWrapper getEcmaScriptEngineWrapper() {
+        for (ScriptEngineWrapper sew : this.engineWrappers) {
+            if ("ECMAScript".equals(sew.getLanguageName())) {
+                return sew;
+            }
+        }
+        return null;
     }
 
     private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
