@@ -73,6 +73,8 @@ blacklist = ['-1', '50003', '60000', '60001']
 in_progress_issues = {}
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+# Hide "Starting new HTTP connection" messages
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
     print ('Usage: zap-baseline.py -t <target> [options]')
