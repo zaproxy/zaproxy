@@ -53,11 +53,11 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
 # Pull the ZAP repos
-RUN git clone https://github.com/zaproxy/zaproxy.git && \
-	git clone https://github.com/zaproxy/zap-extensions.git && \
-	git clone --branch beta https://github.com/zaproxy/zap-extensions.git zap-extensions_beta && \
-	git clone --branch alpha https://github.com/zaproxy/zap-extensions.git zap-extensions_alpha && \
-	git clone https://github.com/zaproxy/zap-core-help.git && \
+RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
+	git clone --depth 1 https://github.com/zaproxy/zap-extensions.git && \
+	git clone --branch beta --depth 1 https://github.com/zaproxy/zap-extensions.git zap-extensions_beta && \
+	git clone --branch alpha --depth 1 https://github.com/zaproxy/zap-extensions.git zap-extensions_alpha && \
+	git clone --depth 1 https://github.com/zaproxy/zap-core-help.git && \
 	# Download the webdrivers
 	cd zap-extensions_beta && \
 	ant -f build/build.xml download-webdrivers && \
