@@ -326,7 +326,7 @@ public class AddOnClassLoader extends URLClassLoader {
      * @see AddOnClassLoader#findClass(String)
      * @see ClassLoader#loadClass(String, boolean)
      */
-    private static class ParentClassLoader extends ClassLoader {
+    private class ParentClassLoader extends ClassLoader {
 
         public ParentClassLoader(ClassLoader classLoader) {
             super(classLoader);
@@ -335,6 +335,14 @@ public class AddOnClassLoader extends URLClassLoader {
         @Override
         protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
             return super.loadClass(name, resolve);
+        }
+
+        @Override
+        protected Object getClassLoadingLock(String className) {
+            if (classLoadingLockProvider != null) {
+                return classLoadingLockProvider.getLock(className);
+            }
+            return super.getClassLoadingLock(className);
         }
     }
 
