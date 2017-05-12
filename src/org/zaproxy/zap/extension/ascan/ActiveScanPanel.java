@@ -45,6 +45,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
@@ -80,6 +81,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private JButton scanButton = null;
 	private JButton progressButton;
 	private JLabel numRequests;
+	private TableExportButton exportButton = null;
 
     /**
      * Constructs an {@code ActiveScanPanel} with the given extension.
@@ -108,6 +110,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
 			panelToolbar.add(new JLabel(Constant.messages.getString("ascan.toolbar.requests.label")), getGBC(x++,0));
 			panelToolbar.add(getNumRequests(), getGBC(x++,0));
+			panelToolbar.add(getExportButton(), getGBC(x++,0));
 		}
 		return x;
 	}
@@ -173,6 +176,13 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			spp.setActiveScan(scan);
 			spp.setVisible(true);
 		}
+	}
+	
+	private TableExportButton getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton(getMessagesTable());
+		}
+		return exportButton;
 	}
 	
 	@Override
