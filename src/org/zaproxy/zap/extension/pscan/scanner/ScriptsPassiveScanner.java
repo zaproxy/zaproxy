@@ -131,6 +131,10 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
 		this.parent.raiseAlert(currentHRefId, alert);
 	}
+	
+	public void addTag(String tag) {		
+		this.parent.addTag(currentHRefId, tag);
+	}
 
 	@Override
 	public void setParent(PassiveScanThread parent) {
