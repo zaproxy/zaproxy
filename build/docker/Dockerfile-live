@@ -66,7 +66,8 @@ RUN git clone https://github.com/zaproxy/zaproxy.git && \
 	ant -f build/build.xml deploy-weekly-addons && \
 	ant -f build/build.xml day-stamped-release && \
 	cp -R /zap-src/zaproxy/build/zap/* /zap/ && \
-	rm -rf /zap-src/*
+	rm -rf /zap-src/* && \
+	touch /zap/AcceptedLicense
 	
 ENV ZAP_PATH /zap/zap.sh
 # Default port for use with zapcli

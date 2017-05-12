@@ -54,7 +54,8 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 	rm -R ZAP* && \
 	curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.3-distribution.zip > webswing.zip && \
 	unzip *.zip && \
-	rm *.zip
+	rm *.zip && \
+	touch AcceptedLicense
 
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
