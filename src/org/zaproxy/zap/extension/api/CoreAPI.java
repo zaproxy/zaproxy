@@ -502,6 +502,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				Mode mode = Mode.valueOf(params.getString(PARAM_MODE).toLowerCase());
 		    	if (View.isInitialised()) {
 	    			View.getSingleton().getMainFrame().getMainToolbarPanel().setMode(mode);
+	    			View.getSingleton().getMainFrame().getMainMenuBar().setMode(mode);
 		    	} else {
 	    			Control.getSingleton().setMode(mode);
 		    	}

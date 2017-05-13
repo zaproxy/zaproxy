@@ -29,8 +29,11 @@
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
+// ZAP: 2016/09/01 Issue 2375: Added option to change ZAP mode in edit menu.
 
 package org.parosproxy.paros.view;
+
+import java.util.Enumeration;
 
 import java.awt.Event;
 import java.awt.Toolkit;
@@ -41,7 +44,16 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.JMenu;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.ButtonGroup;
+import javax.swing.SwingUtilities;
+import javax.swing.AbstractButton;
 
+import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.control.Control;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -75,6 +87,8 @@ public class MainMenuBar extends JMenuBar {
 	private JMenu menuHelp = null;
 	private ZapMenuItem menuHelpAbout = null;
     private JMenu menuAnalyse = null;
+    private JMenu menuZAPMode = null;
+    private ButtonGroup menuZAPModeGroup = null;
     // ZAP: Added standard report menu
 	private JMenu menuReport = null;
 	private JMenu menuOnline = null;
@@ -114,8 +128,55 @@ public class MainMenuBar extends JMenuBar {
 			menuEdit = new javax.swing.JMenu();
 			menuEdit.setText(Constant.messages.getString("menu.edit")); // ZAP: i18n
 			menuEdit.setMnemonic(Constant.messages.getChar("menu.edit.mnemonic"));
+			menuEdit.add(getMenuEditZAPMode());
 		}
 		return menuEdit;
+	}
+
+	private JMenuItem getMenuEditZAPMode(){
+		if (menuZAPMode == null) {
+			menuZAPMode = new JMenu(Constant.messages.getString("menu.edit.zapmode"));
+			menuZAPModeGroup = new ButtonGroup();
+			JRadioButtonMenuItem newButton = null;
+			for (Mode modeType : Mode.values()) {
+				 newButton = addZAPModeMenuItem(modeType);
+  				 menuZAPModeGroup.add(newButton);
+  				 menuZAPMode.add(newButton);
+			}
+			Mode mode = Mode.valueOf(Model.getSingleton().getOptionsParam().getViewParam().getMode());
+			setMode(mode);
+		}
+		return menuZAPMode;
+	}
+
+	private JRadioButtonMenuItem addZAPModeMenuItem(final Mode modeType){
+		final JRadioButtonMenuItem modeItem = new JRadioButtonMenuItem(Constant.messages.getString("view.toolbar.mode."+modeType.name()+".select"));
+		modeItem.addActionListener(new java.awt.event.ActionListener() {
+		@Override
+		public void actionPerformed(java.awt.event.ActionEvent evt) {
+	 		Control.getSingleton().setMode(modeType);
+	 		if (View.isInitialised()){
+	 		    View.getSingleton().getMainFrame().getMainToolbarPanel().setMode(modeType);
+	 		}
+		 }
+		});
+		return modeItem;
+	}
+
+	public void setMode (final Mode mode) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				Enumeration<AbstractButton> elements = menuZAPModeGroup.getElements();
+				AbstractButton button = null;
+				while (elements.hasMoreElements()) {
+      				   button = elements.nextElement();
+      				   if (button.getText().toLowerCase().contains(mode.name().toString().toLowerCase())) {
+        				   button.setSelected(true);
+        				   break;
+      					}
+    			}
+			}});
 	}
 
 	/**
