@@ -29,7 +29,9 @@ function scan(ps, msg, src) {
 		ps.raiseAlert(1, 1, 'Passive Vulnerability title', 'Full description', 
 			msg.getRequestHeader().getURI().toString(), 
 			'The param', 'Your attack', 'Any other info', 'The solution', '', 0, 0, msg);
-			
+		
+		//addTag(String tag)
+		ps.addTag('tag')			
 	}
 	
 	// Raise less reliable alert (that is, prone to false positives) when in LOW alert threshold (level)

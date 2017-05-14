@@ -80,6 +80,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     private AlertTreeModel filteredTreeModel = null;
     private AlertPanel alertPanel = null;
     private RecordScan recordScan = null;
+    private PopupMenuAlert popupMenuAlertAdd;
     private PopupMenuAlertEdit popupMenuAlertEdit = null;
     private PopupMenuAlertDelete popupMenuAlertDelete = null;
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
@@ -88,6 +89,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 	private AlertParam alertParam = null;
 	private OptionsAlertPanel optionsPanel = null;
 	private Properties alertOverrides = new Properties();
+	private AlertAddDialog dialogAlertAdd;
 
     public ExtensionAlert() {
         super(NAME);
@@ -105,6 +107,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 	    extensionHook.addOptionsParamSet(getAlertParam());
         if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertAdd());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
@@ -517,9 +520,16 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         siteTree.nodeStructureChanged((SiteNode) siteTree.getRoot());
     }
 
+    private PopupMenuAlert getPopupMenuAlertAdd() {
+        if (popupMenuAlertAdd == null) {
+            popupMenuAlertAdd = new PopupMenuAlert(Constant.messages.getString("alert.add.popup"), this);
+        }
+        return popupMenuAlertAdd;
+    }
+
     private PopupMenuAlertEdit getPopupMenuAlertEdit() {
         if (popupMenuAlertEdit == null) {
-            popupMenuAlertEdit = new PopupMenuAlertEdit();
+            popupMenuAlertEdit = new PopupMenuAlertEdit(this);
         }
         return popupMenuAlertEdit;
     }
@@ -540,7 +550,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 
     private PopupMenuShowAlerts getPopupMenuShowAlerts() {
         if (popupMenuShowAlerts == null) {
-            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup"));
+            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup"), this);
         }
         return popupMenuShowAlerts;
     }
@@ -904,6 +914,57 @@ public class ExtensionAlert extends ExtensionAdaptor implements
      */
     public void setLinkWithSitesTreeSelection(boolean enabled) {
         getAlertPanel().setLinkWithSitesTreeSelection(enabled);
+    }
+    
+    /**
+     * Shows the Add Alert dialogue, to add a new alert for the given {@code HistoryReference}.
+     *
+     * @param ref the history reference for the alert.
+     * @since TODO add version
+     */
+    public void showAlertAddDialog(HistoryReference ref) {
+        if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setVisible(true);
+            dialogAlertAdd.setHistoryRef(ref);
+        }
+    }
+
+    /**
+     * Shows the Add Alert dialogue, using the given {@code HttpMessage} and history type for the {@code HistoryReference} that
+     * will be created if the user creates the alert. The current session will be used to create the {@code HistoryReference}.
+     * The alert created will be added to the newly created {@code HistoryReference}.
+     * <p>
+     * Should be used when the alert is added to a temporary {@code HistoryReference} as the temporary {@code HistoryReference}s
+     * are deleted when the session is closed.
+     * 
+     * @param httpMessage the {@code HttpMessage} that will be used to create the {@code HistoryReference}, must not be
+     *            {@code null}.
+     * @param historyType the type of the history reference that will be used to create the {@code HistoryReference}.
+     * @since TODO add version
+     * @see Model#getSession()
+     * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session, int, HttpMessage)
+     */
+    public void showAlertAddDialog(HttpMessage httpMessage, int historyType) {
+        if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setHttpMessage(httpMessage, historyType);
+            dialogAlertAdd.setVisible(true);
+        }
+    }
+
+    /**
+     * Shows the "Edit Alert" dialogue, with the given alert.
+     *
+     * @param alert the alert to be edited.
+     * @since TODO add version
+     */
+    public void showAlertEditDialog(Alert alert) {
+        if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setVisible(true);
+            dialogAlertAdd.setAlert(alert);
+        }
     }
 
     /**

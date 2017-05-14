@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.history;
+package org.zaproxy.zap.extension.alert;
 
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -34,12 +34,9 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.alert.AlertViewPanel;
-import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 public class AlertAddDialog extends AbstractDialog {
 
@@ -51,8 +48,6 @@ public class AlertAddDialog extends AbstractDialog {
 	private JButton btnOk = null;
 	private JButton btnCancel = null;
 	
-	private ExtensionHistory extension = null;
-
 	private HistoryReference historyRef;
     
     /**
@@ -197,16 +192,10 @@ public class AlertAddDialog extends AbstractDialog {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					Alert alert = alertViewPanel.getAlert();
 					try {
-						ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
+						ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
 						if (alert.getAlertId() >= 0) {
 							// Its an existing alert so save it
-							if (extAlert != null) {
-								extAlert.updateAlert(alert);
-							} else if (historyRef != null) { // Update history tree
-								historyRef.updateAlert(alert);
-			                    extension.notifyHistoryItemChanged(historyRef);
-							}
-
+							extAlert.updateAlert(alert);
 						} else {
 						    if (httpMessage != null) {
 						        historyRef = new HistoryReference(Model.getSingleton().getSession(), historyType, httpMessage);
@@ -214,12 +203,7 @@ public class AlertAddDialog extends AbstractDialog {
 						    
 						    alert.setSource(Alert.Source.MANUAL);
 						    // Raise it
-							if (extAlert != null) {
-								extAlert.alertFound(alert, historyRef);
-							} else {
-							    historyRef.addAlert(alert);
-							    extension.notifyHistoryItemChanged(historyRef);
-							}
+							extAlert.alertFound(alert, historyRef);
 						}
 					} catch (Exception ex) {
 					    logger.error(ex.getMessage(), ex);
@@ -260,10 +244,6 @@ public class AlertAddDialog extends AbstractDialog {
         httpMessage = null;
         dispose();
     }
-
-	public void setPlugin(ExtensionHistory plugin) {
-	    this.extension = plugin;
-	}
 	
 	private AlertViewPanel getAlertViewPanel () {
 		if (alertViewPanel == null) {

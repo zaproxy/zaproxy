@@ -65,7 +65,6 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -434,8 +433,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	protected ScriptParam getScriptParam() {
 		if (this.scriptParam == null) {
 			this.scriptParam = new ScriptParam();
-			// NASTY! Need to find a cleaner way of getting the configs to load before the UI
-			this.scriptParam.load(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return this.scriptParam;
 	}
@@ -620,8 +617,21 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void postInit() {
+		ScriptEngineWrapper ecmaScriptEngineWrapper = null;
 		final List<String[]> scriptsNotAdded = new ArrayList<>(1);
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
+			// Change scripts using Rhino (Java 7) script engine to Nashorn (Java 8+).
+			if (script.getEngine() == null && isRhinoScriptEngine(script.getEngineName())) {
+				if (ecmaScriptEngineWrapper == null) {
+					ecmaScriptEngineWrapper = getEcmaScriptEngineWrapper();
+				}
+				if (ecmaScriptEngineWrapper != null) {
+					logger.info("Changing [" + script.getName() + "] (ECMAScript) script engine from [" + script.getEngineName()
+									+ "] to [" + ecmaScriptEngineWrapper.getEngineName() + "].");
+					script.setEngine(ecmaScriptEngineWrapper);
+				}
+			}
+
 			try {
 				this.loadScript(script);
 				if (script.getType() != null) {
@@ -667,6 +677,19 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				}
 			}
 		}
+    }
+
+    private static boolean isRhinoScriptEngine(String engineName) {
+        return "Mozilla Rhino".equals(engineName) || "Rhino".equals(engineName);
+    }
+    
+    private ScriptEngineWrapper getEcmaScriptEngineWrapper() {
+        for (ScriptEngineWrapper sew : this.engineWrappers) {
+            if ("ECMAScript".equals(sew.getLanguageName())) {
+                return sew;
+            }
+        }
+        return null;
     }
 
     private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {

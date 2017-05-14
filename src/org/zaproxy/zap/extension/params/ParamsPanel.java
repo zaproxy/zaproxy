@@ -24,21 +24,10 @@ import java.awt.Component;
 import java.awt.Event;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -47,9 +36,6 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -57,15 +43,14 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel;
-import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class ParamsPanel extends AbstractPanel{
 	
 	private static final long serialVersionUID = 1L;
 
 	public static final String PANEL_NAME = "params";
-    private Logger LOGGER = Logger.getLogger(ParamsPanel.class);
 	
 	private ExtensionParams extension = null;
 	private JPanel panelCommand = null;
@@ -79,6 +64,7 @@ public class ParamsPanel extends AbstractPanel{
 
 	private JXTable paramsTable = null;
 	private ParamsTableModel paramsModel = new ParamsTableModel();
+	private TableExportButton exportButton = null;
 	
     //private static Log log = LogFactory.getLog(ParamsPanel.class);
     
@@ -154,6 +140,7 @@ public class ParamsPanel extends AbstractPanel{
 			GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 
 			gridBagConstraints0.gridx = 0;
@@ -170,8 +157,13 @@ public class ParamsPanel extends AbstractPanel{
 			gridBagConstraints2.gridy = 0;
 			gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+			
+			gridBagConstraints3.gridx = 3;
+			gridBagConstraints3.gridy = 0;
+			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
+			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
 
-			gridBagConstraintsx.gridx = 3;
+			gridBagConstraintsx.gridx = 4;
 			gridBagConstraintsx.gridy = 0;
 			gridBagConstraintsx.weightx = 1.0;
 			gridBagConstraintsx.weighty = 1.0;
@@ -185,56 +177,18 @@ public class ParamsPanel extends AbstractPanel{
 
 			panelToolbar.add(new JLabel(Constant.messages.getString("params.toolbar.site.label")), gridBagConstraints1);
 			panelToolbar.add(getSiteSelect(), gridBagConstraints2);
-			
+			panelToolbar.add(getExportButton(), gridBagConstraints3);
+
 			panelToolbar.add(t1, gridBagConstraintsx);
-			
-			panelToolbar.add(Box.createHorizontalGlue());
-			panelToolbar.add(getExportButton());
 		}
 		return panelToolbar;
 	}
 	
-	private JButton getExportButton() {
-		JButton csvExportButton = new JButton(Constant.messages.getString("params.toolbar.button.export"));
-		csvExportButton.setIcon(new ImageIcon(ParamsPanel.class.getResource("/resource/icon/16/115.png")));
-		csvExportButton.addActionListener((new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				WritableFileChooser chooser = new WritableFileChooser();
-				chooser.setSelectedFile(new File(Constant.messages.getString("params.button.export.default.name")));
-				if (chooser
-						.showSaveDialog(View.getSingleton().getMainFrame()) == WritableFileChooser.APPROVE_OPTION) {
-					String file = chooser.getSelectedFile().toString();
-					if (!file.endsWith(".csv")) {
-						file += ".csv";
-					}
-					try (CSVPrinter pw = new CSVPrinter(
-							Files.newBufferedWriter(chooser.getSelectedFile().toPath(), StandardCharsets.UTF_8),
-							CSVFormat.DEFAULT)) {
-						pw.printRecord(((ParamsTableModel) paramsTable.getModel()).getColumnNames());
-						int rowCount = paramsTable.getRowCount();
-						int colCount = paramsTable.getColumnCount();
-						for (int row = 0; row < rowCount; row++) {
-							List<Object> valueOfRow = new ArrayList<Object>();
-							for (int col = 0; col < colCount; col++) {
-								valueOfRow.add(paramsTable.getValueAt(row, col));
-							}
-							pw.printRecord(valueOfRow);
-						}
-						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
-								Constant.messages.getString("params.button.export.success"));
-					} catch (Exception ex) {
-						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
-								Constant.messages.getString("params.button.export.error") + "\n"
-										+ ex.getLocalizedMessage());
-						LOGGER.error("Export Failed: " + ex);
-					}
-				}
-			}
-		}));
-		return csvExportButton;
+	private TableExportButton getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton(getParamsTable());
+		}
+		return exportButton;
 	}
 
 	/*

@@ -57,11 +57,9 @@ import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -137,7 +135,6 @@ public class AlertPanel extends AbstractPanel {
     private JButton editButton = null;
 
 	private ExtensionAlert extension = null;
-	private ExtensionHistory extHist = null; 
 
 	
     public AlertPanel(ExtensionAlert extension) {
@@ -627,12 +624,7 @@ public class AlertPanel extends AbstractPanel {
 	        if (obj instanceof Alert) {
 	            Alert alert = (Alert) obj;
 	            
-				if (extHist == null) {
-					extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-				}
-				if (extHist != null) {
-					extHist.showAlertAddDialog(alert);
-				}
+				extension.showAlertEditDialog(alert);
 	        }
 	    }
     }

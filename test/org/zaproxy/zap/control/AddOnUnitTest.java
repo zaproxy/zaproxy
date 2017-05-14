@@ -474,6 +474,66 @@ public class AddOnUnitTest {
 		assertThat(update, is(equalTo(false)));
 	}
 
+	@Test
+	public void shouldBeAbleToRunIfItHasNoMinimumJavaVersion() throws Exception {
+		// Given
+		String minimumJavaVersion = null;
+		String runningJavaVersion = "1.8";
+		AddOn addOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8", minimumJavaVersion));
+		// When
+		boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
+		// Then
+		assertThat(canRun, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldBeAbleToRunInJava9MajorIfMinimumJavaVersionIsMet() throws Exception {
+		// Given
+		String minimumJavaVersion = "1.8";
+		String runningJavaVersion = "9";
+		AddOn addOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8", minimumJavaVersion));
+		// When
+		boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
+		// Then
+		assertThat(canRun, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldBeAbleToRunInJava9MinorIfMinimumJavaVersionIsMet() throws Exception {
+		// Given
+		String minimumJavaVersion = "1.8";
+		String runningJavaVersion = "9.1.2";
+		AddOn addOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8", minimumJavaVersion));
+		// When
+		boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
+		// Then
+		assertThat(canRun, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeAbleToRunInJava9MajorIfMinimumJavaVersionIsNotMet() throws Exception {
+		// Given
+		String minimumJavaVersion = "10";
+		String runningJavaVersion = "9";
+		AddOn addOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8", minimumJavaVersion));
+		// When
+		boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
+		// Then
+		assertThat(canRun, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldNotBeAbleToRunInJava9MinorIfMinimumJavaVersionIsNotMet() throws Exception {
+		// Given
+		String minimumJavaVersion = "10";
+		String runningJavaVersion = "9.1.2";
+		AddOn addOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8", minimumJavaVersion));
+		// When
+		boolean canRun = addOn.canRunInJavaVersion(runningJavaVersion);
+		// Then
+		assertThat(canRun, is(equalTo(false)));
+	}
+
 	private static ZapXmlConfiguration createZapVersionsXml() throws Exception {
 		ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
 		zapVersionsXml.setExpressionEngine(new XPathExpressionEngine());
@@ -491,6 +551,10 @@ public class AddOnUnitTest {
 	}
 
 	private Path createAddOnFile(String fileName, String status, String version) {
+		return createAddOnFile(fileName, status, version, null);
+	}
+
+	private Path createAddOnFile(String fileName, String status, String version, String javaVersion) {
 		try {
 			File file = tempDir.newFile(fileName);
 			try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
@@ -500,6 +564,11 @@ public class AddOnUnitTest {
 				strBuilder.append("<zapaddon>");
 				strBuilder.append("<version>").append(version).append("</version>");
 				strBuilder.append("<status>").append(status).append("</status>");
+				if (javaVersion != null && !javaVersion.isEmpty()) {
+					strBuilder.append("<dependencies>");
+					strBuilder.append("<javaversion>").append(javaVersion).append("</javaversion>");
+					strBuilder.append("</dependencies>");
+				}
 				strBuilder.append("</zapaddon>");
 				byte[] bytes = strBuilder.toString().getBytes(StandardCharsets.UTF_8);
 				zos.write(bytes, 0, bytes.length);

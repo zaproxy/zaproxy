@@ -73,6 +73,8 @@ blacklist = ['-1', '50003', '60000', '60001']
 in_progress_issues = {}
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+# Hide "Starting new HTTP connection" messages
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
     print ('Usage: zap-baseline.py -t <target> [options]')
@@ -577,9 +579,14 @@ def main(argv):
     # Stop ZAP
     zap.core.shutdown()
 
-  except IOError as (errno, strerror):
-    print("ERROR " + str(strerror))
-    logging.warning ('I/O error(' + str(errno) + '): ' + str(strerror))
+  except IOError as e:
+    if hasattr(e, 'args') and len(e.args) > 1:
+      errno, strerror = e
+      print("ERROR " + str(strerror))
+      logging.warning ('I/O error(' + str(errno) + '): ' + str(strerror))
+    else:
+      print("ERROR %s" % e)
+      logging.warning ('I/O error: ' + str(e))
     dump_log_file(cid)
 
   except:

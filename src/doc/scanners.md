@@ -169,4 +169,7 @@ Scanners:
 90029   SOAP XML Injection
 90030   WSDL File Detection
 90033   Loosely Scoped Cookie
+
+100000  Client/Server HTTP Error Response Codes [Script]
+
 ```

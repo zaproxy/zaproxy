@@ -34,13 +34,17 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;
 
+	private final ExtensionAlert extension;
+
     /**
      * Constructs a {@code PopupMenuShowAlerts} with the given label.
      * 
      * @param label the text shown in the pop up menu
+     * @param extension the {@code ExtensionAlert} to show the Edit Alert dialogue.
      */
-    public PopupMenuShowAlerts(String label) {
+    public PopupMenuShowAlerts(String label, ExtensionAlert extension) {
         super(label);
+        this.extension = extension;
         setProcessExtensionPopupChildren(false);
     }
 
@@ -71,7 +75,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 			if (hrefURI != null && ! alert.getUri().equals(hrefURI.toString())) {
 				continue;
 			}
-			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getName(), alert);
+			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getName(), extension, alert);
 			menuItem.setIcon(alert.getIcon());
 			
 			alertList.add(menuItem);

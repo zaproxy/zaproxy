@@ -92,6 +92,7 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 	private void generatePythonElement(ApiElement element, String component, 
 			String type, Writer out) throws IOException {
 		
+		out.write("\n\n");
 		boolean hasParams = (element.getMandatoryParamNames() != null && 
 								element.getMandatoryParamNames().size() > 0) ||
 							(element.getOptionalParamNames() != null &&
@@ -163,7 +164,7 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 					} else {
 						reqParams.append(", ");
 					}
-					reqParams.append("'" + param + "' : " + param.toLowerCase());
+					reqParams.append("'" + param + "': " + param.toLowerCase());
 				}
 			}
 			if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
@@ -171,7 +172,7 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 				if (!first) {
 					reqParams.append(", ");
 				}
-				reqParams.append("'").append(API.API_KEY_PARAM).append("' : ").append(API.API_KEY_PARAM);
+				reqParams.append("'").append(API.API_KEY_PARAM).append("': ").append(API.API_KEY_PARAM);
 			}
 			reqParams.append("}");
 
@@ -191,7 +192,7 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 		if (type.equals(OTHER_ENDPOINT)) {
 			out.write("        return ("); 
 		} else {
-			out.write("        return next("); 
+			out.write("        return six.next(six.itervalues("); 
 		}
 		out.write("self.zap." + method + "(self.zap." + baseUrl + " + '" + 
 				component + "/" + type + "/" + element.getName() + "/'");
@@ -202,16 +203,15 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 			out.write(reqParams.toString());
 			out.write(")");
 			if (!type.equals(OTHER_ENDPOINT)) {
-				out.write(".itervalues())");
+				out.write("))");
 			} else {
 				out.write(")");
 			}
 		} else if (!type.equals(OTHER_ENDPOINT)) {
-			out.write(").itervalues())");
+			out.write(")))");
 		} else {
 			out.write(")");
 		}
-		out.write("\n\n");
 		
 	}
 
@@ -221,10 +221,10 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 		System.out.println("Generating " + file.toAbsolutePath());
 		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 			out.write(HEADER);
+			out.write("import six\n\n\n");
 			out.write("class " + safeName(imp.getPrefix()) + "(object):\n\n");
 			out.write("    def __init__(self, zap):\n");
-			out.write("        self.zap = zap\n");
-			out.write("\n");
+			out.write("        self.zap = zap");
 			
 			for (ApiElement view : imp.getApiViews()) {
 				this.generatePythonElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);

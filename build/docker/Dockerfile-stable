@@ -53,7 +53,8 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 	rm -R ZAP* && \
 	curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.3-distribution.zip > webswing.zip && \
 	unzip *.zip && \
-	rm *.zip
+	rm *.zip && \
+	touch AcceptedLicense
 
 
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
@@ -69,7 +70,7 @@ COPY zap-x.sh /zap/
 COPY zap-baseline.py /zap/ 
 COPY zap-webswing.sh /zap/ 
 COPY webswing.config /zap/webswing-2.3/ 
-COPY policies /home/zap/.ZAP_D/policies/
+COPY policies /home/zap/.ZAP/policies/
 COPY .xinitrc /home/zap/
 
 
@@ -80,7 +81,7 @@ RUN chown zap:zap /zap/zap-x.sh && \
 	chown zap:zap /zap/zap-baseline.py && \
 	chown zap:zap /zap/zap-webswing.sh && \
 	chown zap:zap /zap/webswing-2.3/webswing.config && \
-	chown zap:zap -R /home/zap/.ZAP_D/ && \
+	chown zap:zap -R /home/zap/.ZAP/ && \
 	chown zap:zap /home/zap/.xinitrc && \
 	chmod a+x /home/zap/.xinitrc
 #Change back to zap at the end
