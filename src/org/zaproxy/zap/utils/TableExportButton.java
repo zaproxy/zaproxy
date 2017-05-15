@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -52,6 +53,8 @@ public class TableExportButton<T extends JTable> extends JButton {
 
 	private static final Logger LOGGER = Logger.getLogger(TableExportButton.class);
 	
+	private static final String CSV_EXTENSION = ".csv";
+
 	private T exportTable = null;
 	
 	/**
@@ -68,13 +71,25 @@ public class TableExportButton<T extends JTable> extends JButton {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+				WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory()) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void approveSelection() {
+						File file = getSelectedFile();
+						if (file != null) {
+							String filePath = file.getAbsolutePath();
+							if (!filePath.toLowerCase(Locale.ROOT).endsWith(CSV_EXTENSION)) {
+								setSelectedFile(new File(filePath + CSV_EXTENSION));
+							}
+						}
+
+						super.approveSelection();
+					}
+				};
 				chooser.setSelectedFile(new File(Constant.messages.getString("export.button.default.filename")));
 				if (chooser.showSaveDialog(View.getSingleton().getMainFrame()) == WritableFileChooser.APPROVE_OPTION) {
-					String file = chooser.getSelectedFile().toString();
-					if (!file.endsWith(".csv")) {
-						file += ".csv";
-					}
 					boolean success = true;
 					try (CSVPrinter pw = new CSVPrinter(
 							Files.newBufferedWriter(chooser.getSelectedFile().toPath(), StandardCharsets.UTF_8),
