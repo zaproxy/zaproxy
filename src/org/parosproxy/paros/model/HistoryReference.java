@@ -186,6 +186,7 @@ public class HistoryReference {
      * <li>{@link #TYPE_SPIDER_TASK};</li>
      * <li>{@link #TYPE_SEQUENCE_TEMPORARY};</li>
      * <li>{@link #TYPE_SPIDER_AJAX_TEMPORARY};</li>
+     * <li>{@link #TYPE_SPIDER_TEMPORARY};</li>
      * </ul>
      * <p>
      * Persisted messages with temporary types are deleted when the session is closed.
