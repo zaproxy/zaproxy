@@ -47,6 +47,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel;
 
 /**
@@ -70,6 +71,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JComboBox<String> siteSelect = null;
 	private JButton newSessionButton = null;
 	private JXTable sessionsTable = null;
+	private TableExportButton exportButton = null;
 	private JButton optionsButton = null;
 
 	/** The current site. */
@@ -142,6 +144,13 @@ public class HttpSessionsPanel extends AbstractPanel {
 		return panelCommand;
 	}
 
+	private TableExportButton getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton(getHttpSessionsTable());
+		}
+		return exportButton;
+	}
+
 	/**
 	 * Gets the options button.
 	 * 
@@ -212,6 +221,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			GridBagConstraints newSessionGridBag = new GridBagConstraints();
 			GridBagConstraints emptyGridBag = new GridBagConstraints();
 			GridBagConstraints optionsGridBag = new GridBagConstraints();
+			GridBagConstraints exportButtonGbc = new GridBagConstraints();
 
 			labelGridBag.gridx = 0;
 			labelGridBag.gridy = 0;
@@ -228,7 +238,12 @@ public class HttpSessionsPanel extends AbstractPanel {
 			newSessionGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
 			newSessionGridBag.anchor = java.awt.GridBagConstraints.WEST;
 
-			emptyGridBag.gridx = 3;
+			exportButtonGbc.gridx = 3;
+			exportButtonGbc.gridy = 0;
+			exportButtonGbc.insets = new java.awt.Insets(0, 0, 0, 0);
+			exportButtonGbc.anchor = java.awt.GridBagConstraints.WEST;
+
+			emptyGridBag.gridx = 4;
 			emptyGridBag.gridy = 0;
 			emptyGridBag.weightx = 1.0;
 			emptyGridBag.weighty = 1.0;
@@ -236,7 +251,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			emptyGridBag.anchor = java.awt.GridBagConstraints.WEST;
 			emptyGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-			optionsGridBag.gridx = 4;
+			optionsGridBag.gridx = 5;
 			optionsGridBag.gridy = 0;
 			optionsGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
 			optionsGridBag.anchor = java.awt.GridBagConstraints.EAST;
@@ -246,6 +261,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			panelToolbar.add(label, labelGridBag);
 			panelToolbar.add(getSiteSelect(), siteSelectGridBag);
 			panelToolbar.add(getNewSessionButton(), newSessionGridBag);
+			panelToolbar.add(getExportButton(), exportButtonGbc);
 			panelToolbar.add(getOptionsButton(), optionsGridBag);
 
 			// Add an empty JLabel to fill the space
