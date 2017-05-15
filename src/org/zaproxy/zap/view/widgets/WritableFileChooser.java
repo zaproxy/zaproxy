@@ -57,12 +57,7 @@ public class WritableFileChooser extends JFileChooser {
 					Constant.messages.getString("report.write.overwrite.dialog.message"),
 					Constant.messages.getString("report.write.overwrite.dialog.title"),
 					JOptionPane.YES_NO_OPTION);
-			switch (result) {
-			case JOptionPane.YES_OPTION:
-				super.approveSelection();
-				return;
-			case JOptionPane.NO_OPTION:
-			case JOptionPane.CLOSED_OPTION:
+			if (result == JOptionPane.NO_OPTION || result == JOptionPane.CLOSED_OPTION) {
 				return;
 			}
 		}
