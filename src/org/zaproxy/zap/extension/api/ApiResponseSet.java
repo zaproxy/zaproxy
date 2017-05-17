@@ -107,10 +107,7 @@ public class ApiResponseSet<T> extends ApiResponse {
 		return sb.toString();
 	}
 
-	/*
-	 * Package visible method for simplified unit testing
-	 */
-	Map<String, T> getValues() {
+	protected Map<String, T> getValues() {
 		return values;
 	}
 

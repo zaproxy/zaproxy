@@ -48,6 +48,7 @@
 // ZAP: 2017/02/07 Add TYPE_SPIDER_AJAX_TEMPORARY.
 // ZAP: 2017/03/19 Add TYPE_SPIDER_TEMPORARY.
 // ZAP: 2017/05/03 Notify tag changes.
+// ZAP: 2017/05/17 Allow to obtain the tags of a message.
 
 package org.parosproxy.paros.model;
 
@@ -295,10 +296,7 @@ public class HistoryReference {
 		}
 		HttpMessage msg = history.getHttpMessage();
  	   	// ZAP: Support for multiple tags
-		List<RecordTag> rtags = staticTableTag.getTagsForHistoryID(historyId);
-		for (RecordTag rtag : rtags) {
-			this.tags.add(rtag.getTag());
-		}
+		this.tags = getTags(historyId);
 
 		
 		build(history.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
@@ -313,10 +311,7 @@ public class HistoryReference {
 		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 		// ZAP: Init HttpMessage HistoryReference field
 		msg.setHistoryRef(this);
-		List <RecordTag> rtags = staticTableTag.getTagsForHistoryID(historyId);
-		for (RecordTag rtag : rtags) {
-			this.tags.add(rtag.getTag());
-		}
+		this.tags = getTags(historyId);
 		
 		// ZAP: Support for loading the alerts from the db
 		List<RecordAlert> alerts = staticTableAlert.getAlertsBySourceHistoryId(historyId);
@@ -820,5 +815,26 @@ public class HistoryReference {
 		synchronized (TEMPORARY_HISTORY_TYPES) {
 			return new HashSet<>(TEMPORARY_HISTORY_TYPES);
 		}
+	}
+
+	/**
+	 * Gets the tags of the message with the given history ID.
+	 *
+	 * @param historyId the history ID.
+	 * @return a {@code List} with the tags of the message, never {@code null}.
+	 * @throws DatabaseException if an error occurred while obtaining the tags from the database.
+	 * @since TODO add version
+	 */
+	public static List<String> getTags(int historyId) throws DatabaseException {
+		if (staticTableTag == null) {
+			return new ArrayList<>();
+		}
+
+		List<String> tags = new ArrayList<>();
+		List<RecordTag> rtags = staticTableTag.getTagsForHistoryID(historyId);
+		for (RecordTag rtag : rtags) {
+			tags.add(rtag.getTag());
+		}
+		return tags;
 	}
 }
