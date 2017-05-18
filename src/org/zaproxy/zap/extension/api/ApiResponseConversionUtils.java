@@ -23,13 +23,26 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.zaproxy.zap.utils.XMLStringUtil;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * A class with utility methods to convert common (ZAP) objects into {@link ApiResponse} objects.
@@ -97,7 +110,84 @@ public final class ApiResponseConversionUtils {
             map.put("responseBody", msg.getResponseBody().toString());
         }
 
-        return new ApiResponseSet<String>("message", map);
+        List<String> tags = Collections.emptyList();
+        try {
+            tags = HistoryReference.getTags(historyId);
+        } catch (DatabaseException e) {
+            LOGGER.warn("Failed to obtain the tags for message with ID " + historyId, e);
+        }
+        return new HttpMessageResponseSet(map, tags);
     }
 
+    private static class HttpMessageResponseSet extends ApiResponseSet<String> {
+
+        private final List<String> tags;
+
+        public HttpMessageResponseSet(Map<String, String> map, List<String> tags) {
+            super("message", map);
+            this.tags = tags;
+        }
+
+        @Override
+        public JSON toJSON() {
+            JSONObject jo = (JSONObject) super.toJSON();
+            JSONArray array = new JSONArray();
+            array.addAll(tags);
+            jo.put("tags", array);
+            return jo;
+        }
+
+        @Override
+        public void toXML(Document doc, Element parent) {
+            super.toXML(doc, parent);
+
+            Element elTags = doc.createElement("tags");
+            parent.appendChild(elTags);
+            for (String tag : tags) {
+                Element el = doc.createElement("tag");
+                el.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(tag)));
+                elTags.appendChild(el);
+            }
+        }
+
+        @Override
+        public void toHTML(StringBuilder sb) {
+            sb.append("<h2>" + StringEscapeUtils.escapeHtml(this.getName()) + "</h2>\n");
+            sb.append("<table border=\"1\">\n");
+
+            for (Entry<String, String> entry : getValues().entrySet()) {
+                appendRow(sb, entry.getKey(), entry.getValue());
+                sb.append("</td></tr>\n");
+            }
+            appendRow(sb, "tags", tagsToString(tags));
+            sb.append("</table>\n");
+        }
+
+        private static void appendRow(StringBuilder sb, String cell1, String cell2) {
+            sb.append("<tr><td>\n");
+            sb.append(cell1);
+            sb.append("</td><td>\n");
+            if (cell2 != null) {
+                sb.append(StringEscapeUtils.escapeHtml(cell2));
+            }
+            sb.append("</td></tr>\n");
+        }
+
+        private static String tagsToString(List<String> tags) {
+            if (tags == null || tags.isEmpty()) {
+                return "";
+            } else if (tags.size() == 1) {
+                return tags.get(0);
+            }
+
+            StringBuilder strBuilder = new StringBuilder();
+            for (String tag : tags) {
+                if (strBuilder.length() > 0) {
+                    strBuilder.append(", ");
+                }
+                strBuilder.append(tag);
+            }
+            return strBuilder.toString();
+        }
+    }
 }
