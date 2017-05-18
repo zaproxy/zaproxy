@@ -38,6 +38,7 @@
 // ZAP: 2017/01/11 Exclude some options from the API (manually handled to return correct values).
 // ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
 // ZAP: 2017/05/02 Added option key to enable / disable HTTP State 
+// ZAP: 2017/05/15 Ensure HttpState is non-null when HTTP State is enabled.
 package org.parosproxy.paros.network;
 
 import java.security.Security;
@@ -145,8 +146,12 @@ public class ConnectionParam extends AbstractParam {
      * @param httpStateEnabled The httpStateEnabled to set.
      */
     public void setHttpStateEnabled(boolean httpStateEnabled) {
-        this.httpStateEnabled = httpStateEnabled;
+        setHttpStateEnabledImpl(httpStateEnabled);
         getConfig().setProperty(HTTP_STATE_ENABLED, Boolean.valueOf(this.httpStateEnabled));
+    }
+
+    private void setHttpStateEnabledImpl(boolean httpStateEnabled) {
+        this.httpStateEnabled = httpStateEnabled;
         if (this.httpStateEnabled) {
     	    httpState = new HttpState();
         } else {
@@ -224,11 +229,13 @@ public class ConnectionParam extends AbstractParam {
 			log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
 		}
 
+		boolean stateEnabled = false;
 		try {
-			this.httpStateEnabled = getConfig().getBoolean(HTTP_STATE_ENABLED, false);
+			stateEnabled = getConfig().getBoolean(HTTP_STATE_ENABLED, stateEnabled);
 		} catch (ConversionException e) {
 			log.error("Error while loading the option httpStateEnabled: " + e.getMessage(), e);
 		}
+		setHttpStateEnabledImpl(stateEnabled);
 
 		try {
 			this.defaultUserAgent = getConfig().getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
