@@ -85,7 +85,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private JCheckBox chkInverse = null;
 	private JLabel numberOfMatchesLabel;
 	private JButton optionsButton;
-	private TableExportButton exportButton = null;
+	private TableExportButton<SearchResultsTable> exportButton = null;
 	
 	private MessageFormat numberOfMatchesFormat;
 
@@ -366,9 +366,9 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		numberOfMatchesLabel.setText(numberOfMatchesFormat.format(new Object[] { Integer.valueOf(numberOfMatches) }));
 	}
 
-	private TableExportButton getExportButton() {
+	private TableExportButton<SearchResultsTable> getExportButton() {
 		if (exportButton == null) {
-			exportButton = new TableExportButton(resultsTable);
+			exportButton = new TableExportButton<>(resultsTable);
 		}
 		return exportButton;
 	}

@@ -101,7 +101,7 @@ public class LogPanel extends AbstractPanel {
 
 	private DeselectableButtonGroup historyListFiltersButtonGroup;
 
-	private TableExportButton exportButton;
+	private TableExportButton<HistoryReferencesTable> exportButton;
 
 	private final ViewDelegate view;
 	
@@ -301,9 +301,9 @@ public class LogPanel extends AbstractPanel {
 		return linkWithSitesTreeButton;
 	}
 
-	private TableExportButton getExportButton() {
+	private TableExportButton<HistoryReferencesTable> getExportButton() {
 		if (exportButton == null) {
-			exportButton = new TableExportButton(getHistoryReferenceTable());
+			exportButton = new TableExportButton<>(getHistoryReferenceTable());
 		}
 		return exportButton;
 	}
