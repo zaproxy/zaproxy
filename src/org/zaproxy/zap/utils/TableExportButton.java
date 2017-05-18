@@ -74,6 +74,7 @@ public class TableExportButton extends JButton {
 					if (!file.endsWith(".csv")) {
 						file += ".csv";
 					}
+					boolean success = true;
 					try (CSVPrinter pw = new CSVPrinter(
 							Files.newBufferedWriter(chooser.getSelectedFile().toPath(), StandardCharsets.UTF_8),
 							CSVFormat.DEFAULT)) {
@@ -89,13 +90,18 @@ public class TableExportButton extends JButton {
 							}
 							pw.printRecord(valueOfRow);
 						}
-						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
-								Constant.messages.getString("export.button.success"));
 					} catch (Exception ex) {
+						success = false;
 						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
 								Constant.messages.getString("export.button.error") + "\n"
 										+ ex.getMessage());
 						LOGGER.error("Export Failed: " + ex.getMessage(), ex);
+					}
+
+					// Delay the presentation of success message, to ensure all the data was already flushed.
+					if (success) {
+						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
+								Constant.messages.getString("export.button.success"));
 					}
 				}
 			}
