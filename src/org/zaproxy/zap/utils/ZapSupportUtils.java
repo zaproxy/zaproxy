@@ -67,6 +67,14 @@ public final class ZapSupportUtils {
 		return Constant.messages.getString("support.java.version.label") + " " + javaVendor + " " + javaVersion;
 	}
 
+	public static String getLocaleSelected() {
+		return Constant.messages.getString("support.locale.selected.label") + " " + Constant.getLocale();
+	}
+
+	public static String getLocaleSystem() {
+		return Constant.messages.getString("support.locale.system.label") + " " + Constant.getSystemsLocale();
+	}
+
 	public static String getInstalledAddons() {
 		AddOnLoader addOnLoader = ExtensionFactory.getAddOnLoader();
 		List<AddOn> sortedAddOns = new ArrayList<>(addOnLoader.getAddOnCollection().getInstalledAddOns());
@@ -97,6 +105,8 @@ public final class ZapSupportUtils {
 		supportDetailsBuilder.append(installedAddons);
 		supportDetailsBuilder.append(getOperatingSystem()).append(NEWLINE);
 		supportDetailsBuilder.append(getJavaVersionVendor()).append(NEWLINE);
+		supportDetailsBuilder.append(getLocaleSystem()).append(NEWLINE);
+		supportDetailsBuilder.append(getLocaleSelected()).append(NEWLINE);
 		supportDetailsBuilder.append(getZapHomeDirectory()).append(NEWLINE);
 		
 		return supportDetailsBuilder.toString();
