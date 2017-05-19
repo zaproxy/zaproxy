@@ -56,7 +56,7 @@ If possible, choose a language or compiler that performs automatic bounds checki
 Phase: Architecture and Design
 Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Primjeri uključuju sigurno cjelobrojno rukovanje paketima kao što SafeInt (C + +) ili IntegerLib (C ili C + +).
+Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
 
 Phase: Implementation
 Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
@@ -75,15 +75,15 @@ Examine compiler warnings closely and eliminate potentially security critical pr
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
 	<alert>Nedovoljna Zaštita Transportnog Sloja</alert>
-	<desc>Protection insuffisante de la couche Transport
-La protection insuffisante de la couche Transport expose la communication à l'interception par des parties tierces, offrant ainsi un vecteur d'attaque pour compromettre une application internet ou pour voler des informations sensibles. Web siteleri, genellikle taşıma katmanında şifreleme sağlamak için Güvenli Soket Katmanı / Taşıma Katmanı Güvenliği (SSL/TLS) kullanır. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+	<desc>Insufficient Transport Layer Protection
+Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
  
 Lack of Transport Layer Encryption
 When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
 
 Weak Cipher Support
 Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offre un guide pour tester les problème SSL/TLS, y compris le support d'algorithmes de chiffrement faible et la mauvaise configuration. D'autres ressources et outils sont en outre disponibles.</desc>
+Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
 	<solution>Phase: Requirements
 Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
 
@@ -103,7 +103,7 @@ Do not develop your own cryptographic algorithms. They will likely be exposed to
 
 Phase: Architecture and Design
 Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-Mesela, ABD hükümet sistemleri FIPS 140-2 sertifikası gerektiriyor.
+For example, US government systems require FIPS 140-2 certification.
 As with all cryptographic mechanisms, the source code should be available for analysis.
 Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
 
