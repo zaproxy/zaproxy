@@ -131,6 +131,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_URLS = "urls";
 	private static final String VIEW_MESSAGE = "message";
 	private static final String VIEW_MESSAGES = "messages";
+    private static final String VIEW_MESSAGES_BY_ID = "messagesById";
 	private static final String VIEW_MODE = "mode";
 	private static final String VIEW_NUMBER_OF_MESSAGES = "numberOfMessages";
 	private static final String VIEW_VERSION = "version";
@@ -155,6 +156,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String OTHER_MD_REPORT = "mdreport";
 	private static final String OTHER_MESSAGE_HAR = "messageHar";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
+    private static final String OTHER_MESSAGES_HAR_BY_ID = "messagesHarById";
 	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
 	private static final String OTHER_SCRIPT_JS = "script.js";
 
@@ -167,6 +169,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_START = "start";
 	private static final String PARAM_PROXY_DETAILS = "proxy";
 	private static final String PARAM_ID = "id";
+	private static final String PARAM_IDS = "ids";
 	private static final String PARAM_REQUEST = "request";
 	private static final String PARAM_FOLLOW_REDIRECTS = "followRedirects";
 	private static final String PARAM_MODE = "mode";
@@ -268,6 +271,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_MESSAGE, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiView(new ApiView(VIEW_MESSAGES_BY_ID, new String[] { PARAM_IDS }));
 		this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] { PARAM_BASE_URL }));
 		this.addApiView(new ApiView(VIEW_MODE));
 		this.addApiView(new ApiView(VIEW_VERSION));
@@ -298,6 +302,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiOthers(new ApiOther(OTHER_MD_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] { PARAM_IDS }));
 		this.addApiOthers(new ApiOther(
 				OTHER_SEND_HAR_REQUEST,
 				new String[] { PARAM_REQUEST },
@@ -917,15 +922,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseSet<Object>("risk", alertData);
 		} else if (VIEW_MESSAGE.equals(name)) {
 			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-			RecordHistory recordHistory;
-			try {
-				recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
-			} catch (HttpMalformedHeaderException | DatabaseException e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-			}
-			if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
-				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-			}
+			RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
 			result = new ApiResponseElement(ApiResponseConversionUtils.httpMessageToSet(recordHistory.getHistoryId(),
 					recordHistory.getHistoryType(), recordHistory.getHttpMessage()));
 		} else if (VIEW_MESSAGES.equals(name)) {
@@ -954,6 +951,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					counter);
 
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+		} else if (VIEW_MESSAGES_BY_ID.equals(name)) {
+			ApiResponseList resultList = new ApiResponseList(name);
+			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+			for (Integer id : getIds(params)) {
+				RecordHistory recordHistory = getRecordHistory(tableHistory, id);
+				resultList.addItem(
+						ApiResponseConversionUtils.httpMessageToSet(
+								recordHistory.getHistoryId(),
+								recordHistory.getHistoryType(),
+								recordHistory.getHttpMessage()));
+			}
+			result = resultList;
 		} else if (VIEW_MODE.equals(name)) {
 			result = new ApiResponseElement(name, Control.getSingleton().getMode().name());
 		} else if (VIEW_VERSION.equals(name)) {
@@ -996,6 +1005,19 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
+	}
+
+	private RecordHistory getRecordHistory(TableHistory tableHistory, Integer id) throws ApiException {
+		RecordHistory recordHistory;
+		try {
+			recordHistory = tableHistory.read(id);
+		} catch (HttpMalformedHeaderException | DatabaseException e) {
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+		}
+		if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, Integer.toString(id));
+		}
+		return recordHistory;
 	}
 
 	private ApiResponse proxyChainExcludedDomainsToApiResponseList(
@@ -1145,21 +1167,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				final HarEntries entries = new HarEntries();
 				TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-				RecordHistory recordHistory;
-				try {
-					recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
-				} catch (HttpMalformedHeaderException | DatabaseException e) {
-					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-				}
-				if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
-					throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-				}
+				RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
 				entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
 
 				HarLog harLog = HarUtils.createZapHarLog();
 				harLog.setEntries(entries);
 
 				responseBody = HarUtils.harLogToByteArray(harLog);
+			} catch (ApiException e) {
+				responseBody = e.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 
@@ -1175,26 +1191,36 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			msg.setResponseBody(responseBody);
 
 			return msg;
-		} else if (OTHER_MESSAGES_HAR.equals(name)) {
+		} else if (OTHER_MESSAGES_HAR_BY_ID.equals(name) || OTHER_MESSAGES_HAR.equals(name)) {
 			byte[] responseBody;
 			try {
 				final HarEntries entries = new HarEntries();
-				processHttpMessages(
-						this.getParam(params, PARAM_BASE_URL, (String) null),
-						this.getParam(params, PARAM_START, -1),
-						this.getParam(params, PARAM_COUNT, -1),
-						new Processor<RecordHistory>() {
+				if (OTHER_MESSAGES_HAR_BY_ID.equals(name)) {
+					TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+					for (Integer id : getIds(params)) {
+						RecordHistory recordHistory = getRecordHistory(tableHistory, id);
+						entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+					}
+				} else {
+					processHttpMessages(
+							this.getParam(params, PARAM_BASE_URL, (String) null),
+							this.getParam(params, PARAM_START, -1),
+							this.getParam(params, PARAM_COUNT, -1),
+							new Processor<RecordHistory>() {
 
-							@Override
-							public void process(RecordHistory recordHistory) {
-								entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
-							}
-						});
+								@Override
+								public void process(RecordHistory recordHistory) {
+									entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+								}
+							});
+				}
 
 				HarLog harLog = HarUtils.createZapHarLog();
 				harLog.setEntries(entries);
 
 				responseBody = HarUtils.harLogToByteArray(harLog);
+			} catch (ApiException e) {
+				responseBody = e.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 
@@ -1274,6 +1300,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
+	}
+
+	private static List<Integer> getIds(JSONObject params) throws ApiException {
+		List<Integer> listIds = new ArrayList<>();
+		for (String id : params.getString(PARAM_IDS).split(",")) {
+			try {
+				listIds.add(Integer.valueOf(id.trim()));
+			} catch (NumberFormatException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDS, e);
+			}
+		}
+
+		if (listIds.isEmpty()) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_IDS);
+		}
+		return listIds;
 	}
 
 	private boolean incErrorDetails() {

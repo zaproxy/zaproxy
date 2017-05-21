@@ -41,6 +41,7 @@
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2017/01/30 Use HistoryTable.
 // ZAP: 2017/03/03 Tweak filter label.
+// ZAP: 2017/05/12 Support table export.
 
 package org.parosproxy.paros.extension.history;
 
@@ -72,6 +73,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
@@ -98,6 +100,8 @@ public class LogPanel extends AbstractPanel {
 	private LinkWithSitesTreeSelectionListener linkWithSitesTreeSelectionListener;
 
 	private DeselectableButtonGroup historyListFiltersButtonGroup;
+
+	private TableExportButton exportButton;
 
 	private final ViewDelegate view;
 	
@@ -224,6 +228,9 @@ public class LogPanel extends AbstractPanel {
 			panelToolbar.add(filterStatus, gbc);
 
 			++gbc.gridx;
+			panelToolbar.add(getExportButton(), gbc);
+
+			++gbc.gridx;
 			gbc.weightx = 1.0;
 			gbc.weighty = 1.0;
 			gbc.anchor = java.awt.GridBagConstraints.EAST;
@@ -292,6 +299,13 @@ public class LogPanel extends AbstractPanel {
 			historyListFiltersButtonGroup.add(linkWithSitesTreeButton);
 		}
 		return linkWithSitesTreeButton;
+	}
+
+	private TableExportButton getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton(getHistoryReferenceTable());
+		}
+		return exportButton;
 	}
 
 	public void setLinkWithSitesTreeSelection(boolean enabled) {

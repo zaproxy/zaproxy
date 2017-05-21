@@ -36,6 +36,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 /**
@@ -66,13 +67,14 @@ public class TableExportButton extends JButton {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WritableFileChooser chooser = new WritableFileChooser();
+				WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
 				chooser.setSelectedFile(new File(Constant.messages.getString("export.button.default.filename")));
 				if (chooser.showSaveDialog(View.getSingleton().getMainFrame()) == WritableFileChooser.APPROVE_OPTION) {
 					String file = chooser.getSelectedFile().toString();
 					if (!file.endsWith(".csv")) {
 						file += ".csv";
 					}
+					boolean success = true;
 					try (CSVPrinter pw = new CSVPrinter(
 							Files.newBufferedWriter(chooser.getSelectedFile().toPath(), StandardCharsets.UTF_8),
 							CSVFormat.DEFAULT)) {
@@ -88,13 +90,18 @@ public class TableExportButton extends JButton {
 							}
 							pw.printRecord(valueOfRow);
 						}
-						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
-								Constant.messages.getString("export.button.success"));
 					} catch (Exception ex) {
+						success = false;
 						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
 								Constant.messages.getString("export.button.error") + "\n"
 										+ ex.getMessage());
 						LOGGER.error("Export Failed: " + ex.getMessage(), ex);
+					}
+
+					// Delay the presentation of success message, to ensure all the data was already flushed.
+					if (success) {
+						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
+								Constant.messages.getString("export.button.success"));
 					}
 				}
 			}

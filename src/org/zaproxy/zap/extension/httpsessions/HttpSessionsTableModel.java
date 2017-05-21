@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
@@ -47,12 +46,6 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 
 	/** The site. */
 	private HttpSessionsSite site;
-
-	/** The Constant activeIcon defining the image used for marking the active session. */
-	private static final ImageIcon activeIcon;
-	static {
-		activeIcon = new ImageIcon(HttpSessionsTableModel.class.getResource("/resource/icon/16/102.png"));
-	}
 
 	/**
 	 * Instantiates a new http sessions table model.
@@ -90,10 +83,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		HttpSession session = sessions.get(row);
 		switch (col) {
 		case 0:
-			if (session.isActive())
-				return activeIcon;
-			else
-				return null;
+			return session.isActive();
 		case 1:
 			return session.getName();
 		case 2:
@@ -184,7 +174,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	public Class<?> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return ImageIcon.class;
+			return Boolean.class;
 		case 1:
 			return String.class;
 		case 2:
