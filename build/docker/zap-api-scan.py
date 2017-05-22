@@ -81,8 +81,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
-    print ('Usage: zap-api-scan.py -t <target> [options]')
-    print ('    -t target         target API definition, currently only an OpenAPI URL, eg https://www.example.com/openapi.json')
+    print ('Usage: zap-api-scan.py -t <target> -f <format> [options]')
+    print ('    -t target         target API definition, OpenAPI or SOAP, local file or URL, eg https://www.example.com/openapi.json')
     print ('    -f format         either openapi or soap')
     print ('Options:')
     print ('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
