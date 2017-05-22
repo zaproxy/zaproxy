@@ -352,10 +352,9 @@ public class ExtensionFactory {
         return test;
     }
 
-    public static void unloadAddOnExtension(Extension extension) {
+    static void removeAddOnExtension(Extension extension) {
         synchronized (mapAllExtension) {
             unloadMessages(extension);
-            unloadHelpSet(extension);
 
             mapAllExtension.remove(extension.getName());
             listAllExtension.remove(extension);
@@ -370,6 +369,13 @@ public class ExtensionFactory {
             if (isUnordered) {
                 unorderedExtensions.remove(extension);
             }
+        }
+    }
+
+    public static void unloadAddOnExtension(Extension extension) {
+        synchronized (mapAllExtension) {
+            removeAddOnExtension(extension);
+            unloadHelpSet(extension);
         }
     }
 

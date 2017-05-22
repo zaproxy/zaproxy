@@ -250,6 +250,8 @@ public final class AddOnInstaller {
                 uninstalledWithoutErrors = false;
             }
             callback.extensionRemoved(extUiName);
+        } else {
+            ExtensionFactory.removeAddOnExtension(extension);
         }
         addOn.removeLoadedExtension(extension);
 
