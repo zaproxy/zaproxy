@@ -267,6 +267,8 @@ public class ExtensionFactory {
         if (msg != null) {
             ext.setMessages(msg);
             Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
+        } else {
+            ext.setMessages(Constant.messages.getCoreResourceBundle());
         }
     }
 

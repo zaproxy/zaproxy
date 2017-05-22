@@ -26,6 +26,16 @@ public class I18N {
     public I18N (Locale locale) {
     	setLocale(locale);
     }
+
+    /**
+     * Gets the core resource bundle.
+     *
+     * @return the core resource bundle, never {@code null}.
+     * @since TODO add version
+     */
+    public ResourceBundle getCoreResourceBundle() {
+        return this.stdMessages;
+    }
     
     public void addMessageBundle(String prefix, ResourceBundle bundle) {
 		logger.debug("Adding message bundle with prefix: " + prefix);
