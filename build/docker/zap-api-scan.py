@@ -81,7 +81,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
-    print ('Usage: zap-baseline.py -t <target> [options]')
+    print ('Usage: zap-api-scan.py -t <target> [options]')
     print ('    -t target         target API definition, currently only an OpenAPI URL, eg https://www.example.com/openapi.json')
     print ('    -f format         either openapi or soap')
     print ('Options:')
@@ -547,7 +547,7 @@ def main(argv):
       if len(generate) > 0:
         # Create the config file
         with open(base_dir + generate, 'w') as f:
-          f.write ('# zap-baseline rule configuration file\n')
+          f.write ('# zap-api-scan rule configuration file\n')
           f.write ('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
           f.write ('# Only the rule identifiers are used - the names are just for info\n')
           f.write ('# You can add your own messages to each rule by appending them after a tab on each line.\n')
