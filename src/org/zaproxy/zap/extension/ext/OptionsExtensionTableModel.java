@@ -99,8 +99,8 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     			return false;
     		}
     		// Check dependencies
-    		List<Class<?>> deps = getExtension(rowIndex).getDependencies();
-    		for (Class<?>dep : deps) {
+    		List<Class<? extends Extension>> deps = getExtension(rowIndex).getDependencies();
+    		for (Class<? extends Extension> dep : deps) {
     			Extension ext = getExtension(dep);
     			if (ext == null || ! ext.isEnabled()) {
     				return false;
@@ -111,7 +111,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         return false;
     }
     
-    private Extension getExtension(Class<?> c) {
+    private Extension getExtension(Class<? extends Extension> c) {
 		for (Extension ext: extensions) {
 			if (ext.getClass().equals(c)) {
 				return ext;

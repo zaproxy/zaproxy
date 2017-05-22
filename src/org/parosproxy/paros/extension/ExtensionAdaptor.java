@@ -36,6 +36,7 @@
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2017/02/17 Let core code remove/unhook the extension.
+// ZAP: 2017/05/22 Update for change in Extension.getDependencies().
 
 package org.parosproxy.paros.extension;
 
@@ -232,7 +233,7 @@ public abstract class ExtensionAdaptor implements Extension {
 	}
 	
 	@Override
-	public List<Class<?>> getDependencies() {
+	public List<Class<? extends Extension>> getDependencies() {
 		return Collections.emptyList();
 	}
 

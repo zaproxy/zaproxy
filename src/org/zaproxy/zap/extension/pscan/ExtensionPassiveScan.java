@@ -35,6 +35,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
@@ -63,10 +64,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     private PassiveScanThread pst = null;
     private boolean passiveScanEnabled;
     private PassiveScanParam passiveScanParam;
-    private static final List<Class<?>> DEPENDENCIES;
+    private static final List<Class<? extends Extension>> DEPENDENCIES;
 
     static {
-        List<Class<?>> dep = new ArrayList<>(1);
+        List<Class<? extends Extension>> dep = new ArrayList<>(1);
         dep.add(ExtensionAlert.class);
 
         DEPENDENCIES = Collections.unmodifiableList(dep);
@@ -474,7 +475,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
-    public List<Class<?>> getDependencies() {
+    public List<Class<? extends Extension>> getDependencies() {
         return DEPENDENCIES;
     }
 

@@ -33,6 +33,7 @@
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2016/09/26 JavaDoc tweaks
 // ZAP: 2017/02/17 Expose ExtensionHook to allow core code remove/unhook the extension.
+// ZAP: 2017/05/22 Use Class<? extends Extension> for dependencies of the extension.
 
 package org.parosproxy.paros.extension;
 
@@ -161,7 +162,12 @@ public interface Extension {
 	
 	void setEnabled(boolean enabled);
 	
-	List<Class<?>> getDependencies();
+	/**
+	 * Gets the list of {@code Extension}s that this extension depends on.
+	 *
+	 * @return the list of dependencies, empty (or {@code null}) if none.
+	 */
+	List<Class<? extends Extension>> getDependencies();
 	
 	boolean isCore ();
 	
