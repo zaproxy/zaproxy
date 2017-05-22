@@ -81,7 +81,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private JButton scanButton = null;
 	private JButton progressButton;
 	private JLabel numRequests;
-	private TableExportButton exportButton = null;
+	private TableExportButton<HistoryReferencesTable> exportButton = null;
 
     /**
      * Constructs an {@code ActiveScanPanel} with the given extension.
@@ -178,9 +178,9 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 		}
 	}
 	
-	private TableExportButton getExportButton() {
+	private TableExportButton<HistoryReferencesTable> getExportButton() {
 		if (exportButton == null) {
-			exportButton = new TableExportButton(getMessagesTable());
+			exportButton = new TableExportButton<>(getMessagesTable());
 		}
 		return exportButton;
 	}
