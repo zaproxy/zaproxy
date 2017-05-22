@@ -89,6 +89,10 @@ public final class AddOnInstaller {
  
         // postInstall actions
         for (Extension ext : listExts) {
+            if (!ext.isEnabled()) {
+                continue;
+            }
+
             try {
                 ext.postInstall();
             } catch (Exception e) {
