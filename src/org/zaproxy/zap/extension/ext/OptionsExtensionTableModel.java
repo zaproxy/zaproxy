@@ -20,8 +20,6 @@
 
 package org.zaproxy.zap.extension.ext;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -47,16 +45,6 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 
     public OptionsExtensionTableModel() {
         super();
-        // Sort extensions by name
-        Collections.sort(extensions, new Comparator<Extension>() {
-
-			@Override
-			public int compare(Extension ext0, Extension ext1) {
-				if (ext0 == null || ext1 == null) {
-					return 0;
-				}
-				return ext0.getUIName().compareTo(ext1.getUIName());
-			}});
     }
 
     @Override
