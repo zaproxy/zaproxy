@@ -1351,6 +1351,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         List<String> unsavedResources = new ArrayList<>();
         for (AddOn addOn : addOns) {
             for (Extension extension : addOn.getLoadedExtensions()) {
+                if (!extension.isEnabled()) {
+                    continue;
+                }
+
                 List<String> resources = extension.getUnsavedResources();
                 if (resources != null) {
                     unsavedResources.addAll(resources);
@@ -1358,6 +1362,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
             }
         }
         for (Extension extension : extensions) {
+            if (!extension.isEnabled()) {
+                continue;
+            }
+
             List<String> resources = extension.getUnsavedResources();
             if (resources != null) {
                 unsavedResources.addAll(resources);
@@ -1394,6 +1402,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         List<String> activeActions = new ArrayList<>();
         for (AddOn addOn : addOns) {
             for (Extension extension : addOn.getLoadedExtensions()) {
+                if (!extension.isEnabled()) {
+                    continue;
+                }
+
                 List<String> actions = extension.getActiveActions();
                 if (actions != null) {
                     activeActions.addAll(actions);
@@ -1401,6 +1413,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
             }
         }
         for (Extension extension : extensions) {
+            if (!extension.isEnabled()) {
+                continue;
+            }
+
             List<String> resources = extension.getActiveActions();
             if (resources != null) {
                 activeActions.addAll(resources);
