@@ -44,6 +44,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsExtensionPanel extends AbstractParamPanel {
@@ -52,9 +53,11 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	private JTable tableExt = null;
 	private JScrollPane jScrollPane = null;
 	private JPanel detailsPane = null;
-	private JLabel extName = new JLabel();
-	private JLabel extAuthor = new JLabel();
-	private JLabel extURL = new JLabel();
+	private ZapLabel extName = new ZapLabel();
+	private JLabel addOnNameLabel = new JLabel();
+	private ZapLabel addOnName = new ZapLabel();
+	private ZapLabel extAuthor = new ZapLabel();
+	private ZapLabel extURL = new ZapLabel();
 	private JTextArea extDescription = new JTextArea(); 
 	private OptionsExtensionTableModel extensionModel = null;
 	private JScrollPane extDescScrollPane = null;
@@ -162,6 +165,10 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	        			if (ext != null) {
 	        				try {
 								extName.setText(ext.getUIName());
+								boolean addOnExtension = ext.getAddOn() != null;
+								addOnNameLabel.setVisible(addOnExtension);
+								addOnName.setVisible(addOnExtension);
+								addOnName.setText(addOnExtension ? ext.getAddOn().getName() : "");
 								extDescription.setText(ext.getDescription());
 								if (ext.getAuthor() != null) {
 									extAuthor.setText(ext.getAuthor());
@@ -210,18 +217,24 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 			detailsPane.setLayout(new GridBagLayout());
 			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.name")), LayoutHelper.getGBC(0, 1, 1, 0.25D));
 			detailsPane.add(extName, LayoutHelper.getGBC(1, 1, 1, 0.75D));
+			addOnNameLabel = new JLabel(Constant.messages.getString("options.ext.label.addon"));
+			detailsPane.add(addOnNameLabel, LayoutHelper.getGBC(0, 2, 1, 0.25D));
+			detailsPane.add(addOnName, LayoutHelper.getGBC(1, 2, 1, 0.75D));
 
-			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.author")), LayoutHelper.getGBC(0, 2, 1, 0.25D));
-			detailsPane.add(extAuthor, LayoutHelper.getGBC(1, 2, 1, 0.75D));
+			addOnNameLabel.setVisible(false);
+			addOnName.setVisible(false);
 
-			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.url")), LayoutHelper.getGBC(0, 3, 1, 0.25D));
+			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.author")), LayoutHelper.getGBC(0, 3, 1, 0.25D));
+			detailsPane.add(extAuthor, LayoutHelper.getGBC(1, 3, 1, 0.75D));
+
+			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.url")), LayoutHelper.getGBC(0, 4, 1, 0.25D));
 			if (DesktopUtils.canOpenUrlInBrowser()) {
-				detailsPane.add(getUrlLaunchButton(), LayoutHelper.getGBC(1, 3, 1, 0.0D, 0.0D, GridBagConstraints.NONE));
+				detailsPane.add(getUrlLaunchButton(), LayoutHelper.getGBC(1, 4, 1, 0.0D, 0.0D, GridBagConstraints.NONE));
 			} else {
-				detailsPane.add(extURL, LayoutHelper.getGBC(1, 3, 1, 0.5D));
+				detailsPane.add(extURL, LayoutHelper.getGBC(1, 4, 1, 0.5D));
 			}
 
-			detailsPane.add(getExtDescJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0D, 1.0D));
+			detailsPane.add(getExtDescJScrollPane(), LayoutHelper.getGBC(0, 5, 2, 1.0D, 1.0D));
 
 		}
 		return detailsPane;
