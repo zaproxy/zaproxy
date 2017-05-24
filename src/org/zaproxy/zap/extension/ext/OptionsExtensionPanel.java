@@ -32,12 +32,13 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.OptionsParam;
@@ -50,7 +51,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class OptionsExtensionPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JTable tableExt = null;
+	private JXTable tableExt = null;
 	private JScrollPane jScrollPane = null;
 	private JPanel detailsPane = null;
 	private ZapLabel extName = new ZapLabel();
@@ -145,23 +146,24 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	 * 	
 	 * @return javax.swing.JTable	
 	 */    
-	private JTable getTableExtension() {
+	private JXTable getTableExtension() {
 		if (tableExt == null) {
-			tableExt = new JTable();
+			tableExt = new JXTable();
 			tableExt.setModel(getExtensionModel());
 			tableExt.setRowHeight(DisplayUtils.getScaledSize(18));
 			tableExt.getColumnModel().getColumn(0).setPreferredWidth(DisplayUtils.getScaledSize(70));
 			tableExt.getColumnModel().getColumn(1).setPreferredWidth(DisplayUtils.getScaledSize(70));
 			tableExt.getColumnModel().getColumn(2).setPreferredWidth(DisplayUtils.getScaledSize(120));
 			tableExt.getColumnModel().getColumn(3).setPreferredWidth(DisplayUtils.getScaledSize(220));
+			tableExt.setSortOrder(3, SortOrder.ASCENDING);
 			
 			ListSelectionListener sl = new ListSelectionListener() {
 
 				@Override
 				public void valueChanged(ListSelectionEvent arg0) {
-	        		if (tableExt.getSelectedRow() > -1) {
-	        			Extension ext = ((OptionsExtensionTableModel)tableExt.getModel()).getExtension(
-	        					tableExt.getSelectedRow());
+	        		int selectedRow = tableExt.getSelectedRow();
+	        		if (selectedRow > -1) {
+	        			Extension ext = getExtensionModel().getExtension(tableExt.convertRowIndexToModel(selectedRow));
 	        			if (ext != null) {
 	        				try {
 								extName.setText(ext.getUIName());
@@ -191,8 +193,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 				}};
 			
 			tableExt.getSelectionModel().addListSelectionListener(sl);
-			tableExt.getColumnModel().getSelectionModel().addListSelectionListener(sl);
-			
+			tableExt.setColumnControlVisible(true);
 		}
 		return tableExt;
 	}
