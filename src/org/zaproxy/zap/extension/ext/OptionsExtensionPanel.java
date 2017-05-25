@@ -24,9 +24,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -120,11 +117,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 		ExtensionParam extParam = optionsParam.getExtensionParam();
 
-		List<Extension> exts = extensionModel.getExtensions();
-		for (Extension ext : exts) {
-			ext.setEnabled(extParam.isExtensionEnabled(ext.getName()));
-		}
-    	extensionModel.fireTableRowsUpdated(0, extensionModel.getRowCount() - 1);
+		extensionModel.setExtensionsState(extParam.getExtensionsState());
     }
 
 
@@ -133,12 +126,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 
-        Map<String, Boolean> extensionsState = new HashMap<>();
-        List<Extension> exts = extensionModel.getExtensions();
-        for (Extension ext : exts) {
-            extensionsState.put(ext.getName(), ext.isEnabled());
-        }
-        optionsParam.getExtensionParam().setExtensionsState(extensionsState);
+        optionsParam.getExtensionParam().setExtensionsState(extensionModel.getExtensionsState());
     }
 
 	/**
@@ -278,16 +266,6 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 		}
 		return extensionModel;
 	}
-	
-	protected boolean enableExtension(String name, boolean enable) {
-		Extension ext = this.getExtensionModel().getExtension(name);
-		if (ext != null) {
-			ext.setEnabled(enable);
-			return true;
-		}
-		return false;
-	}
-
 
 	@Override
 	public String getHelpIndex() {
