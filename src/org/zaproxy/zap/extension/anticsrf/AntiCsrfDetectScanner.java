@@ -24,7 +24,6 @@ import java.util.List;
 import net.htmlparser.jericho.Source;
 
 import org.apache.commons.httpclient.URIException;
-import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
@@ -87,17 +86,6 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		// Ignore
-	}
-
-	@Override
-	public AlertThreshold getLevel() {
-		// Always this level
-		return AlertThreshold.MEDIUM;
-	}
-
-	@Override
-	public void setLevel(AlertThreshold level) {
 		// Ignore
 	}
 
