@@ -113,44 +113,7 @@ public class ExtensionFactory {
             mapAllExtension.clear();
             mapClassExtension.clear();
             for (int i = 0; i < listExts.size(); i++) {
-                Extension extension = listExts.get(i);
-                if (mapAllExtension.containsKey(extension.getName())) {
-                    if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
-                        // Same name, same class so ignore
-                        log.error("Duplicate extension: " + extension.getName() + " "
-                                + extension.getClass().getCanonicalName());
-                        continue;
-                    } else {
-                        // Same name but different class, log but still load it
-                        log.error("Duplicate extension name: " + extension.getName() + " "
-                                + extension.getClass().getCanonicalName()
-                                + " " + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
-                    }
-                }
-                if (extension.isDepreciated()) {
-                    log.debug("Depreciated extension " + extension.getName());
-                    continue;
-                }
-                extension.setEnabled(extParam.isExtensionEnabled(extension.getName()));
-
-                listAllExtension.add(extension);
-                mapAllExtension.put(extension.getName(), extension);
-                mapClassExtension.put(extension.getClass(), extension);
-
-                int order = extension.getOrder();
-                if (order == 0) {
-                    unorderedExtensions.add(extension);
-                } else if (mapOrderToExtension.containsKey(order)) {
-                    log.error("Duplicate order " + order + " "
-                            + mapOrderToExtension.get(order).getName() + "/" + mapOrderToExtension.get(order).getClass().getCanonicalName()
-                            + " already registered, "
-                            + extension.getName() + "/" + extension.getClass().getCanonicalName()
-                            + " will be added as an unordered extension");
-                    unorderedExtensions.add(extension);
-                } else {
-                    mapOrderToExtension.put(order, extension);
-                }
-
+                addExtensionImpl(listExts.get(i), extParam);
             }
             
             // Add the ordered extensions
@@ -250,7 +213,7 @@ public class ExtensionFactory {
             Configuration config,
             Extension extension) {
         synchronized (mapAllExtension) {
-            addExtensionImpl(extension);
+            addExtensionImpl(extension, Model.getSingleton().getOptionsParam().getExtensionParam());
 
             if (extension.isEnabled()) {
                 log.debug("Adding new extension " + extension.getName());
@@ -259,11 +222,11 @@ public class ExtensionFactory {
         }
     }
 
-    private static void addExtensionImpl(Extension extension) {
+    private static void addExtensionImpl(Extension extension, ExtensionParam extensionParam) {
         if (mapAllExtension.containsKey(extension.getName())) {
             if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
-                // Same name, same class cant currently replace exts already loaded
-                log.debug("Duplicate extension: " + extension.getName() + " " + extension.getClass().getCanonicalName());
+                // Same name, same class so ignore
+                log.error("Duplicate extension: " + extension.getName() + " " + extension.getClass().getCanonicalName());
                 extension.setEnabled(false);
                 return;
             }
@@ -273,15 +236,15 @@ public class ExtensionFactory {
         }
         if (extension.isDepreciated()) {
             log.debug("Depreciated extension " + extension.getName());
+            extension.setEnabled(false);
             return;
         }
-        ExtensionParam extensionParam = Model.getSingleton().getOptionsParam().getExtensionParam();
         extension.setEnabled(extensionParam.isExtensionEnabled(extension.getName()));
 
         listAllExtension.add(extension);
         mapAllExtension.put(extension.getName(), extension);
         mapClassExtension.put(extension.getClass(), extension);
-        // Order actually irrelevant when adding an addon;)
+
         int order = extension.getOrder();
         if (order == 0) {
             unorderedExtensions.add(extension);
@@ -301,8 +264,9 @@ public class ExtensionFactory {
 
         synchronized (mapAllExtension) {
 
+            ExtensionParam extParam = Model.getSingleton().getOptionsParam().getExtensionParam();
             for (Extension extension : listExts) {
-                addExtensionImpl(extension);
+                addExtensionImpl(extension, extParam);
             }
             for (Extension ext : listExts) {
                 if (ext.isEnabled()) {
