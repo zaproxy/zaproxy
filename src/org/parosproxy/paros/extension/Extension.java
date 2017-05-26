@@ -34,6 +34,7 @@
 // ZAP: 2016/09/26 JavaDoc tweaks
 // ZAP: 2017/02/17 Expose ExtensionHook to allow core code remove/unhook the extension.
 // ZAP: 2017/05/22 Use Class<? extends Extension> for dependencies of the extension.
+// ZAP: 2017/05/25 Add JavaDoc to isEnabled/setEnabled.
 
 package org.parosproxy.paros.extension;
 
@@ -158,8 +159,23 @@ public interface Extension {
     
     void setOrder(int order);
 
+	/**
+	 * Tells whether or not this extension is enabled.
+	 * <p>
+	 * Extensions might be disabled by the user (for example, through GUI), or, automatically during loading if all its
+	 * dependencies are not fulfilled.
+	 *
+	 * @return {@code true} if the extension is enabled, {@code false} otherwise.
+	 */
 	boolean isEnabled();
 	
+	/**
+	 * Sets whether or not this extension is enabled.
+	 * <p>
+	 * <strong>Note:</strong> This method should be called only by bootstrap classes.
+	 *
+	 * @param enabled {@code true} if the extension should be enabled, {@code false} otherwise.
+	 */
 	void setEnabled(boolean enabled);
 	
 	/**
