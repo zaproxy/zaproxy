@@ -24,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -142,37 +143,45 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
     }
     
     protected File getOutputFile() {
-        WritableFileChooser chooser = new WritableFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
         FileNameExtensionFilter textFilesFilter = new FileNameExtensionFilter(Constant.messages.getString("file.format.ascii"), "txt");
         FileNameExtensionFilter htmlFilesFilter = new FileNameExtensionFilter(Constant.messages.getString("file.format.html"), "html", "htm");
+        WritableFileChooser chooser = new WritableFileChooser(extension.getModel().getOptionsParam().getUserDirectory()) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void approveSelection() {
+                File file = getSelectedFile();
+                if (file != null) {
+                    String ext = null;
+                    String filePath = file.getAbsolutePath();
+                    String fileNameLc = filePath.toLowerCase(Locale.ROOT);
+                    if (htmlFilesFilter.equals(getFileFilter())) {
+                        if (!fileNameLc.endsWith(".htm") && !fileNameLc.endsWith(".html")) {
+                            ext = ".html";
+                        }
+                    } else if (!fileNameLc.endsWith(".txt")) {
+                        ext = ".txt";
+                    }
+
+                    if (ext != null) {
+                        setSelectedFile(new File(filePath + ext));
+                    }
+                }
+
+                super.approveSelection();
+            }
+        };
 
         chooser.addChoosableFileFilter(textFilesFilter);
         chooser.addChoosableFileFilter(htmlFilesFilter);
         chooser.setFileFilter(textFilesFilter);
         
-        File file = null;
         int rc = chooser.showSaveDialog(extension.getView().getMainFrame());
         if(rc == JFileChooser.APPROVE_OPTION) {
-            file = chooser.getSelectedFile();
-            if (file == null) {
-                return file;
-            }
-            extension.getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-    		String fileNameLc = file.getAbsolutePath().toLowerCase();
-    		if (! fileNameLc.endsWith(".txt") && ! fileNameLc.endsWith(".htm") &&
-    				! fileNameLc.endsWith(".html")) {
-    		    String ext;
-    		    if (htmlFilesFilter.equals(chooser.getFileFilter())) {
-    		        ext = ".html";
-    		    } else {
-    		        ext = ".txt";
-    		    }
-    		    file = new File(file.getAbsolutePath() + ext);
-    		}
-    		return file;
-    		
+            return chooser.getSelectedFile();
 	    }
-	    return file;
+	    return null;
     }
 
 }

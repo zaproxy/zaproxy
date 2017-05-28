@@ -163,7 +163,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	/** The found count value label. */
 	private JLabel foundCountValueLabel;
 	
-	private TableExportButton exportButton;
+	private TableExportButton<JXTable> exportButton;
 	
 	private ExtensionSpider extension = null;
 
@@ -344,9 +344,9 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		return showMessageToggleButton;
 	}
 
-	private TableExportButton getExportButton() {
+	private TableExportButton<JXTable> getExportButton() {
 		if (exportButton == null) {
-			exportButton = new TableExportButton(getUrlsTable());
+			exportButton = new TableExportButton<>(getUrlsTable());
 		}
 		return exportButton;
 	}

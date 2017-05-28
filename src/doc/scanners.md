@@ -171,5 +171,6 @@ Scanners:
 90033   Loosely Scoped Cookie
 
 100000  Client/Server HTTP Error Response Codes [Script]
+100001  Unexpected Content Types [Script]
 
 ```

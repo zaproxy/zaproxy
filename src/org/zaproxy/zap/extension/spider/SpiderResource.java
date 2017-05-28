@@ -34,13 +34,24 @@ public class SpiderResource {
 	private final String uri;
 	private final int statusCode;
 	private final String statusReason;
+	private final boolean processed;
+	private final String reasonNotProcessed;
 
-	public SpiderResource(int historyId, String method, String uri, int statusCode, String statusReason) {
+	public SpiderResource(
+			int historyId,
+			String method,
+			String uri,
+			int statusCode,
+			String statusReason,
+			boolean processed,
+			String reasonNotProcessed) {
 		this.historyId = historyId;
 		this.method = method;
 		this.uri = uri;
 		this.statusCode = statusCode;
 		this.statusReason = statusReason;
+		this.processed = processed;
+		this.reasonNotProcessed = reasonNotProcessed == null ? "" : reasonNotProcessed;
 	}
 
 	public int getHistoryId() {
@@ -62,4 +73,13 @@ public class SpiderResource {
 	public String getStatusReason() {
 		return statusReason;
 	}
+
+	public boolean isProcessed() {
+		return processed;
+	}
+
+	public String getReasonNotProcessed() {
+		return reasonNotProcessed;
+	}
+
 }

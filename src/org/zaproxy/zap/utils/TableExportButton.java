@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -43,22 +44,25 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
  * A {@code JButton} class to facilitate exporting tables (as shown) to a file (such as CSV).
  * Filters, sorting, column order, and column visibility may all impact the data exported.
  * 
+ * @param <T> the type of the table.
  * @since TODO add version
  */
-public class TableExportButton extends JButton {
+public class TableExportButton<T extends JTable> extends JButton {
 
 	private static final long serialVersionUID = 3437613469695367668L;
 
 	private static final Logger LOGGER = Logger.getLogger(TableExportButton.class);
 	
-	private JTable exportTable = null;
+	private static final String CSV_EXTENSION = ".csv";
+
+	private T exportTable = null;
 	
 	/**
 	 * Constructs a {@code TableExportButton} for the given table.
 	 * 
 	 * @param table the Table for which the data should be exported
 	 */
-	public TableExportButton(JTable table) {
+	public TableExportButton(T table) {
 		super(Constant.messages.getString("export.button.name"));
 		setTable(table);
 		super.setIcon(new ImageIcon(TableExportButton.class.getResource("/resource/icon/16/115.png")));
@@ -67,28 +71,33 @@ public class TableExportButton extends JButton {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+				WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory()) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void approveSelection() {
+						File file = getSelectedFile();
+						if (file != null) {
+							String filePath = file.getAbsolutePath();
+							if (!filePath.toLowerCase(Locale.ROOT).endsWith(CSV_EXTENSION)) {
+								setSelectedFile(new File(filePath + CSV_EXTENSION));
+							}
+						}
+
+						super.approveSelection();
+					}
+				};
 				chooser.setSelectedFile(new File(Constant.messages.getString("export.button.default.filename")));
 				if (chooser.showSaveDialog(View.getSingleton().getMainFrame()) == WritableFileChooser.APPROVE_OPTION) {
-					String file = chooser.getSelectedFile().toString();
-					if (!file.endsWith(".csv")) {
-						file += ".csv";
-					}
 					boolean success = true;
 					try (CSVPrinter pw = new CSVPrinter(
 							Files.newBufferedWriter(chooser.getSelectedFile().toPath(), StandardCharsets.UTF_8),
 							CSVFormat.DEFAULT)) {
 						pw.printRecord(getColumnNames());
 						int rowCount = getTable().getRowCount();
-						int colCount = getTable().getColumnCount();
 						for (int row = 0; row < rowCount; row++) {
-							List<Object> valueOfRow = new ArrayList<Object>();
-							for (int col = 0; col < colCount; col++) {
-								Object value = getTable().getValueAt(row, col);
-								value = value == null ? "" : value;
-								valueOfRow.add(value.toString());
-							}
-							pw.printRecord(valueOfRow);
+							pw.printRecord(getRowCells(row));
 						}
 					} catch (Exception ex) {
 						success = false;
@@ -110,15 +119,34 @@ public class TableExportButton extends JButton {
 
 	/**
 	 * Gets a {@code List} of (visible) column names for the given table.
+	 * <p>
+	 * Called when exporting the column names.
 	 * 
-	 * @return the {@code List} of column names
+	 * @return the {@code List} of column names, never {@code null}.
 	 */
-	private List<String> getColumnNames() {
+	protected List<String> getColumnNames() {
 		List<String> columnNamesList = new ArrayList<String>();
 		for (int col = 0; col < getTable().getColumnCount(); col++) {
 			columnNamesList.add(getTable().getColumnModel().getColumn(col).getHeaderValue().toString());
 		}
 		return columnNamesList;
+	}
+
+	/**
+	 * Gets the cell values (in view order) for the given row.
+	 * <p>
+	 * Called for each (visible) row that's being exported.
+	 *
+	 * @param row the row, in view coordinates.
+	 * @return a {@code List} containing the values of the cells for the given row, never {@code null}.
+	 */
+	protected List<Object> getRowCells(int row) {
+		List<Object> cells = new ArrayList<>();
+		for (int col = 0; col < getTable().getColumnCount(); col++) {
+			Object value = getTable().getValueAt(row, col);
+			cells.add(value == null ? "" : value.toString());
+		}
+		return cells;
 	}
 	
 	/**
@@ -126,7 +154,7 @@ public class TableExportButton extends JButton {
 	 * 
 	 * @return the Table this button is associated with
 	 */
-	private JTable getTable() {
+	protected T getTable() {
 		return exportTable;
 	}
 	
@@ -135,7 +163,7 @@ public class TableExportButton extends JButton {
 	 * 
 	 * @param table the Table this button applies to
 	 */
-	public void setTable(JTable table) {
+	public void setTable(T table) {
 		this.exportTable = table;
 	}
 	

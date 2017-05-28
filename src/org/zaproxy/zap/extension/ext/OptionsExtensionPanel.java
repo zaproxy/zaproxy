@@ -24,37 +24,38 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsExtensionPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JTable tableExt = null;
+	private JXTable tableExt = null;
 	private JScrollPane jScrollPane = null;
 	private JPanel detailsPane = null;
-	private JLabel extName = new JLabel();
-	private JLabel extAuthor = new JLabel();
-	private JLabel extURL = new JLabel();
+	private ZapLabel extName = new ZapLabel();
+	private JLabel addOnNameLabel = new JLabel();
+	private ZapLabel addOnName = new ZapLabel();
+	private ZapLabel extAuthor = new ZapLabel();
+	private ZapLabel extURL = new ZapLabel();
 	private JTextArea extDescription = new JTextArea(); 
 	private OptionsExtensionTableModel extensionModel = null;
 	private JScrollPane extDescScrollPane = null;
@@ -116,11 +117,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 		ExtensionParam extParam = optionsParam.getExtensionParam();
 
-		List<Extension> exts = extensionModel.getExtensions();
-		for (Extension ext : exts) {
-			ext.setEnabled(extParam.isExtensionEnabled(ext.getName()));
-		}
-    	extensionModel.fireTableRowsUpdated(0, extensionModel.getRowCount() - 1);
+		extensionModel.setExtensionsState(extParam.getExtensionsState());
     }
 
 
@@ -129,12 +126,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 
-        Map<String, Boolean> extensionsState = new HashMap<>();
-        List<Extension> exts = extensionModel.getExtensions();
-        for (Extension ext : exts) {
-            extensionsState.put(ext.getName(), ext.isEnabled());
-        }
-        optionsParam.getExtensionParam().setExtensionsState(extensionsState);
+        optionsParam.getExtensionParam().setExtensionsState(extensionModel.getExtensionsState());
     }
 
 	/**
@@ -142,26 +134,31 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	 * 	
 	 * @return javax.swing.JTable	
 	 */    
-	private JTable getTableExtension() {
+	private JXTable getTableExtension() {
 		if (tableExt == null) {
-			tableExt = new JTable();
+			tableExt = new JXTable();
 			tableExt.setModel(getExtensionModel());
 			tableExt.setRowHeight(DisplayUtils.getScaledSize(18));
 			tableExt.getColumnModel().getColumn(0).setPreferredWidth(DisplayUtils.getScaledSize(70));
 			tableExt.getColumnModel().getColumn(1).setPreferredWidth(DisplayUtils.getScaledSize(70));
 			tableExt.getColumnModel().getColumn(2).setPreferredWidth(DisplayUtils.getScaledSize(120));
 			tableExt.getColumnModel().getColumn(3).setPreferredWidth(DisplayUtils.getScaledSize(220));
+			tableExt.setSortOrder(3, SortOrder.ASCENDING);
 			
 			ListSelectionListener sl = new ListSelectionListener() {
 
 				@Override
 				public void valueChanged(ListSelectionEvent arg0) {
-	        		if (tableExt.getSelectedRow() > -1) {
-	        			Extension ext = ((OptionsExtensionTableModel)tableExt.getModel()).getExtension(
-	        					tableExt.getSelectedRow());
+	        		int selectedRow = tableExt.getSelectedRow();
+	        		if (selectedRow > -1) {
+	        			Extension ext = getExtensionModel().getExtension(tableExt.convertRowIndexToModel(selectedRow));
 	        			if (ext != null) {
 	        				try {
 								extName.setText(ext.getUIName());
+								boolean addOnExtension = ext.getAddOn() != null;
+								addOnNameLabel.setVisible(addOnExtension);
+								addOnName.setVisible(addOnExtension);
+								addOnName.setText(addOnExtension ? ext.getAddOn().getName() : "");
 								extDescription.setText(ext.getDescription());
 								if (ext.getAuthor() != null) {
 									extAuthor.setText(ext.getAuthor());
@@ -184,8 +181,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 				}};
 			
 			tableExt.getSelectionModel().addListSelectionListener(sl);
-			tableExt.getColumnModel().getSelectionModel().addListSelectionListener(sl);
-			
+			tableExt.setColumnControlVisible(true);
 		}
 		return tableExt;
 	}
@@ -210,18 +206,24 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 			detailsPane.setLayout(new GridBagLayout());
 			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.name")), LayoutHelper.getGBC(0, 1, 1, 0.25D));
 			detailsPane.add(extName, LayoutHelper.getGBC(1, 1, 1, 0.75D));
+			addOnNameLabel = new JLabel(Constant.messages.getString("options.ext.label.addon"));
+			detailsPane.add(addOnNameLabel, LayoutHelper.getGBC(0, 2, 1, 0.25D));
+			detailsPane.add(addOnName, LayoutHelper.getGBC(1, 2, 1, 0.75D));
 
-			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.author")), LayoutHelper.getGBC(0, 2, 1, 0.25D));
-			detailsPane.add(extAuthor, LayoutHelper.getGBC(1, 2, 1, 0.75D));
+			addOnNameLabel.setVisible(false);
+			addOnName.setVisible(false);
 
-			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.url")), LayoutHelper.getGBC(0, 3, 1, 0.25D));
+			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.author")), LayoutHelper.getGBC(0, 3, 1, 0.25D));
+			detailsPane.add(extAuthor, LayoutHelper.getGBC(1, 3, 1, 0.75D));
+
+			detailsPane.add(new JLabel(Constant.messages.getString("options.ext.label.url")), LayoutHelper.getGBC(0, 4, 1, 0.25D));
 			if (DesktopUtils.canOpenUrlInBrowser()) {
-				detailsPane.add(getUrlLaunchButton(), LayoutHelper.getGBC(1, 3, 1, 0.0D, 0.0D, GridBagConstraints.NONE));
+				detailsPane.add(getUrlLaunchButton(), LayoutHelper.getGBC(1, 4, 1, 0.0D, 0.0D, GridBagConstraints.NONE));
 			} else {
-				detailsPane.add(extURL, LayoutHelper.getGBC(1, 3, 1, 0.5D));
+				detailsPane.add(extURL, LayoutHelper.getGBC(1, 4, 1, 0.5D));
 			}
 
-			detailsPane.add(getExtDescJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0D, 1.0D));
+			detailsPane.add(getExtDescJScrollPane(), LayoutHelper.getGBC(0, 5, 2, 1.0D, 1.0D));
 
 		}
 		return detailsPane;
@@ -264,16 +266,6 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 		}
 		return extensionModel;
 	}
-	
-	protected boolean enableExtension(String name, boolean enable) {
-		Extension ext = this.getExtensionModel().getExtension(name);
-		if (ext != null) {
-			ext.setEnabled(enable);
-			return true;
-		}
-		return false;
-	}
-
 
 	@Override
 	public String getHelpIndex() {

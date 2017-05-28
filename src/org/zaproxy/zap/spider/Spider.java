@@ -196,7 +196,7 @@ public class Spider {
 		}
 
 		// Add a default parse filter and any custom ones
-		this.addParseFilter(new DefaultParseFilter(spiderParam));
+		this.addParseFilter(new DefaultParseFilter(spiderParam, extension.getMessages()));
 		for (ParseFilter filter : extension.getCustomParseFilters())
 			this.addParseFilter(filter);
 		
@@ -800,13 +800,13 @@ public class Spider {
 	}
 
 	/**
-	 * Notifies the listeners regarding a read uri.
+	 * Notifies the listeners of a {@link SpiderTask}'s result.
 	 * 
-	 * @param msg the message
+	 * @param result the result of a spider task.
 	 */
-	protected synchronized void notifyListenersReadURI(HttpMessage msg) {
+	protected synchronized void notifyListenersSpiderTaskResult(SpiderTaskResult result) {
 		for (SpiderListener l : listeners) {
-			l.readURI(msg);
+			l.notifySpiderTaskResult(result);
 		}
 	}
 

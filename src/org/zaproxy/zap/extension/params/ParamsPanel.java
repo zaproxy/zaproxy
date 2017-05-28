@@ -64,7 +64,7 @@ public class ParamsPanel extends AbstractPanel{
 
 	private JXTable paramsTable = null;
 	private ParamsTableModel paramsModel = new ParamsTableModel();
-	private TableExportButton exportButton = null;
+	private TableExportButton<JXTable> exportButton = null;
 	
     //private static Log log = LogFactory.getLog(ParamsPanel.class);
     
@@ -184,9 +184,9 @@ public class ParamsPanel extends AbstractPanel{
 		return panelToolbar;
 	}
 	
-	private TableExportButton getExportButton() {
+	private TableExportButton<JXTable> getExportButton() {
 		if (exportButton == null) {
-			exportButton = new TableExportButton(getParamsTable());
+			exportButton = new TableExportButton<>(getParamsTable());
 		}
 		return exportButton;
 	}

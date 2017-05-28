@@ -77,7 +77,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JComboBox<String> siteSelect = null;
 	private JButton newSessionButton = null;
 	private JXTable sessionsTable = null;
-	private TableExportButton exportButton = null;
+	private TableExportButton<JXTable> exportButton = null;
 	private JButton optionsButton = null;
 
 	/** The current site. */
@@ -150,9 +150,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 		return panelCommand;
 	}
 
-	private TableExportButton getExportButton() {
+	private TableExportButton<JXTable> getExportButton() {
 		if (exportButton == null) {
-			exportButton = new TableExportButton(getHttpSessionsTable());
+			exportButton = new TableExportButton<>(getHttpSessionsTable());
 		}
 		return exportButton;
 	}

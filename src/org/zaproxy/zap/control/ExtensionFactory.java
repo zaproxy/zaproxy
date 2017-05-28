@@ -26,9 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
@@ -55,6 +57,7 @@ public class ExtensionFactory {
 
     private static Vector<Extension> listAllExtension = new Vector<>();
     private static TreeMap<String, Extension> mapAllExtension = new TreeMap<>();
+    private static Map<Class<? extends Extension>, Extension> mapClassExtension = new HashMap<>();
     private static TreeMap<Integer, Extension> mapOrderToExtension = new TreeMap<>();
     private static List<Extension> unorderedExtensions = new ArrayList<>();
 
@@ -108,6 +111,7 @@ public class ExtensionFactory {
         ExtensionParam extParam = optionsParam.getExtensionParam();
         synchronized (mapAllExtension) {
             mapAllExtension.clear();
+            mapClassExtension.clear();
             for (int i = 0; i < listExts.size(); i++) {
                 Extension extension = listExts.get(i);
                 if (mapAllExtension.containsKey(extension.getName())) {
@@ -131,6 +135,7 @@ public class ExtensionFactory {
 
                 listAllExtension.add(extension);
                 mapAllExtension.put(extension.getName(), extension);
+                mapClassExtension.put(extension.getClass(), extension);
 
                 int order = extension.getOrder();
                 if (order == 0) {
@@ -183,7 +188,15 @@ public class ExtensionFactory {
      */
     private static void loadMessagesAndAddExtension(ExtensionLoader extensionLoader, Extension extension) {
         loadMessages(extension);
-        if (extension.isEnabled() && extension.supportsDb(Model.getSingleton().getDb().getType()) &&  
+        if (!extension.isEnabled()) {
+            return;
+        }
+
+        if (!canBeLoaded(extension, new ArrayList<>())) {
+            return;
+        }
+
+        if (extension.supportsDb(Model.getSingleton().getDb().getType()) &&  
         		(extension.supportsLowMemory() || ! Constant.isLowMemoryOptionSet())) {
             extensionLoader.addExtension(extension);
             intitializeHelpSet(extension);
@@ -192,6 +205,44 @@ public class ExtensionFactory {
         } else if (extension.supportsLowMemory() || ! Constant.isLowMemoryOptionSet()) {
             log.debug("Not loading extension " + extension.getName() + ": doesnt support low memory option");
         }
+    }
+
+    private static boolean canBeLoaded(Extension extension, List<Extension> processedExtensions) {
+        if (processedExtensions.contains(extension)) {
+            log.warn("Dependency loop with \"" + extension + "\" and " + processedExtensions);
+            return false;
+        }
+        processedExtensions.add(extension);
+
+        List<Class<? extends Extension>> dependencies = extension.getDependencies();
+        if (dependencies == null || dependencies.isEmpty()) {
+            return true;
+        }
+
+        for (Class<? extends Extension> dependency : dependencies) {
+            Extension extDep = mapClassExtension.get(dependency);
+            if (extDep == null) {
+                logUnableToLoadExt(extension, "missing dependency", dependency);
+                extension.setEnabled(false);
+                return false;
+            }
+            if (!extDep.isEnabled()) {
+                logUnableToLoadExt(extension, "dependency not enabled", dependency);
+                extension.setEnabled(false);
+                return false;
+            }
+            if (!canBeLoaded(extDep, processedExtensions)) {
+                logUnableToLoadExt(extension, "can not load dependency", dependency);
+                extension.setEnabled(false);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static void logUnableToLoadExt(Extension extension, String reason, Class<? extends Extension> dependency) {
+        log.info("Unable to load \"" + extension + "\", " + reason + ": " + dependency.getCanonicalName());
     }
 
     public static synchronized void addAddOnExtension(
@@ -229,6 +280,7 @@ public class ExtensionFactory {
 
         listAllExtension.add(extension);
         mapAllExtension.put(extension.getName(), extension);
+        mapClassExtension.put(extension.getClass(), extension);
         // Order actually irrelevant when adding an addon;)
         int order = extension.getOrder();
         if (order == 0) {
@@ -267,6 +319,8 @@ public class ExtensionFactory {
         if (msg != null) {
             ext.setMessages(msg);
             Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
+        } else {
+            ext.setMessages(Constant.messages.getCoreResourceBundle());
         }
     }
 
@@ -350,12 +404,12 @@ public class ExtensionFactory {
         return test;
     }
 
-    public static void unloadAddOnExtension(Extension extension) {
+    static void removeAddOnExtension(Extension extension) {
         synchronized (mapAllExtension) {
             unloadMessages(extension);
-            unloadHelpSet(extension);
 
             mapAllExtension.remove(extension.getName());
+            mapClassExtension.remove(extension.getClass());
             listAllExtension.remove(extension);
             boolean isUnordered = true;
             for (Iterator<Extension> it = mapOrderToExtension.values().iterator(); it.hasNext();) {
@@ -368,6 +422,13 @@ public class ExtensionFactory {
             if (isUnordered) {
                 unorderedExtensions.remove(extension);
             }
+        }
+    }
+
+    public static void unloadAddOnExtension(Extension extension) {
+        synchronized (mapAllExtension) {
+            removeAddOnExtension(extension);
+            unloadHelpSet(extension);
         }
     }
 

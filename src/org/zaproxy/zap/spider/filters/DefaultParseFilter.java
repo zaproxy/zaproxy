@@ -17,6 +17,9 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import org.parosproxy.paros.network.HttpMessage;
@@ -63,37 +66,62 @@ public class DefaultParseFilter extends ParseFilter {
 	 * The configurations of the spider, never {@code null}.
 	 */
 	private final SpiderParam params;
+
+	private final FilterResult filterResultEmpty;
+	private final FilterResult filterResultMaxSize;
+	private final FilterResult filterResultNotText;
 	
 	/**
 	 * Constructs a {@code DefaultParseFilter} with default configurations.
 	 *
-	 * @deprecated (TODO add version) Replaced by {@link #DefaultParseFilter(SpiderParam)}.
+	 * @deprecated (TODO add version) Replaced by {@link #DefaultParseFilter(SpiderParam, ResourceBundle)}.
 	 */
 	@Deprecated
 	public DefaultParseFilter() {
-		this(new SpiderParam());
+		this(new SpiderParam(), new ResourceBundle() {
+
+			@Override
+			public Enumeration<String> getKeys() {
+				return Collections.emptyEnumeration();
+			}
+
+			@Override
+			protected Object handleGetObject(String key) {
+				return "";
+			}
+		});
 	}
 
 	/**
-	 * Constructs a {@code DefaultParseFilter} with the given configurations.
+	 * Constructs a {@code DefaultParseFilter} with the given configurations and resource bundle.
+	 * <p>
+	 * The resource bundle is used to obtain the (internationalised) reasons of why the message was filtered.
 	 *
 	 * @param params the spider configurations
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @param resourceBundle the resource bundle to obtain the internationalised reasons.
+	 * @throws IllegalArgumentException if any of the given parameters is {@code null}.
 	 * @since TODO add version
 	 * @see SpiderParam#getMaxParseSizeBytes()
 	 */
-	public DefaultParseFilter(SpiderParam params) {
+	public DefaultParseFilter(SpiderParam params, ResourceBundle resourceBundle) {
 		if (params == null) {
 			throw new IllegalArgumentException("Parameter params must not be null.");
 		}
+		if (resourceBundle == null) {
+			throw new IllegalArgumentException("Parameter resourceBundle must not be null.");
+		}
 		this.params = params;
+
+		filterResultEmpty = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.empty"));
+		filterResultMaxSize = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.maxsize"));
+		filterResultNotText = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.nottext"));
 	}
 	
 	@Override
-	public boolean isFiltered(HttpMessage responseMessage) {
+	public FilterResult filtered(HttpMessage responseMessage) {
 		if (responseMessage == null || responseMessage.getRequestHeader().isEmpty()
 				|| responseMessage.getResponseHeader().isEmpty()) {
-			return true;
+			return filterResultEmpty;
 		}
 
 		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it 
@@ -102,7 +130,7 @@ public class DefaultParseFilter extends ParseFilter {
 		if (fullfilename != null && (SVN_SQLITE_FILENAME_PATTERN.matcher(fullfilename).find()
 				|| SVN_XML_FILENAME_PATTERN.matcher(fullfilename).find()
 				|| GIT_FILENAME_PATTERN.matcher(fullfilename).find())) {
-			return false;
+			return FilterResult.NOT_FILTERED;
 		}
 
 		// Check response body size
@@ -110,12 +138,12 @@ public class DefaultParseFilter extends ParseFilter {
 			if (log.isDebugEnabled()) {
 				log.debug("Resource too large: " + responseMessage.getRequestHeader().getURI());
 			}
-			return true;
+			return filterResultMaxSize;
 		}
 
 		// If it's a redirection, accept it, as the SpiderRedirectParser will process it
 		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode())) {
-			return false;
+			return FilterResult.NOT_FILTERED;
 		}
 		
 		// Check response type.
@@ -123,10 +151,10 @@ public class DefaultParseFilter extends ParseFilter {
 			if (log.isDebugEnabled()) {
 				log.debug("Resource is not text: " + responseMessage.getRequestHeader().getURI());
 			}
-			return true;
+			return filterResultNotText;
 		}
 
-		return false;
+		return FilterResult.NOT_FILTERED;
 	}
 
 }

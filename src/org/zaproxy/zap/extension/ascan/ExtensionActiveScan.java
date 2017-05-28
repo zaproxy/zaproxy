@@ -47,6 +47,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -87,14 +88,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
-    private static final List<Class<?>> DEPENDENCIES;
+    private static final List<Class<? extends Extension>> DEPENDENCIES;
     
     private AttackModeScanner attackModeScanner;
     
     private ActiveScanController ascanController = null;
 
     static {
-        List<Class<?>> dep = new ArrayList<>(1);
+        List<Class<? extends Extension>> dep = new ArrayList<>(1);
         dep.add(ExtensionAlert.class);
 
         DEPENDENCIES = Collections.unmodifiableList(dep);
@@ -495,7 +496,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
     @Override
-    public List<Class<?>> getDependencies() {
+    public List<Class<? extends Extension>> getDependencies() {
         return DEPENDENCIES;
     }
 

@@ -44,6 +44,7 @@ import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.SpiderTaskResult;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -450,9 +451,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	}
 
 	@Override
-	public void readURI(final HttpMessage msg) {
+	public void notifySpiderTaskResult(SpiderTaskResult spiderTaskResult) {
 		// Add the read message to the Site Map (tree or db structure)
 		try {
+			HttpMessage msg = spiderTaskResult.getHttpMessage();
 			int type = msg.isResponseFromTargetHost() ? HistoryReference.TYPE_SPIDER : HistoryReference.TYPE_SPIDER_TEMPORARY;
 			HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(), type, msg);
 
