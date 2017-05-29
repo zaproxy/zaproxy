@@ -985,9 +985,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 								logger.debug("Failed to access " + longUrl, e2);
 							}
 						}
-			    		if (callback != null && latestVersionInfo != null) {
-							logger.debug("Calling callback with  " + latestVersionInfo);
-			    			callback.gotLatestData(latestVersionInfo);
+						if (latestVersionInfo != null) {
+							for (AddOn addOn : latestVersionInfo.getAddOns()) {
+								AddOn localAddOn = localVersionInfo.getAddOn(addOn.getId());
+								if (localAddOn != null && !addOn.isUpdateTo(localAddOn)) {
+									addOn.setInstallationStatus(localAddOn.getInstallationStatus());
+								}
+							}
+							if (callback != null) {
+								logger.debug("Calling callback with  " + latestVersionInfo);
+								callback.gotLatestData(latestVersionInfo);
+							}
 			    		}
 						logger.debug("Done");
 	    			}
