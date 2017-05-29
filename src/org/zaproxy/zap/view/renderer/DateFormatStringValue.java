@@ -24,16 +24,12 @@ import java.util.Date;
 
 import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.renderer.StringValues;
-import org.parosproxy.paros.Constant;
 
 public class DateFormatStringValue implements StringValue {
 
     private static final long serialVersionUID = 1143489366351658047L;
 
-    private static final DateFormat DATE_TIME_FORMAT = DateFormat.getDateTimeInstance(
-            DateFormat.SHORT,
-            DateFormat.MEDIUM,
-            Constant.getLocale());
+    private static final DateFormat DATE_TIME_FORMAT = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
     public DateFormatStringValue() {
     }

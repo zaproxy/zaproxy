@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.WordUtils;
 import org.parosproxy.paros.Constant;
@@ -67,8 +68,12 @@ public final class ZapSupportUtils {
 		return Constant.messages.getString("support.java.version.label") + " " + javaVendor + " " + javaVersion;
 	}
 
-	public static String getLocaleSelected() {
-		return Constant.messages.getString("support.locale.selected.label") + " " + Constant.getLocale();
+	public static String getLocaleDisplay() {
+		return Constant.messages.getString("support.locale.display.label") + " " + Locale.getDefault(Locale.Category.DISPLAY);
+	}
+
+	public static String getLocaleFormat() {
+		return Constant.messages.getString("support.locale.format.label") + " " + Locale.getDefault(Locale.Category.FORMAT);
 	}
 
 	public static String getLocaleSystem() {
@@ -106,7 +111,8 @@ public final class ZapSupportUtils {
 		supportDetailsBuilder.append(getOperatingSystem()).append(NEWLINE);
 		supportDetailsBuilder.append(getJavaVersionVendor()).append(NEWLINE);
 		supportDetailsBuilder.append(getLocaleSystem()).append(NEWLINE);
-		supportDetailsBuilder.append(getLocaleSelected()).append(NEWLINE);
+		supportDetailsBuilder.append(getLocaleDisplay()).append(NEWLINE);
+		supportDetailsBuilder.append(getLocaleFormat()).append(NEWLINE);
 		supportDetailsBuilder.append(getZapHomeDirectory()).append(NEWLINE);
 		
 		return supportDetailsBuilder.toString();
