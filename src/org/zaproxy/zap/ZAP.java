@@ -21,6 +21,7 @@ package org.zaproxy.zap;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -87,7 +88,9 @@ public class ZAP {
         } catch (final Exception e) {
         	// Cant use the CommandLine help here as the 
         	// i18n messages wont have been loaded
-            System.out.println("Failed due to invalid parameters. Use '-h' for more details.");
+            System.out.println("Failed due to invalid parameters: " + Arrays.toString(args));
+            System.out.println(e.getMessage());
+            System.out.println("Use '-h' for more details.");
             System.exit(1);
         }
 
