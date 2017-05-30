@@ -72,56 +72,56 @@ public class PluginPassiveScannerUnitTest {
 	}
 
 	@Test
-	public void shouldHaveMediumAsDefaultLevel() {
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.MEDIUM)));
+	public void shouldHaveMediumAsDefaultAlertThreshold() {
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.MEDIUM)));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailToSetNullLevel() {
+	public void shouldFailToSetNullAlertThreshold() {
 		// Given
-		AlertThreshold level = null;
+		AlertThreshold alertThreshold = null;
 		// When
-		scanner.setLevel(level);
+		scanner.setAlertThreshold(alertThreshold);
 		// Then = IllegalArgumentException.
 	}
 
 	@Test
-	public void shouldSetValidLevel() {
+	public void shouldSetValidAlertThreshold() {
 		// Given
-		AlertThreshold level = AlertThreshold.HIGH;
+		AlertThreshold alertThreshold = AlertThreshold.HIGH;
 		// When
-		scanner.setLevel(level);
+		scanner.setAlertThreshold(alertThreshold);
 		// Then
-		assertThat(scanner.getLevel(), is(equalTo(level)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(alertThreshold)));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailToSetNullDefaultLevel() {
+	public void shouldFailToSetNullDefaultAlertThreshold() {
 		// Given
-		AlertThreshold level = null;
+		AlertThreshold alertThreshold = null;
 		// When
-		scanner.setDefaultLevel(level);
+		scanner.setDefaultAlertThreshold(alertThreshold);
 		// Then = IllegalArgumentException.
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailToSetDefaultToDefaultLevel() {
+	public void shouldFailToSetDefaultToDefaultAlertThreshold() {
 		// Given
-		AlertThreshold level = AlertThreshold.DEFAULT;
+		AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
 		// When
-		scanner.setDefaultLevel(level);
+		scanner.setDefaultAlertThreshold(alertThreshold);
 		// Then = IllegalArgumentException.
 	}
 
 	@Test
-	public void shouldSetValidDefaultLevel() {
+	public void shouldSetValidDefaultAlertThreshold() {
 		// Given
-		scanner.setLevel(AlertThreshold.DEFAULT);
-		AlertThreshold level = AlertThreshold.HIGH;
+		scanner.setAlertThreshold(AlertThreshold.DEFAULT);
+		AlertThreshold alertThreshold = AlertThreshold.HIGH;
 		// When
-		scanner.setDefaultLevel(level);
+		scanner.setDefaultAlertThreshold(alertThreshold);
 		// Then
-		assertThat(scanner.getLevel(), is(equalTo(level)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(alertThreshold)));
 	}
 
 	@Test
@@ -139,29 +139,29 @@ public class PluginPassiveScannerUnitTest {
 	}
 
 	@Test
-	public void shouldNotChangeEnabledStateOrLevelIfConfigurationSetIsEmpty() {
+	public void shouldNotChangeEnabledStateOrAlertThresholdIfConfigurationSetIsEmpty() {
 		Configuration configuration = createEmptyConfiguration();
 		// given
 		scanner.setEnabled(false);
-		scanner.setLevel(AlertThreshold.HIGH);
+		scanner.setAlertThreshold(AlertThreshold.HIGH);
 		// when
 		scanner.setConfig(configuration);
 		// then
 		assertThat(scanner.isEnabled(), is(false));
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.HIGH)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.HIGH)));
 	}
 
 	@Test
-	public void shouldNotChangeEnabledStateOrLevelIfNoApplicableDataIsPresentInConfigurationSet() {
+	public void shouldNotChangeEnabledStateOrAlertThresholdIfNoApplicableDataIsPresentInConfigurationSet() {
 		Configuration configuration = createConfiguration(Integer.MIN_VALUE, Boolean.TRUE, AlertThreshold.LOW);
 		// given
 		scanner.setEnabled(false);
-		scanner.setLevel(AlertThreshold.HIGH);
+		scanner.setAlertThreshold(AlertThreshold.HIGH);
 		// when
 		scanner.setConfig(configuration);
 		// then
 		assertThat(scanner.isEnabled(), is(false));
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.HIGH)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.HIGH)));
 	}
 
 	@Test
@@ -187,26 +187,26 @@ public class PluginPassiveScannerUnitTest {
 	}
 
 	@Test
-	public void shouldUseDefaultLevelIfNotSpecifiedInConfigurationSet() {
+	public void shouldUseDefaultAlertThresholdIfNotSpecifiedInConfigurationSet() {
 		// given
 		Configuration configuration = createConfiguration(TestPluginPassiveScanner.PLUGIN_ID, Boolean.TRUE, null);
-		scanner.setDefaultLevel(AlertThreshold.HIGH);
-		scanner.setLevel(AlertThreshold.LOW);
+		scanner.setDefaultAlertThreshold(AlertThreshold.HIGH);
+		scanner.setAlertThreshold(AlertThreshold.LOW);
 		// when
 		scanner.setConfig(configuration);
 		// then
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.HIGH)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.HIGH)));
 	}
 
 	@Test
-	public void shouldUseLevelSpecifiedInConfigurationSet() {
+	public void shouldUseAlertThresholdSpecifiedInConfigurationSet() {
 		// given
 		Configuration configuration = createConfiguration(TestPluginPassiveScanner.PLUGIN_ID, null, AlertThreshold.HIGH);
-		scanner.setLevel(AlertThreshold.LOW);
+		scanner.setAlertThreshold(AlertThreshold.LOW);
 		// when
 		scanner.setConfig(configuration);
 		// then
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.HIGH)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.HIGH)));
 	}
 
 	@Test
@@ -217,12 +217,12 @@ public class PluginPassiveScannerUnitTest {
 				Boolean.FALSE,
 				AlertThreshold.HIGH);
 		scanner.setEnabled(true);
-		scanner.setLevel(AlertThreshold.LOW);
+		scanner.setAlertThreshold(AlertThreshold.LOW);
 		// when
 		scanner.setConfig(configuration);
 		// then
 		assertThat(scanner.isEnabled(), is(false));
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.HIGH)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.HIGH)));
 	}
 
 	@Test
@@ -235,12 +235,12 @@ public class PluginPassiveScannerUnitTest {
 		addConfiguration(configuration, 3, 1011, null, AlertThreshold.LOW);
 		addConfiguration(configuration, 4, "OtherTestClassName", Boolean.FALSE, AlertThreshold.OFF);
 		scanner.setEnabled(true);
-		scanner.setLevel(AlertThreshold.LOW);
+		scanner.setAlertThreshold(AlertThreshold.LOW);
 		// when
 		scanner.setConfig(configuration);
 		// then
 		assertThat(scanner.isEnabled(), is(false));
-		assertThat(scanner.getLevel(), is(equalTo(AlertThreshold.MEDIUM)));
+		assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.MEDIUM)));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -279,31 +279,31 @@ public class PluginPassiveScannerUnitTest {
 	}
 
 	@Test
-	public void shouldNotPersistLevelOnSaveIfDefaultValue() {
+	public void shouldNotPersistAlertThresholdOnSaveIfDefaultValue() {
 		// Given
 		Configuration configuration = createEmptyConfiguration();
 		scanner.setConfig(configuration);
-		scanner.setLevel(AlertThreshold.MEDIUM);
+		scanner.setAlertThreshold(AlertThreshold.MEDIUM);
 		scanner.setEnabled(true);
 		// When
 		scanner.save();
 		// Then
-		assertThat(configuration.containsKey("pscans.pscanner(0).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(0).alertthreshold"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(0).id"), is(false));
 	}
 
 	@Test
-	public void shouldPersistLevelOnSaveIfNotDefaultValue() {
+	public void shouldPersistAlertThresholdOnSaveIfNotDefaultValue() {
 		// Given
 		Configuration configuration = createEmptyConfiguration();
 		scanner.setConfig(configuration);
-		scanner.setLevel(AlertThreshold.HIGH);
+		scanner.setAlertThreshold(AlertThreshold.HIGH);
 		scanner.setEnabled(true);
 		// When
 		scanner.save();
 		// Then
-		assertThat(configuration.containsKey("pscans.pscanner(0).level"), is(true));
-		assertThat(configuration.getString("pscans.pscanner(0).level"), is(equalTo(AlertThreshold.HIGH.name())));
+		assertThat(configuration.containsKey("pscans.pscanner(0).alertthreshold"), is(true));
+		assertThat(configuration.getString("pscans.pscanner(0).alertthreshold"), is(equalTo(AlertThreshold.HIGH.name())));
 		assertThat(configuration.containsKey("pscans.pscanner(0).id"), is(true));
 		assertThat(configuration.getInt("pscans.pscanner(0).id"), is(equalTo(TestPluginPassiveScanner.PLUGIN_ID)));
 	}
@@ -317,12 +317,12 @@ public class PluginPassiveScannerUnitTest {
 				AlertThreshold.HIGH);
 		scanner.setConfig(configuration);
 		scanner.setEnabled(true);
-		scanner.setLevel(AlertThreshold.MEDIUM);
+		scanner.setAlertThreshold(AlertThreshold.MEDIUM);
 		// When
 		scanner.save();
 		// Then
 		assertThat(configuration.containsKey("pscans.pscanner(0).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(0).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(0).alertthreshold"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(0).id"), is(false));
 	}
 
@@ -335,13 +335,13 @@ public class PluginPassiveScannerUnitTest {
 				AlertThreshold.HIGH);
 		scanner.setConfig(configuration);
 		scanner.setEnabled(true);
-		scanner.setLevel(AlertThreshold.MEDIUM);
+		scanner.setAlertThreshold(AlertThreshold.MEDIUM);
 		// When
 		scanner.save();
 		// Then
 		assertThat(configuration.containsKey("pscans.pscanner(0).classname"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(0).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(0).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(0).alertthreshold"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(0).id"), is(false));
 	}
 
@@ -355,38 +355,38 @@ public class PluginPassiveScannerUnitTest {
 		addConfiguration(configuration, 3, 1011, null, AlertThreshold.LOW);
 		scanner.setConfig(configuration);
 		scanner.setEnabled(false);
-		scanner.setLevel(AlertThreshold.LOW);
+		scanner.setAlertThreshold(AlertThreshold.LOW);
 		// When
 		scanner.save();
 		// Then
 		assertThat(configuration.containsKey("pscans.pscanner(0).id"), is(true));
 		assertThat(configuration.getInt("pscans.pscanner(0).id"), is(equalTo(10)));
 		assertThat(configuration.containsKey("pscans.pscanner(0).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(0).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(0).alertthreshold"), is(false));
 
 		assertThat(configuration.containsKey("pscans.pscanner(1).id"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(1).classname"), is(true));
 		assertThat(configuration.getString("pscans.pscanner(1).classname"), is(equalTo("TestClassName")));
 		assertThat(configuration.containsKey("pscans.pscanner(1).enabled"), is(true));
 		assertThat(configuration.getBoolean("pscans.pscanner(1).enabled"), is(true));
-		assertThat(configuration.containsKey("pscans.pscanner(1).level"), is(true));
-		assertThat(configuration.getString("pscans.pscanner(1).level"), is(equalTo(AlertThreshold.HIGH.name())));
+		assertThat(configuration.containsKey("pscans.pscanner(1).alertthreshold"), is(true));
+		assertThat(configuration.getString("pscans.pscanner(1).alertthreshold"), is(equalTo(AlertThreshold.HIGH.name())));
 
 		assertThat(configuration.containsKey("pscans.pscanner(2).id"), is(true));
 		assertThat(configuration.getInt("pscans.pscanner(2).id"), is(equalTo(1011)));
 		assertThat(configuration.containsKey("pscans.pscanner(2).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(2).level"), is(true));
-		assertThat(configuration.getString("pscans.pscanner(2).level"), is(equalTo(AlertThreshold.LOW.name())));
+		assertThat(configuration.containsKey("pscans.pscanner(2).alertthreshold"), is(true));
+		assertThat(configuration.getString("pscans.pscanner(2).alertthreshold"), is(equalTo(AlertThreshold.LOW.name())));
 
 		assertThat(configuration.containsKey("pscans.pscanner(3).id"), is(true));
 		assertThat(configuration.getInt("pscans.pscanner(3).id"), is(equalTo(TestPluginPassiveScanner.PLUGIN_ID)));
 		assertThat(configuration.containsKey("pscans.pscanner(3).enabled"), is(true));
 		assertThat(configuration.getBoolean("pscans.pscanner(3).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(3).level"), is(true));
-		assertThat(configuration.getString("pscans.pscanner(3).level"), is(equalTo(AlertThreshold.LOW.name())));
+		assertThat(configuration.containsKey("pscans.pscanner(3).alertthreshold"), is(true));
+		assertThat(configuration.getString("pscans.pscanner(3).alertthreshold"), is(equalTo(AlertThreshold.LOW.name())));
 
 		assertThat(configuration.containsKey("pscans.pscanner(4).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(4).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(4).alertthreshold"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(5).id"), is(false));
 	}
 
@@ -400,31 +400,31 @@ public class PluginPassiveScannerUnitTest {
 		addConfiguration(configuration, 3, 1011, null, AlertThreshold.LOW);
 		scanner.setConfig(configuration);
 		scanner.setEnabled(true);
-		scanner.setLevel(AlertThreshold.MEDIUM);
+		scanner.setAlertThreshold(AlertThreshold.MEDIUM);
 		// When
 		scanner.save();
 		// Then
 		assertThat(configuration.containsKey("pscans.pscanner(0).id"), is(true));
 		assertThat(configuration.getInt("pscans.pscanner(0).id"), is(equalTo(10)));
 		assertThat(configuration.containsKey("pscans.pscanner(0).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(0).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(0).alertthreshold"), is(false));
 
 		assertThat(configuration.containsKey("pscans.pscanner(1).id"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(1).classname"), is(true));
 		assertThat(configuration.getString("pscans.pscanner(1).classname"), is(equalTo("TestClassName")));
 		assertThat(configuration.containsKey("pscans.pscanner(1).enabled"), is(true));
 		assertThat(configuration.getBoolean("pscans.pscanner(1).enabled"), is(true));
-		assertThat(configuration.containsKey("pscans.pscanner(1).level"), is(true));
-		assertThat(configuration.getString("pscans.pscanner(1).level"), is(equalTo(AlertThreshold.HIGH.name())));
+		assertThat(configuration.containsKey("pscans.pscanner(1).alertthreshold"), is(true));
+		assertThat(configuration.getString("pscans.pscanner(1).alertthreshold"), is(equalTo(AlertThreshold.HIGH.name())));
 
 		assertThat(configuration.containsKey("pscans.pscanner(2).id"), is(true));
 		assertThat(configuration.getInt("pscans.pscanner(2).id"), is(equalTo(1011)));
 		assertThat(configuration.containsKey("pscans.pscanner(2).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(2).level"), is(true));
-		assertThat(configuration.getString("pscans.pscanner(2).level"), is(equalTo(AlertThreshold.LOW.name())));
+		assertThat(configuration.containsKey("pscans.pscanner(2).alertthreshold"), is(true));
+		assertThat(configuration.getString("pscans.pscanner(2).alertthreshold"), is(equalTo(AlertThreshold.LOW.name())));
 
 		assertThat(configuration.containsKey("pscans.pscanner(3).enabled"), is(false));
-		assertThat(configuration.containsKey("pscans.pscanner(3).level"), is(false));
+		assertThat(configuration.containsKey("pscans.pscanner(3).alertthreshold"), is(false));
 		assertThat(configuration.containsKey("pscans.pscanner(3).id"), is(false));
 	}
 
@@ -497,7 +497,7 @@ public class PluginPassiveScannerUnitTest {
 			configuration.setProperty("pscans.pscanner(" + index + ").enabled", enabled);
 		}
 		if (alertThreshold != null) {
-			configuration.setProperty("pscans.pscanner(" + index + ").level", alertThreshold.name());
+			configuration.setProperty("pscans.pscanner(" + index + ").alertthreshold", alertThreshold.name());
 		}
 	}
 }

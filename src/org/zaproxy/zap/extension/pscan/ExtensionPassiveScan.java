@@ -356,7 +356,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     void setPluginPassiveScannerAlertThreshold(int pluginId, Plugin.AlertThreshold alertThreshold) {
         for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
             if (pluginId == scanner.getPluginId()) {
-                scanner.setLevel(alertThreshold);
+                scanner.setAlertThreshold(alertThreshold);
                 scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
                 scanner.save();
             }
@@ -369,7 +369,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      */
     public void setAllScannerThreshold(AlertThreshold at) {
         for (PluginPassiveScanner test : getPluginPassiveScanners()) {        
-            test.setLevel(at);
+            test.setAlertThreshold(at);
             test.setEnabled(!AlertThreshold.OFF.equals(at));
             test.save();
         }
@@ -384,9 +384,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         
         for (PluginPassiveScanner test : getPluginPassiveScanners()) {                
             if (at == null) {
-                at = test.getLevel();
+                at = test.getAlertThreshold();
             
-            } else if (!at.equals(test.getLevel())) {
+            } else if (!at.equals(test.getAlertThreshold())) {
                 // Not all the same
                 return null;
             }
