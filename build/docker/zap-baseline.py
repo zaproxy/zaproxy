@@ -402,7 +402,15 @@ def main(argv):
         logging.error ('Failed to load context file ' + context_file + ' : ' + res)
 
     # Access the target
-    res = zap.urlopen(target)
+    try:
+        res = zap.urlopen(target)
+    except IOError as e:
+        if hasattr(e, 'args') and len(e.args) > 1 and e.args[1] == 401:
+            logging.info('Received 401 from %s' % target)
+            res = ""  # for the ZAP Error check below
+        else:
+            raise e
+
     if res.startswith("ZAP Error"):
       # errno.EIO is 5, not sure why my atempts to import it failed;) 
       raise IOError(5, 'Failed to connect')
