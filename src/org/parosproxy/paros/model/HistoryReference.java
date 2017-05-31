@@ -415,9 +415,7 @@ public class HistoryReference {
 	    try {
 	        msg = getHttpMessage();
             display = getDisplay(msg);	        
-	    } catch (HttpMalformedHeaderException e1) {
-	        display = "";
-	    } catch (DatabaseException e) {
+	    } catch(HttpMalformedHeaderException | DatabaseException e1) {
 	        display = "";
 	    }
         return display;

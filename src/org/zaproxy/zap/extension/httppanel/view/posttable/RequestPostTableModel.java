@@ -100,10 +100,7 @@ public class RequestPostTableModel extends AbstractTableModel {
       	  	    cell[0] = name;
       	  	    cell[1] = value;
       	  	    listPair.add(cell);
-            } catch (UnsupportedEncodingException e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
-            } catch (IllegalArgumentException e) {
+            } catch(UnsupportedEncodingException | IllegalArgumentException e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);
             }
@@ -146,10 +143,7 @@ public class RequestPostTableModel extends AbstractTableModel {
                     
                     hasValues = true;
             	}
-            } catch (UnsupportedEncodingException e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
-            } catch (IllegalArgumentException e) {
+            } catch(UnsupportedEncodingException | IllegalArgumentException e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);
             }

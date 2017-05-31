@@ -106,9 +106,7 @@ public class PopupMenuEmbeddedBrowser extends ExtensionPopupMenuItem {
 		if (launcher == null) {
 			try {
 				launcher = new BrowserLauncher();
-			} catch (BrowserLaunchingInitializingException e) {
-				supported = false;
-			} catch (UnsupportedOperatingSystemException e) {
+			} catch(BrowserLaunchingInitializingException | UnsupportedOperatingSystemException e) {
 				supported = false;
 			}
 		}

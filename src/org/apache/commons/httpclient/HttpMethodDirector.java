@@ -507,14 +507,7 @@ public class HttpMethodDirector {
                     LOG.info("Retrying request");
                 }
             }
-        } catch (IOException e) {
-            if (this.conn.isOpen()) {
-                LOG.debug("Closing the connection.");
-                this.conn.close();
-            }
-            releaseConnection = true;
-            throw e;
-        } catch (RuntimeException e) {
+        } catch(IOException | RuntimeException e) {
             if (this.conn.isOpen()) {
                 LOG.debug("Closing the connection.");
                 this.conn.close();
