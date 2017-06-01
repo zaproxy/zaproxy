@@ -1003,9 +1003,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     			this.remoteCallThread.start();
     		}
     		if (callback == null) {
-    			// Synchronous, but include a 30 sec max anyway
+    			// Synchronous, but include a 60 sec max anyway, give enough(?) time for 1st request to timeout (default 20s)
+    			// and the 2nd to be fully processed (e.g. in case the connection is throttled, requires proxy authentication).
     			int i=0;
-				while (latestVersionInfo == null && this.remoteCallThread.isAlive() && i < 30) {
+				while (latestVersionInfo == null && this.remoteCallThread.isAlive() && i < 60) {
 					try {
 						Thread.sleep(1000);
 						i++;
