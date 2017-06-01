@@ -26,6 +26,7 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
 
 package org.parosproxy.paros.view;
 
@@ -148,6 +149,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    boolean changed = false;
 	    if (! getTxtSessionName().getText().equals(session.getSessionName())) {
 	    	session.setSessionName(getTxtSessionName().getText());
+	    	View.getSingleton().getMainFrame().setTitle(session);
 	    	changed = true;
 	    }
 	    if (! getTxtDescription().getText().equals(session.getSessionDesc())) {
