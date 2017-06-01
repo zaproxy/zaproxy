@@ -49,6 +49,7 @@
 // ZAP: 2017/03/19 Add TYPE_SPIDER_TEMPORARY.
 // ZAP: 2017/05/03 Notify tag changes.
 // ZAP: 2017/05/17 Allow to obtain the tags of a message.
+// ZAP: 2017/05/31 Add a multi-catch for a specific handler. 
 
 package org.parosproxy.paros.model;
 
@@ -415,9 +416,7 @@ public class HistoryReference {
 	    try {
 	        msg = getHttpMessage();
             display = getDisplay(msg);	        
-	    } catch (HttpMalformedHeaderException e1) {
-	        display = "";
-	    } catch (DatabaseException e) {
+	    } catch (HttpMalformedHeaderException | DatabaseException e1) {
 	        display = "";
 	    }
         return display;

@@ -422,19 +422,14 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		// Base 64
 		try {
 			base64EncodeField.setText(getEncoder().getBase64Encode(getInputField().getText()));
-		} catch (NullPointerException e) {
-			log.error(e.getMessage(), e);
-		} catch (IOException e) {
+		} catch (NullPointerException | IOException e) {
 			log.error(e.getMessage(), e);
 		}
 
 		try {
 			base64DecodeField.setText(getEncoder().getBase64Decode(getInputField().getText()));
 			base64DecodeField.setEnabled(base64DecodeField.getText().length() > 0);
-		} catch (IOException e) {
-			base64DecodeField.setText(e.getMessage());
-			base64DecodeField.setEnabled(false);
-		} catch (IllegalArgumentException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			base64DecodeField.setText(e.getMessage());
 			base64DecodeField.setEnabled(false);
 		}

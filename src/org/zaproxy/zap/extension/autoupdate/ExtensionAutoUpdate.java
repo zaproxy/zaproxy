@@ -973,11 +973,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							logger.debug("Getting latest version info from " + longUrl);
 				    		try {
 				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(longUrl), getPlatform(), false);
-				    		} catch (SSLHandshakeException e2) {
-					    		if (callback != null) {
-					    			callback.insecureUrl(longUrl, e2);
-					    		}
-							} catch (InvalidCfuUrlException e2) {
+				    		} catch (SSLHandshakeException | InvalidCfuUrlException e2) {
 					    		if (callback != null) {
 					    			callback.insecureUrl(longUrl, e2);
 					    		}
