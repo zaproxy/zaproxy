@@ -638,8 +638,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 					this.addScript(script, false);
 				} else {
 					logger.warn(
-							"Failed to add script \"" + script.getName() + "\", script type not found: "
-									+ script.getTypeName());
+							"Failed to add script \"" + script.getName() + "\", provided script type \""
+									+ script.getTypeName() + "\" not found, available: " + getScriptTypesNames());
 					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(),
 							Constant.messages.getString("script.info.scriptsNotAdded.error.missingType", script.getTypeName()) });
 				}
@@ -690,6 +690,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             }
         }
         return null;
+    }
+
+    private List<String> getScriptTypesNames() {
+        return getScriptTypes().stream().collect(ArrayList::new, (c, e) -> c.add(e.getName()), ArrayList::addAll);
     }
 
     private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
