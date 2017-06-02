@@ -21,6 +21,9 @@ package org.zaproxy.zap.view.popup;
 
 import java.awt.Component;
 
+import javax.swing.Action;
+import javax.swing.Icon;
+
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 
@@ -34,12 +37,43 @@ public class ExtensionPopupMenuItemMessageContainer extends ExtensionPopupMenuIt
 
     private static final long serialVersionUID = 5123729066062943072L;
 
+    /**
+     * Constructs an {@code ExtensionPopupMenuItemMessageContainer} with no text nor icon.
+     */
     public ExtensionPopupMenuItemMessageContainer() {
         super();
     }
 
+    /**
+     * Constructs an {@code ExtensionPopupMenuItemMessageContainer} with the given text and no icon.
+     *
+     * @param text the text of the menu item.
+     */
     public ExtensionPopupMenuItemMessageContainer(String text) {
         super(text);
+    }
+
+    /**
+     * Constructs an {@code ExtensionPopupMenuItemMessageContainer} with the given text and icon.
+     *
+     * @param text the text of the menu item.
+     * @param icon the icon of the menu item.
+     * @since TODO add version
+     */
+    public ExtensionPopupMenuItemMessageContainer(String text, Icon icon) {
+        super(text, icon);
+    }
+
+    /**
+     * Constructs an {@code ExtensionPopupMenuItemMessageContainer} with the given action.
+     * <p>
+     * The text and icon (if any) are obtained from the given action.
+     *
+     * @param action the action of the menu item.
+     * @since TODO add version
+     */
+    public ExtensionPopupMenuItemMessageContainer(Action action) {
+        super(action);
     }
 
     /**
