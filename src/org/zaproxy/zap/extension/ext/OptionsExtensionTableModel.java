@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
@@ -164,7 +163,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 
 	void setExtensionsState(Map<String, Boolean> extensionsState) {
 		this.extensionsState = extensionsState;
-		fireTableChanged(new TableModelEvent(this, 0, getRowCount() - 1, 0, TableModelEvent.UPDATE));
+		fireTableDataChanged();
 	}
 
 	Map<String, Boolean> getExtensionsState() {
