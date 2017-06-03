@@ -53,10 +53,12 @@ import subprocess
 import sys
 import time
 import traceback
-import urllib2
+from six.moves.urllib.parse import urlparse, urlencode
+from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import HTTPError
 from datetime import datetime
 from random import randint
-from zapv2 import ZAPv2
+#from zapv2 import ZAPv2
 
 timeout = 120
 config_dict = {}
@@ -145,15 +147,15 @@ def print_rule(action, alert_list, detailed_output, user_msg):
 
     id = alert_list[0].get('pluginId')
     if id in in_progress_issues:
-        print (action + '-IN_PROGRESS: ' + alert_list[0].get('alert') + ' [' + id + '] x ' + str(len(alert_list)) + ' ' + user_msg)
+        print((action + '-IN_PROGRESS: ' + alert_list[0].get('alert') + ' [' + id + '] x ' + str(len(alert_list)) + ' ' + user_msg))
         if in_progress_issues[id]["link"]:
-            print ('\tProgress link: ' + in_progress_issues[id]["link"])
+            print(('\tProgress link: ' + in_progress_issues[id]["link"]))
     else:
-        print (action + '-NEW: ' + alert_list[0].get('alert') + ' [' + id + '] x ' + str(len(alert_list)) + ' ' + user_msg)
+        print((action + '-NEW: ' + alert_list[0].get('alert') + ' [' + id + '] x ' + str(len(alert_list)) + ' ' + user_msg))
     if detailed_output:
         # Show (up to) first 5 urls
         for alert in alert_list[0:5]:
-            print ('\t' + alert.get('url'))
+            print(('\t' + alert.get('url')))
 
 
 def dump_log_file(cid):
@@ -207,7 +209,7 @@ def main(argv):
 
     try:
         opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
-    except getopt.GetoptError, exc:
+    except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
         sys.exit(3)
@@ -296,7 +298,7 @@ def main(argv):
     elif len(config_url) > 0:
         # load config file from url
         try:
-            load_config(urllib2.urlopen(config_url))
+            load_config(urllib.request.urlopen(config_url))
         except:
             logging.warning('Failed to read configs from ' + config_url)
             sys.exit(3)
@@ -459,7 +461,7 @@ def main(argv):
             logging.warning('No URLs found - is the target URL accessible? Local services may not be accessible from the Docker container')
         else:
             if detailed_output:
-                print ('Total of ' + str(num_urls) + ' URLs')
+                print(('Total of ' + str(num_urls) + ' URLs'))
 
             # Retrieve the alerts using paging in case there are lots of them
             st = 0
@@ -479,7 +481,7 @@ def main(argv):
                     if alert.get('risk') == 'Informational':
                         # Ignore all info alerts - some of them may have been downgraded by security annotations
                         continue
-                    if (not alert_dict.has_key(plugin_id)):
+                    if (plugin_id not in alert_dict):
                         alert_dict[plugin_id] = []
                     alert_dict[plugin_id].append(alert)
                 st += pg
@@ -502,7 +504,7 @@ def main(argv):
                     f.write('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
                     f.write('# You can add your own messages to each rule by appending them after a tab on each line.\n')
-                    for key, rule in sorted(all_dict.iteritems()):
+                    for key, rule in sorted(all_dict.items()):
                         f.write(key + '\tWARN\t(' + rule + ')\n')
 
             # print out the passing rules
@@ -511,18 +513,18 @@ def main(argv):
                 plugin_id = rule.get('id')
                 if plugin_id in blacklist:
                     continue
-                if (not alert_dict.has_key(plugin_id)):
+                if (plugin_id not in alert_dict):
                     pass_dict[plugin_id] = rule.get('name')
 
             if min_level == levels.index("PASS") and detailed_output:
-                for key, rule in sorted(pass_dict.iteritems()):
-                    print ('PASS: ' + rule + ' [' + key + ']')
+                for key, rule in sorted(pass_dict.items()):
+                    print(('PASS: ' + rule + ' [' + key + ']'))
 
             pass_count = len(pass_dict)
 
             # print out the ignored rules
-            for key, alert_list in sorted(alert_dict.iteritems()):
-                if (config_dict.has_key(key) and config_dict[key] == 'IGNORE'):
+            for key, alert_list in sorted(alert_dict.items()):
+                if (key in config_dict and config_dict[key] == 'IGNORE'):
                     user_msg = ''
                     if key in config_msg:
                         user_msg = config_msg[key]
@@ -530,8 +532,8 @@ def main(argv):
                     ignore_count += 1
 
             # print out the info rules
-            for key, alert_list in sorted(alert_dict.iteritems()):
-                if (config_dict.has_key(key) and config_dict[key] == 'INFO') or (not config_dict.has_key(key)) and info_unspecified:
+            for key, alert_list in sorted(alert_dict.items()):
+                if (key in config_dict and config_dict[key] == 'INFO') or (key not in config_dict) and info_unspecified:
                     user_msg = ''
                     if key in config_msg:
                         user_msg = config_msg[key]
@@ -539,8 +541,8 @@ def main(argv):
                     info_count += 1
 
             # print out the warning rules
-            for key, alert_list in sorted(alert_dict.iteritems()):
-                if (not config_dict.has_key(key) and not info_unspecified) or (config_dict.has_key(key) and config_dict[key] == 'WARN'):
+            for key, alert_list in sorted(alert_dict.items()):
+                if (key not in config_dict and not info_unspecified) or (key in config_dict and config_dict[key] == 'WARN'):
                     user_msg = ''
                     if key in config_msg:
                         user_msg = config_msg[key]
@@ -551,8 +553,8 @@ def main(argv):
                         warn_count += 1
 
             # print out the failing rules
-            for key, alert_list in sorted(alert_dict.iteritems()):
-                if config_dict.has_key(key) and config_dict[key] == 'FAIL':
+            for key, alert_list in sorted(alert_dict.items()):
+                if key in config_dict and config_dict[key] == 'FAIL':
                     user_msg = ''
                     if key in config_msg:
                         user_msg = config_msg[key]
@@ -577,9 +579,9 @@ def main(argv):
                 with open(base_dir + report_xml, 'w') as f:
                     f.write(zap.core.xmlreport())
 
-            print ('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
+            print(('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
                    '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
-                   '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
+                   '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count)))
 
         # Stop ZAP
         zap.core.shutdown()
@@ -587,15 +589,15 @@ def main(argv):
     except IOError as e:
         if hasattr(e, 'args') and len(e.args) > 1:
             errno, strerror = e
-            print("ERROR " + str(strerror))
+            print(("ERROR " + str(strerror)))
             logging.warning('I/O error(' + str(errno) + '): ' + str(strerror))
         else:
-            print("ERROR %s" % e)
+            print(("ERROR %s" % e))
             logging.warning('I/O error: ' + str(e))
             dump_log_file(cid)
 
     except:
-        print("ERROR " + str(sys.exc_info()[0]))
+        print(("ERROR " + str(sys.exc_info()[0])))
         logging.warning('Unexpected error: ' + str(sys.exc_info()[0]))
         dump_log_file(cid)
 
