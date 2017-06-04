@@ -3,7 +3,7 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
+	<alert>Otentikasi Tidak memadai</alert>
 	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
 
 To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
