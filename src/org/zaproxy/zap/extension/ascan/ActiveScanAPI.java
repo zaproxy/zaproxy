@@ -801,17 +801,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					for (Plugin plugin : hp.getCompleted()) {
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
 						int reqs = hp.getPluginRequestCount(plugin.getId());
-						if (hp.isSkipped(plugin)) {
-						    String skippedReason = hp.getSkippedReason(plugin);
-						    if (skippedReason == null) {
-						        skippedReason = Constant.messages.getString("ascan.progress.label.skipped");
-						    } else {
-						        skippedReason = Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
-						    }
-							hpList.addItem(createPluginProgressEntry(plugin, skippedReason, timeTaken, reqs));
-						} else {
-							hpList.addItem(createPluginProgressEntry(plugin, "Complete", timeTaken, reqs));
-						}
+						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Complete"), timeTaken, reqs));
 			        }
 
 			        for (Plugin plugin : hp.getRunning()) {
@@ -827,17 +817,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			        }
 
 			        for (Plugin plugin : hp.getPending()) {
-						if (hp.isSkipped(plugin)) {
-                            String skippedReason = hp.getSkippedReason(plugin);
-                            if (skippedReason == null) {
-                                skippedReason = Constant.messages.getString("ascan.progress.label.skipped");
-                            } else {
-                                skippedReason = Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
-                            }
-                            hpList.addItem(createPluginProgressEntry(plugin, skippedReason, 0, 0));
-						} else {
-							hpList.addItem(createPluginProgressEntry(plugin, "Pending", 0, 0));
-						}
+						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Pending"), 0, 0));
 			        }
 					resultList.addItem(hpList);
 
@@ -997,6 +977,18 @@ public class ActiveScanAPI extends ApiImplementor {
 			}
 		}
 		return alertThreshold;
+	}
+
+	private static String getStatus(HostProcess hp, Plugin plugin, String defaultStatus) {
+		if (!hp.isSkipped(plugin)) {
+			return defaultStatus;
+		}
+
+		String skippedReason = hp.getSkippedReason(plugin);
+		if (skippedReason == null) {
+			return Constant.messages.getString("ascan.progress.label.skipped");
+		}
+		return Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
 	}
 
 	private static class ExcludedParamApiResponse extends ApiResponse {

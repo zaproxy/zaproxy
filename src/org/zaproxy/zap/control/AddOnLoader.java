@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -89,6 +91,8 @@ public class AddOnLoader extends URLClassLoader {
     private static final AddOnUninstallationProgressCallback NULL_CALLBACK = new NullUninstallationProgressCallBack();
 	
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
+
+    private Lock installationLock = new ReentrantLock();
     private AddOnCollection aoc = null;
     private List<File> jars = new ArrayList<>();
     /**
@@ -342,17 +346,23 @@ public class AddOnLoader extends URLClassLoader {
         }
     }
     
-    public synchronized void addAddon(AddOn ao) {
+    public void addAddon(AddOn ao) {
     	if (! ao.canLoadInCurrentVersion()) {
     		throw new IllegalArgumentException("Cant load add-on " + ao.getName() + 
     				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
     				" Version=" + Constant.PROGRAM_VERSION);
     	}
-    	if (!this.aoc.addAddOn(ao)) {
-    	    return;
-    	}
 
-		addAddOnImpl(ao);
+    	installationLock.lock();
+    	try {
+    		if (!this.aoc.addAddOn(ao)) {
+    			return;
+    		}
+
+    		addAddOnImpl(ao);
+    	} finally {
+    		installationLock.unlock();
+    	}
 	}
 
 	private void addAddOnImpl(AddOn ao) {
@@ -480,14 +490,19 @@ public class AddOnLoader extends URLClassLoader {
         return addOn.hasZapAddOnEntry();
     }
 
-	public synchronized boolean removeAddOn(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback progressCallback) {
-		AddOnUninstallationProgressCallback callback = (progressCallback == null) ? NULL_CALLBACK : progressCallback;
+	public boolean removeAddOn(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback progressCallback) {
+		installationLock.lock();
+		try {
+			AddOnUninstallationProgressCallback callback = (progressCallback == null) ? NULL_CALLBACK : progressCallback;
 
-		callback.uninstallingAddOn(ao, upgrading);
-		boolean removed = removeAddOnImpl(ao, upgrading, callback);
-		callback.addOnUninstalled(removed);
+			callback.uninstallingAddOn(ao, upgrading);
+			boolean removed = removeAddOnImpl(ao, upgrading, callback);
+			callback.addOnUninstalled(removed);
 
-		return removed;
+			return removed;
+		} finally {
+			installationLock.unlock();
+		}
 	}
 
 	private boolean removeAddOnImpl(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback callback) {

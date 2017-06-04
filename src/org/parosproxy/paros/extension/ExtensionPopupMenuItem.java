@@ -30,11 +30,14 @@
 // ZAP: 2014/03/23 Changed to implement the new method from ExtensionPopupMenuComponent
 // ZAP: 2014/03/23 Issue 1095: Replace main pop up sub menus with ExtensionPopupMenu when appropriate
 // ZAP: 2014/08/14 Issue 1302: Context menu item action might not get executed
+// ZAP: 2017/06/01 Add more constructors.
 
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
 
+import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JMenuItem;
 
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
@@ -54,12 +57,43 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
 	private boolean precedeWithSeparator = false;
 	private boolean succeedWithSeparator = false;
 
+    /**
+     * Constructs an {@code ExtensionPopupMenuItem} with no text nor icon.
+     */
 	public ExtensionPopupMenuItem() {
         super();
     }
     
-    public ExtensionPopupMenuItem(String label) {
-        super(label);
+    /**
+     * Constructs an {@code ExtensionPopupMenuItem} with the given text and no icon.
+     *
+     * @param text the text of the menu item.
+     */
+    public ExtensionPopupMenuItem(String text) {
+        super(text);
+    }
+
+    /**
+     * Constructs an {@code ExtensionPopupMenuItem} with the given text and icon.
+     *
+     * @param text the text of the menu item.
+     * @param icon the icon of the menu item.
+     * @since TODO add version
+     */
+    public ExtensionPopupMenuItem(String text, Icon icon) {
+        super(text, icon);
+    }
+
+    /**
+     * Constructs an {@code ExtensionPopupMenuItem} with the given action.
+     * <p>
+     * The text and icon (if any) are obtained from the given action.
+     *
+     * @param action the action of the menu item.
+     * @since TODO add version
+     */
+    public ExtensionPopupMenuItem(Action action) {
+        super(action);
     }
     
     /**

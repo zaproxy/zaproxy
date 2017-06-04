@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -38,6 +39,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -58,6 +60,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private JComboBox<ViewLocale> localeSelect = null;
 	private ZapTextField fileTextField = null; 
 	private Document fileTextFieldDoc = null;
+	private JCheckBox useSystemsLocaleFormatCheckbox;
 	
     public OptionsLangPanel() {
         super();
@@ -86,10 +89,12 @@ public class OptionsLangPanel extends AbstractParamPanel {
 			
 			panelLang.add(languageLabel, getGridBagConstraints(0, 0, 0.5, 0, 0, 0, 0));
 			panelLang.add(getLocaleSelect(), getGridBagConstraints(1, 0, 0.5, 0, 0, 0, 0));
+
+			panelLang.add(getUseSystemsLocaleFormatCheckbox(), getGridBagConstraints(0, 1, 0.5, 0, 0, 0, 0));
 			
-			panelLang.add(importLabel, getGridBagConstraints(0, 1, 1.0, 0, 2, 0, 0));
+			panelLang.add(importLabel, getGridBagConstraints(0, 2, 1.0, 0, 2, 0, 0));
 			
-			panelLang.add(getFileTextField(), getGridBagConstraints(0, 2, 1.0, 0, 2, 0, 0));
+			panelLang.add(getFileTextField(), getGridBagConstraints(0, 3, 1.0, 0, 2, 0, 0));
 			
 			JPanel buttons = new JPanel();
 			buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
@@ -97,11 +102,11 @@ public class OptionsLangPanel extends AbstractParamPanel {
 			buttons.add(getImportButton());
 			buttons.add(getSelectionButton());
 			
-			panelLang.add(buttons, getGridBagConstraints(0, 3, 0.5, 0, 2, 0, GridBagConstraints.NORTHEAST));
+			panelLang.add(buttons, getGridBagConstraints(0, 4, 0.5, 0, 2, 0, GridBagConstraints.NORTHEAST));
 			
-			panelLang.add(restartLabel, getGridBagConstraints(0, 4, 1.0, 0, 2, 0, 0));
+			panelLang.add(restartLabel, getGridBagConstraints(0, 5, 1.0, 0, 2, 0, 0));
 			
-			panelLang.add(new JLabel(""), getGridBagConstraints(0, 5, 1.0, 1.0, 2, GridBagConstraints.BOTH, 0));
+			panelLang.add(new JLabel(""), getGridBagConstraints(0, 6, 1.0, 1.0, 2, GridBagConstraints.BOTH, 0));
 
 		}
 		return panelLang;
@@ -195,6 +200,16 @@ public class OptionsLangPanel extends AbstractParamPanel {
 		}
 		return localeSelect;
 	}
+
+	private JCheckBox getUseSystemsLocaleFormatCheckbox() {
+		if (useSystemsLocaleFormatCheckbox == null) {
+			String i18nPrefix = "options.lang.usesystemslocaleformat.";
+			useSystemsLocaleFormatCheckbox = new JCheckBox(
+					Constant.messages.getString(i18nPrefix + "label", Constant.getSystemsLocale().toString()));
+			useSystemsLocaleFormatCheckbox.setToolTipText(Constant.messages.getString(i18nPrefix + "tooltip"));
+		}
+		return useSystemsLocaleFormatCheckbox;
+	}
 	
 	private void browseButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
@@ -228,18 +243,22 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
-	    ViewLocale locale = LocaleUtils.getViewLocale(options.getViewParam().getLocale());
+	    OptionsParamView viewParam = options.getViewParam();
+	    ViewLocale locale = LocaleUtils.getViewLocale(viewParam.getLocale());
 	    localeSelect.setSelectedItem(locale);
 	    
+	    useSystemsLocaleFormatCheckbox.setSelected(viewParam.isUseSystemsLocaleForFormat());
 	}
 	
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
+	    OptionsParamView viewParam = options.getViewParam();
 	    ViewLocale selectedLocale = (ViewLocale) localeSelect.getSelectedItem();
 	    if (selectedLocale != null) {
-		    options.getViewParam().setLocale(selectedLocale.getLocale());
+	        viewParam.setLocale(selectedLocale.getLocale());
 	    }
+	    viewParam.setUseSystemsLocaleForFormat(getUseSystemsLocaleFormatCheckbox().isSelected());
 	}
 	
 	@Override

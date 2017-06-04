@@ -34,9 +34,9 @@ function scan(ps, msg, src) {
 		ps.addTag('tag')			
 	}
 	
-	// Raise less reliable alert (that is, prone to false positives) when in LOW alert threshold (level)
+	// Raise less reliable alert (that is, prone to false positives) when in LOW alert threshold
 	// Expected values: "LOW", "MEDIUM", "HIGH"
-	if (ps.getLevel() == "LOW") {
+	if (ps.getAlertThreshold() == "LOW") {
 		// ...
 	}
 }

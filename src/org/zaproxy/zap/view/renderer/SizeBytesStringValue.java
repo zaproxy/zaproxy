@@ -39,7 +39,7 @@ public class SizeBytesStringValue implements StringValue {
             Constant.messages.getString("generic.value.size.bytes.value.unit"));
 
     // Use the same NumberFormat instance since the renderes are used in EDT only.
-    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Constant.getLocale());
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
     static {
         NUMBER_FORMAT.setMaximumFractionDigits(2);
     }

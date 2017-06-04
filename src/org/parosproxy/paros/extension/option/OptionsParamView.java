@@ -34,6 +34,7 @@
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/27 Save, always, the Locale as String
 // ZAP: 2016/05/13 Add options to confirm removal of exclude from proxy, scanner and spider regexes
+// ZAP: 2017/05/29 Add option to use system's locale for formatting.
 
 package org.parosproxy.paros.extension.option;
 
@@ -80,6 +81,11 @@ public class OptionsParamView extends AbstractParam {
 	 * The configuration key used to save/load the option {@link #showLocalConnectRequests}.
 	 */
 	private static final String SHOW_LOCAL_CONNECT_REQUESTS = "view.showLocalConnectRequests";
+
+	/**
+	 * The configuration key used to save/load the option {@link #useSystemsLocaleForFormat}.
+	 */
+    private static final String USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY = BASE_VIEW_KEY + ".usesystemslocaleformat";
 
 	public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
 	public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
@@ -129,6 +135,15 @@ public class OptionsParamView extends AbstractParam {
     private boolean confirmRemoveProxyExcludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
     private boolean confirmRemoveSpiderExcludeRegex;
+
+    /**
+     * Flag that indicates if the system's locale should be used for formatting.
+     * 
+     * @see #USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY
+     * @see #isUseSystemsLocaleForFormat()
+     * @see #setUseSystemsLocaleForFormat(boolean)
+     */
+    private boolean useSystemsLocaleForFormat;
 	
     public OptionsParamView() {
     }
@@ -140,6 +155,12 @@ public class OptionsParamView extends AbstractParam {
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
 	    configLocale = getConfig().getString(LOCALE, null);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
+	    try {
+	        useSystemsLocaleForFormat = getConfig().getBoolean(USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY, true);
+	    } catch (ConversionException e) {
+	        LOGGER.error("Failed to load " + USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY, e);
+	        useSystemsLocaleForFormat = true;
+	    }
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
         responsePanelPosition = getConfig()
                 .getString(RESPONSE_PANEL_POS_KEY, WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE.name());
@@ -514,5 +535,32 @@ public class OptionsParamView extends AbstractParam {
     public void setConfirmRemoveSpiderExcludeRegex(boolean confirmRemove) {
         this.confirmRemoveSpiderExcludeRegex = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY, Boolean.valueOf(confirmRemove));
+    }
+
+    /**
+     * Sets whether or not the system's locale should be used for formatting.
+     *
+     * @param useSystemsLocale {@code true} if the system's locale should be used for formatting, {@code false} otherwise.
+     * @since TODO add version
+     * @see #isUseSystemsLocaleForFormat()
+     * @see java.util.Locale.Category#FORMAT
+     */
+    public void setUseSystemsLocaleForFormat(boolean useSystemsLocale) {
+        if (useSystemsLocaleForFormat != useSystemsLocale) {
+            useSystemsLocaleForFormat = useSystemsLocale;
+            getConfig().setProperty(USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY, useSystemsLocaleForFormat);
+        }
+    }
+
+    /**
+     * Tells whether or not the system's locale should be used for formatting.
+     *
+     * @return {@code true} if the system's locale should be used for formatting, {@code false} otherwise.
+     * @since TODO add version
+     * @see #setUseSystemsLocaleForFormat(boolean)
+     * @see java.util.Locale.Category#FORMAT
+     */
+    public boolean isUseSystemsLocaleForFormat() {
+        return useSystemsLocaleForFormat;
     }
 }

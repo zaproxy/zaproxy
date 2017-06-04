@@ -43,12 +43,20 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 	 */
 	private boolean orderChildren;
 
+	/**
+	 * Constructs an {@code ExtensionPopupMenu} with no text.
+	 */
 	public ExtensionPopupMenu() {
 		super();
 	}
 
-	public ExtensionPopupMenu(String label) {
-		super(label);
+	/**
+	 * Constructs an {@code ExtensionPopupMenu} with the given text.
+	 *
+	 * @param text the text of the menu item.
+	 */
+	public ExtensionPopupMenu(String text) {
+		super(text);
 	}
 
 	/**

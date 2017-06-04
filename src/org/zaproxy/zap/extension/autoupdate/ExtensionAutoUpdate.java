@@ -973,11 +973,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							logger.debug("Getting latest version info from " + longUrl);
 				    		try {
 				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(longUrl), getPlatform(), false);
-				    		} catch (SSLHandshakeException e2) {
-					    		if (callback != null) {
-					    			callback.insecureUrl(longUrl, e2);
-					    		}
-							} catch (InvalidCfuUrlException e2) {
+				    		} catch (SSLHandshakeException | InvalidCfuUrlException e2) {
 					    		if (callback != null) {
 					    			callback.insecureUrl(longUrl, e2);
 					    		}
@@ -985,9 +981,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 								logger.debug("Failed to access " + longUrl, e2);
 							}
 						}
-			    		if (callback != null && latestVersionInfo != null) {
-							logger.debug("Calling callback with  " + latestVersionInfo);
-			    			callback.gotLatestData(latestVersionInfo);
+						if (latestVersionInfo != null) {
+							for (AddOn addOn : latestVersionInfo.getAddOns()) {
+								AddOn localAddOn = localVersionInfo.getAddOn(addOn.getId());
+								if (localAddOn != null && !addOn.isUpdateTo(localAddOn)) {
+									addOn.setInstallationStatus(localAddOn.getInstallationStatus());
+								}
+							}
+							if (callback != null) {
+								logger.debug("Calling callback with  " + latestVersionInfo);
+								callback.gotLatestData(latestVersionInfo);
+							}
 			    		}
 						logger.debug("Done");
 	    			}
@@ -995,9 +999,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     			this.remoteCallThread.start();
     		}
     		if (callback == null) {
-    			// Synchronous, but include a 30 sec max anyway
+    			// Synchronous, but include a 60 sec max anyway, give enough(?) time for 1st request to timeout (default 20s)
+    			// and the 2nd to be fully processed (e.g. in case the connection is throttled, requires proxy authentication).
     			int i=0;
-				while (latestVersionInfo == null && this.remoteCallThread.isAlive() && i < 30) {
+				while (latestVersionInfo == null && this.remoteCallThread.isAlive() && i < 60) {
 					try {
 						Thread.sleep(1000);
 						i++;

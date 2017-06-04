@@ -1147,6 +1147,12 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    	se.eval(script.getContents());
 	    } catch (Exception e) {
 	        handleScriptException(script, writer, e);
+	    } catch (NoClassDefFoundError | ExceptionInInitializerError e) {
+	        if (e.getCause() instanceof Exception) {
+	            handleScriptException(script, writer, (Exception) e.getCause());
+	        } else {
+	            handleUnspecifiedScriptError(script, writer, e.getMessage());
+	        }
 	    }
 
 	    if (se instanceof Invocable) {
@@ -1229,7 +1235,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				s.invokeWith(msg);
 				
 			} else {
-				handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.targeted.error"));
+				handleUnspecifiedScriptError(script, writer, Constant.messages.getString("script.interface.targeted.error"));
 			}
 		
 		} catch (Exception e) {
@@ -1267,22 +1273,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #handleScriptException(ScriptWrapper, Exception)
 	 */
 	public void handleFailedScriptInterface(ScriptWrapper script, String errorMessage) {
-		handleFailedScriptInterface(script, getWriters(script), errorMessage);
+		handleUnspecifiedScriptError(script, getWriters(script), errorMessage);
 	}
 
 	/**
-	 * Handles a failed attempt to convert a script into an interface.
+	 * Handles an unspecified error that occurred while calling or invoking a script.
 	 * <p>
 	 * The given {@code errorMessage} will be written to the given {@code writer} and the given {@code script} will be disabled
 	 * and flagged that has an error.
 	 *
-	 * @param script the script that failed to be converted to an interface, must not be {@code null}
+	 * @param script the script that failed to be called/invoked, must not be {@code null}
 	 * @param writer the writer associated with the script, must not be {@code null}
 	 * @param errorMessage the message that will be written to the given {@code writer}
 	 * @see #setError(ScriptWrapper, String)
 	 * @see #setEnabled(ScriptWrapper, boolean)
 	 */
-	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) {
+	private void handleUnspecifiedScriptError(ScriptWrapper script, Writer writer, String errorMessage) {
 		try {
 			writer.append(errorMessage);
 		} catch (IOException e) {
@@ -1311,7 +1317,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				}
 				
 			} else {
-				handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.proxy.error"));
+				handleUnspecifiedScriptError(script, writer, Constant.messages.getString("script.interface.proxy.error"));
 			}
 		
 		} catch (Exception e) {
@@ -1335,7 +1341,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                     senderScript.responseReceived(msg, initiator, new HttpSenderScriptHelper(sender));
                 }
             } else {
-                handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.httpsender.error"));
+                handleUnspecifiedScriptError(script, writer, Constant.messages.getString("script.interface.httpsender.error"));
             }
         } catch (Exception e) {
             handleScriptException(script, writer, e);

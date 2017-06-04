@@ -184,6 +184,10 @@ public class GuiBootstrap extends ZapBootstrap {
 
         setupLocale(options);
 
+        if (viewParam.isUseSystemsLocaleForFormat()) {
+            Locale.setDefault(Locale.Category.FORMAT, Constant.getSystemsLocale());
+        }
+
         View.getSingleton().showSplashScreen();
 
         promptForProxyDetailsIfNeeded(options);

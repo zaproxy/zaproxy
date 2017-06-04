@@ -19,143 +19,40 @@
  */
 package org.zaproxy.zap.utils;
 
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.view.widgets.WritableFileChooser;
 /**
  * A {@code JButton} class to facilitate exporting tables (as shown) to a file (such as CSV).
  * Filters, sorting, column order, and column visibility may all impact the data exported.
  * 
  * @param <T> the type of the table.
  * @since TODO add version
+ * @see TableExportAction
  */
 public class TableExportButton<T extends JTable> extends JButton {
 
 	private static final long serialVersionUID = 3437613469695367668L;
-
-	private static final Logger LOGGER = Logger.getLogger(TableExportButton.class);
 	
-	private static final String CSV_EXTENSION = ".csv";
-
-	private T exportTable = null;
+	private final TableExportAction<T> action;
 	
 	/**
-	 * Constructs a {@code TableExportButton} for the given table.
+	 * Constructs a {@code TableExportButton} with default export action for the given table.
 	 * 
 	 * @param table the Table for which the data should be exported
 	 */
 	public TableExportButton(T table) {
-		super(Constant.messages.getString("export.button.name"));
-		setTable(table);
-		super.setIcon(new ImageIcon(TableExportButton.class.getResource("/resource/icon/16/115.png")));
-		super.addActionListener((new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory()) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void approveSelection() {
-						File file = getSelectedFile();
-						if (file != null) {
-							String filePath = file.getAbsolutePath();
-							if (!filePath.toLowerCase(Locale.ROOT).endsWith(CSV_EXTENSION)) {
-								setSelectedFile(new File(filePath + CSV_EXTENSION));
-							}
-						}
-
-						super.approveSelection();
-					}
-				};
-				chooser.setSelectedFile(new File(Constant.messages.getString("export.button.default.filename")));
-				if (chooser.showSaveDialog(View.getSingleton().getMainFrame()) == WritableFileChooser.APPROVE_OPTION) {
-					boolean success = true;
-					try (CSVPrinter pw = new CSVPrinter(
-							Files.newBufferedWriter(chooser.getSelectedFile().toPath(), StandardCharsets.UTF_8),
-							CSVFormat.DEFAULT)) {
-						pw.printRecord(getColumnNames());
-						int rowCount = getTable().getRowCount();
-						for (int row = 0; row < rowCount; row++) {
-							pw.printRecord(getRowCells(row));
-						}
-					} catch (Exception ex) {
-						success = false;
-						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
-								Constant.messages.getString("export.button.error") + "\n"
-										+ ex.getMessage());
-						LOGGER.error("Export Failed: " + ex.getMessage(), ex);
-					}
-
-					// Delay the presentation of success message, to ensure all the data was already flushed.
-					if (success) {
-						JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(),
-								Constant.messages.getString("export.button.success"));
-					}
-				}
-			}
-		}));
+		this(new TableExportAction<>(table));
 	}
 
 	/**
-	 * Gets a {@code List} of (visible) column names for the given table.
-	 * <p>
-	 * Called when exporting the column names.
-	 * 
-	 * @return the {@code List} of column names, never {@code null}.
-	 */
-	protected List<String> getColumnNames() {
-		List<String> columnNamesList = new ArrayList<String>();
-		for (int col = 0; col < getTable().getColumnCount(); col++) {
-			columnNamesList.add(getTable().getColumnModel().getColumn(col).getHeaderValue().toString());
-		}
-		return columnNamesList;
-	}
-
-	/**
-	 * Gets the cell values (in view order) for the given row.
-	 * <p>
-	 * Called for each (visible) row that's being exported.
+	 * Constructs a {@code TableExportButton} with the given export action.
 	 *
-	 * @param row the row, in view coordinates.
-	 * @return a {@code List} containing the values of the cells for the given row, never {@code null}.
+	 * @param exportAction the export action, must not be {@code null}.
 	 */
-	protected List<Object> getRowCells(int row) {
-		List<Object> cells = new ArrayList<>();
-		for (int col = 0; col < getTable().getColumnCount(); col++) {
-			Object value = getTable().getValueAt(row, col);
-			cells.add(value == null ? "" : value.toString());
-		}
-		return cells;
-	}
-	
-	/**
-	 * Gets the Table which this button is associated with.
-	 * 
-	 * @return the Table this button is associated with
-	 */
-	protected T getTable() {
-		return exportTable;
+	public TableExportButton(TableExportAction<T> exportAction) {
+		super(exportAction);
+		action = exportAction;
 	}
 	
 	/**
@@ -164,7 +61,7 @@ public class TableExportButton<T extends JTable> extends JButton {
 	 * @param table the Table this button applies to
 	 */
 	public void setTable(T table) {
-		this.exportTable = table;
+		action.setTable(table);
 	}
 	
 }

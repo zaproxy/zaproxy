@@ -38,9 +38,31 @@ public interface PassiveScanner {
 	
 	boolean isEnabled();
 	
-	AlertThreshold getLevel();
-	
-	void setLevel (AlertThreshold level);
+	/**
+	 * Gets the alert threshold of the scanner.
+	 * <p>
+	 * Default implementation returns always {@link AlertThreshold#MEDIUM}.
+	 *
+	 * @return the alert threshold of the scanner.
+	 * @deprecated (TODO add version) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
+	 */
+	@Deprecated
+	default AlertThreshold getLevel() {
+		return AlertThreshold.MEDIUM;
+	}
+
+	/**
+	 * Sets the alert threshold of the scanner.
+	 * <p>
+	 * Default implementation does nothing.
+	 *
+	 * @param level the new alert threshold.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @deprecated (TODO add version) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
+	 */
+	@Deprecated
+	default void setLevel(AlertThreshold level) {
+	}
 	
 	boolean appliesToHistoryType (int historyType);
 }
