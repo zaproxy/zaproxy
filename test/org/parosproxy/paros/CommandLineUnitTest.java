@@ -87,6 +87,25 @@ public class CommandLineUnitTest {
     }
 
     @Test
+    public void shouldAcceptNullArguments() throws Exception {
+        // Given
+        String[] args = null;
+        // When
+        cmdLine = new CommandLine(args);
+        // Then = No Exception.
+    }
+
+    @Test
+    public void shouldParseNullArguments() throws Exception {
+        // Given
+        String[] args = { null, null };
+        cmdLine = new CommandLine(args);
+        // When
+        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
+        // Then = No Exception.
+    }
+
+    @Test
     public void emptyCommandLine() throws Exception {
         cmdLine = new CommandLine(new String[] {});
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
