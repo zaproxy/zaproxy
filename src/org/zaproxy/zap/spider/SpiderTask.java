@@ -246,7 +246,7 @@ public class SpiderTask implements Runnable {
 
 		// Check if the should stop
 		if (parent.isStopped()) {
-			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, "stopped"));
+			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("stopped")));
 			log.debug("Spider process is stopped. Skipping crawling task...");
 			parent.postTaskExecution();
 			return;
@@ -258,7 +258,7 @@ public class SpiderTask implements Runnable {
 			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg));
 			processResource(msg);
 		} else {
-			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, "maxdepth"));
+			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("maxdepth")));
 		}
 
 		// Update the progress and check if the spidering process should stop
