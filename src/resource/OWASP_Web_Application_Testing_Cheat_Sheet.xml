@@ -1,0 +1,184 @@
+<methodology>
+<name>OWASP Web Application Testing Cheat Sheet</name>
+<sections>
+<section>
+<name> Information Gathering </name>
+<tasks>
+<task> Manually explore the site</task>
+<task> Spider</task>
+<task> Check for files that expose content</task>
+<task> Check the caches of major search engines for publicly accessible sites</task>
+<task> Check for differences in content based on User Agent </task>
+<task> Perform Web Application Fingerprinting</task>
+<task> Identify technologies used</task>
+<task> Identify user roles</task>
+<task> Identify application entry points</task>
+<task> Identify client-side code</task>
+<task> Identify multiple versions</task>
+<task> Identify co-hosted and related applications</task>
+<task> Identify all hostnames and ports</task>
+<task> Identify third-party hosted content</task>
+</tasks>
+</section>
+<section>
+<name> Configuration Management </name>
+<tasks>
+<task> Check for commonly used application and administrative URLs</task>
+<task> Check for old</task>
+<task> Check HTTP methods supported and Cross Site Tracing </task>
+<task> Test file extensions handling</task>
+<task> Test for security HTTP headers </task>
+<task> Test for policies </task>
+<task> Test for non-production data in live environment</task>
+<task> Check for sensitive data in client-side code </task>
+</tasks>
+</section>
+<section>
+<name> Secure Transmission </name>
+<tasks>
+<task> Check SSL Version</task>
+<task> Check for Digital Certificate Validity </task>
+<task> Check credentials only delivered over HTTPS</task>
+<task> Check session tokens only delivered over HTTPS</task>
+<task> Check if HTTP Strict Transport Security </task>
+</tasks>
+</section>
+<section>
+<name> Authentication </name>
+<tasks>
+<task> Test for user enumeration</task>
+<task> Test for authentication bypass</task>
+<task> Test for bruteforce protection</task>
+<task> Test password quality rules</task>
+<task> Test remember me functionality</task>
+<task> Test for autocomplete on password forms</task>
+<task> Test password reset and</task>
+<task> Test password change process</task>
+<task> Test CAPTCHA</task>
+<task> Test multi factor authentication</task>
+<task> Test for logout functionality presence</task>
+<task> Test for cache management on HTTP </task>
+<task> Test for default logins</task>
+<task> Test for user-accessible authentication history</task>
+<task> Test for out-of channel notification of account lockouts and successful password changes</task>
+<task> Test for consistent authentication across applications with shared authentication schema </task>
+</tasks>
+</section>
+<section>
+<name> Session Management </name>
+<tasks>
+<task> Establish how session management is handled in the application </task>
+<task> Check session tokens for cookie flags </task>
+<task> Check session cookie scope </task>
+<task> Check session cookie duration </task>
+<task> Check session termination after a maximum lifetime</task>
+<task> Check session termination after relative timeout</task>
+<task> Check session termination after logout</task>
+<task> Test to see if users can have multiple simultaneous sessions</task>
+<task> Test session cookies for randomness</task>
+<task> Confirm that new session tokens are issued on login</task>
+<task> Test for consistent session management across applications with shared session management</task>
+<task> Test for session puzzling</task>
+<task> Test for CSRF and clickjacking</task>
+</tasks>
+</section>
+<section>
+<name> Authorization </name>
+<tasks>
+<task> Test for path traversal</task>
+<task> Test for bypassing authorization schema</task>
+<task> Test for vertical Access control problems </task>
+<task> Test for horizontal Access control problems </task>
+<task> Test for missing authorization</task>
+</tasks>
+</section>
+<section>
+<name> Data Validation </name>
+<tasks>
+<task> Test for Reflected Cross Site Scripting</task>
+<task> Test for Stored Cross Site Scripting</task>
+<task> Test for DOM based Cross Site Scripting</task>
+<task> Test for Cross Site Flashing</task>
+<task> Test for HTML Injection</task>
+<task> Test for SQL Injection</task>
+<task> Test for LDAP Injection</task>
+<task> Test for ORM Injection</task>
+<task> Test for XML Injection</task>
+<task> Test for XXE Injection</task>
+<task> Test for SSI Injection</task>
+<task> Test for XPath Injection</task>
+<task> Test for XQuery Injection</task>
+<task> Test for IMAP</task>
+<task> Test for Code Injection</task>
+<task> Test for Command Injection</task>
+<task> Test for Overflow </task>
+<task> Test for Format String</task>
+<task> Test for incubated vulnerabilities</task>
+<task> Test for HTTP Splitting</task>
+<task> Test for HTTP Verb Tampering</task>
+<task> Test for Open Redirection</task>
+<task> Test for Local File Inclusion</task>
+<task> Test for Remote File Inclusion</task>
+<task> Compare client-side and server-side validation rules</task>
+<task> Test for NoSQL injection</task>
+<task> Test for HTTP parameter pollution</task>
+<task> Test for auto-binding</task>
+</tasks>
+</section>
+<section>
+<name> Denial of Service </name>
+<tasks>
+<task> Test for anti-automation</task>
+<task> Test for account lockout</task>
+<task> Test for HTTP protocol DoS</task>
+</tasks>
+</section>
+<section>
+<name> Business Logic </name>
+<tasks>
+<task> Test for feature misuse</task>
+<task> Test for lack of non-repudiation</task>
+<task> Test for trust relationships</task>
+<task> Test for integrity of data</task>
+<task> Test segregation of duties</task>
+</tasks>
+</section>
+<section>
+<name> Cryptography </name>
+<tasks>
+<task> Check if data which should be encrypted is not</task>
+<task> Check for wrong algorithms usage depending on context</task>
+<task> Check for weak algorithms usage</task>
+<task> Check for proper use of salting</task>
+<task> Check for randomness functions</task>
+</tasks>
+</section>
+<section>
+<name> Risky Functionality - File Uploads </name>
+<tasks>
+<task> Test that acceptable file types are whitelisted</task>
+<task> Test that file size limits</task>
+<task> Test that file contents match the defined file type</task>
+<task> Test that all file uploads have Anti-Virus scanning in-place</task>
+<task> Test that unsafe filenames are sanitised</task>
+<task> Test that uploaded files are not directly accessible within the web root</task>
+<task> Test that uploaded files are not served on the same hostname</task>
+<task> Test that files and other media are integrated with the authentication and authorisation schemas</task>
+</tasks>
+</section>
+<section>
+<name> Risky Functionality - Card Payment </name>
+<tasks>
+<task> Test whether card number are stored</task>
+<task> TBC</task>
+</tasks>
+</section>
+<section>
+<name> HTML 5</name>
+<tasks>
+<task> Test Web Messaging</task>
+<task> Test for Web Storage SQL injection</task>
+</tasks>
+</section>
+</sections>
+</methodology>
