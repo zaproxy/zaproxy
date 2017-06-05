@@ -478,15 +478,28 @@ def main(argv):
       while ( (datetime.now() - start_scan).seconds < delay ):
         time.sleep(5)
         logging.debug ('Delay active scan ' + str(delay - (datetime.now() - start_scan).seconds) + ' seconds')
+
+    # Set up the scan policy
+    scan_policy = 'API-Minimal'
+    if config_dict:
+      # They have supplied a config file, use this to define the ascan rules
+      # Use the default one as the script might not have write access to the one just copied across 
+      scan_policy = 'Default Policy'
+      zap.ascan.enable_all_scanners(scanpolicyname=scan_policy)
+      for scanner, state in config_dict.items():
+        if state == 'IGNORE':
+          # Dont bother checking the result - this will fail for pscan rules
+          zap.ascan.set_scanner_alert_threshold(id=scanner, alertthreshold='OFF', scanpolicyname=scan_policy)
     
     logging.debug ('Active Scan ' + target)
-    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname='API-Minimal')
+    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=scan_policy)
     time.sleep(5)
 
     while (int(zap.ascan.status(ascan_scan_id)) < 100):
       logging.debug ('Active Scan progress %: ' + zap.ascan.status(ascan_scan_id))
       time.sleep(5)
     logging.debug ('Active Scan complete')
+    logging.debug (zap.ascan.scan_progress(ascan_scan_id))
 
     # Wait for passive scanning to complete
     rtc = zap.pscan.records_to_scan
@@ -549,6 +562,7 @@ def main(argv):
         with open(base_dir + generate, 'w') as f:
           f.write ('# zap-api-scan rule configuration file\n')
           f.write ('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
+          f.write ('# Active scan rules set to IGNORE will not be run which will speed up the scan\n')
           f.write ('# Only the rule identifiers are used - the names are just for info\n')
           f.write ('# You can add your own messages to each rule by appending them after a tab on each line.\n')
           for key, rule in sorted(all_dict.iteritems()):
@@ -566,7 +580,7 @@ def main(argv):
         plugin_id = rule.get('id')
         if plugin_id in blacklist:
           continue
-        if (not alert_dict.has_key(plugin_id)):
+        if not alert_dict.has_key(plugin_id) and not (config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE'):
           pass_dict[plugin_id] = rule.get('name')
 
       if min_level == levels.index("PASS") and detailed_output:
@@ -574,6 +588,15 @@ def main(argv):
           print ('PASS: ' + rule + ' [' + key + ']')
 
       pass_count = len(pass_dict)
+
+      if detailed_output:
+        # print out the ignored ascan rules (there will be no alerts for these as they were not run)
+        for rule in all_ascan_rules:
+          plugin_id = rule.get('id')
+          if plugin_id in blacklist:
+            continue
+          if config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE':
+            print ('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
       # print out the ignored rules
       for key, alert_list in sorted(alert_dict.iteritems()):
