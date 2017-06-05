@@ -29,12 +29,14 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/03/26 Obtain configs in the order specified
+// ZAP: 2017/06/02 Add helper methods.
 
 package org.parosproxy.paros.common;
 
 import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationUtils;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.control.ControlOverrides;
@@ -127,5 +129,92 @@ public abstract class AbstractParam implements Cloneable {
      */
     public void reset() {
         // Do nothing
+    }
+
+    /**
+     * Gets the {@code String} with the given configuration key.
+     * <p>
+     * The default value is returned if the key doesn't exist or it's not a {@code String}.
+     *
+     * @param key the configuration key.
+     * @param defaultValue the default value, if the key doesn't exist or it's not a {@code String}.
+     * @return the value of the configuration, or default value.
+     * @since TODO add version
+     */
+    protected String getString(String key, String defaultValue) {
+        try {
+            return getConfig().getString(key, defaultValue);
+        } catch (ConversionException e) {
+            logConversionException(key, e);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Logs the given {@code ConversionException}, that occurred while reading the configuration with the given key.
+     *
+     * @param key the configuration key.
+     * @param e the {@code ConversionException}.
+     * @since TODO add version
+     */
+    protected static void logConversionException(String key, ConversionException e) {
+        logger.warn("Failed to read '" + key + "'", e);
+    }
+
+    /**
+     * Gets the {@code boolean} with the given configuration key.
+     * <p>
+     * The default value is returned if the key doesn't exist or it's not a {@code boolean}.
+     *
+     * @param key the configuration key.
+     * @param defaultValue the default value, if the key doesn't exist or it's not a {@code boolean}.
+     * @return the value of the configuration, or default value.
+     * @since TODO add version
+     */
+    protected boolean getBoolean(String key, boolean defaultValue) {
+        try {
+            return getConfig().getBoolean(key, defaultValue);
+        } catch (ConversionException e) {
+            logConversionException(key, e);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Gets the {@code int} with the given configuration key.
+     * <p>
+     * The default value is returned if the key doesn't exist or it's not a {@code int}.
+     *
+     * @param key the configuration key.
+     * @param defaultValue the default value, if the key doesn't exist or it's not an {@code int}.
+     * @return the value of the configuration, or default value.
+     * @since TODO add version
+     */
+    protected int getInt(String key, int defaultValue) {
+        try {
+            return getConfig().getInt(key, defaultValue);
+        } catch (ConversionException e) {
+            logConversionException(key, e);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Gets the {@code Integer} with the given configuration key.
+     * <p>
+     * The default value is returned if the key doesn't exist or it's not a {@code Integer}.
+     *
+     * @param key the configuration key.
+     * @param defaultValue the default value, if the key doesn't exist or it's not an {@code Integer}.
+     * @return the value of the configuration, or default value.
+     * @since TODO add version
+     */
+    protected Integer getInteger(String key, Integer defaultValue) {
+        try {
+            return getConfig().getInteger(key, defaultValue);
+        } catch (ConversionException e) {
+            logConversionException(key, e);
+        }
+        return defaultValue;
     }
 }
