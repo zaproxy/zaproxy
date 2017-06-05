@@ -40,12 +40,14 @@ import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
+import org.zaproxy.zap.utils.TableExportAction;
 
 /**
  * An enhanced {@code JXTable}. It has the following enhancements:
  * <ul>
  * <li>Ensures that the right-clicked row is selected before showing context menu (for installed JPopupMenu);</li>
  * <li>Allows to enable auto-scroll on new values when scroll bar is at bottom of the table (enabled by default);</li>
+ * <li>Has an export action, under the {@link org.jdesktop.swingx.table.ColumnControlPopup ColumnControlPopup};</li>
  * </ul>
  * 
  * @since 2.4.1
@@ -80,6 +82,7 @@ public class ZapTable extends JXTable {
         if (columnControl instanceof ZapColumnControlButton) {
             ZapColumnControlButton zapColumnControl = ((ZapColumnControlButton) columnControl);
             zapColumnControl.addAction(getAutoScrollAction());
+            zapColumnControl.addAction(new TableExportAction<>(this));
             zapColumnControl.populatePopup();
         }
 
