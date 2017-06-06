@@ -24,6 +24,7 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2016/07/25 Change constructor's parameter to PluginFactory
+// ZAP: 2017/06/05 Take into account the enabled state of the plugin when showing the AlertThreshold of the category.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.HashMap;
@@ -174,9 +175,9 @@ public class AllCategoryTableModel extends DefaultTableModel {
             }
             
             if (at == null) {
-                at = plugin.getAlertThreshold(true);
+                at = getAlertThreshold(plugin);
                 
-            } else if (!at.equals(plugin.getAlertThreshold(true))) {
+            } else if (!at.equals(getAlertThreshold(plugin))) {
                 // Not all the same
                 return "";
             }
@@ -187,6 +188,21 @@ public class AllCategoryTableModel extends DefaultTableModel {
         }
         
         return strToI18n(at.name());
+    }
+
+    /**
+     * Gets the appropriate {@code AlertThreshold} for the state of the given plugin.
+     * <p>
+     * If the plugin is disabled it returns {@link AlertThreshold#OFF}, otherwise it returns its {@code AlertThreshold}.
+     *
+     * @param plugin the plugin for which a {@code AlertThreshold} will be returned.
+     * @return the appropriate {@code AlertThreshold} for the plugin's state.
+     */
+    private static AlertThreshold getAlertThreshold(Plugin plugin) {
+        if (!plugin.isEnabled()) {
+            return AlertThreshold.OFF;
+        }
+        return plugin.getAlertThreshold(true);
     }
 
     private String getPluginCategoryStrength(int category) {
