@@ -88,6 +88,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	private void sessionChangedEventHandler(Session session) {
 		View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
 		View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
+		View.getSingleton().getMainFrame().setTitle(session);
 	}
 
 

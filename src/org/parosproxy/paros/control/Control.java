@@ -343,7 +343,6 @@ public class Control extends AbstractControl implements SessionListener {
 					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
 
 					// refresh display
-					view.getMainFrame().setTitle(session.getSessionName());
 					view.getOutputPanel().clear();
 				}
 			});
@@ -413,7 +412,6 @@ public class Control extends AbstractControl implements SessionListener {
 			});
 			
 			// refresh display
-			view.getMainFrame().setTitle(session.getSessionName());
 			view.getOutputPanel().clear();
 		}
 		

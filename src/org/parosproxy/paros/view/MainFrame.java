@@ -27,6 +27,7 @@
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
 
 package org.parosproxy.paros.view;
 
@@ -35,6 +36,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.net.URL;
 
 import javax.swing.AbstractAction;
@@ -52,6 +54,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.ZapToggleButton;
@@ -644,12 +647,37 @@ public class MainFrame extends AbstractFrame {
 	/**
 	 * Sets the title of the main window.
 	 * <p>
+	 * The actual title set is the current session name, then the filename of the session (if persisted), 
+	 * followed by the program name and version.
+	 * 
+	 * @param session the {@code Session} from which the window title is being built
+	 * 
+	 * @see Constant#PROGRAM_NAME
+	 * @see Constant#PROGRAM_VERSION
+	 * @since TODO add version
+	 */
+	public void setTitle(Session session) {
+		StringBuilder strBuilder = new StringBuilder();
+		strBuilder.append(session.getSessionName()).append(" - ");
+		if (!session.isNewState()) {
+			File file = new File(session.getFileName());
+			strBuilder.append(file.getName().replaceAll(".session\\z", "")).append(" - ");
+		}
+		strBuilder.append(Constant.PROGRAM_NAME).append(' ').append(Constant.PROGRAM_VERSION);
+		super.setTitle(strBuilder.toString());
+	}
+	
+	/**
+	 * Sets the title of the main window.
+	 * <p>
 	 * The actual title set is the given {@code title} followed by the program name and version.
 	 * 
 	 * @see Constant#PROGRAM_NAME
 	 * @see Constant#PROGRAM_VERSION
+	 * @deprecated as of TODO add version, replaced by {@link #setTitle(Session)}
 	 */
-	@Override
+	@Override 
+	@Deprecated
 	public void setTitle(String title) {
 		StringBuilder strBuilder = new StringBuilder();
 		if (title != null && !title.isEmpty()) {
