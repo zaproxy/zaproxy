@@ -101,6 +101,16 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	}
 
 	@Override
+	public void sessionPropertiesChanged(Session session) {
+		if (EventQueue.isDispatchThread()) {
+			View.getSingleton().getMainFrame().setTitle(session);
+			return;
+		}
+
+		EventQueue.invokeLater(() -> sessionPropertiesChanged(session));
+	}
+
+	@Override
 	public boolean isCore() {
 		return true;
 	}

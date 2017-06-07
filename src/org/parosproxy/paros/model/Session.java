@@ -69,6 +69,7 @@
 // ZAP: 2017/01/04 Remove dependency on ExtensionSpider
 // ZAP: 2017/01/26 Remove dependency on ExtensionActiveScan
 // ZAP: 2017/03/13 Remove global excluded URLs from Session's state.
+// ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 
 package org.parosproxy.paros.model;
 
@@ -560,6 +561,25 @@ public class Session {
 			}
     	}
 		
+		model.getDb().getTableSession().update(getSessionId(), getSessionName());
+	}
+
+	/**
+	 * Persists the properties (e.g. name, description) of the session.
+	 * <p>
+	 * Should be called only by "core" classes.
+	 *
+	 * @throws Exception if an error occurred while persisting the properties.
+	 * @since TODO add version
+	 * @see #setSessionName(String)
+	 * @see #setSessionDesc(String)
+	 */
+	protected void persistProperties() throws Exception {
+		if (isNewState()) {
+			return;
+		}
+
+		configuration.save(new File(fileName));
 		model.getDb().getTableSession().update(getSessionId(), getSessionName());
 	}
 	
