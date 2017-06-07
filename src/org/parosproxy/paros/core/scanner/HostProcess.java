@@ -67,6 +67,7 @@
 // ZAP: 2017/03/20 Improve node enumeration in pre-scan phase.
 // ZAP: 2017/03/20 Log the number of messages sent by the scanners, when finished.
 // ZAP: 2017/03/25 Ensure messages to be scanned have a response.
+// ZAP: 2017/06/07 Scan just one node with AbstractHostPlugin (they apply to the whole host not individual messages).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -296,15 +297,15 @@ public class HostProcess implements Runnable {
         log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
                 + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
         
-        for (StructuralNode startNode : startNodes) {
-	        if (plugin instanceof AbstractHostPlugin) {
-	            if (!scanSingleNode(plugin, startNode)) {
-	                // Mark the plugin as as completed if it was not run so the scan process can continue as expected.
-	                // The plugin might not be run if the startNode: is not in scope, is explicitly excluded, ...
-	                pluginCompleted(plugin);
-	            }
-	            
-	        } else if (plugin instanceof AbstractAppPlugin) {
+        if (plugin instanceof AbstractHostPlugin) {
+            if (!scanSingleNode(plugin, startNodes.get(0))) {
+                // Mark the plugin as as completed if it was not run so the scan process can continue as expected.
+                // The plugin might not be run if the startNode: is not in scope, is explicitly excluded, ...
+                pluginCompleted(plugin);
+            }
+
+        } else if (plugin instanceof AbstractAppPlugin) {
+            for (StructuralNode startNode : startNodes) {
 	            try {
 	                traverse(startNode, true, new TraverseAction() {
 
