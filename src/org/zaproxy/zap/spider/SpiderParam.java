@@ -233,45 +233,19 @@ public class SpiderParam extends AbstractParam {
 	protected void parse() {
 		updateOptions();
 
-		// Use try/catch for every parameter so if the parsing of one fails, it's continued for the
-		// others.
-		try {
-			this.threadCount = getConfig().getInt(SPIDER_THREAD, 2);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.threadCount = getInt(SPIDER_THREAD, 2);
 
-		try {
-			this.maxDepth = getConfig().getInt(SPIDER_MAX_DEPTH, 5);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.maxDepth = getInt(SPIDER_MAX_DEPTH, 5);
 
-		try {
-			this.maxDuration = getConfig().getInt(MAX_DURATION, 0);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.maxDuration = getInt(MAX_DURATION, 0);
 
-		try {
-			this.maxChildren = getConfig().getInt(MAX_CHILDREN, 0);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.maxChildren = getInt(MAX_CHILDREN, 0);
 
-		try {
-            this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
-        } catch (Exception e) {}
+		this.maxScansInUI = getInt(MAX_SCANS_IN_UI, 5);
 
-		try {
-            this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
-        } catch (Exception e) {}
+		this.showAdvancedDialog = getBoolean(SHOW_ADV_DIALOG, false);
 
-		try {
-			this.processForm = getConfig().getBoolean(SPIDER_PROCESS_FORM, false);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.processForm = getBoolean(SPIDER_PROCESS_FORM, false);
 
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
@@ -279,98 +253,38 @@ public class SpiderParam extends AbstractParam {
 			// conversion issue from 1.4.1: convert the field from int to boolean
 			log.info("Warning while parsing config file: " + SPIDER_POST_FORM
 					+ " was not in the expected format due to an upgrade. Converting  it!");
-			if (!getConfig().getProperty(SPIDER_POST_FORM).toString().equals("0")) {
-				getConfig().setProperty(SPIDER_POST_FORM, "true");
-				this.postForm = true;
-			} else {
-				getConfig().setProperty(SPIDER_POST_FORM, "false");
-				this.postForm = false;
-			}
+			this.postForm = !getConfig().getProperty(SPIDER_POST_FORM).toString().equals("0");
+			getConfig().setProperty(SPIDER_POST_FORM, String.valueOf(postForm));
 		}
 
-		try {
-			this.requestWait = getConfig().getInt(SPIDER_REQUEST_WAIT, 200);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.requestWait = getInt(SPIDER_REQUEST_WAIT, 200);
 
-		try {
-			this.parseComments = getConfig().getBoolean(SPIDER_PARSE_COMMENTS, true);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseComments = getBoolean(SPIDER_PARSE_COMMENTS, true);
 
-		try {
-			this.parseRobotsTxt = getConfig().getBoolean(SPIDER_PARSE_ROBOTS_TXT, true);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseRobotsTxt = getBoolean(SPIDER_PARSE_ROBOTS_TXT, true);
 		
-		try {
-			this.parseSitemapXml = getConfig().getBoolean(SPIDER_PARSE_SITEMAP_XML, true);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseSitemapXml = getBoolean(SPIDER_PARSE_SITEMAP_XML, true);
 		
-		try {
-			this.parseSVNentries = getConfig().getBoolean(SPIDER_PARSE_SVN_ENTRIES, false);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseSVNentries = getBoolean(SPIDER_PARSE_SVN_ENTRIES, false);
 
-		try {
-			this.parseGit = getConfig().getBoolean(SPIDER_PARSE_GIT, false);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseGit = getBoolean(SPIDER_PARSE_GIT, false);
 
-		try {
-			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.skipURL = getString(SPIDER_SKIP_URL, "");
+		parseSkipURL(this.skipURL);
 
-		try {
-			setHandleParameters(HandleParametersOption.valueOf(getConfig().getString(SPIDER_HANDLE_PARAMETERS,
-					HandleParametersOption.USE_ALL.toString())));
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		handleParametersVisited = HandleParametersOption.valueOf(getString(SPIDER_HANDLE_PARAMETERS,
+				HandleParametersOption.USE_ALL.toString()));
 		
-		try {
-			this.handleODataParametersVisited = getConfig().getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.handleODataParametersVisited = getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false);
 
 		loadDomainsAlwaysInScope();
-		try {
-		    this.confirmRemoveDomainAlwaysInScope = getConfig().getBoolean(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, true);
-		} catch (ConversionException e) {
-		    log.error("Error while loading the confirm \"domain always in scope\" remove option: " + e.getMessage(), e);
-		}
+		this.confirmRemoveDomainAlwaysInScope = getBoolean(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, true);
 
-		try {
-			this.sendRefererHeader = getConfig().getBoolean(SPIDER_SENDER_REFERER_HEADER, true);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-			sendRefererHeader = true;
-		}
+		this.sendRefererHeader = getBoolean(SPIDER_SENDER_REFERER_HEADER, true);
 
-		try {
-			this.acceptCookies = getConfig().getBoolean(SPIDER_ACCEPT_COOKIES, true);
-		} catch (ConversionException e) {
-			log.error("Error while loading the option \"" + SPIDER_ACCEPT_COOKIES + "\": " + e.getMessage(), e);
-			acceptCookies = true;
-		}
+		this.acceptCookies = getBoolean(SPIDER_ACCEPT_COOKIES, true);
 
-        try {
-            this.maxParseSizeBytes = getConfig().getInteger(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
-        } catch (ConversionException e) {
-            log.error("Error while loading the option \"" + SPIDER_MAX_PARSE_SIZE_BYTES + "\": " + e.getMessage(), e);
-            maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
-        }
-		
+		this.maxParseSizeBytes = getInt(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
 	}
 
     private void updateOptions() {
