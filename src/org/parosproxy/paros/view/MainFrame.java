@@ -658,10 +658,12 @@ public class MainFrame extends AbstractFrame {
 	 */
 	public void setTitle(Session session) {
 		StringBuilder strBuilder = new StringBuilder();
-		strBuilder.append(session.getSessionName()).append(" - ");
-		if (!session.isNewState()) {
-			File file = new File(session.getFileName());
-			strBuilder.append(file.getName().replaceAll(".session\\z", "")).append(" - ");
+		if (session != null) {
+			strBuilder.append(session.getSessionName()).append(" - ");
+			if (!session.isNewState()) {
+				File file = new File(session.getFileName());
+				strBuilder.append(file.getName().replaceAll(".session\\z", "")).append(" - ");
+			}
 		}
 		strBuilder.append(Constant.PROGRAM_NAME).append(' ').append(Constant.PROGRAM_VERSION);
 		super.setTitle(strBuilder.toString());
