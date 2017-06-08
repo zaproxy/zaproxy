@@ -65,6 +65,7 @@ import org.parosproxy.paros.network.HttpHeader;
  *  String, String, String) to preserve the intended request URI.
  *  - Change the way cookie headers are handled when using forced user mode, put all the headers in a single line see ISSUE 1874
  *  - Do not add a User-Agent header by default.
+ *  - Removed the #addHostRequestHeader method call from #addRequestHeaders to prevent the overwriting of host header.
  * 
  */
 /**
@@ -1551,7 +1552,6 @@ public abstract class HttpMethodBase implements HttpMethod {
         LOG.trace("enter HttpMethodBase.addRequestHeaders(HttpState, "
             + "HttpConnection)");
 
-        addHostRequestHeader(state, conn);
         addCookieRequestHeader(state, conn);
         addProxyConnectionHeader(state, conn);
     }
