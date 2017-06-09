@@ -78,8 +78,9 @@ public class AntiCsrfAPI extends ApiImplementor {
 				    charset = " charset=" + charset;
 				}
 
-	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset, response.length()));
+	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset));
 		    	msg.setResponseBody(response);
+		    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 				
 			} catch (NumberFormatException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID);
