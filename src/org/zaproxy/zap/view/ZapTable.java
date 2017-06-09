@@ -82,7 +82,10 @@ public class ZapTable extends JXTable {
         if (columnControl instanceof ZapColumnControlButton) {
             ZapColumnControlButton zapColumnControl = ((ZapColumnControlButton) columnControl);
             zapColumnControl.addAction(getAutoScrollAction());
-            zapColumnControl.addAction(new TableExportAction<>(this));
+            TableExportAction<ZapTable> exportAction = createTableExportAction();
+            if (exportAction != null) {
+                zapColumnControl.addAction(exportAction);
+            }
             zapColumnControl.populatePopup();
         }
 
@@ -94,6 +97,19 @@ public class ZapTable extends JXTable {
             autoScrollAction = new AutoScrollAction(this);
         }
         return autoScrollAction;
+    }
+
+    /**
+     * Creates the action to export the table.
+     * <p>
+     * Called when customising the {@link ZapColumnControlButton}.
+     *
+     * @return the action to export the table, might be {@code null}.
+     * @since TODO add version
+     * @see #getColumnControl()
+     */
+    protected TableExportAction<ZapTable> createTableExportAction() {
+        return new TableExportAction<>(this);
     }
 
     /**
