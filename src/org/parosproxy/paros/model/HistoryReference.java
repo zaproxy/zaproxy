@@ -50,6 +50,7 @@
 // ZAP: 2017/05/03 Notify tag changes.
 // ZAP: 2017/05/17 Allow to obtain the tags of a message.
 // ZAP: 2017/05/31 Add a multi-catch for a specific handler. 
+// ZAP: 2017/06/08 Allow to keep the HttpMessage in memory for immediate reuse.
 
 package org.parosproxy.paros.model;
 
@@ -278,6 +279,7 @@ public class HistoryReference {
 
     private static Logger log = Logger.getLogger(HistoryReference.class);
 
+    private HttpMessage httpMessage;
     private HttpMessageCachedData httpMessageCachedData;
 
 	/**
@@ -288,6 +290,26 @@ public class HistoryReference {
     }
 
     public HistoryReference(int historyId) throws HttpMalformedHeaderException, DatabaseException {
+		this(historyId, false);
+	}
+
+	/**
+	 * Constructs a {@code HistoryReference} with the given ID and whether or not the {@code HttpMessage} read from the database
+	 * should be kept in memory.
+	 * <p>
+	 * <strong>Note:</strong> This constructor should be used with care as the {@code HttpMessage} might be kept in memory
+	 * (until this instance is garbage collected or {@link #clearHttpMessage() manually cleared}). It should be used only when
+	 * the contents of the {@code HttpMessage} are used immediately after creating the {@code HistoryReference}, avoiding
+	 * reading the {@code HttpMessage} once again.
+	 *
+	 * @param historyId the ID of the message persisted to database
+	 * @param keepMessage {@code true} if the {@code HttpMessage} should be kept in memory, {@code false} otherwise.
+	 * @throws HttpMalformedHeaderException if an error occurred while parsing the message.
+	 * @throws DatabaseException if an error occurred while reading the message.
+	 * @since TODO add version
+	 * @see #getHttpMessage()
+	 */
+	public HistoryReference(int historyId, boolean keepMessage) throws HttpMalformedHeaderException, DatabaseException {
 		RecordHistory history = null;
 		this.icons =  new ArrayList<>();
 		this.clearIfManual = new ArrayList<>();
@@ -301,6 +323,10 @@ public class HistoryReference {
 
 		
 		build(history.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
+
+		if (keepMessage) {
+			httpMessage = msg;
+		}
 	}
 	
 	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, DatabaseException {
@@ -391,6 +417,10 @@ public class HistoryReference {
 	 * @throws SQLException the sQL exception
 	 */
 	public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, DatabaseException {
+		if (httpMessage != null) {
+			return httpMessage;
+		}
+
 		// fetch complete message
 		RecordHistory history = staticTableHistory.read(historyId);
 		if (history == null) {
@@ -399,6 +429,16 @@ public class HistoryReference {
 		// ZAP: Init HttpMessage HistoryReference field
 		history.getHttpMessage().setHistoryRef(this);
 		return history.getHttpMessage();
+	}
+
+	/**
+	 * Clears the {@code HttpMessage} kept in memory.
+	 * 
+	 * @since TODO add version
+	 * @see #HistoryReference(int, boolean)
+	 */
+	public void clearHttpMessage() {
+		httpMessage = null;
 	}
 	
 	public URI getURI() {
