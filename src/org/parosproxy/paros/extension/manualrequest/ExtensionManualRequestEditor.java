@@ -40,9 +40,11 @@
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added getUIName()
+// ZAP: 2017/06/06 Clear dialogues in EDT.
 
 package org.parosproxy.paros.extension.manualrequest;
 
+import java.awt.EventQueue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -147,10 +149,15 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 
 	@Override
 	public void sessionChanged(Session session) {
-		for (Entry<Class<? extends Message>, ManualRequestEditorDialog> dialogue : dialogues.entrySet()) {
-			dialogue.getValue().clear();
-			dialogue.getValue().setDefaultMessage();
+		if (EventQueue.isDispatchThread()) {
+			for (Entry<Class<? extends Message>, ManualRequestEditorDialog> dialogue : dialogues.entrySet()) {
+				dialogue.getValue().clear();
+				dialogue.getValue().setDefaultMessage();
+			}
+			return;
 		}
+
+		EventQueue.invokeLater(() -> sessionChanged(session));
 	}
 
 	@Override

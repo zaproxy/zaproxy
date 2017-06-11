@@ -24,6 +24,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.zaproxy.zap.extension.api.ApiException;
+
+import net.sf.json.JSONObject;
 
 /**
  * Unit test for {@link ApiUtils}.
@@ -31,6 +34,57 @@ import org.junit.Test;
 public class ApiUtilsUnitTest {
 
     private static final String HOST = "example.com";
+
+    @Test(expected = NullPointerException.class)
+    public void shouldThrowNullPointerExceptionWhenGettingIntFromNullParams() throws Exception {
+        // Given
+        JSONObject params = null;
+        // When
+        ApiUtils.getIntParam(params, "name");
+        // Then = NullPointerException
+    }
+
+    @Test
+    public void shouldThrowMissingParameterWhenGettingIntIfMissingParam() {
+        // Given
+        String name = "ParamNotInObject";
+        JSONObject params = new JSONObject();
+        try {
+            // When
+            ApiUtils.getIntParam(params, name);
+        } catch (ApiException e) {
+            // Then
+            assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
+        }
+    }
+
+    @Test
+    public void shouldThrowIllegalParameterWhenGettingIntIfParamNotInt() {
+        // Given
+        String name = "ParamNotInt";
+        JSONObject params = new JSONObject();
+        params.put(name, "String");
+        try {
+            // When
+            ApiUtils.getIntParam(params, name);
+        } catch (ApiException e) {
+            // Then
+            assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
+        }
+    }
+
+    @Test
+    public void shouldReturnIntValueWhenGettingInt() throws Exception {
+        // Given
+        String name = "ParamInt";
+        int value = 0;
+        JSONObject params = new JSONObject();
+        params.put(name, value);
+        // When
+        int obtainedValue = ApiUtils.getIntParam(params, name);
+        // Then
+        assertThat(obtainedValue, is(equalTo(value)));
+    }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenGettingAuthorityFromNullSite() {

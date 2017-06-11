@@ -23,11 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -199,46 +197,14 @@ public class AuthenticationAPI extends ApiImplementor {
 	}
 
 	/**
-	 * Gets the context from the parameters or throws a Missing Parameter exception, if any problems
-	 * occured.
+	 * Gets the context from the given parameters.
 	 * 
 	 * @param params the params
-	 * @return the context
-	 * @throws ApiException the api exception
+	 * @return the context, never {@code null}.
+	 * @throws ApiException if the ID of the context is not provided/valid or the context does not exist.
 	 */
 	private Context getContext(JSONObject params) throws ApiException {
-		// NOTE: Still use this method as maybe we'll switch to using context names instead of id
-		int contextId = getContextId(params);
-		Context context = Model.getSingleton().getSession().getContext(contextId);
-		if (context == null)
-			throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
-		return context;
-	}
-
-	/**
-	 * Gets the context id from the parameters or throws a Missing Parameter exception, if any
-	 * problems occured.
-	 * 
-	 * @param params the params
-	 * @return the context id
-	 * @throws ApiException the api exception
-	 */
-	private int getContextId(JSONObject params) throws ApiException {
-		try {
-			return params.getInt(PARAM_CONTEXT_ID);
-		} catch (JSONException ex) {
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private boolean hasContextId(JSONObject params) {
-		try {
-			params.getInt(PARAM_CONTEXT_ID);
-		} catch (JSONException ex) {
-			return false;
-		}
-		return true;
+		return ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
 	}
 
 }

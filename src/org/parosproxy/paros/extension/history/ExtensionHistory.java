@@ -76,11 +76,14 @@
 // ZAP: 2017/05/01 Issue 3446 - Add ability to export a Site Map via Context Menu.
 // ZAP: 2017/05/02 Move alert related code to ExtensionAlert.
 // ZAP: 2017/05/03 Register and process events from HistoryReference.
+// ZPA: 2017/06/05 Sync HistoryReference cache.
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -155,7 +158,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private String linkWithSitesTreeBaseUri;
 	
 	// Used to cache hrefs not added into the historyList
-	private ReferenceMap historyIdToRef = new ReferenceMap();
+	@SuppressWarnings("unchecked")
+	private Map<Integer, HistoryReference> historyIdToRef = Collections.synchronizedMap(new ReferenceMap());
 
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
@@ -327,7 +331,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		if (href != null) {
 			return href;
 		}
-		href = (HistoryReference) historyIdToRef.get(historyId);
+		href = historyIdToRef.get(historyId);
 		if (href == null) {		
 			try {
 				href = new HistoryReference(historyId);

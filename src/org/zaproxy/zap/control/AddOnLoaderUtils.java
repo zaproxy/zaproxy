@@ -112,7 +112,7 @@ final class AddOnLoaderUtils {
             T instance = c.newInstance();
             return instance;
         } catch (Exception e) {
-            LOGGER.debug(e.getMessage(), e);
+            LOGGER.error("Failed to initialise: " + classname, e);
         }
         return null;
     }

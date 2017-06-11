@@ -36,6 +36,7 @@
 // ZAP: 2016/11/07 Allow to disable default standard output logging
 // ZAP: 2017/03/26 Allow to obtain configs in the order specified
 // ZAP: 2017/05/12 Issue 3460: Support -suppinfo 
+// ZAP: 2017/05/31 Handle null args and include a message in all exceptions.
 
 package org.parosproxy.paros;
 
@@ -96,7 +97,7 @@ public class CommandLine {
     private boolean experimentalDb = false;
     private int port = -1;
     private String host = null;
-    private String[] args = null;
+    private String[] args;
     private final Map<String, String> configs = new LinkedHashMap<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
     private List<CommandLineArgument[]> commandList = null;
@@ -107,7 +108,7 @@ public class CommandLine {
     private boolean noStdOutLog;
 
     public CommandLine(String[] args) throws Exception {
-        this.args = args;
+        this.args = args == null ? new String[0] : args;
         parseFirst(this.args);
     }
 
@@ -121,7 +122,7 @@ public class CommandLine {
         if (key.equalsIgnoreCase(paramName)) {
             value = args[i + 1];
             if (value == null) {
-                throw new Exception();
+                throw new Exception("Missing parameter for keyword '" + paramName + "'.");
             }
             
             keywords.put(paramName, value);
@@ -364,14 +365,10 @@ public class CommandLine {
             File confFile = new File(conf);
             if (! confFile.isFile()) {
                 // We cant use i18n here as the messages wont have been loaded
-                String error = "No such file: " + confFile.getAbsolutePath();
-                System.out.println(error);
-                throw new Exception(error);
+                throw new Exception("No such file: " + confFile.getAbsolutePath());
             } else if (! confFile.canRead()) {
                 // We cant use i18n here as the messages wont have been loaded
-                String error = "File not readable: " + confFile.getAbsolutePath();
-                System.out.println(error);
-                throw new Exception(error);
+                throw new Exception("File not readable: " + confFile.getAbsolutePath());
             }
             Properties prop = new Properties();
             try (FileInputStream inStream = new FileInputStream(confFile)) {
