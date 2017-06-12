@@ -254,6 +254,18 @@ def zap_ajax_spider(zap, target, max_time):
     logging.debug('Ajax Spider complete')
 
 
+def zap_active_scan(zap, target, policy):
+    logging.debug('Active Scan ' + target + ' with policy ' + policy)
+    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)
+    time.sleep(5)
+
+    while(int(zap.ascan.status(ascan_scan_id)) < 100):
+        logging.debug('Active Scan progress %: ' + zap.ascan.status(ascan_scan_id))
+        time.sleep(5)
+    logging.debug('Active Scan complete')
+    logging.debug(zap.ascan.scan_progress(ascan_scan_id))
+
+
 def zap_wait_for_passive_scan(zap):
     rtc = zap.pscan.records_to_scan
     logging.debug('Records to scan...')
