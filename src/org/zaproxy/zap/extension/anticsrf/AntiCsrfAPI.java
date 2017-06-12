@@ -79,8 +79,9 @@ public class AntiCsrfAPI extends ApiImplementor {
 				    charset = " charset=" + charset;
 				}
 
-	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset, response.length()));
+	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset));
 		    	msg.setResponseBody(response);
+		    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 				
 			} catch (HttpMalformedHeaderException e) {
 				throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr, e);
