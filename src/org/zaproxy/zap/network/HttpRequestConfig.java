@@ -30,14 +30,18 @@ public class HttpRequestConfig {
 
     private final boolean followRedirects;
     private final HttpRedirectionValidator redirectionValidator;
+    private final boolean notifyListeners;
 
-    HttpRequestConfig(boolean followRedirects, HttpRedirectionValidator redirectionValidator) {
+    HttpRequestConfig(boolean followRedirects, HttpRedirectionValidator redirectionValidator, boolean notifyListeners) {
         this.followRedirects = followRedirects;
         this.redirectionValidator = redirectionValidator;
+        this.notifyListeners = notifyListeners;
     }
 
     /**
      * Tells whether or not the redirects should be followed.
+     * <p>
+     * Default value: {@code false}.
      *
      * @return {@code true} if the redirects should be followed, {@code false} otherwise.
      * @see #getRedirectionValidator()
@@ -48,12 +52,27 @@ public class HttpRequestConfig {
 
     /**
      * Gets the {@code HttpRedirectionValidator}, to validate the followed redirections.
+     * <p>
+     * Default value: {@link DefaultHttpRedirectionValidator#INSTANCE}.
      *
      * @return the validator responsible for validation of redirections, never {@code null}.
      * @see #isFollowRedirects()
      */
     public HttpRedirectionValidator getRedirectionValidator() {
         return redirectionValidator;
+    }
+
+    /**
+     * Tells whether or not {@link HttpSenderListener}s should be notified before sending the request and after receiving the
+     * response.
+     * <p>
+     * Default value: {@code true}.
+     *
+     * @return {@code true} if the listeners should be notified, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public boolean isNotifyListeners() {
+        return notifyListeners;
     }
 
     /**
@@ -86,15 +105,18 @@ public class HttpRequestConfig {
 
         private boolean followRedirects;
         private HttpRedirectionValidator redirectionValidator;
+        private boolean notifyListeners;
 
         private Builder() {
             this.followRedirects = false;
             this.redirectionValidator = DefaultHttpRedirectionValidator.INSTANCE;
+            this.notifyListeners = true;
         }
 
         private Builder(HttpRequestConfig config) {
             this.followRedirects = config.isFollowRedirects();
             this.redirectionValidator = config.getRedirectionValidator();
+            this.notifyListeners = config.isNotifyListeners();
         }
 
         /**
@@ -129,12 +151,25 @@ public class HttpRequestConfig {
         }
 
         /**
+         * Sets whether or not {@link HttpSenderListener}s should be notified before sending the request and after receiving the
+         * response.
+         *
+         * @param notifyListeners {@code true} if the listeners should be notified, {@code false} otherwise.
+         * @return the builder.
+         * @since TODO add version
+         */
+        public Builder setNotifyListeners(boolean notifyListeners) {
+            this.notifyListeners = notifyListeners;
+            return this;
+        }
+
+        /**
          * Builds a new {@code HttpRequestConfig}, with the configurations previously set.
          *
          * @return a new {@code HttpRequestConfig}.
          */
         public HttpRequestConfig build() {
-            return new HttpRequestConfig(followRedirects, redirectionValidator);
+            return new HttpRequestConfig(followRedirects, redirectionValidator, notifyListeners);
         }
     }
 }
