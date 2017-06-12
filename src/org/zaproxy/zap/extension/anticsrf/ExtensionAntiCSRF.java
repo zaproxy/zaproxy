@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -400,48 +401,56 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		ExtensionHistory extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
 		if (extHist != null) {
 			HistoryReference hr = extHist.getHistoryReference(hrefId);
-			if (hr == null) {
-				return null;
+			if (hr != null) {
+				return generateForm(hr.getHttpMessage());
 			}
-			HttpMessage msg = hr.getHttpMessage();
-			StringBuilder sb = new StringBuilder(300);
-			sb.append("<html>\n");
-			sb.append("<body>\n");
-			sb.append("<h3>");
-			sb.append(msg.getRequestHeader().getURI());
-			sb.append("</h3>");
-			sb.append("<form id=\"f1\" method=\"POST\" action=\"" + hr.getURI() + "\">\n");
-			sb.append("<table>\n");
-			
-			TreeSet<HtmlParameter> params = msg.getFormParams();
-			// Let the message be GC'ed as it's no longer needed.
-			msg = null;
-			Iterator<HtmlParameter> iter = params.iterator();
-			while (iter.hasNext()) {
-				HtmlParameter htmlParam = iter.next();
-				String name = URLDecoder.decode(htmlParam.getName(), "UTF-8");
-				String value = URLDecoder.decode(htmlParam.getValue(), "UTF-8");
-				sb.append("<tr><td>\n");
-				sb.append(name);
-				sb.append("<td>");
-				sb.append("<input name=\"");
-				sb.append(name);
-				sb.append("\" value=\"");
-				sb.append(value);
-				sb.append("\" size=\"100\">");
-				sb.append("</tr>\n");
-			}
-
-			sb.append("</table>\n");
-			sb.append("<input id=\"submit\" type=\"submit\" value=\"Submit\"/>\n");
-			sb.append("</form>\n");
-			sb.append("</body>\n");
-			sb.append("</html>\n");
-
-			return sb.toString();
+		}
+		return null;
+	}
+	
+	/**
+	 * Generates a HTML form from the given message.
+	 *
+	 * @param msg the message used to generate the HTML form, must not be {@code null}.
+	 * @return a string containing the HTML form, never {@code null}.
+	 * @throws UnsupportedEncodingException if an error occurred while encoding the values of the form.
+	 * @since TODO add version
+	 */
+	public String generateForm(HttpMessage msg) throws UnsupportedEncodingException {
+		String requestUri = msg.getRequestHeader().getURI().toString();
+		StringBuilder sb = new StringBuilder(300);
+		sb.append("<html>\n");
+		sb.append("<body>\n");
+		sb.append("<h3>");
+		sb.append(requestUri);
+		sb.append("</h3>");
+		sb.append("<form id=\"f1\" method=\"POST\" action=\"").append(requestUri).append("\">\n");
+		sb.append("<table>\n");
+		
+		TreeSet<HtmlParameter> params = msg.getFormParams();
+		Iterator<HtmlParameter> iter = params.iterator();
+		while (iter.hasNext()) {
+			HtmlParameter htmlParam = iter.next();
+			String name = URLDecoder.decode(htmlParam.getName(), "UTF-8");
+			String value = URLDecoder.decode(htmlParam.getValue(), "UTF-8");
+			sb.append("<tr><td>\n");
+			sb.append(name);
+			sb.append("<td>");
+			sb.append("<input name=\"");
+			sb.append(name);
+			sb.append("\" value=\"");
+			sb.append(value);
+			sb.append("\" size=\"100\">");
+			sb.append("</tr>\n");
 		}
 
-		return null;
+		sb.append("</table>\n");
+		sb.append("<input id=\"submit\" type=\"submit\" value=\"Submit\"/>\n");
+		sb.append("</form>\n");
+		sb.append("</body>\n");
+		sb.append("</html>\n");
+
+		return sb.toString();
 	}
 
 	static interface HistoryReferenceFactory {
