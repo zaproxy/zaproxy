@@ -67,6 +67,7 @@
 // ZAP: 2016/08/18 Hook ApiImplementor
 // ZAP: 2016/11/23 Call postInit() when starting an extension, startLifeCycle(Extension).
 // ZAP: 2017/02/19 Hook/remove extensions' components to/from the main tool bar.
+// ZAP: 2017/06/07 Allow to notify of changes in the session's properties (e.g. name, description).
 
 package org.parosproxy.paros.extension;
 
@@ -505,6 +506,30 @@ public class ExtensionLoader {
                         listener.sessionModeChanged(mode);
                     }
                     
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies that the properties (e.g. name, description) of the current session were changed.
+     * <p>
+     * Should be called only by "core" classes.
+     * 
+     * @param session the session changed.
+     * @since TODO add version
+     */
+    public void sessionPropertiesChangedAllPlugin(Session session) {
+        logger.debug("sessionPropertiesChangedAllPlugin");
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (SessionChangedListener listener : hook.getSessionListenerList()) {
+                try {
+                    if (listener != null) {
+                        listener.sessionPropertiesChanged(session);
+                    }
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }

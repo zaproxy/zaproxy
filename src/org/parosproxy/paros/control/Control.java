@@ -65,6 +65,7 @@
 // ZAP: 2017/03/10 Reset proxy excluded URLs on new session
 // ZAP: 2017/03/13 Set global excluded URLs to the proxy when creating a new session or initialising.
 // ZAP: 2017/03/16 Allow to initialise Control without starting the Local Proxy.
+// ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 
 package org.parosproxy.paros.control;
 
@@ -461,6 +462,19 @@ public class Control extends AbstractControl implements SessionListener {
 		lastCallback = callback;
 		model.saveSession(fileName, this);
 		// The session is saved in a thread, so notify the listeners via the callback
+    }
+
+    /**
+     * Persists the properties (e.g. name, description) of the current session.
+     * <p>
+     * Should be called only by "core" classes.
+     *
+     * @throws Exception if an error occurred while persisting the properties.
+     * @since TODO add version
+     */
+    public void persistSessionProperties() throws Exception {
+        model.persistSessionProperties();
+        getExtensionLoader().sessionPropertiesChangedAllPlugin(model.getSession());
     }
 
     public void snapshotSession(final String fileName, final SessionListener callback) {
