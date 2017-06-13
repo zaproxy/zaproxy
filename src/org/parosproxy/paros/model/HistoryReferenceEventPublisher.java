@@ -47,6 +47,11 @@ public final class HistoryReferenceEventPublisher implements EventPublisher {
     public static final String EVENT_TAGS_SET = "href.tags.set";
 
     /**
+     * The event sent when a new note has been (re)set to a {@code HistoryReference}.
+     */
+    public static final String EVENT_NOTE_SET = "href.note.set";
+
+    /**
      * The event's field that contains the ID of the {@code HistoryReference} of the event.
      */
     public static final String FIELD_HISTORY_REFERENCE_ID = "historyReferenceId";
@@ -73,7 +78,9 @@ public final class HistoryReferenceEventPublisher implements EventPublisher {
     private static synchronized void createPublisher() {
         if (publisher == null) {
             publisher = new HistoryReferenceEventPublisher();
-            ZAP.getEventBus().registerPublisher(publisher, new String[] { EVENT_TAG_ADDED, EVENT_TAG_REMOVED, EVENT_TAGS_SET });
+            ZAP.getEventBus().registerPublisher(
+                    publisher,
+                    new String[] { EVENT_TAG_ADDED, EVENT_TAG_REMOVED, EVENT_TAGS_SET, EVENT_NOTE_SET });
         }
     }
 }

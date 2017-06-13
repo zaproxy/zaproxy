@@ -44,7 +44,6 @@ public class NotesAddDialog extends AbstractDialog {
 	private JButton btnOk = null;
 	private JButton btnCancel = null;
 	
-	private ExtensionHistory extension = null;
 	private HistoryReference historyRef;
 	
 	private JScrollPane jScrollPane = null;
@@ -77,13 +76,10 @@ public class NotesAddDialog extends AbstractDialog {
         	this.setSize(407, 407);
         }
         this.addWindowListener(new java.awt.event.WindowAdapter() {   
-        	@Override
-        	public void windowOpened(java.awt.event.WindowEvent e) {    
-        	} 
 
         	@Override
         	public void windowClosing(java.awt.event.WindowEvent e) {    
-        	    btnCancel.doClick();
+        	    clearAndDispose();
         	}
         });
 
@@ -167,15 +163,20 @@ public class NotesAddDialog extends AbstractDialog {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
                     historyRef.setNote(getTxtDisplay().getText());
-                    getTxtDisplay().discardAllEdits();
-                    extension.notifyHistoryItemChanged(historyRef);
-				    extension.hideNotesAddDialog();
+                    clearAndDispose();
 				}
 			});
 
 		}
 		return btnOk;
 	}
+
+	private void clearAndDispose() {
+		setNote("");
+		historyRef = null;
+		dispose();
+	}
+
 	/**
 	 * This method initializes btnStop	
 	 * 	
@@ -189,21 +190,17 @@ public class NotesAddDialog extends AbstractDialog {
 			btnCancel.setMinimumSize(new java.awt.Dimension(70,30));
 			btnCancel.setPreferredSize(new java.awt.Dimension(70,30));
 			btnCancel.setEnabled(true);
-			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    getTxtDisplay().discardAllEdits();
-				    extension.hideNotesAddDialog();
-				}
-			});
-
+			btnCancel.addActionListener(e -> clearAndDispose());
 		}
 		return btnCancel;
 	}
 	
+	/**
+	 * @param plugin unused.
+	 * @deprecated (TODO add version) No longer used/needed.
+	 */
+	@Deprecated
 	public void setPlugin(ExtensionHistory plugin) {
-	    this.extension = plugin;
 	}
 	
 	/**

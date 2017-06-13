@@ -77,6 +77,7 @@
 // ZAP: 2017/05/02 Move alert related code to ExtensionAlert.
 // ZAP: 2017/05/03 Register and process events from HistoryReference.
 // ZPA: 2017/06/05 Sync HistoryReference cache.
+// ZAP: 2017/06/13 Handle notification of notes set and deprecate/remove code no longer needed.
 
 package org.parosproxy.paros.extension.history;
 
@@ -594,15 +595,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void showNotesAddDialog(HistoryReference ref, String note) {
     	if (dialogNotesAdd == null) {
 	    	dialogNotesAdd = new NotesAddDialog(getView().getMainFrame(), false);
-	    	dialogNotesAdd.setPlugin(this);
 	    	populateNotesAddDialogAndSetVisible(ref, note);
     	} else if (!dialogNotesAdd.isVisible()) {
     		populateNotesAddDialogAndSetVisible(ref, note);
     	}
     }
 
+	/**
+	 * @deprecated (TODO add version) No longer used/needed.
+	 */
+	@Deprecated
 	public void hideNotesAddDialog() {
-		dialogNotesAdd.dispose();
 	}
 	
     /**
@@ -859,6 +862,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         @Override
         public void eventReceived(Event event) {
             switch (event.getEventType()) {
+            case HistoryReferenceEventPublisher.EVENT_NOTE_SET:
             case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
             case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
             case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
