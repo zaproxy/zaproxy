@@ -24,6 +24,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.zaproxy.zap.utils.ZapSupportUtils;
@@ -40,10 +41,11 @@ public class ZapSupportPanel extends JPanel {
 
 		GridBagConstraints gbcSupportDetails = new GridBagConstraints();
 		
-		JTextArea supportDetailsTextArea = new JTextArea();
+		JTextArea supportDetailsTextArea = new JTextArea(20, 0);
 		supportDetailsTextArea.setEditable(false);
 		
 		supportDetailsTextArea.setText(ZapSupportUtils.getAll(true));
+		supportDetailsTextArea.setCaretPosition(0);
 		
 		gbcSupportDetails.gridx = 3;
 		gbcSupportDetails.gridy = 0;
@@ -55,6 +57,6 @@ public class ZapSupportPanel extends JPanel {
 		gbcSupportDetails.anchor = GridBagConstraints.NORTHWEST;
 		gbcSupportDetails.insets = new Insets(2, 2, 2, 2);
 		
-		this.add(supportDetailsTextArea, gbcSupportDetails);
+		this.add(new JScrollPane(supportDetailsTextArea), gbcSupportDetails);
 	}
 }
