@@ -71,6 +71,7 @@
 // ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
 // ZAP: 2017/03/15 Disable API by default
 // ZAP: 2017/03/26 Check the public address when behind NAT.
+// ZAP: 2017/06/12 Do not notify listeners when request is excluded.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -118,6 +119,7 @@ import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 
 public class ProxyThread implements Runnable {
@@ -131,6 +133,11 @@ public class ProxyThread implements Runnable {
     private static final String BAD_GATEWAY_RESPONSE_STATUS = "502 Bad Gateway";
     private static final String GATEWAY_TIMEOUT_RESPONSE_STATUS = "504 Gateway Timeout";
     
+    /**
+     * A {@code HttpRequestConfig} that does not allow notification of events to listeners.
+     */
+    private static final HttpRequestConfig EXCLUDED_REQ_CONFIG = HttpRequestConfig.builder().setNotifyListeners(false).build();
+
 	// change httpSender to static to be shared among proxies to reuse keep-alive connections
 
 	protected ProxyServer parentServer = null;
@@ -456,20 +463,25 @@ public class ProxyThread implements Runnable {
 			}
 			
 			boolean send = true;
+			boolean excluded = parentServer.excludeUrl(msg.getRequestHeader().getURI());
 			synchronized (semaphore) {
 			    
-			    if (notifyOverrideListenersRequestSend(msg)) {
-			        send = false;
-			    } else if (! notifyListenerRequestSend(msg)) {
-		        	// One of the listeners has told us to drop the request
-			    	return;
-			    }
+				if (!excluded) {
+					if (notifyOverrideListenersRequestSend(msg)) {
+						send = false;
+					} else if (! notifyListenerRequestSend(msg)) {
+						// One of the listeners has told us to drop the request
+						return;
+					}
+				}
 			    
 			    try {
 //					bug occur where response cannot be processed by various listener
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
-			        if (send) {
+					if (excluded) {
+						getHttpSender().sendAndReceive(msg, EXCLUDED_REQ_CONFIG);
+					} else if (send) {
 					    if (msg.getResponseHeader().isEmpty()) {
 					    	// Normally the response is empty.
 					    	// The only reason it wont be is if a script or other ext has deliberately 'hijacked' this request
@@ -500,12 +512,15 @@ public class ProxyThread implements Runnable {
 					log.warn(message);
 					setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, message);
 
-			        notifyListenerResponseReceive(msg);
+					if (!excluded) {
+						notifyListenerResponseReceive(msg);
+					}
 			    } catch (IOException e) {
 			    	setErrorResponse(msg, BAD_GATEWAY_RESPONSE_STATUS, e);
-			    	
-			        notifyListenerResponseReceive(msg);
 
+					if (!excluded) {
+						notifyListenerResponseReceive(msg);
+					}
 
 			        //throw e;
 			    }
@@ -629,9 +644,6 @@ public class ProxyThread implements Runnable {
 	 * @return {@code true} if the message should be forwarded to the server, {@code false} otherwise
 	 */
 	private boolean notifyListenerRequestSend(HttpMessage httpMessage) {
-		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
-			return true;
-		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
@@ -654,9 +666,6 @@ public class ProxyThread implements Runnable {
 	 * @return {@code true} if the message should be forwarded to the client, {@code false} otherwise
 	 */
 	private boolean notifyListenerResponseReceive(HttpMessage httpMessage) {
-		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
-			return true;
-		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {

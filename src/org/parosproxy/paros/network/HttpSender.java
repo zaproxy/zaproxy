@@ -63,6 +63,7 @@
 // ZAP: 2016/12/07 Add initiator constant for AJAX spider requests
 // ZAP: 2016/12/12 Add initiator constant for Forced Browse requests
 // ZAP: 2017/03/27 Introduce HttpRequestConfig.
+// ZAP: 2017/06/12 Allow to ignore listeners.
 
 package org.parosproxy.paros.network;
 
@@ -849,10 +850,45 @@ public class HttpSender {
             throw new IllegalArgumentException("Parameter requestConfig must not be null.");
         }
 
-        sendAndReceive(message, false);
+        sendAndReceiveImpl(message, requestConfig);
 
         if (requestConfig.isFollowRedirects()) {
             followRedirections(message, requestConfig);
+        }
+    }
+
+    /**
+     * Helper method that sends the request of the given HTTP {@code message} with the given configurations.
+     * <p>
+     * No redirections are followed (see {@link #followRedirections(HttpMessage, HttpRequestConfig)}).
+     *
+     * @param message the message that will be sent.
+     * @param requestConfig the request configurations.
+     * @throws IOException if an error occurred while sending the message or following the redirections.
+     */
+    private void sendAndReceiveImpl(HttpMessage message, HttpRequestConfig requestConfig) throws IOException {
+        if (log.isDebugEnabled()) {
+            log.debug("Sending " + message.getRequestHeader().getMethod() + " " + message.getRequestHeader().getURI());
+        }
+        message.setTimeSentMillis(System.currentTimeMillis());
+
+        try {
+            if (requestConfig.isNotifyListeners()) {
+                notifyRequestListeners(message);
+            }
+            sendAuthenticated(message, false);
+        } finally {
+            message.setTimeElapsedMillis((int) (System.currentTimeMillis() - message.getTimeSentMillis()));
+
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Received response after " + message.getTimeElapsedMillis() + "ms for "
+                                + message.getRequestHeader().getMethod() + " " + message.getRequestHeader().getURI());
+            }
+
+            if (requestConfig.isNotifyListeners()) {
+                notifyResponseListeners(message);
+            }
         }
     }
 
@@ -891,7 +927,7 @@ public class HttpSender {
                 redirectMessage.setRequestBody("");
             }
 
-            sendAndReceive(redirectMessage, false);
+            sendAndReceiveImpl(redirectMessage, requestConfig);
             validator.notifyMessageReceived(redirectMessage);
 
             // Update the response of the (original) message
