@@ -87,5 +87,5 @@ RUN chown zap:zap /zap/zap-x.sh && \
 	chmod a+x /home/zap/.xinitrc
 #Change back to zap at the end
 USER zap
-
+HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
 
