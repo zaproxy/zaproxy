@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -36,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.PatternSyntaxException;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -50,13 +48,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
-import javax.swing.UIManager;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.RowFilter;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -84,6 +77,7 @@ import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.panels.TableFilterPanel;
 
 public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateCallback {
 
@@ -288,7 +282,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scrollPane.setViewportView(getInstalledAddOnsTable());
 
-			installedAddOnsFilterPanel = createFilterPanel(getInstalledAddOnsTable());
+			installedAddOnsFilterPanel = new TableFilterPanel<JXTable>(getInstalledAddOnsTable());
 
 			int row = 0;
 			installedAddOnsPanel.add(installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 5, 0.0D));
@@ -315,7 +309,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
-			uninstalledAddOnsFilterPanel = createFilterPanel(getUninstalledAddOnsTable());
+			uninstalledAddOnsFilterPanel = new TableFilterPanel<JXTable>(getUninstalledAddOnsTable());
 
 			if (latestInfo == null) {
 				// Not checked yet
@@ -337,57 +331,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
 		}
 		return uninstalledAddOnsPanel;
-	}
-	
-	private static JPanel createFilterPanel(final JXTable table) {
-		JPanel filterPanel = new JPanel();
-		filterPanel.setLayout(new GridBagLayout());
-
-		JLabel filterLabel = new JLabel(Constant.messages.getString("cfu.label.addons.filter"));
-		final JTextField filterTextField = new JTextField();
-
-		filterLabel.setLabelFor(filterTextField);
-		filterPanel.add(filterLabel, LayoutHelper.getGBC(0, 0, 1, 0.0D));
-		filterPanel.add(filterTextField, LayoutHelper.getGBC(1, 0, 1, 1.0D));
-
-		String tooltipText = Constant.messages.getString("cfu.label.addons.filter.tooltip");
-		filterLabel.setToolTipText(tooltipText);
-		filterTextField.setToolTipText(tooltipText);
-
-		// Set filter listener
-		filterTextField.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				updateFilter();
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				updateFilter();
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				updateFilter();
-			}
-
-			public void updateFilter() {
-				String filterText = filterTextField.getText();
-				if (filterText.isEmpty()) {
-					table.setRowFilter(null);
-					filterTextField.setForeground(UIManager.getColor("TextField.foreground"));
-				} else {
-					try {
-						table.setRowFilter(RowFilter.regexFilter("(?i)" + filterText));
-						filterTextField.setForeground(UIManager.getColor("TextField.foreground"));
-					} catch (PatternSyntaxException e) {
-						filterTextField.setForeground(Color.RED);
-					}
-				}
-			}
-		});
-		return filterPanel;
-	}
+	}	
 
 	private JScrollPane getMarketPlaceScrollPane () {
 		if (marketPlaceScrollPane == null) {
