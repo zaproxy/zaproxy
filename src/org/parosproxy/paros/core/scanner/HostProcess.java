@@ -69,6 +69,7 @@
 // ZAP: 2017/03/25 Ensure messages to be scanned have a response.
 // ZAP: 2017/06/07 Scan just one node with AbstractHostPlugin (they apply to the whole host not individual messages).
 // ZAP: 2017/06/08 Collect messages to be scanned.
+// ZAP: 2017/06/15 Initialise the plugin factory immediately after starting the scan.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -246,6 +247,10 @@ public class HostProcess implements Runnable {
 
         try {
             hostProcessStartTime = System.currentTimeMillis();
+
+            // Initialise plugin factory to report the state of the plugins ASAP.
+            pluginFactory.existPluginToRun();
+
             for (StructuralNode startNode : startNodes) {
                 traverse(startNode, true, node -> {
                     if (canScanNode(node)) {
