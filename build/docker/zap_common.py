@@ -275,13 +275,13 @@ def zap_wait_for_passive_scan(zap):
     logging.debug('Passive scanning complete')
 
 
-def zap_get_alerts(zap, blacklist, out_of_scope_dict):
+def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
     # Retrieve the alerts using paging in case there are lots of them
     st = 0
     pg = 5000
     alert_dict = {}
     alert_count = 0
-    alerts = zap.core.alerts(start=st, count=pg)
+    alerts = zap.core.alerts(baseurl=baseurl, start=st, count=pg)
     while len(alerts) > 0:
         logging.debug('Reading ' + str(pg) + ' alerts from ' + str(st))
         alert_count += len(alerts)
