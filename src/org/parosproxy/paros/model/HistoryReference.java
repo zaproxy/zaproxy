@@ -51,6 +51,7 @@
 // ZAP: 2017/05/17 Allow to obtain the tags of a message.
 // ZAP: 2017/05/31 Add a multi-catch for a specific handler. 
 // ZAP: 2017/06/08 Allow to keep the HttpMessage in memory for immediate reuse.
+// ZAP: 2017/06/13 Notify when a note is set.
 
 package org.parosproxy.paros.model;
 
@@ -517,7 +518,7 @@ public class HistoryReference {
    	public void addTag(String tag) {
    		if (insertTagDb(tag)) {
    			this.tags.add(tag);
-   			notifyTagEvent(HistoryReferenceEventPublisher.EVENT_TAG_ADDED);
+   			notifyEvent(HistoryReferenceEventPublisher.EVENT_TAG_ADDED);
    		}
    	}
 
@@ -531,7 +532,7 @@ public class HistoryReference {
         return false;
     }
 
-    private void notifyTagEvent(String event) {
+    private void notifyEvent(String event) {
         Map<String, String> map = new HashMap<>();
         map.put(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID, Integer.toString(historyId));
         ZAP.getEventBus().publishSyncEvent(
@@ -542,7 +543,7 @@ public class HistoryReference {
    	public void deleteTag(String tag) {
    		if (deleteTagDb(tag)) {
    			this.tags.remove(tag);
-   			notifyTagEvent(HistoryReferenceEventPublisher.EVENT_TAG_REMOVED);
+   			notifyEvent(HistoryReferenceEventPublisher.EVENT_TAG_REMOVED);
    		}
    	}
 
@@ -565,6 +566,7 @@ public class HistoryReference {
        try {
            staticTableHistory.updateNote(historyId, note);
            httpMessageCachedData.setNote(note != null && note.length() > 0);
+           notifyEvent(HistoryReferenceEventPublisher.EVENT_NOTE_SET);
        } catch (DatabaseException e) {
            log.error(e.getMessage(), e);
        }
@@ -743,7 +745,7 @@ public class HistoryReference {
 		}
 
 		this.tags = new ArrayList<>(tags);
-		notifyTagEvent(HistoryReferenceEventPublisher.EVENT_TAGS_SET);
+		notifyEvent(HistoryReferenceEventPublisher.EVENT_TAGS_SET);
 	}
 
 	/**
