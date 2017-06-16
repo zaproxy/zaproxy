@@ -88,7 +88,6 @@ import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.Uninstallatio
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnUninstallListener;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressEvent;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressHandler;
-import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -551,7 +550,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		if (scanStatus == null) {
 	        scanStatus = new ScanStatus(
 					new ImageIcon(
-							ExtensionLog4j.class.getResource("/resource/icon/fugue/download.png")),
+							ExtensionAutoUpdate.class.getResource("/resource/icon/fugue/download.png")),
 						Constant.messages.getString("cfu.downloads.icon.title"));
 		}
 		return scanStatus;
