@@ -36,6 +36,7 @@
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
 // ZAP: 2016/09/20 JavaDoc tweaks
 // ZAP: 2017/03/27 Use HttpRequestConfig.
+// ZAP: 2017/06/15 Allow to obtain the running time of the analysis.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -49,6 +50,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HttpHeader;
@@ -76,6 +78,9 @@ public class Analyser {
     private HttpSender httpSender = null;
     private TreeMap<String, SampleResponse> mapVisited = new TreeMap<>();
     private boolean isStop = false;
+
+    private StopWatch stopWatch;
+    private boolean stopWatchStarted;
 
     // ZAP Added delayInMs
     private int delayInMs;
@@ -107,6 +112,7 @@ public class Analyser {
     public Analyser(HttpSender httpSender, HostProcess parent) {
         this.httpSender = httpSender;
         this.parent = parent;
+        this.stopWatch = new StopWatch();
     }
 
     public boolean isStop() {
@@ -118,7 +124,18 @@ public class Analyser {
     }
 
     public void start(StructuralNode node) {
-        inOrderAnalyse(node);
+        if (stopWatchStarted) {
+            stopWatch.resume();
+        } else {
+            stopWatch.start();
+            stopWatchStarted = true;
+        }
+
+        try {
+            inOrderAnalyse(node);
+        } finally {
+            stopWatch.suspend();
+        }
     }
 
     private void addAnalysedHost(URI uri, HttpMessage msg, int errorIndicator) {
@@ -550,6 +567,16 @@ public class Analyser {
      */
     public int getRequestCount() {
         return requestCount;
+    }
+
+    /**
+     * Gets the running time, in milliseconds, of the analyser.
+     *
+     * @return the running time of the analyser.
+     * @since TODO add version
+     */
+    public long getRunningTime() {
+        return stopWatch.getTime();
     }
 
 }
