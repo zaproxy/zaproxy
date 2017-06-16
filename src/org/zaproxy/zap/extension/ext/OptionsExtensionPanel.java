@@ -35,7 +35,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.OptionsParam;
@@ -44,11 +43,12 @@ import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.ZapTable;
 
 public class OptionsExtensionPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
-	private JXTable tableExt = null;
+	private ZapTable tableExt = null;
 	private JScrollPane jScrollPane = null;
 	private JPanel detailsPane = null;
 	private ZapLabel extName = new ZapLabel();
@@ -134,9 +134,18 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	 * 	
 	 * @return javax.swing.JTable	
 	 */    
-	private JXTable getTableExtension() {
+	private ZapTable getTableExtension() {
 		if (tableExt == null) {
-			tableExt = new JXTable();
+			tableExt = new ZapTable() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected AutoScrollAction createAutoScrollAction() {
+					return null;
+				}
+			};
+			tableExt.setAutoScrollOnNewValues(false);
 			tableExt.setModel(getExtensionModel());
 			tableExt.setRowHeight(DisplayUtils.getScaledSize(18));
 			tableExt.getColumnModel().getColumn(0).setPreferredWidth(DisplayUtils.getScaledSize(70));
