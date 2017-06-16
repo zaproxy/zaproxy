@@ -328,7 +328,7 @@ def main(argv):
             if detailed_output:
                 print ('Total of ' + str(num_urls) + ' URLs')
 
-            alert_dict = zap_get_alerts(zap, blacklist, out_of_scope_dict)
+            alert_dict = zap_get_alerts(zap, target, blacklist, out_of_scope_dict)
 
             all_rules = zap.pscan.scanners
             all_dict = {}
