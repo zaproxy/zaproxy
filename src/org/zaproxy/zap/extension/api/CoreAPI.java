@@ -1601,6 +1601,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		public ModeRedirectionValidator(Processor<HttpMessage> processor) {
 			this.processor = processor;
+			this.isRequestValid = true;
 		}
 
 		@Override
