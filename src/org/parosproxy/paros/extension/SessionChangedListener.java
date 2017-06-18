@@ -23,6 +23,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2017/06/07 Allow to notify of changes in the session's properties (e.g. name, description).
 
 package org.parosproxy.paros.extension;
 
@@ -63,4 +64,14 @@ public interface SessionChangedListener {
      */
     void sessionModeChanged(Mode mode);
     
+    /**
+     * Called when the session properties (e.g. name, description) have been changed.
+     * <p>
+     * This method may be called by other threads than {@link java.awt.EventQueue EventQueue}.
+     * 
+     * @param session the session changed.
+     * @since TODO add version
+     */
+    default void sessionPropertiesChanged(Session session) {
+    }
 }

@@ -33,7 +33,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
     
     private static final long serialVersionUID = 1L;
     private static final String[] columnNames = {
-        Constant.messages.getString("ascan.progress.table.name"),
+        "",
         Constant.messages.getString("ascan.policy.table.strength"),
         Constant.messages.getString("ascan.progress.table.progress"),
         Constant.messages.getString("ascan.progress.table.time"),
@@ -41,6 +41,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
         Constant.messages.getString("ascan.progress.table.status"),
     };
     
+    private HostProcess hp;
     private List<ScanProgressItem> values;
     private List<ScanProgressActionIcon> actions = new ArrayList<ScanProgressActionIcon>();
     private ScanProgressActionIcon focusedAction;
@@ -72,8 +73,8 @@ public class ScanProgressTableModel extends AbstractTableModel {
             return 0;
         }
         
-        // Add other 2 rows for the final table values...
-        return values.size() + 2;
+        // Add other 5 rows for other info shown.
+        return values.size() + 5;
     }
 
     /**
@@ -84,7 +85,27 @@ public class ScanProgressTableModel extends AbstractTableModel {
      */
     @Override
     public Object getValueAt(int row, int col) {
-        
+        // 1st row is for the Analyser, 2nd row is empty (for separation with the plugins), 3rd for Plugin label.
+        if (row == 0) {
+            switch (col) {
+            case 0:
+                return Constant.messages.getString("ascan.progress.table.analyser");
+            case 3:
+                return hp != null ? getElapsedTimeLabel(hp.getAnalyser().getRunningTime()) : "";
+            case 4:
+                return hp != null ? String.valueOf(hp.getAnalyser().getRequestCount()) : "";
+            default:
+                return null;
+            }
+        } else if (row == 1) {
+            return null;
+        } else if (row == 2) {
+            return col == 0 ? Constant.messages.getString("ascan.progress.table.name") : null;
+        }
+
+        // Adjust row for the plugin checks.
+        row -= 3;
+
         // First check if we're showing the plugin status list
         if (row < values.size()) {
             
@@ -236,6 +257,8 @@ public class ScanProgressTableModel extends AbstractTableModel {
     public void updateValues(ActiveScan scan, HostProcess hp) {
         values.clear();
         
+        this.hp = hp;
+
         // Iterate all Plugins
         for (Plugin plugin : hp.getCompleted()) {
             values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_COMPLETED));

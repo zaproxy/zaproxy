@@ -68,8 +68,8 @@ ENV HOME /home/zap/
 
 
 COPY zap-x.sh /zap/ 
-COPY zap-baseline.py /zap/ 
-COPY zap-webswing.sh /zap/ 
+COPY zap-*.* /zap/ 
+COPY zap_*.* /zap/ 
 COPY webswing.config /zap/webswing-2.3/ 
 COPY policies /home/zap/.ZAP_D/policies/
 COPY .xinitrc /home/zap/
@@ -87,5 +87,5 @@ RUN chown zap:zap /zap/zap-x.sh && \
 	chmod a+x /home/zap/.xinitrc
 #Change back to zap at the end
 USER zap
-
+HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
 

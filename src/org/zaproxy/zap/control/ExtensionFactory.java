@@ -155,7 +155,7 @@ public class ExtensionFactory {
             return;
         }
 
-        if (!canBeLoaded(extension, new ArrayList<>())) {
+        if (!canBeLoaded(mapClassExtension, extension)) {
             return;
         }
 
@@ -170,20 +170,28 @@ public class ExtensionFactory {
         }
     }
 
-    private static boolean canBeLoaded(Extension extension, List<Extension> processedExtensions) {
-        if (processedExtensions.contains(extension)) {
-            log.warn("Dependency loop with \"" + extension + "\" and " + processedExtensions);
+    // Relax visibility to ease the tests.
+    static boolean canBeLoaded(Map<Class<? extends Extension>, Extension> extensions, Extension extension) {
+        return canBeLoaded(extensions, extension, new ArrayList<>());
+    }
+
+    private static boolean canBeLoaded(
+            Map<Class<? extends Extension>, Extension> extensions,
+            Extension extension,
+            List<Extension> extsBeingProcessed) {
+        if (extsBeingProcessed.contains(extension)) {
+            log.error("Dependency loop with \"" + extension + "\" and " + extsBeingProcessed);
             return false;
         }
-        processedExtensions.add(extension);
 
         List<Class<? extends Extension>> dependencies = extension.getDependencies();
         if (dependencies == null || dependencies.isEmpty()) {
             return true;
         }
 
+        extsBeingProcessed.add(extension);
         for (Class<? extends Extension> dependency : dependencies) {
-            Extension extDep = mapClassExtension.get(dependency);
+            Extension extDep = extensions.get(dependency);
             if (extDep == null) {
                 logUnableToLoadExt(extension, "missing dependency", dependency);
                 extension.setEnabled(false);
@@ -194,18 +202,19 @@ public class ExtensionFactory {
                 extension.setEnabled(false);
                 return false;
             }
-            if (!canBeLoaded(extDep, processedExtensions)) {
+            if (!canBeLoaded(extensions, extDep, extsBeingProcessed)) {
                 logUnableToLoadExt(extension, "can not load dependency", dependency);
                 extension.setEnabled(false);
                 return false;
             }
         }
 
+        extsBeingProcessed.remove(extension);
         return true;
     }
 
     private static void logUnableToLoadExt(Extension extension, String reason, Class<? extends Extension> dependency) {
-        log.info("Unable to load \"" + extension + "\", " + reason + ": " + dependency.getCanonicalName());
+        log.warn("Unable to load \"" + extension + "\", " + reason + ": " + dependency.getCanonicalName());
     }
 
     public static synchronized void addAddOnExtension(

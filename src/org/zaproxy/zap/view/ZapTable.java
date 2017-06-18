@@ -81,19 +81,53 @@ public class ZapTable extends JXTable {
         JComponent columnControl = getColumnControl();
         if (columnControl instanceof ZapColumnControlButton) {
             ZapColumnControlButton zapColumnControl = ((ZapColumnControlButton) columnControl);
-            zapColumnControl.addAction(getAutoScrollAction());
-            zapColumnControl.addAction(new TableExportAction<>(this));
+            autoScrollAction = createAutoScrollAction();
+            if (autoScrollAction != null) {
+                zapColumnControl.addAction(autoScrollAction);
+            }
+            TableExportAction<ZapTable> exportAction = createTableExportAction();
+            if (exportAction != null) {
+                zapColumnControl.addAction(exportAction);
+            }
             zapColumnControl.populatePopup();
         }
 
         setAutoScrollOnNewValues(true);
     }
 
+    /**
+     * Creates the action to change the state of auto scroll on new values.
+     * <p>
+     * Called when customising the {@link ZapColumnControlButton}.
+     *
+     * @return the action to change the state of the auto scroll on new values, might be {@code null}.
+     * @since TODO add version
+     * @see #setAutoScrollOnNewValues(boolean)
+     */
+    protected AutoScrollAction createAutoScrollAction() {
+        return new AutoScrollAction(this);
+    }
+
+    /**
+     * Gets the action to change the state of auto scroll on new values.
+     *
+     * @return the action to change the state of the auto scroll on new values, might be {@code null}.
+     */
     protected AutoScrollAction getAutoScrollAction() {
-        if (autoScrollAction == null) {
-            autoScrollAction = new AutoScrollAction(this);
-        }
         return autoScrollAction;
+    }
+
+    /**
+     * Creates the action to export the table.
+     * <p>
+     * Called when customising the {@link ZapColumnControlButton}.
+     *
+     * @return the action to export the table, might be {@code null}.
+     * @since TODO add version
+     * @see #getColumnControl()
+     */
+    protected TableExportAction<ZapTable> createTableExportAction() {
+        return new TableExportAction<>(this);
     }
 
     /**

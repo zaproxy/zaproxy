@@ -69,6 +69,8 @@
 // ZAP: 2017/03/25 Ensure messages to be scanned have a response.
 // ZAP: 2017/06/07 Scan just one node with AbstractHostPlugin (they apply to the whole host not individual messages).
 // ZAP: 2017/06/08 Collect messages to be scanned.
+// ZAP: 2017/06/15 Initialise the plugin factory immediately after starting the scan.
+// ZAP: 2017/06/15 Do not start following plugin if the scanner is paused.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -246,6 +248,10 @@ public class HostProcess implements Runnable {
 
         try {
             hostProcessStartTime = System.currentTimeMillis();
+
+            // Initialise plugin factory to report the state of the plugins ASAP.
+            pluginFactory.existPluginToRun();
+
             for (StructuralNode startNode : startNodes) {
                 traverse(startNode, true, node -> {
                     if (canScanNode(node)) {
@@ -266,6 +272,11 @@ public class HostProcess implements Runnable {
             Plugin plugin;
             
             while (!isStop() && pluginFactory.existPluginToRun()) {
+                checkPause();
+                if (isStop()) {
+                    break;
+                }
+
                 plugin = pluginFactory.nextPlugin();
                 
                 if (plugin != null) {
@@ -325,6 +336,8 @@ public class HostProcess implements Runnable {
                 + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
         
         if (plugin instanceof AbstractHostPlugin) {
+            checkPause();
+
             if (messageIdToHostScan == -1 || isStop() || isSkipped(plugin) || !scanMessage(plugin, messageIdToHostScan)) {
                 // Mark the plugin as completed if it was not run so the scan process can continue as expected.
                 // The plugin might not be run, for example, if there was an error reading the message form DB.
@@ -334,6 +347,8 @@ public class HostProcess implements Runnable {
         } else if (plugin instanceof AbstractAppPlugin) {
             try {
                 for (int messageId : messagesIdsToAppScan) {
+                    checkPause();
+
                     if (isStop() || isSkipped(plugin)) {
                         return;
                     }
@@ -383,14 +398,10 @@ public class HostProcess implements Runnable {
         	for (StructuralNode pNode : parentNodes) {
 	        	Iterator<StructuralNode> iter = pNode.getChildIterator();
 	        	while (iter.hasNext() && !isStop()) {
-	        		StructuralNode child = iter.next();
-	                // ZAP: Implement pause and resume
-	                while (parentScanner.isPaused() && !isStop()) {
-	                    Util.sleep(500);
-	                }
-	
+                    checkPause();
+
 	                try {
-	                    traverse(child, false, action);
+	                    traverse(iter.next(), false, action);
 	                    
 	                } catch (Exception e) {
 	                    log.error(e.getMessage(), e);
@@ -591,6 +602,12 @@ public class HostProcess implements Runnable {
      */
     public boolean isPaused() {
         return parentScanner.isPaused();
+    }
+
+    private void checkPause() {
+        while (parentScanner.isPaused() && !isStop()) {
+            Util.sleep(500);
+        }
     }
     
     public int getPercentageComplete () {

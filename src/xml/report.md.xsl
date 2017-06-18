@@ -11,11 +11,11 @@
 </xsl:text></xsl:variable>
  
   <xsl:template match="/OWASPZAPReport">
-#ZAP Scanning Report
+# ZAP Scanning Report
 
 <xsl:apply-templates select="text()"/>
 
-##Summary of Alerts
+## Summary of Alerts
 
 | Risk Level | Number of Alerts |
 | --- | --- |
@@ -24,7 +24,7 @@
 | Low | <xsl:value-of select="count(descendant::alertitem[riskcode='1'])"/> |
 | Informational | <xsl:value-of select="count(descendant::alertitem[riskcode='0'])"/> |
 
-##Alert Detail
+## Alert Detail
 
 <xsl:apply-templates select="descendant::alertitem">
   <xsl:sort order="descending" data-type="number" select="riskcode"/>

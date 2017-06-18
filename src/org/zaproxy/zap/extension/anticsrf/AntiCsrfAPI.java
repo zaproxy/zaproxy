@@ -21,8 +21,8 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import net.sf.json.JSONObject;
 
-import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -63,30 +63,30 @@ public class AntiCsrfAPI extends ApiImplementor {
 			int hrefId;
 			try {
 				hrefId = Integer.parseInt(hrefIdStr);
-				
-		    	String response = extension.generateForm(hrefId);
-		    	if (response == null) {
-					throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr);
-		    	}
+			} catch (NumberFormatException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID, e);
+			}
+
+			try {
+				HttpMessage originalMessage = new HistoryReference(hrefId, true).getHttpMessage();
+				String response = extension.generateForm(originalMessage);
 
 				// Get the charset from the original message
-				ExtensionHistory extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-				String charset = extHist.getHistoryReference(hrefId).getHttpMessage().getResponseHeader().getCharset();
+				String charset = originalMessage.getResponseHeader().getCharset();
 				if (charset == null || charset.length() == 0) {
 				    charset = "";
 				} else {
 				    charset = " charset=" + charset;
 				}
 
-	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset, response.length()));
+	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset));
 		    	msg.setResponseBody(response);
+		    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 				
-			} catch (NumberFormatException e) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID);
-			} catch (ApiException e) {
-				throw e;
+			} catch (HttpMalformedHeaderException e) {
+				throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr, e);
 			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 			}
 			
 		} else {

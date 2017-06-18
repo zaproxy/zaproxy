@@ -117,7 +117,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         this.addCheckBoxField(0, FIELD_SUBTREE_ONLY, subtreeOnlyPreviousCheckedState);
         // This option is always read from the 'global' options
-        this.addCheckBoxField(0, FIELD_ADVANCED, getSpiderParam().isShowAdvancedDialog());
+        this.addCheckBoxField(0, FIELD_ADVANCED, extension.getSpiderParam().isShowAdvancedDialog());
         this.addPadding(0);
 
         // Advanced options

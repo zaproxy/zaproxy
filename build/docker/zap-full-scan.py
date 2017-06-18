@@ -17,19 +17,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script runs a full scan against an API defined by OpenAPI/Swagger or SOAP
-# using ZAP
+# This script runs a full scan against a target URL using ZAP
 #
 # It can either be run 'standalone', in which case depends on
 # https://pypi.python.org/pypi/python-owasp-zap-v2.4 and Docker, or it can be run
 # inside one of the ZAP docker containers. It automatically detects if it is
 # running in docker so the parameters are the same.
 #
-# It currently support APIS defined by:
-#	OpenAPI/Swagger URL
-#	OpenAPI/Swagger file
-#	SOAP URL
-#	SOAP File
+# By default it will spider the target URL with no time limit, but you can change
+# that via the -m parameter.
+# It will then perform an active scan of all of the URLs found by the spider.
+# This may take a significant amount of time.
 # It will exit with codes of:
 #	0:	Success
 #	1:	At least 1 FAIL
@@ -43,16 +41,14 @@
 # to be handled differently.
 # You can also add your own messages for the rules by appending them after a tab
 # at the end of each line.
-# By default the active scan rules run are hardcoded in the API-Minimal.policy
-# file but you can change them by supplying a configuration file with the rules
-# you dont want to be run set to IGNORE.
+# By default all of the active scan rules run but you can prevent rules from 
+# running by supplying a configuration file with the rules set to IGNORE.
 
 import getopt
 import json
 import logging
 import os
 import os.path
-import subprocess
 import sys
 import time
 import urllib2
@@ -79,13 +75,13 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 def usage():
-    print('Usage: zap-api-scan.py -t <target> -f <format> [options]')
-    print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, eg https://www.example.com/openapi.json')
-    print('    -f format         either openapi or soap')
+    print('Usage: zap-full-scan.py -t <target> [options]')
+    print('    -t target         target URL including the protocol, eg https://www.example.com')
     print('Options:')
     print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
     print('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
     print('    -g gen_file       generate default config file(all rules set to WARN)')
+    print('    -m mins           the number of minutes to spider for (default 1)')
     print('    -r report_html    file to write the full ZAP HTML report')
     print('    -w report_md      file to write the full ZAP Wiki(Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
@@ -94,13 +90,14 @@ def usage():
     print('    -P                specify listen port')
     print('    -D                delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
+    print('    -j                use the Ajax spider in addition to the traditional one')
     print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print('    -n context_file   context file which will be loaded prior to scanning the target')
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('')
-    print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-API-Scan')
+    print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Full-Scan')
 
 
 def main(argv):
@@ -112,6 +109,7 @@ def main(argv):
     progress_file = ''
     config_file = ''
     config_url = ''
+    mins = 0
     generate = ''
     port = 0
     detailed_output = True
@@ -119,11 +117,9 @@ def main(argv):
     report_md = ''
     report_xml = ''
     target = ''
-    target_file = ''
-    target_url = ''
-    format = ''
     zap_alpha = False
     info_unspecified = False
+    ajax = False
     base_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
@@ -138,7 +134,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -148,8 +144,6 @@ def main(argv):
         if opt == '-t':
             target = arg
             logging.debug('Target: ' + target)
-        elif opt == '-f':
-            format = arg
         elif opt == '-c':
             config_file = arg
         elif opt == '-u':
@@ -158,6 +152,8 @@ def main(argv):
             generate = arg
         elif opt == '-d':
             logging.getLogger().setLevel(logging.DEBUG)
+        elif opt == '-m':
+            mins = int(arg)
         elif opt == '-P':
             port = int(arg)
         elif opt == '-D':
@@ -176,6 +172,8 @@ def main(argv):
             zap_alpha = True
         elif opt == '-i':
             info_unspecified = True
+        elif opt == '-j':
+            ajax = True
         elif opt == '-l':
             try:
                 min_level = levels.index(arg)
@@ -192,25 +190,15 @@ def main(argv):
     if len(target) == 0:
         usage()
         sys.exit(3)
-    if format != 'openapi' and format != 'soap':
-        logging.warning('Format must be either \'openapi\' or \'soap\'')
+
+    if not (target.startswith('http://') or target.startswith('https://')):
+        logging.warning('Target must start with \'http://\' or \'https://\'')
         usage()
         sys.exit(3)
 
-    if target.startswith('http://') or target.startswith('https://'):
-        target_url = target
-    else:
-        # assume its a file
-        if not os.path.exists(target):
-            logging.warning('Target must either start with \'http://\' or \'https://\' or be a local file')
-            usage()
-            sys.exit(3)
-        else:
-            target_file = target
-
     if running_in_docker():
         base_dir = '/zap/wrk/'
-        if config_file or generate or report_html or report_xml or progress_file or context_file or target_file:
+        if config_file or generate or report_html or report_xml or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
@@ -248,6 +236,7 @@ def main(argv):
     if running_in_docker():
         try:
             params = [
+                      '-config', 'spider.maxDuration=' + str(mins),
                       '-addonupdate',
                       '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
 
@@ -269,9 +258,12 @@ def main(argv):
         # Not running in docker, so start one
         mount_dir = ''
         if context_file:
-            mount_dir =  os.path.dirname(os.path.abspath(context_file))
+            mount_dir = os.path.dirname(os.path.abspath(context_file))
 
-        params = ['-addonupdate']
+        params = [
+                  '-config', 'spider.maxDuration=' + str(mins),
+                  '-addonupdate',
+                  '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
@@ -284,20 +276,6 @@ def main(argv):
             cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)
             zap_ip = ipaddress_for_cid(cid)
             logging.debug('Docker ZAP IP Addr: ' + zap_ip)
-
-            # Copy across the files that may not be in all of the docker images
-            try:
-                subprocess.check_output(['docker', 'exec', '-t', cid, 'mkdir', '-p', '/home/zap/.ZAP_D/scripts/scripts/httpsender/'])
-                cp_to_docker(cid, 'scripts/scripts/httpsender/Alert_on_HTTP_Response_Code_Errors.js', '/home/zap/.ZAP_D/')
-                cp_to_docker(cid, 'scripts/scripts/httpsender/Alert_on_Unexpected_Content_Types.js', '/home/zap/.ZAP_D/')
-                cp_to_docker(cid, 'policies/API-Minimal.policy', '/home/zap/.ZAP_D/')
-                if target_file:
-                    cp_to_docker(cid, target_file, '/zap/')
-
-            except OSError:
-                logging.warning('Failed to copy one of the required files')
-                sys.exit(3)
-
         except OSError:
             logging.warning('Failed to start ZAP in docker :(')
             sys.exit(3)
@@ -319,62 +297,38 @@ def main(argv):
             if res.startswith("ZAP Error"):
                 logging.error('Failed to load context file ' + context_file + ' : ' + res)
 
-        # Enable scripts
-        zap.script.load('Alert_on_HTTP_Response_Code_Errors.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_HTTP_Response_Code_Errors.js')
-        zap.script.enable('Alert_on_HTTP_Response_Code_Errors.js')
-        zap.script.load('Alert_on_Unexpected_Content_Types.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_Unexpected_Content_Types.js')
-        zap.script.enable('Alert_on_Unexpected_Content_Types.js')
+        # Access the target
+        res = zap.urlopen(target)
+        if res.startswith("ZAP Error"):
+            # errno.EIO is 5, not sure why my atempts to import it failed;)
+            raise IOError(5, 'Failed to connect')
 
-        # Import the API defn
-        if format == 'openapi':
-            if target_url:
-                logging.debug('Import OpenAPI URL ' + target_url)
-                res = zap._request(zap.base + 'openapi/action/importUrl/', {'url':target})
-                urls = zap.core.urls
-            else:
-                logging.debug('Import OpenAPI File ' + target_file)
-                res = zap._request(zap.base + 'openapi/action/importFile/', {'file': base_dir + target_file})
-                urls = zap.core.urls
-                if len(urls) > 0:
-                    # Choose the first one - will be striping off the path below
-                    target = urls[0]
-                else:
-                    logging.error('Failed to import any URLs')
-        else:
-            if target_url:
-                logging.debug('Import SOAP URL ' + target_url)
-                res = zap._request(zap.base + 'soap/action/importUrl/', {'url':target})
-                urls = zap.core.urls
-            else:
-                logging.debug('Import SOAP File ' + target_file)
-                res = zap._request(zap.base + 'soap/action/importFile/', {'file': base_dir + target_file})
-                urls = zap.core.urls
-                if len(urls) > 0:
-                    # Choose the first one - will be striping off the path below
-                    target = urls[0]
-                else:
-                    logging.error('Failed to import any URLs')
+        if target.count('/') > 2:
+            # The url can include a valid path, but always reset to spider the host
+            target = target[0:target.index('/', 8)+1]
 
-        logging.info('Number of Imported URLs: ' + str(len(urls)))
-        logging.debug('Import warnings: ' + str(res))
+        time.sleep(2)
+
+        # Spider target
+        zap_spider(zap, target)
+
+        if (ajax):
+            zap_ajax_spider(zap, target, mins)
+
+        if (delay):
+            start_scan = datetime.now()
+            while ((datetime.now() - start_scan).seconds < delay):
+                time.sleep(5)
+                logging.debug('Delay active scan ' + str(delay -(datetime.now() - start_scan).seconds) + ' seconds')
 
         if target.count('/') > 2:
             # The url can include a valid path, but always reset to scan the host
             target = target[0:target.index('/', 8)+1]
 
-        # Wait for a delay if specified with -D option
-        if (delay):
-            start_scan = datetime.now()
-            while((datetime.now() - start_scan).seconds < delay ):
-                time.sleep(5)
-                logging.debug('Delay active scan ' + str(delay -(datetime.now() - start_scan).seconds) + ' seconds')
-
         # Set up the scan policy
-        scan_policy = 'API-Minimal'
+        scan_policy = 'Default Policy'
         if config_dict:
             # They have supplied a config file, use this to define the ascan rules
-            # Use the default one as the script might not have write access to the one just copied across
-            scan_policy = 'Default Policy'
             zap.ascan.enable_all_scanners(scanpolicyname=scan_policy)
             for scanner, state in config_dict.items():
                 if state == 'IGNORE':
@@ -412,7 +366,7 @@ def main(argv):
             if generate:
                 # Create the config file
                 with open(base_dir + generate, 'w') as f:
-                    f.write('# zap-api-scan rule configuration file\n')
+                    f.write('# zap-full-scan rule configuration file\n')
                     f.write('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
                     f.write('# Active scan rules set to IGNORE will not be run which will speed up the scan\n')
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
