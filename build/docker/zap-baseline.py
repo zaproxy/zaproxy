@@ -48,7 +48,8 @@ import os
 import os.path
 import sys
 import time
-import urllib2
+from six.moves.urllib.request import urlopen
+
 from datetime import datetime
 from zapv2 import ZAPv2
 from zap_common import *
@@ -216,7 +217,7 @@ def main(argv):
     elif config_url:
         # load config file from url
         try:
-            load_config(urllib2.urlopen(config_url), config_dict, config_msg, out_of_scope_dict)
+            load_config(urlopen(config_url).read().decode('UTF-8'), config_dict, config_msg, out_of_scope_dict)
         except:
             logging.warning('Failed to read configs from ' + config_url)
             sys.exit(3)
@@ -326,7 +327,7 @@ def main(argv):
             logging.warning('No URLs found - is the target URL accessible? Local services may not be accessible from the Docker container')
         else:
             if detailed_output:
-                print ('Total of ' + str(num_urls) + ' URLs')
+                print('Total of ' + str(num_urls) + ' URLs')
 
             alert_dict = zap_get_alerts(zap, target, blacklist, out_of_scope_dict)
 
@@ -345,7 +346,7 @@ def main(argv):
                     f.write('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
                     f.write('# You can add your own messages to each rule by appending them after a tab on each line.\n')
-                    for key, rule in sorted(all_dict.iteritems()):
+                    for key, rule in sorted(all_dict.items()):
                         f.write(key + '\tWARN\t(' + rule + ')\n')
 
             # print out the passing rules
@@ -354,11 +355,11 @@ def main(argv):
                 plugin_id = rule.get('id')
                 if plugin_id in blacklist:
                     continue
-                if (not alert_dict.has_key(plugin_id)):
+                if (plugin_id not in alert_dict):
                     pass_dict[plugin_id] = rule.get('name')
 
             if min_level == levels.index("PASS") and detailed_output:
-                for key, rule in sorted(pass_dict.iteritems()):
+                for key, rule in sorted(pass_dict.items()):
                     print('PASS: ' + rule + ' [' + key + ']')
 
             pass_count = len(pass_dict)
@@ -403,7 +404,7 @@ def main(argv):
 
     except IOError as e:
         if hasattr(e, 'args') and len(e.args) > 1:
-            errno, strerror = e
+            errno, strerror = e.args
             print("ERROR " + str(strerror))
             logging.warning('I/O error(' + str(errno) + '): ' + str(strerror))
         else:

@@ -91,7 +91,7 @@ def print_rules(alert_dict, level, config_dict, config_msg, min_level, levels, i
     # print out the ignored rules
     count = 0
     inprog_count = 0
-    for key, alert_list in sorted(alert_dict.iteritems()):
+    for key, alert_list in sorted(alert_dict.items()):
         #if (config_dict.has_key(key) and config_dict[key] == level):
         if inc_rule(config_dict, key, inc_extra):
             user_msg = ''
@@ -107,19 +107,19 @@ def print_rules(alert_dict, level, config_dict, config_msg, min_level, levels, i
 
 
 def inc_ignore_rules(config_dict, key, inc_extra):
-    return config_dict.has_key(key) and config_dict[key] == 'IGNORE'
+    return (key in config_dict) and config_dict[key] == 'IGNORE'
 
 
 def inc_info_rules(config_dict, key, inc_extra):
-    return (config_dict.has_key(key) and config_dict[key] == 'INFO') or (not config_dict.has_key(key) and inc_extra)
+    return ((key in config_dict) and config_dict[key] == 'INFO') or ((key not in config_dict) and inc_extra)
 
 
 def inc_warn_rules(config_dict, key, inc_extra):
-    return (config_dict.has_key(key) and config_dict[key] == 'WARN') or (not config_dict.has_key(key) and inc_extra)
+    return ((key in config_dict) and config_dict[key] == 'WARN') or ((key not in config_dict) and inc_extra)
 
 
 def inc_fail_rules(config_dict, key, inc_extra):
-    return config_dict.has_key(key) and config_dict[key] == 'FAIL'
+    return (key in config_dict) and config_dict[key] == 'FAIL'
 
 
 def dump_log_file(cid):
@@ -192,7 +192,7 @@ def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
 
     logging.info('Params: ' + str(params))
 
-    cid = subprocess.check_output(params).rstrip()
+    cid = subprocess.check_output(params).rstrip().decode('utf-8')
     logging.debug('Docker CID: ' + cid)
     return cid
 
@@ -206,7 +206,7 @@ def get_free_port():
 
     
 def ipaddress_for_cid(cid):
-    insp_output = subprocess.check_output(['docker', 'inspect', cid])
+    insp_output = subprocess.check_output(['docker', 'inspect', cid]).strip().decode('utf-8')
     #logging.debug('Docker Inspect: ' + insp_output)
     insp_json = json.loads(insp_output)
     return str(insp_json[0]['NetworkSettings']['IPAddress'])
@@ -294,7 +294,7 @@ def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
             if alert.get('risk') == 'Informational':
                 # Ignore all info alerts - some of them may have been downgraded by security annotations
                 continue
-            if (not alert_dict.has_key(plugin_id)):
+            if (plugin_id not in alert_dict):
                 alert_dict[plugin_id] = []
             alert_dict[plugin_id].append(alert)
         st += pg
