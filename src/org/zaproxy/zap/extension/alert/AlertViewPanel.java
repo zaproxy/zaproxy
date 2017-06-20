@@ -83,9 +83,9 @@ public class AlertViewPanel extends AbstractPanel {
 	private ZapTextArea alertOtherInfo = null;
 	private ZapTextArea alertSolution = null;
 	private ZapTextArea alertReference = null;
-	private JLabel alertCweId = null;
-	private JLabel alertWascId = null;
-	private JLabel alertSource;
+	private ZapLabel alertCweId = null;
+	private ZapLabel alertWascId = null;
+	private ZapLabel alertSource;
 	
 	private JComboBox<String> alertEditName = null;
 	private JComboBox<String> alertEditRisk = null;
@@ -254,9 +254,9 @@ public class AlertViewPanel extends AbstractPanel {
 			alertParam = new ZapLabel();
 			alertAttack = new ZapLabel();
 			alertEvidence = new ZapLabel();
-			alertCweId = new JLabel();
-			alertWascId = new JLabel();
-			alertSource = new JLabel();
+			alertCweId = new ZapLabel();
+			alertWascId = new ZapLabel();
+			alertSource = new ZapLabel();
 
 			alertUrl = new ZapLabel();
 			
