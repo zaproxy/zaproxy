@@ -281,15 +281,9 @@ def main(argv):
             sys.exit(3)
 
     try:
-        # Wait for ZAP to start
         zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
-        for x in range(0, timeout):
-            try:
-                logging.debug('ZAP Version ' + zap.core.version)
-                logging.debug('Took ' + str(x) + ' seconds')
-                break
-            except IOError:
-                time.sleep(1)
+
+        wait_for_zap_start(zap, timeout)
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
