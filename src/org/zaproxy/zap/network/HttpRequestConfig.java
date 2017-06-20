@@ -28,14 +28,27 @@ package org.zaproxy.zap.network;
  */
 public class HttpRequestConfig {
 
+    /**
+     * Constant that indicates that no value was set (thus using the value defined by the sender implementation).
+     * 
+     * @since TODO add version
+     */
+    public static final int NO_VALUE_SET = -1;
+
     private final boolean followRedirects;
     private final HttpRedirectionValidator redirectionValidator;
     private final boolean notifyListeners;
+    private final int soTimeout;
 
-    HttpRequestConfig(boolean followRedirects, HttpRedirectionValidator redirectionValidator, boolean notifyListeners) {
+    HttpRequestConfig(
+            boolean followRedirects,
+            HttpRedirectionValidator redirectionValidator,
+            boolean notifyListeners,
+            int soTimeout) {
         this.followRedirects = followRedirects;
         this.redirectionValidator = redirectionValidator;
         this.notifyListeners = notifyListeners;
+        this.soTimeout = soTimeout;
     }
 
     /**
@@ -76,6 +89,18 @@ public class HttpRequestConfig {
     }
 
     /**
+     * Gets the socket timeout, in milliseconds, when sending the requests.
+     * <p>
+     * Default value: {@link #NO_VALUE_SET}.
+     * 
+     * @return the socket timeout, in milliseconds.
+     * @since TODO add version
+     */
+    public int getSoTimeout() {
+        return soTimeout;
+    }
+
+    /**
      * Gets a new HTTP request configuration builder.
      *
      * @return a new HTTP request configuration builder.
@@ -106,11 +131,13 @@ public class HttpRequestConfig {
         private boolean followRedirects;
         private HttpRedirectionValidator redirectionValidator;
         private boolean notifyListeners;
+        private int soTimeout;
 
         private Builder() {
             this.followRedirects = false;
             this.redirectionValidator = DefaultHttpRedirectionValidator.INSTANCE;
             this.notifyListeners = true;
+            this.soTimeout = NO_VALUE_SET;
         }
 
         private Builder(HttpRequestConfig config) {
@@ -164,12 +191,31 @@ public class HttpRequestConfig {
         }
 
         /**
+         * Sets the value of the socket timeout ({@link java.net.SocketOptions#SO_TIMEOUT SO_TIMEOUT}), in milliseconds.
+         * <p>
+         * A value equal (or lower than) {@link HttpRequestConfig#NO_VALUE_SET} resets any value previously value. Value zero
+         * indicates an infinite timeout.
+         *
+         * @param soTimeout the socket timeout, in milliseconds.
+         * @return the builder.
+         */
+        public Builder setSoTimeout(int soTimeout) {
+            if (soTimeout <= NO_VALUE_SET) {
+                this.soTimeout = NO_VALUE_SET;
+                return this;
+            }
+
+            this.soTimeout = soTimeout;
+            return this;
+        }
+
+        /**
          * Builds a new {@code HttpRequestConfig}, with the configurations previously set.
          *
          * @return a new {@code HttpRequestConfig}.
          */
         public HttpRequestConfig build() {
-            return new HttpRequestConfig(followRedirects, redirectionValidator, notifyListeners);
+            return new HttpRequestConfig(followRedirects, redirectionValidator, notifyListeners, soTimeout);
         }
     }
 }

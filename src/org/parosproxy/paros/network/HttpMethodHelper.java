@@ -28,6 +28,7 @@
 // ZAP: 2016/05/16 Throw exception if failed to set the request URI
 // ZAP: 2016/10/13 Include URI in exception's message
 // ZAP: 2017/04/20 Remove unused code
+// ZAP: 2017/06/19 Allow to create a method with custom parameters.
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -133,6 +134,10 @@ public class HttpMethodHelper {
 	//  This is the currently in use method.
 	// may be replaced by the New method - however the New method is not yet fully tested so this is stil used.
 	public HttpMethod createRequestMethod(HttpRequestHeader header, HttpBody body) throws URIException {
+		return createRequestMethod(header, body, null);
+	}
+
+	HttpMethod createRequestMethod(HttpRequestHeader header, HttpBody body, HttpMethodParams params) throws URIException {
 		HttpMethod httpMethod = null;
 		
 		String method = header.getMethod();
@@ -168,6 +173,10 @@ public class HttpMethodHelper {
 			throw new URIException("Failed to set URI [" + uri + "]: " + e1.getMessage());
 		}
 		
+		if (params != null) {
+			httpMethod.setParams(params);
+		}
+
 		HttpMethodParams httpParams = httpMethod.getParams();
 		// default to use HTTP 1.0
 		httpParams.setVersion(HttpVersion.HTTP_1_0);
