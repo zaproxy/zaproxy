@@ -45,6 +45,7 @@
 // ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
 // ZAP: 2017/02/25 Issue 2618: Let the user select the name for snapshots
 // ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
+// ZAP: 2017/06/20 Inform of active actions before changing the session.
 
 package org.parosproxy.paros.control;
  
@@ -102,6 +103,10 @@ public class MenuFileControl implements SessionListener {
 	public void newSession(boolean isPromptNewSession) throws ClassNotFoundException, Exception {
 		
 		if (isPromptNewSession) {
+			if (!informStopActiveActions()) {
+				return;
+			}
+		    
 			// ZAP: i18n
 		    if (model.getSession().isNewState()) {
 				if (view.showConfirmDialog(Constant.messages.getString("menu.file.discardSession")) != JOptionPane.OK_OPTION) {
@@ -163,6 +168,31 @@ public class MenuFileControl implements SessionListener {
 				control.newSession();
 				break;
 		}
+	}
+
+	private boolean informStopActiveActions() {
+		String activeActions = wrapEntriesInLiTags(control.getExtensionLoader().getActiveActions());
+		if (!activeActions.isEmpty()) {
+			String message = Constant.messages.getString("menu.file.session.activeactions", activeActions);
+			if (view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static String wrapEntriesInLiTags(List<String> entries) {
+		if (entries.isEmpty()) {
+			return "";
+		}
+
+		StringBuilder strBuilder = new StringBuilder(entries.size() * 15);
+		for (String entry : entries) {
+			strBuilder.append("<li>");
+			strBuilder.append(entry);
+			strBuilder.append("</li>");
+		}
+		return strBuilder.toString();
 	}
 	
 	private String getTimestampFilename() {
@@ -268,6 +298,10 @@ public class MenuFileControl implements SessionListener {
     }
 
 	public void openSession() {
+		if (!informStopActiveActions()) {
+			return;
+		}
+
 		// TODO extract into db specific classes??
 		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
 			this.openFileBasedSession();
@@ -360,6 +394,9 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	public void saveAsSession() {
+		if (!informStopActiveActions()) {
+			return;
+		}
 		
 	    Session session = model.getSession();
 
