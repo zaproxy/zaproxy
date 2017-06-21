@@ -46,10 +46,15 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.core.scanner.Plugin;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 import org.zaproxy.zap.utils.FontUtils;
@@ -403,7 +408,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertEvidence.setText(alert.getEvidence());
 			alertCweId.setText(Integer.toString(alert.getCweId()));
 			alertWascId.setText(Integer.toString(alert.getWascId()));
-			alertSource.setText(Constant.messages.getString(alert.getSource().getI18nKey()));
+			alertSource.setText(getSourceData(alert));
 		}
 		
 		setAlertDescription(alert.getDescription());
@@ -412,6 +417,32 @@ public class AlertViewPanel extends AbstractPanel {
 		setAlertReference(alert.getReference());
 
 		cardLayout.show(this, getAlertPane().getName());
+	}
+
+	private String getSourceData(Alert alert) {
+		String source = Constant.messages.getString(alert.getSource().getI18nKey());
+		if (alert.getPluginId() == -1) {
+			return source;
+		}
+
+		StringBuilder strBuilder = new StringBuilder(source);
+		strBuilder.append(" (").append(alert.getPluginId());
+		if (alert.getSource() == Alert.Source.ACTIVE) {
+			Plugin plugin = PluginFactory.getLoadedPlugin(alert.getPluginId());
+			if (plugin != null) {
+				strBuilder.append(" - ").append(plugin.getName());
+			}
+		} else if (alert.getSource() == Alert.Source.PASSIVE) {
+			ExtensionPassiveScan ext = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
+			if (ext != null) {
+				PluginPassiveScanner scanner = ext.getPluginPassiveScanner(alert.getPluginId());
+				if (scanner != null) {
+					strBuilder.append(" - ").append(scanner.getName());
+				}
+			}
+		}
+		strBuilder.append(')');
+		return strBuilder.toString();
 	}
 	
 	public void clearAlert () {
