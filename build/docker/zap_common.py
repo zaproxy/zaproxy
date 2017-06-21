@@ -28,6 +28,7 @@ import subprocess
 import sys
 import time
 import traceback
+import errno
 from random import randint
 
 
@@ -161,6 +162,23 @@ def start_zap(port, extra_zap_params):
 
     with open('zap.out', "w") as outfile:
         subprocess.Popen(params + extra_zap_params, stdout=outfile)
+
+
+def wait_for_zap_start(zap, timeout):
+    version = None
+    for x in range(0, timeout):
+        try:
+            version = zap.core.version
+            logging.debug('ZAP Version ' + version)
+            logging.debug('Took ' + str(x) + ' seconds')
+            break
+        except IOError:
+            time.sleep(1)
+
+    if not version:
+        raise IOError(
+          errno.EIO,
+          'Failed to connect to ZAP after {0} seconds'.format(timeout))
 
 
 def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
