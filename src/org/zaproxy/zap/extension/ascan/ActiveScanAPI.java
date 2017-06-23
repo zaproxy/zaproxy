@@ -834,7 +834,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			if (activeScan != null) {
 				for (HostProcess hp : activeScan.getHostProcesses()) {
 					ApiResponseList hpList = new ApiResponseList("HostProcess");
-					resultList.addItem(new ApiResponseElement("id", XMLStringUtil.escapeControlChrs(hp.getHostAndPort())));
+					resultList.addItem(new ApiResponseElement("id", hp.getHostAndPort()));
 
 					for (Plugin plugin : hp.getCompleted()) {
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
@@ -969,7 +969,7 @@ public class ActiveScanAPI extends ApiImplementor {
 
 	private static ApiResponseList createPluginProgressEntry(Plugin plugin, String status, long timeTaken, int requestCount) {
 		ApiResponseList pList = new ApiResponseList("Plugin");
-		pList.addItem(new ApiResponseElement("name", XMLStringUtil.escapeControlChrs(plugin.getName())));
+		pList.addItem(new ApiResponseElement("name", plugin.getName()));
 		pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
 		pList.addItem(new ApiResponseElement("quality", plugin.getStatus().toString()));
 		pList.addItem(new ApiResponseElement("status", status));
