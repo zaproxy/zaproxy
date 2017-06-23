@@ -23,6 +23,7 @@
 // ZAP: 2016/06/14 Issue 2578: Must click on text in Options column to select row
 // ZAP: 2016/08/23 Respect sort parameter when adding intermediate panels
 // ZAP: 2016/10/27 Explicitly show other panel when the selected panel is removed.
+// ZAP: 2017/06/23 Ensure panel with validation errors is visible.
 
 package org.parosproxy.paros.view;
 
@@ -497,6 +498,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
         nameLastSelectedPanel = name;
         currentShownPanel = panel; 
 
+        getTreeParam().setSelectionPath(new TreePath(getTreeNodeFromPanelName(name).getPath()));
+
         getPanelHeadline();
         getTxtHeadline().setText(name);
         getHelpButton().setVisible(panel.getHelpIndex() != null);
@@ -540,7 +543,12 @@ public class AbstractParamContainerPanel extends JSplitPane {
         AbstractParamPanel panel = null;
         while (en.hasMoreElements()) {
             panel = en.nextElement();
-            panel.validateParam(paramObject);
+            try {
+                panel.validateParam(paramObject);
+            } catch (Exception e) {
+                showParamPanel(panel, panel.getName());
+                throw e;
+            }
         }
     }
 
@@ -596,7 +604,6 @@ public class AbstractParamContainerPanel extends JSplitPane {
             
             if (node != null) {
                 showParamPanel(node.toString());
-                getTreeParam().setSelectionPath(new TreePath(node.getPath()));
             }
             
         } catch (Exception e) {
@@ -625,6 +632,10 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     private DefaultMutableTreeNode getTreeNodeFromPanelName(DefaultMutableTreeNode parent, String panel, boolean recurse) {
+        if (panel.equals(parent.toString())) {
+            return parent;
+        }
+
         DefaultMutableTreeNode node = null;
 
         // ZAP: Added @SuppressWarnings annotation.
