@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,6 +69,7 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ActiveScanAPI extends ApiImplementor {
 
@@ -99,6 +101,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String ACTION_ADD_SCAN_POLICY = "addScanPolicy";
 	private static final String ACTION_REMOVE_SCAN_POLICY = "removeScanPolicy";
 	private static final String ACTION_UPDATE_SCAN_POLICY = "updateScanPolicy";
+	private static final String ACTION_IMPORT_SCAN_POLICY = "importScanPolicy";
 
 	private static final String ACTION_ADD_EXCLUDED_PARAM = "addExcludedParam";
 	private static final String ACTION_MODIFY_EXCLUDED_PARAM = "modifyExcludedParam";
@@ -130,6 +133,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String PARAM_ATTACK_STRENGTH = "attackStrength";
 	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
 	private static final String PARAM_SCAN_POLICY_NAME = "scanPolicyName";
+	private static final String PARAM_PATH = "path";
 	// TODO rename to categoryId? Note any changes like this to the existing API must be clearly documented to users
 	private static final String PARAM_CATEGORY_ID = "policyId";
 	private static final String PARAM_SCAN_ID = "scanId";
@@ -178,6 +182,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_UPDATE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
 				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
+		this.addApiAction(new ApiAction(ACTION_IMPORT_SCAN_POLICY, new String[] { PARAM_PATH }));
 
 		this.addApiAction(
 				new ApiAction(ACTION_ADD_EXCLUDED_PARAM, new String[] { PARAM_NAME }, new String[] { PARAM_TYPE, PARAM_URL }));
@@ -432,6 +437,39 @@ public class ActiveScanAPI extends ApiImplementor {
 				updateAlertThreshold(policy, params);
 				updateAttackStrength(policy, params);
 				controller.getPolicyManager().savePolicy(policy);
+				break;
+			case ACTION_IMPORT_SCAN_POLICY:
+				File file = new File(params.getString(PARAM_PATH));
+				if (!file.exists()) {
+					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_PATH);
+				}
+				if (!file.isFile()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PATH);
+				}
+
+				ScanPolicy scanPolicy;
+				try {
+					scanPolicy = new ScanPolicy(new ZapXmlConfiguration(file));
+				} catch (IllegalArgumentException | ConfigurationException e) {
+					throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, file.toString(), e);
+				}
+
+				String scanPolicyName = scanPolicy.getName();
+				if (scanPolicyName.isEmpty()) {
+					scanPolicyName = file.getName();
+				}
+				if (controller.getPolicyManager().getAllPolicyNames().contains(scanPolicyName)) {
+					throw new ApiException(ApiException.Type.ALREADY_EXISTS, scanPolicyName);
+				}
+				if (!controller.getPolicyManager().isLegalPolicyName(scanPolicyName)) {
+					throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, scanPolicyName);
+				}
+
+				try {
+					controller.getPolicyManager().savePolicy(scanPolicy);
+				} catch (ConfigurationException e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+				}
 				break;
 			case ACTION_ADD_EXCLUDED_PARAM:
 				int type = getParam(params, PARAM_TYPE, NameValuePair.TYPE_UNDEFINED);
