@@ -44,6 +44,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapTable;
+import org.zaproxy.zap.view.panels.TableFilterPanel;
 
 public class OptionsExtensionPanel extends AbstractParamPanel {
 
@@ -65,50 +66,29 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 
     public OptionsExtensionPanel(ExtensionExtension ext) {
         super();
- 		initialize();
-    }
 
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-        GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-
-        javax.swing.JLabel jLabel = new JLabel();
+        GridBagConstraints gbc = new GridBagConstraints();
 
         this.setLayout(new GridBagLayout());
         this.setSize(409, 268);
         this.setName(Constant.messages.getString("options.ext.title"));
-        jLabel.setText(Constant.messages.getString("options.ext.label.enable"));
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.gridheight = 1;
-        gridBagConstraints1.weightx = 0.0;
-        gridBagConstraints1.weighty = 0.0;
-        gridBagConstraints1.insets = new Insets(0,0,5,0);
-        gridBagConstraints1.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints1.fill = GridBagConstraints.HORIZONTAL;
-        gridBagConstraints2.gridx = 0;
-        gridBagConstraints2.gridy = 1;
-        gridBagConstraints2.weightx = 1.0;
-        gridBagConstraints2.weighty = 0.75;
-        gridBagConstraints2.fill = GridBagConstraints.BOTH;
-        gridBagConstraints2.ipadx = 0;
-        gridBagConstraints2.insets = new Insets(0,0,0,0);
-        gridBagConstraints2.anchor = GridBagConstraints.NORTHWEST;
-        gridBagConstraints3.gridx = 0;
-        gridBagConstraints3.gridy = 2;
-        gridBagConstraints3.weightx = 1.0;
-        gridBagConstraints3.weighty = 0.25;
-        gridBagConstraints3.fill = GridBagConstraints.BOTH;
-        gridBagConstraints3.ipadx = 0;
-        gridBagConstraints3.insets = new Insets(0,0,0,0);
-        gridBagConstraints3.anchor = GridBagConstraints.NORTHWEST;
-        this.add(jLabel, gridBagConstraints1);
-        this.add(getJScrollPane(), gridBagConstraints2);
-        this.add(getDetailsPane(), gridBagConstraints3);
+
+        gbc.gridx = 0;
+        gbc.insets = new Insets(0, 0, 10, 0);
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(new JLabel(Constant.messages.getString("options.ext.label.enable")), gbc);
+
+        gbc.insets = new Insets(0, 0, 0, 0);
+        this.add(new TableFilterPanel<>(getTableExtension()), gbc);
+
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.75;
+        gbc.fill = GridBagConstraints.BOTH;
+        this.add(getJScrollPane(), gbc);
+
+        gbc.weighty = 0.25;
+        this.add(getDetailsPane(), gbc);
 			
 	}
 

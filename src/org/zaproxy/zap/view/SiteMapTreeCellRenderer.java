@@ -89,10 +89,11 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	        if( node.isFiltered()) {
 	        	// Hide the node
 	            setPreferredSize( new Dimension(0, 0) );
-	        } else {
-	            setPreferredSize(null);	// clears the prefered size, making the node visible
-	            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+	            return this;
 	        }
+
+			setPreferredSize(null);	// clears the prefered size, making the node visible
+			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {

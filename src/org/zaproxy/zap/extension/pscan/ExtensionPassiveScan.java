@@ -320,12 +320,27 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      * @param enabled {@code true} if the scanner should be enabled, {@code false} otherwise
      */
     void setPluginPassiveScannerEnabled(int pluginId, boolean enabled) {
+        PluginPassiveScanner scanner = getPluginPassiveScanner(pluginId);
+        if (scanner != null) {
+            scanner.setEnabled(enabled);
+            scanner.save();
+        }
+    }
+
+    /**
+     * Gets the {@code PluginPassiveScanner} with the given ID.
+     *
+     * @param id the ID of the plugin.
+     * @return the {@code PluginPassiveScanner}, or {@code null} if not found (e.g. not installed).
+     * @since TODO add version
+     */
+    public PluginPassiveScanner getPluginPassiveScanner(int id) {
         for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
-            if (pluginId == scanner.getPluginId()) {
-                scanner.setEnabled(enabled);
-                scanner.save();
+            if (id == scanner.getPluginId()) {
+                return scanner;
             }
         }
+        return null;
     }
 
     /**
@@ -335,12 +350,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      * @return {@code true} if the scanner exist, {@code false} otherwise.
      */
     boolean hasPluginPassiveScanner(int pluginId) {
-        for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
-            if (pluginId == scanner.getPluginId()) {
-                return true;
-            }
-        }
-        return false;
+        return getPluginPassiveScanner(pluginId) != null;
     }
 
     /**
@@ -354,12 +364,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      * @see org.parosproxy.paros.core.scanner.Plugin.AlertThreshold
      */
     void setPluginPassiveScannerAlertThreshold(int pluginId, Plugin.AlertThreshold alertThreshold) {
-        for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
-            if (pluginId == scanner.getPluginId()) {
-                scanner.setAlertThreshold(alertThreshold);
-                scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
-                scanner.save();
-            }
+        PluginPassiveScanner scanner = getPluginPassiveScanner(pluginId);
+        if (scanner != null) {
+            scanner.setAlertThreshold(alertThreshold);
+            scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
+            scanner.save();
         }
     }
  

@@ -197,17 +197,6 @@ def main(argv):
         usage()
         sys.exit(3)
 
-    if target.startswith('http://') or target.startswith('https://'):
-        target_url = target
-    else:
-        # assume its a file
-        if not os.path.exists(target):
-            logging.warning('Target must either start with \'http://\' or \'https://\' or be a local file')
-            usage()
-            sys.exit(3)
-        else:
-            target_file = target
-
     if running_in_docker():
         base_dir = '/zap/wrk/'
         if config_file or generate or report_html or report_xml or progress_file or context_file or target_file:
@@ -216,6 +205,18 @@ def main(argv):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
                 usage()
                 sys.exit(3)
+
+    if target.startswith('http://') or target.startswith('https://'):
+        target_url = target
+    else:
+        # assume its a file
+        if not os.path.exists(base_dir + target):
+            logging.warning('Target must either start with \'http://\' or \'https://\' or be a local file')
+            logging.warning('File does not exist: ' + base_dir + target)
+            usage()
+            sys.exit(3)
+        else:
+            target_file = target
 
     # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option
     if port == 0:
@@ -303,15 +304,9 @@ def main(argv):
             sys.exit(3)
 
     try:
-        # Wait for ZAP to start
         zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
-        for x in range(0, timeout):
-            try:
-                logging.debug('ZAP Version ' + zap.core.version)
-                logging.debug('Took ' + str(x) + ' seconds')
-                break
-            except IOError:
-                time.sleep(1)
+
+        wait_for_zap_start(zap, timeout)
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up

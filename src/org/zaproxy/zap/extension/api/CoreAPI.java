@@ -80,6 +80,7 @@ import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
@@ -109,6 +110,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	private static final String ACTION_SEND_REQUEST = "sendRequest";
 	private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
+	private static final String ACTION_DELETE_ALERT = "deleteAlert";
 	private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
 	private static final String ACTION_SET_MODE = "setMode";
 	private static final String ACTION_DELETE_SITE_NODE = "deleteSiteNode";
@@ -240,6 +242,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				new String[] { PARAM_REQUEST },
 				new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
+		this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID }));
 		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
 		this.addApiAction(new ApiAction(ACTION_DELETE_SITE_NODE, new String[] {PARAM_URL}, new String[] {PARAM_METHOD, PARAM_POST_DATA}));
 		this.addApiAction(
@@ -550,6 +553,35 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 removeHistoryReferenceAlerts(rootNode);
             }
+		} else if (ACTION_DELETE_ALERT.equals(name)) {
+			int alertId = ApiUtils.getIntParam(params, PARAM_ID);
+
+			RecordAlert recAlert;
+			try {
+				recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
+			} catch (DatabaseException e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+			}
+
+			if (recAlert == null) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
+			}
+
+			final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
+					.getExtensionLoader()
+					.getExtension(ExtensionAlert.NAME);
+			if (extAlert != null) {
+				extAlert.deleteAlert(new Alert(recAlert));
+			} else {
+				try {
+					Model.getSingleton().getDb().getTableAlert().deleteAlert(alertId);
+				} catch (DatabaseException e) {
+					logger.error(e.getMessage(), e);
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+				}
+			}
+
 		} else if (ACTION_COLLECT_GARBAGE.equals(name)) {
 			System.gc();
 			return ApiResponseElement.OK;
@@ -1601,6 +1633,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		public ModeRedirectionValidator(Processor<HttpMessage> processor) {
 			this.processor = processor;
+			this.isRequestValid = true;
 		}
 
 		@Override

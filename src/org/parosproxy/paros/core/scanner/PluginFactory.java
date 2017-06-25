@@ -46,6 +46,7 @@
 // ZAP: 2016/06/27 Reduce log level when loading the plugins
 // ZAP: 2016/06/29 Do not log when cloning PluginFactory
 // ZAP: 2016/07/25 Fix to correct handling of lists in plugins
+// ZAP: 2017/06/20 Allow to obtain a Plugin by ID.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,6 +72,7 @@ public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
     private static List<AbstractPlugin> loadedPlugins = null;
+    private static Map<Integer, Plugin> mapLoadedPlugins;
     
     private List<Plugin> listAllPlugin = new ArrayList<Plugin>();
     private LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
@@ -94,7 +97,24 @@ public class PluginFactory {
 	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
 	        //sort by the criteria below.
 	        Collections.sort(loadedPlugins, riskComparator);
+
+            mapLoadedPlugins = new HashMap<>();
+            for (Plugin plugin : loadedPlugins) {
+                mapLoadedPlugins.put(plugin.getId(), plugin);
+            }
     	}
+    }
+
+    /**
+     * Gets the {@code Plugin} with the given ID.
+     *
+     * @param id the ID of the plugin.
+     * @return the {@code Plugin}, or {@code null} if not found (e.g. not installed).
+     * @since TODO add version
+     */
+    public static Plugin getLoadedPlugin(int id) {
+        initPlugins();
+        return mapLoadedPlugins.get(id);
     }
     
     private static List<AbstractPlugin> getLoadedPlugins() {
@@ -140,6 +160,7 @@ public class PluginFactory {
     public static void loadedPlugin(AbstractPlugin plugin) {
         if (!isPluginLoadedImpl(plugin)) {
             getLoadedPlugins().add(plugin);
+            mapLoadedPlugins.put(plugin.getId(), plugin);
             Collections.sort(loadedPlugins, riskComparator);
         }
     }
@@ -169,6 +190,7 @@ public class PluginFactory {
         for (Iterator<AbstractPlugin> it = getLoadedPlugins().iterator(); it.hasNext();) {
             if (it.next() == plugin) {
                 it.remove();
+                mapLoadedPlugins.remove(plugin.getId());
                 return;
             }
         }
@@ -188,6 +210,7 @@ public class PluginFactory {
     	for (AbstractPlugin plugin : loadedPlugins) {
             if (plugin.getClass().getName().equals(className)) {
             	loadedPlugins.remove(plugin);
+            	mapLoadedPlugins.remove(plugin.getId());
             	return true;
             }
     	}

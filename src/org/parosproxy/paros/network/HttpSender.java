@@ -64,6 +64,7 @@
 // ZAP: 2016/12/12 Add initiator constant for Forced Browse requests
 // ZAP: 2017/03/27 Introduce HttpRequestConfig.
 // ZAP: 2017/06/12 Allow to ignore listeners.
+// ZAP: 2017/06/19 Allow to send a request with custom socket timeout.
 
 package org.parosproxy.paros.network;
 
@@ -475,6 +476,10 @@ public class HttpSender {
 
 	// ZAP: Make sure a message that needs to be authenticated is authenticated
 	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
+		sendAuthenticated(msg, isFollowRedirect, null);
+	}
+
+	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
 		// Modify the request message if a 'Requesting User' has been set
 		User forceUser = this.getUser(msg);
 		if (initiator != AUTHENTICATION_INITIATOR && forceUser != null)
@@ -482,7 +487,7 @@ public class HttpSender {
 
 		log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
 		// Send the message
-		send(msg, isFollowRedirect);
+		send(msg, isFollowRedirect, params);
 
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
@@ -493,18 +498,18 @@ public class HttpSender {
 					+ ". Authenticating and trying again...");
 			forceUser.queueAuthentication(msg);
 			forceUser.processMessageToMatchUser(msg);
-			send(msg, isFollowRedirect);
+			send(msg, isFollowRedirect, params);
 		} else
 			log.debug("SUCCESSFUL");
 
 	}
 
-	private void send(HttpMessage msg, boolean isFollowRedirect) throws IOException {
+	private void send(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
 		HttpMethod method = null;
 		HttpResponseHeader resHeader = null;
 
 		try {
-			method = runMethod(msg, isFollowRedirect);
+			method = runMethod(msg, isFollowRedirect, params);
 			// successfully executed;
 			resHeader = HttpMethodHelper.getHttpResponseHeader(method);
 			resHeader.setHeader(HttpHeader.TRANSFER_ENCODING, null); // replaceAll("Transfer-Encoding: chunked\r\n",
@@ -531,11 +536,11 @@ public class HttpSender {
 		}
 	}
 
-	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect) throws IOException {
+	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
 		HttpMethod method = null;
 		// no more retry
 		modifyUserAgent(msg);
-		method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody());
+		method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody(), params);
 		if (!(method instanceof EntityEnclosingMethod)) {
 			// cant do this for EntityEnclosingMethod methods - it will fail
 			method.setFollowRedirects(isFollowRedirect);
@@ -876,7 +881,14 @@ public class HttpSender {
             if (requestConfig.isNotifyListeners()) {
                 notifyRequestListeners(message);
             }
-            sendAuthenticated(message, false);
+
+            HttpMethodParams params = null;
+            if (requestConfig.getSoTimeout() != HttpRequestConfig.NO_VALUE_SET) {
+                params = new HttpMethodParams();
+                params.setSoTimeout(requestConfig.getSoTimeout());
+            }
+            sendAuthenticated(message, false, params);
+
         } finally {
             message.setTimeElapsedMillis((int) (System.currentTimeMillis() - message.getTimeSentMillis()));
 

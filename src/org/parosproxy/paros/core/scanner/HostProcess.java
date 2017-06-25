@@ -71,6 +71,7 @@
 // ZAP: 2017/06/08 Collect messages to be scanned.
 // ZAP: 2017/06/15 Initialise the plugin factory immediately after starting the scan.
 // ZAP: 2017/06/15 Do not start following plugin if the scanner is paused.
+// ZAP: 2017/06/20 Log number of alerts raised by each scanner.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -698,6 +699,11 @@ public class HostProcess implements Runnable {
 
     public void alertFound(Alert alert) {
         parentScanner.notifyAlertFound(alert);
+
+        PluginStats pluginStats = mapPluginStats.get(alert.getPluginId());
+        if (pluginStats != null) {
+            pluginStats.incAlertCount();
+        }
     }
 
     /**
@@ -829,6 +835,7 @@ public class HostProcess implements Runnable {
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0);
         sb.append(" in ").append(diffTimeString).append('s');
         sb.append(" with ").append(pluginStats.getMessageCount()).append(" message(s) sent");
+        sb.append(" and ").append(pluginStats.getAlertCount()).append(" alert(s) raised.");
 
         // Probably too verbose evaluate 4 the future
         log.info(sb.toString());
@@ -1015,6 +1022,7 @@ public class HostProcess implements Runnable {
 
         private final long startTime;
         private int messageCount;
+        private int alertCount;
         private int progress;
         private boolean skipped;
         private String skippedReason;
@@ -1094,6 +1102,24 @@ public class HostProcess implements Runnable {
          */
         public void incMessageCount() {
             messageCount++;
+        }
+
+        /**
+         * Gets the count of alerts raised by the plugin.
+         *
+         * @return the count of alerts raised.
+         */
+        public int getAlertCount() {
+            return alertCount;
+        }
+
+        /**
+         * Increments the count of alerts raised by the plugin.
+         * <p>
+         * Should be called when the plugin notifies that an alert was found.
+         */
+        public void incAlertCount() {
+            alertCount++;
         }
 
         /**
