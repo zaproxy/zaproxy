@@ -123,6 +123,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_OPTION_MAXIMUM_ALERT_INSTANCES = "setOptionMaximumAlertInstances";
 	private static final String ACTION_OPTION_MERGE_RELATED_ALERTS = "setOptionMergeRelatedAlerts";
 	private static final String ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH = "setOptionAlertOverridesFilePath";
+	private static final String ACTION_OPTION_USE_PROXY_CHAIN = "setOptionUseProxyChain";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -222,9 +223,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
     private static ExtensionHistory extHistory;
+    private ConnectionParam connectionParam;
 
 
-	public CoreAPI() {
+	public CoreAPI(ConnectionParam connectionParam) {
+		this.connectionParam = connectionParam;
+
 		this.addApiAction(
 				new ApiAction(ACTION_ACCESS_URL, new String[] { PARAM_URL }, new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
@@ -316,6 +320,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiShortcut(OTHER_SET_PROXY);
 		this.addApiShortcut(OTHER_SCRIPT_JS);
 
+		addApiOptions(this.connectionParam);
 	}
 
 	@Override
@@ -701,6 +706,20 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+    @Override
+    public ApiResponse handleApiOptionAction(String name, JSONObject params) throws ApiException {
+        if (ACTION_OPTION_USE_PROXY_CHAIN.equals(name)) {
+            boolean enabled = params.getBoolean("Boolean");
+            if (enabled && (connectionParam.getProxyChainName() == null || connectionParam.getProxyChainName().isEmpty())) {
+                return ApiResponseElement.FAIL;
+            }
+
+            connectionParam.setUseProxyChain(enabled);
+            return ApiResponseElement.OK;
+        }
+        return super.handleApiOptionAction(name, params);
 	}
 
 	private void setProxyChainExcludedDomainsEnabled(boolean enabled) {

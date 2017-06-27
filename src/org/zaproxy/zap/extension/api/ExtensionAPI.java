@@ -64,8 +64,7 @@ public class ExtensionAPI extends ExtensionAdaptor {
 	    	extensionHook.getHookMenu().addToolsMenuItem(getMenuAPI());
 	    }
         
-        coreApi = new CoreAPI();
-        coreApi.addApiOptions(extensionHook.getModel().getOptionsParam().getConnectionParam());
+        coreApi = new CoreAPI(extensionHook.getModel().getOptionsParam().getConnectionParam());
 
         extensionHook.addApiImplementor(coreApi);
         extensionHook.addApiImplementor(new ContextAPI());
