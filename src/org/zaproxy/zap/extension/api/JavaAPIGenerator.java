@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +47,7 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 			" *\n" +
 			" * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			" *\n" +
-			" * Copyright 2016 the ZAP development team\n" +
+			" * Copyright " + Year.now() + " the ZAP development team\n" +
 			" *\n" +
 			" * Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			" * you may not use this file except in compliance with the License.\n" +
