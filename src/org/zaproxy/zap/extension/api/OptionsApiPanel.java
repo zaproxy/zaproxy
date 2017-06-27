@@ -281,6 +281,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	@Override
 	public void validateParam(Object obj) throws Exception {
 	    if (! getDisableKey().isSelected() && getKeyField().getText().length() == 0) {
+	    	getKeyField().requestFocusInWindow();
 	    	throw new Exception (Constant.messages.getString("api.options.nokey.error"));
 	    }
 	}
