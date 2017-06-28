@@ -39,6 +39,7 @@
 // ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
 // ZAP: 2017/05/02 Added option key to enable / disable HTTP State 
 // ZAP: 2017/05/15 Ensure HttpState is non-null when HTTP State is enabled.
+// ZAP: 2017/06/19 Do not allow to set negative timeout values and expose the default value.
 package org.parosproxy.paros.network;
 
 import java.security.Security;
@@ -109,6 +110,13 @@ public class ConnectionParam extends AbstractParam {
 	 */
 	private static final String DNS_TTL_SUCCESSFUL_QUERIES_KEY = CONNECTION_BASE_KEY + ".dnsTtlSuccessfulQueries";
 
+	/**
+	 * The default connection timeout (in seconds).
+	 * 
+	 * @since TODO add version
+	 */
+	public static final int DEFAULT_TIMEOUT = 20;
+
     private boolean useProxyChain;
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
@@ -126,7 +134,7 @@ public class ConnectionParam extends AbstractParam {
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
-	private int timeoutInSecs = 120;
+	private int timeoutInSecs = DEFAULT_TIMEOUT;
 
 	private boolean singleCookieRequestHeader = true;
 	private String defaultUserAgent = "";
@@ -216,12 +224,7 @@ public class ConnectionParam extends AbstractParam {
         	log.error(e.getMessage(), e);
 		}
 		
-		try {
-			setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
-		} catch (Exception e) {
-        	// ZAP: Log exceptions
-        	log.error(e.getMessage(), e);
-		}
+		setTimeoutInSecsImpl(getInt(TIMEOUT_IN_SECS, DEFAULT_TIMEOUT));
 
 		try {
 			this.singleCookieRequestHeader = getConfig().getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
@@ -539,8 +542,17 @@ public class ConnectionParam extends AbstractParam {
 		return timeoutInSecs;
 	}
 	public void setTimeoutInSecs(int timeoutInSecs) {
-		this.timeoutInSecs = timeoutInSecs;
+		setTimeoutInSecsImpl(timeoutInSecs);
 		getConfig().setProperty(TIMEOUT_IN_SECS, this.timeoutInSecs);
+	}
+
+	private void setTimeoutInSecsImpl(int timeoutInSecs) {
+		if (timeoutInSecs < 0) {
+			this.timeoutInSecs = 0;
+			return;
+		}
+
+		this.timeoutInSecs = timeoutInSecs;
 	}
     
 	/**
