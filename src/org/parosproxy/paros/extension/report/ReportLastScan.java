@@ -29,6 +29,7 @@
 // ZAP: 2014/07/15 Issue 1263: Generate Report Clobbers Existing Files Without Prompting
 // ZAP: 2015/11/18 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/09/22 Issue 2886: Support Markdown format
+// ZAP: 2017/06/21 Issue 3559: Support JSON format
 
 package org.parosproxy.paros.extension.report;
 
@@ -63,16 +64,44 @@ public class ReportLastScan {
     private static final String HTML_FILE_EXTENSION=".html";
     private static final String XML_FILE_EXTENSION=".xml";
     private static final String MD_FILE_EXTENSION=".md";
+    private static final String JSON_FILE_EXTENSION=".json";
     
-    public enum ReportType {HTML, XML, MD}
+    public enum ReportType {HTML, XML, MD, JSON}
 
     public ReportLastScan() {
     }
 
-
-    public File generate(String fileName, Model model, String xslFile) throws Exception {
+    /**
+     * @deprecated
+     * generate has been deprecated in favor of using {@link #generate(String fileName, Model model, ReportType reportType)}
+     */
+    @Deprecated public File generate(String fileName, Model model, String xslFile) throws Exception {
     	StringBuilder sb = new StringBuilder(500);
         this.generate(sb, model);
+        return ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
+    }
+
+    public File generate(String fileName, Model model, ReportType reportType) throws Exception {
+        String xslFile = "";
+        switch(reportType) {
+            case XML:   // Don't use XSLT for XML/JSON
+            case JSON:
+                xslFile = null;
+                break;
+            case MD:
+                xslFile = (Constant.getZapInstall() + "/xml/report.md.xsl");
+                break;
+            case HTML:
+            default:
+                xslFile = (Constant.getZapInstall() + "/xml/report.html.xsl");
+                break;
+        }
+
+        StringBuilder sb = new StringBuilder(500);
+        this.generate(sb, model);
+        if (reportType == ReportType.JSON) {
+            return ReportGenerator.stringToJson(sb.toString(), fileName);
+        }
         return ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
     }
 
@@ -151,6 +180,8 @@ public class ReportLastScan {
                             return lcFileName.endsWith(XML_FILE_EXTENSION);
                         case MD:
                             return lcFileName.endsWith(MD_FILE_EXTENSION);
+                        case JSON:
+                            return lcFileName.endsWith(JSON_FILE_EXTENSION);
                         case HTML:
                         default:
                             return (lcFileName.endsWith(HTM_FILE_EXTENSION) || lcFileName.endsWith(HTML_FILE_EXTENSION));
@@ -164,8 +195,10 @@ public class ReportLastScan {
                 	switch(localReportType) {
                 	case XML:
                 		return Constant.messages.getString("file.format.xml");
-                    case MD:
-                        return Constant.messages.getString("file.format.md");
+                	case MD:
+                		return Constant.messages.getString("file.format.md");
+                	case JSON:
+                		return Constant.messages.getString("file.format.json");
                 	case HTML:
                 	default:
                 		return Constant.messages.getString("file.format.html"); 
@@ -173,21 +206,20 @@ public class ReportLastScan {
                 }
             });
 
-            String reportXSL="";
             String fileExtension="";
         	switch(localReportType) {
         	case XML:
         		fileExtension=XML_FILE_EXTENSION;
-        		reportXSL = null;	// Dont use XSLT
         		break;
-            case MD:
-                fileExtension=MD_FILE_EXTENSION;
-                reportXSL = (Constant.getZapInstall() + "/xml/report.md.xsl");
-                break;
+        	case JSON:
+        		fileExtension=JSON_FILE_EXTENSION;
+        		break;
+        	case MD:
+        		fileExtension=MD_FILE_EXTENSION;
+        		break;
         	case HTML:
         	default: 
         		fileExtension=HTML_FILE_EXTENSION;
-        		reportXSL = (Constant.getZapInstall() + "/xml/report.html.xsl");
         		break;
         	}
         	chooser.setSelectedFile(new File(fileExtension)); //Default the filename to a reasonable extension;
@@ -197,7 +229,7 @@ public class ReportLastScan {
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
 
-                File report = generate(file.getAbsolutePath(), model, reportXSL);
+                File report = generate(file.getAbsolutePath(), model, localReportType);
                 if (report == null) {
                     view.showMessageDialog(
                             MessageFormat.format(Constant.messages.getString("report.unknown.error"),
