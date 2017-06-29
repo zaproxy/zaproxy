@@ -451,6 +451,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		return numberOfURIsFound.get();
 	}
 
+    public int getNumberOfNodesAdded() {
+        return this.spiderThread.getNumberOfNodesAdded();
+    }
+
 	@Override
 	public boolean isPaused() {
 		return this.spiderThread.isPaused();
@@ -473,6 +477,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	public TableModel getResultsTableModel() {
 		return this.spiderThread.getResultsTableModel();
 	}
+
+    public SpiderPanelTableModel getAddedNodesTableModel() {
+        return this.spiderThread.getAddedNodesTableModel();
+    }
 
 	/**
 	 * Gets the {@code TableModel} of the messages sent during the spidering process.

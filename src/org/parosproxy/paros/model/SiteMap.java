@@ -51,6 +51,7 @@
 // ZAP: 2016/04/28 Issue 1171: Raise site and node add or remove events
 // ZAP: 2016/07/07 Do not add the message to past history if it already belongs to the node
 // ZAP: 2017/01/23: Issue 1800: Alpha sort the site tree
+// ZAP: 2017/06/29: Issue 3714: Added newOnly option to addPath
 
 package org.parosproxy.paros.model;
 
@@ -359,10 +360,24 @@ public class SiteMap extends SortedTreeModel {
      * This method saves the msg to be read from the reference table.  Use 
      * this method if the HttpMessage is known.
      * Note that this method must only be called on the EventDispatchThread
-     * @param msg
-     * @return 
+     * @param msg the HttpMessage
+     * @return the SiteNode that corresponds to the HttpMessage
      */
     public SiteNode addPath(HistoryReference ref, HttpMessage msg) {
+        return this.addPath(ref, msg, false);
+    }
+
+    /**
+     * Add the HistoryReference with the corresponding HttpMessage into the SiteMap.
+     * This method saves the msg to be read from the reference table.  Use 
+     * this method if the HttpMessage is known.
+     * Note that this method must only be called on the EventDispatchThread
+     * @param msg the HttpMessage
+     * @param newOnly   Only return a SiteNode if one was newly created
+     * @return the SiteNode that corresponds to the HttpMessage, or null if newOnly and the node already exists
+     * @since TODO add version
+     */
+    public SiteNode addPath(HistoryReference ref, HttpMessage msg, boolean newOnly) {
     	if (Constant.isLowMemoryOptionSet()) {
     		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
     	}
@@ -379,6 +394,7 @@ public class SiteMap extends SortedTreeModel {
         SiteNode parent = (SiteNode) getRoot();
         SiteNode leaf = null;
         String folder = "";
+        boolean isNew = false;
         
         try {
             
@@ -391,6 +407,11 @@ public class SiteMap extends SortedTreeModel {
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
+                    if (newOnly) {
+                        // Check to see if it already exists
+                        String leafName = getLeafName(folder, msg);
+                        isNew = (findChild(parent, leafName) == null);
+                    }
                     if (i == path.size()-1) {
                         leaf = findAndAddLeaf(parent, folder, ref, msg);
                         ref.setSiteNode(leaf);
@@ -415,7 +436,10 @@ public class SiteMap extends SortedTreeModel {
             hrefMap.put(ref.getHistoryId(), leaf);
         }
 
-        return leaf;
+        if (! newOnly || isNew) {
+            return leaf;
+        }
+        return null;
     }
     
     private SiteNode findAndAddChild(SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg) throws URIException, HttpMalformedHeaderException, NullPointerException, DatabaseException {

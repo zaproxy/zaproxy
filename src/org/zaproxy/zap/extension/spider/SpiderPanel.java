@@ -25,8 +25,6 @@ import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 
@@ -38,7 +36,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -85,10 +82,14 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 
 	private static final SpiderPanelTableModel EMPTY_URLS_TABLE_MODEL = new SpiderPanelTableModel();
 
+	private static final SpiderPanelTableModel EMPTY_URLS_NO_FLAGS_TABLE_MODEL = new SpiderPanelTableModel(false);
+
 	private static final SpiderMessagesTableModel EMPTY_MESSAGES_TABLE_MODEL = new SpiderMessagesTableModel(false);
 
 	/** The Constant defining the PANEL's NAME. */
 	public static final String PANEL_NAME = "SpiderPanel";
+
+	private static final String ADDED_NODES_CONTAINER_NAME = "SpiderAddedNodesContainer";
 
 	/**
 	 * The main panel, where the {@link #tabbedPane} or {@link #urlsTableScrollPane} are added.
@@ -102,7 +103,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	/**
 	 * The {@code JTabbedPane} used to show the tabs for URLs found and HTTP messages sent.
 	 */
-	private final JTabbedPane tabbedPane;
+	private JTabbedPane tabbedPane;
 
 	private JButton scanButton = null;
 
@@ -117,6 +118,16 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	private ZapTable urlsTable;
 
 	/**
+	 * The table with added nodes.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getAddedNodesTable()
+	 * @see #addedNodesTableScrollPane
+	 */
+	private ZapTable addedNodesTable;
+
+	/**
 	 * The scroll pane for the URLs table.
 	 * <p>
 	 * Lazily initialised.
@@ -125,6 +136,16 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	 * @see #urlsTable
 	 */
 	private JScrollPane urlsTableScrollPane;
+	
+	/**
+	 * The scroll pane for the added nodes table.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getAddedNodesTableScrollPane()
+	 * @see #addedNodesTable
+	 */
+	private JScrollPane addedNodesTableScrollPane;
 
 	/**
 	 * The table with HTTP messages sent.
@@ -146,23 +167,18 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	 */
 	private JScrollPane messagesTableScrollPane;
 
-	/**
-	 * The {@code JToggleButton} that allows to show the tab of the HTTP messages sent.
-	 * <p>
-	 * Lazily initialised.
-	 * 
-	 * @see #getShowMessagesToggleButton()
-	 * @see #showTabs()
-	 * @see #hideMessagesTab()
-	 */
-	private JToggleButton showMessageToggleButton;
-
 	/** The found count name label. */
 	private JLabel foundCountNameLabel;
 
 	/** The found count value label. */
 	private JLabel foundCountValueLabel;
 	
+	/** The added count name label. */
+	private JLabel addedCountNameLabel;
+
+	/** The added count value label. */
+	private JLabel addedCountValueLabel;
+
 	private TableExportButton<JXTable> exportButton;
 	
 	private ExtensionSpider extension = null;
@@ -176,7 +192,6 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
 		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension);
 
-		tabbedPane = new JTabbedPane();
 		tabbedPane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -185,6 +200,9 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 					getExportButton().setTable(getUrlsTable());
 					break;
 				case 1:
+					getExportButton().setTable(getAddedNodesTable());
+					break;
+				case 2:
 					getExportButton().setTable(getMessagesTable());
 					break;
 				}
@@ -207,7 +225,14 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	protected JPanel getWorkPanel() {
 		if (mainPanel == null) {
 			mainPanel = new JPanel(new BorderLayout());
-			mainPanel.add(getUrlsTableScrollPane(), BorderLayout.CENTER);
+
+			tabbedPane = new JTabbedPane();
+			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.urls"), getUrlsTableScrollPane());
+			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.addednodes"), getAddedUrlsTableScrollPane());
+			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.messages"), getMessagesTableScrollPanel());
+			tabbedPane.setSelectedIndex(0);
+
+			mainPanel.add(tabbedPane);
 		}
 		return mainPanel;
 	}
@@ -219,6 +244,15 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 			urlsTableScrollPane.setViewportView(getUrlsTable());
 		}
 		return urlsTableScrollPane;
+	}
+
+	private JScrollPane getAddedUrlsTableScrollPane() {
+		if (addedNodesTableScrollPane == null) {
+			addedNodesTableScrollPane = new JScrollPane();
+			addedNodesTableScrollPane.setName("SpiderAddedUrlsPane");
+			addedNodesTableScrollPane.setViewportView(getAddedNodesTable());
+		}
+		return addedNodesTableScrollPane;
 	}
 
 	/**
@@ -267,6 +301,45 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		return urlsTable;
 	}
 
+	private JXTable getAddedNodesTable() {
+		if (addedNodesTable == null) {
+			// Create the table with a default, empty TableModel and the proper settings
+			addedNodesTable = new ZapTable(EMPTY_URLS_NO_FLAGS_TABLE_MODEL);
+			addedNodesTable.setColumnSelectionAllowed(false);
+			addedNodesTable.setCellSelectionEnabled(false);
+			addedNodesTable.setRowSelectionAllowed(true);
+			addedNodesTable.setAutoCreateRowSorter(true);
+
+			addedNodesTable.setAutoCreateColumnsFromModel(false);
+			addedNodesTable.getColumnExt(0).setCellRenderer(
+					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+			addedNodesTable.getColumnExt(0).setHighlighters(new ProcessedCellItemIconHighlighter(0));
+
+			addedNodesTable.getColumnModel().getColumn(0).setMinWidth(80);
+			addedNodesTable.getColumnModel().getColumn(0).setPreferredWidth(90); // processed
+
+			addedNodesTable.getColumnModel().getColumn(1).setMinWidth(60);
+			addedNodesTable.getColumnModel().getColumn(1).setPreferredWidth(70); // method
+
+			addedNodesTable.getColumnModel().getColumn(2).setMinWidth(400); // name
+			addedNodesTable.getColumnModel().getColumn(2).setPreferredWidth(1000);
+
+			addedNodesTable.setName(ADDED_NODES_CONTAINER_NAME);
+			addedNodesTable.setDoubleBuffered(true);
+			addedNodesTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			addedNodesTable.setComponentPopupMenu(new JPopupMenu() {
+
+				private static final long serialVersionUID = 6608291059686282641L;
+
+				@Override
+				public void show(Component invoker, int x, int y) {
+					View.getSingleton().getPopupMenu().show(invoker, x, y);
+				}
+			});
+		}
+		return addedNodesTable;
+	}
+
 	private JScrollPane getMessagesTableScrollPanel() {
 		if (messagesTableScrollPane == null) {
 			messagesTableScrollPane = new JScrollPane();
@@ -291,7 +364,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	 */
 	private JLabel getFoundCountNameLabel() {
 		if (foundCountNameLabel == null) {
-			foundCountNameLabel = new javax.swing.JLabel();
+			foundCountNameLabel = new JLabel();
 			foundCountNameLabel.setText(Constant.messages.getString("spider.toolbar.found.label"));
 		}
 		return foundCountNameLabel;
@@ -304,10 +377,37 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	 */
 	private JLabel getFoundCountValueLabel() {
 		if (foundCountValueLabel == null) {
-			foundCountValueLabel = new javax.swing.JLabel();
+			foundCountValueLabel = new JLabel();
 			foundCountValueLabel.setText(ZERO_REQUESTS_LABEL_TEXT);
 		}
 		return foundCountValueLabel;
+	}
+
+
+	/**
+	 * Gets the label storing the name of the count of added URIs.
+	 * 
+	 * @return the found count name label
+	 */
+	private JLabel getAddedCountNameLabel() {
+		if (addedCountNameLabel == null) {
+			addedCountNameLabel = new JLabel();
+			addedCountNameLabel.setText(Constant.messages.getString("spider.toolbar.added.label"));
+		}
+		return addedCountNameLabel;
+	}
+
+	/**
+	 * Gets the label storing the value for count of added URIs.
+	 * 
+	 * @return the added count value label
+	 */
+	private JLabel getAddedCountValueLabel() {
+		if (addedCountValueLabel == null) {
+			addedCountValueLabel = new JLabel();
+			addedCountValueLabel.setText(ZERO_REQUESTS_LABEL_TEXT);
+		}
+		return addedCountValueLabel;
 	}
 
 	@Override
@@ -316,32 +416,15 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 			toolBar.add(new JToolBar.Separator(), getGBC(gridX++, 0));
 			toolBar.add(getFoundCountNameLabel(), getGBC(gridX++, 0));
 			toolBar.add(getFoundCountValueLabel(), getGBC(gridX++, 0));
+
 			toolBar.add(new JToolBar.Separator(), getGBC(gridX++, 0));
-			toolBar.add(getShowMessagesToggleButton(), getGBC(gridX++, 0));
+			toolBar.add(getAddedCountNameLabel(), getGBC(gridX++, 0));
+			toolBar.add(getAddedCountValueLabel(), getGBC(gridX++, 0));
+
+			toolBar.add(new JToolBar.Separator(), getGBC(gridX++, 0));
 			toolBar.add(getExportButton(), getGBC(gridX++, 0));
 		}
 		return gridX;
-	}
-
-	private JToggleButton getShowMessagesToggleButton() {
-		if (showMessageToggleButton == null) {
-			showMessageToggleButton = new JToggleButton(
-					Constant.messages.getString("spider.toolbar.button.showmessages.label"),
-					new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/178.png")));
-			showMessageToggleButton.setToolTipText(Constant.messages.getString("spider.toolbar.button.showmessages.tooltip"));
-			showMessageToggleButton.addItemListener(new ItemListener() {
-
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					if (ItemEvent.SELECTED == e.getStateChange()) {
-						showTabs();
-					} else {
-						hideMessagesTab();
-					}
-				}
-			});
-		}
-		return showMessageToggleButton;
 	}
 
 	private TableExportButton<JXTable> getExportButton() {
@@ -352,39 +435,6 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	}
 	
 	/**
-	 * Shows both tabs, the one of the URLs found and the other of the HTTP messages sent.
-	 *
-	 * @see #hideMessagesTab()
-	 */
-	private void showTabs() {
-		mainPanel.removeAll();
-
-		tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.urls"), getUrlsTableScrollPane());
-		tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.messages"), getMessagesTableScrollPanel());
-		getShowMessagesToggleButton().setText(Constant.messages.getString("spider.toolbar.button.showmessages.label.selected"));
-		tabbedPane.setSelectedIndex(1);
-
-		mainPanel.add(tabbedPane);
-		mainPanel.revalidate();
-		mainPanel.repaint();
-	}
-
-	/**
-	 * Hides the HTTP messages tab and the tabbed pane, leaving just the table with URLs found.
-	 *
-	 * @see #showTabs()
-	 */
-	private void hideMessagesTab() {
-		getShowMessagesToggleButton().setText(Constant.messages.getString("spider.toolbar.button.showmessages.label"));
-		tabbedPane.removeAll();
-		mainPanel.removeAll();
-
-		mainPanel.add(getUrlsTableScrollPane());
-		mainPanel.revalidate();
-		getExportButton().setTable(getUrlsTable());
-	}
-
-	/**
 	 * Update the count of found URIs.
 	 */
 	protected void updateFoundCount() {
@@ -393,6 +443,18 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 			this.getFoundCountValueLabel().setText(Integer.toString(sc.getNumberOfURIsFound()));
 		} else {
 			this.getFoundCountValueLabel().setText(ZERO_REQUESTS_LABEL_TEXT);
+		}
+	}
+
+	/**
+	 * Update the count of added nodes.
+	 */
+	protected void updateAddedCount() {
+		SpiderScan sc = this.getSelectedScanner();
+		if (sc != null) {
+			this.getAddedCountValueLabel().setText(Integer.toString(sc.getNumberOfNodesAdded()));
+		} else {
+			this.getAddedCountValueLabel().setText(ZERO_REQUESTS_LABEL_TEXT);
 		}
 	}
 
@@ -415,11 +477,14 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		if (scanner != null) {
 			getUrlsTable().setModel(scanner.getResultsTableModel());
 			getMessagesTable().setModel(scanner.getMessagesTableModel());
+			getAddedNodesTable().setModel(scanner.getAddedNodesTableModel());
 		} else {
 			getUrlsTable().setModel(EMPTY_URLS_TABLE_MODEL);
 			getMessagesTable().setModel(EMPTY_MESSAGES_TABLE_MODEL);
+			getAddedNodesTable().setModel(EMPTY_URLS_TABLE_MODEL);
 		}
 		this.updateFoundCount();
+		this.updateAddedCount();
 	}
 
 	@Override
