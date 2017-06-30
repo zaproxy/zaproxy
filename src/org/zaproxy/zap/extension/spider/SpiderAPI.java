@@ -102,6 +102,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String VIEW_FULL_RESULTS = "fullResults";
 	private static final String VIEW_SCANS = "scans";
 	private static final String VIEW_ALL_URLS = "allUrls";
+	private static final String VIEW_ADDED_NODES = "addedNodes";
 
 	private static final String VIEW_DOMAINS_ALWAYS_IN_SCOPE = "domainsAlwaysInScope";
 	private static final String VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE = "optionDomainsAlwaysInScope";
@@ -177,6 +178,7 @@ public class SpiderAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_SCANS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 		this.addApiView(new ApiView(VIEW_ALL_URLS));
+		this.addApiView(new ApiView(VIEW_ADDED_NODES, null, new String[] { PARAM_SCAN_ID }));
 
 		this.addApiView(new ApiView(VIEW_DOMAINS_ALWAYS_IN_SCOPE));
 		ApiView view = new ApiView(VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE);
@@ -623,6 +625,14 @@ public class SpiderAPI extends ApiImplementor {
 			}
 			
 			result = resultUrls;
+		} else if (VIEW_ADDED_NODES.equals(name)) {
+			result = new ApiResponseList(name);
+			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
+			if (scan != null) {
+				for (String s : scan.getAddedNodesTableModel().getAddedNodes()) {
+					((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
+				}
+			}
 		} else if (VIEW_DOMAINS_ALWAYS_IN_SCOPE.equals(name) || VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE.equals(name)) {
 			result = domainMatchersToApiResponseList(name, extension.getSpiderParam().getDomainsAlwaysInScope(), false);
 		} else if (VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE_ENABLED.equals(name)) {

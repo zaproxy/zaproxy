@@ -51,15 +51,27 @@ public class SessionStructure {
     private static final Logger log = Logger.getLogger(SessionStructure.class);
 
     public static StructuralNode addPath(Session session, HistoryReference ref, HttpMessage msg) {
+        return addPath(session, ref, msg, false);
+    }
+
+    public static StructuralNode addPath(Session session, HistoryReference ref, HttpMessage msg, boolean newOnly) {
     	if (!Constant.isLowMemoryOptionSet()) {
-   			return new StructuralSiteNode(session.getSiteTree().addPath(ref, msg));
+    	    SiteNode node = session.getSiteTree().addPath(ref, msg, newOnly);
+    	    if (node != null) {
+    	        return new StructuralSiteNode(node);
+    	    }
+    	    return null;
     	} else {
 	    	try {
 				List<String> paths = session.getTreePath(msg);
 	        	String host = getHostName(msg.getRequestHeader().getURI());
 				
-	        	return new StructuralTableNode(
-	        			addStructure (session, host, msg, paths, paths.size(), ref.getHistoryId())); 
+	        	RecordStructure rs = addStructure (session, host, msg, paths, paths.size(), ref.getHistoryId(), newOnly);
+	        	if (rs != null) {
+	        	    return new StructuralTableNode(rs);
+	        	} else {
+	        	    return null;
+	        	}
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 				return null;
@@ -77,7 +89,7 @@ public class SessionStructure {
 			return new StructuralSiteNode(node);
 		}
 
-		String nodeName = getNodeName(sessionId, uri, method, postData);
+		String nodeName = getNodeName(uri, method, postData);
 		RecordStructure rs = model.getDb().getTableStructure().find(sessionId, nodeName, method);
 		if (rs == null) {
 			return null;
@@ -85,7 +97,7 @@ public class SessionStructure {
 		return new StructuralTableNode(rs);
 	}
 
-	private static String getNodeName(long sessionId, URI uri, String method, String postData) throws URIException {
+	private static String getNodeName(URI uri, String method, String postData) throws URIException {
 		
 		Session session = Model.getSingleton().getSession();
 		List<String> paths = session.getTreePath(uri);
@@ -115,6 +127,11 @@ public class SessionStructure {
 		}
 		return nodeUrl;
 	}
+
+    public static String getNodeName(HttpMessage msg) throws URIException {
+        return getNodeName(msg.getRequestHeader().getURI(), 
+                msg.getRequestHeader().getMethod(), msg.getRequestBody().toString());
+    }
 
     public static String regexEscape (String str) {
     	String chrsToEscape = ".*+?^=!${}()|[]\\";
@@ -240,7 +257,7 @@ public class SessionStructure {
 	}
 
     private static RecordStructure addStructure (Session session, String host, HttpMessage msg, 
-    		List<String> paths, int size, int historyId) throws DatabaseException, URIException {
+    		List<String> paths, int size, int historyId, boolean newOnly) throws DatabaseException, URIException {
 		//String nodeUrl = pathsToUrl(host, paths, size);
 		String nodeName = getNodeName(session, host, msg, paths, size);
 		String parentName = pathsToUrl(host, paths, size-1);
@@ -269,11 +286,14 @@ public class SessionStructure {
 					tmpMsg = getTempHttpMessage(session, parentName, msg);
 					parentHistoryId = tmpMsg.getHistoryRef().getHistoryId();
 				}
-				RecordStructure parentRs = addStructure(session, host, tmpMsg, paths, size-1, parentHistoryId); 
+				RecordStructure parentRs = addStructure(session, host, tmpMsg, paths, size-1, parentHistoryId, false); 
 				parentId = parentRs.getStructureId();
 			}
 			msgRs = Model.getSingleton().getDb().getTableStructure().insert(
 					session.getSessionId(), parentId, historyId, nodeName, url, method);
+		} else if (newOnly) {
+		    // Already exists
+		    return null;
 		}
 
 		return msgRs;
