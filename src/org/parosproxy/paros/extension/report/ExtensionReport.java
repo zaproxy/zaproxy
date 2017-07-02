@@ -30,6 +30,7 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2016/09/22 Issue 2886: Support Markdown format
 // ZAP: 2017/04/07 Added getUIName()
+// ZAP: 2017/06/21 Issue 3559: Support JSON format
 
 package org.parosproxy.paros.extension.report;
 
@@ -53,6 +54,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	private ZapMenuItem menuItemHtmlReport = null;
     private ZapMenuItem menuItemMdReport = null;
 	private ZapMenuItem menuItemXmlReport = null;
+	private ZapMenuItem menuItemJsonReport = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 
     public ExtensionReport() {
@@ -73,6 +75,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemHtmlReport());
 	        extensionHook.getHookMenu().addReportMenuItem(getMenuItemXmlReport());
             extensionHook.getHookMenu().addReportMenuItem(getMenuItemMdReport());
+            extensionHook.getHookMenu().addReportMenuItem(getMenuItemJsonReport());
 
 	    }
         extensionHook.addCommandLine(getCommandLineArguments());
@@ -82,17 +85,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	private ZapMenuItem getMenuItemHtmlReport() {
 		if (menuItemHtmlReport == null) {
 			menuItemHtmlReport = new ZapMenuItem("menu.report.html.generate");
-			menuItemHtmlReport.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-				    ReportLastScan report = new ReportLastScan();
-				    report.generateReport(getView(), getModel(), ReportLastScan.ReportType.HTML);
-	                
-				}
-			});
-
+            menuItemHtmlReport.addActionListener(e -> new ReportLastScan().generateReport(getView(), getModel(), ReportLastScan.ReportType.HTML));
 		}
 		return menuItemHtmlReport;
 	}
@@ -100,17 +93,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	private ZapMenuItem getMenuItemXmlReport() {
 		if (menuItemXmlReport == null) {
 			menuItemXmlReport = new ZapMenuItem("menu.report.xml.generate");
-			menuItemXmlReport.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-				    ReportLastScan report = new ReportLastScan();
-				    report.generateReport(getView(), getModel(), ReportLastScan.ReportType.XML);
-	                
-				}
-			});
-
+			menuItemXmlReport.addActionListener(e -> new ReportLastScan().generateReport(getView(), getModel(), ReportLastScan.ReportType.XML));
 		}
 		return menuItemXmlReport;
 	}
@@ -118,19 +101,17 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
     private ZapMenuItem getMenuItemMdReport() {
         if (menuItemMdReport == null) {
             menuItemMdReport = new ZapMenuItem("menu.report.md.generate");
-            menuItemMdReport.addActionListener(new java.awt.event.ActionListener() { 
-
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-                    ReportLastScan report = new ReportLastScan();
-                    report.generateReport(getView(), getModel(), ReportLastScan.ReportType.MD);
-                    
-                }
-            });
-
+            menuItemMdReport.addActionListener(e -> new ReportLastScan().generateReport(getView(), getModel(), ReportLastScan.ReportType.MD));
         }
         return menuItemMdReport;
+    }
+
+    private ZapMenuItem getMenuItemJsonReport() {
+        if (menuItemJsonReport == null) {
+            menuItemJsonReport = new ZapMenuItem("menu.report.json.generate");
+            menuItemJsonReport.addActionListener(e -> new ReportLastScan().generateReport(getView(), getModel(), ReportLastScan.ReportType.JSON));
+        }
+        return menuItemJsonReport;
     }
     
     @Override
@@ -142,7 +123,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             // ZAP: Removed unnecessary cast.
             String fileName = arg.getArguments().get(0);
             try {
-                report.generate(fileName, getModel(), "xml/report.html.xsl");
+                report.generate(fileName, getModel(), ReportLastScan.ReportType.HTML);
                 CommandLine.info("Last Scan Report generated at " + fileName);
             } catch (Exception e) {
             	CommandLine.error(e.getMessage(), e);

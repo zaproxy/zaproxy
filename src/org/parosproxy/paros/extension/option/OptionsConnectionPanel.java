@@ -34,6 +34,7 @@
 // ZAP: 2016/03/18 Add checkbox to allow showing of the password
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 // ZAP: 2017/05/02 Checkbox to Enable / Disable HTTP State
+// ZAP: 2017/06/19 Use ZapNumberSpinner for connection timeout.
 
 package org.parosproxy.paros.extension.option;
 
@@ -94,7 +95,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox chkProxyChainAuth = null;
 	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
-	private ZapTextField txtTimeoutInSecs = null;
+	private ZapNumberSpinner spinnerTimeoutInSecs;
 	private JPanel panelGeneral = null;
 	private JCheckBox checkBoxSingleCookieRequestHeader;
 	private JCheckBox checkBoxHttpStateEnabled;
@@ -538,8 +539,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    
-	    this.txtTimeoutInSecs.setText(Integer.toString(connectionParam.getTimeoutInSecs()));
-	    txtTimeoutInSecs.discardAllEdits();
+	    this.spinnerTimeoutInSecs.setValue(connectionParam.getTimeoutInSecs());
 	    
 	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
 	    checkBoxHttpStateEnabled.setSelected(connectionParam.isHttpStateEnabled());
@@ -636,13 +636,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	@Override
 	public void validateParam(Object obj) throws Exception {
 
-        try {
-            Integer.parseInt(txtTimeoutInSecs.getText());
-        } catch (NumberFormatException nfe) {
-        	txtTimeoutInSecs.requestFocus();
-            throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
-        }
-        
 	    if (chkUseProxyChain.isSelected()) {
 	    	// ZAP: empty proxy name validation
         	if(txtProxyChainName.getText().isEmpty()) {
@@ -665,15 +658,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
-	    int timeout;
 
-        try {
-            timeout = Integer.parseInt(txtTimeoutInSecs.getText());
-        } catch (NumberFormatException nfe) {
-        	txtTimeoutInSecs.requestFocus();
-            throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
-        }
-        
 	    connectionParam.setProxyChainName(txtProxyChainName.getText());
 		// ZAP: Do not allow invalid port numbers
 	    connectionParam.setProxyChainPort(spinnerProxyChainPort.getValue());
@@ -696,7 +681,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    } else {
 		    connectionParam.setProxyChainPassword(new String(txtProxyChainPassword.getPassword()));
 	    }
-	    connectionParam.setTimeoutInSecs(timeout);
+	    connectionParam.setTimeoutInSecs(spinnerTimeoutInSecs.getValue());
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
 	    connectionParam.setHttpStateEnabled(checkBoxHttpStateEnabled.isSelected());
 
@@ -844,11 +829,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		return securityProtocolsPanel;
 	}
 
-	private ZapTextField getTxtTimeoutInSecs() {
-		if (txtTimeoutInSecs == null) {
-			txtTimeoutInSecs = new ZapTextField();
+	private ZapNumberSpinner getTxtTimeoutInSecs() {
+		if (spinnerTimeoutInSecs == null) {
+			spinnerTimeoutInSecs = new ZapNumberSpinner(0, ConnectionParam.DEFAULT_TIMEOUT, Integer.MAX_VALUE);
 		}
-		return txtTimeoutInSecs;
+		return spinnerTimeoutInSecs;
 	}
 
 	private JCheckBox getCheckBoxSingleCookeRequestHeader() {

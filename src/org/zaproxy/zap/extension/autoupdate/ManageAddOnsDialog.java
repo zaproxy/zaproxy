@@ -56,7 +56,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
@@ -77,6 +76,7 @@ import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.panels.TableFilterPanel;
 
 public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateCallback {
@@ -116,8 +116,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JLabel downloadProgress = null;
 	private JLabel updatesMessage = null;
 	
-	private JXTable installedAddOnsTable = null;
-	private JXTable uninstalledAddOnsTable = null;
+	private ZapTable installedAddOnsTable = null;
+	private ZapTable uninstalledAddOnsTable = null;
 
 	//private ZapRelease latestRelease = null;
 	private String currentVersion = null;
@@ -282,7 +282,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scrollPane.setViewportView(getInstalledAddOnsTable());
 
-			installedAddOnsFilterPanel = new TableFilterPanel<JXTable>(getInstalledAddOnsTable());
+			installedAddOnsFilterPanel = new TableFilterPanel<>(getInstalledAddOnsTable());
 
 			int row = 0;
 			installedAddOnsPanel.add(installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 5, 0.0D));
@@ -309,7 +309,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
-			uninstalledAddOnsFilterPanel = new TableFilterPanel<JXTable>(getUninstalledAddOnsTable());
+			uninstalledAddOnsFilterPanel = new TableFilterPanel<>(getUninstalledAddOnsTable());
 
 			if (latestInfo == null) {
 				// Not checked yet
@@ -384,9 +384,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
 	}
 	
-	private JXTable getInstalledAddOnsTable () {
+	private ZapTable getInstalledAddOnsTable () {
 		if (installedAddOnsTable == null) {
-			installedAddOnsTable = new JXTable();
+			installedAddOnsTable = createCustomZapTable();
 			installedAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
 				public void tableChanged(TableModelEvent e) {
@@ -436,9 +436,23 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return installedAddOnsTable;
 	}
 
-	private JXTable getUninstalledAddOnsTable () {
+	private static ZapTable createCustomZapTable() {
+		ZapTable zapTable = new ZapTable() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected AutoScrollAction createAutoScrollAction() {
+				return null;
+			}
+		};
+		zapTable.setAutoScrollOnNewValues(false);
+		return zapTable;
+	}
+
+	private ZapTable getUninstalledAddOnsTable () {
 		if (uninstalledAddOnsTable == null) {
-			uninstalledAddOnsTable = new JXTable();
+			uninstalledAddOnsTable = createCustomZapTable();
 
 			uninstalledAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
