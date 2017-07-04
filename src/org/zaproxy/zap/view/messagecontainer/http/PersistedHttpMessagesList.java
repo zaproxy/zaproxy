@@ -63,14 +63,16 @@ public class PersistedHttpMessagesList extends AbstractList<HttpMessage> {
      * {@inheritDoc}
      * <p>
      * <strong>Note:</strong> The returned message will be {@code null} if an error occurred while loading the message from the
-     * database.
+     * database (for example, no longer exists).
      */
     @Override
     public HttpMessage get(int index) {
         try {
             return historyReferences.get(index).getHttpMessage();
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            LOGGER.error("Failed to get the message from DB: " + e.getMessage(), e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Failed to get the message from DB: " + e.getMessage(), e);
+            }
         }
         return null;
     }
