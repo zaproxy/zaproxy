@@ -32,6 +32,11 @@ import org.zaproxy.zap.eventBus.EventPublisher;
 public final class HistoryReferenceEventPublisher implements EventPublisher {
 
     /**
+     * The event sent when a {@code HistoryReference} is removed.
+     */
+    public static final String EVENT_REMOVED = "href.removed";
+
+    /**
      * The event sent when a tag is added to a {@code HistoryReference}.
      */
     public static final String EVENT_TAG_ADDED = "href.tag.added";
@@ -80,7 +85,7 @@ public final class HistoryReferenceEventPublisher implements EventPublisher {
             publisher = new HistoryReferenceEventPublisher();
             ZAP.getEventBus().registerPublisher(
                     publisher,
-                    new String[] { EVENT_TAG_ADDED, EVENT_TAG_REMOVED, EVENT_TAGS_SET, EVENT_NOTE_SET });
+                    new String[] { EVENT_TAG_ADDED, EVENT_TAG_REMOVED, EVENT_TAGS_SET, EVENT_NOTE_SET, EVENT_REMOVED });
         }
     }
 }
