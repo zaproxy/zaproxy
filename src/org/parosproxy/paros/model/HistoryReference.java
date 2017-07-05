@@ -52,6 +52,7 @@
 // ZAP: 2017/05/31 Add a multi-catch for a specific handler. 
 // ZAP: 2017/06/08 Allow to keep the HttpMessage in memory for immediate reuse.
 // ZAP: 2017/06/13 Notify when a note is set.
+// ZAP: 2017/07/04 Notify when a HistoryReference is deleted.
 
 package org.parosproxy.paros.model;
 
@@ -481,6 +482,7 @@ public class HistoryReference {
         	   // ZAP: Support for multiple tags
                staticTableTag.deleteTagsForHistoryID(historyId);
                staticTableHistory.delete(historyId);
+               notifyEvent(HistoryReferenceEventPublisher.EVENT_REMOVED);
            } catch (DatabaseException e) {
         	   log.error(e.getMessage(), e);
            }
