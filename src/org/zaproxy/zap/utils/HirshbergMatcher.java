@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// ZAP: 2014/01/08 Created an helper component for common use inside plugins
 
 package org.zaproxy.zap.utils;
 
