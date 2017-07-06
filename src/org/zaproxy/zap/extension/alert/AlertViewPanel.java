@@ -69,6 +69,8 @@ public class AlertViewPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AlertViewPanel.class);
 	
+	private static final int UNDEFINED_ID = -1;
+
 	private static final Insets DEFAULT_INSETS = new Insets(1,1,1,1);
 	
 	private JScrollPane defaultPane = null;
@@ -406,8 +408,8 @@ public class AlertViewPanel extends AbstractPanel {
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
 			alertEvidence.setText(alert.getEvidence());
-			alertCweId.setText(Integer.toString(alert.getCweId()));
-			alertWascId.setText(Integer.toString(alert.getWascId()));
+			alertCweId.setText(normalisedId(alert.getCweId()));
+			alertWascId.setText(normalisedId(alert.getWascId()));
 			alertSource.setText(getSourceData(alert));
 		}
 		
@@ -419,9 +421,13 @@ public class AlertViewPanel extends AbstractPanel {
 		cardLayout.show(this, getAlertPane().getName());
 	}
 
+	private static String normalisedId(int id) {
+		return id != UNDEFINED_ID ? Integer.toString(id) : "";
+	}
+
 	private String getSourceData(Alert alert) {
 		String source = Constant.messages.getString(alert.getSource().getI18nKey());
-		if (alert.getPluginId() == -1) {
+		if (alert.getPluginId() == UNDEFINED_ID) {
 			return source;
 		}
 
