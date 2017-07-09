@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as far as possible
 
 package org.parosproxy.paros.extension.option;
 
@@ -76,6 +75,12 @@ public class DatabaseParam extends AbstractParam {
      */
     private static final String PARAM_RECOVERY_LOG_ENABLED = PARAM_BASE_KEY + ".recoverylog";
 
+    private static final boolean DEFAULT_COMPACT_DATABASE = false;
+    private static final int DEFAULT_BODY_SIZE = 16777216;
+    private static final int DEFAULT_NEW_SESSION_OPTION = NEW_SESSION_NOT_SPECIFIED;
+    private static final boolean DEFAULT_NEW_SESSION_PROMPT = true;
+    private static final boolean DEFAULT_RECOVERY_LOG_ENABLED = true;
+
     /**
      * The compact option, whether the database should be compacted on exit.
      * Default is {@code false}.
@@ -86,14 +91,14 @@ public class DatabaseParam extends AbstractParam {
     
     /**
      * The request body size in the history table.
-     * Default is 16777216.
+     * Default is {@value #DEFAULT_BODY_SIZE}.
      * 
      */    
     private int requestbodysize;
 
     /**
      * The response body size in the history table.
-     * Default is 16777216.
+     * Default is {@value #DEFAULT_BODY_SIZE}.
      * 
      */    
     private int responsebodysize;
@@ -121,12 +126,12 @@ public class DatabaseParam extends AbstractParam {
     public DatabaseParam() {
         super();
         
-        compactDatabase = false;
-        requestbodysize = 16777216;
-		responsebodysize = 16777216;
-		newSessionOption = NEW_SESSION_NOT_SPECIFIED;
-		newSessionPrompt = true;
-		recoveryLogEnabled = true;
+        compactDatabase = DEFAULT_COMPACT_DATABASE;
+        requestbodysize = DEFAULT_BODY_SIZE;
+		responsebodysize = DEFAULT_BODY_SIZE;
+		newSessionOption = DEFAULT_NEW_SESSION_OPTION;
+		newSessionPrompt = DEFAULT_NEW_SESSION_PROMPT;
+		recoveryLogEnabled = DEFAULT_RECOVERY_LOG_ENABLED;
     }
 
     /**
@@ -143,12 +148,12 @@ public class DatabaseParam extends AbstractParam {
      */
     @Override
     protected void parse() {
-        compactDatabase = getConfig().getBoolean(PARAM_COMPACT_DATABASE, compactDatabase);
-        requestbodysize = getConfig().getInt(PARAM_REQUEST_BODY_SIZE, requestbodysize);
-        responsebodysize = getConfig().getInt(PARAM_RESPONSE_BODY_SIZE, responsebodysize);
-		newSessionOption = getConfig().getInt(PARAM_NEW_SESSION_OPTION, newSessionOption);
-		newSessionPrompt = getConfig().getBoolean(PARAM_NEW_SESSION_PROMPT, newSessionPrompt);
-		recoveryLogEnabled = getConfig().getBoolean(PARAM_RECOVERY_LOG_ENABLED, recoveryLogEnabled);
+        compactDatabase = getBoolean(PARAM_COMPACT_DATABASE, DEFAULT_COMPACT_DATABASE);
+        requestbodysize = getInt(PARAM_REQUEST_BODY_SIZE, DEFAULT_BODY_SIZE);
+        responsebodysize = getInt(PARAM_RESPONSE_BODY_SIZE, DEFAULT_BODY_SIZE);
+		newSessionOption = getInt(PARAM_NEW_SESSION_OPTION, DEFAULT_NEW_SESSION_OPTION);
+		newSessionPrompt = getBoolean(PARAM_NEW_SESSION_PROMPT, DEFAULT_NEW_SESSION_PROMPT);
+		recoveryLogEnabled = getBoolean(PARAM_RECOVERY_LOG_ENABLED, DEFAULT_RECOVERY_LOG_ENABLED);
     }
 
     /**

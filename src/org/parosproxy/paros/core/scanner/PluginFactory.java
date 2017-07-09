@@ -47,6 +47,7 @@
 // ZAP: 2016/06/29 Do not log when cloning PluginFactory
 // ZAP: 2016/07/25 Fix to correct handling of lists in plugins
 // ZAP: 2017/06/20 Allow to obtain a Plugin by ID.
+// ZAP: 2017/07/05 Log an error if the Plugin does not have a defined ID.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -100,9 +101,16 @@ public class PluginFactory {
 
             mapLoadedPlugins = new HashMap<>();
             for (Plugin plugin : loadedPlugins) {
+                checkPluginId(plugin);
                 mapLoadedPlugins.put(plugin.getId(), plugin);
             }
     	}
+    }
+
+    private static void checkPluginId(Plugin plugin) {
+        if (plugin.getId() == -1) {
+            log.error("The active scan rule [" + plugin.getClass().getCanonicalName() + "] does not have a defined ID.");
+        }
     }
 
     /**
@@ -159,6 +167,7 @@ public class PluginFactory {
      */
     public static void loadedPlugin(AbstractPlugin plugin) {
         if (!isPluginLoadedImpl(plugin)) {
+            checkPluginId(plugin);
             getLoadedPlugins().add(plugin);
             mapLoadedPlugins.put(plugin.getId(), plugin);
             Collections.sort(loadedPlugins, riskComparator);
