@@ -52,6 +52,7 @@
 // ZAP: 2016/07/07 Do not add the message to past history if it already belongs to the node
 // ZAP: 2017/01/23: Issue 1800: Alpha sort the site tree
 // ZAP: 2017/06/29: Issue 3714: Added newOnly option to addPath
+// ZAP: 2017/07/09: Issue 3727: Sorting of SiteMap should not include HTTP method (verb) in the node's name
 
 package org.parosproxy.paros.model;
 
@@ -878,8 +879,16 @@ class SortedTreeModel extends DefaultTreeModel {
 
 class SiteNodeStringComparator implements Comparator<SiteNode> {
 	public int compare(SiteNode sn1, SiteNode sn2) {
-		String s1 = sn1.getNodeName();
-		String s2 = sn2.getNodeName();
-		return s1.compareToIgnoreCase(s2);
+		String s1 = sn1.getName();
+		String s2 = sn2.getName();
+		int initialComparison = s1.compareToIgnoreCase(s2);
+
+		if (initialComparison == 0) {
+			s1 = sn1.getNodeName();
+			s2 = sn2.getNodeName();
+			
+			return s1.compareToIgnoreCase(s2);
+		}
+		return initialComparison;
 	}
 }
