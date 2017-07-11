@@ -116,6 +116,7 @@ import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.extension.history.FieldEnumeration;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
@@ -123,6 +124,7 @@ import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.extension.history.PopupMenuExportSelectedURLs;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
+import org.zaproxy.zap.extension.history.PopupMenuField;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 
@@ -153,6 +155,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
 	private ManageTagsDialog manageTags = null;
+
+    private PopupMenuField popupMenuField = null;
+	private FieldEnumeration fieldEnumeration = null;
 	
 	private boolean showJustInScope = false;
 	private boolean linkWithSitesTree;
@@ -237,10 +242,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
+	    extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuField());
 
 //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
 //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());
-
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
 
 	        // same as PopupMenuExport but for File menu
@@ -585,7 +590,29 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
         return popupMenuNote;
     }
-    
+
+    private PopupMenuField getPopupMenuField() {
+	if (popupMenuField == null) {
+	    popupMenuField = new PopupMenuField(this);
+	}
+	return popupMenuField;
+    }
+	
+    private void displayFieldEnumeration(HistoryReference ref) {
+    	fieldEnumeration.setHistoryRef(ref);
+	fieldEnumeration.setVisible(true);
+    }
+   
+    public void ShowFieldEnumeration(HistoryReference ref) {
+	if (fieldEnumeration == null) {
+		fieldEnumeration = new FieldEnumeration(getView().getMainFrame(), false);
+		displayFieldEnumeration(ref);
+	}
+	else if (!fieldEnumeration.isVisible()) {
+		displayFieldEnumeration(ref);
+	}
+    }	
+
     private void populateNotesAddDialogAndSetVisible(HistoryReference ref, String note) {
     	dialogNotesAdd.setNote(note);
     	dialogNotesAdd.setHistoryRef(ref);
