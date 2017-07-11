@@ -48,17 +48,11 @@ import os
 import os.path
 import sys
 import time
-import zapv2
 from datetime import datetime
 from six.moves.urllib.request import urlopen
 from zapv2 import ZAPv2
 from zap_common import *
 
-try:
-    import pkg_resources
-except ImportError:
-    # don't hard fail since it's just used for the version check
-    logging.warning('Error importing pkg_resources. Is setuptools installed?')
 
 timeout = 120
 config_dict = {}
@@ -102,53 +96,6 @@ def usage():
     print ('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print ('')
     print ('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
-
-
-def get_latest_zap_client_version():
-    version_info = None
-
-    try:
-        version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json')
-    except Exception, e:
-        logging.warning('Error fetching latest zap python API client version: %s' % e)
-        return None
-
-    if version_info is None:
-        logging.warning('Error fetching latest zap python API client version: %s' % e)
-        return None
-
-    version_json = json.loads(version_info.read())
-
-    if 'info' not in version_json:
-        logging.warning('No version found for latest zap python API client.')
-        return None
-    if 'version' not in version_json['info']:
-        logging.warning('No version found for latest zap python API client.')
-        return None
-
-    return version_json['info']['version']
-
-OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
- is available. Please run \'pip install -U python_owasp_zap_v2.4\' to update to
- the latest version.'''.replace('\n', '')
-
-def check_zap_client_version():
-    if 'pkg_resources' not in globals():  # import failed
-        logging.warning('Could not check zap python API client without pkg_resources.')
-        return
-
-    current_version = getattr(zapv2, '__version__', None)
-    latest_version = get_latest_zap_client_version()
-    parse_version = pkg_resources.parse_version
-    if current_version and latest_version and \
-       parse_version(current_version) < parse_version(latest_version):
-        logging.warning(OLD_ZAP_CLIENT_WARNING)
-    elif current_version is None:
-        # the latest versions >= 0.0.9 have a __version__
-        logging.warning(OLD_ZAP_CLIENT_WARNING)
-    # else:
-    # we're up to date or ahead / running a development build
-    # or latest_version is None and the user already got a warning
 
 
 def main(argv):
