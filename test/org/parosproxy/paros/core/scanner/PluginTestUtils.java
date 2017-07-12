@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.Status;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
@@ -61,6 +62,24 @@ public class PluginTestUtils {
         return new TestPlugin(id);
     }
 
+    protected static AbstractPlugin createAbstractPlugin(int id, int risk) {
+        return new TestPlugin(id, risk);
+    }
+
+    protected static AbstractPlugin createAbstractPlugin(int id, int risk, AddOn.Status status) {
+        AbstractPlugin plugin = createAbstractPlugin(id, risk);
+        plugin.setStatus(status);
+        return plugin;
+    }
+
+    protected static AbstractPlugin createAbstractPlugin(int id, String codeName) {
+        return new TestPlugin(id, codeName);
+    }
+
+    protected static AbstractPlugin createAbstractPlugin(int id, String codeName, String... dependencies) {
+        return new TestPlugin(id, codeName, dependencies);
+    }
+
     protected static AbstractPlugin createNonVisibleAbstractPlugin() {
         return new NonVisibleTestPlugin();
     }
@@ -79,14 +98,34 @@ public class PluginTestUtils {
 
     private static class TestPlugin extends AbstractPlugin {
 
-        private final int id;
+        private static final int NOT_DEFINED = -1;
+
+        private int id;
+        private int risk;
+        private String codeName;
+        private String[] dependencies;
 
         public TestPlugin() {
-            this.id = 0;
+            this(0);
         }
 
         public TestPlugin(int id) {
+            this(id, NOT_DEFINED);
+        }
+
+        public TestPlugin(int id, int risk) {
             this.id = id;
+            this.risk = risk;
+        }
+
+        public TestPlugin(int id, String codeName) {
+            this(id, codeName, (String[]) null);
+        }
+
+        public TestPlugin(int id, String codeName, String... dependencies) {
+            this(id);
+            this.codeName = codeName;
+            this.dependencies = dependencies;
         }
 
         @Override
@@ -97,6 +136,22 @@ public class PluginTestUtils {
         @Override
         public String getName() {
             return null;
+        }
+
+        @Override
+        public String getCodeName() {
+            if (codeName != null) {
+                return codeName;
+            }
+            return super.getCodeName();
+        }
+
+        @Override
+        public String[] getDependency() {
+            if (dependencies != null) {
+                return dependencies;
+            }
+            return super.getDependency();
         }
 
         @Override
@@ -125,6 +180,30 @@ public class PluginTestUtils {
 
         @Override
         public void notifyPluginCompleted(HostProcess parent) {
+        }
+
+        @Override
+        public int getRisk() {
+            if (risk == NOT_DEFINED) {
+                return super.getRisk();
+            }
+            return risk;
+        }
+
+        @Override
+        public void cloneInto(Plugin plugin) {
+            super.cloneInto(plugin);
+            if (plugin instanceof TestPlugin) {
+                ((TestPlugin) plugin).id = id;
+                ((TestPlugin) plugin).risk = risk;
+                ((TestPlugin) plugin).codeName = codeName;
+                ((TestPlugin) plugin).dependencies = dependencies;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return getCodeName();
         }
     }
 
