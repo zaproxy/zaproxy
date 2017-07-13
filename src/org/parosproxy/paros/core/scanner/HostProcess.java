@@ -73,6 +73,7 @@
 // ZAP: 2017/06/15 Do not start following plugin if the scanner is paused.
 // ZAP: 2017/06/20 Log number of alerts raised by each scanner.
 // ZAP: 2017/07/12 Tweak the method used when initialising the PluginFactory.
+// ZAP: 2017/07/13 Automatically skip dependent scanners (Issue 3784)
 
 package org.parosproxy.paros.core.scanner;
 
@@ -253,6 +254,11 @@ public class HostProcess implements Runnable {
 
             // Initialise plugin factory to report the state of the plugins ASAP.
             pluginFactory.reset();
+            synchronized (mapPluginStats) {
+                for (Plugin plugin : pluginFactory.getPending()) {
+                    mapPluginStats.put(plugin.getId(), new PluginStats());
+                }
+            }
 
             for (StructuralNode startNode : startNodes) {
                 traverse(startNode, true, node -> {
@@ -324,9 +330,7 @@ public class HostProcess implements Runnable {
     }
 
     private void processPlugin(final Plugin plugin) {
-        synchronized (mapPluginStats) {
-            mapPluginStats.put(plugin.getId(), new PluginStats());
-        }
+        mapPluginStats.get(plugin.getId()).start();
 
         if (!plugin.targets(techSet)) {
             pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.techs"));
@@ -752,6 +756,16 @@ public class HostProcess implements Runnable {
 
         pluginStats.skipped();
         pluginStats.setSkippedReason(reason);
+
+        for (Plugin dependent : pluginFactory.getDependentPlugins(plugin)) {
+            pluginStats = mapPluginStats.get(dependent.getId());
+            if (pluginStats != null && !pluginStats.isSkipped() && !pluginFactory.getCompleted().contains(dependent)) {
+                pluginStats.skipped();
+                pluginStats.setSkippedReason(
+                        Constant.messages.getString(
+                                "ascan.progress.label.skipped.reason.dependency"));
+            }
+        }
     }
 
     /**
@@ -1021,7 +1035,7 @@ public class HostProcess implements Runnable {
      */
     private static class PluginStats {
 
-        private final long startTime;
+        private long startTime;
         private int messageCount;
         private int alertCount;
         private int progress;
@@ -1029,10 +1043,11 @@ public class HostProcess implements Runnable {
         private String skippedReason;
 
         /**
-         * Constructs a {@code PluginStats}, initialising the starting time of the plugin.
+         * Constructs a {@code PluginStats}.
+         * 
+         * @see #start()
          */
         public PluginStats() {
-            startTime = System.currentTimeMillis();
         }
 
         /**
@@ -1075,6 +1090,13 @@ public class HostProcess implements Runnable {
          */
         public String getSkippedReason() {
             return skippedReason;
+        }
+
+        /**
+         * Starts the plugin stats.
+         */
+        void start() {
+            startTime = System.currentTimeMillis();
         }
 
         /**
