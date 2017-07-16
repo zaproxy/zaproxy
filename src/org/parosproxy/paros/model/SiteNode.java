@@ -50,6 +50,7 @@
 // ZAP: 2016/04/12 Notify of changes when an alert is updated
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
+// ZAP: 2017/07/09: Issue 3727: Add getName() function, returning the node name without HTTP method (verb)
 
 package org.parosproxy.paros.model;
 
@@ -230,6 +231,27 @@ public class SiteNode extends DefaultMutableTreeNode {
     public String getNodeName() {
     	return this.nodeName;
     }
+    
+	/**
+	 * Returns the node's name without the HTTP Method (verb) prefixing the string.
+	 * 
+	 * @return the name of the site node
+	 * @see #getNodeName()
+	 * @see #getCleanNodeName()
+	 * @see #getCleanNodeName(boolean)
+	 * @since TODO add version
+	 */
+	public String getName() {
+		String name = this.getNodeName();
+		if (this.isLeaf()) {
+			int colonIndex = name.indexOf(":");
+			if (colonIndex > 0) {
+				// Strip the GET/POST etc off
+				name = name.substring(colonIndex+1);
+			}
+		}
+		return name; 
+	}
 
     public String getCleanNodeName() {
     	return getCleanNodeName(true);

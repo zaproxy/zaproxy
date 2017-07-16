@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
@@ -89,7 +90,8 @@ public class HttpPanelSender implements MessageSender {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
-            if (getButtonFollowRedirects().isSelected()) {
+            boolean followRedirects = getButtonFollowRedirects().isSelected();
+            if (followRedirects) {
                 getDelegate().sendAndReceive(
                         httpMessage,
                         HttpRequestConfig.builder().setRedirectionValidator(redirectionValidator).build());
@@ -104,19 +106,9 @@ public class HttpPanelSender implements MessageSender {
                         // Indicate UI new response arrived
                         responsePanel.updateContent();
 
-                        try {
-                            Session session = Model.getSingleton().getSession();
-                            HistoryReference ref = new HistoryReference(session, HistoryReference.TYPE_ZAP_USER, httpMessage);
-                            final ExtensionHistory extHistory = getHistoryExtension();
-                            if (extHistory != null) {
-                                extHistory.addHistory(ref);
-                            }
-                            SessionStructure.addPath(session, ref, httpMessage);
-                        } catch (final Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-
-                        if (!redirectionValidator.isRequestValid()) {
+                        if (!followRedirects) {
+                            persistAndShowMessage(httpMessage);
+                        } else if (!redirectionValidator.isRequestValid()) {
                             View.getSingleton().showWarningDialog(
                                     Constant.messages.getString(
                                             "manReq.outofscope.redirection.warning",
@@ -142,6 +134,25 @@ public class HttpPanelSender implements MessageSender {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void persistAndShowMessage(HttpMessage httpMessage) {
+        if (!EventQueue.isDispatchThread()) {
+            EventQueue.invokeLater(() -> persistAndShowMessage(httpMessage));
+            return;
+        }
+
+        try {
+            Session session = Model.getSingleton().getSession();
+            HistoryReference ref = new HistoryReference(session, HistoryReference.TYPE_ZAP_USER, httpMessage);
+            final ExtensionHistory extHistory = getHistoryExtension();
+            if (extHistory != null) {
+                extHistory.addHistory(ref);
+            }
+            SessionStructure.addPath(Model.getSingleton().getSession(), ref, httpMessage);
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            logger.warn("Failed to persist message sent:", e);
         }
     }
 
@@ -244,7 +255,7 @@ public class HttpPanelSender implements MessageSender {
      *
      * @see #isRequestValid()
      */
-    private static class ModeRedirectionValidator implements HttpRedirectionValidator {
+    private class ModeRedirectionValidator implements HttpRedirectionValidator {
 
         private boolean isRequestValid;
         private URI invalidRedirection;
@@ -255,7 +266,7 @@ public class HttpPanelSender implements MessageSender {
 
         @Override
         public void notifyMessageReceived(HttpMessage message) {
-            // Nothing to do with the message.
+            persistAndShowMessage(message);
         }
 
         @Override

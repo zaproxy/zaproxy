@@ -1,6 +1,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -21,7 +22,7 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 
 	private final String HEADER = "// Zed Attack Proxy (ZAP) and its related class files.\n" + "//\n"
 			+ "// ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" + "//\n"
-			+ "// Copyright 2016 the ZAP development team\n" + "//\n"
+			+ "// Copyright 2017 the ZAP development team\n" + "//\n"
 			+ "// Licensed under the Apache License, Version 2.0 (the \"License\");\n"
 			+ "// you may not use this file except in compliance with the License.\n"
 			+ "// You may obtain a copy of the License at\n" + "//\n"
@@ -69,7 +70,8 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 		String className = imp.getPrefix().substring(0, 1).toUpperCase() + imp.getPrefix().substring(1);
 		String pkgName = safeName(camelCaseToLowerCaseDash(className));
 
-		Path file = getDirectory().resolve(pkgName + ".go");
+		Path file = getDirectory().resolve(pkgName + "_generated.go");
+		createDirAndFile(file);
 		System.out.println("Generating " + file.toAbsolutePath());
 		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 			out.write(HEADER);
@@ -78,7 +80,7 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 			out.write("//\n\n");
 			out.write("package zap\n\n");
 			out.write("_imports_");
-			out.write("type " + className + " struct {}" + "\n\n");
+			out.write("type " + className + " struct {\n\tc *Client\n}" + "\n\n");
 
 			for (ApiElement view : imp.getApiViews()) {
 				this.generateGoElement(view, className, imp.getPrefix(), VIEW_ENDPOINT, out);
@@ -146,7 +148,7 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 		if (typeOther) {
 			out.write(" ([]byte, error) ");
 		} else {
-			out.write(" (interface{}, error) ");
+			out.write(" (map[string]interface{}, error) ");
 		}
 		out.write("{\n");
 
@@ -163,7 +165,7 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 			out.write("\n\t}\n");
 		}
 
-		String method = "Request";
+		String method = className.substring(0, 1).toLowerCase()+".c.Request";
 		if (typeOther) {
 			method += "Other";
 		}
@@ -171,9 +173,24 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 
 		if (hasParams) {
 			out.write(", m");
+		} else {
+			out.write(", nil");
 		}
 		out.write(")\n");
 		out.write("}\n\n");
+	}
+
+	// create dir/files if not exist
+	private void createDirAndFile(Path path) throws IOException {
+			// create dir and file first if dir/file not exist
+			File file = new File(path.toAbsolutePath().toString());
+			File dir = file.getParentFile();
+			if (dir != null && !dir.exists()) {
+				dir.mkdirs();
+			}
+			if (!file.exists()) {
+				file.createNewFile();
+			}
 	}
 
 	// Writes the function arguments
