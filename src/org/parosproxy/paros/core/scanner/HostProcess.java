@@ -72,6 +72,7 @@
 // ZAP: 2017/06/15 Initialise the plugin factory immediately after starting the scan.
 // ZAP: 2017/06/15 Do not start following plugin if the scanner is paused.
 // ZAP: 2017/06/20 Log number of alerts raised by each scanner.
+// ZAP: 2017/07/12 Tweak the method used when initialising the PluginFactory.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -251,7 +252,7 @@ public class HostProcess implements Runnable {
             hostProcessStartTime = System.currentTimeMillis();
 
             // Initialise plugin factory to report the state of the plugins ASAP.
-            pluginFactory.existPluginToRun();
+            pluginFactory.reset();
 
             for (StructuralNode startNode : startNodes) {
                 traverse(startNode, true, node -> {
