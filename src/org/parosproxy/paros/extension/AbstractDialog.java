@@ -25,16 +25,15 @@
 // ZAP: 2014/11/06 Set ZAP icons
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/09/07 Move icon loading to a utility class
+// ZAP: 2017/07/13 Centre the dialogue on parent window.
 
 package org.parosproxy.paros.extension;
 
 
+import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -44,10 +43,10 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DisplayUtils;
 
 
@@ -122,22 +121,12 @@ public abstract class AbstractDialog extends JDialog {
 	}
 
 	/**
-	 * Centres this dialog on the main fame.
-	 * This is needed, because when using multiple monitors.
-	 * Additionally, it will shrink the size of the dialog to fit the screen.
+	 * Centres this dialog on the parent window.
+	 * 
+	 * @see #setLocationRelativeTo(Component)
 	 */
 	public void centreDialog() {
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension frameSize = this.getSize();
-		// shrink dialog to fit screen if necessary
-		frameSize.height = Math.min(frameSize.height,screenSize.height);
-		frameSize.width  = Math.min(frameSize.width, screenSize.width);
-		// centres the dialog on main frame 
-		final Rectangle mainrect = View.getSingleton().getMainFrame().getBounds();
-		int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
-		int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
-		// finally set the new location
-	    this.setLocation(x, y);
+		setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
 	}
 	
 	@Override
