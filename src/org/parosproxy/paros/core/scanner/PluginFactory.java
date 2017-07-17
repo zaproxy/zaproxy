@@ -48,6 +48,7 @@
 // ZAP: 2016/07/25 Fix to correct handling of lists in plugins
 // ZAP: 2017/06/20 Allow to obtain a Plugin by ID.
 // ZAP: 2017/07/05 Log an error if the Plugin does not have a defined ID.
+// ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status comparison.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -230,16 +231,12 @@ public class PluginFactory {
     private static final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
         @Override
         public int compare(AbstractPlugin e1, AbstractPlugin e2) {
-        	if (e1.getStatus().ordinal() > e2.getStatus().ordinal()) {
-            	//High Risk alerts are checked before low risk alerts
-                return -1;
-        		
-        	}
-        	if (e1.getStatus().ordinal() < e2.getStatus().ordinal()) {
-            	//High Risk alerts are checked before low risk alerts
-                return 1;
-        		
-        	}
+            // Run stable plugins first
+            int res = e1.getStatus().compareTo(e2.getStatus());
+            if (res != 0) {
+                return -res;
+            }
+
             if (e1.getRisk() > e2.getRisk()) {
             	//High Risk alerts are checked before low risk alerts
                 return -1;
@@ -287,7 +284,10 @@ public class PluginFactory {
                 // ZAP: Removed unnecessary cast.
                 plugin = iterator.next();
                 if (plugin.isEnabled()) {
-                    listPending.add(plugin);
+                    addAllDependencies(plugin, listPending);
+                    if (!listPending.contains(plugin)) {
+                        listPending.add(plugin);
+                    }
                 }
             }
             
@@ -336,8 +336,8 @@ public class PluginFactory {
             if (pluginDep == null) {
                 allDepsAvailable = false;
             } else if (!to.contains(pluginDep)) {
-                to.add(pluginDep);
                 allDepsAvailable &= addAllDependencies(pluginDep, to);
+                to.add(pluginDep);
             }
         }
         return allDepsAvailable;
