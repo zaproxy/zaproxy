@@ -43,7 +43,6 @@ public class ScanProgressTableModel extends AbstractTableModel {
     
     private HostProcess hp;
     private List<ScanProgressItem> values;
-    private List<ScanProgressActionIcon> actions = new ArrayList<ScanProgressActionIcon>();
     private ScanProgressActionIcon focusedAction;
     private String totRequests;
     private String totTime;
@@ -133,19 +132,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
                 	return item.getReqCount();
                 	
                 case 5:
-                    ScanProgressActionIcon action = null;
-                    if (item.isCompleted() || item.isRunning() || item.isSkipped()) {
-                        if (row < actions.size()) {
-                            action = actions.get(row);
-                            action.updateStatus(item);
-
-                        } else {
-                            action = new ScanProgressActionIcon(item);
-                            actions.add(action);
-                        }
-                    }
-
-                    return action;
+                    return item.getProgressAction();
 
                 default:
                     return null;
@@ -255,11 +242,28 @@ public class ScanProgressTableModel extends AbstractTableModel {
      * @param scan 
      */
     public void updateValues(ActiveScan scan, HostProcess hp) {
-        values.clear();
+        setHostProcess(hp);
         
-        this.hp = hp;
+        // Update total elapsed time and request count
+        Date end = (scan.getTimeFinished() == null) ? new Date() : scan.getTimeFinished();
+        long elapsed = end.getTime() - scan.getTimeStarted().getTime();
+        totTime = getElapsedTimeLabel(elapsed);
+        totRequests = Integer.toString(scan.getTotalRequests());
 
-        // Iterate all Plugins
+        this.fireTableDataChanged();
+    }
+
+    private void setHostProcess(HostProcess hp) {
+        if (this.hp == hp) {
+            for (ScanProgressItem spi : values) {
+                spi.refresh();
+            }
+            return;
+        }
+
+        this.hp = hp;
+        values.clear();
+
         for (Plugin plugin : hp.getCompleted()) {
             values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_COMPLETED));
         }
@@ -271,14 +275,6 @@ public class ScanProgressTableModel extends AbstractTableModel {
         for (Plugin plugin : hp.getPending()) {
             values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_PENDING));
         }
-        
-        // Update total elapsed time a and request count
-        Date end = (scan.getTimeFinished() == null) ? new Date() : scan.getTimeFinished();
-        long elapsed = end.getTime() - scan.getTimeStarted().getTime();
-        totTime = getElapsedTimeLabel(elapsed);
-        totRequests = Integer.toString(scan.getTotalRequests());
-                
-        this.fireTableDataChanged();        
     }
 
     /**
