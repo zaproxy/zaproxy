@@ -24,6 +24,7 @@
 // ZAP: 2012/10/23 Changed to prevent a NullPointerException when there's no
 // parent JFrame (changed to use SwingUtilities.getAncestorOfClass(...)).
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2017/07/22 Leverage KeyStroke constant for consistency with other FindDialog usage
 
 package org.parosproxy.paros.extension.edit;
 
@@ -62,6 +63,7 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
 	 */
 	private void initialize() {
         this.setText(Constant.messages.getString("edit.find.popup"));	// ZAP: i18n
+        this.setAccelerator(ExtensionEdit.FIND_DEFAULT_KEYSTROKE);
 	}
 	
     @Override

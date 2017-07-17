@@ -22,10 +22,8 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
@@ -53,6 +50,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.edit.ExtensionEdit;
 import org.parosproxy.paros.view.FindDialog;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
@@ -153,7 +151,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         toolBarMoreOptions.setBorder(BorderFactory.createEmptyBorder());
         toolBarMoreOptions.setRollover(true);
         toolBarMoreOptions.getActionMap().put("findAction", getFindAction());
-        toolBarMoreOptions.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "findAction");
+        toolBarMoreOptions.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ExtensionEdit.FIND_DEFAULT_KEYSTROKE, "findAction");
         
         endAllOptions = new JPanel();
         
@@ -208,9 +206,8 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
                 public void actionPerformed(ActionEvent e) {
                     Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
                     if (focusOwner instanceof JTextComponent) {
-                        FindDialog findDialog = new FindDialog(SwingUtilities.getWindowAncestor(focusOwner), false);
+                        FindDialog findDialog = FindDialog.getDialog(SwingUtilities.getWindowAncestor(focusOwner), false);
                         findDialog.setLastInvoker((JTextComponent) focusOwner);
-                        findDialog.setVisible(true);
                     }
                 }
             }; 

@@ -23,6 +23,7 @@
 // ZAP: 2012/05/03 Changed the method find to check if txtComp is null.
 // ZAP: 2014/01/30 Issue 996: Ensure all dialogs close when the escape key is pressed (copy tidy up)
 // ZAP: 2017/07/12 Issue 765: Add constructor with window parent, to facilitate ctrl-F in various HttpPanels
+// ZAP: 2017/07/17: Prevent opening multiple dialogs per parent.
 
 package org.parosproxy.paros.view;
 
@@ -33,6 +34,9 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -40,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 
+import org.apache.commons.collections.map.ReferenceMap;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -48,6 +53,9 @@ import org.zaproxy.zap.utils.ZapTextField;
 public class FindDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = -3223449799557586758L;
+	
+	@SuppressWarnings("unchecked")
+	private static Map<Object, FindDialog> parentsMap = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.HARD);
 
 	private JPanel jPanel = null;
 	private JButton btnFind = null;
@@ -65,7 +73,10 @@ public class FindDialog extends AbstractDialog {
 
     /**
      * @throws HeadlessException
+     * @deprecated TODO add version, use #FindDialog(Window, boolean) instead
+     * @see #getDialog(Window, boolean)
      */
+    @Deprecated
     public FindDialog() throws HeadlessException {
         super();
  		initialize();
@@ -75,7 +86,10 @@ public class FindDialog extends AbstractDialog {
      * @param arg0
      * @param arg1
      * @throws HeadlessException
+     * @deprecated TODO add version, use #FindDialog(Window, boolean) instead 
+     * @see #getDialog(Window, boolean)
      */
+    @Deprecated
     public FindDialog(Frame arg0, boolean arg1) throws HeadlessException {
         super(arg0, arg1);
         initialize();
@@ -87,6 +101,8 @@ public class FindDialog extends AbstractDialog {
      * @param parent the parent window of the FindDialog.
      * @param modal whether or not this FindDialog should be modal
      * @throws HeadlessException
+     * @see #getDialog(Window, boolean)
+     * @since TODO add version
      */
     public FindDialog(Window parent, boolean modal) throws HeadlessException {
     	super(parent, modal);
@@ -108,6 +124,42 @@ public class FindDialog extends AbstractDialog {
         txtFind.requestFocus();
         this.getRootPane().setDefaultButton(btnFind);
         pack();
+        this.setVisible(true);
+	}
+	
+	private static Map<Object, FindDialog> getParentsMap() {
+		return parentsMap;
+	}
+	
+	/**
+	 * Get the FindDialog for the parent if there is one or creates and returns a new one.
+	 * 
+	 * @param parent the parent Window (or Frame) for this FindDialog
+	 * @param modal a boolean indicating whether the FindDialog should ({@code true}), 
+	 * or shouldn't ({@code false}) be modal.
+	 * @return The existing FindDialog for the parent (if there is one), or a new FindDialog.
+	 * @since TODO add version
+	 */
+	public static FindDialog getDialog(Window parent, boolean modal) {
+		FindDialog activeDialog = getParentsMap().get(parent);
+		if (activeDialog != null) {
+			activeDialog.getTxtFind().requestFocus();
+			return activeDialog;
+		}
+		FindDialog newDialog = new FindDialog(parent, modal); 
+		getParentsMap().put(parent, newDialog);
+		newDialog.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				getParentsMap().remove(parent);
+			}
+		});
+		return newDialog;
+	}
+
+	private void discard() {
+		this.setVisible(false);
+		this.dispose();
 	}
 	
 	private void find() {
@@ -224,7 +276,8 @@ public class FindDialog extends AbstractDialog {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 
-				    FindDialog.this.setVisible(false);
+					FindDialog.this.discard();
+					FindDialog.this.dispatchEvent(new WindowEvent(FindDialog.this, WindowEvent.WINDOW_CLOSING));
 				}
 			});
 
