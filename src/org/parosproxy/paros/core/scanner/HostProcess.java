@@ -75,6 +75,7 @@
 // ZAP: 2017/07/06 Expose plugin stats.
 // ZAP: 2017/07/12 Tweak the method used when initialising the PluginFactory.
 // ZAP: 2017/07/13 Automatically skip dependent scanners (Issue 3784)
+// ZAP: 2017/07/18 Allow to obtain the (total) alert count.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -142,6 +143,11 @@ public class HostProcess implements Runnable {
      * The count of requests sent by the {@code HostProcess} itself.
      */
     private int requestCount;
+
+    /**
+     * The count of alerts raised during the scan.
+     */
+    private int alertCount;
 
     /**
      * The ID of the message to be scanned by {@link AbstractHostPlugin}s.
@@ -710,6 +716,17 @@ public class HostProcess implements Runnable {
         if (pluginStats != null) {
             pluginStats.incAlertCount();
         }
+        alertCount++;
+    }
+
+    /**
+     * Gets the alert count.
+     * 
+     * @return the alert count.
+     * @since TODO add version
+     */
+    public int getAlertCount() {
+        return alertCount;
     }
 
     /**
