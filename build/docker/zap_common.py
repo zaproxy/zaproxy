@@ -339,21 +339,21 @@ def get_latest_zap_client_version():
 
     try:
         version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json')
-    except Exception, e:
-        logging.warning('Error fetching latest zap python API client version: %s' % e)
+    except Exception as e:
+        logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
         return None
 
     if version_info is None:
-        logging.warning('Error fetching latest zap python API client version: %s' % e)
+        logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
         return None
 
     version_json = json.loads(version_info.read())
 
     if 'info' not in version_json:
-        logging.warning('No version found for latest zap python API client.')
+        logging.warning('No version found for latest ZAP Python API client.')
         return None
     if 'version' not in version_json['info']:
-        logging.warning('No version found for latest zap python API client.')
+        logging.warning('No version found for latest ZAP Python API client.')
         return None
 
     return version_json['info']['version']
@@ -361,7 +361,7 @@ def get_latest_zap_client_version():
 
 def check_zap_client_version():
     if 'pkg_resources' not in globals():  # import failed
-        logging.warning('Could not check zap python API client without pkg_resources.')
+        logging.warning('Could not check ZAP Python API client without pkg_resources.')
         return
 
     current_version = getattr(zapv2, '__version__', None)
