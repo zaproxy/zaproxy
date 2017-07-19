@@ -404,7 +404,7 @@ def main(argv):
         else:
             print("ERROR %s" % e)
             logging.warning('I/O error: ' + str(e))
-            dump_log_file(cid)
+        dump_log_file(cid)
 
     except:
         print("ERROR " + str(sys.exc_info()[0]))
