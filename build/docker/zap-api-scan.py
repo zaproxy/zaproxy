@@ -55,7 +55,7 @@ import os.path
 import subprocess
 import sys
 import time
-import urllib2
+from six.moves.urllib.request import urlopen
 from datetime import datetime
 from zapv2 import ZAPv2
 from zap_common import *
@@ -174,7 +174,7 @@ def main(argv):
         elif opt == '-r':
             report_html = arg
         elif opt == '-J':
-            report_json = arg    
+            report_json = arg
         elif opt == '-w':
             report_md = arg
         elif opt == '-x':
@@ -244,12 +244,9 @@ def main(argv):
     elif config_url:
         # load config file from url
         try:
-            load_config(urllib2.urlopen(config_url), config_dict, config_msg, out_of_scope_dict)
+            load_config(urlopen(config_url), config_dict, config_msg, out_of_scope_dict)
         except ValueError as e:
             logging.warning(e)
-            sys.exit(3)
-        except:
-            logging.warning('Failed to read configs from ' + config_url)
             sys.exit(3)
 
     if progress_file:
