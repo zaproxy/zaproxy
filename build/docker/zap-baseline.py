@@ -48,11 +48,11 @@ import os
 import os.path
 import sys
 import time
-from six.moves.urllib.request import urlopen
-
 from datetime import datetime
+from six.moves.urllib.request import urlopen
 from zapv2 import ZAPv2
 from zap_common import *
+
 
 timeout = 120
 config_dict = {}
@@ -99,7 +99,6 @@ def usage():
 
 
 def main(argv):
-
     global min_level
     global in_progress_issues
     cid = ''
@@ -130,6 +129,8 @@ def main(argv):
     ignore_count = 0
     warn_inprog_count = 0
     fail_inprog_count = 0
+
+    check_zap_client_version()
 
     try:
         opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
