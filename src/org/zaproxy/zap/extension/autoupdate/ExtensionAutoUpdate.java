@@ -126,6 +126,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private Thread remoteCallThread = null; 
 	private ScanStatus scanStatus = null;
 	private JButton addonsButton = null;
+    private JButton checkForUpdatesButton = null;
     private JButton outOfDateButton = null;
 
 	private AddOnCollection latestVersionInfo = null;
@@ -201,9 +202,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			menuItemCheckUpdate.setText(Constant.messages.getString("cfu.help.menu.check"));
 			menuItemCheckUpdate.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					getAddOnsDialog().setVisible(true);
-					getAddOnsDialog().checkForUpdates();
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					checkForUpdates();
 				}
 
 			});
@@ -537,6 +537,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	        extensionHook.getHookMenu().addFileMenuItem(getMenuItemLoadAddOn());
 	        
 			View.getSingleton().addMainToolbarButton(getAddonsButton());
+			View.getSingleton().addMainToolbarButton(getCheckForUpdatesButton());
 
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
 	    }
@@ -574,6 +575,28 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		return this.addonsButton;
 	}
 	
+    private JButton getCheckForUpdatesButton() {
+        if (checkForUpdatesButton == null) {
+            checkForUpdatesButton = new JButton();
+            checkForUpdatesButton.setIcon(new ImageIcon(ExtensionAutoUpdate.class.getResource("/resource/icon/fugue/update-zap.png")));
+            checkForUpdatesButton.setToolTipText(Constant.messages.getString("cfu.button.checkForUpdates"));
+            checkForUpdatesButton.setEnabled(true);
+            checkForUpdatesButton.addActionListener(new java.awt.event.ActionListener() { 
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    checkForUpdates();
+                }
+            });
+
+        }
+        return this.checkForUpdatesButton;
+    }
+    
+    private void checkForUpdates() {
+        getAddOnsDialog().setVisible(true);
+        getAddOnsDialog().checkForUpdates();
+    }
+    
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
