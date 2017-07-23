@@ -72,6 +72,9 @@
 // ZAP: 2017/06/15 Initialise the plugin factory immediately after starting the scan.
 // ZAP: 2017/06/15 Do not start following plugin if the scanner is paused.
 // ZAP: 2017/06/20 Log number of alerts raised by each scanner.
+// ZAP: 2017/07/06 Expose plugin stats.
+// ZAP: 2017/07/12 Tweak the method used when initialising the PluginFactory.
+// ZAP: 2017/07/13 Automatically skip dependent scanners (Issue 3784)
 
 package org.parosproxy.paros.core.scanner;
 
@@ -251,7 +254,12 @@ public class HostProcess implements Runnable {
             hostProcessStartTime = System.currentTimeMillis();
 
             // Initialise plugin factory to report the state of the plugins ASAP.
-            pluginFactory.existPluginToRun();
+            pluginFactory.reset();
+            synchronized (mapPluginStats) {
+                for (Plugin plugin : pluginFactory.getPending()) {
+                    mapPluginStats.put(plugin.getId(), new PluginStats());
+                }
+            }
 
             for (StructuralNode startNode : startNodes) {
                 traverse(startNode, true, node -> {
@@ -323,9 +331,7 @@ public class HostProcess implements Runnable {
     }
 
     private void processPlugin(final Plugin plugin) {
-        synchronized (mapPluginStats) {
-            mapPluginStats.put(plugin.getId(), new PluginStats());
-        }
+        mapPluginStats.get(plugin.getId()).start();
 
         if (!plugin.targets(techSet)) {
             pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.techs"));
@@ -749,8 +755,18 @@ public class HostProcess implements Runnable {
             return;
         }
 
-        pluginStats.skipped();
+        pluginStats.skip();
         pluginStats.setSkippedReason(reason);
+
+        for (Plugin dependent : pluginFactory.getDependentPlugins(plugin)) {
+            pluginStats = mapPluginStats.get(dependent.getId());
+            if (pluginStats != null && !pluginStats.isSkipped() && !pluginFactory.getCompleted().contains(dependent)) {
+                pluginStats.skip();
+                pluginStats.setSkippedReason(
+                        Constant.messages.getString(
+                                "ascan.progress.label.skipped.reason.dependency"));
+            }
+        }
     }
 
     /**
@@ -999,6 +1015,19 @@ public class HostProcess implements Runnable {
     }
 
     /**
+     * Gets the stats of the {@code Plugin} with the given ID.
+     *
+     * @param pluginId the ID of the plugin.
+     * @return the stats of the plugin, or {@code null} if not found.
+     * @since TODO add version
+     */
+    public PluginStats getPluginStats(int pluginId) {
+        synchronized (mapPluginStats) {
+            return mapPluginStats.get(pluginId);
+        }
+    }
+
+    /**
      * An action to be executed for each node traversed during the scan.
      *
      * @see #apply(StructuralNode)
@@ -1012,142 +1041,6 @@ public class HostProcess implements Runnable {
          * @param node the node being traversed
          */
         void apply(StructuralNode node);
-    }
-
-    /**
-     * The stats (and skip state and reason) of a {@link Plugin}, when the {@code Plugin} was started, how many messages were
-     * sent and its scan progress.
-     */
-    private static class PluginStats {
-
-        private final long startTime;
-        private int messageCount;
-        private int alertCount;
-        private int progress;
-        private boolean skipped;
-        private String skippedReason;
-
-        /**
-         * Constructs a {@code PluginStats}, initialising the starting time of the plugin.
-         */
-        public PluginStats() {
-            startTime = System.currentTimeMillis();
-        }
-
-        /**
-         * Tells whether or not the plugin was skipped.
-         *
-         * @return {@code true} if the plugin was skipped, {@code false} otherwise
-         * @see #skipped()
-         */
-        public boolean isSkipped() {
-            return skipped;
-        }
-
-        /**
-         * Skips the plugin.
-         *
-         * @see #isSkipped()
-         * @see #setSkippedReason(String)
-         */
-        public void skipped() {
-            this.skipped = true;
-        }
-
-        /**
-         * Gets the reason why the plugin was skipped.
-         *
-         * @param reason the reason why the plugin was skipped, might be {@code null}
-         * @see #getSkippedReason()
-         * @see #isSkipped()
-         */
-        public void setSkippedReason(String reason) {
-            this.skippedReason = reason;
-        }
-
-        /**
-         * Gets the reason why the plugin was skipped.
-         *
-         * @return the reason why the plugin was skipped, might be {@code null}
-         * @see #setSkippedReason(String)
-         * @see #isSkipped()
-         */
-        public String getSkippedReason() {
-            return skippedReason;
-        }
-
-        /**
-         * Gets the time when the plugin was started, in milliseconds.
-         *
-         * @return time when the plugin was started
-         * @see System#currentTimeMillis()
-         */
-        public long getStartTime() {
-            return startTime;
-        }
-
-        /**
-         * Gets the count of messages sent by the plugin.
-         *
-         * @return the count of messages sent
-         */
-        public int getMessageCount() {
-            return messageCount;
-        }
-
-        /**
-         * Increments the count of messages sent by the plugin.
-         * <p>
-         * Should be called when the plugin notifies that a message was sent.
-         */
-        public void incMessageCount() {
-            messageCount++;
-        }
-
-        /**
-         * Gets the count of alerts raised by the plugin.
-         *
-         * @return the count of alerts raised.
-         */
-        public int getAlertCount() {
-            return alertCount;
-        }
-
-        /**
-         * Increments the count of alerts raised by the plugin.
-         * <p>
-         * Should be called when the plugin notifies that an alert was found.
-         */
-        public void incAlertCount() {
-            alertCount++;
-        }
-
-        /**
-         * Gets the scan progress of the plugin.
-         *
-         * @return the scan progress
-         */
-        public int getProgress() {
-            return progress;
-        }
-
-        /**
-         * Increments the scan progress of the plugin.
-         * <p>
-         * Should be called after scanning a message.
-         */
-        public void incProgress() {
-            this.progress++;
-        }
-
-        /**
-         * Sets the scan progress of the plugin.
-         *
-         * @param progress the progress to set
-         */
-        public void setProgress(int progress) {
-            this.progress = progress;
-        }
     }
 
 }

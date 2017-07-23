@@ -839,7 +839,8 @@ public class ActiveScanAPI extends ApiImplementor {
 					for (Plugin plugin : hp.getCompleted()) {
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
 						int reqs = hp.getPluginRequestCount(plugin.getId());
-						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Complete"), timeTaken, reqs));
+						int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
+						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Complete"), timeTaken, reqs, alertCount));
 			        }
 
 			        for (Plugin plugin : hp.getRunning()) {
@@ -851,11 +852,12 @@ public class ActiveScanAPI extends ApiImplementor {
 						}
 						long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
 						int reqs = hp.getPluginRequestCount(plugin.getId());
-						hpList.addItem(createPluginProgressEntry(plugin, pc + "%", timeTaken, reqs));
+						int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
+						hpList.addItem(createPluginProgressEntry(plugin, pc + "%", timeTaken, reqs, alertCount));
 			        }
 
 			        for (Plugin plugin : hp.getPending()) {
-						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Pending"), 0, 0));
+						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Pending"), 0, 0, 0));
 			        }
 					resultList.addItem(hpList);
 
@@ -967,7 +969,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		return result;
 	}
 
-	private static ApiResponseList createPluginProgressEntry(Plugin plugin, String status, long timeTaken, int requestCount) {
+	private static ApiResponseList createPluginProgressEntry(Plugin plugin, String status, long timeTaken, int requestCount, int alertCount) {
 		ApiResponseList pList = new ApiResponseList("Plugin");
 		pList.addItem(new ApiResponseElement("name", plugin.getName()));
 		pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
@@ -975,6 +977,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		pList.addItem(new ApiResponseElement("status", status));
 		pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
 		pList.addItem(new ApiResponseElement("reqCount", Integer.toString(requestCount)));
+		pList.addItem(new ApiResponseElement("alertCount", Integer.toString(alertCount)));
 		return pList;
 	}
 

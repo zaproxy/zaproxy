@@ -137,6 +137,8 @@ def main(argv):
     warn_inprog_count = 0
     fail_inprog_count = 0
 
+    check_zap_client_version()
+
     try:
         opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
     except getopt.GetoptError as exc:
@@ -491,7 +493,7 @@ def main(argv):
         else:
             print("ERROR %s" % e)
             logging.warning('I/O error: ' + str(e))
-            dump_log_file(cid)
+        dump_log_file(cid)
 
     except:
         print("ERROR " + str(sys.exc_info()[0]))

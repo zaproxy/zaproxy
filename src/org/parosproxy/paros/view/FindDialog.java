@@ -22,6 +22,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/03 Changed the method find to check if txtComp is null.
 // ZAP: 2014/01/30 Issue 996: Ensure all dialogs close when the escape key is pressed (copy tidy up)
+// ZAP: 2017/07/12 Issue 765: Add constructor with window parent, to facilitate ctrl-F in various HttpPanels
 
 package org.parosproxy.paros.view;
 
@@ -31,6 +32,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.awt.Window;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -77,6 +79,18 @@ public class FindDialog extends AbstractDialog {
     public FindDialog(Frame arg0, boolean arg1) throws HeadlessException {
         super(arg0, arg1);
         initialize();
+    }
+    
+    /**
+     * Constructs a FindDialog. 
+     * 
+     * @param parent the parent window of the FindDialog.
+     * @param modal whether or not this FindDialog should be modal
+     * @throws HeadlessException
+     */
+    public FindDialog(Window parent, boolean modal) throws HeadlessException {
+    	super(parent, modal);
+    	initialize();
     }
 
 	/**
@@ -125,8 +139,8 @@ public class FindDialog extends AbstractDialog {
 		    int length = findText.length();
 		    if (startPos > -1) {
 		        txtComp.select(startPos,startPos+length);
-		        txtComp.requestFocus();
-                txtFind.requestFocus();
+		        txtComp.requestFocusInWindow();
+                txtFind.requestFocusInWindow();
 		    } else {
 		        Toolkit.getDefaultToolkit().beep();
 		    }
