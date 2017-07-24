@@ -189,6 +189,15 @@ public class ScanProgressItem {
 		return hProcess.getPluginRequestCount(plugin.getId());
 	}
 
+	/**
+	 * Gets the alert count of this scan progress item.
+	 *
+	 * @return the alert count.
+	 */
+	int getAlertCount() {
+		return hProcess.getPluginStats(plugin.getId()).getAlertCount();
+	}
+
 	@Override
 	public String toString() {
 		return Integer.toString(getProgressPercentage());

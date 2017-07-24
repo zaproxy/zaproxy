@@ -38,6 +38,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
         Constant.messages.getString("ascan.progress.table.progress"),
         Constant.messages.getString("ascan.progress.table.time"),
         Constant.messages.getString("ascan.progress.table.reqs"),
+        Constant.messages.getString("ascan.progress.table.alerts"),
         Constant.messages.getString("ascan.progress.table.status"),
     };
     
@@ -132,6 +133,8 @@ public class ScanProgressTableModel extends AbstractTableModel {
                 	return item.getReqCount();
                 	
                 case 5:
+                    return item.getAlertCount();
+                case 6:
                     return item.getProgressAction();
 
                 default:
@@ -157,6 +160,8 @@ public class ScanProgressTableModel extends AbstractTableModel {
                     
                 case 4:
                     return totRequests;                    
+                case 5:
+                    return hp != null ? hp.getAlertCount() : 0;
                 
                 default:
                     return null;
