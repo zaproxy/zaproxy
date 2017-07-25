@@ -132,7 +132,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		}
 
 		// Register as Http Sender listener
-		HttpSender.addListener(this);
+		extensionHook.addHttpSenderListener(this);
 
 		// Prepare API
 		this.api = new ForcedUserAPI(this);

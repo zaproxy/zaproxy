@@ -68,6 +68,7 @@
 // ZAP: 2016/11/23 Call postInit() when starting an extension, startLifeCycle(Extension).
 // ZAP: 2017/02/19 Hook/remove extensions' components to/from the main tool bar.
 // ZAP: 2017/06/07 Allow to notify of changes in the session's properties (e.g. name, description).
+// ZAP: 2017/07/25 Hook HttpSenderListener.
 
 package org.parosproxy.paros.extension;
 
@@ -100,6 +101,7 @@ import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.MainMenuBar;
@@ -113,6 +115,7 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -761,6 +764,7 @@ public class ExtensionLoader {
 
                 hookContextDataFactories(ext, extHook);
                 hookApiImplementors(ext, extHook);
+                hookHttpSenderListeners(ext, extHook);
 
                 if (view != null) {
                     EventQueue.invokeAndWait(new Runnable() {
@@ -815,6 +819,16 @@ public class ExtensionLoader {
                 API.getInstance().registerApiImplementor(apiImplementor);
             } catch (Exception e) {
                 logger.error("Error while adding an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+    }
+
+    private void hookHttpSenderListeners(Extension extension, ExtensionHook extHook) {
+        for (HttpSenderListener httpSenderListener : extHook.getHttpSenderListeners()) {
+            try {
+                HttpSender.addListener(httpSenderListener);
+            } catch (Exception e) {
+                logger.error("Error while adding an HttpSenderListener from " + extension.getClass().getCanonicalName(), e);
             }
         }
     }
@@ -1283,6 +1297,14 @@ public class ExtensionLoader {
                 API.getInstance().removeApiImplementor(apiImplementor);
             } catch (Exception e) {
                 logger.error("Error while removing an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        for (HttpSenderListener httpSenderListener : hook.getHttpSenderListeners()) {
+            try {
+                HttpSender.removeListener(httpSenderListener);
+            } catch (Exception e) {
+                logger.error("Error while removing an HttpSenderListener from " + extension.getClass().getCanonicalName(), e);
             }
         }
 
