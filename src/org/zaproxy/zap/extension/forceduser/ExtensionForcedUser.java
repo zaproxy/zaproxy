@@ -122,11 +122,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		super.hook(extensionHook);
 
 		// Register this where needed
-		Model.getSingleton().addContextDataFactory(this);
+		extensionHook.addContextDataFactory(this);
 
 		if (getView() != null) {
 			// Factory for generating Session Context UserAuth panels
-			getView().addContextPanelFactory(this);
+			extensionHook.getHookView().addContextPanelFactory(this);
 
 			View.getSingleton().addMainToolbarButton(getForcedUserModeToggleButton());
 		}
