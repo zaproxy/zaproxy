@@ -476,6 +476,17 @@ public class AddOn  {
 		return version;
 	}
 
+	/**
+	 * Gets the semantic version declared in the manifest file.
+	 * <p>
+	 * To be replaced by {@link #getVersion()}.
+	 *
+	 * @return the semantic version declared in the manifest file, might be {@code null}.
+	 */
+	Version getSemVer() {
+		return semVer;
+	}
+
 	public Status getStatus() {
 		return status;
 	}
