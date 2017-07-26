@@ -81,10 +81,9 @@ public class DynamicFieldsPanel extends JPanel {
 	 */
 	public void bindFieldValues(Map<String, String> fieldValues) {
 		for (Entry<String, ZapTextField> f : textFields.entrySet()) {
-			if (fieldValues.containsKey(f.getKey()))
-				f.getValue().setText(fieldValues.get(f.getKey()));
-			else
-				f.getValue().setText("");
+			ZapTextField field = f.getValue();
+			field.setText(fieldValues.get(f.getKey()));
+			field.discardAllEdits();
 		}
 	}
 
