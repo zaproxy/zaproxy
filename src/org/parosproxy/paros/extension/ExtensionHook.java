@@ -29,6 +29,7 @@
 // ZAP: 2016/05/30 Allow to add AddOnInstallationStatusListener
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/08/18 Allow to add ApiImplementor
+// ZAP: 2017/07/25 Allow to add HttpSenderListener.
 
 package org.parosproxy.paros.extension;
 
@@ -48,6 +49,7 @@ import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
@@ -108,6 +110,16 @@ public class ExtensionHook {
      * @see #getApiImplementors()
      */
     private List<ApiImplementor> apiImplementors;
+
+    /**
+     * The {@link HttpSenderListener}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addHttpSenderListener(HttpSenderListener)
+     * @see #getHttpSenderListeners()
+     */
+    private List<HttpSenderListener> httpSenderListeners;
     
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -367,5 +379,40 @@ public class ExtensionHook {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(apiImplementors);
+    }
+
+    /**
+     * Adds the given {@code httpSenderListener} to the extension hook, to be later added to the
+     * {@link org.parosproxy.paros.network.HttpSender HttpSender}.
+     * <p>
+     * By default, the {@code HttpSenderListener}s added to this extension hook are removed from the {@code HttpSender} when the
+     * extension is unloaded.
+     *
+     * @param httpSenderListener the HttpSenderListener that will be added to the {@code HttpSender}
+     * @throws IllegalArgumentException if the given {@code httpSenderListener} is {@code null}.
+     * @since TODO add version
+     */
+    public void addHttpSenderListener(HttpSenderListener httpSenderListener) {
+        if (httpSenderListener == null) {
+            throw new IllegalArgumentException("Parameter httpSenderListener must not be null.");
+        }
+
+        if (httpSenderListeners == null) {
+            httpSenderListeners = new ArrayList<>();
+        }
+        httpSenderListeners.add(httpSenderListener);
+    }
+
+    /**
+     * Gets the {@link HttpSenderListener}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code HttpSenderListener}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<HttpSenderListener> getHttpSenderListeners() {
+        if (httpSenderListeners == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(httpSenderListeners);
     }
 }
