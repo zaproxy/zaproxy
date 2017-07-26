@@ -819,11 +819,13 @@ public class ActiveScanAPI extends ApiImplementor {
 			break;
 		case VIEW_SCANS:
 			ApiResponseList resultList = new ApiResponseList(name);
-			for (GenericScanner2 scan : controller.getAllScans()) {
+			for (ActiveScan scan : controller.getAllScans()) {
 				Map<String, String> map = new HashMap<>();
 				map.put("id", Integer.toString(scan.getScanId()));
 				map.put("progress", Integer.toString(scan.getProgress()));
-				map.put("state", ((ActiveScan)scan).getState().name());
+				map.put("state", scan.getState().name());
+				map.put("reqCount", Integer.toString(scan.getTotalRequests()));
+				map.put("alertCount", Integer.toString(scan.getAlertsIds().size()));
 				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
