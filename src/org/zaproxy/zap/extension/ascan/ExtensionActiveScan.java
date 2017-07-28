@@ -161,7 +161,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
-	        View.getSingleton().addMainToolbarButton(this.getPolicyButton());
+	        extensionHook.getHookView().addMainToolBarComponent(this.getPolicyButton());
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(
 					attackModeScanner.getScanStatus().getCountLabel());
 

@@ -536,8 +536,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	        extensionHook.getHookMenu().addHelpMenuItem(getMenuItemCheckUpdate());
 	        extensionHook.getHookMenu().addFileMenuItem(getMenuItemLoadAddOn());
 	        
-			View.getSingleton().addMainToolbarButton(getAddonsButton());
-			View.getSingleton().addMainToolbarButton(getCheckForUpdatesButton());
+			extensionHook.getHookView().addMainToolBarComponent(getAddonsButton());
+			extensionHook.getHookView().addMainToolBarComponent(getCheckForUpdatesButton());
 
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
 	    }

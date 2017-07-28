@@ -43,7 +43,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -128,7 +127,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			// Factory for generating Session Context UserAuth panels
 			extensionHook.getHookView().addContextPanelFactory(this);
 
-			View.getSingleton().addMainToolbarButton(getForcedUserModeToggleButton());
+			extensionHook.getHookView().addMainToolBarComponent(getForcedUserModeToggleButton());
 		}
 
 		// Register as Http Sender listener
