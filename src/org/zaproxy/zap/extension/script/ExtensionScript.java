@@ -173,7 +173,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
 
 		extensionHook.addProxyListener(this.getProxyListener());
-		HttpSender.addListener(getHttpSenderScriptListener());
+		extensionHook.addHttpSenderListener(getHttpSenderScriptListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
 
 	    extensionHook.addCommandLine(getCommandLineArguments());

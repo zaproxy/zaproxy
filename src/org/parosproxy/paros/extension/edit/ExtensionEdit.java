@@ -26,6 +26,7 @@
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added name constants and getUIName()
+// ZAP: 2017/07/22 Added KeyStroke constant for consistency with other FindDialog usage
 
 package org.parosproxy.paros.extension.edit;
 
@@ -45,8 +46,8 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionEdit extends ExtensionAdaptor {
 	
 	private static final String NAME = "ExtensionEdit";
+	public static final KeyStroke FIND_DEFAULT_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false);
 
-    private FindDialog findDialog = null;
     private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
 
@@ -73,10 +74,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
 	}
     
     private void showFindDialog(JFrame frame, JTextComponent lastInvoker) {
-        if (findDialog == null || findDialog.getParent() != frame) {
-            findDialog = new FindDialog(frame, false);            
-        }
-        
+        FindDialog findDialog = FindDialog.getDialog(frame, false);            
         findDialog.setLastInvoker(lastInvoker);
         findDialog.setVisible(true);
     }
@@ -88,8 +86,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
      */
     private ZapMenuItem getMenuFind() {
         if (menuFind == null) {
-            menuFind = new ZapMenuItem("menu.edit.find", 
-            		KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+            menuFind = new ZapMenuItem("menu.edit.find", FIND_DEFAULT_KEYSTROKE);
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
                 @Override

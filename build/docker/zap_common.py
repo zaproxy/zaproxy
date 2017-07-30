@@ -32,6 +32,7 @@ import errno
 import zapv2
 from random import randint
 from six.moves.urllib.request import urlopen
+from six import binary_type
 
 try:
     import pkg_resources
@@ -376,3 +377,11 @@ def check_zap_client_version():
     # else:
     # we're up to date or ahead / running a development build
     # or latest_version is None and the user already got a warning
+
+
+def write_report(file_path, report):
+    with open(file_path, mode='wb') as f:
+        if not isinstance(report, binary_type):
+            report = report.encode('utf-8')
+
+        f.write(report)

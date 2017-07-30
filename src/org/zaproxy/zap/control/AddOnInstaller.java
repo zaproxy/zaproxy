@@ -353,6 +353,17 @@ public final class AddOnInstaller {
         installAddOnFiles(addOnClassLoader, addOn, false);
     }
 
+    /**
+     * Updates the files declared by the given {@code addOn}.
+     *
+     * @param addOnClassLoader the class loader of the given {@code addOn}.
+     * @param addOn the add-on that will have the declared files updated.
+     * @since TODO add version
+     */
+    public static void updateAddOnFiles(AddOnClassLoader addOnClassLoader, AddOn addOn) {
+        installAddOnFiles(addOnClassLoader, addOn, true);
+    }
+
     private static void installAddOnFiles(AddOnClassLoader addOnClassLoader, AddOn addOn, boolean overwrite) {
         List<String> fileNames = addOn.getFiles();
 

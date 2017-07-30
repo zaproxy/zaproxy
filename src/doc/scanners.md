@@ -72,6 +72,7 @@ Scanners:
 10055   Content Security Policy Scanner
 10056   X-Debug-Token Scanner
 10057   Username Hash iDOR Scanner
+10058   GET for POST Scanner
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure

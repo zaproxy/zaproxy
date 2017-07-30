@@ -213,7 +213,7 @@ public final class AddOnRunIssuesUtils {
                         Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.version"),
                         addOn.getName(),
                         issueDetails.get(1),
-                        addOn.getVersion());
+                        addOn.getSemVer() != null ? addOn.getSemVer() : addOn.getVersion());
                 break;
             default:
                 message = Constant.messages.getString("cfu.warn.addon.with.missing.requirements.unknown");
@@ -349,7 +349,7 @@ public final class AddOnRunIssuesUtils {
                     "Add-on \"{0}\" with version matching {1} (found version {2})",
                     addOn.getName(),
                     issueDetails.get(1),
-                    addOn.getVersion());
+                    addOn.getSemVer() != null ? addOn.getSemVer() : addOn.getVersion());
         default:
             LOGGER.warn("Failed to handle dependency issue with name \"" + requirements.getDependencyIssue().name()
                     + "\" and details: " + issueDetails);

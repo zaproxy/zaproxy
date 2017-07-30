@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
@@ -129,8 +128,6 @@ public class ScanProgressDialog extends AbstractDialog {
     }
 
     private void initialize() {
-        this.setSize(new Dimension(580, 504));
-
         JTabbedPane tabbedPane = new JTabbedPane();
         JPanel tab1 = new JPanel();
         tab1.setLayout(new GridBagLayout());
@@ -202,6 +199,7 @@ public class ScanProgressDialog extends AbstractDialog {
                 stopThread = true;
             }
         });
+        pack();
     }
 
     private JFreeChart createChart(final XYDataset dataset) {
@@ -340,10 +338,13 @@ public class ScanProgressDialog extends AbstractDialog {
             rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
             table.getColumnModel().getColumn(4).setPreferredWidth(60);
             table.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+
+            table.getColumnModel().getColumn(5).setPreferredWidth(60);
+            table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
             
             // Fifth column is for plugin's completion and actions
-            table.getColumnModel().getColumn(5).setPreferredWidth(40);                  
-            table.getColumnModel().getColumn(5).setCellRenderer(new ScanProgressActionRenderer());
+            table.getColumnModel().getColumn(6).setPreferredWidth(40);                  
+            table.getColumnModel().getColumn(6).setCellRenderer(new ScanProgressActionRenderer());
 
             ScanProgressActionListener listener = new ScanProgressActionListener(table, model);
             table.addMouseListener(listener);
