@@ -13,6 +13,8 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class DynamicFieldsPanel extends JPanel {
 
+	private static final String[] NO_FIELDS = new String[0];
+
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -1129326656062554952L;
 
@@ -25,19 +27,55 @@ public class DynamicFieldsPanel extends JPanel {
 	private Map<String, ZapTextField> textFields;
 
 	public DynamicFieldsPanel(String[] requiredFields) {
-		this(requiredFields, new String[0]);
+		this(requiredFields, NO_FIELDS);
 	}
 
 	public DynamicFieldsPanel(String[] requiredFields, String[] optionalFields) {
-		super();
-		this.requiredFields = requiredFields;
-		this.optionalFields = optionalFields;
-		this.textFields = new HashMap<>(requiredFields.length + optionalFields.length);
-		initialize();
+		super(new GridBagLayout());
+
+		setFields(requiredFields, optionalFields);
 	}
 
-	private void initialize() {
-		this.setLayout(new GridBagLayout());
+	/**
+	 * Sets the (required) fields that should be shown in the panel.
+	 * <p>
+	 * Any fields previously set are removed.
+	 *
+	 * @param requiredFields the required fields.
+	 * @throws IllegalArgumentException if the given argument is {@code null}.
+	 * @since TODO add version
+	 * @see #setFields(String[], String[])
+	 */
+	public void setFields(String[] requiredFields) {
+		setFields(requiredFields, NO_FIELDS);
+	}
+
+	/**
+	 * Sets the required and optional fields that should be shown in the panel.
+	 * <p>
+	 * Any fields previously set are removed.
+	 *
+	 * @param requiredFields the required fields.
+	 * @param optionalFields the optional fields.
+	 * @throws IllegalArgumentException if the any of the arguments is {@code null}.
+	 * @since TODO add version
+	 * @see #setFields(String[])
+	 */
+	public void setFields(String[] requiredFields, String[] optionalFields) {
+		if (requiredFields == null) {
+			throw new IllegalArgumentException("Parameter requiredFields must not be null.");
+		}
+
+		if (optionalFields == null) {
+			throw new IllegalArgumentException("Parameter optionalFields must not be null.");
+		}
+
+		this.requiredFields = requiredFields;
+		this.optionalFields = optionalFields;
+
+		this.textFields = new HashMap<>(requiredFields.length + optionalFields.length);
+
+		removeAll();
 
 		int fieldIndex = 0;
 		for (String fieldName : requiredFields) {
@@ -59,6 +97,8 @@ public class DynamicFieldsPanel extends JPanel {
 
 			fieldIndex++;
 		}
+
+		validate();
 	}
 
 	/**
