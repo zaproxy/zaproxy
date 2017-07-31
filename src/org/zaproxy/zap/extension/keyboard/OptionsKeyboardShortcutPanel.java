@@ -29,13 +29,14 @@ import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.utils.DesktopUtils;
-import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.MultipleOptionsTablePanel;
+import org.zaproxy.zap.view.panels.TableFilterPanel;
 
 public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
@@ -66,25 +67,43 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.weightx = 1.0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 5;
         gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.fill = GridBagConstraints.BOTH;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         tkeyboardOptionsPanel = new KeyboardOptionsPanel(getShortcutModel());
+
+        this.add(new TableFilterPanel<>(tkeyboardOptionsPanel.getTableImpl()), gbc);
         
+        gbc.gridy++;
         gbc.weighty = 1.0;
-        this.add(tkeyboardOptionsPanel, 
-        		LayoutHelper.getGBC(0, 0, 5, 1.0D, 1.0D, GridBagConstraints.BOTH, 
-        				GridBagConstraints.LINE_START, null));
-        
-        this.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 0.5D, 0));	// Spacer
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        this.add(tkeyboardOptionsPanel, gbc);
+
+        gbc.gridy++;
+        gbc.weighty = 0.0;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+
+        gbc.weightx = 1.0;
+        this.add(new JLabel(), gbc);  // Spacer
+        gbc.weightx = 0.0;
+
         if (DesktopUtils.canOpenUrlInBrowser()) {
         	// No point in showing these if they cant be used..
-	        this.add(getCheatsheetAction(), LayoutHelper.getGBC(1, 1, 1, 0, 0));
-	        this.add(getCheatsheetKey(), LayoutHelper.getGBC(2, 1, 1, 0, 0));
+            gbc.gridx++;
+            this.add(getCheatsheetAction(), gbc);
+            gbc.gridx++;
+            this.add(getCheatsheetKey(), gbc);
         }
-        this.add(getResetButton(), LayoutHelper.getGBC(3, 1, 1, 0, 0));
-        this.add(new JLabel(), LayoutHelper.getGBC(4, 1, 1, 0.5D, 0));	// Spacer
+        gbc.gridx++;
+        this.add(getResetButton(), gbc);
+
+        gbc.gridx++;
+        gbc.weightx = 1.0;
+        this.add(new JLabel(), gbc);  // Spacer
         
 	}
 
@@ -221,6 +240,10 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
 			    }
 			});
+        }
+
+        JXTable getTableImpl() {
+            return getTable();
         }
         
         protected void packAll() {
