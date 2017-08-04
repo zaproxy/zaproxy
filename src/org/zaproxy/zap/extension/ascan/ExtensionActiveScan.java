@@ -57,7 +57,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.script.ExtensionScript;
@@ -77,12 +76,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     
     public static final String NAME = "ExtensionActiveScan";
     
-    private static final ImageIcon SCRIPT_ICON_ACTIVE
-            = new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
-    
-    private static final ImageIcon SCRIPT_ICON_VARIANT
-            = new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-variant.png"));
-
     public static final String SCRIPT_TYPE_ACTIVE = "active";
     public static final String SCRIPT_TYPE_VARIANT = "variant";
 
@@ -176,14 +169,23 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
         ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
         if (extScript != null) {
-            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", SCRIPT_ICON_ACTIVE, true));
-            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", SCRIPT_ICON_VARIANT, true));
+            extScript.registerScriptType(
+                    new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", createIcon("script-ascan.png"), true));
+            extScript.registerScriptType(
+                    new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", createIcon("script-variant.png"), true));
         }
 
         this.ascanController.setExtAlert((ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
         this.activeScanApi = new ActiveScanAPI(this);
         this.activeScanApi.addApiOptions(getScannerParam());
         extensionHook.addApiImplementor(activeScanApi);
+    }
+
+    private ImageIcon createIcon(String iconName) {
+        if (getView() == null) {
+            return null;
+        }
+        return new ImageIcon(ExtensionActiveScan.class.getResource("/resource/icon/16/" + iconName));
     }
 
     @Override
