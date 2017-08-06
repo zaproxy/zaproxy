@@ -153,6 +153,11 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
     	return true;
     }
 	
+	@Override
+	public boolean supportsLowMemory() {
+		return true;
+	}
+
 	/**
 	 * Gets ZAPs current Root CA Certificate in X.509 format. 
 	 * Could return {@code null} if there is a problem getting the certificate.

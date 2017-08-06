@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
 
 import org.apache.commons.configuration.Configuration;
@@ -43,7 +44,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -76,6 +76,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			.getString("forceduser.toolbar.button.off");
 	private static final String BUTTON_LABEL_DISABLED = Constant.messages
 			.getString("forceduser.toolbar.button.disabled");
+	private static final String MENU_ITEM_LABEL = Constant.messages.getString("forceduser.menuitem.label");
 
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionForcedUser";
@@ -94,6 +95,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private boolean forcedUserModeEnabled = false;
 
 	private ZapToggleButton forcedUserModeButton;
+	private JCheckBoxMenuItem forcedUserModeMenuItem;
 	private ForcedUserAPI api;
 
 	/**
@@ -118,6 +120,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 
@@ -128,7 +131,9 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			// Factory for generating Session Context UserAuth panels
 			extensionHook.getHookView().addContextPanelFactory(this);
 
-			View.getSingleton().addMainToolbarButton(getForcedUserModeToggleButton());
+			extensionHook.getHookView().addMainToolBarComponent(getForcedUserModeToggleButton());
+			extensionHook.getHookMenu().addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
+			extensionHook.getHookMenu().addEditMenuItem(getForcedUserModeMenuItem());
 		}
 
 		// Register as Http Sender listener
@@ -142,6 +147,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private void updateForcedUserModeToggleButtonEnabledState() {
 		if (getView() != null) {
 			forcedUserModeButton.setSelected(forcedUserModeEnabled);
+			forcedUserModeMenuItem.setSelected(forcedUserModeEnabled);
+			forcedUserModeMenuItem.setToolTipText(forcedUserModeEnabled ? BUTTON_LABEL_ON : BUTTON_LABEL_OFF );
 		}
 	}
 
@@ -154,10 +161,14 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		if (enabled) {
 			updateForcedUserModeToggleButtonEnabledState();
 			this.getForcedUserModeToggleButton().setEnabled(true);
+			this.getForcedUserModeMenuItem().setEnabled(true);
 		} else {
 			this.forcedUserModeEnabled = false;
 			this.getForcedUserModeToggleButton().setSelected(false);
 			this.getForcedUserModeToggleButton().setEnabled(false);
+			this.getForcedUserModeMenuItem().setSelected(false);
+			this.getForcedUserModeMenuItem().setEnabled(false);
+			this.getForcedUserModeMenuItem().setToolTipText(BUTTON_LABEL_DISABLED);
 		}
 	}
 
@@ -191,6 +202,16 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			});
 		}
 		return forcedUserModeButton;
+	}
+
+	private JCheckBoxMenuItem getForcedUserModeMenuItem() {
+		if (forcedUserModeMenuItem == null) {
+			forcedUserModeMenuItem = new JCheckBoxMenuItem(MENU_ITEM_LABEL);
+			forcedUserModeMenuItem.setToolTipText(BUTTON_LABEL_DISABLED);
+			forcedUserModeMenuItem.setEnabled(false);
+			forcedUserModeMenuItem.addActionListener(e -> setForcedUserModeEnabled(forcedUserModeMenuItem.isSelected()));
+		}
+		return forcedUserModeMenuItem;
 	}
 
 	protected ExtensionUserManagement getUserManagementExtension() {
