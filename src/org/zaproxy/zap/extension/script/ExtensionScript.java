@@ -69,14 +69,18 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
 	public static final int EXTENSION_ORDER = 60;
 	public static final String NAME = "ExtensionScript";
-	public static final ImageIcon ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/059.png")); // Script icon
+
+	/**
+	 * @deprecated (TODO add version) Use {@link #getScriptIcon()} instead.
+	 */
+	@Deprecated
+	public static final ImageIcon ICON = View.isInitialised() ? getScriptIcon() : null;
 	
 	/**
 	 * The {@code Charset} used to load/save the scripts from/to the file.
@@ -90,6 +94,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #saveScript(ScriptWrapper)
 	 */
 	public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
+	/**
+	 * The script icon.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getScriptIcon()
+	 */
+	private static ImageIcon scriptIcon;
 	
 	public static final String SCRIPTS_DIR = "scripts";
 	public static final String TEMPLATES_DIR = SCRIPTS_DIR + File.separator + "templates";
@@ -101,15 +114,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public static final String TYPE_PROXY = "proxy";
 	public static final String TYPE_STANDALONE = "standalone";
 	public static final String TYPE_TARGETED = "targeted";
-
-	private static final ImageIcon HTTP_SENDER_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-httpsender.png"));
-	private static final ImageIcon PROXY_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-proxy.png"));
-	private static final ImageIcon STANDALONE_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-standalone.png"));
-	private static final ImageIcon TARGETED_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-targeted.png"));
 	
 	private ScriptEngineManager mgr = new ScriptEngineManager();
 	private ScriptParam scriptParam = null;
@@ -164,11 +168,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
-		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", PROXY_ICON, true));
-		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false, 
+		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", createIcon("/resource/icon/16/script-proxy.png"), true));
+		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", createIcon("/resource/icon/16/script-standalone.png"), false,
 				new String[] {ScriptType.CAPABILITY_APPEND}));
-		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
-		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", HTTP_SENDER_ICON, true));
+		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", createIcon("/resource/icon/16/script-targeted.png"), false));
+		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", createIcon("/resource/icon/16/script-targeted.png"), true));
 
 		extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
 
@@ -187,6 +191,19 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 		extensionHook.addApiImplementor(new ScriptAPI(this));
 
+	}
+
+	/**
+	 * Creates an {@code ImageIcon} with the give resource path, if in view mode.
+	 *
+	 * @param resourcePath the resource path of the icon, must not be {@code null}.
+	 * @return the icon, or {@code null} if not in view mode.
+	 */
+	private ImageIcon createIcon(String resourcePath) {
+		if (getView() == null) {
+			return null;
+		}
+		return new ImageIcon(ExtensionScript.class.getResource(resourcePath));
 	}
 	
 	private OptionsScriptPanel getOptionsScriptPanel() {
@@ -1639,6 +1656,21 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public boolean supportsDb(String type) {
 		return true;
 	}
+
+    /**
+     * Gets the script icon.
+     * <p>
+     * Should be called/used only when in view mode.
+     * 
+     * @return the script icon, never {@code null}.
+     * @since TODO add version
+     */
+    public static ImageIcon getScriptIcon() {
+        if (scriptIcon == null) {
+            scriptIcon = new ImageIcon(ExtensionScript.class.getResource("/resource/icon/16/059.png"));
+        }
+        return scriptIcon;
+    }
 
 	private static class ClearScriptVarsOnSessionChange implements SessionChangedListener {
 

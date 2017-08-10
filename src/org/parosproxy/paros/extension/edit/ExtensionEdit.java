@@ -27,6 +27,7 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added name constants and getUIName()
 // ZAP: 2017/07/22 Added KeyStroke constant for consistency with other FindDialog usage
+// ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 
 package org.parosproxy.paros.extension.edit;
 
@@ -46,7 +47,15 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionEdit extends ExtensionAdaptor {
 	
 	private static final String NAME = "ExtensionEdit";
-	public static final KeyStroke FIND_DEFAULT_KEYSTROKE = KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false);
+
+	/**
+	 * The find default keyboard shortcut.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getFindDefaultKeyStroke()
+	 */
+	private static KeyStroke findDefaultKeyStroke;
 
     private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
@@ -86,7 +95,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
      */
     private ZapMenuItem getMenuFind() {
         if (menuFind == null) {
-            menuFind = new ZapMenuItem("menu.edit.find", FIND_DEFAULT_KEYSTROKE);
+            menuFind = new ZapMenuItem("menu.edit.find", getFindDefaultKeyStroke());
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -96,6 +105,22 @@ public class ExtensionEdit extends ExtensionAdaptor {
             });
         }
         return menuFind;
+    }
+
+    /**
+     * Gets the default keyboard shortcut for find functionality.
+     * <p>
+     * Should be called/used only when in view mode.
+     * 
+     * @return the keyboard shortcut, never {@code null}.
+     * @since TODO add version
+     */
+    public static KeyStroke getFindDefaultKeyStroke() {
+        if (findDefaultKeyStroke == null) {
+            findDefaultKeyStroke = KeyStroke
+                    .getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false);
+        }
+        return findDefaultKeyStroke;
     }
 
     /**

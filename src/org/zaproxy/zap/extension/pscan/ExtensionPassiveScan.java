@@ -43,7 +43,6 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -54,8 +53,6 @@ import org.zaproxy.zap.extension.script.ScriptType;
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
     public static final String NAME = "ExtensionPassiveScan";
-    private static final ImageIcon SCRIPT_ICON =
-            new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-pscan.png"));
     public static final String SCRIPT_TYPE_PASSIVE = "passive";
     private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
     private PassiveScannerList scannerList;
@@ -113,11 +110,19 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
         ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
         if (extScript != null) {
-            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", SCRIPT_ICON, true));
+            extScript.registerScriptType(
+                    new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", createScriptIcon(), true));
         }
 
 
         extensionHook.addApiImplementor(new PassiveScanAPI(this));
+    }
+
+    private ImageIcon createScriptIcon() {
+        if (getVersion() == null) {
+            return null;
+        }
+        return new ImageIcon(ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
     }
 
     @Override

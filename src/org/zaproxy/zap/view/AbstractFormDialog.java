@@ -136,7 +136,7 @@ public abstract class AbstractFormDialog extends JDialog {
 	private JButton getHelpButton() {
 		if (helpButton == null) {
 			helpButton = new JButton();
-			helpButton.setIcon(ExtensionHelp.HELP_ICON);
+			helpButton.setIcon(ExtensionHelp.getHelpIcon());
 			helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
 			helpButton.setVisible(false);
 

@@ -44,6 +44,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
@@ -66,8 +67,20 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static final String HELP_ID_PROPERTY = "HelpID";
 
 	private static final String HELP_SET_FILE_NAME = "helpset";
-	public static final ImageIcon HELP_ICON = DisplayUtils.getScaledIcon(
-			new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+	/**
+	 * @deprecated (TODO add version) Use {@link #getHelpIcon()} instead.
+	 */
+	@Deprecated
+	public static final ImageIcon HELP_ICON = View.isInitialised() ? getHelpIcon() : null;
+
+	/**
+	 * The help icon.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getHelpIcon()
+	 */
+	private static ImageIcon helpIcon;
 	
 	private static final String NAME = "ExtensionHelp";
 
@@ -380,6 +393,21 @@ public class ExtensionHelp extends ExtensionAdaptor {
                 setHelpEnabled(false);
             }
         }
+    }
+
+    /**
+     * Gets the help icon.
+     * <p>
+     * Should be called/used only when in view mode.
+     * 
+     * @return the help icon, never {@code null}.
+     * @since TODO add version
+     */
+    public static ImageIcon getHelpIcon() {
+        if (helpIcon == null) {
+            helpIcon = DisplayUtils.getScaledIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+        }
+        return helpIcon;
     }
 
 }

@@ -23,6 +23,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/12/12 Issue 1449: Added help button
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
+// ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -174,7 +175,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 			
 			if (helpKey != null) {
 				JButton helpButton = new JButton();
-				helpButton.setIcon(ExtensionHelp.HELP_ICON);
+				helpButton.setIcon(ExtensionHelp.getHelpIcon());
 				helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
 				helpButton.addActionListener(new java.awt.event.ActionListener() { 
 					@Override
