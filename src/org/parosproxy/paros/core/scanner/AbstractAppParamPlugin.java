@@ -82,7 +82,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
             // ZAP: To handle Multipart Form-Data POST requests
             if ((enabledRPC & ScannerParam.RPC_MULTIPART) != 0) {
-                listVariant.add(new VariantMultipartFormQuery());
+                listVariant.add(new VariantMultipartFormParameters());
             }
 
             // ZAP: To handle XML based POST requests
