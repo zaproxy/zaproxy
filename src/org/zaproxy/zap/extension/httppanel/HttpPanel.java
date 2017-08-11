@@ -151,7 +151,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         toolBarMoreOptions.setBorder(BorderFactory.createEmptyBorder());
         toolBarMoreOptions.setRollover(true);
         toolBarMoreOptions.getActionMap().put("findAction", getFindAction());
-        toolBarMoreOptions.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ExtensionEdit.FIND_DEFAULT_KEYSTROKE, "findAction");
+        toolBarMoreOptions.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ExtensionEdit.getFindDefaultKeyStroke(), "findAction");
         
         endAllOptions = new JPanel();
         
