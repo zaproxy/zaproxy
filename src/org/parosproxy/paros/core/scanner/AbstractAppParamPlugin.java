@@ -68,6 +68,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
                 listVariant.add(new VariantODataIdQuery());
                 listVariant.add(new VariantODataFilterQuery());
             }
+            
+            if ((targets & ScannerParam.TARGET_URLPATH) == 0) {
+            	//If we're not already doing URLPath we should do DDN when doing QueryString
+            	listVariant.add(new VariantDdnPath());
+            }
         }
 
         // Then check POST data target configuration and RPC enabled methods
