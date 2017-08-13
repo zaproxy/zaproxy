@@ -24,12 +24,18 @@ import javax.script.ScriptEngine;
 import javax.swing.ImageIcon;
 
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.zaproxy.zap.ZAP;
+import org.parosproxy.paros.view.View;
 
 public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 
-	private static final ImageIcon ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/cup.png"));
+	/**
+	 * The icon of the engine.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getIcon()
+	 */
+	private static ImageIcon icon;
 
 	public JavascriptEngineWrapper(ScriptEngine engine) {
 		super(engine);
@@ -37,7 +43,20 @@ public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 
 	@Override
 	public ImageIcon getIcon() {
-		return ICON;
+		if (!View.isInitialised()) {
+			return null;
+		}
+
+		if (icon == null) {
+			createIcon();
+		}
+		return icon;
+	}
+
+	private static synchronized void createIcon() {
+		if (icon == null) {
+			icon = new ImageIcon(JavascriptEngineWrapper.class.getResource("/resource/icon/16/cup.png"));
+		}
 	}
 
 	@Override
