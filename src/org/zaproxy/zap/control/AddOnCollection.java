@@ -161,10 +161,12 @@ public class AddOnCollection {
     		return;
     	}
     	if (! dir.exists()) {
-    		logger.error("No such directory: " + dir.getAbsolutePath());
+    		logger.warn("No such directory: " + dir.getAbsolutePath());
+    		return;
     	}
     	if (! dir.isDirectory()) {
-    		logger.error("Not a directory: " + dir.getAbsolutePath());
+    		logger.warn("Not a directory: " + dir.getAbsolutePath());
+    		return;
     	}
 
     	// Load the addons
