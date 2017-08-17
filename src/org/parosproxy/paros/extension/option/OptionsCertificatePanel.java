@@ -29,6 +29,7 @@
 // ZAP: 2017/01/09 Remove method no longer needed.
 // ZAP: 2017/01/23 Select first alias of selected keystore
 // ZAP: 2017/08/16 Tidy up usage of CertificateView.
+// ZAP: 2017/08/16 Show error message if failed to activate the certificate.
 
 package org.parosproxy.paros.extension.option;
 
@@ -218,7 +219,16 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			setActiveButton.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					setActiveButtonActionPerformed(evt);
+					try {
+						setActiveButtonActionPerformed(evt);
+					} catch (ProviderException e) {
+						JOptionPane.showMessageDialog(
+								null,
+								new String[] { Constant.messages.getString("options.cert.error.accesskeystore"), e.toString() },
+								Constant.messages.getString("options.cert.error"),
+								JOptionPane.ERROR_MESSAGE);
+						logger.error(e.getMessage(), e);
+					}
 				}
 			});
 
