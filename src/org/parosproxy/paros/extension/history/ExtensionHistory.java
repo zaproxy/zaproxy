@@ -538,7 +538,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
 			resendDialog = new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.resend");
-			resendDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
+			resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return resendDialog;
 	}
