@@ -28,6 +28,7 @@
 // ZAP: 2016/06/28: File chooser for PKCS#12 files now also accepts .pfx files
 // ZAP: 2017/01/09 Remove method no longer needed.
 // ZAP: 2017/01/23 Select first alias of selected keystore
+// ZAP: 2017/08/16 Tidy up usage of CertificateView.
 
 package org.parosproxy.paros.extension.option;
 
@@ -830,10 +831,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	 * 
 	 * @param cert
 	 */
+	@SuppressWarnings("unused")
 	private void showCertificate(Certificate cert) {
 		if (cert != null) {
-			JFrame frame = new CertificateView(cert.toString());
-			frame.setVisible(true);
+			new CertificateView(cert.toString());
 		}
 	}
 	
