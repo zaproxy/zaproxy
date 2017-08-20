@@ -119,7 +119,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     private ImageIcon createScriptIcon() {
-        if (getVersion() == null) {
+        if (getView() == null) {
             return null;
         }
         return new ImageIcon(ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
