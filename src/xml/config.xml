@@ -222,6 +222,11 @@
 				<enabled>true</enabled>
 				<name>authenticity_token</name>
 			</token>
+			<token>
+			        <!-- django-session-csrf default: https://github.com/mozilla/django-session-csrf#differences-from-django -->
+				<enabled>true</enabled>
+				<name>anoncsrf</name>
+			</token>
 		</tokens>
 	</anticsrf>
 
