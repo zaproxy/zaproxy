@@ -375,7 +375,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     	
 	    SqlPreparedStatementWrapper psGetAllHistoryIdsIncTypes = null;
         try {
-		    psGetAllHistoryIdsIncTypes = DbSQL.getSingleton().getPreparedStatement( "history.ps.gethistoryidsinctypes");
+		    psGetAllHistoryIdsIncTypes = DbSQL.getSingleton().getPreparedStatement( "history.ps.gethistoryidsinctypes", histTypes.length);
 		    List<Integer> v = new ArrayList<>();
 		    psGetAllHistoryIdsIncTypes.getPs().setLong(1, sessionId);
 		    DbSQL.setSetValues(psGetAllHistoryIdsIncTypes.getPs(), 2, histTypes);
@@ -405,7 +405,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 	    SqlPreparedStatementWrapper psGetAllHistoryIdsExcTypes = null;
         try {
 		    List<Integer> v = new ArrayList<>();
-		    psGetAllHistoryIdsExcTypes = DbSQL.getSingleton().getPreparedStatement( "history.ps.gethistoryidsnottypes");
+		    psGetAllHistoryIdsExcTypes = DbSQL.getSingleton().getPreparedStatement( "history.ps.gethistoryidsnottypes", histTypes.length);
 		    psGetAllHistoryIdsExcTypes.getPs().setLong(1, sessionId);
 		    DbSQL.setSetValues(psGetAllHistoryIdsExcTypes.getPs(), 2, histTypes);
 		    try (ResultSet rs = psGetAllHistoryIdsExcTypes.getPs().executeQuery()) {

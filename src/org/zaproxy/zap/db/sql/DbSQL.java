@@ -28,8 +28,8 @@ import java.io.Reader;
 import java.security.InvalidParameterException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +38,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
@@ -48,8 +49,6 @@ import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.zaproxy.zap.utils.Stats;
 
 public class DbSQL implements DatabaseListener {
-	
-    private static final int MAX_SET_SIZE = 10;
 
 	private static Properties dbProperties = null;
 	private static Properties sqlProperties = null;
@@ -157,35 +156,19 @@ public class DbSQL implements DatabaseListener {
 	}
 	
 	public static void setSetValues(PreparedStatement ps, int startPosition, String... values) throws SQLException {
-		if (values.length > MAX_SET_SIZE) {
-			throw new InvalidParameterException("Set size exceeded maximun of " + MAX_SET_SIZE);
-		}
 		int i = startPosition;
 		
 		while( i < values.length ) {
 			ps.setString(i, values[i]);
 			i++;
 		}
-		
-		while( i < MAX_SET_SIZE ) {
-			ps.setNull(i,Types.VARCHAR);
-			i++;
-		}
 	}
 	
 	public static void setSetValues(PreparedStatement ps, int startPosition, int... values) throws SQLException {
-		if (values.length > MAX_SET_SIZE) {
-			throw new InvalidParameterException("Set size exceeded maximun of " + MAX_SET_SIZE);
-		}
 		int i = 0;
 		
 		while( i < values.length ) {
 			ps.setInt(startPosition + i, values[i]);
-			i++;
-		}
-		
-		while( i < MAX_SET_SIZE ) {
-			ps.setNull(startPosition + i,Types.INTEGER);
 			i++;
 		}
 	}
@@ -201,8 +184,20 @@ public class DbSQL implements DatabaseListener {
 		}
 		Stats.clear("sqldb.");
 	}
+
+	public synchronized SqlPreparedStatementWrapper getPreparedStatement(String key, int... params) throws SQLException {
+		if (params == null || params.length == 0) {
+			return getPreparedStatement(key);
+		}
+		String internalKey = key + Arrays.toString(params);
+		return getStatementPool(internalKey).getPreparedStatement(internalKey, createSQL(key, params));
+	}
 	
 	public synchronized SqlPreparedStatementWrapper getPreparedStatement(String key) throws SQLException {
+		return getStatementPool(key).getPreparedStatement(key, getSQL(key));
+	}
+
+	private StatementPool getStatementPool(String key) {
 		Stats.incCounter("sqldb." + key + ".calls");
 		
 		StatementPool sp = this.stmtPool.get(key);
@@ -215,7 +210,7 @@ public class DbSQL implements DatabaseListener {
 			sp = this.stmtPool.get(key);
 		}
 		
-		return sp.getPreparedStatement(key);
+		return sp;
 	}
 	
 	public void releasePreparedStatement(SqlPreparedStatementWrapper psw) {
@@ -228,13 +223,14 @@ public class DbSQL implements DatabaseListener {
 	
 	private class StatementPool {
 		private static final int MAX_FREE_POOL_SIZE = 5; 
+
 		private Deque<PreparedStatement> inUsePool = new ConcurrentLinkedDeque<PreparedStatement>();
 		private Deque<PreparedStatement> freePool = new ConcurrentLinkedDeque<PreparedStatement>();
 		
-		public SqlPreparedStatementWrapper getPreparedStatement(String key) throws SQLException {
+		public SqlPreparedStatementWrapper getPreparedStatement(String key, String sql) throws SQLException {
 			PreparedStatement ps = freePool.pollFirst();
 			if (ps == null) {
-				ps = dbServer.getNewConnection().prepareStatement(getSQL(key));
+				ps = dbServer.getNewConnection().prepareStatement(sql);
 				Stats.incCounter("sqldb.conn.openned");
 			}
 			inUsePool.add(ps);
@@ -281,4 +277,15 @@ public class DbSQL implements DatabaseListener {
 		}
 	}
 
+	private static String createSQL(String key, int[] numberOfParams) {
+		if (numberOfParams == null || numberOfParams.length == 0) {
+			return getSQL(key);
+		}
+
+		Object[] parameters = new Object[numberOfParams.length];
+		for (int i = 0; i < numberOfParams.length; i++) {
+			parameters[i] = StringUtils.repeat("?", ", ", numberOfParams[i]);
+		}
+		return getSQL(key, parameters);
+	}
 }
