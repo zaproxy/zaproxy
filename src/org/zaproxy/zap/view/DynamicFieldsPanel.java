@@ -1,6 +1,7 @@
 package org.zaproxy.zap.view;
 
 import java.awt.GridBagLayout;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +26,19 @@ public class DynamicFieldsPanel extends JPanel {
 	private String[] optionalFields;
 
 	private Map<String, ZapTextField> textFields;
+
+	/**
+	 * Constructs a {@code DynamicFieldsPanel} with no fields.
+	 * 
+	 * @since TODO add version
+	 * @see #setFields(String[])
+	 */
+	public DynamicFieldsPanel() {
+		this.requiredFields = NO_FIELDS;
+		this.optionalFields = NO_FIELDS;
+
+		this.textFields = Collections.emptyMap();
+	}
 
 	public DynamicFieldsPanel(String[] requiredFields) {
 		this(requiredFields, NO_FIELDS);
@@ -98,6 +112,22 @@ public class DynamicFieldsPanel extends JPanel {
 			fieldIndex++;
 		}
 
+		validate();
+	}
+
+	/**
+	 * Clears all the fields, leaving an empty panel.
+	 *
+	 * @since TODO add version
+	 * @see #setFields(String[])
+	 */
+	public void clearFields() {
+		this.requiredFields = NO_FIELDS;
+		this.optionalFields = NO_FIELDS;
+
+		this.textFields = Collections.emptyMap();
+
+		removeAll();
 		validate();
 	}
 
