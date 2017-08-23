@@ -178,9 +178,13 @@ def start_zap(port, extra_zap_params):
         subprocess.Popen(params + extra_zap_params, stdout=outfile)
 
 
-def wait_for_zap_start(zap, timeout):
+def wait_for_zap_start(zap, timeout_in_secs = 600):
     version = None
-    for x in range(0, timeout):
+    if not timeout_in_secs:
+        # if ZAP doesnt start in 10 mins then its probably not going to start
+        timeout_in_secs = 600
+
+    for x in range(0, timeout_in_secs):
         try:
             version = zap.core.version
             logging.debug('ZAP Version ' + version)
@@ -192,7 +196,7 @@ def wait_for_zap_start(zap, timeout):
     if not version:
         raise IOError(
           errno.EIO,
-          'Failed to connect to ZAP after {0} seconds'.format(timeout))
+          'Failed to connect to ZAP after {0} seconds'.format(timeout_in_secs))
 
 
 def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
@@ -298,13 +302,22 @@ def zap_active_scan(zap, target, policy):
     logging.debug(zap.ascan.scan_progress(ascan_scan_id))
 
 
-def zap_wait_for_passive_scan(zap):
+def zap_wait_for_passive_scan(zap, timeout_in_secs = 0):
     rtc = zap.pscan.records_to_scan
     logging.debug('Records to scan...')
+    time_taken = 0
+    timed_out = False
     while (int(zap.pscan.records_to_scan) > 0):
         logging.debug('Records to passive scan : ' + zap.pscan.records_to_scan)
         time.sleep(2)
-    logging.debug('Passive scanning complete')
+        time_taken += 2
+        if timeout_in_secs and time_taken > timeout_in_secs:
+            timed_out = True
+            break
+    if timed_out:
+      logging.debug('Exceeded passive scan timeout')
+    else:
+      logging.debug('Passive scanning complete')
 
 
 def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):

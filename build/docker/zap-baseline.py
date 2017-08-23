@@ -54,7 +54,6 @@ from zapv2 import ZAPv2
 from zap_common import *
 
 
-timeout = 120
 config_dict = {}
 config_msg = {}
 out_of_scope_dict = {}
@@ -93,6 +92,7 @@ def usage():
     print ('    -n context_file   context file which will be loaded prior to spidering the target')
     print ('    -p progress_file  progress file which specifies issues that are being addressed')
     print ('    -s                short output format - dont show PASSes or example URLs')
+    print ('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print ('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print ('')
     print ('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
@@ -121,6 +121,7 @@ def main(argv):
     zap_ip = 'localhost'
     zap_options = ''
     delay = 0
+    timeout = 0
 
     pass_count = 0
     warn_count = 0
@@ -133,7 +134,7 @@ def main(argv):
     check_zap_client_version()
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:")
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:T:")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -182,9 +183,10 @@ def main(argv):
                 sys.exit(3)
         elif opt == '-z':
             zap_options = arg
-
         elif opt == '-s':
             detailed_output = False
+        elif opt == '-T':
+            timeout = int(arg)
 
     # Check target supplied and ok
     if len(target) == 0:
@@ -282,7 +284,7 @@ def main(argv):
     try:
         zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
 
-        wait_for_zap_start(zap, timeout)
+        wait_for_zap_start(zap, timeout * 60)
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
@@ -314,7 +316,7 @@ def main(argv):
                 time.sleep(5)
                 logging.debug('Delay passive scan check ' + str(delay - (datetime.now() - start_scan).seconds) + ' seconds')
 
-        zap_wait_for_passive_scan(zap)
+        zap_wait_for_passive_scan(zap, timeout * 60)
 
         # Print out a count of the number of urls
         num_urls = len(zap.core.urls)
