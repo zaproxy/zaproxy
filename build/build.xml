@@ -92,15 +92,9 @@
 	<target name="compile" depends="init" description="Compile the source ">
 		<echo message="Compiling the source..." />
 
-		<!-- Compile with debug information if the property "javac.debug" is set to true -->
-		<local name="debug" />
-		<condition property="debug" value="true" else="false">
-			<istrue value="${javac.debug}" />
-		</condition>
-
 		<!-- Compile the java code from ${src} into ${build} -->
 		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
-		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="true" encoding="UTF-8">
 			<compilerarg value="-Xlint:all"/>
 			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
 			<compilerarg value="-Werror"/>
@@ -112,7 +106,7 @@
 		</javac>
 
 		<!-- Compile the java test code from ${test.src} into ${test.build} -->
-		<javac srcdir="${test.src}" destdir="${test.build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+		<javac srcdir="${test.src}" destdir="${test.build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="true" encoding="UTF-8">
 			<compilerarg value="-Xlint:all"/>
 			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
 			<compilerarg value="-Werror"/>
@@ -687,8 +681,6 @@
 		<echo message="Version is ${version}" />
 
 		<antcall target="generate-help-jars" />
-		<!-- Set to compile with debug information -->
-		<property name="javac.debug" value="true" />
 		<antcall target="dist" />
 		<!-- Overwrite the standard README with the weekly one -->
 		<delete file="${dist}/README" />
