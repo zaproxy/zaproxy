@@ -30,6 +30,7 @@
 // ZAP: 2017/01/23 Select first alias of selected keystore
 // ZAP: 2017/08/16 Tidy up usage of CertificateView.
 // ZAP: 2017/08/16 Show error message if failed to activate the certificate.
+// ZAP: 2017/08/17 Reduce code duplication when showing cert/keystore errors
 
 package org.parosproxy.paros.extension.option;
 
@@ -222,11 +223,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 					try {
 						setActiveButtonActionPerformed(evt);
 					} catch (ProviderException e) {
-						JOptionPane.showMessageDialog(
-								null,
-								new String[] { Constant.messages.getString("options.cert.error.accesskeystore"), e.toString() },
-								Constant.messages.getString("options.cert.error"),
-								JOptionPane.ERROR_MESSAGE);
+						showKeyStoreCertError(e.toString());
 						logger.error(e.getMessage(), e);
 					}
 				}
@@ -557,15 +554,24 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		return certificatePanel;
 	}
 
+	private static void showKeyStoreCertError(String errorMessage) {
+		showCertError("options.cert.error.accesskeystore", errorMessage);
+	}
+
+	private static void showCertError(String i18nKeyBaseMessage, String errorMessage) {
+		JOptionPane.showMessageDialog(
+				null,
+				new String[] { Constant.messages.getString(i18nKeyBaseMessage), errorMessage },
+				Constant.messages.getString("options.cert.error"),
+				JOptionPane.ERROR_MESSAGE);
+	}
 
 	private void keyStoreListSelectionChanged() {
 		int keystore = keyStoreList.getSelectedIndex();
 		try {
 			aliasTableModel.setKeystore(keystore);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					Constant.messages.getString("options.cert.error"), e.toString()}, 
-					Constant.messages.getString("options.cert.error.accesskeystore"), JOptionPane.ERROR_MESSAGE);
+			showKeyStoreCertError(e.toString());
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -771,10 +777,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		String kspass = new String(pkcs12PasswordField.getPassword());
 		if (kspass.equals("")){
 			//pcks#12 file with empty password is not supported by java
-			JOptionPane.showMessageDialog(null, new String[] {
-					Constant.messages.getString("options.cert.error.pkcs12nopass"), 
-					Constant.messages.getString("options.cert.error.usepassfile")}, 
-					Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
+			showCertError("options.cert.error.pkcs12nopass", Constant.messages.getString("options.cert.error.usepassfile"));
 			return;
 		}
 
@@ -783,10 +786,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			ksIndex = contextManager.loadPKCS12Certificate(fileTextField.getText(), kspass);
 			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(ksIndex), ksIndex);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					Constant.messages.getString("options.cert.error.accesskeystore"), 
-					Constant.messages.getString("options.cert.error.password")}, 
-					Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
+			showKeyStoreCertError(Constant.messages.getString("options.cert.error.password"));
 			logger.error(e.getMessage(), e);
 			return;
 		}
@@ -866,18 +866,14 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 						}
 					}
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, new String[] {
-							Constant.messages.getString("options.cert.error.accesskeystore"), e.toString()}, 
-							Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
+					showKeyStoreCertError(e.toString());
 				}
 			}
 			Certificate cert = contextManager.getCertificate(ks, alias);
 			try {
 				contextManager.getFingerPrint(cert);
 			} catch (KeyStoreException kse) {
-				JOptionPane.showMessageDialog(null, new String[] {
-						Constant.messages.getString("options.cert.error.fingerprint"), kse.toString()}, 
-						Constant.messages.getString("options.cert.error"), JOptionPane.ERROR_MESSAGE);
+				showCertError("options.cert.error.fingerprint", kse.toString());
 			}
 
 			try {

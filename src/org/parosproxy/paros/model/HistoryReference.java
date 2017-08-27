@@ -53,6 +53,7 @@
 // ZAP: 2017/06/08 Allow to keep the HttpMessage in memory for immediate reuse.
 // ZAP: 2017/06/13 Notify when a note is set.
 // ZAP: 2017/07/04 Notify when a HistoryReference is deleted.
+// ZAP: 2017/08/18 Add TYPE_FUZZER_TEMPORARY.
 
 package org.parosproxy.paros.model;
 
@@ -117,6 +118,14 @@ public class HistoryReference {
    public static final int TYPE_HIDDEN = 6;
    // ZAP: Added TYPE_BRUTE_FORCE
    public static final int TYPE_BRUTE_FORCE = 7;
+   /**
+    * A HTTP message sent by the fuzzer.
+    * <p>
+    * Used for fuzzer messages that have an {@link Alert}, which outlive the fuzzing sessions.
+    * 
+    * @since 1.4.0
+    * @see #TYPE_FUZZER_TEMPORARY
+    */
    public static final int TYPE_FUZZER = 8;
     /**
      * A (temporary) HTTP message of the spider.
@@ -192,6 +201,7 @@ public class HistoryReference {
      * <li>{@link #TYPE_SEQUENCE_TEMPORARY};</li>
      * <li>{@link #TYPE_SPIDER_AJAX_TEMPORARY};</li>
      * <li>{@link #TYPE_SPIDER_TEMPORARY};</li>
+     * <li>{@link #TYPE_FUZZER_TEMPORARY};</li>
      * </ul>
      * <p>
      * Persisted messages with temporary types are deleted when the session is closed.
@@ -242,6 +252,15 @@ public class HistoryReference {
      */
     public static final int TYPE_SPIDER_TEMPORARY = 19;
 
+    /**
+     * A (temporary) HTTP message sent by the fuzzer.
+     * 
+     * @since TODO add version
+     * @see #TYPE_FUZZER
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+    public static final int TYPE_FUZZER_TEMPORARY = 20;
+
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
 	// ZAP: Support for multiple tags
@@ -258,6 +277,7 @@ public class HistoryReference {
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SEQUENCE_TEMPORARY));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_TEMPORARY));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_FUZZER_TEMPORARY));
 		DEFAULT_TEMPORARY_HISTORY_TYPES = Collections.unmodifiableSet(defaultHistoryTypes);
 
 		TEMPORARY_HISTORY_TYPES.addAll(DEFAULT_TEMPORARY_HISTORY_TYPES);
