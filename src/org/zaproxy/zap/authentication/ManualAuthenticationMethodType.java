@@ -200,6 +200,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public String encode(String parentStringSeparator) {
+			if (selectedSession == null) {
+				return "";
+			}
 			return Base64.encodeBase64String(selectedSession.getName().getBytes());
 		}
 
