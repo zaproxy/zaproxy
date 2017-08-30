@@ -32,6 +32,7 @@
 // ZAP: 2015/02/11 Ensure that a tab is always selected when the layout is switched
 // ZAP: 2015/12/14 Disable request/response tab buttons location when in full layout
 // ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2017/08/30 Add tool tip to response tab.
 
 package org.parosproxy.paros.view;
 
@@ -1121,7 +1122,7 @@ public class WorkbenchPanel extends JPanel {
 					tabName,
 					DisplayUtils.getScaledIcon(responsePanel.getIcon()),
 					responsePanel,
-					null,
+					tabName,
 					tabbedWork.indexOfComponent(requestPanel) + 1);
 
 			getPaneWork().removeAll();
