@@ -58,6 +58,18 @@ public class I18N {
     	return this.addonMessages.get(prefix);
     }
     
+    /**
+     * Gets the message with the given key.
+     * <p>
+     * The message will be obtained either from the core {@link ResourceBundle} or a {@code ResourceBundle} of an add-on
+     * (depending on the prefix of the key).
+     *
+     * @param key the key.
+     * @return the message.
+     * @throws MissingResourceException if the given key was not found.
+     * @see #getString(String, Object...)
+     * @see #getMessageBundle(String)
+     */
     public String getString(String key) {
     	if (key.indexOf(".") > 0) {
     		String prefix = key.substring(0, key.indexOf("."));
@@ -133,6 +145,17 @@ public class I18N {
     	return this.stdMessages.containsKey(key);
 	}
 	
+    /**
+     * Gets the message with the given key, formatted with the given parameters.
+     * <p>
+     * The message will be obtained either from the core {@link ResourceBundle} or a {@code ResourceBundle} of an add-on
+     * (depending on the prefix of the key) and then {@link MessageFormat#format(String, Object...) formatted}.
+     *
+     * @param key the key.
+     * @param params the parameters to format the message.
+     * @return the message formatted.
+     * @see #getString(String)
+     */
     public String getString(String key, Object... params  ) {
         try {
             return MessageFormat.format(this.getString(key), params);

@@ -30,11 +30,11 @@
 // ZAP: 2015/11/18 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/09/22 Issue 2886: Support Markdown format
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.Locale;
 
 import javax.swing.JFileChooser;
@@ -231,9 +231,7 @@ public class ReportLastScan {
 
                 File report = generate(file.getAbsolutePath(), model, localReportType);
                 if (report == null) {
-                    view.showMessageDialog(
-                            MessageFormat.format(Constant.messages.getString("report.unknown.error"),
-                            new Object[]{file.getAbsolutePath()}));
+                    view.showMessageDialog(Constant.messages.getString("report.unknown.error", file.getAbsolutePath()));
                     return;
                 }
 
@@ -241,9 +239,7 @@ public class ReportLastScan {
                 	DesktopUtils.openUrlInBrowser(report.toURI());
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
-                    view.showMessageDialog(
-                            MessageFormat.format(Constant.messages.getString("report.complete.warning"),
-                            new Object[]{report.getAbsolutePath()}));
+                    view.showMessageDialog(Constant.messages.getString("report.complete.warning", report.getAbsolutePath()));
                 }
             }
 

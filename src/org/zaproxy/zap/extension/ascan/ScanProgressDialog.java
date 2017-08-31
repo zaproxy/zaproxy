@@ -34,7 +34,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,7 +120,7 @@ public class ScanProgressDialog extends AbstractDialog {
     public ScanProgressDialog(Frame owner, String target, ExtensionActiveScan extension) {
         super(owner, false);
         if (target != null) {
-            this.setTitle(MessageFormat.format(Constant.messages.getString("ascan.progress.title"), target));
+            this.setTitle(Constant.messages.getString("ascan.progress.title", target));
         }
         this.extension = extension;
         this.initialize();

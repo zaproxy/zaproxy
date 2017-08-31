@@ -23,7 +23,6 @@ import java.awt.EventQueue;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -156,10 +155,8 @@ class UninstallationProgressDialogue extends AbstractDialog {
     private void setCurrentAddOn(AddOn addOn) {
         currentAddOn = addOn;
         getStatusLabel().setText(
-                MessageFormat.format(
-                        Constant.messages.getString("cfu.uninstallation.progress.dialogue.currentAddOn"),
-                        addOn.getName(),
-                        addOn.getVersion()));
+                Constant.messages
+                        .getString("cfu.uninstallation.progress.dialogue.currentAddOn", addOn.getName(), addOn.getVersion()));
     }
 
     private void setCustomMessage(String message) {
@@ -289,10 +286,9 @@ class UninstallationProgressDialogue extends AbstractDialog {
         if (keyBaseStatusMessage.isEmpty()) {
             setCustomMessage("");
         } else {
-            setCustomMessage(MessageFormat.format(
-                    Constant.messages.getString(keyBaseStatusMessage),
-                    Integer.valueOf(last.getValue()),
-                    Integer.valueOf(last.getMax())));
+            setCustomMessage(
+                    Constant.messages
+                            .getString(keyBaseStatusMessage, Integer.valueOf(last.getValue()), Integer.valueOf(last.getMax())));
         }
     }
 

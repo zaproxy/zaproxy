@@ -30,7 +30,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -623,8 +622,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 					
 					StringBuilder sb = new StringBuilder();
 					sb.append("<html>");
-					sb.append(MessageFormat.format(
-							Constant.messages.getString("cfu.title.relnotes"), latestInfo.getZapRelease().getVersion()));
+					sb.append(Constant.messages.getString("cfu.title.relnotes", latestInfo.getZapRelease().getVersion()));
 					
 					// Reformat the notes into html - the leading and trailing whitespace does need to be removed for some reason
 					String []strs = latestInfo.getZapRelease().getReleaseNotes().split("\n");
@@ -1026,17 +1024,15 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		if (Desktop.isDesktopSupported()) {
 			extension.promptToLaunchReleaseAndClose(this.latestInfo.getZapRelease().getVersion(), f);
 		} else {
-			View.getSingleton().showWarningDialog(this, MessageFormat.format(
-					Constant.messages.getString("cfu.warn.nolaunch"), 
+			View.getSingleton().showWarningDialog(this,
+					Constant.messages.getString("cfu.warn.nolaunch", 
 					this.latestInfo.getZapRelease().getVersion(),
 					f.getAbsolutePath()));
 		}
 		// Let people download updates now
 		this.getUpdateButton().setEnabled(true);
 		this.getUpdateAllButton().setEnabled(true);
-		this.getUpdatesMessage().setText(MessageFormat.format(
-				Constant.messages.getString("cfu.check.zap.downloaded"), 
-				f.getAbsolutePath()));
+		this.getUpdatesMessage().setText(Constant.messages.getString("cfu.check.zap.downloaded", f.getAbsolutePath()));
 	}
 
 	@Override

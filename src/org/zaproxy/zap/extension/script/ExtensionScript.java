@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1551,7 +1550,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		for (ScriptType type : this.getScriptTypes()) {
 			for (ScriptWrapper script : this.getScripts(type)) {
 				if (script.isChanged()) {
-					list.add(MessageFormat.format(Constant.messages.getString("script.resource"), script.getName()));
+					list.add(Constant.messages.getString("script.resource", script.getName()));
 				}
 			}
 		}
@@ -1560,26 +1559,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void openCmdLineFile(File f) throws IOException, ScriptException {
 		if (! f.exists()) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.nofile", f.getAbsolutePath()));
 			return;
 		}
 		if (! f.canRead()) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noread", f.getAbsolutePath()));
 			return;
 		}
 		int dotIndex = f.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noext", f.getAbsolutePath()));
 			return;
 		}
 		String ext = f.getName().substring(dotIndex+1);
 		String engineName = this.getEngineNameForExtension(ext);
 		if (engineName == null) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noengine"), ext));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noengine", ext));
 			return;
 		}
         ScriptWrapper sw = new ScriptWrapper(f.getName(), "", engineName,

@@ -71,6 +71,7 @@
 // ZAP: 2016/04/14 Allow to display a message
 // ZAP: 2016/10/26 Create UI shared context in the session dialogue when adding a context
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 
 package org.parosproxy.paros.view;
 
@@ -81,7 +82,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -369,7 +369,7 @@ public class View implements ViewDelegate {
 
     private void registerMenu(ExtensionKeyboard extKey, final AbstractPanel ap) {
         ZapMenuItem tabMenu = new ZapMenuItem(
-                ap.getClass().getName(), MessageFormat.format(Constant.messages.getString("menu.view.tab"), ap.getName()),
+                ap.getClass().getName(), Constant.messages.getString("menu.view.tab", ap.getName()),
                 ap.getDefaultAccelerator());
         tabMenu.setMnemonic(ap.getMnemonic());
         if (ap.getIcon() != null) {

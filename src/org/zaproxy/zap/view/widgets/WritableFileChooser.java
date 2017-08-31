@@ -2,7 +2,6 @@ package org.zaproxy.zap.view.widgets;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -68,7 +67,7 @@ public class WritableFileChooser extends JFileChooser {
 
 	private void warnNotWritable(String i18nKeyMessage, String path) {
 		JOptionPane.showMessageDialog(this,
-				MessageFormat.format(Constant.messages.getString(i18nKeyMessage), path),
+				Constant.messages.getString(i18nKeyMessage, path),
 				Constant.messages.getString("report.write.permission.dialog.title"),
 				JOptionPane.ERROR_MESSAGE);
 	}

@@ -66,13 +66,13 @@
 // ZAP: 2017/03/13 Set global excluded URLs to the proxy when creating a new session or initialising.
 // ZAP: 2017/03/16 Allow to initialise Control without starting the Local Proxy.
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -219,19 +219,15 @@ public class Control extends AbstractControl implements SessionListener {
                 String unsavedResources = wrapEntriesInLiTags(list);
 
                 if (activeActions.isEmpty()) {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("menu.file.exit.message.resourcesNotSaved"),
-                            unsavedResources);
+                    message = Constant.messages.getString("menu.file.exit.message.resourcesNotSaved", unsavedResources);
                 } else {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("menu.file.exit.message.resourcesNotSavedAndActiveActions"),
+                    message = Constant.messages.getString(
+                            "menu.file.exit.message.resourcesNotSavedAndActiveActions",
                             unsavedResources,
                             activeActions);
                 }
             } else if (!activeActions.isEmpty()) {
-                message = MessageFormat.format(
-                        Constant.messages.getString("menu.file.exit.message.activeActions"),
-                        activeActions);
+                message = Constant.messages.getString("menu.file.exit.message.activeActions", activeActions);
             }
 
             if (message != null && view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
