@@ -1372,13 +1372,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public void setChanged(ScriptWrapper script, boolean changed) {
 		script.setChanged(changed);
 		ScriptNode node = this.getTreeModel().getNodeForScript(script);
-		if (node.getNodeName().equals(script.getName())) {
-			// The name is the same
-			this.getTreeModel().nodeStructureChanged(script);
-		} else {
-			// The name has changed
-			node.setNodeName(script.getName());
-			this.getTreeModel().nodeStructureChanged(node.getParent());
+		if (node != null) {
+			if (node.getNodeName().equals(script.getName())) {
+				// The name is the same
+				this.getTreeModel().nodeStructureChanged(script);
+			} else {
+				// The name has changed
+				node.setNodeName(script.getName());
+				this.getTreeModel().nodeStructureChanged(node.getParent());
+			}
 		}
 		
 		notifyScriptChanged(script);
