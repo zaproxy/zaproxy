@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.authentication;
 
 import java.awt.Component;
-import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 import javax.swing.SwingUtilities;
@@ -44,8 +43,7 @@ public class PopupFlagLoggedInIndicatorMenu extends ExtensionPopupMenuItem {
 	public PopupFlagLoggedInIndicatorMenu(Context ctx) {
 		this.contextId = ctx.getIndex();
 
-		this.setText(MessageFormat.format(
-				Constant.messages.getString("authentication.popup.indicator.loggedIn"), ctx.getName()));
+		this.setText(Constant.messages.getString("authentication.popup.indicator.loggedIn", ctx.getName()));
 		this.addActionListener(new java.awt.event.ActionListener() {
 
 			@Override

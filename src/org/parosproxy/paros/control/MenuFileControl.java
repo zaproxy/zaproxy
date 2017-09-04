@@ -46,12 +46,12 @@
 // ZAP: 2017/02/25 Issue 2618: Let the user select the name for snapshots
 // ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
 // ZAP: 2017/06/20 Inform of active actions before changing the session.
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 
 package org.parosproxy.paros.control;
  
 import java.awt.EventQueue;
 import java.io.File;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -604,12 +604,10 @@ public class MenuFileControl implements SessionListener {
 				} else {
 					detailError = Constant.messages.getString("context.error.name.unknown");
 				}
-				View.getSingleton().showWarningDialog(
-						MessageFormat.format(Constant.messages.getString("context.import.error"), detailError));
+				View.getSingleton().showWarningDialog(Constant.messages.getString("context.import.error", detailError));
 			} catch (Exception e1) {
 				log.debug(e1.getMessage(), e1);
-				View.getSingleton().showWarningDialog(MessageFormat.format(
-						Constant.messages.getString("context.import.error"), e1.getMessage()));
+				View.getSingleton().showWarningDialog(Constant.messages.getString("context.import.error", e1.getMessage()));
 			}
 	    }
 	}

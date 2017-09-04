@@ -24,7 +24,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
 
@@ -75,8 +74,7 @@ public class ContextExportDialog extends StandardFieldsDialog {
 		try {
 			Model.getSingleton().getSession().exportContext(getContextValue(CONTEXT_FIELD), getSelectedFile());
 		} catch (ConfigurationException e) {
-			View.getSingleton().showWarningDialog(this, 
-					MessageFormat.format(Constant.messages.getString("context.export.error"), e.getMessage()));
+			View.getSingleton().showWarningDialog(this, Constant.messages.getString("context.export.error", e.getMessage()));
 		}
 	}
 

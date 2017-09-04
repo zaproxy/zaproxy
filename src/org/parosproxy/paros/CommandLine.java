@@ -37,12 +37,12 @@
 // ZAP: 2017/03/26 Allow to obtain configs in the order specified
 // ZAP: 2017/05/12 Issue 3460: Support -suppinfo 
 // ZAP: 2017/05/31 Handle null args and include a message in all exceptions.
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -255,24 +255,20 @@ public class CommandLine {
         for (String arg : args) {
             if (arg != null) {
                 if (arg.startsWith("-")) {
-                    throw new Exception(
-                            MessageFormat.format(Constant.messages.getString("start.cmdline.badparam"), arg));
+                    throw new Exception(Constant.messages.getString("start.cmdline.badparam", arg));
                     
                 } else {
                     // Assume they were trying to specify a file
                     File f = new File(arg);
                     if (!f.exists()) {
-                        throw new Exception(
-                                MessageFormat.format(Constant.messages.getString("start.cmdline.nofile"), arg));
+                        throw new Exception(Constant.messages.getString("start.cmdline.nofile", arg));
                     
                     } else if (!f.canRead()) {
-                        throw new Exception(
-                                MessageFormat.format(Constant.messages.getString("start.cmdline.noread"), arg));
+                        throw new Exception(Constant.messages.getString("start.cmdline.noread", arg));
                     
                     } else {
                         // We probably dont handle this sort of file
-                        throw new Exception(
-                                MessageFormat.format(Constant.messages.getString("start.cmdline.badfile"), arg));
+                        throw new Exception(Constant.messages.getString("start.cmdline.badfile", arg));
                     }
                 }
             }
@@ -489,8 +485,7 @@ public class CommandLine {
             zap = "zap.sh";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(MessageFormat.format(
-				Constant.messages.getString("cmdline.help"), zap));
+        sb.append(Constant.messages.getString("cmdline.help", zap));
 
         if (cmdList != null) {
 	        for (CommandLineArgument[] extArgs : cmdList) {

@@ -28,7 +28,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -758,9 +757,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 			@Override
 			public PopupMenuItemContext getContextMenu(Context context, String parentMenu) {
-				return new PopupMenuItemContext(context, parentMenu, MessageFormat.format(
-						Constant.messages.getString("authentication.method.fb.popup.login.request"),
-						context.getName())) {
+				return new PopupMenuItemContext(context, parentMenu, 
+						Constant.messages.getString("authentication.method.fb.popup.login.request", context.getName())) {
 
 					private static final long serialVersionUID = 1967885623005183801L;
 					private ExtensionUserManagement usersExtension;

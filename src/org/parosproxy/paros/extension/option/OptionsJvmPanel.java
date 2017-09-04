@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -138,8 +137,7 @@ public class OptionsJvmPanel extends AbstractParamPanel {
             }
         } catch (IOException e) {
             View.getSingleton().showWarningDialog(this, 
-                    MessageFormat.format(
-                            Constant.messages.getString("jvm.options.error.writing"),
+                            Constant.messages.getString("jvm.options.error.writing",
                             JVM_PROPERTIES_FILE.toAbsolutePath(),
                             e.getMessage()));
         }
