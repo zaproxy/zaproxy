@@ -16,6 +16,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.FontUtils;
 
 public class TabbedPanelTab extends JPanel {
 
@@ -53,6 +54,7 @@ public class TabbedPanelTab extends JPanel {
 		// Add a JLabel with title and the left-side tab icon
 		JLabel lblTitle = new JLabel(title);
 		lblTitle.setIcon(icon);
+		lblTitle.setFont(FontUtils.getFont(FontUtils.Size.standard));
 
 		this.add(lblTitle);
 		
