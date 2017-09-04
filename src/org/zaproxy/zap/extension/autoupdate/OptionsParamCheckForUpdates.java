@@ -54,7 +54,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 
 	private boolean checkOnStart;
 	private boolean downloadNewRelease = false;
-	private boolean checkAddonUpdates = false;
+	private boolean checkAddonUpdates;
 	private boolean installAddonUpdates = false;
 	private boolean installScannerRules = false;
 	private boolean reportReleaseAddons = false;
@@ -67,7 +67,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	private String dayLastChecked = null; 
 	private String dayLastInstallWarned = null; 
 	private String dayLastUpdateWarned = null; 
-	private boolean unset = true;
     private static Logger log = Logger.getLogger(OptionsParamCheckForUpdates.class);
     
     public OptionsParamCheckForUpdates() {
@@ -77,16 +76,13 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     protected void parse() {
         updateOldOptions();
         
-	    checkOnStart = getConfig().getBoolean(CHECK_ON_START, false);
+	    checkOnStart = getConfig().getBoolean(CHECK_ON_START, true);
 	    dayLastChecked = getConfig().getString(DAY_LAST_CHECKED, "");
-	    // There was a bug in 1.2.0 where it defaulted silently to dont check
-	    // We now use the lack of a dayLastChecked value to indicate we should reprompt the user.
-		unset = dayLastChecked.length() == 0;
 	    dayLastInstallWarned = getConfig().getString(DAY_LAST_INSTALL_WARNED, "");
 	    dayLastUpdateWarned = getConfig().getString(DAY_LAST_UPDATE_WARNED, "");
 		
 		downloadNewRelease = getConfig().getBoolean(DOWNLOAD_NEW_RELEASE, false);
-		checkAddonUpdates = getConfig().getBoolean(CHECK_ADDON_UPDATES, false);
+		checkAddonUpdates = getConfig().getBoolean(CHECK_ADDON_UPDATES, true);
 		installAddonUpdates = getConfig().getBoolean(INSTALL_ADDON_UPDATES, false);
 		installScannerRules = getConfig().getBoolean(INSTALL_SCANNER_RULES, false);
 		reportReleaseAddons = getConfig().getBoolean(REPORT_RELEASE_ADDON, false);
@@ -114,21 +110,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		} catch(ConversionException ignore) {
 			// Option already using boolean type.
 		}
-	}
-
-	@ZapApiIgnore
-	public boolean isCheckOnStartUnset() {
-		return unset;
-	}
-	
-	/**
-	 * @param checkOnStart 0 to disable check for updates on startup, any other number to enable.
-	 * @deprecated (2.3.0) Replaced by {@link #setCheckOnStart(boolean)}. It will be removed in a future release.
-	 */
-	@Deprecated
-	@ZapApiIgnore
-	public void setCheckOnStart(int checkOnStart) {
-	    setCheckOnStart(checkOnStart != 0);
 	}
 
 	/**
