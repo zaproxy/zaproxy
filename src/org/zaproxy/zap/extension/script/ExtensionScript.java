@@ -336,6 +336,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #hasSameScriptEngine(ScriptWrapper, ScriptEngineWrapper)
 	 */
 	public static boolean isSameScriptEngine(String name, String engineName, String engineLanguage) {
+		if (name == null) {
+			return false;
+		}
+
 		// In the configs we just use the engine name, in the UI we use the language name as well
 		if (name.indexOf(LANG_ENGINE_SEP) > 0) {
 			if (name.equals(engineLanguage + LANG_ENGINE_SEP + engineName)) {
