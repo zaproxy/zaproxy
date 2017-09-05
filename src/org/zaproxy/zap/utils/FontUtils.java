@@ -29,6 +29,7 @@ public class FontUtils {
 	public static enum Size {smallest, much_smaller, smaller, standard, larger, much_larger, huge};	
 	private static float scale = -1;
 	private static Font defaultFont;
+	private static boolean defaultFontSet;
 	private static Font systemDefaultFont;
 	
 	public static Font getSystemDefaultFont() {
@@ -65,6 +66,7 @@ public class FontUtils {
 			size = getDefaultFont().getSize();
 		}
 
+		defaultFontSet = name != null && !name.isEmpty();
 		setDefaultFont(new Font(name, Font.PLAIN, size));
 	}
 
@@ -117,5 +119,18 @@ public class FontUtils {
 			scale = getDefaultFont().getSize2D() / getSystemDefaultFont().getSize2D(); 
 		}
 		return scale;
+	}
+
+	/**
+	 * Tells whether or not a custom default font was set.
+	 * <p>
+	 * If no custom font was set it's used the system default font.
+	 *
+	 * @return {@code true} if a custom font was set, {@code false} otherwise.
+	 * @since TODO Add version
+	 * @see #getSystemDefaultFont()
+	 */
+	public static boolean isDefaultFontSet() {
+		return defaultFontSet;
 	}
 }
