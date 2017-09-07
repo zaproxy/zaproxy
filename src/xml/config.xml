@@ -43,10 +43,11 @@
 		<brkPanelView>0</brkPanelView>
 		<showMainToolbar>1</showMainToolbar>
 	</view>
-    <start>
-        <checkForUpdates>false</checkForUpdates>
-    </start>
-    
+	<start>
+		<checkForUpdates>true</checkForUpdates>
+		<checkAddonUpdates>true</checkAddonUpdates>
+	</start>
+	
 	<certificate>
 		<use>0</use>
 		<clientCertLocation></clientCertLocation>
