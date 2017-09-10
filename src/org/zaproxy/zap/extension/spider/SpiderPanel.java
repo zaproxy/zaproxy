@@ -49,6 +49,7 @@ import org.jdesktop.swingx.renderer.IconValues;
 import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
@@ -495,7 +496,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 			scanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					extension.showSpiderDialog(null);
+					extension.showSpiderDialog(getSiteTreeTarget());
 				}
 			});
 		}
@@ -540,5 +541,13 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		protected boolean isHighlighted(final Object cellItem) {
 			return true;
 		}
+	}
+	
+	private SiteNode getSiteTreeTarget() {
+		if (!extension.getView().getSiteTreePanel().getTreeSite().isSelectionEmpty()) {
+			return (SiteNode) extension.getView().getSiteTreePanel().getTreeSite().getSelectionPath()
+					.getLastPathComponent();
+		}
+		return null;
 	}
 }

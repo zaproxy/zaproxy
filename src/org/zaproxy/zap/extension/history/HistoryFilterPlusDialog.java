@@ -24,7 +24,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -239,9 +238,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 					} catch (PatternSyntaxException e1) {
 						// Invalid regex
 						View.getSingleton().showWarningDialog(
-								MessageFormat.format(
-										Constant.messages.getString("history.filter.badregex.warning"), 
-										e1.getMessage())); 
+										Constant.messages.getString("history.filter.badregex.warning", e1.getMessage())); 
 
 					}
 					

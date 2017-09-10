@@ -54,6 +54,8 @@ public class OptionsParamApi extends AbstractParam {
     
     private static final int DEFAULT_NONCE_TTL_IN_SECS = 5 * 60; // 5 mins
 
+    private static final String IPV6_LOOPBACK_ADDRS = "0:0:0:0:0:0:0:1";
+
 	private boolean enabled = true;
 	private boolean uiEnabled = true;
 	private boolean secureOnly;
@@ -371,7 +373,11 @@ public class OptionsParamApi extends AbstractParam {
             permittedAddresses.add(addr);
             addrsEnabled.add(addr);
 
-            addr = new DomainMatcher("zap");
+            addr = new DomainMatcher(API.API_DOMAIN);
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher(IPV6_LOOPBACK_ADDRS);
             permittedAddresses.add(addr);
             addrsEnabled.add(addr);
         }

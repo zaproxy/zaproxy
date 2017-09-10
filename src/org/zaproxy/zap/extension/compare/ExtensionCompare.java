@@ -23,7 +23,6 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -290,8 +289,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 						} catch (Exception e) {
 				        	log.error(e.getMessage(), e);
 							View.getSingleton().showMessageDialog(
-									MessageFormat.format(Constant.messages.getString("report.complete.warning"),
-											new Object[] {outputFile.getAbsolutePath()}));
+									Constant.messages.getString("report.complete.warning", outputFile.getAbsolutePath()));
 						}
 
 				    } catch (Exception e1) {

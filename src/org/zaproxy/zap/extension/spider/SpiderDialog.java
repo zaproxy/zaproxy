@@ -114,6 +114,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addTargetSelectField(0, FIELD_START, this.target, true, false);
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
+        setUsers();
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         this.addCheckBoxField(0, FIELD_SUBTREE_ONLY, subtreeOnlyPreviousCheckedState);
         // This option is always read from the 'global' options
@@ -423,5 +424,11 @@ public class SpiderDialog extends StandardFieldsDialog {
     void reset() {
         target = null;
         reset(true);
+    }
+
+    @Override
+    public void cancelPressed() {
+        this.target=null;
+        super.cancelPressed();
     }
 }

@@ -47,6 +47,7 @@
 // ZAP: 2016/09/20 JavaDoc tweaks
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
+// ZAP: 2017/08/30: Issue 1984: Ensure element setters set empty string if passed a null value
 
 package org.parosproxy.paros.core.scanner;
 
@@ -289,8 +290,7 @@ public class Alert implements Comparable<Alert>  {
 	 * @since 2.5.0
 	 */
 	public void setName(String name) {
-	    if (name == null) return;
-	    this.name = name;
+	    this.name = (name == null) ? "" : name;
 	}
 	
 	/**
@@ -361,41 +361,28 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	public void setUri(String uri) {
-    	// ZAP: Cope with null
-	    if (uri == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.uri = uri;
+		this.uri = (uri == null) ? "" : uri;
 	}
 	
 	
 	public void setDescription(String description) {
-	    if (description == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.description = description;
+		this.description = (description == null) ? "" : description;
 	}
 	
 	public void setParam(String param) {
-	    if (param == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.param = param;
+		this.param = (param == null) ? "" : param;
 	}
 	
 	public void setOtherInfo(String otherInfo) {
-	    if (otherInfo == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.otherInfo = otherInfo;
+		this.otherInfo = (otherInfo == null) ? "" : otherInfo;
 	}
 
 	public void setSolution(String solution) {
-	    if (solution == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.solution = solution;
+		this.solution = (solution == null) ? "" : solution;
 	}
 
 	public void setReference(String reference) {
-	    if (reference == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.reference = reference;
+		this.reference = (reference == null) ? "" : reference;
 	}
 
 	public void setMessage(HttpMessage message) {
@@ -804,7 +791,7 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	public void setAttack(String attack) {
-		this.attack = attack;
+		this.attack = (attack == null) ? "" : attack;
 	}
 
 	public String getMethod() {
@@ -824,7 +811,7 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	public void setEvidence(String evidence) {
-		this.evidence = evidence;
+		this.evidence = (evidence == null) ? "" : evidence;
 	}
 
 	public int getCweId() {

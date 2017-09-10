@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.autoupdate;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -174,8 +173,8 @@ class AddOnDependencyChecker {
 
             int size = changesResult.getSelectedAddOns().size();
             if (size == 1) {
-                String baseMessage = MessageFormat.format(
-                        Constant.messages.getString("cfu.confirmation.dialogue.message.selectedAddOnNewerJavaVersion"),
+                String baseMessage = Constant.messages.getString(
+                        "cfu.confirmation.dialogue.message.selectedAddOnNewerJavaVersion",
                         changesResult.getSelectedAddOns().iterator().next().getMinimumJavaVersion());
                 return JOptionPane.showConfirmDialog(
                         parent,

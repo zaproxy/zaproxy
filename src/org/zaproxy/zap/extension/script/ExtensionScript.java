@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -337,6 +336,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #hasSameScriptEngine(ScriptWrapper, ScriptEngineWrapper)
 	 */
 	public static boolean isSameScriptEngine(String name, String engineName, String engineLanguage) {
+		if (name == null) {
+			return false;
+		}
+
 		// In the configs we just use the engine name, in the UI we use the language name as well
 		if (name.indexOf(LANG_ENGINE_SEP) > 0) {
 			if (name.equals(engineLanguage + LANG_ENGINE_SEP + engineName)) {
@@ -1372,13 +1375,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public void setChanged(ScriptWrapper script, boolean changed) {
 		script.setChanged(changed);
 		ScriptNode node = this.getTreeModel().getNodeForScript(script);
-		if (node.getNodeName().equals(script.getName())) {
-			// The name is the same
-			this.getTreeModel().nodeStructureChanged(script);
-		} else {
-			// The name has changed
-			node.setNodeName(script.getName());
-			this.getTreeModel().nodeStructureChanged(node.getParent());
+		if (node != null) {
+			if (node.getNodeName().equals(script.getName())) {
+				// The name is the same
+				this.getTreeModel().nodeStructureChanged(script);
+			} else {
+				// The name has changed
+				node.setNodeName(script.getName());
+				this.getTreeModel().nodeStructureChanged(node.getParent());
+			}
 		}
 		
 		notifyScriptChanged(script);
@@ -1551,7 +1556,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		for (ScriptType type : this.getScriptTypes()) {
 			for (ScriptWrapper script : this.getScripts(type)) {
 				if (script.isChanged()) {
-					list.add(MessageFormat.format(Constant.messages.getString("script.resource"), script.getName()));
+					list.add(Constant.messages.getString("script.resource", script.getName()));
 				}
 			}
 		}
@@ -1560,26 +1565,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void openCmdLineFile(File f) throws IOException, ScriptException {
 		if (! f.exists()) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.nofile", f.getAbsolutePath()));
 			return;
 		}
 		if (! f.canRead()) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noread", f.getAbsolutePath()));
 			return;
 		}
 		int dotIndex = f.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noext", f.getAbsolutePath()));
 			return;
 		}
 		String ext = f.getName().substring(dotIndex+1);
 		String engineName = this.getEngineNameForExtension(ext);
 		if (engineName == null) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noengine"), ext));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noengine", ext));
 			return;
 		}
         ScriptWrapper sw = new ScriptWrapper(f.getName(), "", engineName,

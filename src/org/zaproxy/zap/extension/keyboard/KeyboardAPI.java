@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.keyboard;
 
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -96,8 +95,7 @@ public class KeyboardAPI extends ApiImplementor {
 			for (KeyboardShortcut shortcut : shortcuts) {
 				if (incUnset || shortcut.getKeyStrokeKeyCodeString().length() > 0) {
 					// Only show actions with actual shortcuts
-					response.append(MessageFormat.format(
-							Constant.messages.getString("keyboard.api.cheatsheet.tablerow"),
+					response.append(Constant.messages.getString("keyboard.api.cheatsheet.tablerow",
 							shortcut.getName(),
 							shortcut.getKeyStrokeModifiersString(),
 							shortcut.getKeyStrokeKeyCodeString()));
