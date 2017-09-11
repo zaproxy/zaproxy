@@ -51,7 +51,7 @@ public class ApiException extends Exception {
 		 * 
 		 * @see API.RequestType
 		 */
-		BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
+		BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, BAD_PCONN, INTERNAL_ERROR, MISSING_PARAMETER, 
 		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST,
 		/**
 		 * Indicates that the value of a parameter is illegal/invalid (for example, it's not of expected type (boolean,
