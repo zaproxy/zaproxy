@@ -233,7 +233,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			engineNames.add(engine.getLanguageName() + LANG_ENGINE_SEP + engine.getEngineName());
 		}
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
-			if (! engines.contains(sew.getEngine().getFactory())) {
+			if (! engines.contains(sew.getFactory())) {
 				engineNames.add(sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName());
 			}
 		}
@@ -954,7 +954,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			if (this.getTreeModel().getTemplate(f.getName()) == null) {
 				String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
 				String engineName = this.getEngineNameForExtension(ext);
-				if (engineName != null && (engine == null || engine.getEngine().getFactory().getExtensions().contains(ext))) {
+				if (engineName != null && (engine == null || engine.getExtensions().contains(ext))) {
 					try {
 						ScriptWrapper template = new ScriptWrapper(f.getName(), "", 
 								this.getEngineWrapper(engineName), type, false, f);
