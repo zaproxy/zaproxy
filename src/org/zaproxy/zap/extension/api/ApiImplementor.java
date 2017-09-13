@@ -29,7 +29,9 @@ import net.sf.json.JSONObject;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpOutputStream;
 import org.zaproxy.zap.extension.api.API.RequestType;
 
 
@@ -65,6 +67,7 @@ public abstract class ApiImplementor {
 	private List<ApiView> apiViews = new ArrayList<>();
 	private List<ApiOther> apiOthers = new ArrayList<>();
 	private List<String> apiShortcuts = new ArrayList<>();
+	private List<ApiPersistentConnection> apiPersistentConnections = new ArrayList<>();
 	private AbstractParam param = null;
 	
 	public List<ApiView> getApiViews() {
@@ -93,6 +96,10 @@ public abstract class ApiImplementor {
 	
 	public void addApiShortcut (String shortcut) {
 		this.apiShortcuts.add(shortcut);
+	}
+	
+	public void addApiPersistentConnection (ApiPersistentConnection pconn) {
+		this.apiPersistentConnections.add(pconn);
 	}
 	
 	/**
@@ -321,7 +328,24 @@ public abstract class ApiImplementor {
 	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
 		throw new ApiException(ApiException.Type.BAD_OTHER, name);
 	}
-	
+
+	/**
+	 * Override if implementing one or more 'persistent connection' operations. 
+	 * These are operations that maintain long running connections, potentially staying alive
+	 * as long as the client holds them open.
+	 * @param msg the HTTP message containing the API request
+	 * @param httpIn the input stream
+	 * @param httpOut the output stream
+	 * @param name the name of the requested pconn endpoint
+	 * @param params the API request parameters
+	 * @throws ApiException if an error occurred while handling the API pconn endpoint
+	 */
+	public void handleApiPersistentConnection(HttpMessage msg,
+			HttpInputStream httpIn, HttpOutputStream httpOut, String name,
+			JSONObject params) throws ApiException {
+		throw new ApiException(ApiException.Type.BAD_PCONN, name);
+	}
+
 	/**
 	 * Override if handling callbacks
 	 * @param msg the HTTP message containing the API request and response
@@ -367,6 +391,19 @@ public abstract class ApiImplementor {
 	
 	protected List<String> getApiShortcuts() {
 		return this.apiShortcuts;
+	}
+
+	public ApiPersistentConnection getApiPersistentConnection(String name) {
+		for (ApiPersistentConnection pconn : this.apiPersistentConnections) {
+			if (pconn.getName().equals(name)) {
+				return pconn;
+			}
+		}
+		return null;
+	}
+
+	public List<ApiPersistentConnection> getApiPersistentConnections() {
+		return this.apiPersistentConnections;
 	}
 
 	protected int getParam(JSONObject params, String name, int defaultValue) {
@@ -416,4 +453,5 @@ public abstract class ApiImplementor {
 	public void addCustomHeaders(String name, RequestType type, HttpMessage msg) {
 		// Do nothing in the default implementation
 	}
+
 }
