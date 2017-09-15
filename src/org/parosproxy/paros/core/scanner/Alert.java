@@ -48,6 +48,7 @@
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 // ZAP: 2017/08/30: Issue 1984: Ensure element setters set empty string if passed a null value
+// ZAP: 2017/09/15 Initialise the source from the RecordAlert always.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -226,18 +227,11 @@ public class Alert implements Comparable<Alert>  {
 
 	public Alert(RecordAlert recordAlert) {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
-	    // ZAP: Set the alertId
-	    this.alertId = recordAlert.getAlertId();
-	    this.source = Source.getSource(recordAlert.getSourceId());
-        try {
-        	HistoryReference hRef = new HistoryReference(recordAlert.getHistoryId());
-            setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-            		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
-            		recordAlert.getSolution(), recordAlert.getReference(),
-            		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-            		null);
 
-            setHistoryRef(hRef);
+        HistoryReference hRef = null;
+        try {
+            hRef = new HistoryReference(recordAlert.getHistoryId());
+
         } catch (HttpMalformedHeaderException e) {
         	// ZAP: Just an indication the history record doesnt exist
         	logger.debug(e.getMessage(), e);
@@ -245,19 +239,32 @@ public class Alert implements Comparable<Alert>  {
         	// ZAP: Log the exception
         	logger.error(e.getMessage(), e);
         }
-	    
+
+        init(recordAlert, hRef);
+	}
+
+	private void init(RecordAlert recordAlert, HistoryReference ref) {
+		this.alertId = recordAlert.getAlertId();
+		this.source = Source.getSource(recordAlert.getSourceId());
+		setDetail(
+				recordAlert.getDescription(),
+				recordAlert.getUri(),
+				recordAlert.getParam(),
+				recordAlert.getAttack(),
+				recordAlert.getOtherInfo(),
+				recordAlert.getSolution(),
+				recordAlert.getReference(),
+				recordAlert.getEvidence(),
+				recordAlert.getCweId(),
+				recordAlert.getWascId(),
+				null);
+		setHistoryRef(ref);
 	}
 	
 	public Alert(RecordAlert recordAlert, HistoryReference ref) {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
-	    // ZAP: Set the alertId
-	    this.alertId = recordAlert.getAlertId();
-        setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-        		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
-        		recordAlert.getSolution(), recordAlert.getReference(), 
-        		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-        		null);
-        setHistoryRef(ref);
+
+		init(recordAlert, ref);
 	}
 	/**
 	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}.
