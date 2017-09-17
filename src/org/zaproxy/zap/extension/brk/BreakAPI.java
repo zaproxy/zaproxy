@@ -18,14 +18,20 @@
  */
 package org.zaproxy.zap.extension.brk;
 
+import java.io.IOException;
+
 import net.sf.json.JSONObject;
 
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpOutputStream;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiPersistentConnection;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
@@ -50,6 +56,8 @@ public class BreakAPI extends ApiImplementor {
 	private static final String VIEW_IS_BREAK_RESPONSE = "isBreakResponse";
 	private static final String VIEW_HTTP_MESSAGE = "httpMessage";
 
+	private static final String PCONN_WAIT_FOR_HTTP_BREAK = "waitForHttpBreak";
+
 	private static final String PARAM_STRING = "string";
 	private static final String PARAM_LOCATION = "location";
 	private static final String PARAM_MATCH = "match";
@@ -61,6 +69,8 @@ public class BreakAPI extends ApiImplementor {
 	private static final String PARAM_TYPE = "type";
 	private static final String PARAM_HTTP_HEADER = "httpHeader";
 	private static final String PARAM_HTTP_BODY = "httpBody";
+	private static final String PARAM_POLL = "poll";
+	private static final String PARAM_KEEP_ALIVE = "keepalive";
 
 	private static final String VALUE_TYPE_HTTP_ALL = "http-all";
 	private static final String VALUE_TYPE_HTTP_REQUESTS = "http-requests";
@@ -89,6 +99,9 @@ public class BreakAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_REM_HTTP_BREAK_POINT, 
 				new String[] {PARAM_STRING, PARAM_LOCATION, PARAM_MATCH, PARAM_INVERSE, PARAM_IGNORECASE}));
 		
+		this.addApiPersistentConnection(
+				new ApiPersistentConnection(PCONN_WAIT_FOR_HTTP_BREAK,
+						new String[] {}, new String[] {PARAM_POLL, PARAM_KEEP_ALIVE}));
 	}
 
 	@Override
@@ -230,5 +243,71 @@ public class BreakAPI extends ApiImplementor {
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
+	}
+
+	public void handleApiPersistentConnection(HttpMessage msg,
+			HttpInputStream httpIn, HttpOutputStream httpOut, String name,
+			JSONObject params) throws ApiException {
+		if (PCONN_WAIT_FOR_HTTP_BREAK.equals(name)) {
+			int poll = params.optInt(PARAM_POLL, 500);
+			int keepAlive = params.optInt(PARAM_KEEP_ALIVE, -1);
+			
+		
+			try {
+				String contentType;
+				int nextKeepAlive = keepAlive * 1000;
+				int alive = 0;
+				if (keepAlive > 0) {
+					contentType = "text/plain";
+				} else {
+					contentType = "text/event-stream";
+				}
+				msg.setResponseHeader(API.getDefaultResponseHeader(contentType, -1));
+				msg.getResponseHeader().setHeader(HttpHeader.CONNECTION, HttpHeader._KEEP_ALIVE);
+
+				httpOut.write(msg.getResponseHeader());
+				while (true) {
+					Message brkMsg = extension.getBreakpointManagementInterface().getMessage();
+					if (brkMsg != null && brkMsg instanceof HttpMessage) {
+						String event;
+						HttpMessage httpMsg = (HttpMessage)brkMsg;
+						JSONObject jo = new JSONObject();
+						if (extension.getBreakpointManagementInterface().isRequest()) {
+							event = "httpRequest";
+							jo.put("header", httpMsg.getRequestHeader().toString());
+							jo.put("body", httpMsg.getRequestBody().toString());
+						} else {
+							event = "httpResponse";
+							jo.put("header", httpMsg.getResponseHeader().toString());
+							jo.put("body", httpMsg.getResponseBody().toString());
+						}
+						httpOut.write("event: " + event + "\n");
+						httpOut.write("data: " + jo.toString() + "\n\n");
+						httpOut.flush();
+						break;
+					}
+					try {
+						Thread.sleep(poll);
+						alive += poll;
+					} catch (InterruptedException e) {
+						// Ignore
+					}
+					if (keepAlive > 0 && alive > nextKeepAlive) {
+						httpOut.write("event: keepalive\n");
+						httpOut.write("data: {}\n\n");
+						httpOut.flush();
+						nextKeepAlive = alive + (keepAlive * 1000);
+					}
+					
+				}
+			} catch (IOException e) {
+				// Ignore - likely to just mean the client has closed the connection
+			} finally {
+				httpOut.close();
+				httpIn.close();
+			}
+			return;
+		}
+		throw new ApiException(ApiException.Type.BAD_PCONN);
 	}
 }

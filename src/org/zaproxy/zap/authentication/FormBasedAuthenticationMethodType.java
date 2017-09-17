@@ -113,7 +113,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	 */
 	public static class FormBasedAuthenticationMethod extends AuthenticationMethod {
 
-		private static final String ENCODING = "UTF-8";
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		public static final String MSG_USER_PATTERN = "{%username%}";
 		public static final String MSG_PASS_PATTERN = "{%password%}";
@@ -162,19 +161,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				throws URIException, HttpMalformedHeaderException, DatabaseException {
 
 			// Replace the username and password in the uri
-			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN,
-					encodeParameter(credentials.getUsername()));
-			requestURL = requestURL.replace(MSG_PASS_PATTERN,
-					encodeParameter(credentials.getPassword()));
+			String requestURL = replaceUserData(loginRequestURL, credentials.getUsername(), credentials.getPassword());
 			URI requestURI = new URI(requestURL, false);
 
 			// Replace the username and password in the post data of the request, if needed
 			String requestBody = null;
 			if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
-				requestBody = loginRequestBody.replace(MSG_USER_PATTERN,
-						encodeParameter(credentials.getUsername()));
-				requestBody = requestBody.replace(MSG_PASS_PATTERN,
-						encodeParameter(credentials.getPassword()));
+				requestBody = replaceUserData(loginRequestBody, credentials.getUsername(), credentials.getPassword());
 			}
 
 			// Prepare the actual message, either based on the existing one, or create a new one
@@ -199,15 +192,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 
 			return requestMessage;
-		}
-
-		private static String encodeParameter(String parameter) {
-			try {
-				return URLEncoder.encode(parameter, ENCODING);
-			} catch (UnsupportedEncodingException ignore) {
-				// UTF-8 is one of the standard charsets (see StandardCharsets.UTF_8).
-			}
-			return "";
 		}
 
 		@Override
@@ -426,6 +410,20 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				return false;
 			return true;
 		}
+	}
+
+	private static String replaceUserData(String loginData, String username, String password) {
+		return loginData.replace(FormBasedAuthenticationMethod.MSG_USER_PATTERN, encodeParameter(username))
+				.replace(FormBasedAuthenticationMethod.MSG_PASS_PATTERN, encodeParameter(password));
+	}
+
+	private static String encodeParameter(String parameter) {
+		try {
+			return URLEncoder.encode(parameter, "UTF-8");
+		} catch (UnsupportedEncodingException ignore) {
+			// UTF-8 is one of the standard charsets (see StandardCharsets.UTF_8).
+		}
+		return "";
 	}
 
 	/**

@@ -58,7 +58,7 @@ import net.sf.json.JSONObject;
 
 public class API {
 	public enum Format {XML, HTML, JSON, JSONP, UI, OTHER};
-	public enum RequestType {action, view, other};
+	public enum RequestType {action, view, other, pconn};
 	
 	/**
 	 * The custom domain to access the ZAP API while proxying through ZAP.
@@ -502,6 +502,26 @@ public class API {
 							}
 						}
 						msg = impl.handleApiOther(msg, name, params);
+						break;
+					case pconn:
+						ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
+						if (pconn != null) {
+							if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+								if ( ! this.hasValidKey(requestHeader, params)) {
+									throw new ApiException(ApiException.Type.BAD_API_KEY);
+								}
+							}
+							List<String> mandatoryParams = pconn.getMandatoryParamNames();
+							if (mandatoryParams != null) {
+								for (String param : mandatoryParams) {
+									if (!params.has(param) || params.getString(param).length() == 0) {
+										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+									}
+								}
+							}
+						}
+						impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
+						return true;
 					}
 				} else {
 					// Handle default front page, unless if the API UI is disabled

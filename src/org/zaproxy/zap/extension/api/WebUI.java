@@ -79,6 +79,19 @@ public class WebUI {
 				throw new ApiException(ApiException.Type.BAD_VIEW);
 			}
 			return view;
+		} else if (RequestType.pconn.equals(reqType) && name != null) {
+			List<ApiPersistentConnection> pconnList = impl.getApiPersistentConnections();
+			ApiPersistentConnection pconn = null;
+			for (ApiPersistentConnection pc : pconnList) {
+				if (name.equals(pc.getName())) {
+					pconn = pc;
+					break;
+				}
+			}
+			if (pconn == null) {
+				throw new ApiException(ApiException.Type.BAD_PCONN);
+			}
+			return pconn;
 		} else {
 			throw new ApiException(ApiException.Type.BAD_TYPE);
 		}
@@ -378,6 +391,16 @@ public class WebUI {
 					elementList = new ArrayList<>();
 					elementList.addAll(otherList);
 					this.appendElements(sb, component, RequestType.other.name(), elementList);
+				}
+
+				List<ApiPersistentConnection> pconnList = impl.getApiPersistentConnections();
+				if (pconnList != null && pconnList.size() > 0) {
+					sb.append("<h3>");
+					sb.append(Constant.messages.getString("api.html.pconns"));
+					sb.append("</h3>\n");
+					elementList = new ArrayList<>();
+					elementList.addAll(pconnList);
+					this.appendElements(sb, component, RequestType.pconn.name(), elementList);
 				}
 
 				if (getOptionsParamApi().isDisableKey() || getOptionsParamApi().isAutofillKey() || 
