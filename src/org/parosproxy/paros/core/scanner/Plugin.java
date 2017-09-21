@@ -30,7 +30,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
-// ZAP: 2017/07/12 JavaDoc tweaks.
+// ZAP: 2017/07/12 and 2017/09/21 JavaDoc tweaks.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -44,7 +44,7 @@ import org.zaproxy.zap.model.TechSet;
 
 /**
  * This interface must be implemented by a Plugin for running the checks. The
- * AbstractHostPlugin, AbstractAppPlugin, AbstractAppParamPlugin implement this
+ * {@link AbstractHostPlugin}, {@link AbstractAppPlugin}, {@link AbstractAppParamPlugin} implement this
  * interface and is a good starting point for writing new plugins.
  *
  */
@@ -99,6 +99,12 @@ public interface Plugin extends Runnable {
      */
     int getRisk();
 
+    /**
+     * Initialises the plugin with the given message and host process.
+     *
+     * @param msg the message to be scanned.
+     * @param parent the parent host process.
+     */
     void init(HttpMessage msg, HostProcess parent);
 
     /**
@@ -277,6 +283,8 @@ public interface Plugin extends Runnable {
 
     /**
      * Sets the technologies enabled for the scan.
+     * <p>
+     * Called before {@link #init(HttpMessage, HostProcess) initialising the plugin}.
      *
      * @param ts the technologies enabled for the scan
      * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}.

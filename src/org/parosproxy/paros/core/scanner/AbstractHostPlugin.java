@@ -21,8 +21,16 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2017/09/21 Add JavaDoc.
 package org.parosproxy.paros.core.scanner;
 
+/**
+ * A {@link Plugin} that is called just once per scan, it should be used when testing whole site or server related issues.
+ * <p>
+ * The plugin is {@link #init(org.parosproxy.paros.network.HttpMessage, HostProcess) initialised} with the first message being
+ * scanned, which the plugin can later {@link #getBaseMsg() obtain} to extract host related information (for example, domain,
+ * port) for the {@link #scan() scan}.
+ */
 public abstract class AbstractHostPlugin extends AbstractPlugin {
 
     @Override
