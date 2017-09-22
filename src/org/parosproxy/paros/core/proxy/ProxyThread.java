@@ -72,6 +72,7 @@
 // ZAP: 2017/03/15 Disable API by default
 // ZAP: 2017/03/26 Check the public address when behind NAT.
 // ZAP: 2017/06/12 Do not notify listeners when request is excluded.
+// ZAP: 2017/09/22 Check if first message received is a SSL/TLS handshake and tweak exception message.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -220,17 +221,28 @@ public class ProxyThread implements Runnable {
         } catch (MissingRootCertificateException e) {
         	throw new MissingRootCertificateException(e); // throw again, cause will be catched later.
 		} catch (Exception e) {
-			// ZAP: transform for further processing 
-			throw new IOException("Error while establishing SSL connection for '" + targethost + "'!", e);
+			StringBuilder strBuilder = new StringBuilder(125);
+			strBuilder.append("Error while establishing SSL connection for ");
+			if (targethost == null) {
+				strBuilder.append("an unknown target domain (relying on SNI extension), cause: " + e.getMessage());
+			} else {
+				strBuilder.append("'" + targethost + "'!");
+			}
+			throw new IOException(strBuilder.toString(), e);
 		}
         
         httpIn = new HttpInputStream(inSocket);
         httpOut = new HttpOutputStream(inSocket.getOutputStream());
     }
 	
-	private static boolean isSslTlsHandshake(byte[] bytes) {
-		if (bytes.length < 3) {
-			throw new IllegalArgumentException("The parameter bytes must have at least 3 bytes.");
+	private static boolean isSslTlsHandshake(BufferedInputStream inputStream) throws IOException {
+		byte[] bytes = new byte[3];
+		inputStream.mark(3);
+		int bytesRead = inputStream.read(bytes);
+		inputStream.reset();
+
+		if (bytesRead < 3) {
+			throw new IllegalArgumentException("The buffered input stream must have at least 3 bytes.");
 		}
 		// Check if ContentType is handshake(22)
 		if (bytes[0] == 0x16) {
@@ -245,12 +257,17 @@ public class ProxyThread implements Runnable {
 	@Override
 	public void run() {
         proxyThreadList.add(thread);
-		boolean isSecure = this instanceof ProxyThreadSSL;
+		boolean isSecure = false;
 		HttpRequestHeader firstHeader = null;
 		
 		try {
 			BufferedInputStream bufferedInputStream = new BufferedInputStream(inSocket.getInputStream(), 2048);
 			inSocket = new CustomStreamsSocket(inSocket, bufferedInputStream, inSocket.getOutputStream());
+
+			if (isSslTlsHandshake(bufferedInputStream)) {
+				isSecure = true;
+				beginSSL(null);
+			}
 
 			httpIn = new HttpInputStream(inSocket);
 			httpOut = new HttpOutputStream(inSocket.getOutputStream());
@@ -268,12 +285,7 @@ public class ProxyThread implements Runnable {
 					connectMsg.setTimeElapsedMillis((int) (System.currentTimeMillis() - connectMsg.getTimeSentMillis()));
 					notifyConnectMessage(connectMsg);
 					
-					byte[] bytes = new byte[3];
-					bufferedInputStream.mark(3);
-					bufferedInputStream.read(bytes);
-					bufferedInputStream.reset();
-					
-					if (isSslTlsHandshake(bytes)) {
+					if (isSslTlsHandshake(bufferedInputStream)) {
 				        isSecure = true;
 						beginSSL(firstHeader.getHostName());
 					}
