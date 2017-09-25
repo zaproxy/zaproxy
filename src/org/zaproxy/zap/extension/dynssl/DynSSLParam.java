@@ -33,29 +33,30 @@ public class DynSSLParam extends AbstractParam {
 
 	private KeyStore rootca = null;
 
-	private final Logger logger = Logger.getLogger(DynSSLParam.class);
+	private static final Logger logger = Logger.getLogger(DynSSLParam.class);
 
 	@Override
 	protected void parse() {
-		try {
-			String rootcastr = getConfig().getString(PARAM_ROOT_CA, null);
-			if (rootcastr != null) {
-				setRootca(rootcastr);
-			}
-		} catch (final Exception e) {
-			logger.warn("Couldn't load Root CA parameter.", e);
+		String rootcastr = getString(PARAM_ROOT_CA, null);
+		if (rootcastr != null) {
+			rootca = createKeyStore(rootcastr);
 		}
+	}
+
+	private static KeyStore createKeyStore(String rootcastr) {
+		try {
+			return SslCertificateUtils.string2Keystore(rootcastr);
+		} catch (final Exception e) {
+			logger.error("Couldn't create Root CA KeyStore from String: " + rootcastr, e);
+		}
+		return null;
 	}
 
 	/**
 	 * @param rootca
 	 */
 	public void setRootca(String rootca) {
-		try {
-			setRootca(SslCertificateUtils.string2Keystore(rootca));
-		} catch (final Exception e) {
-			logger.error("Couldn't save Root CA parameter.", e);
-		}
+		setRootca(createKeyStore(rootca));
 	}
 
 	public KeyStore getRootca() {
