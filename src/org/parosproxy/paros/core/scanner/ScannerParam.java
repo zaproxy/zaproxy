@@ -43,6 +43,7 @@
 // ZAP: 2016/01/20 Issue 1959: Allow to active scan headers of all requests
 // ZAP: 2016/10/24 Issue 2951:  Support active scan rule and scan max duration
 // ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API 
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -171,105 +172,45 @@ public class ScannerParam extends AbstractParam {
     protected void parse() {
         removeOldOptions();
 
-        try {
-            this.threadPerHost = getConfig().getInt(THREAD_PER_HOST, 1);
-        } catch (Exception e) {
-        }
+        this.threadPerHost = getInt(THREAD_PER_HOST, 1);
 
-        try {
-            this.hostPerScan = getConfig().getInt(HOST_PER_SCAN, 2);
-        } catch (Exception e) {
-        }
+        this.hostPerScan = getInt(HOST_PER_SCAN, 2);
 
-        try {
-            this.delayInMs = getConfig().getInt(DELAY_IN_MS, 0);
-        } catch (Exception e) {
-        }
+        this.delayInMs = getInt(DELAY_IN_MS, 0);
 
-        try {
-            this.maxResultsToList = getConfig().getInt(MAX_RESULTS_LIST, 1000);
-        } catch (Exception e) {
-        }
+        this.maxResultsToList = getInt(MAX_RESULTS_LIST, 1000);
 
-        try {
-            this.maxRuleDurationInMins = getConfig().getInt(MAX_RULE_DURATION_IN_MINS, 0);
-        } catch (Exception e) {
-        }
+        this.maxRuleDurationInMins = getInt(MAX_RULE_DURATION_IN_MINS, 0);
 
-        try {
-            this.maxScanDurationInMins = getConfig().getInt(MAX_SCAN_DURATION_IN_MINS, 0);
-        } catch (Exception e) {
-        }
+        this.maxScanDurationInMins = getInt(MAX_SCAN_DURATION_IN_MINS, 0);
 
-        try {
-            this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
-        } catch (Exception e) {
-        }
+        this.maxScansInUI = getInt(MAX_SCANS_IN_UI, 5);
         
-        try {
-        	this.injectPluginIdInHeader = getConfig().getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
-        } catch (Exception e) {	
-        }
+        this.injectPluginIdInHeader = getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
         
-        try {
-            this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
-        } catch (Exception e) {
-        }
+        this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
 
-        try {
-            this.promptInAttackMode = getConfig().getBoolean(PROMPT_IN_ATTACK_MODE, true);
-        } catch (Exception e) {
-        }
+        this.promptInAttackMode = getBoolean(PROMPT_IN_ATTACK_MODE, true);
 
-        try {
-            this.rescanInAttackMode = getConfig().getBoolean(RESCAN_IN_ATTACK_MODE, true);
-        } catch (Exception e) {
-        }
+        this.rescanInAttackMode = getBoolean(RESCAN_IN_ATTACK_MODE, true);
 
-        try {
-            this.promptToClearFinishedScans = getConfig().getBoolean(PROMPT_TO_CLEAR_FINISHED, true);
-        } catch (Exception e) {
-        }
+        this.promptToClearFinishedScans = getBoolean(PROMPT_TO_CLEAR_FINISHED, true);
 
-        try {
-            this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
-        } catch (Exception e) {
-        }
+        this.showAdvancedDialog = getBoolean(SHOW_ADV_DIALOG, false);
 
-        try {
-            this.defaultPolicy = getConfig().getString(DEFAULT_POLICY, null);
-        } catch (Exception e) {
-        }
+        this.defaultPolicy = getString(DEFAULT_POLICY, null);
 
-        try {
-            this.attackPolicy = getConfig().getString(ATTACK_POLICY, null);
-        } catch (Exception e) {
-        }
+        this.attackPolicy = getString(ATTACK_POLICY, null);
 
-        try {
-            this.targetParamsInjectable = getConfig().getInt(TARGET_INJECTABLE, TARGET_INJECTABLE_DEFAULT);
-        } catch (Exception e) {
-        }
+        this.targetParamsInjectable = getInt(TARGET_INJECTABLE, TARGET_INJECTABLE_DEFAULT);
 
-        try {
-            this.targetParamsEnabledRPC = getConfig().getInt(TARGET_ENABLED_RPC, TARGET_ENABLED_RPC_DEFAULT);
-        } catch (Exception e) {
-        }
+        this.targetParamsEnabledRPC = getInt(TARGET_ENABLED_RPC, TARGET_ENABLED_RPC_DEFAULT);
 
-        try {
-            this.allowAttackOnStart = getConfig().getBoolean(ALLOW_ATTACK_ON_START, false);
-        } catch (Exception e) {
-        }
+        this.allowAttackOnStart = getBoolean(ALLOW_ATTACK_ON_START, false);
 
-        try {
-            this.maxChartTimeInMins = getConfig().getInt(MAX_CHART_TIME_IN_MINS, DEFAULT_MAX_CHART_TIME_IN_MINS);
-        } catch (Exception e) {
-        }
+        this.maxChartTimeInMins = getInt(MAX_CHART_TIME_IN_MINS, DEFAULT_MAX_CHART_TIME_IN_MINS);
 
-        try {
-            this.scanHeadersAllRequests = getConfig().getBoolean(SCAN_HEADERS_ALL_REQUESTS, false);
-        } catch (Exception e) {
-        }
+        this.scanHeadersAllRequests = getBoolean(SCAN_HEADERS_ALL_REQUESTS, false);
 
         // Parse the parameters that need to be excluded
         // ------------------------------------------------

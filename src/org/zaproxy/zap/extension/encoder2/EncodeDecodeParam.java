@@ -34,9 +34,9 @@ class EncodeDecodeParam extends AbstractParam {
 	
 	@Override
 	protected void parse() {
-		base64Charset = getConfig().getString(PARAM_BASE64_CHARSET, base64Charset);
+		base64Charset = getString(PARAM_BASE64_CHARSET, base64Charset);
 		
-		base64DoBreakLines = getConfig().getBoolean(PARAM_BASE64_DO_BREAK_LINES, base64DoBreakLines);
+		base64DoBreakLines = getBoolean(PARAM_BASE64_DO_BREAK_LINES, base64DoBreakLines);
 	}
 
 	public String getBase64Charset() {

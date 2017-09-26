@@ -69,10 +69,10 @@ public class BreakpointsParam extends AbstractParam {
      */
     @Override
     protected void parse() {
-        confirmDropMessage = getConfig().getBoolean(PARAM_CONFIRM_DROP_MESSAGE_KEY, false);
-        buttonMode = getConfig().getInt(PARAM_UI_BUTTON_MODE, BUTTON_MODE_SIMPLE);
+        confirmDropMessage = getBoolean(PARAM_CONFIRM_DROP_MESSAGE_KEY, false);
+        buttonMode = getInt(PARAM_UI_BUTTON_MODE, BUTTON_MODE_SIMPLE);
         alwaysOnTop = getConfig().getBoolean(PARAM_BRK_ALWAYS_ON_TOP, null);
-        inScopeOnly = getConfig().getBoolean(PARAM_BRK_IN_SCOPE_ONLY, false);
+        inScopeOnly = getBoolean(PARAM_BRK_IN_SCOPE_ONLY, false);
     }
 
     /**

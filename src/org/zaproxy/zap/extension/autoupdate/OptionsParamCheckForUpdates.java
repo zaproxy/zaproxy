@@ -76,18 +76,18 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     protected void parse() {
         updateOldOptions();
         
-	    checkOnStart = getConfig().getBoolean(CHECK_ON_START, true);
-	    dayLastChecked = getConfig().getString(DAY_LAST_CHECKED, "");
-	    dayLastInstallWarned = getConfig().getString(DAY_LAST_INSTALL_WARNED, "");
-	    dayLastUpdateWarned = getConfig().getString(DAY_LAST_UPDATE_WARNED, "");
+	    checkOnStart = getBoolean(CHECK_ON_START, true);
+	    dayLastChecked = getString(DAY_LAST_CHECKED, "");
+	    dayLastInstallWarned = getString(DAY_LAST_INSTALL_WARNED, "");
+	    dayLastUpdateWarned = getString(DAY_LAST_UPDATE_WARNED, "");
 		
-		downloadNewRelease = getConfig().getBoolean(DOWNLOAD_NEW_RELEASE, false);
-		checkAddonUpdates = getConfig().getBoolean(CHECK_ADDON_UPDATES, true);
-		installAddonUpdates = getConfig().getBoolean(INSTALL_ADDON_UPDATES, false);
-		installScannerRules = getConfig().getBoolean(INSTALL_SCANNER_RULES, false);
-		reportReleaseAddons = getConfig().getBoolean(REPORT_RELEASE_ADDON, false);
-		reportBetaAddons = getConfig().getBoolean(REPORT_BETA_ADDON, false);
-		reportAlphaAddons = getConfig().getBoolean(REPORT_ALPHA_ADDON, false);
+		downloadNewRelease = getBoolean(DOWNLOAD_NEW_RELEASE, false);
+		checkAddonUpdates = getBoolean(CHECK_ADDON_UPDATES, true);
+		installAddonUpdates = getBoolean(INSTALL_ADDON_UPDATES, false);
+		installScannerRules = getBoolean(INSTALL_SCANNER_RULES, false);
+		reportReleaseAddons = getBoolean(REPORT_RELEASE_ADDON, false);
+		reportBetaAddons = getBoolean(REPORT_BETA_ADDON, false);
+		reportAlphaAddons = getBoolean(REPORT_ALPHA_ADDON, false);
 		for (Object dir : getConfig().getList(ADDON_DIRS)) {
 			File f = new File(dir.toString());
 			if (!f.exists()) {
@@ -100,7 +100,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 				this.addonDirectories.add(f);
 			}
 		}
-		setDownloadDirectory(new File(getConfig().getString(DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN)), false);
+		setDownloadDirectory(new File(getString(DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN)), false);
     }
 
 	private void updateOldOptions() {
