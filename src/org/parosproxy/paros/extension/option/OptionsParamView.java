@@ -35,13 +35,12 @@
 // ZAP: 2016/04/27 Save, always, the Locale as String
 // ZAP: 2016/05/13 Add options to confirm removal of exclude from proxy, scanner and spider regexes
 // ZAP: 2017/05/29 Add option to use system's locale for formatting.
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
 
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;
 
-import org.apache.commons.configuration.ConversionException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
@@ -53,8 +52,6 @@ import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 
 public class OptionsParamView extends AbstractParam {
 	
-	private static final Logger LOGGER = Logger.getLogger(OptionsParamView.class);
-
 	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.default");
 	
 	public static final String BASE_VIEW_KEY = "view";
@@ -151,64 +148,42 @@ public class OptionsParamView extends AbstractParam {
     @Override
 	protected void parse() {
 	    // use temp variable to check.  Exception will be flagged if any error.
-      	showTabNames = getConfig().getBoolean(SHOW_TEXT_ICONS, true);
-	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
-	    configLocale = getConfig().getString(LOCALE, null);	// No default
-	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
-	    try {
-	        useSystemsLocaleForFormat = getConfig().getBoolean(USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY, true);
-	    } catch (ConversionException e) {
-	        LOGGER.error("Failed to load " + USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY, e);
-	        useSystemsLocaleForFormat = true;
-	    }
-	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
-        responsePanelPosition = getConfig()
-                .getString(RESPONSE_PANEL_POS_KEY, WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE.name());
-	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
-	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
-	    advancedViewEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 0);
-	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
-	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
-	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
-	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
-	    outputTabTimeStampingEnabled = getConfig().getBoolean(OUTPUT_TAB_TIMESTAMPING_OPTION, false); 
-	    outputTabTimeStampFormat = getConfig().getString(OUTPUT_TAB_TIMESTAMP_FORMAT, DEFAULT_TIME_STAMP_FORMAT);
+      	showTabNames = getBoolean(SHOW_TEXT_ICONS, true);
+	    processImages = getInt(PROCESS_IMAGES, 0);
+	    configLocale = getString(LOCALE, null);	// No default
+	    locale = getString(LOCALE, DEFAULT_LOCALE);
+	    useSystemsLocaleForFormat = getBoolean(USE_SYSTEMS_LOCALE_FOR_FORMAT_KEY, true);
+	    displayOption = getInt(DISPLAY_OPTION, 0);
+        responsePanelPosition = getString(RESPONSE_PANEL_POS_KEY, WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE.name());
+	    brkPanelViewOption = getInt(BRK_PANEL_VIEW_OPTION, 0);
+	    showMainToolbar = getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
+	    advancedViewEnabled = getInt(ADVANCEDUI_OPTION, 0);
+	    wmUiHandlingEnabled = getInt(WMUIHANDLING_OPTION, 0);
+	    askOnExitEnabled = getInt(ASKONEXIT_OPTION, 1);
+	    warnOnTabDoubleClick = getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
+	    mode = getString(MODE_OPTION, Mode.standard.name());
+	    outputTabTimeStampingEnabled = getBoolean(OUTPUT_TAB_TIMESTAMPING_OPTION, false); 
+	    outputTabTimeStampFormat = getString(OUTPUT_TAB_TIMESTAMP_FORMAT, DEFAULT_TIME_STAMP_FORMAT);
 
-        try {
-            showLocalConnectRequests = getConfig().getBoolean(SHOW_LOCAL_CONNECT_REQUESTS, false);
-        } catch (ConversionException e) {
-            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
-        }
+        showLocalConnectRequests = getBoolean(SHOW_LOCAL_CONNECT_REQUESTS, false);
 
-	    showSplashScreen = getConfig().getBoolean(SPLASHSCREEN_OPTION, true);
-	    largeRequestSize = getConfig().getInteger(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
-	    largeResponseSize = getConfig().getInteger(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
-	    fontSize = getConfig().getInteger(FONT_SIZE, -1);
-	    fontName = getConfig().getString(FONT_NAME, "");
-	    scaleImages = getConfig().getBoolean(SCALE_IMAGES, true);
-	    showDevWarning = getConfig().getBoolean(SHOW_DEV_WARNING, true);
+	    showSplashScreen = getBoolean(SPLASHSCREEN_OPTION, true);
+	    largeRequestSize = getInt(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
+	    largeResponseSize = getInt(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
+	    fontSize = getInt(FONT_SIZE, -1);
+	    fontName = getString(FONT_NAME, "");
+	    scaleImages = getBoolean(SCALE_IMAGES, true);
+	    showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
 	    
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
 	    LargeResponseUtil.setMinContentLength(largeResponseSize);
 
-        try {
-            this.confirmRemoveProxyExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY, false);
-        } catch (ConversionException e) {
-            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
-        }
+        this.confirmRemoveProxyExcludeRegex = getBoolean(CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY, false);
 
-        try {
-            this.confirmRemoveScannerExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY, false);
-        } catch (ConversionException e) {
-            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
-        }
+        this.confirmRemoveScannerExcludeRegex = getBoolean(CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY, false);
 
-        try {
-            this.confirmRemoveSpiderExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY, false);
-        } catch (ConversionException e) {
-            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
-        }
+        this.confirmRemoveSpiderExcludeRegex = getBoolean(CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY, false);
     }
 
 	/**

@@ -61,8 +61,8 @@ public class ScriptParam extends AbstractParam {
 
 	@Override
 	protected void parse() {
-		defaultScript = getConfig().getString(PARAM_DEFAULT_SCRIPT, "");
-		defaultDir = getConfig().getString(PARAM_DEFAULT_DIR, "");
+		defaultScript = getString(PARAM_DEFAULT_SCRIPT, "");
+		defaultDir = getString(PARAM_DEFAULT_DIR, "");
 		
         try {
             List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_SCRIPTS_KEY);
@@ -114,7 +114,7 @@ public class ScriptParam extends AbstractParam {
         } catch (Exception e) {
             logger.error("Error while loading the script dirs: " + e.getMessage(), e);
         }
-        confirmRemoveDir = getConfig().getBoolean(SCRIPT_CONFIRM_REMOVE_DIR, true);
+        confirmRemoveDir = getBoolean(SCRIPT_CONFIRM_REMOVE_DIR, true);
 
 	}
 	

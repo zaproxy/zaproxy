@@ -84,11 +84,7 @@ public class AntiCsrfParam extends AbstractParam {
             }
         }
 
-        try {
-            this.confirmRemoveToken = getConfig().getBoolean(CONFIRM_REMOVE_TOKEN_KEY, true);
-        } catch (ConversionException e) {
-            logger.error("Error while loading the confirm remove token option: " + e.getMessage(), e);
-        }
+        this.confirmRemoveToken = getBoolean(CONFIRM_REMOVE_TOKEN_KEY, true);
     }
 
     @ZapApiIgnore
