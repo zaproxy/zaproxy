@@ -1,24 +1,23 @@
 # This dockerfile builds the zap stable release
 FROM ubuntu:16.04 as builder
-MAINTAINER Simon Bennetts "psiinon@gmail.com"
 
 WORKDIR /zap
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
-	wget \
-	curl \
-	xmlstarlet \
-	unzip && \
-	apt-get clean && \
-	rm -rf /var/lib/apt/lists/*
+    wget \
+    curl \
+    xmlstarlet \
+    unzip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Download and expand the latest stable release 
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
-	cp -R ZAP*/* . &&  \
-	rm -R ZAP* 
+    cp -R ZAP*/* . &&  \
+    rm -R ZAP* 
 
 FROM java:openjdk-8-jdk-alpine
-MAINTAINER Simon Bennetts "psiinon@gmail.com"
+LABEL maintainer="psiinon@gmail.com"
 
 WORKDIR /zap
 COPY --from=builder /zap .
@@ -27,7 +26,7 @@ RUN echo "http://dl-3.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
     adduser -h /home/zap -s /bin/bash zap -D zap && \
     rm -rf /var/cache/apk/* && \
     chown zap /zap && \
-	chgrp zap /zap && \
+    chgrp zap /zap && \
     chown -R zap:zap /zap
 
 #Change to the zap user so things get done as the right person (apart from copy)
