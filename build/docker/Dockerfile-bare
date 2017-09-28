@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
     rm -rf /var/lib/apt/lists/*
 
 # Download and expand the latest stable release 
-RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
+RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
     cp -R ZAP*/* . &&  \
     rm -R ZAP* 
 
