@@ -47,7 +47,7 @@ RUN mkdir /home/zap/.vnc
 
 
 # Download and expand the latest weekly release 
-RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - && \
+RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - && \
 	unzip *.zip && \
 	rm *.zip && \
 	cp -R ZAP*/* . &&  \
