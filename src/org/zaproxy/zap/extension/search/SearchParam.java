@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.search;
 
-import org.apache.commons.configuration.ConversionException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
@@ -35,8 +33,6 @@ import org.parosproxy.paros.common.AbstractParam;
  * @see #getMaximumSearchResultsGUI()
  */
 public class SearchParam extends AbstractParam {
-
-    private static final Logger LOGGER = Logger.getLogger(SearchParam.class);
 
     /**
      * The base configuration key for all search configurations.
@@ -74,12 +70,7 @@ public class SearchParam extends AbstractParam {
      */
     @Override
     protected void parse() {
-        try {
-            maximumSearchResultsGUI = getConfig().getInt(PARAM_MAXIMUM_RESULTS_GUI, DEFAULT_MAXIMUM_RESULTS_GUI);
-        } catch (ConversionException e) {
-            LOGGER.error("Failed to load the \"Maximum search results in GUI\" configuration: " + e.getMessage(), e);
-            maximumSearchResultsGUI = DEFAULT_MAXIMUM_RESULTS_GUI;
-        }
+        maximumSearchResultsGUI = getInt(PARAM_MAXIMUM_RESULTS_GUI, DEFAULT_MAXIMUM_RESULTS_GUI);
     }
 
     /**

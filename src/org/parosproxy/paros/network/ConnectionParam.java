@@ -40,6 +40,7 @@
 // ZAP: 2017/05/02 Added option key to enable / disable HTTP State 
 // ZAP: 2017/05/15 Ensure HttpState is non-null when HTTP State is enabled.
 // ZAP: 2017/06/19 Do not allow to set negative timeout values and expose the default value.
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
 package org.parosproxy.paros.network;
 
 import java.security.Security;
@@ -49,7 +50,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
@@ -174,50 +174,32 @@ public class ConnectionParam extends AbstractParam {
 	protected void parse() {
 		updateOptions();
 
-		try {
-			dnsTtlSuccessfulQueries = getConfig().getInt(DNS_TTL_SUCCESSFUL_QUERIES_KEY, 30);
-			Security.setProperty(DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY, Integer.toString(dnsTtlSuccessfulQueries));
-		} catch (ConversionException e) {
-			log.error("Failed to read '" + DNS_TTL_SUCCESSFUL_QUERIES_KEY + "'", e);
-			dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
-		}
+		dnsTtlSuccessfulQueries = getInt(DNS_TTL_SUCCESSFUL_QUERIES_KEY, DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES);
+		Security.setProperty(DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY, Integer.toString(dnsTtlSuccessfulQueries));
 
-		useProxyChain = getConfig().getBoolean(USE_PROXY_CHAIN_KEY, false);
-		useProxyChainAuth = getConfig().getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
+		useProxyChain = getBoolean(USE_PROXY_CHAIN_KEY, false);
+		useProxyChainAuth = getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
 
-		setProxyChainName(getConfig().getString(PROXY_CHAIN_NAME, ""));
-		try {
-			setProxyChainPort(getConfig().getInt(PROXY_CHAIN_PORT, 8080));
-		} catch (Exception e) {
-        	// ZAP: Log exceptions
-        	log.error(e.getMessage(), e);
-		}
+		setProxyChainName(getString(PROXY_CHAIN_NAME, ""));
+		setProxyChainPort(getInt(PROXY_CHAIN_PORT, 8080));
 
 		loadProxyExcludedDomains();
-		try {
-		    this.confirmRemoveProxyExcludeDomain = getConfig().getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
-		} catch (ConversionException e) {
-		    log.error("Error while loading the confirm excluded domain remove option: " + e.getMessage(), e);
-		}
+		this.confirmRemoveProxyExcludeDomain = getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
 
-		try {
-			setProxyChainRealm(getConfig().getString(PROXY_CHAIN_REALM, ""));
-			setProxyChainUserName(getConfig().getString(PROXY_CHAIN_USER_NAME, ""));
-		} catch (Exception e) {
-        	// ZAP: Log exceptions
-        	log.error(e.getMessage(), e);
-		}
+		setProxyChainRealm(getString(PROXY_CHAIN_REALM, ""));
+		setProxyChainUserName(getString(PROXY_CHAIN_USER_NAME, ""));
+		
 		try {
 			// ZAP: Added prompt option
 			if (getConfig().getProperty(PROXY_CHAIN_PROMPT) instanceof String &&
 					((String)getConfig().getProperty(PROXY_CHAIN_PROMPT)).isEmpty()) {
 				// In 1.2.0 the default for this field was empty, which causes a crash in 1.3.*
 				setProxyChainPrompt(false);
-			} else if (getConfig().getBoolean(PROXY_CHAIN_PROMPT, false)) {
+			} else if (getBoolean(PROXY_CHAIN_PROMPT, false)) {
 				setProxyChainPrompt(true);
 			} else {
 				setProxyChainPrompt(false);
-				setProxyChainPassword(getConfig().getString(PROXY_CHAIN_PASSWORD, ""));
+				setProxyChainPassword(getString(PROXY_CHAIN_PASSWORD, ""));
 			}
 		} catch (Exception e) {
         	// ZAP: Log exceptions
@@ -226,26 +208,11 @@ public class ConnectionParam extends AbstractParam {
 		
 		setTimeoutInSecsImpl(getInt(TIMEOUT_IN_SECS, DEFAULT_TIMEOUT));
 
-		try {
-			this.singleCookieRequestHeader = getConfig().getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
-		} catch (ConversionException e) {
-			log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
-		}
+		this.singleCookieRequestHeader = getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
 
-		boolean stateEnabled = false;
-		try {
-			stateEnabled = getConfig().getBoolean(HTTP_STATE_ENABLED, stateEnabled);
-		} catch (ConversionException e) {
-			log.error("Error while loading the option httpStateEnabled: " + e.getMessage(), e);
-		}
-		setHttpStateEnabledImpl(stateEnabled);
+		setHttpStateEnabledImpl(getBoolean(HTTP_STATE_ENABLED, false));
 
-		try {
-			this.defaultUserAgent = getConfig().getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
-		} catch (Exception e) {
-            log.error("Error while loading the option defaultUserAgent: " + e.getMessage(), e);
-			this.defaultUserAgent = DEFAULT_DEFAULT_USER_AGENT;
-		}
+		this.defaultUserAgent = getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
         
         loadSecurityProtocolsEnabled();
 	}

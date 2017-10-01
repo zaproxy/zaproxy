@@ -25,7 +25,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -160,9 +159,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
 				throws URIException, HttpMalformedHeaderException, DatabaseException {
 
-			// Replace the username and password in the uri
-			String requestURL = replaceUserData(loginRequestURL, credentials.getUsername(), credentials.getPassword());
-			URI requestURI = new URI(requestURL, false);
+			URI requestURI = createLoginUrl(loginRequestURL, credentials.getUsername(), credentials.getPassword());
 
 			// Replace the username and password in the post data of the request, if needed
 			String requestBody = null;
@@ -330,11 +327,11 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				if (postData != null && postData.length() > 0) {
 					method = HttpRequestHeader.POST;
 				}
-				URI uri = new URI(url, true);
 
 				this.loginRequestURL = url;
 				this.loginRequestBody = postData;
 
+				URI uri = createLoginUrl(loginRequestURL, "", "");
 				// Note: The findNode just checks the parameter names, not their values
 				// Note: No need to make sure the other parameters (besides user/password) are the
 				// same, as POSTs with different values are not delimited in the SitesTree anyway
@@ -412,6 +409,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		}
 	}
 
+	private static URI createLoginUrl(String loginData, String username, String password) throws URIException {
+		return new URI(replaceUserData(loginData, username, password), true);
+	}
+
 	private static String replaceUserData(String loginData, String username, String password) {
 		return loginData.replace(FormBasedAuthenticationMethod.MSG_USER_PATTERN, encodeParameter(username))
 				.replace(FormBasedAuthenticationMethod.MSG_PASS_PATTERN, encodeParameter(password));
@@ -424,6 +425,15 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			// UTF-8 is one of the standard charsets (see StandardCharsets.UTF_8).
 		}
 		return "";
+	}
+
+	private static boolean isValidLoginUrl(String loginUrl) {
+		try {
+			createLoginUrl(loginUrl, "", "");
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**
@@ -554,9 +564,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		@Override
 		public void validateFields() {
-			try {
-				new URL(loginUrlField.getText());
-			} catch (Exception ex) {
+			if (!isValidLoginUrl(loginUrlField.getText())) {
 				loginUrlField.requestFocusInWindow();
 				throw new IllegalStateException(
 						Constant.messages.getString("authentication.method.fb.dialog.error.url.text"));
@@ -923,9 +931,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			public void handleAction(JSONObject params) throws ApiException {
 				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
 				String loginUrl = ApiUtils.getNonEmptyStringParam(params, PARAM_LOGIN_URL);
-				try {
-					new URL(loginUrl);
-				} catch (Exception ex) {
+				if (!isValidLoginUrl(loginUrl)) {
 					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_LOGIN_URL);
 				}
 				String postData = "";

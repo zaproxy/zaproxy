@@ -92,17 +92,8 @@ public class PassiveScanParam extends AbstractParam {
             logger.error("Error while loading the auto tag scanners: " + e.getMessage(), e);
         }
 
-        try {
-            this.confirmRemoveAutoTagScanner = getConfig().getBoolean(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, true);
-        } catch (ConversionException e) {
-            logger.error("Error while loading the confirm remove option: " + e.getMessage(), e);
-        }
-
-        try {
-            this.scanOnlyInScope = getConfig().getBoolean(SCAN_ONLY_IN_SCOPE_KEY, false);
-        } catch (ConversionException e) {
-            logger.error("Error while loading \"scanOnlyInScope\" option: " + e.getMessage(), e);
-        }
+        this.confirmRemoveAutoTagScanner = getBoolean(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, true);
+        this.scanOnlyInScope = getBoolean(SCAN_ONLY_IN_SCOPE_KEY, false);
     }
 
     public void setAutoTagScanners(List<RegexAutoTagScanner> scanners) {

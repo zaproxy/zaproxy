@@ -330,11 +330,11 @@ def main(argv):
         if format == 'openapi':
             if target_url:
                 logging.debug('Import OpenAPI URL ' + target_url)
-                res = zap._request(zap.base + 'openapi/action/importUrl/', {'url':target})
+                res = zap.openapi.import_url(target)
                 urls = zap.core.urls
             else:
                 logging.debug('Import OpenAPI File ' + target_file)
-                res = zap._request(zap.base + 'openapi/action/importFile/', {'file': base_dir + target_file})
+                res = zap.openapi.import_file(base_dir + target_file)
                 urls = zap.core.urls
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below

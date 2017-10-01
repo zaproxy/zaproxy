@@ -1692,16 +1692,20 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	public void execute(CommandLineArgument[] args) {
         if (arguments[ARG_CFU_UPDATE_IDX].isEnabled()) {
         	AddOnCollection aoc = getLatestVersionInfo();
-        	// Create some temporary options with the settings we need
-        	OptionsParamCheckForUpdates options = new OptionsParamCheckForUpdates();
-        	options.load(new XMLPropertiesConfiguration());
-        	options.setCheckOnStart(true);
-        	options.setCheckAddonUpdates(true);
-        	options.setInstallAddonUpdates(true);
-			checkForAddOnUpdates(aoc, options);
+            if (aoc == null) {
+                CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+            } else {
+                // Create some temporary options with the settings we need
+                OptionsParamCheckForUpdates options = new OptionsParamCheckForUpdates();
+                options.load(new XMLPropertiesConfiguration());
+                options.setCheckOnStart(true);
+                options.setCheckAddonUpdates(true);
+                options.setInstallAddonUpdates(true);
+                checkForAddOnUpdates(aoc, options);
 
-			waitAndInstallDownloads();
-    		CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
+                waitAndInstallDownloads();
+                CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
+            }
         }
         if (arguments[ARG_CFU_INSTALL_ALL_IDX].isEnabled()) {
         	AddOnCollection aoc = getLatestVersionInfo();

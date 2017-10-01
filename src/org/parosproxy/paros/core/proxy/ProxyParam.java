@@ -33,6 +33,7 @@
 // ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
 // ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
 // ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -41,7 +42,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -131,14 +131,10 @@ public class ProxyParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        proxyIp = getConfig().getString(PROXY_IP, "localhost");
+        proxyIp = getString(PROXY_IP, "localhost");
         determineProxyIpAnyLocalAddress();
         
-        try {
-            proxyPort = getConfig().getInt(PROXY_PORT, 8080);
-
-        } catch (Exception e) {
-        }
+        proxyPort = getInt(PROXY_PORT, 8080);
 
         try {
             proxySSLPort = 8443;	//getConfig().getInt(PROXY_SSL_PORT, 8443);
@@ -155,20 +151,16 @@ public class ProxyParam extends AbstractParam {
             }
         }
 
-        reverseProxyHttpPort = getConfig().getInt(REVERSE_PROXY_HTTP_PORT, 80);
-        reverseProxyHttpsPort = getConfig().getInt(REVERSE_PROXY_HTTPS_PORT, 443);
-        useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
+        reverseProxyHttpPort = getInt(REVERSE_PROXY_HTTP_PORT, 80);
+        reverseProxyHttpsPort = getInt(REVERSE_PROXY_HTTPS_PORT, 443);
+        useReverseProxy = getInt(USE_REVERSE_PROXY, 0);
 
-        removeUnsupportedEncodings = getConfig().getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
-        alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
+        removeUnsupportedEncodings = getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
+        alwaysDecodeGzip = getBoolean(ALWAYS_DECODE_GZIP, true);
 
         loadSecurityProtocolsEnabled();
 
-        try {
-            behindNat = getConfig().getBoolean(PROXY_BEHIND_NAT, false);
-        } catch (ConversionException e) {
-            logger.error("Failed to read '" + PROXY_BEHIND_NAT + "'", e);
-        }
+        behindNat = getBoolean(PROXY_BEHIND_NAT, false);
     }
 
     public String getProxyIp() {

@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.stats;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
@@ -28,8 +27,6 @@ import org.parosproxy.paros.common.AbstractParam;
  * @since 2.5.0
  */
 public class StatsParam extends AbstractParam {
-
-    private static final Logger LOGGER = Logger.getLogger(StatsParam.class);
 
     /**
      * The base configuration key for all stats configurations.
@@ -109,14 +106,10 @@ public class StatsParam extends AbstractParam {
 
 	@Override
     protected void parse() {
-		try {
-			inMemory = getConfig().getBoolean(IN_MEMORY_STATS_KEY, true);
-			statsdHost = getConfig().getString(STATSD_HOST_KEY, "");
-			statsdPort = getConfig().getInt(STATSD_PORT_KEY, DEFAULT_STATSD_PORT);
-			statsdPrefix = getConfig().getString(STATSD_PREFIX_KEY, DEFAULT_STATSD_PREFIX);
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-		}
+		inMemory = getBoolean(IN_MEMORY_STATS_KEY, true);
+		statsdHost = getString(STATSD_HOST_KEY, "");
+		statsdPort = getInt(STATSD_PORT_KEY, DEFAULT_STATSD_PORT);
+		statsdPrefix = getString(STATSD_PREFIX_KEY, DEFAULT_STATSD_PREFIX);
     }
 
 }

@@ -23,12 +23,12 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
 
 package org.parosproxy.paros.extension.option;
 
 import java.io.File;
 
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
@@ -64,12 +64,8 @@ public class OptionsParamCertificate extends AbstractParam {
         setUseClientCert(false);
         setClientCertLocation("");
         
-        try {
-            allowUnsafeSslRenegotiation = getConfig().getBoolean(ALLOW_UNSAFE_SSL_RENEGOTIATION, false);
-            setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
-        } catch (ConversionException e) {
-            logger.error("Error while loading the option Allow Unsafe SSL Renegotiation: " + e.getMessage(), e);
-        }
+        allowUnsafeSslRenegotiation = getBoolean(ALLOW_UNSAFE_SSL_RENEGOTIATION, false);
+        setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
     }
 
     /**

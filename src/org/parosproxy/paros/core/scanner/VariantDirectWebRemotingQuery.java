@@ -101,31 +101,33 @@ public class VariantDirectWebRemotingQuery extends VariantAbstractRPCQuery {
         		//if the parameter value has one of the following patterns, ignore it.
         		// Array:[<<some possible stuff>>]
         		// Object_Object:{<<some possible stuff>>}
-        		if ( patternIgnoreArray.matcher(paramDetails[1]).matches()) continue; //to the next iteration
-        		if ( patternIgnoreObject.matcher(paramDetails[1]).matches()) continue; //to the next iteration
-        		
-        		int valueOffset = 0;
-        		String paramValue = paramDetails[1];
-        		//if the parameter value has one of the following formats, then adjust the value offset, so that the "type" of the value is not corrupted.
-        		// number:<<some number>>
-        		// string:<<some string>>
-        		// boolean:<<true or false>>
-        		// null:null
-        		
-        		if (patternNumberValue.matcher(paramDetails[1]).matches() || 
-        			patternStringValue.matcher(paramDetails[1]).matches() || 
-        			patternBooleanValue.matcher(paramDetails[1]).matches() ||
-        			patternNullValue.matcher(paramDetails[1]).matches()
-        			) {
-        			//the value has a type built in. 
-        			valueOffset = paramDetails[1].indexOf(":")+1;
-        			paramValue = paramDetails[1].substring(valueOffset);
-        		} 
-        			
-        		int beginOffset = accumulatedOffset + paramDetails[0].length() + 1 + valueOffset;
-        		int endOffset = accumulatedOffset + offie;
-        		//System.out.println("Adding parameter ["+paramDetails[0]+"]=["+paramValue+"], value offset1:" + beginOffset+ ", value offset2:" + endOffset);
-	        	addParameter(paramDetails[0], beginOffset, endOffset, false, paramValue);        		
+        		if ( ! patternIgnoreArray.matcher(paramDetails[1]).matches() &&
+                     ! patternIgnoreObject.matcher(paramDetails[1]).matches() )
+                {
+
+                    int valueOffset = 0;
+                    String paramValue = paramDetails[1];
+                    //if the parameter value has one of the following formats, then adjust the value offset, so that the "type" of the value is not corrupted.
+                    // number:<<some number>>
+                    // string:<<some string>>
+                    // boolean:<<true or false>>
+                    // null:null
+
+                    if (patternNumberValue.matcher(paramDetails[1]).matches() ||
+                            patternStringValue.matcher(paramDetails[1]).matches() ||
+                            patternBooleanValue.matcher(paramDetails[1]).matches() ||
+                            patternNullValue.matcher(paramDetails[1]).matches()
+                            ) {
+                        //the value has a type built in.
+                        valueOffset = paramDetails[1].indexOf(":") + 1;
+                        paramValue = paramDetails[1].substring(valueOffset);
+                    }
+
+                    int beginOffset = accumulatedOffset + paramDetails[0].length() + 1 + valueOffset;
+                    int endOffset = accumulatedOffset + offie;
+                    //System.out.println("Adding parameter ["+paramDetails[0]+"]=["+paramValue+"], value offset1:" + beginOffset+ ", value offset2:" + endOffset);
+                    addParameter(paramDetails[0], beginOffset, endOffset, false, paramValue);
+                }
         	}
         	accumulatedOffset+=(1 + offie);  //cater for the \n separator as well.
         	content = content.substring(offie + 1);

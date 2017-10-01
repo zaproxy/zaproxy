@@ -54,22 +54,9 @@ public class CallbackParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        try {
-            localAddress = getConfig().getString(LOCAL_ADDRESS_KEY, "0.0.0.0");
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        try {
-            remoteAddress = getConfig().getString(REMOTE_ADDRESS_KEY,
-                    getDefaultAddress());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        try {
-            port = getConfig().getInt(PORT_KEY, 0);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
+        localAddress = getString(LOCAL_ADDRESS_KEY, "0.0.0.0");
+        remoteAddress = getString(REMOTE_ADDRESS_KEY, getDefaultAddress());
+        port = getInt(PORT_KEY, 0);
     }
 
     private String getDefaultAddress() {

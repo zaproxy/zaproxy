@@ -19,13 +19,9 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import org.apache.commons.configuration.ConversionException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class AlertParam extends AbstractParam {
-
-    private static final Logger LOGGER = Logger.getLogger(AlertParam.class);
 
     /**
      * The base configuration key for all alert configurations.
@@ -64,21 +60,9 @@ public class AlertParam extends AbstractParam {
      */
     @Override
     protected void parse() {
-        try {
-            maximumInstances = getConfig().getInt(PARAM_MAXIMUM_INSTANCES, DEFAULT_MAXIMUM_INSTANCES);
-        } catch (ConversionException e) {
-            LOGGER.error("Failed to load the \"Maximum instances\" configuration: " + e.getMessage(), e);
-        }
-        try {
-        	mergeRelatedIssues = getConfig().getBoolean(PARAM_MERGE_RELATED_ISSUES, true);
-        } catch (ConversionException e) {
-            LOGGER.error("Failed to load the \"old format\" configuration: " + e.getMessage(), e);
-        }
-        try {
-            overridesFilename = getConfig().getString(PARAM_OVERRIDES_FILENAME, "");
-        } catch (ConversionException e) {
-            LOGGER.error("Failed to load the \"Overrides filename\" configuration: " + e.getMessage(), e);
-        }
+        maximumInstances = getInt(PARAM_MAXIMUM_INSTANCES, DEFAULT_MAXIMUM_INSTANCES);
+        mergeRelatedIssues = getBoolean(PARAM_MERGE_RELATED_ISSUES, true);
+        overridesFilename = getString(PARAM_OVERRIDES_FILENAME, "");
     }
 
     /**
