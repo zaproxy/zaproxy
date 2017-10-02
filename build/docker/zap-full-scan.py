@@ -297,11 +297,7 @@ def main(argv):
             if res.startswith("ZAP Error"):
                 logging.error('Failed to load context file ' + context_file + ' : ' + res)
 
-        # Access the target
-        res = zap.urlopen(target)
-        if res.startswith("ZAP Error"):
-            # errno.EIO is 5, not sure why my atempts to import it failed;)
-            raise IOError(5, 'Failed to connect')
+        zap_access_target(zap, target)
 
         if target.count('/') > 2:
             # The url can include a valid path, but always reset to spider the host

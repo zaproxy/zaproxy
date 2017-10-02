@@ -266,6 +266,12 @@ def stop_docker(cid):
         logging.warning('Docker rm failed')
 
 
+def zap_access_target(zap, target):
+    res = zap.urlopen(target)
+    if res.startswith("ZAP Error"):
+        raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
+
+
 def zap_spider(zap, target):
     logging.debug('Spider ' + target)
     spider_scan_id = zap.spider.scan(target)
