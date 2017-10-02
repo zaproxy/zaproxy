@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -375,7 +374,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuToggleBreakOnResponses() {
         if (menuBreakOnResponses == null) {
             menuBreakOnResponses = new ZapMenuItem("menu.tools.brk.resp",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
             menuBreakOnResponses.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {

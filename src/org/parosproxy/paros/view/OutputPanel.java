@@ -27,12 +27,12 @@
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 
 package org.parosproxy.paros.view;
 
 
 import java.awt.BorderLayout;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -84,7 +84,7 @@ public class OutputPanel extends AbstractPanel {
 	    }
         // ZAP: Added Output (doc) icon
 		this.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/16/172.png")));	// 'doc' icon
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("output.panel.mnemonic"));
 
         this.add(getMainPanel(), BorderLayout.CENTER);

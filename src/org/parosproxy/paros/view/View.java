@@ -72,11 +72,11 @@
 // ZAP: 2016/10/26 Create UI shared context in the session dialogue when adding a context
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
-import java.awt.Event;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -611,7 +611,7 @@ public class View implements ViewDelegate {
             requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
             requestPanel.setMnemonic(Constant.messages.getChar("http.panel.request.mnemonic"));
 
         }
@@ -629,7 +629,7 @@ public class View implements ViewDelegate {
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             responsePanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
+                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
             responsePanel.setMnemonic(Constant.messages.getChar("http.panel.response.mnemonic"));
         }
         return responsePanel;
