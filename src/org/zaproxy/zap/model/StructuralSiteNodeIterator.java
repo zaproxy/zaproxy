@@ -23,15 +23,18 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import javax.swing.tree.TreeNode;
+
 import org.parosproxy.paros.model.SiteNode;
 
 public class StructuralSiteNodeIterator implements Iterator<StructuralNode> {
 
-	private Enumeration<SiteNode> children;
+	private Enumeration<TreeNode> children;
 	
-	@SuppressWarnings("unchecked")
 	public StructuralSiteNodeIterator(StructuralSiteNode parent){
-		children = parent.getSiteNode().children();
+	    @SuppressWarnings("unchecked")
+	    Enumeration<TreeNode> children = parent.getSiteNode().children();
+	    this.children = children;
 	}
 	
 	@Override
@@ -44,7 +47,7 @@ public class StructuralSiteNodeIterator implements Iterator<StructuralNode> {
 		if (! hasNext()) {
 			throw new NoSuchElementException();
 		}
-		return new StructuralSiteNode(children.nextElement());
+		return new StructuralSiteNode((SiteNode) children.nextElement());
 	}
 
 	@Override
