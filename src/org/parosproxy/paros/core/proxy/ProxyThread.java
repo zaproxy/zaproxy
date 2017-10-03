@@ -73,6 +73,7 @@
 // ZAP: 2017/03/26 Check the public address when behind NAT.
 // ZAP: 2017/06/12 Do not notify listeners when request is excluded.
 // ZAP: 2017/09/22 Check if first message received is a SSL/TLS handshake and tweak exception message.
+// ZAP: 2017/10/02 Improve error handling when checking if SSL/TLS handshake.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -241,8 +242,15 @@ public class ProxyThread implements Runnable {
 		int bytesRead = inputStream.read(bytes);
 		inputStream.reset();
 
+		if (bytesRead == -1) {
+			throw new IOException("Failed to check if SSL/TLS handshake, reached end of the stream.");
+		}
+
 		if (bytesRead < 3) {
-			throw new IllegalArgumentException("The buffered input stream must have at least 3 bytes.");
+			if (log.isDebugEnabled()) {
+				log.debug("Failed to check if SSL/TLS handshake, got just " + bytesRead + " bytes: " + Arrays.toString(bytes));
+			}
+			return false;
 		}
 		// Check if ContentType is handshake(22)
 		if (bytes[0] == 0x16) {
