@@ -10,7 +10,7 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
     mv ZAP*/* . &&  \
     rm -R ZAP* 
 
-FROM openjdk:8u121-jdk-alpine
+FROM openjdk:8-jdk-alpine
 LABEL maintainer="psiinon@gmail.com"
 
 WORKDIR /zap
