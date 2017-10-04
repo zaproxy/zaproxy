@@ -374,6 +374,10 @@ def get_latest_zap_client_version():
 
 
 def check_zap_client_version():
+    if running_in_docker():
+        logging.info('No need to check ZAP Python API client while running in Docker')
+        return
+
     if 'pkg_resources' not in globals():  # import failed
         logging.warning('Could not check ZAP Python API client without pkg_resources.')
         return
