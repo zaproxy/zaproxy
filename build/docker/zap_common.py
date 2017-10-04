@@ -352,7 +352,7 @@ def get_latest_zap_client_version():
     version_info = None
 
     try:
-        version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json')
+        version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json', timeout=10)
     except Exception as e:
         logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
         return None
