@@ -77,6 +77,7 @@
 // ZAP: 2017/07/13 Automatically skip dependent scanners (Issue 3784)
 // ZAP: 2017/07/18 Allow to obtain the (total) alert count.
 // ZAP: 2017/09/27 Allow to skip scanners by ID and don't allow to skip scanners already finished/skipped.
+// ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -465,7 +466,7 @@ public class HostProcess implements Runnable {
                 log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + historyReference.getURI().toString());
             }
 
-            test = plugin.getClass().newInstance();
+            test = plugin.getClass().getDeclaredConstructor().newInstance();
             test.setConfig(plugin.getConfig());
             if (this.ruleConfigParam != null) {
 	            // Set the configuration rules

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.db.sql;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,7 +92,7 @@ public class DbSQL implements DatabaseListener {
 		return dbType;
 	}
 	
-	public synchronized Database initDatabase() throws IllegalStateException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+	public synchronized Database initDatabase() throws IllegalStateException, DatabaseException {
 		if (dbProperties != null) {
 			throw new IllegalStateException("Database already initialised");
 		}
@@ -102,12 +101,14 @@ public class DbSQL implements DatabaseListener {
 			file = new File (Constant.getZapInstall() + File.separator + "db", "db.properties");
 		}
 		if (! file.exists()) {
-			throw new FileNotFoundException(file.getAbsolutePath());
+			throw new DatabaseException("Missing DB properties file: " + file.getAbsolutePath());
 		}
 		
 		dbProperties = new Properties();
 		try (Reader reader = new FileReader(file )) {
 			dbProperties.load(reader);
+		} catch (IOException e) {
+			throw new DatabaseException("I/O error while reading DB properties file.", e);
 		}
 		dbType = dbProperties.getProperty("db.type");
 
@@ -118,17 +119,20 @@ public class DbSQL implements DatabaseListener {
 			sqlProperties.load(sqlReader);
 		} catch (Exception e) {
 			logger.error("No SQL properties file for db type " + sqlFile.getAbsolutePath());
-			throw new FileNotFoundException(sqlFile.getAbsolutePath());
+			throw new DatabaseException("Missing SQL properties file: " + sqlFile.getAbsolutePath());
 		}
 		
-        Class.forName(dbProperties.getProperty("db.driver"));
-		
-		Class<?> dbClass = Class.forName(dbProperties.getProperty("db.class"));
-		
-		Object dbObj = dbClass.newInstance();
+		String className = dbProperties.getProperty("db.class");
+		Object dbObj;
+		try {
+			Class<?> dbClass = Class.forName(className);
+			dbObj = dbClass.getDeclaredConstructor().newInstance();
+		} catch (Exception e) {
+			throw new DatabaseException("Failed to create the instance for: " + className, e);
+		}
 		
 		if ( ! (dbObj instanceof Database)) {
-			throw new InvalidParameterException("db.class is not an instance of Database: " + dbObj.getClass().getCanonicalName());
+			throw new DatabaseException("db.class is not an instance of Database: " + dbObj.getClass().getCanonicalName());
 		}
 		return (Database) dbObj;
 	}
