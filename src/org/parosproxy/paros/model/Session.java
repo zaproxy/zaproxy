@@ -70,6 +70,7 @@
 // ZAP: 2017/01/26 Remove dependency on ExtensionActiveScan
 // ZAP: 2017/03/13 Remove global excluded URLs from Session's state.
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
+// ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
 
 package org.parosproxy.paros.model;
 
@@ -88,6 +89,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import javax.swing.tree.TreeNode;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
@@ -857,9 +860,9 @@ public class Session {
 		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isContainsNodesInScope(sn)) {
 				nodes.add(sn);
 			}
@@ -872,9 +875,9 @@ public class Session {
 			return true;
 		}
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = node.children();
+		Enumeration<TreeNode> en = node.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isContainsNodesInScope(sn)) {
 				return true;
 			}
@@ -890,9 +893,9 @@ public class Session {
 	 */
 	private void fillNodesInScope(SiteNode rootNode, List<SiteNode> nodesList) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isInScope(sn))
 				nodesList.add(sn);
 			fillNodesInScope(sn, nodesList);
@@ -923,9 +926,9 @@ public class Session {
 	 */
 	private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList, Context context) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (context.isInContext(sn))
 				nodesList.add(sn);
 			fillNodesInContext(sn, nodesList, context);

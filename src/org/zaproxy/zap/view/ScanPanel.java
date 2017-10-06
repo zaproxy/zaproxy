@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -625,9 +626,9 @@ public abstract class ScanPanel extends AbstractPanel {
 		SiteNode rootNode = (SiteNode) siteTree.getRoot();
 		
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			String nodeName = sn.getNodeName();
 			if (nodeName.toLowerCase().startsWith("https:") && !hasPort(nodeName)) {
 				nodeName += ":443";

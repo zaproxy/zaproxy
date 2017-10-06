@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.tree.TreeNode;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -394,9 +395,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		// If the "scanChildren" option is enabled, add them
 		if (scanChildren) {
 			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = node.children();
+			Enumeration<TreeNode> en = node.children();
 			while (en.hasMoreElements()) {
-				SiteNode sn = en.nextElement();
+				SiteNode sn = (SiteNode) en.nextElement();
 				addSeeds(sn);
 			}
 		}
