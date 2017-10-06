@@ -30,7 +30,7 @@ public class LargeResponseStringHttpPanelViewModel extends ResponseStringHttpPan
 		}
 		
 		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF) +
-				Constant.messages.getString("http.panel.view.largeresponse.all.warning");
+				Constant.messages.getString("http.panel.view.largeresponse.all.warning", httpMessage.getResponseBody().length());
 	}
 
 	@Override
