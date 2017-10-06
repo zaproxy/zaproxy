@@ -39,12 +39,12 @@
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2016/07/01 Issue 2642: Slow mouse wheel scrolling in site tree
 // ZAP: 2017/03/28 Issue 3253: Facilitate exporting URLs by context (add getSelectedContext)
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -146,7 +146,7 @@ public class SiteMapPanel extends AbstractPanel {
 		this.setHideable(false);
 	    this.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png")));
 	    this.setName(Constant.messages.getString("sites.panel.title"));
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("sites.panel.mnemonic"));
 
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

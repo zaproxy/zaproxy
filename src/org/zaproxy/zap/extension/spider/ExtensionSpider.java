@@ -22,7 +22,6 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -804,7 +803,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
     private ZapMenuItem getMenuItemCustomScan() {
         if (menuItemCustomScan  == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.spider",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+                    KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
