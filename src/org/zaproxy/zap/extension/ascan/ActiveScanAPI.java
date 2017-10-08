@@ -107,6 +107,8 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String ACTION_MODIFY_EXCLUDED_PARAM = "modifyExcludedParam";
 	private static final String ACTION_REMOVE_EXCLUDED_PARAM = "removeExcludedParam";
 
+	private static final String ACTION_SKIP_SCANNER = "skipScanner";
+
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_SCANS = "scans";
 	private static final String VIEW_MESSAGES_IDS = "messagesIds";
@@ -137,6 +139,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	// TODO rename to categoryId? Note any changes like this to the existing API must be clearly documented to users
 	private static final String PARAM_CATEGORY_ID = "policyId";
 	private static final String PARAM_SCAN_ID = "scanId";
+	private static final String PARAM_SCANNER_ID = "scannerId";
 	private static final String PARAM_METHOD = "method";
 	private static final String PARAM_POST_DATA = "postData";
 	private static final String PARAM_IDX = "idx";
@@ -192,6 +195,8 @@ public class ActiveScanAPI extends ApiImplementor {
 						new String[] { PARAM_IDX },
 						new String[] { PARAM_NAME, PARAM_TYPE, PARAM_URL }));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_EXCLUDED_PARAM, new String[] { PARAM_IDX }));
+
+		this.addApiAction(new ApiAction(ACTION_SKIP_SCANNER, new String[] { PARAM_SCAN_ID, PARAM_SCANNER_ID }));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] { PARAM_SCAN_ID }));
@@ -536,6 +541,15 @@ public class ActiveScanAPI extends ApiImplementor {
 				} catch (JSONException e) {
 					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
 				}
+				break;
+			case ACTION_SKIP_SCANNER:
+				int pluginId = getParam(params, PARAM_SCANNER_ID, -1);
+				if (pluginId == -1) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_SCANNER_ID);
+				}
+
+				String reason = Constant.messages.getString("ascan.progress.label.skipped.reason.user");
+				getActiveScan(params).getHostProcesses().forEach(hp -> hp.pluginSkipped(pluginId, reason));
 				break;
 			default:
 				throw new ApiException(ApiException.Type.BAD_ACTION);

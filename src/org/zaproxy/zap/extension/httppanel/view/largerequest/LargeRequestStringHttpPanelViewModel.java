@@ -32,7 +32,7 @@ public class LargeRequestStringHttpPanelViewModel extends RequestStringHttpPanel
         }
 
         return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
-                + Constant.messages.getString("http.panel.view.largerequest.all.warning");
+                + Constant.messages.getString("http.panel.view.largerequest.all.warning", httpMessage.getRequestBody().length());
     }
 
     @Override

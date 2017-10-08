@@ -53,6 +53,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
@@ -285,8 +286,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			ScriptEngineWrapper engineWrapper,
 			ScriptEngineWrapper newEngineWrapper) {
 		for (@SuppressWarnings("unchecked")
-		Enumeration<ScriptNode> e = baseNode.depthFirstEnumeration(); e.hasMoreElements();) {
-			ScriptNode node = e.nextElement();
+		Enumeration<TreeNode> e = baseNode.depthFirstEnumeration(); e.hasMoreElements();) {
+			ScriptNode node = (ScriptNode) e.nextElement();
 			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
 				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
 				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
@@ -393,8 +394,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	private void processTemplatesOfRemovedEngine(ScriptNode baseNode, ScriptEngineWrapper engineWrapper) {
 		@SuppressWarnings("unchecked")
-		List<ScriptNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
-		for (ScriptNode node : templateNodes) {
+		List<TreeNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
+		for (TreeNode tpNode : templateNodes) {
+			ScriptNode node = (ScriptNode) tpNode;
 			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
 				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
 				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {

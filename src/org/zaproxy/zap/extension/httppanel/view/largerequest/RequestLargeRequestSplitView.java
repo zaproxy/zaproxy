@@ -30,19 +30,40 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.ImmutableHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
+import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
 
-public class RequestLargeRequestSplitView implements HttpPanelView {
+public class RequestLargeRequestSplitView implements HttpPanelView, HttpPanelViewModelListener {
 
     public static final String NAME = "RequestLargeRequestSplitView";
 
     public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largerequest.name");
 
     private JPanel mainPanel;
+    private JLabel label;
+
+    private AbstractHttpStringHttpPanelViewModel model;
 
     public RequestLargeRequestSplitView() {
+        label = new JLabel();
         mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(new JLabel(Constant.messages.getString("http.panel.view.largerequest.split.warning")));
+        mainPanel.add(label);
+
+        model = new AbstractHttpStringHttpPanelViewModel() {
+
+            @Override
+            public String getData() {
+                return Constant.messages
+                        .getString("http.panel.view.largerequest.split.warning", httpMessage.getRequestBody().length());
+            }
+
+            @Override
+            public void setData(String data) {
+                // Nothing to do, the view is immutable.
+            }
+        };
+        model.addHttpPanelViewModelListener(this);
     }
 
     @Override
@@ -114,7 +135,12 @@ public class RequestLargeRequestSplitView implements HttpPanelView {
 
     @Override
     public HttpPanelViewModel getModel() {
-        return ImmutableHttpPanelViewModel.getInstance();
+        return model;
+    }
+
+    @Override
+    public void dataChanged(HttpPanelViewModelEvent e) {
+        label.setText(model.getData());
     }
 
 }

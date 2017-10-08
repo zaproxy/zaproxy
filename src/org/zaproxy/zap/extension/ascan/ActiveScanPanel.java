@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -93,7 +92,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension);
         this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
+				KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("ascan.panel.mnemonic"));
     }
 

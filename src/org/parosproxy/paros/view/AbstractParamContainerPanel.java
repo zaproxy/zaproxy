@@ -24,6 +24,7 @@
 // ZAP: 2016/08/23 Respect sort parameter when adding intermediate panels
 // ZAP: 2016/10/27 Explicitly show other panel when the selected panel is removed.
 // ZAP: 2017/06/23 Ensure panel with validation errors is visible.
+// ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
 
 package org.parosproxy.paros.view;
 
@@ -50,6 +51,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
@@ -640,9 +642,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
 
         // ZAP: Added @SuppressWarnings annotation.
         @SuppressWarnings("unchecked")
-        Enumeration<DefaultMutableTreeNode> children = parent.children();
+        Enumeration<TreeNode> children = parent.children();
         while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = children.nextElement();
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
             if (panel.equals(child.toString())) {
                 node = child;
                 break;
@@ -677,9 +679,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
         System.out.println();
 
         @SuppressWarnings("unchecked")
-        Enumeration<DefaultMutableTreeNode> children = parent.children();
+        Enumeration<TreeNode> children = parent.children();
         while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = children.nextElement();
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
             this.printTree(child, level + 1);
         }
     }

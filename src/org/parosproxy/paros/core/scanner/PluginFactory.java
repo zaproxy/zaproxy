@@ -49,6 +49,7 @@
 // ZAP: 2017/06/20 Allow to obtain a Plugin by ID.
 // ZAP: 2017/07/05 Log an error if the Plugin does not have a defined ID.
 // ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status comparison.
+// ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -185,7 +186,7 @@ public class PluginFactory {
     public static boolean loadedPlugin(String className) {
         try {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
-        	loadedPlugin((AbstractPlugin) c.newInstance());
+        	loadedPlugin((AbstractPlugin) c.getDeclaredConstructor().newInstance());
         	return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -436,7 +437,7 @@ public class PluginFactory {
     }
 
     private static Plugin createNewPlugin(Plugin plugin, Configuration config) throws ReflectiveOperationException {
-        Plugin newPlugin = plugin.getClass().newInstance();
+        Plugin newPlugin = plugin.getClass().getDeclaredConstructor().newInstance();
         newPlugin.setConfig(new BaseConfiguration());
         plugin.cloneInto(newPlugin);
 
@@ -496,7 +497,7 @@ public class PluginFactory {
     	Plugin pluginCopy;
     	for (Plugin plugin : listAllPlugin) {
     		try {
-				pluginCopy  = plugin.getClass().newInstance();
+				pluginCopy  = plugin.getClass().getDeclaredConstructor().newInstance();
 				pluginCopy.setConfig(clone.config);
 				plugin.cloneInto(pluginCopy);
 				clone.addPlugin(pluginCopy);
@@ -510,7 +511,7 @@ public class PluginFactory {
     public boolean addPlugin(String name) {
         try {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
-        	Plugin plugin = (AbstractPlugin) c.newInstance();
+        	Plugin plugin = (AbstractPlugin) c.getDeclaredConstructor().newInstance();
 
             boolean duplicatedId = mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null;
             if (this.addPlugin(plugin)) {

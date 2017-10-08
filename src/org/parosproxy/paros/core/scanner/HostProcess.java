@@ -76,6 +76,8 @@
 // ZAP: 2017/07/12 Tweak the method used when initialising the PluginFactory.
 // ZAP: 2017/07/13 Automatically skip dependent scanners (Issue 3784)
 // ZAP: 2017/07/18 Allow to obtain the (total) alert count.
+// ZAP: 2017/09/27 Allow to skip scanners by ID and don't allow to skip scanners already finished/skipped.
+// ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -464,7 +466,7 @@ public class HostProcess implements Runnable {
                 log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + historyReference.getURI().toString());
             }
 
-            test = plugin.getClass().newInstance();
+            test = plugin.getClass().getDeclaredConstructor().newInstance();
             test.setConfig(plugin.getConfig());
             if (this.ruleConfigParam != null) {
 	            // Set the configuration rules
@@ -758,6 +760,25 @@ public class HostProcess implements Runnable {
     }
 
     /**
+     * Skips the plugin with the given ID with the given {@code reason}.
+     * <p>
+     * Ideally the {@code reason} should be internationalised as it is shown in the GUI.
+     *
+     * @param pluginId the ID of the plugin that will be skipped.
+     * @param reason the reason why the plugin was skipped, might be {@code null}.
+     * @since TODO add version
+     * @see #pluginSkipped(Plugin, String)
+     */
+    public void pluginSkipped(int pluginId, String reason) {
+        Plugin plugin = pluginFactory.getPlugin(pluginId);
+        if (plugin == null) {
+            return;
+        }
+
+        pluginSkipped(plugin, reason);
+    }
+
+    /**
      * Skips the given {@code plugin} with the given {@code reason}.
      * <p>
      * Ideally the {@code reason} should be internationalised as it is shown in the GUI.
@@ -767,8 +788,12 @@ public class HostProcess implements Runnable {
      * @since 2.6.0
      */
     public void pluginSkipped(Plugin plugin, String reason) {
+        if (isStop()) {
+            return;
+        }
+
         PluginStats pluginStats = mapPluginStats.get(plugin.getId());
-        if (pluginStats == null) {
+        if (pluginStats == null || pluginStats.isSkipped() || pluginFactory.getCompleted().contains(plugin)) {
             return;
         }
 

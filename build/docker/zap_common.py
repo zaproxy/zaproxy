@@ -266,6 +266,12 @@ def stop_docker(cid):
         logging.warning('Docker rm failed')
 
 
+def zap_access_target(zap, target):
+    res = zap.urlopen(target)
+    if res.startswith("ZAP Error"):
+        raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
+
+
 def zap_spider(zap, target):
     logging.debug('Spider ' + target)
     spider_scan_id = zap.spider.scan(target)
@@ -352,7 +358,7 @@ def get_latest_zap_client_version():
     version_info = None
 
     try:
-        version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json')
+        version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json', timeout=10)
     except Exception as e:
         logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
         return None
@@ -374,6 +380,10 @@ def get_latest_zap_client_version():
 
 
 def check_zap_client_version():
+    # No need to check ZAP Python API client while running in Docker
+    if running_in_docker():
+        return
+
     if 'pkg_resources' not in globals():  # import failed
         logging.warning('Could not check ZAP Python API client without pkg_resources.')
         return

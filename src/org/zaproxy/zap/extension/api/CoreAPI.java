@@ -38,6 +38,8 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.tree.TreeNode;
+
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -900,9 +902,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = root.children();
+			Enumeration<TreeNode> en = root.children();
 			while (en.hasMoreElements()) {
-				String site = en.nextElement().getNodeName();
+				String site = ((SiteNode) en.nextElement()).getNodeName();
 				if (site.indexOf("//") >= 0) {
 					site = site.substring(site.indexOf("//") + 2);
 				}
@@ -915,9 +917,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = root.children();
+			Enumeration<TreeNode> en = root.children();
 			while (en.hasMoreElements()) {
-				((ApiResponseList)result).addItem(new ApiResponseElement("site", en.nextElement().getNodeName()));
+				((ApiResponseList)result).addItem(new ApiResponseElement("site", ((SiteNode) en.nextElement()).getNodeName()));
 			}
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
@@ -1446,9 +1448,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private void getURLs(String baseUrl, SiteNode parent, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = parent.children();
+		Enumeration<TreeNode> en = parent.children();
 		while (en.hasMoreElements()) {
-			SiteNode child = en.nextElement();
+			SiteNode child = (SiteNode) en.nextElement();
 			String uri = child.getHistoryReference().getURI().toString();
 			if (baseUrl.isEmpty() || uri.startsWith(baseUrl)) {
 				list.addItem(new ApiResponseElement("url", uri));

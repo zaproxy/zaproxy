@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.tree.TreeNode;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -230,9 +232,9 @@ public class ExtensionParams extends ExtensionAdaptor
 		// Repopulate
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = root.children();
+		Enumeration<TreeNode> en = root.children();
 		while (en.hasMoreElements()) {
-			String site = en.nextElement().getNodeName();
+			String site = ((SiteNode) en.nextElement()).getNodeName();
 			if (getView() != null) {
 				this.getParamsPanel().addSite(site);
 			}

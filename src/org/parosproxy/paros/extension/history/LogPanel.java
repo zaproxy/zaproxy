@@ -42,11 +42,11 @@
 // ZAP: 2017/01/30 Use HistoryTable.
 // ZAP: 2017/03/03 Tweak filter label.
 // ZAP: 2017/05/12 Support table export.
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
-import java.awt.Event;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -131,7 +131,7 @@ public class LogPanel extends AbstractPanel {
 	    }
 		this.add(getHistoryPanel(), java.awt.BorderLayout.CENTER);
 		
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("history.panel.mnemonic"));
 		
 	}

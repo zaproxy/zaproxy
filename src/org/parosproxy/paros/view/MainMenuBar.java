@@ -31,12 +31,12 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2017/05/10 Issue 3460: Add Show Support Info help menuitem
 // ZAP: 2017/06/27 Issue 2375: Added option to change ZAP mode in edit menu
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 
 package org.parosproxy.paros.view;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.Event;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -224,7 +224,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuToolsOptions() {
 		if (menuToolsOptions == null) {
 			menuToolsOptions = new ZapMenuItem("menu.tools.options",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
 			menuToolsOptions.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -433,7 +433,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuFileProperties() {
 		if (menuFileProperties == null) {
 			menuFileProperties = new ZapMenuItem("menu.file.properties",
-					KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
