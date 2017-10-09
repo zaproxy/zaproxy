@@ -82,6 +82,7 @@ def usage():
     print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, eg https://www.example.com/openapi.json')
     print('    -f format         either openapi or soap')
     print('Options:')
+    print('    -h                print this help message')
     print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
     print('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
     print('    -g gen_file       generate default config file(all rules set to WARN)')
@@ -143,14 +144,17 @@ def main(argv):
     check_zap_client_version()
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:daijp:sz:P:D:T:")
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
         sys.exit(3)
 
     for opt, arg in opts:
-        if opt == '-t':
+        if opt == '-h':
+            usage()
+            sys.exit(0)
+        elif opt == '-t':
             target = arg
             logging.debug('Target: ' + target)
         elif opt == '-f':
