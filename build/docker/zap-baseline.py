@@ -49,7 +49,6 @@ import os.path
 import sys
 import time
 from datetime import datetime
-from six.moves.urllib.request import urlopen
 from zapv2 import ZAPv2
 from zap_common import *
 
