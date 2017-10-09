@@ -1,6 +1,6 @@
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
 FROM ubuntu:16.04
-MAINTAINER Simon Bennetts "psiinon@gmail.com"
+LABEL maintainer="psiinon@gmail.com"
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -15,8 +15,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xmlstarlet \
 	unzip \
 	git \
-	x11vnc \
-	xvfb \
 	openbox \
 	xterm \
 	net-tools \
@@ -28,12 +26,10 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
-	
-	pip install --upgrade pip && \
+
 	gem install zapr && \
-	pip install zapcli && \
-	pip install python-owasp-zap-v2.4 && \
-	useradd -d /home/zap -m -s /bin/bash zap && \ 
+	pip install --upgrade pip zapcli python-owasp-zap-v2.4 && \
+	useradd -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
 	mkdir /zap  && \
 	chown zap /zap && \
@@ -72,15 +68,14 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	touch AcceptedLicense
-	
+
 ENV ZAP_PATH /zap/zap.sh
 # Default port for use with zapcli
 ENV ZAP_PORT 8080
 ENV HOME /home/zap/
 
-COPY zap-*.* /zap/ 
-COPY zap_*.* /zap/ 
-COPY webswing.config /zap/webswing-2.3/ 
+COPY zap* /zap/
+COPY webswing.config /zap/webswing-2.3/
 COPY policies /home/zap/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
@@ -97,8 +92,8 @@ RUN chown zap:zap /zap/zap-x.sh && \
 	chmod a+x /home/zap/.xinitrc && \
 	chmod +x /zap/zap.sh && \
 	rm -rf /zap-src
-	
+
 WORKDIR /zap
-	
+
 USER zap
 HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
