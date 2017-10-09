@@ -85,6 +85,7 @@ def usage():
     print('    -r report_html    file to write the full ZAP HTML report')
     print('    -w report_md      file to write the full ZAP Wiki(Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
+    print('    -J report_json    file to write the full ZAP JSON document')
     print('    -a                include the alpha passive scan rules as well')
     print('    -d                show debug messages')
     print('    -P                specify listen port')
@@ -117,6 +118,7 @@ def main(argv):
     report_html = ''
     report_md = ''
     report_xml = ''
+    report_json = ''
     target = ''
     zap_alpha = False
     info_unspecified = False
@@ -138,7 +140,7 @@ def main(argv):
     check_zap_client_version()
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:w:x:l:daijp:sz:P:D:T:")
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:daijp:sz:P:D:T:")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -168,6 +170,8 @@ def main(argv):
             progress_file = arg
         elif opt == '-r':
             report_html = arg
+        elif opt == '-J':
+            report_json = arg    
         elif opt == '-w':
             report_md = arg
         elif opt == '-x':
@@ -204,7 +208,7 @@ def main(argv):
 
     if running_in_docker():
         base_dir = '/zap/wrk/'
-        if config_file or generate or report_html or report_xml or progress_file or context_file:
+        if config_file or generate or report_html or report_xml or report_json or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
@@ -419,6 +423,10 @@ def main(argv):
             if report_html:
                 # Save the report
                 write_report(base_dir + report_html, zap.core.htmlreport())
+
+            if report_json:
+                # Save the report
+                write_report(base_dir + report_json, zap._request_other(zap.base_other + 'core/other/jsonreport/'))
 
             if report_md:
                 # Save the report
