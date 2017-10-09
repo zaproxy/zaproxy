@@ -141,8 +141,6 @@ def main(argv):
     warn_inprog_count = 0
     fail_inprog_count = 0
 
-    check_zap_client_version()
-
     try:
         opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:")
     except getopt.GetoptError as exc:
@@ -200,6 +198,8 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+
+    check_zap_client_version()
 
     # Check target supplied and ok
     if len(target) == 0:
