@@ -146,6 +146,7 @@ Scanners:
 40027   SQL Injection MsSQL
 40028   ELMAH Scanner
 40029   trace.axd Scanner
+40030   Backslash Powered Scanner
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
