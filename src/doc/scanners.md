@@ -147,6 +147,7 @@ Scanners:
 40028   ELMAH Scanner
 40029   trace.axd Scanner
 40030   Backslash Powered Scanner
+40031   Cross Site Scripting - Detection by Callback
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
