@@ -113,7 +113,7 @@ def main(argv):
     report_html = ''
     report_md = ''
     report_xml = ''
-    report_json = '' 
+    report_json = ''
     target = ''
     zap_alpha = False
     info_unspecified = False

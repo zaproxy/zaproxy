@@ -41,7 +41,7 @@
 # to be handled differently.
 # You can also add your own messages for the rules by appending them after a tab
 # at the end of each line.
-# By default all of the active scan rules run but you can prevent rules from 
+# By default all of the active scan rules run but you can prevent rules from
 # running by supplying a configuration file with the rules set to IGNORE.
 
 import getopt
