@@ -378,14 +378,14 @@ public final class AddOnInstaller {
                 continue;
             }
             if (!outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
-                logger.error("Failed to create directories for: " + outfile.getAbsolutePath());
+                logger.error("Failed to create directories for add-on " + addOn + ": " + outfile.getAbsolutePath());
                 continue;
             }
 
             logger.debug("Installing file: " + name);
             URL fileURL = addOnClassLoader.findResource(name);
             if (fileURL == null) {
-                logger.error("File not found on add-on package: " + name);
+                logger.error("File not found in add-on " + addOn + ": " + name);
                 continue;
             }
             try (InputStream in = fileURL.openStream(); OutputStream out = new FileOutputStream(outfile)) {
@@ -395,7 +395,7 @@ public final class AddOnInstaller {
                     out.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
-                logger.error("Failed to install file " + outfile.getAbsolutePath(), e);
+                logger.error("Failed to install a file from add-on " + addOn + ": " + outfile.getAbsolutePath(), e);
             }
         }
         Control.getSingleton().getExtensionLoader().addonFilesAdded();
