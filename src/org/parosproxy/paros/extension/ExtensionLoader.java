@@ -69,6 +69,7 @@
 // ZAP: 2017/02/19 Hook/remove extensions' components to/from the main tool bar.
 // ZAP: 2017/06/07 Allow to notify of changes in the session's properties (e.g. name, description).
 // ZAP: 2017/07/25 Hook HttpSenderListener.
+// ZAP: 2017/10/11 Include add-on in extensions' initialisation errors.
 
 package org.parosproxy.paros.extension;
 
@@ -84,6 +85,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
@@ -628,14 +630,15 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).start();
+                extension.start();
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -755,8 +758,8 @@ public class ExtensionLoader {
         final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            final Extension ext = getExtension(i);
             try {
-                final Extension ext = getExtension(i);
                 logger.info("Initializing " + ext.getDescription());
                 final ExtensionHook extHook = new ExtensionHook(model, view);
                 ext.hook(extHook);
@@ -784,16 +787,17 @@ public class ExtensionLoader {
                 
             } catch (Throwable e) {
                 // Catch Errors thrown by out of date extensions as well as Exceptions
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(ext, e);
             }
         }
         // Call postInit for all extensions after they have all been initialized
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).postInit();
+                extension.postInit();
             } catch (Throwable e) {
                 // Catch Errors thrown by out of date extensions as well as Exceptions
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
 
@@ -801,6 +805,19 @@ public class ExtensionLoader {
             view.getMainFrame().getMainMenuBar().validate();
             view.getMainFrame().validate();
         }
+    }
+
+    private static void logExtensionInitError(Extension extension, Throwable e) {
+        StringBuilder strBuilder = new StringBuilder(150);
+        strBuilder.append("Failed to initialise extension ");
+        strBuilder.append(extension.getClass().getCanonicalName());
+        AddOn addOn = extension.getAddOn();
+        if (addOn != null) {
+            strBuilder.append(" (from add-on ").append(addOn).append(')');
+        }
+        strBuilder.append(", cause: ");
+        strBuilder.append(ExceptionUtils.getRootCauseMessage(e));
+        logger.error(strBuilder.toString(), e);
     }
 
     private void hookContextDataFactories(Extension extension, ExtensionHook extHook) {
@@ -1171,15 +1188,16 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).init();
-                getExtension(i).databaseOpen(Model.getSingleton().getDb());
+                extension.init();
+                extension.databaseOpen(Model.getSingleton().getDb());
                 if (view != null) {
                 	view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
             } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1192,14 +1210,15 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).initModel(model);
+                extension.initModel(model);
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1216,8 +1235,8 @@ public class ExtensionLoader {
         final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            final Extension extension = getExtension(i);
             try {
-                final Extension extension = getExtension(i);
                 EventQueue.invokeAndWait(new Runnable() {
 
                     @Override
@@ -1228,7 +1247,7 @@ public class ExtensionLoader {
                 });
                 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1237,14 +1256,15 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).initXML(session, options);
+                extension.initXML(session, options);
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
