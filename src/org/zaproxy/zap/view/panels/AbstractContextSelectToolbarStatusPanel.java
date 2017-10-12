@@ -43,6 +43,8 @@ import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
 /**
  * A base implementation for a status panel with a control toolbar that shows information/actions
  * based on a selected {@link Context}.
+ * 
+ * @see #unload()
  */
 public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPanel implements
 		OnContextsChangedListener {
@@ -244,6 +246,17 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 		log.debug("Contexts changed...");
 		contextSelectBox.reloadContexts(false);
 		contextSelectBox.setSelectedIndex(-1);
+	}
+
+	/**
+	 * Unloads the status panel.
+	 * <p>
+	 * This method should be called once the panel is no longer needed, to detach it from core (persistent) classes.
+	 * 
+	 * @since TODO add version
+	 */
+	public void unload() {
+		Model.getSingleton().getSession().removeOnContextsChangedListener(this);
 	}
 
 	/**

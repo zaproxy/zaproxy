@@ -71,6 +71,7 @@
 // ZAP: 2017/03/13 Remove global excluded URLs from Session's state.
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 // ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
+// ZAP: 2017/10/11 Make contextsChangedListeners static.
 
 package org.parosproxy.paros.model;
 
@@ -1568,7 +1569,7 @@ public class Session {
 	
 	// ZAP: Added listeners for contexts changed events.
 	// TODO: Might be better structured elsewhere, so maybe just a temporary solution.
-	private List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
+	private static List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
 
 	public void addOnContextsChangedListener(OnContextsChangedListener l) {
 		contextsChangedListeners.add(l);
