@@ -81,7 +81,7 @@ public class FontUtils {
 	}
 	
 	public static Font getFont (String name) {
-		return new Font(name, Font.PLAIN, getDefaultFont().getSize());
+		return getFont(name, Font.PLAIN);
 	}
 	
 	public static Font getFont (int style) {
@@ -89,8 +89,7 @@ public class FontUtils {
 	}
 	
 	public static Font getFont (String name, int style) {
-		Font font = (Font) UIManager.getLookAndFeelDefaults().get("defaultFont");
-		return new Font(name, style, font.getSize());
+		return new Font(name, style, getDefaultFont().getSize());
 	}
 	
 	public static Font getFont (int style, Size size) {

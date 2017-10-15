@@ -105,6 +105,9 @@ public class StatsdClient extends TimerTask {
         setBufferSize((short) 1500);
 	}
 
+    @Override
+    @SuppressWarnings("deprecation")
+    // XXX Deprecated in Java 9, use Cleaner instead?
     protected void finalize() {
             flush();
     }

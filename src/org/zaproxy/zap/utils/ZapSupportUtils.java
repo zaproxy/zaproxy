@@ -25,6 +25,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+
 import org.apache.commons.lang.WordUtils;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
@@ -80,6 +83,17 @@ public final class ZapSupportUtils {
 		return Constant.messages.getString("support.locale.system.label") + " " + Constant.getSystemsLocale();
 	}
 
+	public static String getLookAndFeel() {
+		LookAndFeel laf = UIManager.getLookAndFeel();
+		String strLaf;
+		if (laf != null) {
+			strLaf = laf.getName() + " (" + laf.getClass().getCanonicalName() + ")";
+		} else {
+			strLaf = "[null]";
+		}
+		return Constant.messages.getString("support.laf.label") + " " + strLaf;
+	}
+
 	public static String getInstalledAddons() {
 		AddOnLoader addOnLoader = ExtensionFactory.getAddOnLoader();
 		List<AddOn> sortedAddOns = new ArrayList<>(addOnLoader.getAddOnCollection().getInstalledAddOns());
@@ -114,6 +128,7 @@ public final class ZapSupportUtils {
 		supportDetailsBuilder.append(getLocaleDisplay()).append(NEWLINE);
 		supportDetailsBuilder.append(getLocaleFormat()).append(NEWLINE);
 		supportDetailsBuilder.append(getZapHomeDirectory()).append(NEWLINE);
+		supportDetailsBuilder.append(getLookAndFeel()).append(NEWLINE);
 		
 		return supportDetailsBuilder.toString();
 	}
