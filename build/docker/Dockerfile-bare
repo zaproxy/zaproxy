@@ -1,22 +1,16 @@
 # This dockerfile builds the zap stable release
-FROM ubuntu:16.04 as builder
+FROM alpine as builder
 
 WORKDIR /zap
 
-RUN apt-get update && apt-get install -q -y --fix-missing \
-    wget \
-    curl \
-    xmlstarlet \
-    unzip && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl wget xmlstarlet unzip
 
 # Download and expand the latest stable release 
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
-    cp -R ZAP*/* . &&  \
+    mv ZAP*/* . &&  \
     rm -R ZAP* 
 
-FROM java:openjdk-8-jdk-alpine
+FROM openjdk:8-jdk-alpine
 LABEL maintainer="psiinon@gmail.com"
 
 WORKDIR /zap
