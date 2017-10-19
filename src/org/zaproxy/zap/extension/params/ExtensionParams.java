@@ -273,7 +273,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		TreeSet<HtmlParameter> params;
 		Iterator<HtmlParameter> iter;
 		try {
-			params = msg.getCookieParams();
+			params = msg.getRequestHeader().getCookieParams();
 			iter = params.iterator();
 			while (iter.hasNext()) {
 				persist(sps.addParam(site, iter.next(), msg));
@@ -354,7 +354,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		SiteParameters sps = this.getSiteParameters(site);
 
 		// Cookie Parameters
-		TreeSet<HtmlParameter> params = msg.getCookieParams();
+		TreeSet<HtmlParameter> params = msg.getResponseHeader().getCookieParams();
 		Iterator<HtmlParameter> iter = params.iterator();
 		while (iter.hasNext()) {
 			persist(sps.addParam(site, iter.next(), msg));
