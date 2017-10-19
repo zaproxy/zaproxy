@@ -224,7 +224,7 @@ public class GuiBootstrap extends ZapBootstrap {
                 warnAddOnsAndExtensionsNoLongerRunnable();
 
                 if (firstTime) {
-                    // Disabled for now - we have too many popups occuring when you
+                    // Disabled for now - we have too many popups occurring when you
                     // first start up
                     // be nice to have a clean start up wizard...
                     // ExtensionHelp.showHelp();
