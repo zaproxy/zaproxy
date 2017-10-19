@@ -620,7 +620,14 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			return;
 
 		// Check for default tokens in request messages
-		List<HttpCookie> requestCookies = msg.getRequestHeader().getHttpCookies();
+		List<HttpCookie> requestCookies;
+		try {
+			requestCookies = msg.getRequestHeader().getHttpCookies();
+		} catch (IllegalArgumentException e) {
+			log.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+			return;
+		}
+
 		for (HttpCookie cookie : requestCookies) {
 			// If it's a default session token and it is not already marked as session token and was
 			// not previously removed by the user
