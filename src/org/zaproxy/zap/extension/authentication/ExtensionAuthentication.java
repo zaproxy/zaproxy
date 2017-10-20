@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -280,22 +281,29 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	@Override
 	public void persistContextData(Session session, Context context) {
 		try {
+			int contextIdx = context.getIndex();
 			AuthenticationMethodType t = context.getAuthenticationMethod().getType();
-			session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_TYPE,
+			session.setContextData(contextIdx, RecordContext.TYPE_AUTH_METHOD_TYPE,
 					Integer.toString(t.getUniqueIdentifier()));
 
-			if (context.getAuthenticationMethod().getLoggedInIndicatorPattern() != null)
-				session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
-						context.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
+			persistLoggedIndicator(session, contextIdx, RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
+					context.getAuthenticationMethod().getLoggedInIndicatorPattern());
 
-			if (context.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null)
-				session.setContextData(context.getIndex(),
-						RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR, context.getAuthenticationMethod()
-								.getLoggedOutIndicatorPattern().toString());
+			persistLoggedIndicator(session, contextIdx, RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR, 
+					context.getAuthenticationMethod().getLoggedOutIndicatorPattern());
 
-			t.persistMethodToSession(session, context.getIndex(), context.getAuthenticationMethod());
+			t.persistMethodToSession(session, contextIdx, context.getAuthenticationMethod());
 		} catch (DatabaseException e) {
 			log.error("Unable to persist Authentication method.", e);
+		}
+	}
+
+	private static void persistLoggedIndicator(Session session, int contextIdx, int recordType, Pattern pattern)
+			throws DatabaseException {
+		if (pattern != null) {
+			session.setContextData(contextIdx, recordType, pattern.toString());
+		} else {
+			session.clearContextDataForType(contextIdx, recordType);
 		}
 	}
 
