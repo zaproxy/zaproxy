@@ -43,6 +43,7 @@
 // ZAP: 2016/09/26 JavaDoc tweaks
 // ZAP: 2017/02/23 Issue 3227: Limit API access to whitelisted IP addresses
 // ZAP: 2017/04/24 Added more HTTP methods
+// ZAP: 2017/10/19 Skip parsing of empty Cookie headers.
 
 package org.parosproxy.paros.network;
 
@@ -722,6 +723,11 @@ public class HttpRequestHeader extends HttpHeader {
                     cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
                 }
                 
+                if (cookieLine.isEmpty()) {
+                    // Nothing to parse.
+                    continue;
+                }
+
                 // These can be comma separated type=value
                 String[] cookieArray = cookieLine.split(";");
                 for (String cookie : cookieArray) {

@@ -278,8 +278,8 @@ public class ExtensionParams extends ExtensionAdaptor
 			while (iter.hasNext()) {
 				persist(sps.addParam(site, iter.next(), msg));
 			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
 		}
 
 		// URL Parameters
@@ -354,10 +354,14 @@ public class ExtensionParams extends ExtensionAdaptor
 		SiteParameters sps = this.getSiteParameters(site);
 
 		// Cookie Parameters
-		TreeSet<HtmlParameter> params = msg.getResponseHeader().getCookieParams();
-		Iterator<HtmlParameter> iter = params.iterator();
-		while (iter.hasNext()) {
-			persist(sps.addParam(site, iter.next(), msg));
+		try {
+			TreeSet<HtmlParameter> params = msg.getResponseHeader().getCookieParams();
+			Iterator<HtmlParameter> iter = params.iterator();
+			while (iter.hasNext()) {
+				persist(sps.addParam(site, iter.next(), msg));
+			}
+		} catch (IllegalArgumentException e) {
+			logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
 		}
 
 		// Header "Parameters"
