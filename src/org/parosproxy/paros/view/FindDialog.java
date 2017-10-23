@@ -24,6 +24,7 @@
 // ZAP: 2014/01/30 Issue 996: Ensure all dialogs close when the escape key is pressed (copy tidy up)
 // ZAP: 2017/07/12 Issue 765: Add constructor with window parent, to facilitate ctrl-F in various HttpPanels
 // ZAP: 2017/07/17: Prevent opening multiple dialogs per parent.
+// ZAP: 2017/10/18 Do not allow to obtain the FindDialog with a null parent.
 
 package org.parosproxy.paros.view;
 
@@ -138,9 +139,14 @@ public class FindDialog extends AbstractDialog {
 	 * @param modal a boolean indicating whether the FindDialog should ({@code true}), 
 	 * or shouldn't ({@code false}) be modal.
 	 * @return The existing FindDialog for the parent (if there is one), or a new FindDialog.
+	 * @throws IllegalArgumentException if the {@code parent} is {@code null}.
 	 * @since TODO add version
 	 */
 	public static FindDialog getDialog(Window parent, boolean modal) {
+		if (parent == null) {
+			throw new IllegalArgumentException("The parent must not be null.");
+		}
+
 		FindDialog activeDialog = getParentsMap().get(parent);
 		if (activeDialog != null) {
 			activeDialog.getTxtFind().requestFocus();

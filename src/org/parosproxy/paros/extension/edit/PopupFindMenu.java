@@ -26,6 +26,7 @@
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2017/07/22 Leverage KeyStroke constant for consistency with other FindDialog usage
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
+// ZAP: 2017/10/18 Drop support of JFrame as parent (that might not be the case, e.g. parentless JDialog).
 
 package org.parosproxy.paros.extension.edit;
 
@@ -41,7 +42,6 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 public class PopupFindMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
     private JTextComponent lastInvoker = null;
-    private JFrame parentFrame = null;
     
 	/**
      * @return Returns the lastInvoker.
@@ -71,7 +71,6 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTextComponent) {
             setLastInvoker((JTextComponent) invoker);
-            setParentFrame((JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, invoker));
             return true;
         } else {
             setLastInvoker(null);
@@ -82,16 +81,24 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
 
     /**
      * @return Returns the parentFrame.
+     * @deprecated (TODO add version) No longer supported, the invoker might not be contained in a {@code JFrame}. It should be
+     *             obtained its {@link SwingUtilities#getWindowAncestor(Component) ancestor Window} instead.
      */
+    @Deprecated
     public JFrame getParentFrame() {
-        return parentFrame;
+        if (lastInvoker != null) {
+            return (JFrame) SwingUtilities.getAncestorOfClass(JFrame.class, lastInvoker);
+        }
+        return null;
     }
 
     /**
      * @param parentFrame The parentFrame to set.
+     * @deprecated (TODO add version) No longer supported, the parent component is obtained from the invoker moreover the
+     *             invoker might not be contained in a {@code JFrame}.
      */
+    @Deprecated
     public void setParentFrame(JFrame parentFrame) {
-        this.parentFrame = parentFrame;
     }
 
     /**
