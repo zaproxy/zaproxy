@@ -78,6 +78,7 @@
 // ZAP: 2017/05/03 Register and process events from HistoryReference.
 // ZPA: 2017/06/05 Sync HistoryReference cache.
 // ZAP: 2017/06/13 Handle notification of notes set and deprecate/remove code no longer needed.
+// ZAP: 2017/10/20 Move methods to delete history entries (Issue 3626).
 
 package org.parosproxy.paros.extension.history;
 
@@ -879,6 +880,60 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 notifyHistoryItemsChanged();
                 break;
             }
+        }
+    }
+
+    /**
+     * Deletes the given history references from the {@link LogPanel History tab} and the session (database), along with the
+     * corresponding {@link SiteNode}s and {@link Alert}s.
+     *
+     * @param hrefs the history entries to delete.
+     * @see View#getDefaultDeleteKeyStroke()
+     * @since TODO add version
+     */
+    public void purgeHistory(List<HistoryReference> hrefs) {
+        if (getView() != null && hrefs.size() > 1) {
+            int result = getView().showConfirmDialog(Constant.messages.getString("history.purge.warning"));
+            if (result != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+        synchronized (this) {
+            for (HistoryReference href : hrefs) {
+                purgeHistory(href);
+            }
+        }
+    }
+
+    private void purgeHistory(HistoryReference href) {
+        if (href == null) {
+            return;
+        }
+
+        removeFromHistoryList(href);
+
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+
+        if (extAlert != null) {
+            extAlert.deleteHistoryReferenceAlerts(href);
+        }
+
+        delete(href);
+
+        SiteNode node = href.getSiteNode();
+        if (node == null) {
+            return;
+        }
+
+        SiteMap map = Model.getSingleton().getSession().getSiteTree();
+
+        if (node.getHistoryReference() == href) {
+            // same active Node
+            purge(map, node);
+
+        } else {
+            node.getPastHistoryReference().remove(href);
+            map.removeHistoryReference(href.getHistoryId());
         }
     }
 }

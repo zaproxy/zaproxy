@@ -73,6 +73,7 @@
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2017/10/20 Implement method to expose default delete keyboard shortcut (Issue 3626).
 
 package org.parosproxy.paros.view;
 
@@ -210,6 +211,13 @@ public class View implements ViewDelegate {
     private boolean postInitialisation;
 
     /**
+     * The default {@link KeyStroke} to delete view items.
+     * <p>
+     * Lazily initialised in {@link #getDefaultDeleteKeyStroke()}.
+     */
+    private KeyStroke defaultDeleteKeyStroke;
+
+    /**
      * @return Returns the mainFrame.
      */
     @Override
@@ -342,6 +350,14 @@ public class View implements ViewDelegate {
     @SuppressWarnings("javadoc")
     public org.zaproxy.zap.view.MessagePanelsPositionController getMessagePanelsPositionController() {
         return new org.zaproxy.zap.view.MessagePanelsPositionController(null, null, null, null);
+    }
+
+    @Override
+    public KeyStroke getDefaultDeleteKeyStroke() {
+        if (defaultDeleteKeyStroke == null) {
+            defaultDeleteKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false);
+        }
+        return defaultDeleteKeyStroke;
     }
 
     public void refreshTabViewMenus() {

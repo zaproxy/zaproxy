@@ -43,15 +43,18 @@
 // ZAP: 2017/03/03 Tweak filter label.
 // ZAP: 2017/05/12 Support table export.
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2017/10/20 Add action/shortcut to delete history entries (Issue 3626).
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -348,6 +351,17 @@ public class LogPanel extends AbstractPanel {
 				}
 			});
 
+			String deleteHrefKey = "zap.delete.href";
+			historyReferencesTable.getInputMap().put(view.getDefaultDeleteKeyStroke(), deleteHrefKey);
+			historyReferencesTable.getActionMap().put(deleteHrefKey, new AbstractAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					extension.purgeHistory(historyReferencesTable.getSelectedHistoryReferences());
+				}
+			});
 		}
 		return historyReferencesTable;
 	}
