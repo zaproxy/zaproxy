@@ -27,11 +27,7 @@ A very visible example was the 2005 hack of the Harvard Business School's applic
  
 Insufficient Data Authorization
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
-
-http://example.com/RecordView?id=12345
-
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Many applications expose underlying data identifiers in a URL. Si la aplicación no comprueba que el ID del usuario autenticado tenga derechos de lectura, entonces se pueden mostrar datos al usuario que el usuario no debería ver.
 
 Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
 	<solution>Phases: Architecture and Design; Operation
