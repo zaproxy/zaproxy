@@ -31,4 +31,6 @@ ENV ZAP_PATH /zap/zap.sh
 ENV HOME /home/zap/
 ENV ZAP_PORT 8080
 
+COPY zap* /zap/
+
 HEALTHCHECK --retries=15 --interval=5s CMD nc -vz 127.0.0.1 $ZAP_PORT
