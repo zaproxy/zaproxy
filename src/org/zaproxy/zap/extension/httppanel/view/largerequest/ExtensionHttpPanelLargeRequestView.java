@@ -79,7 +79,7 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
             panelManager.removeRequestDefaultViewSelectorFactory(
                     RequestSplitComponent.NAME,
                     LargeRequestDefaultSplitViewSelectorFactory.NAME);
-            panelManager.removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(
+            panelManager.removeRequestDefaultViewSelectors(
                     RequestSplitComponent.NAME,
                     LargeRequestDefaultSplitViewSelector.NAME,
                     RequestSplitComponent.ViewComponent.BODY);
@@ -89,7 +89,7 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
             panelManager.removeRequestDefaultViewSelectorFactory(
                     RequestAllComponent.NAME,
                     LargeRequestDefaultAllViewSelectorFactory.NAME);
-            panelManager.removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(
+            panelManager.removeRequestDefaultViewSelectors(
                     RequestAllComponent.NAME,
                     LargeRequestDefaultAllViewSelector.NAME,
                     null);
