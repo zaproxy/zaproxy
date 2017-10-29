@@ -28,14 +28,16 @@
 // ZAP: 2017/04/07 Added name constants and getUIName()
 // ZAP: 2017/07/22 Added KeyStroke constant for consistency with other FindDialog usage
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
+// ZAP: 2017/10/18 Use Window for parent of invoked component.
 
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JFrame;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -82,8 +84,8 @@ public class ExtensionEdit extends ExtensionAdaptor {
 
 	}
     
-    private void showFindDialog(JFrame frame, JTextComponent lastInvoker) {
-        FindDialog findDialog = FindDialog.getDialog(frame, false);            
+    private void showFindDialog(Window window, JTextComponent lastInvoker) {
+        FindDialog findDialog = FindDialog.getDialog(window, false);
         findDialog.setLastInvoker(lastInvoker);
         findDialog.setVisible(true);
     }
@@ -135,12 +137,28 @@ public class ExtensionEdit extends ExtensionAdaptor {
             popupFindMenu.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showFindDialog(popupFindMenu.getParentFrame(), popupFindMenu.getLastInvoker());
-                    
+                    JTextComponent component = popupFindMenu.getLastInvoker();
+                    Window window = getWindowAncestor(component);
+                    if (window != null) {
+                        showFindDialog(window, component);
+                    }
                 }
             });
         }
         return popupFindMenu;
+    }
+
+    /**
+     * Gets the ancestor {@code Window} where the given {@code component} is contained.
+     *
+     * @param component the component.
+     * @return the {@code Window}, or {@code null} if the component is {@code null} or if not contained inside a {@code Window}.
+     */
+    private static Window getWindowAncestor(JTextComponent component) {
+        if (component == null) {
+            return null;
+        }
+        return SwingUtilities.getWindowAncestor(component);
     }
 	
 	@Override

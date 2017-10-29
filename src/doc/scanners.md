@@ -148,11 +148,13 @@ Scanners:
 40029   trace.axd Scanner
 40030   Backslash Powered Scanner
 40031   Cross Site Scripting - Detection by Callback
+40032   .htaccess Scanner
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
 50002   Fuzzer HTTP Processor scripts
 50003   Stats passive scan rule
+50004   Zest scripts (Action - Fail)
 
 60000   Example simple passive rule 
 60001   Example file passive rule 
