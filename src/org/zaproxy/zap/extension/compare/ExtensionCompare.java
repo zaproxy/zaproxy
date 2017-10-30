@@ -142,7 +142,12 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     	}
 
         List<Integer> hIds = th.getHistoryIdsOfHistType(
-                rh.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
+                rh.getSessionId(),
+                HistoryReference.TYPE_PROXIED,
+                HistoryReference.TYPE_ZAP_USER,
+                HistoryReference.TYPE_SPIDER,
+                HistoryReference.TYPE_SPIDER_AJAX);
+
     	for (Integer hId : hIds) {
     		RecordHistory recH = th.read(hId);
     		URI uri = recH.getHttpMessage().getRequestHeader().getURI();
