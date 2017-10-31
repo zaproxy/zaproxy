@@ -172,7 +172,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", createIcon("/resource/icon/16/script-standalone.png"), false,
 				new String[] {ScriptType.CAPABILITY_APPEND}));
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", createIcon("/resource/icon/16/script-targeted.png"), false));
-		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", createIcon("/resource/icon/16/script-targeted.png"), true));
+		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", createIcon("/resource/icon/16/script-httpsender.png"), true));
 
 		extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
 
