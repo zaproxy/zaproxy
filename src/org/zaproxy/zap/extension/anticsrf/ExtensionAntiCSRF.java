@@ -99,9 +99,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
-		final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
-				.getExtensionLoader()
-				.getExtension(ExtensionHistory.NAME);
+		final ExtensionHistory extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 		if (extensionHistory != null) {
 			historyReferenceFactory = new HistoryReferenceFactory() {
 
@@ -128,9 +126,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	        extensionHook.getHookMenu().addPopupMenuItem(this.getPopupMenuGenerateForm());
 	    }
 
-        ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionPassiveScan.NAME);
+        ExtensionPassiveScan extensionPassiveScan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
         if (extensionPassiveScan != null) {
             extensionPassiveScan.addPassiveScanner(antiCsrfDetectScanner);
         }
@@ -143,9 +139,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	
 	@Override
 	public void unload() {
-		ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
-				.getExtensionLoader()
-				.getExtension(ExtensionPassiveScan.NAME);
+		ExtensionPassiveScan extensionPassiveScan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
 		if (extensionPassiveScan != null) {
 			extensionPassiveScan.removePassiveScanner(antiCsrfDetectScanner);
 		}
@@ -398,7 +392,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 
 	public String generateForm(int hrefId) throws Exception {
-		ExtensionHistory extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+		ExtensionHistory extHist = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 		if (extHist != null) {
 			HistoryReference hr = extHist.getHistoryReference(hrefId);
 			if (hr != null) {

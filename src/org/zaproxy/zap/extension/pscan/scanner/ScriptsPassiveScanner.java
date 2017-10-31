@@ -57,7 +57,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
 	private ExtensionScript getExtension() {
 		if (extension == null) {
-			extension = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+			extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
 		}
 		return extension;
 	}

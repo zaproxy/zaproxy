@@ -224,8 +224,7 @@ public abstract class AuthenticationMethodType {
 	protected static void apiChangedAuthenticationMethodForContext(int contextId) {
 		// Make sure the Users are wiped so the authentication credentials for them match the
 		// Method.
-		ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
-				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+		ExtensionUserManagement usersExtension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 		if (usersExtension != null) {
 			if (usersExtension.getContextUserAuthManager(contextId).getUsers().size() > 0) {
 				usersExtension.removeContextUsers(contextId);

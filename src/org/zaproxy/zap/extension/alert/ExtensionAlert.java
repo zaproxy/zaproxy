@@ -484,9 +484,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         //Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
         Vector<Integer> v = tableAlert.getAlertList();
 
-        final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionHistory.NAME);
+        final ExtensionHistory extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 
         for (int i = 0; i < v.size(); i++) {
             int alertId = v.get(i).intValue();

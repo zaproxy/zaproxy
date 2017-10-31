@@ -166,7 +166,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         // TODO this isnt currently implemented
         //extensionHook.addCommandLine(getCommandLineArguments());
 
-        ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         if (extScript != null) {
             extScript.registerScriptType(
                     new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", createIcon("script-ascan.png"), true));
@@ -174,7 +174,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
                     new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", createIcon("script-variant.png"), true));
         }
 
-        this.ascanController.setExtAlert((ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
+        this.ascanController.setExtAlert(Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class));
         this.activeScanApi = new ActiveScanAPI(this);
         this.activeScanApi.addApiOptions(getScannerParam());
         extensionHook.addApiImplementor(activeScanApi);

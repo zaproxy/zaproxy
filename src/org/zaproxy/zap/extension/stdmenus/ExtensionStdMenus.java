@@ -345,7 +345,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupMenuResendMessage == null) {
 			popupMenuResendMessage = new PopupMenuResendMessage(
 					Constant.messages.getString("history.resend.popup"),
-					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
 			popupMenuResendMessage.setMenuIndex(menuIndex);
 		}
 		return popupMenuResendMessage;
@@ -363,7 +363,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupMenuShowInHistory == null) {
 			popupMenuShowInHistory = new PopupMenuShowInHistory(
 					Constant.messages.getString("history.showinhistory.popup"),
-					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
 			popupMenuShowInHistory.setMenuIndex(menuIndex);
 		}
 		return popupMenuShowInHistory;

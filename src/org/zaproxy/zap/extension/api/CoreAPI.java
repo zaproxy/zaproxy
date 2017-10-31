@@ -528,8 +528,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_MODE);
 			}
 		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
-			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
-					Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
+			ExtensionDynSSL extDyn = Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
 			if (extDyn != null) {
 				try {
 					extDyn.createNewRootCa();
@@ -547,9 +546,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			validateForCurrentMode(request);
 			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
 		} else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
-            final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
-                    .getExtensionLoader()
-                    .getExtension(ExtensionAlert.NAME);
+            final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
             if (extAlert != null) {
                 extAlert.deleteAllAlerts();
             } else {
@@ -579,9 +576,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
 			}
 
-			final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
-					.getExtensionLoader()
-					.getExtension(ExtensionAlert.NAME);
+			final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
 			if (extAlert != null) {
 				extAlert.deleteAlert(new Alert(recAlert));
 			} else {
@@ -1165,8 +1160,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			return msg;
 		} else if (OTHER_ROOT_CERT.equals(name)) {
-			ExtensionDynSSL extDynSSL = 
-					(ExtensionDynSSL) Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
+			ExtensionDynSSL extDynSSL =  Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
 			if (extDynSSL != null) {
 				try {
 					Certificate rootCA = extDynSSL.getRootCA();

@@ -230,8 +230,8 @@ public class SpiderAPI extends ApiImplementor {
 			// The action is to start a new Scan from the perspective of a user
 			String urlUserScan = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 			int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
-			ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
-					.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+			ExtensionUserManagement usersExtension = Control.getSingleton()
+					.getExtensionLoader().getExtension(ExtensionUserManagement.class);
 			if (usersExtension == null) {
 				throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 			}

@@ -54,8 +54,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
 	 */
 	private ExtensionAuthentication getExtensionAuthentication() {
 		if (extensionAuth == null) {
-			extensionAuth = (ExtensionAuthentication) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionAuthentication.NAME);
+			extensionAuth = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAuthentication.class);
 		}
 		return extensionAuth;
 	}
@@ -67,8 +66,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
 	 */
 	private ExtensionUserManagement getExtensionUserManagement() {
 		if (extensionUsers == null) {
-			extensionUsers = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionUserManagement.NAME);
+			extensionUsers = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 		}
 		return extensionUsers;
 	}

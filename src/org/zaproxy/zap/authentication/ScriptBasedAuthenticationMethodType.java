@@ -648,8 +648,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	private ExtensionScript getScriptsExtension() {
 		if (extensionScript == null)
-			extensionScript = (ExtensionScript) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionScript.NAME);
+			extensionScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
 		return extensionScript;
 	}
 
