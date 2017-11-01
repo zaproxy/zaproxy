@@ -58,7 +58,7 @@ CREATE TABLE `CONTEXT_DATA` (
   `DATAID` bigint(20) NOT NULL AUTO_INCREMENT,
   `CONTEXTID` int(11) NOT NULL,
   `TYPE` int(11) NOT NULL,
-  `DATA` varchar(8192) DEFAULT '''',
+  `DATA` longtext,
   PRIMARY KEY (`DATAID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
