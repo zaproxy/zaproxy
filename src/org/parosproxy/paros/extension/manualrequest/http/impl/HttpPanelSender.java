@@ -189,8 +189,7 @@ public class HttpPanelSender implements MessageSender {
 
     protected ExtensionHistory getHistoryExtension() {
         if (extension == null) {
-            extension = ((ExtensionHistory) Control.getSingleton()
-                    .getExtensionLoader().getExtension(ExtensionHistory.NAME));
+            extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
         }
         return extension;
     }

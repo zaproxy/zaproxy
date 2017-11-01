@@ -212,7 +212,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCDWR().setSelected((rpcEnabled & ScannerParam.RPC_DWR) != 0);
         this.getChkRPCCustom().setSelected((rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
         
-        ExtensionScript extension = (ExtensionScript)Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        ExtensionScript extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         this.getChkRPCCustom().setEnabled((extension != null));
 
         this.getExcludedParameterModel().setTokens(param.getExcludedParamList());

@@ -139,8 +139,8 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
 
 				// NOTE: no need to check if extension is loaded as this method is called only if
 				// the Users extension is loaded
-				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control
-						.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				ExtensionUserManagement extensionUserManagement = Control.getSingleton()
+						.getExtensionLoader().getExtension(ExtensionUserManagement.class);
 				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex())
 						.getUserById(userId);
 				if (user == null)

@@ -404,7 +404,7 @@ public class SpiderTask implements Runnable {
 
 	private ExtensionHistory getExtensionHistory() {
 		if (this.extHistory == null) {
-			this.extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+			this.extHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 		}
 		return this.extHistory;
 	}

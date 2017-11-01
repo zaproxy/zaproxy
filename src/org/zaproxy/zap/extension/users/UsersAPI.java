@@ -99,8 +99,8 @@ public class UsersAPI extends ApiImplementor {
 
 		// Load the authentication method actions
 		if (Control.getSingleton() != null) {
-			ExtensionAuthentication authenticationExtension = (ExtensionAuthentication) Control
-					.getSingleton().getExtensionLoader().getExtension(ExtensionAuthentication.NAME);
+			ExtensionAuthentication authenticationExtension = Control
+					.getSingleton().getExtensionLoader().getExtension(ExtensionAuthentication.class);
 			this.loadedAuthenticationMethodActions = new HashMap<>();
 			if (authenticationExtension != null) {
 				for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {

@@ -54,6 +54,7 @@
 // ZAP: 2016/07/12 Do not allow techSet to be null
 // ZAP: 2017/03/27 Use HttpRequestConfig.
 // ZAP: 2017/05/31 Remove re-declaration of methods.
+// ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -265,7 +266,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
             if (extAntiCSRF == null) {
-                extAntiCSRF = (ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+                extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
                 List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(message);

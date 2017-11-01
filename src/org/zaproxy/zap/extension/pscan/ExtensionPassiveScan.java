@@ -108,7 +108,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
         }
 
-        ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         if (extScript != null) {
             extScript.registerScriptType(
                     new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", createScriptIcon(), true));
@@ -426,8 +426,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     private PassiveScanThread getPassiveScanThread() {
         if (pst == null) {
             final ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
-            final ExtensionHistory extHist = (ExtensionHistory) extensionLoader.getExtension(ExtensionHistory.NAME);
-            final ExtensionAlert extAlert = (ExtensionAlert) extensionLoader.getExtension(ExtensionAlert.NAME);
+            final ExtensionHistory extHist = extensionLoader.getExtension(ExtensionHistory.class);
+            final ExtensionAlert extAlert = extensionLoader.getExtension(ExtensionAlert.class);
 
             pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
 

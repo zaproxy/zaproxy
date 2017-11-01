@@ -131,7 +131,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
 	private ExtensionScript getExtension() {
 		if (extension == null) {
-			extension = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+			extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
 		}
 		return extension;
 	}

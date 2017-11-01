@@ -302,9 +302,7 @@ public final class AddOnInstaller {
 
     private static void installAddOnPassiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
         List<PluginPassiveScanner> pscanrules = AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader);
-        ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionPassiveScan.NAME);
+        ExtensionPassiveScan extPscan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
 
         if (!pscanrules.isEmpty() && extPscan != null) {
             for (PluginPassiveScanner pscanrule : pscanrules) {
@@ -321,9 +319,7 @@ public final class AddOnInstaller {
         boolean uninstalledWithoutErrors = true;
 
         List<PluginPassiveScanner> loadedPscanrules = addOn.getLoadedPscanrules();
-        ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionPassiveScan.NAME);
+        ExtensionPassiveScan extPscan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
         if (!loadedPscanrules.isEmpty()) {
             logger.debug("Uninstall pscanrules: " + addOn.getPscanrules());
             callback.passiveScanRulesWillBeRemoved(loadedPscanrules.size());

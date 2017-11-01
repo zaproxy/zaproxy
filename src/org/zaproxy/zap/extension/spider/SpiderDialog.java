@@ -86,8 +86,8 @@ public class SpiderDialog extends StandardFieldsDialog {
 	 */
 	private boolean subtreeOnlyPreviousCheckedState;
     
-    private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-			.getExtension(ExtensionUserManagement.NAME);
+    private ExtensionUserManagement extUserMgmt = Control.getSingleton().getExtensionLoader()
+			.getExtension(ExtensionUserManagement.class);
     
     private Target target = null;
 

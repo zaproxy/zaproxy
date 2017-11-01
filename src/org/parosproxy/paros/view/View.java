@@ -74,6 +74,7 @@
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2017/10/20 Implement method to expose default delete keyboard shortcut (Issue 3626).
+// ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 
 package org.parosproxy.paros.view;
 
@@ -368,7 +369,7 @@ public class View implements ViewDelegate {
         menuShowTabs = new JMenu(Constant.messages.getString("menu.view.showtab"));
         mainFrame.getMainMenuBar().getMenuView().add(menuShowTabs);
 
-        ExtensionKeyboard extKey = (ExtensionKeyboard) Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.NAME);
+        ExtensionKeyboard extKey = Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.class);
 
         for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.SELECT)) {
             registerMenu(extKey, panel);

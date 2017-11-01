@@ -111,8 +111,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	 */
 	protected ExtensionHttpSessions getExtensionHttpSessions() {
 		if (extensionHttpSessions == null) {
-			extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionHttpSessions.NAME);
+			extensionHttpSessions = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class);
 			if (extensionHttpSessions == null)
 				log.error("Http Sessions Extension should be enabled for the "
 						+ ExtensionUserManagement.class.getSimpleName() + " to work.");

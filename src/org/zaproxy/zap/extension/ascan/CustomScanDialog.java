@@ -103,9 +103,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JButton[] extraButtons = null;
     private ExtensionActiveScan extension = null;
 
-    private final ExtensionUserManagement extUserMgmt = 
-            (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-            .getExtension(ExtensionUserManagement.NAME);
+    private final ExtensionUserManagement extUserMgmt = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 
     private int headerLength = -1;
     // The index of the start of the URL path eg after https://www.example.com:1234/ - no point attacking this
