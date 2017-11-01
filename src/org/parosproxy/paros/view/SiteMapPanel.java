@@ -40,6 +40,7 @@
 // ZAP: 2016/07/01 Issue 2642: Slow mouse wheel scrolling in site tree
 // ZAP: 2017/03/28 Issue 3253: Facilitate exporting URLs by context (add getSelectedContext)
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2017/11/01 Delete context with keyboard shortcut.
 
 package org.parosproxy.paros.view;
 
@@ -89,6 +90,7 @@ import org.zaproxy.zap.view.ContextCreateDialog;
 import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextsSitesPanel;
 import org.zaproxy.zap.view.ContextsTreeCellRenderer;
+import org.zaproxy.zap.view.DeleteContextAction;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -449,6 +451,19 @@ public class SiteMapPanel extends AbstractPanel {
 	        treeContext.setComponentPopupMenu(new ContextsCustomPopupMenu());
 
 			treeContext.setCellRenderer(new ContextsTreeCellRenderer());
+			DeleteContextAction delContextAction = new DeleteContextAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected Context getContext() {
+					return getSelectedContext();
+				}
+			};
+			treeContext.getInputMap().put(
+					(KeyStroke) delContextAction.getValue(DeleteContextAction.ACCELERATOR_KEY),
+					DeleteContextAction.ACTION_NAME);
+			treeContext.getActionMap().put(DeleteContextAction.ACTION_NAME, delContextAction);
 		}
 		return treeContext;
 	}
