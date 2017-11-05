@@ -586,7 +586,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		
 		private ExtensionUserManagement getUserExt() {
 			if (userExt == null) {
-				userExt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				userExt = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 				
 			}
 			return userExt;
@@ -777,8 +777,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					 * @return true, if successful
 					 */
 					private boolean confirmUsersDeletion(Context uiSharedContext) {
-						usersExtension = (ExtensionUserManagement) Control.getSingleton()
-								.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+						usersExtension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 						if (usersExtension != null) {
 							if (usersExtension.getSharedContextUsers(uiSharedContext).size() > 0) {
 								int choice = JOptionPane.showConfirmDialog(this, Constant.messages

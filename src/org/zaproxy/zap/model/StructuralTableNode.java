@@ -113,7 +113,7 @@ public class StructuralTableNode implements StructuralNode {
 
 	private static ExtensionHistory getExtensionHistory() {
 		if (extHistory == null) {
-			extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+			extHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 		}
 		return extHistory;
 	}

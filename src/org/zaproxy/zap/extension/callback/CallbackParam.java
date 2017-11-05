@@ -45,9 +45,12 @@ public class CallbackParam extends AbstractParam {
             + ".remoteaddr";
     private static final String PORT_KEY = PROXY_BASE_KEY + ".port";
 
+    private static final String SECURE_KEY = PROXY_BASE_KEY + ".secure";
+
     private String localAddress;
     private String remoteAddress;
     private int port;
+    private boolean secure;
 
     public CallbackParam() {
     }
@@ -57,6 +60,7 @@ public class CallbackParam extends AbstractParam {
         localAddress = getString(LOCAL_ADDRESS_KEY, "0.0.0.0");
         remoteAddress = getString(REMOTE_ADDRESS_KEY, getDefaultAddress());
         port = getInt(PORT_KEY, 0);
+        secure = getBoolean(SECURE_KEY, false);
     }
 
     private String getDefaultAddress() {
@@ -138,6 +142,18 @@ public class CallbackParam extends AbstractParam {
         }
         this.port = port;
         getConfig().setProperty(PORT_KEY, Integer.toString(this.port));
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(boolean secure) {
+        if (this.secure == secure) {
+            return;
+        }
+        this.secure = secure;
+        getConfig().setProperty(SECURE_KEY, Boolean.toString(this.secure));
     }
 
 }

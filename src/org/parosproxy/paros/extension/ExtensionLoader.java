@@ -70,6 +70,7 @@
 // ZAP: 2017/06/07 Allow to notify of changes in the session's properties (e.g. name, description).
 // ZAP: 2017/07/25 Hook HttpSenderListener.
 // ZAP: 2017/10/11 Include add-on in extensions' initialisation errors.
+// ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
 
 package org.parosproxy.paros.extension;
 
@@ -158,6 +159,13 @@ public class ExtensionLoader {
         return extensionList.get(i);
     }
 
+    /**
+     * Gets the {@code Extension} with the given name.
+     *
+     * @param name the name of the {@code Extension}.
+     * @return the {@code Extension} or {@code null} if not found/enabled.
+     * @see #getExtension(Class)
+     */
     public Extension getExtension(String name) {
         if (name != null) {
             for (int i = 0; i < extensionList.size(); i++) {
@@ -188,7 +196,7 @@ public class ExtensionLoader {
      * Gets the {@code Extension} with the given class.
      *
      * @param clazz the class of the {@code Extension}
-     * @return the {@code Extension} or {@code null} if not found.
+     * @return the {@code Extension} or {@code null} if not found/enabled.
      */
     public <T extends Extension> T getExtension(Class<T> clazz) {
         if (clazz != null) {

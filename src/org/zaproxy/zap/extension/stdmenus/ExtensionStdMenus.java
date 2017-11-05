@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -45,6 +44,7 @@ import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextExportDialog;
+import org.zaproxy.zap.view.DeleteContextAction;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextDataDriven;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
@@ -195,17 +195,16 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupContextTreeMenu getPopupContextTreeMenuDelete() {
 		if (popupContextTreeMenuDelete == null) {
 			popupContextTreeMenuDelete = new PopupContextTreeMenu(); 
+			popupContextTreeMenuDelete.setAction(new DeleteContextAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected Context getContext() {
+					return Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
+				}
+			});
 			popupContextTreeMenuDelete.setText(Constant.messages.getString("context.delete.popup"));
-            popupContextTreeMenuDelete.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                	Context ctx = Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
-                	if (View.getSingleton().showConfirmDialog(Constant.messages.getString("context.delete.warning"))
-                			== JOptionPane.OK_OPTION) {
-                		Model.getSingleton().getSession().deleteContext(ctx);
-                	}
-                }
-            });
 		}
 		return popupContextTreeMenuDelete;
 	}
@@ -345,7 +344,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupMenuResendMessage == null) {
 			popupMenuResendMessage = new PopupMenuResendMessage(
 					Constant.messages.getString("history.resend.popup"),
-					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
 			popupMenuResendMessage.setMenuIndex(menuIndex);
 		}
 		return popupMenuResendMessage;
@@ -363,7 +362,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupMenuShowInHistory == null) {
 			popupMenuShowInHistory = new PopupMenuShowInHistory(
 					Constant.messages.getString("history.showinhistory.popup"),
-					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
 			popupMenuShowInHistory.setMenuIndex(menuIndex);
 		}
 		return popupMenuShowInHistory;

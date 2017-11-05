@@ -74,8 +74,7 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
 		this.parentName = parentName;
 		this.visibleItself = true;
 		// Check whether the User Authentication extension is enabled
-		extensionUserAuth = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-				.getExtension(ExtensionUserManagement.NAME);
+		extensionUserAuth = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 		if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
 			Logger.getLogger(PopupUserMenuItemHolder.class).warn(
 					ExtensionUserManagement.class

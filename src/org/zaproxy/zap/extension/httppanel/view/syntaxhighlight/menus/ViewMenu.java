@@ -38,6 +38,7 @@ public class ViewMenu extends ExtensionPopupMenu {
 	private static final String MENU_LABEL = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.label");
 	private static final String ANTI_ALIASING = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.antiAliasing");
 	private static final String SHOW_LINE_NUMBERS = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.showLineNumbers");
+	private static final String CODE_FOLDING = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.codeFolding");
 	private static final String WORD_WRAP = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.wordWrap");
 	private static final String HIGHLIGHT_CURRENT_LINE = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.highlightCurrentLine");
 	private static final String FADE_CURRENT_HIGHLIGHT_LINE = Constant.messages.getString("http.panel.view.syntaxtext.popup.view.fadeCurrentHighlightLine");
@@ -50,6 +51,7 @@ public class ViewMenu extends ExtensionPopupMenu {
 
 	private JCheckBoxMenuItem antiAliasingOption;
 	private JCheckBoxMenuItem lineNumbersOption;
+	private JCheckBoxMenuItem codeFoldingAction;
 	private JCheckBoxMenuItem wordWrapOption;
 	
 	private JCheckBoxMenuItem highlightCurrentLineOption;
@@ -70,6 +72,7 @@ public class ViewMenu extends ExtensionPopupMenu {
 
 		antiAliasingOption = createAndAddOption(new ChangeAntiAliasingAction(ANTI_ALIASING), this);
 		lineNumbersOption = createAndAddOption(new ChangeLineNumbersAction(SHOW_LINE_NUMBERS), this);
+		codeFoldingAction = createAndAddOption(new ChangeCodeFoldingAction(CODE_FOLDING), this);
 		wordWrapOption = createAndAddOption(new ChangeWordWrapAction(WORD_WRAP), this);
 		addSeparator();
 		highlightCurrentLineOption = createAndAddOption(new ChangeHighlightCurrentLineAction(HIGHLIGHT_CURRENT_LINE), this);
@@ -117,6 +120,9 @@ public class ViewMenu extends ExtensionPopupMenu {
 		lineNumbersOption.setSelected(selected);
 		
 		wordWrapOption.setSelected(httpPanelTextArea.getLineWrap());
+
+		codeFoldingAction.setVisible(enabled && httpPanelTextArea.isCodeFoldingAllowed());
+		codeFoldingAction.setSelected(httpPanelTextArea.isCodeFoldingEnabled());
 		
 		highlightCurrentLineOption.setSelected(httpPanelTextArea.getHighlightCurrentLine());
 		fadeCurrentHighlightLineOption.setSelected(httpPanelTextArea.getFadeCurrentLineHighlight());
@@ -176,6 +182,32 @@ public class ViewMenu extends ExtensionPopupMenu {
 					if (c instanceof RTextScrollPane) {
 						final RTextScrollPane scrollPane = (RTextScrollPane)c;
 						scrollPane.setLineNumbersEnabled(!scrollPane.getLineNumbersEnabled());
+					}
+				}
+			}
+		}
+	}
+
+	private static class ChangeCodeFoldingAction extends TextAction {
+
+		private static final long serialVersionUID = 8169545961043587586L;
+
+		public ChangeCodeFoldingAction(String text) {
+			super(text);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JTextComponent textComponent = getTextComponent(e);
+			if (textComponent instanceof HttpPanelSyntaxHighlightTextArea) {
+				HttpPanelSyntaxHighlightTextArea httpPanelTextArea = (HttpPanelSyntaxHighlightTextArea) textComponent;
+				Component c = httpPanelTextArea.getParent();
+				if (c instanceof JViewport) {
+					c = c.getParent();
+					if (c instanceof RTextScrollPane) {
+						final RTextScrollPane scrollPane = (RTextScrollPane) c;
+						scrollPane.setFoldIndicatorEnabled(!httpPanelTextArea.isCodeFoldingEnabled());
+						httpPanelTextArea.setCodeFoldingEnabled(!httpPanelTextArea.isCodeFoldingEnabled());
 					}
 				}
 			}

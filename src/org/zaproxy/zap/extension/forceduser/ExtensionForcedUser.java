@@ -216,8 +216,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	protected ExtensionUserManagement getUserManagementExtension() {
 		if (extensionUserManagement == null) {
-			extensionUserManagement = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionUserManagement.NAME);
+			extensionUserManagement = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 		}
 		return extensionUserManagement;
 	}

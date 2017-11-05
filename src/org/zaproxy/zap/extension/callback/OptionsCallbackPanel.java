@@ -51,6 +51,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
     private ZapTextField testURL = null;
     private JCheckBox randomPort = null;
     private ZapPortNumberSpinner spinnerPort = null;
+    private JCheckBox secure;
 
     public OptionsCallbackPanel(ExtensionCallback ext) {
         super();
@@ -110,49 +111,61 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
             gridBagConstraints15.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints15.gridwidth = 2;
 
+            int currentRowIndex = -1;
+
             JLabel localAddrLabel = new JLabel(
                     Constant.messages
                             .getString("callback.options.label.localaddress"));
             localAddrLabel.setLabelFor(getLocalAddress());
             panel.add(localAddrLabel,
-                    LayoutHelper.getGBC(0, 0, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
             panel.add(getLocalAddress(),
-                    LayoutHelper.getGBC(1, 0, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
             JLabel remoteAddrLabel = new JLabel(
                     Constant.messages
                             .getString("callback.options.label.remoteaddress"));
             remoteAddrLabel.setLabelFor(getRemoteAddress());
             panel.add(remoteAddrLabel,
-                    LayoutHelper.getGBC(0, 1, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
             panel.add(getRemoteAddress(),
-                    LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
+
+            JLabel secureLabel = new JLabel(
+                    Constant.messages
+                            .getString("callback.options.label.secure"));
+            secureLabel.setLabelFor(getSecure());
+            panel.add(secureLabel,
+                    LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
+            panel.add(getSecure(),
+                    LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
+
 
             JLabel rndPortLabel = new JLabel(
                     Constant.messages
                             .getString("callback.options.label.rndport"));
             rndPortLabel.setLabelFor(getSpinnerPort());
             panel.add(rndPortLabel,
-                    LayoutHelper.getGBC(0, 2, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
             panel.add(this.getRandomPort(),
-                    LayoutHelper.getGBC(1, 2, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
             JLabel portLabel = new JLabel(
                     Constant.messages.getString("callback.options.label.port"));
             portLabel.setLabelFor(getSpinnerPort());
             panel.add(portLabel,
-                    LayoutHelper.getGBC(0, 3, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
             panel.add(getSpinnerPort(),
-                    LayoutHelper.getGBC(1, 3, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
             JLabel testUrlLabel = new JLabel(
                     Constant.messages
                             .getString("callback.options.label.testurl"));
             testUrlLabel.setLabelFor(getTestURL());
             panel.add(testUrlLabel,
-                    LayoutHelper.getGBC(0, 4, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
             panel.add(getTestURL(),
-                    LayoutHelper.getGBC(1, 4, 1, 0.5D, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
             panel.add(new JLabel(), LayoutHelper.getGBC(0, 20, 2, 0.5D, 1.0D));
 
@@ -198,6 +211,13 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
         return randomPort;
     }
 
+    private JCheckBox getSecure() {
+        if (secure == null) {
+            secure = new JCheckBox();
+        }
+        return secure;
+    }
+
     private ZapPortNumberSpinner getSpinnerPort() {
         if (spinnerPort == null) {
             spinnerPort = new ZapPortNumberSpinner(0);
@@ -225,6 +245,8 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
         }
         remoteAddress.setSelectedItem(proxyParam.getRemoteAddress());
 
+        secure.setSelected(proxyParam.isSecure());
+
         if (proxyParam.getPort() == 0) {
             getRandomPort().setSelected(true);
             getSpinnerPort().setEnabled(false);
@@ -248,6 +270,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
 
         proxyParam.setLocalAddress((String)localAddress.getSelectedItem());
         proxyParam.setRemoteAddress((String)remoteAddress.getSelectedItem());
+        proxyParam.setSecure(secure.isSelected());
         if (getRandomPort().isSelected()) {
             proxyParam.setPort(0);
         } else {

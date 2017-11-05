@@ -232,9 +232,8 @@ public class GuiBootstrap extends ZapBootstrap {
                 } else {
                     // Dont auto check for updates the first time, no chance of any
                     // proxy having been set
-                    final ExtensionAutoUpdate eau = (ExtensionAutoUpdate) Control.getSingleton()
-                            .getExtensionLoader()
-                            .getExtension("ExtensionAutoUpdate");
+                    final ExtensionAutoUpdate eau = Control.getSingleton()
+                            .getExtensionLoader().getExtension(ExtensionAutoUpdate.class);
                     if (eau != null) {
                         eau.alertIfNewVersions();
                     }

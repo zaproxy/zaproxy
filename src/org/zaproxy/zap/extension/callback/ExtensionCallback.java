@@ -98,12 +98,13 @@ public class ExtensionCallback extends ExtensionAdaptor implements
 
     public String getCallbackAddress() {
         String addr = this.getCallbackParam().getRemoteAddress();
-        if (addr.contains(":")) {
-            // Looks like its IPv6
-            return "http://[" + addr + "]:" + actualPort + "/";
-        }
-        // Looks like IPv4
-        return "http://" + addr + ":" + actualPort + "/";
+        boolean ipv6 = addr.contains(":");
+        String hostname = ipv6 ? "[" + addr + "]" : addr;
+
+        boolean isSecure = this.getCallbackParam().isSecure();
+        String scheme = isSecure ? "https" : "http";
+
+        return scheme + "://" + hostname + ":" + actualPort + "/";
     }
 
     public String getTestUrl() {
