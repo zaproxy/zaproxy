@@ -15,18 +15,19 @@ LABEL maintainer="psiinon@gmail.com"
 
 WORKDIR /zap
 COPY --from=builder /zap .
+COPY policies /home/zap/.ZAP/policies/
+
 RUN echo "http://dl-3.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories &&\
     apk add --update --no-cache bash netcat-openbsd && \
     adduser -h /home/zap -s /bin/bash zap -D zap && \
     rm -rf /var/cache/apk/* && \
     chown zap /zap && \
     chgrp zap /zap && \
-    chown -R zap:zap /zap
+    chown -R zap:zap /zap && \
+    chown -R zap:zap /home/zap/.ZAP/
 
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
-
-COPY policies /home/zap/.ZAP/policies/
 
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
