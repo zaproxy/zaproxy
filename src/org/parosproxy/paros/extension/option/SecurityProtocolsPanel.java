@@ -114,10 +114,12 @@ public class SecurityProtocolsPanel extends JPanel {
             checkBox.setSelected(false);
         }
 
-        for (String protocol : selectedProtocols) {
-            JCheckBox checkBox = checkBoxesSslTlsProtocols.get(protocol);
-            if (checkBox != null && checkBox.isEnabled()) {
-                checkBox.setSelected(true);
+        if (selectedProtocols != null) {
+            for (String protocol : selectedProtocols) {
+                JCheckBox checkBox = checkBoxesSslTlsProtocols.get(protocol);
+                if (checkBox != null && checkBox.isEnabled()) {
+                    checkBox.setSelected(true);
+                }
             }
         }
     }

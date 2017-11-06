@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.NetworkUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -211,7 +212,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
         CallbackParam proxyParam = optionsParam
                 .getParamSet(CallbackParam.class);
 
-        List<String> allAddrs = proxyParam.getAvailableAddresses(false);
+        List<String> allAddrs = NetworkUtils.getAvailableAddresses(false);
         localAddress.removeAllItems();
         localAddress.addItem("0.0.0.0");
         for (String addr : allAddrs) {
