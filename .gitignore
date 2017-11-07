@@ -13,3 +13,6 @@ out/
 
 # Node
 node_modules/
+
+# ZAP
+src/plugin/
