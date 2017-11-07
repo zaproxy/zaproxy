@@ -619,9 +619,6 @@
 				-->
 			</else>
 		</if>
-
-		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
-		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
 	</target>
 
 	<!-- Package a date-stamped build -->
