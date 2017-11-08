@@ -55,8 +55,8 @@ def load_config(config, config_dict, config_msg, out_of_scope_dict):
     for line in config:
         if not line.startswith('#') and len(line) > 1:
             (key, val, optional) = line.rstrip().split('\t', 2)
-            if key == 'OUTOFSCOPE':
-                for plugin_id in val.split(','):
+            if val == 'OUTOFSCOPE':
+                for plugin_id in key.split(','):
                     if plugin_id not in out_of_scope_dict:
                         out_of_scope_dict[plugin_id] = []
                     out_of_scope_dict[plugin_id].append(re.compile(optional))
