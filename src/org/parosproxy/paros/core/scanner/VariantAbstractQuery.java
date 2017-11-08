@@ -144,8 +144,10 @@ public abstract class VariantAbstractQuery implements Variant {
             i++;
         }
         if (i == 0) {
+            String param = "query";
         	// No query params, lets add one just to make sure
-            listParam.add(new NameValuePair(type, "query", "query", i));
+            listParam.add(new NameValuePair(type, param, param, i));
+            originalNames.add(param);
         }
     }
 
