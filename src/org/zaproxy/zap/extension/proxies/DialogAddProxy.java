@@ -93,7 +93,8 @@ class DialogAddProxy extends AbstractFormDialog {
             if (!extension.canListenOn(testProxy.getAddress(), testProxy.getPort())) {
                 JOptionPane.showMessageDialog(
                         this,
-                        Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.message", testProxy.getAddress(), testProxy.getPort()),
+                        Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.message",
+                                testProxy.getAddress(), Integer.toString(testProxy.getPort())),
                         Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return false;

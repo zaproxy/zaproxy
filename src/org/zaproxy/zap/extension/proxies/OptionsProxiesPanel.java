@@ -86,7 +86,8 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
             // Only check if they've changed, otherwise we'll still be listening on them
             if (!extension.canListenOn(newAddress, newPort) || extension.getAdditionalProxy(newAddress, newPort) != null) {
                 throw new Exception(
-                        Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.message", newAddress, newPort));
+                        Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.message", newAddress,
+                                Integer.toString(newPort)));
             }
         }
     }
