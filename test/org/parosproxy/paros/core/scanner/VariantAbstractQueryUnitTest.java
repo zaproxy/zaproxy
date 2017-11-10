@@ -286,6 +286,35 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
+    public void shouldSetNameAndValueOfDummyParameter() {
+        // Given
+        List<String> names = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+
+            @Override
+            protected String getEscapedName(HttpMessage msg, String name) {
+                names.add(name);
+                return name;
+            }
+
+            @Override
+            protected String getEscapedValue(HttpMessage msg, String value) {
+                values.add(value);
+                return value;
+            }
+        };
+        List<org.zaproxy.zap.model.NameValuePair> noParameters = parameters();
+        variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
+        HttpMessage message = createMessage();
+        // When
+        variantAbstractQuery.setParameter(message, param("query", "query", 0), "y", "z");
+        // Then
+        assertThat(names, contains("y"));
+        assertThat(values, contains("z"));
+    }
+
+    @Test
     public void shouldCallBuildMessageWhenSettingParameter() {
         // Given
         MutableBoolean buildMessageCalled = new MutableBoolean();
