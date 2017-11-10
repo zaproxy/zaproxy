@@ -79,6 +79,7 @@
 // ZPA: 2017/06/05 Sync HistoryReference cache.
 // ZAP: 2017/06/13 Handle notification of notes set and deprecate/remove code no longer needed.
 // ZAP: 2017/10/20 Move methods to delete history entries (Issue 3626).
+// ZAP: 2017/11/06 Added (un)registerProxy (Issue 3983)
 
 package org.parosproxy.paros.extension.history;
 
@@ -95,6 +96,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -274,6 +276,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return proxyListener;
 	}
 	
+	public void registerProxy(ProxyServer ps) {
+	    ps.addProxyListener(this.getProxyListenerLog());
+	}
+	
+    public void unregisterProxy(ProxyServer ps) {
+        ps.removeProxyListener(this.getProxyListenerLog());
+    }
+    
 	public void removeFromHistoryList(final HistoryReference href) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             this.historyTableModel.removeEntry(href.getHistoryId());

@@ -21,13 +21,15 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2017/11/06 Marked as Deprecated
+
 package org.parosproxy.paros.core.proxy;
 
 import java.net.Socket;
 
 //import org.parosproxy.paros.network.HttpUtil;
 
-
+@Deprecated
 public class ProxyThreadSSL extends ProxyThread {
 	ProxyThreadSSL(ProxyServerSSL server, Socket socket) {
 		super(server, socket);

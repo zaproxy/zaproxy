@@ -19,23 +19,16 @@
  */
 package org.zaproxy.zap.extension.callback;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.utils.NetworkUtils;
 
 /**
  * @author psiinon
  *
  */
 public class CallbackParam extends AbstractParam {
-
-    private static final Logger logger = Logger.getLogger(CallbackParam.class);
 
     private static final String PROXY_BASE_KEY = "callback";
 
@@ -64,7 +57,7 @@ public class CallbackParam extends AbstractParam {
     }
 
     private String getDefaultAddress() {
-        List<String> addrs = getAvailableAddresses(false);
+        List<String> addrs = NetworkUtils.getAvailableAddresses(false);
         for (String addr : addrs) {
             if (!addr.contains(":") && !addr.equals("localhost")
                     && !addr.equals("127.0.0.1")) {
@@ -77,35 +70,6 @@ public class CallbackParam extends AbstractParam {
         }
         // Better than nothing
         return "localhost";
-    }
-
-    public List<String> getAvailableAddresses(boolean remoteOnly) {
-        List<String> list = new ArrayList<String>();
-        Enumeration<NetworkInterface> e;
-        try {
-            e = NetworkInterface.getNetworkInterfaces();
-            while (e.hasMoreElements()) {
-                NetworkInterface n = e.nextElement();
-                if (n.isLoopback() || !n.isUp()) {
-                    continue;
-                }
-                Enumeration<InetAddress> ee = n.getInetAddresses();
-                while (ee.hasMoreElements()) {
-                    InetAddress i = ee.nextElement();
-                    if (remoteOnly && i.isSiteLocalAddress()) {
-                        continue;
-                    }
-                    String addr = i.getHostAddress();
-                    if (addr.indexOf('%') > 0) {
-                        addr = addr.substring(0, addr.indexOf('%'));
-                    }
-                    list.add(addr);
-                }
-            }
-        } catch (SocketException e1) {
-            logger.error(e1.getMessage(), e1);
-        }
-        return list;
     }
 
     public String getLocalAddress() {
