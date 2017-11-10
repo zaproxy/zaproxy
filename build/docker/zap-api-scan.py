@@ -64,7 +64,6 @@ from zap_common import *
 config_dict = {}
 config_msg = {}
 out_of_scope_dict = {}
-levels = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
 min_level = 0
 
 # Scan rules that aren't really relevant, eg the examples rules in the alpha set
@@ -186,9 +185,9 @@ def main(argv):
             info_unspecified = True
         elif opt == '-l':
             try:
-                min_level = levels.index(arg)
+                min_level = zap_conf_lvls.index(arg)
             except ValueError:
-                logging.warning('Level must be one of ' + str(levels))
+                logging.warning('Level must be one of ' + str(zap_conf_lvls))
                 usage()
                 sys.exit(3)
         elif opt == '-z':
@@ -237,11 +236,18 @@ def main(argv):
     if config_file:
         # load config file from filestore
         with open(base_dir + config_file) as f:
-            load_config(f, config_dict, config_msg, out_of_scope_dict)
+            try:
+                load_config(f, config_dict, config_msg, out_of_scope_dict)
+            except ValueError as e:
+                logging.warning(e)
+                sys.exit(3)
     elif config_url:
         # load config file from url
         try:
             load_config(urllib2.urlopen(config_url), config_dict, config_msg, out_of_scope_dict)
+        except ValueError as e:
+            logging.warning(e)
+            sys.exit(3)
         except:
             logging.warning('Failed to read configs from ' + config_url)
             sys.exit(3)
@@ -440,7 +446,7 @@ def main(argv):
                 if not alert_dict.has_key(plugin_id) and not(config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE'):
                     pass_dict[plugin_id] = rule.get('name')
 
-            if min_level == levels.index("PASS") and detailed_output:
+            if min_level == zap_conf_lvls.index("PASS") and detailed_output:
                 for key, rule in sorted(pass_dict.iteritems()):
                     print('PASS: ' + rule + ' [' + key + ']')
 
@@ -456,19 +462,19 @@ def main(argv):
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
             # print out the ignored rules
-            ignore_count, not_used = print_rules(alert_dict, 'IGNORE', config_dict, config_msg, min_level, levels,
+            ignore_count, not_used = print_rules(alert_dict, 'IGNORE', config_dict, config_msg, min_level,
                 inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
-            info_count, not_used = print_rules(alert_dict, 'INFO', config_dict, config_msg, min_level, levels,
+            info_count, not_used = print_rules(alert_dict, 'INFO', config_dict, config_msg, min_level,
                 inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
-            warn_count, warn_inprog_count = print_rules(alert_dict, 'WARN', config_dict, config_msg, min_level, levels,
+            warn_count, warn_inprog_count = print_rules(alert_dict, 'WARN', config_dict, config_msg, min_level,
                 inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
-            fail_count, fail_inprog_count = print_rules(alert_dict, 'FAIL', config_dict, config_msg, min_level, levels,
+            fail_count, fail_inprog_count = print_rules(alert_dict, 'FAIL', config_dict, config_msg, min_level,
                 inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:
