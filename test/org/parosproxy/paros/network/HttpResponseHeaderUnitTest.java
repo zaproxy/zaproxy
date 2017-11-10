@@ -59,4 +59,64 @@ public class HttpResponseHeaderUnitTest {
         // Then
         assertThat(empty, is(equalTo(false)));
     }
+
+    @Test
+    public void shouldSetValidStatusCode() throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
+        // When
+        header.setStatusCode(100);
+        // Then
+        assertThat(header.getStatusCode(), is(equalTo(100)));
+        assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 100 OK")));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToSetNegative3DigitStatusCode() throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
+        // When
+        header.setStatusCode(-200);
+        // Then = IllegalArgumentException
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToSet2DigitStatusCode() throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
+        // When
+        header.setStatusCode(99);
+        // Then = IllegalArgumentException
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToSet4DigitStatusCode() throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
+        // When
+        header.setStatusCode(1000);
+        // Then = IllegalArgumentException
+    }
+
+    @Test
+    public void shouldSetReasonPhrase() throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
+        // When
+        header.setReasonPhrase("So So");
+        // Then
+        assertThat(header.getReasonPhrase(), is(equalTo("So So")));
+        assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 200 So So")));
+    }
+
+    @Test
+    public void shouldSetEmptyReasonPhraseIfNull() throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
+        // When
+        header.setReasonPhrase(null);
+        // Then
+        assertThat(header.getReasonPhrase(), is(equalTo("")));
+        assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 200")));
+    }
 }
