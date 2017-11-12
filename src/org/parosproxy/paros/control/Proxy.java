@@ -29,6 +29,7 @@
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2017/03/15 Enable API
+// ZAP: 2017/11/06 Removed ProxyServerSSL (Issue 3983)
 
 package org.parosproxy.paros.control;
  
@@ -39,7 +40,6 @@ import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
-import org.parosproxy.paros.core.proxy.ProxyServerSSL;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.control.ControlOverrides;
@@ -48,7 +48,6 @@ public class Proxy {
     
 	private Model model = null;
 	private ProxyServer proxyServer = null;
-	private ProxyServerSSL proxyServerSSL = null;
 	private boolean reverseProxy = false;
 	private String reverseProxyHost = "";
 	private ControlOverrides overrides = null;
@@ -60,8 +59,6 @@ public class Proxy {
 	    
 		proxyServer = new ProxyServer();
 		proxyServer.setEnableApi(true);
-		proxyServerSSL = new ProxyServerSSL();
-		proxyServerSSL.setEnableApi(true);
 	}
 	
 	public boolean startServer() {
@@ -70,13 +67,7 @@ public class Proxy {
 		proxyServer.setProxyParam(model.getOptionsParam().getProxyParam());
 		proxyServer.setConnectionParam(model.getOptionsParam().getConnectionParam());
 
-		proxyServerSSL.setProxyParam(model.getOptionsParam().getProxyParam());
-		proxyServerSSL.setConnectionParam(model.getOptionsParam().getConnectionParam());
-
 		if (model.getOptionsParam().getProxyParam().isUseReverseProxy()) {
-
-//		    int sslPort = proxyServerSSL.startServer(model.getOptionsParam().getProxyParam().getReverseProxyIp(), model.getOptionsParam().getProxyParam().getReverseProxyHttpsPort(), false);
-		    proxyServerSSL.startServer(model.getOptionsParam().getProxyParam().getReverseProxyIp(), model.getOptionsParam().getProxyParam().getReverseProxyHttpsPort(), false);
 
 //			proxyServer.setForwardPort(sslPort);
 		    
@@ -119,7 +110,6 @@ public class Proxy {
 
 	public void stopServer() {
         if (model.getOptionsParam().getProxyParam().isUseReverseProxy()) {
-            proxyServerSSL.stopServer();
             proxyServer.stopServer();
 
         } else {
@@ -129,37 +119,30 @@ public class Proxy {
 	
 	public void setSerialize(boolean serialize) {
 	    proxyServer.setSerialize(serialize);
-	    proxyServerSSL.setSerialize(serialize);
 	}
 	
 	public void addProxyListener(ProxyListener listener) {
 	    proxyServer.addProxyListener(listener);
-	    proxyServerSSL.addProxyListener(listener);
 	}
 	
 	public void removeProxyListener(ProxyListener listener) {
 	    proxyServer.removeProxyListener(listener);
-	    proxyServerSSL.removeProxyListener(listener);
 	}
 
     public void addOverrideMessageProxyListener(OverrideMessageProxyListener listener) {
         proxyServer.addOverrideMessageProxyListener(listener);
-        proxyServerSSL.addOverrideMessageProxyListener(listener);
     }
 
     public void removeOverrideMessageProxyListener(OverrideMessageProxyListener listener) {
         proxyServer.removeOverrideMessageProxyListener(listener);
-        proxyServerSSL.removeOverrideMessageProxyListener(listener);
     }
 	
 	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
 	    proxyServer.addPersistentConnectionListener(listener);
-	    proxyServerSSL.addPersistentConnectionListener(listener);
 	}
 
 	public void removePersistentConnectionListener(PersistentConnectionListener listener) {
 	    proxyServer.removePersistentConnectionListener(listener);
-	    proxyServerSSL.removePersistentConnectionListener(listener);
 	}
 
     /**
@@ -172,7 +155,6 @@ public class Proxy {
     public void addConnectRequestProxyListener(ConnectRequestProxyListener listener) {
         validateListenerNotNull(listener);
         proxyServer.addConnectRequestProxyListener(listener);
-        proxyServerSSL.addConnectRequestProxyListener(listener);
     }
 
     /**
@@ -197,7 +179,6 @@ public class Proxy {
     public void removeConnectRequestProxyListener(ConnectRequestProxyListener listener) {
         validateListenerNotNull(listener);
         proxyServer.removeConnectRequestProxyListener(listener);
-        proxyServerSSL.removeConnectRequestProxyListener(listener);
     }
 
     /**
@@ -232,33 +213,17 @@ public class Proxy {
         if (proxyServer != null) {
             proxyServer.setEnableCacheProcessing(enableCacheProcessing);
         }
-        
-        if (proxyServerSSL != null) {
-            proxyServerSSL.setEnableCacheProcessing(enableCacheProcessing);
-        }
-
     }
     
     public void addCacheProcessingList(CacheProcessingItem item) {
         if (proxyServer != null) {
             proxyServer.addCacheProcessingList(item);
         }
-
-        if (proxyServerSSL != null) {
-            proxyServerSSL.addCacheProcessingList(item);
-        }
-
-        
     }
 
 	public void setIgnoreList(List<String> urls) {
         if (proxyServer != null) {
             proxyServer.setExcludeList(urls);
         }
-
-        if (proxyServerSSL != null) {
-            proxyServerSSL.setExcludeList(urls);
-        }
-		
 	}
 }

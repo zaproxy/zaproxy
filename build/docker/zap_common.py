@@ -45,6 +45,8 @@ OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
  is available. Please run \'pip install -U python_owasp_zap_v2.4\' to update to
  the latest version.'''.replace('\n', '')
 
+zap_conf_lvls = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
+
 
 def load_config(config, config_dict, config_msg, out_of_scope_dict):
     """ Loads the config file specified into:
@@ -55,11 +57,13 @@ def load_config(config, config_dict, config_msg, out_of_scope_dict):
     for line in config:
         if not line.startswith('#') and len(line) > 1:
             (key, val, optional) = line.rstrip().split('\t', 2)
-            if key == 'OUTOFSCOPE':
-                for plugin_id in val.split(','):
+            if val == 'OUTOFSCOPE':
+                for plugin_id in key.split(','):
                     if plugin_id not in out_of_scope_dict:
                         out_of_scope_dict[plugin_id] = []
                     out_of_scope_dict[plugin_id].append(re.compile(optional))
+            elif val not in zap_conf_lvls:
+                raise ValueError("Level {0} is not a supported level: {1}".format(val, zap_conf_lvls))
             else:
                 config_dict[key] = val
                 if '\t' in optional:
@@ -102,7 +106,7 @@ def print_rule(action, alert_list, detailed_output, user_msg, in_progress_issues
             print ('\t' + alert.get('url'))
 
 
-def print_rules(alert_dict, level, config_dict, config_msg, min_level, levels, inc_rule, inc_extra, detailed_output, in_progress_issues):
+def print_rules(alert_dict, level, config_dict, config_msg, min_level, inc_rule, inc_extra, detailed_output, in_progress_issues):
     # print out the ignored rules
     count = 0
     inprog_count = 0
@@ -112,7 +116,7 @@ def print_rules(alert_dict, level, config_dict, config_msg, min_level, levels, i
             user_msg = ''
             if key in config_msg:
                 user_msg = config_msg[key]
-            if min_level <= levels.index(level):
+            if min_level <= zap_conf_lvls.index(level):
                 print_rule(level, alert_list, detailed_output, user_msg, in_progress_issues)
             if key in in_progress_issues:
                 inprog_count += 1

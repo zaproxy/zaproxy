@@ -30,6 +30,7 @@
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added getUIName()
+// ZAP: 2017/11/06 Moved options panel to new proxies extension (Issue 3983)
 
 package org.parosproxy.paros.extension.option;
 
@@ -49,7 +50,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 	private JCheckBoxMenuItem menuViewImage = null;
 	private OptionsConnectionPanel optionsConnectionPanel = null;
 	private OptionsCertificatePanel optionsCertificatePanel = null;
-	private OptionsLocalProxyPanel optionsLocalProxyPanel = null;
 	private OptionsViewPanel optionsViewPanel = null;
 	private OptionsCheckForUpdatesPanel optionsCheckForUpdatesPanel = null;
 	private OptionsLangPanel optionsLangPanel = null;
@@ -80,7 +80,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 	        extensionHook.getHookMenu().addViewMenuItem(getMenuViewImage());
 	        
 	        extensionHook.getHookView().addOptionPanel(getOptionsConnectionPanel());
-	        extensionHook.getHookView().addOptionPanel(getOptionsLocalProxyPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsCertificatePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsViewPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsCheckForUpdatesPanel());
@@ -120,13 +119,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 		return optionsCertificatePanel;
 	}
    
-	private OptionsLocalProxyPanel getOptionsLocalProxyPanel() {
-		if (optionsLocalProxyPanel == null) {
-			optionsLocalProxyPanel = new OptionsLocalProxyPanel();
-		}
-		return optionsLocalProxyPanel;
-	}
-  
 	private OptionsViewPanel getOptionsViewPanel() {
 		if (optionsViewPanel == null) {
 			optionsViewPanel = new OptionsViewPanel();

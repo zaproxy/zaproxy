@@ -32,7 +32,10 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.model.OptionsParam;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 
 public class ExtensionCallback extends ExtensionAdaptor implements
@@ -194,6 +197,8 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                         + path + " from "
                         + msg.getRequestHeader().getSenderAddress());
 
+                msg.setResponseHeader(HttpHeader.HTTP11 + " " + HttpStatusCode.OK);
+
                 if (path.startsWith("/" + TEST_PREFIX)) {
                     String str = Constant.messages.getString(
                             "callback.test.msg", url, msg.getRequestHeader()
@@ -221,7 +226,7 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                 }
                 LOGGER.error("No callback handler for URL : " + url + " from "
                         + msg.getRequestHeader().getSenderAddress());
-            } catch (URIException e) {
+            } catch (URIException | HttpMalformedHeaderException e) {
                 LOGGER.error(e.getMessage(), e);
             }
             return true;

@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
+// ZAP: 2017/11/06 Marked as Deprecated
 //
 package org.parosproxy.paros.core.proxy;
 
@@ -34,6 +35,7 @@ import java.net.UnknownHostException;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.SSLConnector;
 
+@Deprecated
 public class ProxyServerSSL extends ProxyServer {
 
     private static SSLConnector ssl = HttpSender.getSSLConnector();
