@@ -952,6 +952,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							shortUrl = ZAP_VERSIONS_REL_XML_SHORT;
 							longUrl = ZAP_VERSIONS_REL_XML_FULL;
 						}
+						boolean noInsecureUrlErrors = true;
 						logger.debug("Getting latest version info from " + shortUrl);
 			    		try {
 							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(shortUrl), getPlatform(), false);
@@ -961,11 +962,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				    		try {
 				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(longUrl), getPlatform(), false);
 				    		} catch (SSLHandshakeException | InvalidCfuUrlException e2) {
+								noInsecureUrlErrors = false;
 					    		if (callback != null) {
 					    			callback.insecureUrl(longUrl, e2);
 					    		}
 							} catch (Exception e2) {
-								logger.debug("Failed to access " + longUrl, e2);
+								logger.warn("Failed to check for updates using: " + longUrl, e2);
 							}
 						}
 						if (latestVersionInfo != null) {
@@ -975,11 +977,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 									addOn.setInstallationStatus(localAddOn.getInstallationStatus());
 								}
 							}
-							if (callback != null) {
-								logger.debug("Calling callback with  " + latestVersionInfo);
-								callback.gotLatestData(latestVersionInfo);
-							}
 			    		}
+						if (noInsecureUrlErrors && callback != null) {
+							logger.debug("Calling callback with " + latestVersionInfo);
+							callback.gotLatestData(latestVersionInfo);
+						}
 						logger.debug("Done");
 	    			}
     			};
