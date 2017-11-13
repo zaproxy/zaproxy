@@ -81,7 +81,7 @@ public class ProxiesParam extends AbstractParam {
 
     public ProxiesParamProxy getMainProxy() {
         ProxyParam mainProxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-        ProxiesParamProxy mainProxy = new ProxiesParamProxy(mainProxyParam.getProxyIp(), mainProxyParam.getProxyPort(), true);
+        ProxiesParamProxy mainProxy = new ProxiesParamProxy(mainProxyParam.getRawProxyIP(), mainProxyParam.getProxyPort(), true);
         mainProxy.setAlwaysDecodeGzip(mainProxyParam.isAlwaysDecodeGzip());
         mainProxy.setBehindNat(mainProxyParam.isBehindNat());
         mainProxy.setProxyIpAnyLocalAddress(mainProxyParam.isProxyIpAnyLocalAddress());
