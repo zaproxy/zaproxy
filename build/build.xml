@@ -385,7 +385,7 @@
 	</target>
 
 	
-	<target name="deploy-release-addons">
+	<target name="deploy-release-addons" depends="generate-help-jars">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
 		</delete>
@@ -395,7 +395,7 @@
 		<!--ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-release" inheritAll="false"/-->
 	</target>
 
-	<target name="deploy-weekly-addons">
+	<target name="deploy-weekly-addons" depends="generate-help-jars">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
 		</delete>
@@ -404,7 +404,7 @@
 		<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-weekly" inheritAll="false"/>
 	</target>
 
-	<target name="deploy-all-addons">
+	<target name="deploy-all-addons" depends="generate-help-jars">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
 		</delete>
@@ -677,7 +677,6 @@
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
 
-		<antcall target="generate-help-jars" />
 		<antcall target="dist" />
 		<!-- Overwrite the standard README with the weekly one -->
 		<delete file="${dist}/README" />
