@@ -21,7 +21,6 @@
 package org.zaproxy.zap.extension.callback;
 
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -65,52 +64,9 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
 
     private JPanel getCallbackPanel() {
         if (panel == null) {
-            JLabel jLabel6 = new JLabel();
-            GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
-            java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-            java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-            java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 
             panel = new JPanel();
             panel.setLayout(new GridBagLayout());
-
-            gridBagConstraints5.gridx = 1;
-            gridBagConstraints5.gridy = 0;
-            gridBagConstraints5.weightx = 0.5D;
-            gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints5.ipadx = 50;
-            gridBagConstraints5.ipady = 0;
-            gridBagConstraints5.anchor = java.awt.GridBagConstraints.EAST;
-            gridBagConstraints5.insets = new java.awt.Insets(2, 2, 2, 2);
-
-            gridBagConstraints6.gridx = 0;
-            gridBagConstraints6.gridy = 1;
-            gridBagConstraints6.ipadx = 0;
-            gridBagConstraints6.ipady = 0;
-            gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints6.insets = new java.awt.Insets(2, 2, 2, 2);
-            gridBagConstraints6.weightx = 0.5D;
-
-            gridBagConstraints7.gridx = 1;
-            gridBagConstraints7.gridy = 1;
-            gridBagConstraints7.weightx = 0.5D;
-            gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints7.ipadx = 50;
-            gridBagConstraints7.ipady = 0;
-            gridBagConstraints7.anchor = java.awt.GridBagConstraints.EAST;
-            gridBagConstraints7.insets = new java.awt.Insets(2, 2, 2, 2);
-
-            jLabel6.setText(Constant.messages
-                    .getString("options.proxy.local.label.browser"));
-
-            gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints15.gridx = 0;
-            gridBagConstraints15.gridy = 4;
-            gridBagConstraints15.insets = new java.awt.Insets(2, 2, 2, 2);
-            gridBagConstraints15.weightx = 1.0D;
-            gridBagConstraints15.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints15.gridwidth = 2;
 
             int currentRowIndex = -1;
 

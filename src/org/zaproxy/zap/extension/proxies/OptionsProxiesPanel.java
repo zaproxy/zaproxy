@@ -22,10 +22,14 @@ package org.zaproxy.zap.extension.proxies;
 import java.awt.GridBagLayout;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SortOrder;
 
+import org.jdesktop.swingx.VerticalLayout;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.option.SecurityProtocolsPanel;
 import org.parosproxy.paros.model.OptionsParam;
@@ -41,6 +45,8 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
 
     private ProxiesMultipleOptionsPanel proxiesOptionsPanel;
 
+    private JScrollPane proxiesScrollPane;
+    private JPanel scrollPanel;
     private OptionsLocalProxyPanel mainProxyPanel;
     private SecurityProtocolsPanel securityProtocolsPanel;
     private OptionsProxiesTableModel proxiesModel;
@@ -58,9 +64,26 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
     private void initialize() {
         this.setName(Constant.messages.getString("proxies.options.title"));
         this.setLayout(new GridBagLayout());
-        this.add(getMainProxyPanel(), LayoutHelper.getGBC(0, 0, 1, 0.0));
-        this.add(getSecurityProtocolsPanel(), LayoutHelper.getGBC(0, 1, 1, 0.0));
-        this.add(getProxiesOptionsPanel(), LayoutHelper.getGBC(0, 2, 1, 1.0, 1.0));
+        this.add(getScrollPane(), LayoutHelper.getGBC(0, 0, 1, 1.0, 1.0));
+    }
+    
+    private JScrollPane getScrollPane() {
+        if (proxiesScrollPane == null) {
+            proxiesScrollPane = new JScrollPane();
+            proxiesScrollPane.setBorder(BorderFactory.createEmptyBorder());
+            proxiesScrollPane.setViewportView(getScrollPanel());
+        }
+        return proxiesScrollPane;
+    }
+    
+    private JPanel getScrollPanel() {
+        if (scrollPanel == null) {
+            scrollPanel = new JPanel(new VerticalLayout());
+            scrollPanel.add(getMainProxyPanel());
+            scrollPanel.add(getSecurityProtocolsPanel());
+            scrollPanel.add(getProxiesOptionsPanel());
+        }
+        return scrollPanel;
     }
 
     @Override
@@ -172,6 +195,7 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
             this.extension = extension;
 
             getTable().getColumnExt(0).setPreferredWidth(20);
+            getTable().setVisibleRowCount(10);
             getTable().setSortOrder(1, SortOrder.ASCENDING);
         }
 
