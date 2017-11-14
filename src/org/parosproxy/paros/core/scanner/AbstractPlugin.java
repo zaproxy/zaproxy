@@ -55,6 +55,7 @@
 // ZAP: 2017/03/27 Use HttpRequestConfig.
 // ZAP: 2017/05/31 Remove re-declaration of methods.
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
+// ZAP: 2017/11/14 Notify completion in a finally block.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -381,10 +382,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             
         } catch (Exception e) {
             getLog().error(e.getMessage(), e);
+        } finally {
+            notifyPluginCompleted(getParent());
+            this.finished = new Date();
         }
-        
-        notifyPluginCompleted(getParent());
-        this.finished = new Date();
     }
 
     /**
