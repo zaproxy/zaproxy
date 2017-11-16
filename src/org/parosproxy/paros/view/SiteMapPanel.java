@@ -41,6 +41,7 @@
 // ZAP: 2017/03/28 Issue 3253: Facilitate exporting URLs by context (add getSelectedContext)
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2017/11/01 Delete context with keyboard shortcut.
+// ZAP: 2017/11/16 Hide filtered nodes in macOS L&F.
 
 package org.parosproxy.paros.view;
 
@@ -64,6 +65,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -329,6 +332,14 @@ public class SiteMapPanel extends AbstractPanel {
 			treeSite.setShowsRootHandles(true);
 			treeSite.setName("treeSite");
 			treeSite.setToggleClickCount(1);
+
+			// Force macOS L&F to query the row height from SiteMapTreeCellRenderer to hide the filtered nodes.
+			// Other L&Fs hide the filtered nodes by default.
+			LookAndFeel laf = UIManager.getLookAndFeel();
+			if (laf != null && Constant.isMacOsX()
+					&& UIManager.getSystemLookAndFeelClassName().equals(laf.getClass().getName())) {
+				treeSite.setRowHeight(0);
+			}
 
 			treeSite.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
