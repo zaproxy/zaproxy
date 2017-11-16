@@ -80,6 +80,7 @@
 // ZAP: 2017/06/13 Handle notification of notes set and deprecate/remove code no longer needed.
 // ZAP: 2017/10/20 Move methods to delete history entries (Issue 3626).
 // ZAP: 2017/11/06 Added (un)registerProxy (Issue 3983)
+// ZAP: 2017/11/16 Update the table on sessionChanged (Issue 3207).
 
 package org.parosproxy.paros.extension.history;
 
@@ -165,6 +166,15 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	@SuppressWarnings("unchecked")
 	private Map<Integer, HistoryReference> historyIdToRef = Collections.synchronizedMap(new ReferenceMap());
 
+	/**
+	 * Flag that indicates whether or not the session is changing. To prevent updating the table more than once when opening a
+	 * session.
+	 * 
+	 * @see #sessionAboutToChange(Session)
+	 * @see #sessionScopeChanged(Session)
+	 * @see #sessionChanged(Session)
+	 */
+	private boolean sessionChanging;
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
 
@@ -266,7 +276,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionChanged(final Session session)  {
-		// Actual work done in sessionScopeChanged
+		sessionChanging = false;
+		sessionChanged();
 	}
 	
 	private ProxyListenerLog getProxyListenerLog() {
@@ -735,6 +746,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionAboutToChange(final Session session) {
+		sessionChanging = true;
+
 		if (getView() == null || EventQueue.isDispatchThread()) {
 			historyTableModel.clear();
 			historyIdToRef.clear();
@@ -843,6 +856,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+		if (sessionChanging) {
+			return;
+		}
+		sessionChanged();
+	}
+
+	private void sessionChanged() {
 		if (getView() != null) {
 			searchHistory(getFilterPlusDialog().getFilter());
 		} else {
