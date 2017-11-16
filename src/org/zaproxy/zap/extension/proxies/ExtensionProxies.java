@@ -88,7 +88,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         super.stop();
         // Stop all of the running servers
         for (Entry<String, ProxyServer> entry : proxyServers.entrySet()) {
-            stopProxyServer(entry.getValue());
+            stopProxyServer(entry.getKey(), entry.getValue());
         }
         proxyServers.clear();
     }
@@ -121,7 +121,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         }
         // Any proxies left have been removed
         for (Entry<String, ProxyServer> entry : currentProxies.entrySet()) {
-            stopProxyServer(entry.getValue());
+            stopProxyServer(entry.getKey(), entry.getValue());
         }
     }
 
@@ -148,10 +148,8 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return proxyServer;
     }
 
-    private void stopProxyServer(ProxyServer proxyServer) {
-        log.info(
-                "Stopping alt proxy server: " + proxyServer.getProxyParam().getProxyIp() + ":"
-                        + proxyServer.getProxyParam().getProxyPort());
+    private void stopProxyServer(String proxyKey, ProxyServer proxyServer) {
+        log.info("Stopping alt proxy server: " + proxyKey);
         Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class).unregisterProxy(proxyServer);
         proxyServer.stopServer();
     }
@@ -189,7 +187,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         if (proxyServer == null) {
             throw new IllegalArgumentException("Proxy not found: " + key);
         }
-        this.stopProxyServer(proxyServer);
+        this.stopProxyServer(key, proxyServer);
         this.getParam().removeProxy(address, port);
     }
 
