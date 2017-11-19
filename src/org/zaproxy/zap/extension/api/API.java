@@ -852,10 +852,6 @@ public class API {
             if (cause instanceof ApiException) {
                 switch (((ApiException) cause).getType()) {
                 case DISABLED:
-                    responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("ApiException while handling API request:", cause);
-                    logError = false;
-                    break;
                 case BAD_TYPE:
                 case NO_IMPLEMENTOR:
                 case BAD_API_KEY:
@@ -864,7 +860,7 @@ public class API {
                 case BAD_VIEW:
                 case BAD_OTHER:
                     responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("API 'other' malformed request:", cause);
+                    logBadRequest(msg, cause);
                     logError = false;
                     break;
                 default:
@@ -880,7 +876,7 @@ public class API {
                 exception = (ApiException) cause;
                 if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getType())) {
                     responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("ApiException while handling API request:", cause);
+                    logBadRequest(msg, cause);
                 }
             } else {
                 exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
@@ -897,6 +893,13 @@ public class API {
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Failed to build API error response:", e);
         }
+    }
+
+    private static void logBadRequest(HttpMessage msg, Exception cause) {
+        logger.warn(
+                "Bad request to API endpoint [" + msg.getRequestHeader().getURI().getEscapedPath() + "] from ["
+                        + msg.getRequestHeader().getSenderAddress().getHostAddress() + "]:",
+                cause);
     }
 
     private static String getCharset(String contentType) {

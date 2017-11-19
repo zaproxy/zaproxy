@@ -30,6 +30,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.jdesktop.swingx.JXLabel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.FontUtils;
@@ -123,7 +124,7 @@ public class OptionsLocalProxyPanel extends JPanel {
 
         JPanel panelLocalProxy = null;
 
-        JLabel jLabel6 = new JLabel();
+        JXLabel jLabel6 = new JXLabel();
         GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
         GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
         GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
@@ -181,6 +182,7 @@ public class OptionsLocalProxyPanel extends JPanel {
         gridBagConstraints7.insets = new java.awt.Insets(2, 2, 2, 2);
 
         jLabel1.setText(Constant.messages.getString("options.proxy.local.label.port"));
+        jLabel6.setLineWrap(true);
         jLabel6.setText(Constant.messages.getString("options.proxy.local.label.browser"));
 
         gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;

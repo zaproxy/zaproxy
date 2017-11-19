@@ -88,7 +88,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         super.stop();
         // Stop all of the running servers
         for (Entry<String, ProxyServer> entry : proxyServers.entrySet()) {
-            stopProxyServer(entry.getValue());
+            stopProxyServer(entry.getKey(), entry.getValue());
         }
         proxyServers.clear();
     }
@@ -110,7 +110,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         for (ProxiesParamProxy proxyParam : proxyParams) {
             if (proxyParam.isEnabled()) {
                 // Treat disabled proxies as if they dont really exist
-                String key = proxyParam.getAddress() + ":" + proxyParam.getPort();
+                String key = createProxyKey(proxyParam.getAddress(), proxyParam.getPort());
                 ProxyServer proxy = currentProxies.remove(key);
                 if (proxy == null) {
                     // Its a new one
@@ -121,13 +121,24 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         }
         // Any proxies left have been removed
         for (Entry<String, ProxyServer> entry : currentProxies.entrySet()) {
-            stopProxyServer(entry.getValue());
+            stopProxyServer(entry.getKey(), entry.getValue());
         }
+    }
+
+    /**
+     * Creates a key that identifies a proxy, to be used with {@link #proxyServers}.
+     *
+     * @param address the address of the proxy.
+     * @param port the port of the proxy.
+     * @return a key that identifies the proxy.
+     */
+    private static String createProxyKey(String address, int port) {
+        return address + ":" + port;
     }
 
     private ProxyServer startProxyServer(String address, int port) {
         // Note that if this is _not_ set then the proxy will go into a nasty loop if you point a browser at it
-        String key = address + ":" + port;
+        String key = createProxyKey(address, port);
         log.info("Starting alt proxy server: " + key);
         ProxyServer proxyServer = new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key);
         proxyServer.setEnableApi(true);
@@ -137,10 +148,8 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return proxyServer;
     }
 
-    private void stopProxyServer(ProxyServer proxyServer) {
-        log.info(
-                "Stopping alt proxy server: " + proxyServer.getProxyParam().getProxyIp() + ":"
-                        + proxyServer.getProxyParam().getProxyPort());
+    private void stopProxyServer(String proxyKey, ProxyServer proxyServer) {
+        log.info("Stopping alt proxy server: " + proxyKey);
         Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class).unregisterProxy(proxyServer);
         proxyServer.stopServer();
     }
@@ -159,25 +168,26 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
     }
 
     public void addProxy(ProxiesParamProxy proxy) {
+        String key = createProxyKey(proxy.getAddress(), proxy.getPort());
         if (this.getAdditionalProxy(proxy.getAddress(), proxy.getPort()) != null) {
-            throw new IllegalArgumentException("Proxy already exists " + proxy.getAddress() + ":" + proxy.getPort());
+            throw new IllegalArgumentException("Proxy already exists: " + key);
         }
         if (!this.canListenOn(proxy.getAddress(), proxy.getPort())) {
-            throw new IllegalArgumentException("Cannot listen on " + proxy.getAddress() + ":" + proxy.getPort());
+            throw new IllegalArgumentException("Cannot listen on: " + key);
         }
 
         ProxyServer proxyServer = startProxyServer(proxy.getAddress(), proxy.getPort());
-        proxyServers.put(proxy.getAddress() + proxy.getPort(), proxyServer);
+        proxyServers.put(key, proxyServer);
         this.getParam().addProxy(proxy);
     }
 
     public void removeProxy(String address, int port) {
-        String key = address + ":" + port;
+        String key = createProxyKey(address, port);
         ProxyServer proxyServer = proxyServers.remove(key);
         if (proxyServer == null) {
-            throw new IllegalArgumentException("Proxy not found");
+            throw new IllegalArgumentException("Proxy not found: " + key);
         }
-        this.stopProxyServer(proxyServer);
+        this.stopProxyServer(key, proxyServer);
         this.getParam().removeProxy(address, port);
     }
 
