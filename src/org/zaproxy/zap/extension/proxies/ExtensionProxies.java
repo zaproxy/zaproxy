@@ -141,6 +141,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         String key = createProxyKey(address, port);
         log.info("Starting alt proxy server: " + key);
         ProxyServer proxyServer = new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key);
+        proxyServer.setConnectionParam(getModel().getOptionsParam().getConnectionParam());
         proxyServer.setEnableApi(true);
         if (proxyServer.startServer(address, port, false) > 0) {
             Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class).registerProxy(proxyServer);
