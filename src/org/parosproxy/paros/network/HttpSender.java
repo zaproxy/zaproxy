@@ -65,6 +65,7 @@
 // ZAP: 2017/03/27 Introduce HttpRequestConfig.
 // ZAP: 2017/06/12 Allow to ignore listeners.
 // ZAP: 2017/06/19 Allow to send a request with custom socket timeout.
+// ZAP: 2017/11/20 Add initiator constant for Token Generator requests.
 
 package org.parosproxy.paros.network;
 
@@ -119,6 +120,7 @@ public class HttpSender {
 	public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
 	public static final int AJAX_SPIDER_INITIATOR = 10;
 	public static final int FORCED_BROWSE_INITIATOR = 11;
+	public static final int TOKEN_GENERATOR_INITIATOR = 12;
 
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
