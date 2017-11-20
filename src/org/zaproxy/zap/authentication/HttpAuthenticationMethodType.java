@@ -124,7 +124,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 						(this.realm == null || this.realm.isEmpty()) ? AuthScope.ANY_REALM : this.realm);
 				stateCredentials = new NTCredentials(userCredentials.getUsername(),
 						userCredentials.getPassword(), InetAddress.getLocalHost().getCanonicalHostName(),
-						this.hostname);
+						this.realm);
 				session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
 			} catch (UnknownHostException e1) {
 				log.error(e1.getMessage(), e1);
