@@ -32,12 +32,14 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.OptionsParam;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ExtensionProxies extends ExtensionAdaptor implements OptionsChangedListener {
 
@@ -114,7 +116,9 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
                 ProxyServer proxy = currentProxies.remove(key);
                 if (proxy == null) {
                     // Its a new one
-                    proxy = startProxyServer(proxyParam.getAddress(), proxyParam.getPort());
+                    proxy = startProxyServer(proxyParam);
+                } else {
+                    applyProxyOptions(proxyParam, proxy);
                 }
                 proxyServers.put(key, proxy);
             }
@@ -123,6 +127,13 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         for (Entry<String, ProxyServer> entry : currentProxies.entrySet()) {
             stopProxyServer(entry.getKey(), entry.getValue());
         }
+    }
+
+    private static void applyProxyOptions(ProxiesParamProxy param, ProxyServer proxyServer) {
+        ProxyParam proxyParam = proxyServer.getProxyParam();
+        proxyParam.setAlwaysDecodeGzip(param.isAlwaysDecodeGzip());
+        proxyParam.setBehindNat(param.isBehindNat());
+        proxyParam.setRemoveUnsupportedEncodings(param.isRemoveUnsupportedEncodings());
     }
 
     /**
@@ -136,12 +147,16 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return address + ":" + port;
     }
 
-    private ProxyServer startProxyServer(String address, int port) {
-        // Note that if this is _not_ set then the proxy will go into a nasty loop if you point a browser at it
+    private ProxyServer startProxyServer(ProxiesParamProxy param) {
+        String address = param.getAddress();
+        int port = param.getPort(); 
         String key = createProxyKey(address, port);
         log.info("Starting alt proxy server: " + key);
         ProxyServer proxyServer = new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key);
+        proxyServer.getProxyParam().load(new ZapXmlConfiguration());
+        applyProxyOptions(param, proxyServer);
         proxyServer.setConnectionParam(getModel().getOptionsParam().getConnectionParam());
+        // Note that if this is _not_ set then the proxy will go into a nasty loop if you point a browser at it
         proxyServer.setEnableApi(true);
         if (proxyServer.startServer(address, port, false) > 0) {
             Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class).registerProxy(proxyServer);
@@ -177,7 +192,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
             throw new IllegalArgumentException("Cannot listen on: " + key);
         }
 
-        ProxyServer proxyServer = startProxyServer(proxy.getAddress(), proxy.getPort());
+        ProxyServer proxyServer = startProxyServer(proxy);
         proxyServers.put(key, proxyServer);
         this.getParam().addProxy(proxy);
     }
