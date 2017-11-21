@@ -132,6 +132,13 @@ public class CommandLineUnitTest {
         assertThat(cmdLine.isGUI(), is(equalTo(false)));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailIfDaemonAndCommandLineArgumentsAreSet() throws Exception {
+        // Given / When
+        cmdLine = new CommandLine(new String[] { CommandLine.CMD, CommandLine.DAEMON });
+        // Then = IllegalArgumentException.class
+    }
+
     @Test(expected = Exception.class)
     public void shouldFailIfSessionArgumentDoesNotHaveValue() throws Exception {
         // Given / When
