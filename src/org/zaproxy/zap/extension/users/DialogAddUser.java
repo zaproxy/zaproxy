@@ -50,7 +50,7 @@ public class DialogAddUser extends AbstractFormDialog {
 	private static final long serialVersionUID = -7210879426146833234L;
 
 	/** The Constant logger. */
-	protected static final Logger log = Logger.getLogger(DialogAddUser.class);
+	protected final Logger log = Logger.getLogger(getClass());
 
 	private static final String DIALOG_TITLE = Constant.messages.getString("users.dialog.add.title");
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
