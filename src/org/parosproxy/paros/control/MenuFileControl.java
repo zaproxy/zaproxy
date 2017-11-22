@@ -47,6 +47,7 @@
 // ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
 // ZAP: 2017/06/20 Inform of active actions before changing the session.
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2017/11/22 Do not allow to snapshot the session with active actions (Issue 3711).
 
 package org.parosproxy.paros.control;
  
@@ -449,6 +450,12 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	public void saveSnapshot() {
+		String activeActions = wrapEntriesInLiTags(control.getExtensionLoader().getActiveActions());
+		if (!activeActions.isEmpty()) {
+			view.showMessageDialog(Constant.messages.getString("menu.file.snapshot.activeactions", activeActions));
+			return;
+		}
+
 	    Session session = model.getSession();
 
 	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());

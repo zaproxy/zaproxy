@@ -76,7 +76,15 @@ public class ApiException extends Exception {
 		 * 
 		 * @since 2.6.0
 		 */
-		BAD_EXTERNAL_DATA
+		BAD_EXTERNAL_DATA,
+		/**
+		 * Indicates that the request could not fulfilled with the current API state.
+		 * <p>
+		 * The actual reason should be provided in {@code detail} of the exception.
+		 * 
+		 * @since TODO add version
+		 */
+		BAD_STATE,
 	}
 	
 	private final Type type;
