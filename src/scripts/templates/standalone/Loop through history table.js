@@ -12,8 +12,10 @@ extHist = org.parosproxy.paros.control.Control.getSingleton().
         org.parosproxy.paros.extension.history.ExtensionHistory.NAME) 
 if (extHist != null) {
     i=1
+    lastRef=extHist.getLastHistoryId();// Get current max history reference 
     // Loop through the history table, printing out the history id and the URL
-    while (hr = extHist.getHistoryReference(i), hr) {
+    while (i <= lastRef) {
+        hr = extHist.getHistoryReference(i)
         if (hr) { 
             url = hr.getHttpMessage().getRequestHeader().getURI().toString();
             println('Got History record id ' + hr.getHistoryId() + ' URL=' + url); 
