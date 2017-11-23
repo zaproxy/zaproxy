@@ -547,6 +547,9 @@
 		<!-- Pull down the latest JRE in zap-libs-->
 		<get src="https://github.com/zaproxy/zap-libs/raw/master/files/jre/${app.jrearchive}" 
 			dest="${mac-skeleton}/${app.name}/Contents/PlugIns/${app.jrearchive}"/>
+		
+		<!-- Make sure we have the latest icons -->
+		<copy file="${src}/resource/ZAP.icns" tofile="${mac-skeleton}/${app.name}/Contents/Resources/ZAP.icns"/>
 
 		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
 		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
