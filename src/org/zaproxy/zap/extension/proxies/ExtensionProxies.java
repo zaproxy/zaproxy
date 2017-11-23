@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -152,7 +153,25 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         int port = param.getPort(); 
         String key = createProxyKey(address, port);
         log.info("Starting alt proxy server: " + key);
-        ProxyServer proxyServer = new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key);
+        ProxyServer proxyServer = new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key) {
+
+            @Override
+            public boolean excludeUrl(URI uri) {
+                String uriString = uri.toString();
+                for (String excludePattern : getModel().getOptionsParam().getGlobalExcludeURLParam().getTokensNames()) {
+                    if (uriString.matches(excludePattern)) {
+                        return true;
+                    }
+                }
+
+                for (String excludePattern : getModel().getSession().getExcludeFromProxyRegexs()) {
+                    if (uriString.matches(excludePattern)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
         proxyServer.getProxyParam().load(new ZapXmlConfiguration());
         applyProxyOptions(param, proxyServer);
         proxyServer.setConnectionParam(getModel().getOptionsParam().getConnectionParam());
