@@ -418,6 +418,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			if (session.isNewState()) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
 			}
+
+			List<String> actions = Control.getSingleton().getExtensionLoader().getActiveActions();
+			if (!actions.isEmpty()) {
+				throw new ApiException(ApiException.Type.BAD_STATE, "Active actions prevent the session snapshot: " + actions);
+			}
+
 			String fileName = session.getFileName();
 			
 			if (fileName.endsWith(".session")) {
