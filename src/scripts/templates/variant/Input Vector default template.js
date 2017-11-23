@@ -8,16 +8,12 @@
 // in VariantCustom 
 // https://github.com/zaproxy/zaproxy/blob/develop/src/org/parosproxy/paros/core/scanner/VariantCustom.java
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 var B64STATE = 'b64';
 var paramStates = [];
 
 function parseParameters(helper, msg) {
     // Debugging can be done using println like this
-    println('Custom input vector handler called for url=' + msg.getRequestHeader().getURI().toString());
+    print('Custom input vector handler called for url=' + msg.getRequestHeader().getURI().toString());
 
     // Sample scan of a query string object
     // searching for Base64 encoded parameters
