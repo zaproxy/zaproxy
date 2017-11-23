@@ -28,7 +28,7 @@
       <variable name="groupName" value="OWASP" description="" category="" />
       <variable name="unixDirName" value="zaproxy" description="" category="" />
       <variable name="symlinkDir" value="/usr/local/bin" description="" category="" />
-      <variable name="macOsJreDirName" value="jre1.8.0_121.jre" description="" category="" />
+      <variable name="macOsJreDirName" value="jre1.8.0_152.jre" description="" category="" />
     </variables>
     <mergedProjects />
     <codeSigning macEnabled="false" macPkcs12File="" windowsEnabled="false" windowsKeySource="pkcs12" windowsPvkFile="" windowsSpcFile="" windowsPkcs12File="" />
@@ -1458,10 +1458,10 @@ return true;</string>
       </excludedBeans>
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="plugin/webdriverwindows-beta-2.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserwindows-alpha-1.zap" fileType="regular" />
-        <entry location="plugin/webdrivermacos-beta-2.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-1.zap" fileType="regular" />
+        <entry location="plugin/webdriverwindows-beta-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserwindows-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowsermacos-alpha-4.zap" fileType="regular" />
         <entry location=".i4j_fileset_544" fileType="regular" />
       </exclude>
       <variables />
@@ -1482,11 +1482,10 @@ return true;</string>
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="plugin/webdrivermacos-beta-2.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-1.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux64-alpha-1.zap" fileType="regular" />
-        <entry location="plugin/webdriverlinux-beta-2.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux32-alpha-1.zap" fileType="regular" />
+        <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowsermacos-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserlinux64-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/webdriverlinux-beta-4.zap" fileType="regular" />
         <entry location="zap1024x1024.png" fileType="regular" />
         <entry location=".i4j_fileset_544" fileType="regular" />
       </exclude>
@@ -1525,11 +1524,10 @@ return true;</string>
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="plugin/webdrivermacos-beta-2.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-1.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux64-alpha-1.zap" fileType="regular" />
-        <entry location="plugin/webdriverlinux-beta-2.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux32-alpha-1.zap" fileType="regular" />
+        <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowsermacos-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserlinux64-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/webdriverlinux-beta-4.zap" fileType="regular" />
         <entry location="zap1024x1024.png" fileType="regular" />
         <entry location=".i4j_fileset_544" fileType="regular" />
       </exclude>
