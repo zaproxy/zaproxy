@@ -53,6 +53,7 @@
 // ZAP: 2017/01/23: Issue 1800: Alpha sort the site tree
 // ZAP: 2017/06/29: Issue 3714: Added newOnly option to addPath
 // ZAP: 2017/07/09: Issue 3727: Sorting of SiteMap should not include HTTP method (verb) in the node's name
+// ZAP: 2017/11/22 Expose method to create temporary nodes (Issue 4065).
 
 package org.parosproxy.paros.model;
 
@@ -631,7 +632,7 @@ public class SiteMap extends SortedTreeModel {
         return result;
     }
     
-    private HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, DatabaseException, URIException, NullPointerException {
+    public HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, DatabaseException, URIException, NullPointerException {
         TreeNode[] path = node.getPath();
         StringBuilder sb = new StringBuilder();
         String nodeName;
