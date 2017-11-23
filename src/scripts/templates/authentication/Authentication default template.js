@@ -1,7 +1,3 @@
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 // The authenticate function will be called for authentications made via ZAP.
 
 // The authenticate function is called whenever ZAP requires to authenticate, for a Context for which this script
@@ -19,7 +15,7 @@ if (typeof println == 'undefined') this.println = print;
 //					The credential values can be obtained via calls to the getParam(paramName) method. The param names are the ones
 //					returned by the getCredentialsParamsNames() below
 function authenticate(helper, paramsValues, credentials) {
-	println("Authenticating via JavaScript script...");
+	print("Authenticating via JavaScript script...");
 	msg = helper.prepareMessage();
 	
 	// TODO: Process message to match the authentication needs
