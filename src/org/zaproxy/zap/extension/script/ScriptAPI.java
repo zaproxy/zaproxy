@@ -195,7 +195,10 @@ public class ScriptAPI extends ApiImplementor {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_NAME);
 			}
 			if (!script.getType().getName().equals(ExtensionScript.TYPE_STANDALONE)) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SCRIPT_NAME);
+				throw new ApiException(
+						ApiException.Type.ILLEGAL_PARAMETER,
+						"Parameter " + ACTION_PARAM_SCRIPT_NAME + " does not match a " + ExtensionScript.TYPE_STANDALONE
+								+ " script.");
 			}
 			try {
 				extension.invokeScript(script);
