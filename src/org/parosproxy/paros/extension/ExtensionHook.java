@@ -30,6 +30,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/08/18 Allow to add ApiImplementor
 // ZAP: 2017/07/25 Allow to add HttpSenderListener.
+// ZAP: 2017/11/23 Add an add method for OverrideMessageProxyListener.
 
 package org.parosproxy.paros.extension;
 
@@ -61,7 +62,16 @@ public class ExtensionHook {
     private Vector<OptionsChangedListener> optionsListenerList = new Vector<>();
 
     private Vector<ProxyListener> proxyListenerList = new Vector<>();
-    private List<OverrideMessageProxyListener> overrideMessageProxyListenersList = new ArrayList<>();
+
+    /**
+     * The {@link OverrideMessageProxyListener}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addOverrideMessageProxyListener(OverrideMessageProxyListener)
+     * @see #getOverrideMessageProxyListenerList()
+     */
+    private List<OverrideMessageProxyListener> overrideMessageProxyListenersList;
 
     /**
      * The {@link ConnectRequestProxyListener}s added to this extension hook.
@@ -314,7 +324,35 @@ public class ExtensionHook {
 		return addonFilesChangedListenerList;
 	}
 
+    /**
+     * Adds the given {@code overrideMessageProxyListener} to the extension hook, to be later added to the
+     * {@link org.parosproxy.paros.control.Proxy Proxy}.
+     * <p>
+     * By default, the {@code OverrideMessageProxyListener}s added to this extension hook are removed from the {@code Proxy}
+     * when the extension is unloaded.
+     *
+     * @param overrideMessageProxyListener the {@code OverrideMessageProxyListener} that will be added to the {@code Proxy}
+     * @throws IllegalArgumentException if the given {@code overrideMessageProxyListener} is {@code null}.
+     * @since TODO add version
+     */
+    public void addOverrideMessageProxyListener(OverrideMessageProxyListener overrideMessageProxyListener) {
+        getOverrideMessageProxyListenerList().add(overrideMessageProxyListener);
+    }
+
+    /**
+     * Gets the {@link OverrideMessageProxyListener}s added to this hook.
+     * <p>
+     * While it's possible to add the listener with this method it's not recommended, use
+     * {@link #addOverrideMessageProxyListener(OverrideMessageProxyListener)} whenever possible. The accessibility of this
+     * method might change in a future version (to package access).
+     *
+     * @return a {@code List} containing the added {@code OverrideMessageProxyListener}s, never {@code null}.
+     * @since 2.3.0
+     */
     public List<OverrideMessageProxyListener> getOverrideMessageProxyListenerList() {
+        if (overrideMessageProxyListenersList == null) {
+            overrideMessageProxyListenersList = new ArrayList<>();
+        }
         return overrideMessageProxyListenersList;
     }
 
