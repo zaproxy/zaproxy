@@ -44,6 +44,7 @@
 // ZAP: 2017/02/23 Issue 3227: Limit API access to whitelisted IP addresses
 // ZAP: 2017/04/24 Added more HTTP methods
 // ZAP: 2017/10/19 Skip parsing of empty Cookie headers.
+// ZAP: 2017/11/22 Address a NPE in isImage().
 
 package org.parosproxy.paros.network;
 
@@ -499,6 +500,10 @@ public class HttpRequestHeader extends HttpHeader {
      */
     @Override
     public boolean isImage() {
+        if (getURI() == null) {
+            return false;
+        }
+
         try {
             // ZAP: prevents a NullPointerException when no path exists
             final String path = getURI().getPath();

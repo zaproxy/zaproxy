@@ -83,7 +83,7 @@ public class ZAP {
     public static void main(String[] args) throws Exception {
         CommandLine cmdLine = null;
         try {
-            cmdLine = new CommandLine(args);
+            cmdLine = new CommandLine(args != null ? Arrays.copyOf(args, args.length) : null);
 
         } catch (final Exception e) {
         	// Cant use the CommandLine help here as the 

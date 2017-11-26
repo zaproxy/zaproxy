@@ -38,6 +38,7 @@
 // ZAP: 2017/05/12 Issue 3460: Support -suppinfo 
 // ZAP: 2017/05/31 Handle null args and include a message in all exceptions.
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually exclusive).
 
 package org.parosproxy.paros;
 
@@ -110,6 +111,12 @@ public class CommandLine {
     public CommandLine(String[] args) throws Exception {
         this.args = args == null ? new String[0] : args;
         parseFirst(this.args);
+
+        if (isEnabled(CommandLine.CMD) && isEnabled(CommandLine.DAEMON)) {
+            throw new IllegalArgumentException(
+                    "Command line arguments " + CommandLine.CMD + " and " + CommandLine.DAEMON
+                            + " cannot be used at the same time.");
+        }
     }
 
     private boolean checkPair(String[] args, String paramName, int i) throws Exception {

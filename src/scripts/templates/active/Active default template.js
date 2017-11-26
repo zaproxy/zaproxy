@@ -1,10 +1,6 @@
 // Note that new active scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 /**
  * Scans a "node", i.e. an individual entry in the Sites Tree.
  * The scanNode function will typically be called once for every page. 
@@ -16,7 +12,7 @@ if (typeof println == 'undefined') this.println = print;
  */
 function scanNode(as, msg) {
 	// Debugging can be done using println like this
-	println('scan called for url=' + msg.getRequestHeader().getURI().toString());
+	print('scan called for url=' + msg.getRequestHeader().getURI().toString());
 
 	// Copy requests before reusing them
 	msg = msg.cloneRequest();
@@ -58,7 +54,7 @@ function scanNode(as, msg) {
  */
 function scan(as, msg, param, value) {
 	// Debugging can be done using println like this
-	println('scan called for url=' + msg.getRequestHeader().getURI().toString() + 
+	print('scan called for url=' + msg.getRequestHeader().getURI().toString() + 
 		' param=' + param + ' value=' + value);
 	
 	// Copy requests before reusing them

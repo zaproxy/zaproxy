@@ -34,6 +34,7 @@
 // ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
 // ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
+// ZAP: 2017/11/20 Use default value when reading "reverseProxy.ip".
 
 package org.parosproxy.paros.core.proxy;
 
@@ -141,7 +142,7 @@ public class ProxyParam extends AbstractParam {
         } catch (Exception e) {
         }
 
-        reverseProxyIp = getConfig().getString(REVERSE_PROXY_IP);
+        reverseProxyIp = getString(REVERSE_PROXY_IP, "localhost");
         if (reverseProxyIp.equalsIgnoreCase("localhost") || reverseProxyIp.equalsIgnoreCase("127.0.0.1")) {
             try {
                 reverseProxyIp = InetAddress.getLocalHost().getHostAddress();

@@ -80,6 +80,8 @@
 // ZAP: 2017/06/13 Handle notification of notes set and deprecate/remove code no longer needed.
 // ZAP: 2017/10/20 Move methods to delete history entries (Issue 3626).
 // ZAP: 2017/11/06 Added (un)registerProxy (Issue 3983)
+// ZAP: 2017/11/16 Update the table on sessionChanged (Issue 3207).
+// ZAP: 2017/11/22 Delete just the history references selected (Issue 4065).
 
 package org.parosproxy.paros.extension.history;
 
@@ -92,6 +94,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -111,6 +114,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
@@ -165,6 +169,15 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	@SuppressWarnings("unchecked")
 	private Map<Integer, HistoryReference> historyIdToRef = Collections.synchronizedMap(new ReferenceMap());
 
+	/**
+	 * Flag that indicates whether or not the session is changing. To prevent updating the table more than once when opening a
+	 * session.
+	 * 
+	 * @see #sessionAboutToChange(Session)
+	 * @see #sessionScopeChanged(Session)
+	 * @see #sessionChanged(Session)
+	 */
+	private boolean sessionChanging;
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
 
@@ -266,7 +279,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionChanged(final Session session)  {
-		// Actual work done in sessionScopeChanged
+		sessionChanging = false;
+		sessionChanged();
 	}
 	
 	private ProxyListenerLog getProxyListenerLog() {
@@ -735,6 +749,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionAboutToChange(final Session session) {
+		sessionChanging = true;
+
 		if (getView() == null || EventQueue.isDispatchThread()) {
 			historyTableModel.clear();
 			historyIdToRef.clear();
@@ -843,6 +859,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+		if (sessionChanging) {
+			return;
+		}
+		sessionChanged();
+	}
+
+	private void sessionChanged() {
 		if (getView() != null) {
 			searchHistory(getFilterPlusDialog().getFilter());
 		} else {
@@ -907,6 +930,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             if (result != JOptionPane.YES_OPTION) {
                 return;
             }
+            
         }
         synchronized (this) {
             for (HistoryReference href : hrefs) {
@@ -928,22 +952,41 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extAlert.deleteHistoryReferenceAlerts(href);
         }
 
-        delete(href);
-
         SiteNode node = href.getSiteNode();
-        if (node == null) {
+        if (node != null) {
+            SiteMap map = Model.getSingleton().getSession().getSiteTree();
+            if (node.getHistoryReference() != href) {
+                node.getPastHistoryReference().remove(href);
+            } else if (!node.getPastHistoryReference().isEmpty()) {
+                node.setHistoryReference(node.getPastHistoryReference().remove(0));
+                node.getPastHistoryReference().remove(href);
+            } else {
+                if (node.isLeaf()) {
+                    SiteNode parent = node.getParent();
+                    map.removeNodeFromParent(node);
+                    purgeTemporaryParents(map, parent);
+                } else {
+                    try {
+                        node.setHistoryReference(map.createReference(node, href, href.getHttpMessage()));
+                    } catch (URIException | HttpMalformedHeaderException | NullPointerException | DatabaseException e) {
+                        logger.error("Failed to create temporary node:", e);
+                    }
+                }
+            }
+            map.removeHistoryReference(href.getHistoryId());
+        }
+
+        delete(href);
+    }
+
+    private void purgeTemporaryParents(SiteMap map, SiteNode node) {
+        if (node == null || node.isRoot() || !node.isLeaf()
+                || node.getHistoryReference().getHistoryType() != HistoryReference.TYPE_TEMPORARY) {
             return;
         }
 
-        SiteMap map = Model.getSingleton().getSession().getSiteTree();
-
-        if (node.getHistoryReference() == href) {
-            // same active Node
-            purge(map, node);
-
-        } else {
-            node.getPastHistoryReference().remove(href);
-            map.removeHistoryReference(href.getHistoryId());
-        }
+        SiteNode parent = node.getParent();
+        purge(map, node);
+        purgeTemporaryParents(map, parent);
     }
 }

@@ -4,10 +4,6 @@
 //	Path: The path, with a '/' at the end, in which the app is found. E.g.: /wp/
 // The parameters must chosen such that: "http://" + domain + path + "wp-login.php"  is the uri of the login page. In case https is used,modify the script below.
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 // The authenticate function is called whenever ZAP requires to authenticate, for a Context for which this script
 // was selected as the Authentication Method. The function should send any messages that are required to do the authentication
 // and should return a message with an authenticated response so the calling method.
@@ -23,18 +19,18 @@ if (typeof println == 'undefined') this.println = print;
 //					The credential values can be obtained via calls to the getParam(paramName) method. The param names are the ones
 //					returned by the getCredentialsParamsNames() below
 function authenticate(helper, paramsValues, credentials) {
-	println("Wordpress Authenticating via JavaScript script...");
+	print("Wordpress Authenticating via JavaScript script...");
 
 	// Make sure any Java classes used explicitly are imported
-	importClass(org.parosproxy.paros.network.HttpRequestHeader)
-	importClass(org.parosproxy.paros.network.HttpHeader)
-	importClass(org.apache.commons.httpclient.URI)
-	importClass(org.apache.commons.httpclient.Cookie)
+	var HttpRequestHeader = Java.type("org.parosproxy.paros.network.HttpRequestHeader")
+	var HttpHeader = Java.type("org.parosproxy.paros.network.HttpHeader")
+	var URI = Java.type("org.apache.commons.httpclient.URI")
+	var Cookie = Java.type("org.apache.commons.httpclient.Cookie")
 
 	// Prepare the login request details
 	var domain = paramsValues.get("Domain");
 	var path = paramsValues.get("Path");
-	println("Logging in to domain " + domain + " and path " + path);
+	print("Logging in to domain " + domain + " and path " + path);
 
 	var requestUri = new URI("http://"+domain + path + "wp-login.php", false);
 	var requestMethod = HttpRequestHeader.POST;
@@ -49,26 +45,26 @@ function authenticate(helper, paramsValues, credentials) {
 	requestHeader.setHeader(HttpHeader.COOKIE, "wordpress_test_cookie=WP+Cookie+check");
 
 	// Build the actual message to be sent
-	println("Sending " + requestMethod + " request to " + requestUri + " with body: " + requestBody);
+	print("Sending " + requestMethod + " request to " + requestUri + " with body: " + requestBody);
 	var msg = helper.prepareMessage();
 	msg.setRequestHeader(requestHeader);
 	msg.setRequestBody(requestBody);
 
 	// Send the authentication message and return it
 	helper.sendAndReceive(msg);
-	println("Received response status code for authentication request: " + msg.getResponseHeader().getStatusCode());
+	print("Received response status code for authentication request: " + msg.getResponseHeader().getStatusCode());
 
 	// The path Wordpress sets on the session cookies is illegal according to the standard. The web browsers ignore this and use the cookies anyway, but the Apache Commons HttpClient used in ZAP really cares about this (probably the only one who does it) and simply ignores the "invalid" cookies [0] , [1],so we must make sure we MANUALLY add the response cookies
 	if(path != "/" && path.charAt(path.length() - 1) == '/')	{
-		path = path.splice(0, path.length() - 2);
+		path = path.substring(0, path.length() - 1);
 	}
-	println("Cleaned cookie path: " + path);
+	print("Cleaned cookie path: " + path);
 
 	var cookies = msg.getResponseHeader().getCookieParams();
 	var state = helper.getCorrespondingHttpState();
 	for(var iterator = cookies.iterator(); iterator.hasNext();){
 		var cookie = iterator.next();
-		println("Manually adding cookie: " + cookie.getName() + " = " + cookie.getValue());
+		print("Manually adding cookie: " + cookie.getName() + " = " + cookie.getValue());
 		state.addCookie(new Cookie(domain, cookie.getName(), cookie.getValue(), path, 999999, false));
 	}
 

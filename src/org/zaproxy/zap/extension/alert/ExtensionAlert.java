@@ -52,7 +52,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -345,18 +344,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     AlertPanel getAlertPanel() {
         if (alertPanel == null) {
             alertPanel = new AlertPanel(this);
-            alertPanel.setView(getView());
             alertPanel.setSize(345, 122);
             setMainTreeModel();
         }
 
         return alertPanel;
-    }
-
-    @Override
-    public void initView(ViewDelegate view) {
-        super.initView(view);
-        getAlertPanel().setView(view);
     }
 
     AlertTreeModel getTreeModel() {

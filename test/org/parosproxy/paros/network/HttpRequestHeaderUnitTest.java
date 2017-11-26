@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.apache.commons.httpclient.URI;
 import org.junit.Test;
 
 /**
@@ -58,5 +59,40 @@ public class HttpRequestHeaderUnitTest {
         boolean empty = header.isEmpty();
         // Then
         assertThat(empty, is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotBeImageIfItHasNoRequestUri() {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader();
+        // When
+        boolean image = header.isImage();
+        // Then
+        assertThat(image, is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotBeImageIfRequestUriHasNoPath() throws Exception {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader();
+        header.setURI(new URI("http://example.com", true));
+        // When
+        boolean image = header.isImage();
+        // Then
+        assertThat(image, is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldBeImageIfRequestUriHasPathWithImageExtension() throws Exception {
+        // Given
+        String[] extensions = { "bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png" };
+        HttpRequestHeader header = new HttpRequestHeader();
+        for (String extension : extensions) {
+            header.setURI(new URI("http://example.com/image." + extension, true));
+            // When
+            boolean image = header.isImage();
+            // Then
+            assertThat(image, is(equalTo(true)));
+        }
     }
 }

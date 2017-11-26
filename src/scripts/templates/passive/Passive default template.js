@@ -3,9 +3,7 @@
 // Note that new passive scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
+var PluginPassiveScanner = Java.type("org.zaproxy.zap.extension.pscan.PluginPassiveScanner");
 
 /**
  * Passively scans an HTTP message. The scan function will be called for 
@@ -52,5 +50,5 @@ function appliesToHistoryType(historyType) {
 	// return historyType == org.parosproxy.paros.model.HistoryReference.TYPE_SPIDER;
 
 	// Default behaviour scans default types.
-	return org.zaproxy.zap.extension.pscan.PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
+	return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
 }

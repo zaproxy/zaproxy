@@ -20,7 +20,7 @@
 
 package org.zaproxy.zap.extension.proxies;
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
@@ -32,7 +32,6 @@ import javax.swing.JPanel;
 
 import org.jdesktop.swingx.JXLabel;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.NetworkUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
@@ -49,7 +48,7 @@ public class OptionsLocalProxyPanel extends JPanel {
     private ZapPortNumberSpinner spinnerProxyPort = null;
 
     public OptionsLocalProxyPanel() {
-        super();
+        super(new BorderLayout());
         initialize();
     }
 
@@ -109,21 +108,6 @@ public class OptionsLocalProxyPanel extends JPanel {
     }
 
     private void initialize() {
-        this.setLayout(new CardLayout());
-        this.setName(Constant.messages.getString("options.proxy.local.title"));
-        JPanel panelProxy =  new JPanel();
-
-        panelProxy.setLayout(new GridBagLayout());
-
-        panelProxy.setName(Constant.messages.getString("options.proxy.local.label.local"));
-        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-            panelProxy.setSize(303, 177);
-        }
-
-        panelProxy.setFont(FontUtils.getFont(FontUtils.Size.standard));
-
-        JPanel panelLocalProxy = null;
-
         JXLabel jLabel6 = new JXLabel();
         GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
         GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
@@ -133,8 +117,8 @@ public class OptionsLocalProxyPanel extends JPanel {
         JLabel jLabel = new JLabel();
         JLabel jLabel1 = new JLabel();
 
-        panelLocalProxy = new JPanel();
-        panelLocalProxy.setLayout(new GridBagLayout());
+        JPanel panelLocalProxy = new JPanel(new GridBagLayout());
+        panelLocalProxy.setFont(FontUtils.getFont(FontUtils.Size.standard));
         panelLocalProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 null,
                 Constant.messages.getString("options.proxy.local.title"),
@@ -210,20 +194,7 @@ public class OptionsLocalProxyPanel extends JPanel {
         panelLocalProxy.add(getChkRemoveUnsupportedEncodings(), gbc);
         panelLocalProxy.add(this.getChkAlwaysDecodeGzip(), gbc);
 
-        GridBagConstraints gridBagConstraints81 = new GridBagConstraints();
-        gridBagConstraints81.gridx = 0;
-        gridBagConstraints81.gridy = 0;
-        gridBagConstraints81.ipadx = 2;
-        gridBagConstraints81.ipady = 4;
-        gridBagConstraints81.insets = new java.awt.Insets(2, 2, 2, 2);
-        gridBagConstraints81.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints81.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints81.weightx = 1.0D;
-        gridBagConstraints81.weighty = 0.0D;
-
-        panelProxy.add(panelLocalProxy, gridBagConstraints81);
-
-        this.add(panelProxy, panelProxy.getName());
+        this.add(panelLocalProxy, BorderLayout.CENTER);
     }
 
     public void setProxy(ProxiesParamProxy proxy) {

@@ -255,17 +255,23 @@ public class AlertViewPanel extends AbstractPanel {
 			// Read only ones
 			alertName = new ZapLabel();
 			alertName.setFont(FontUtils.getFont(Font.BOLD));
+			alertName.setLineWrap(true);
 
 			alertRisk = new JLabel();
 			alertConfidence = new JLabel();
 			alertParam = new ZapLabel();
+			alertParam.setLineWrap(true);
 			alertAttack = new ZapLabel();
+			alertAttack.setLineWrap(true);
 			alertEvidence = new ZapLabel();
+			alertEvidence.setLineWrap(true);
 			alertCweId = new ZapLabel();
 			alertWascId = new ZapLabel();
 			alertSource = new ZapLabel();
+			alertSource.setLineWrap(true);
 
 			alertUrl = new ZapLabel();
+			alertUrl.setLineWrap(true);
 			
 			alertDescription = createZapTextArea();
 			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
