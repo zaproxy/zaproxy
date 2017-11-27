@@ -573,7 +573,7 @@ public class Analyser {
      * Gets the running time, in milliseconds, of the analyser.
      *
      * @return the running time of the analyser.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public long getRunningTime() {
         return stopWatch.getTime();

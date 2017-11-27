@@ -39,7 +39,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 /**
  * An {@code AbstractDialog} class which facilitates GUI display of support information.
  * 
- * @since TODO add version
+ * @since 2.7.0
  */
 public class ZapSupportDialog extends AbstractDialog {
 

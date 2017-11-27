@@ -27,7 +27,7 @@ import javax.swing.JTable;
  * Filters, sorting, column order, and column visibility may all impact the data exported.
  * 
  * @param <T> the type of the table.
- * @since TODO add version
+ * @since 2.7.0
  * @see TableExportAction
  */
 public class TableExportButton<T extends JTable> extends JButton {

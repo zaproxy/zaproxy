@@ -377,7 +377,7 @@ public class SiteMap extends SortedTreeModel {
      * @param msg the HttpMessage
      * @param newOnly   Only return a SiteNode if one was newly created
      * @return the SiteNode that corresponds to the HttpMessage, or null if newOnly and the node already exists
-     * @since TODO add version
+     * @since 2.7.0
      */
     public SiteNode addPath(HistoryReference ref, HttpMessage msg, boolean newOnly) {
     	if (Constant.isLowMemoryOptionSet()) {

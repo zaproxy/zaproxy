@@ -55,7 +55,7 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 	 * <p>
 	 * This method should be called once the combo box is no longer needed, to detach it from core (persistent) classes.
 	 * 
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public void unload() {
 		this.usersListModel.unload();

@@ -42,7 +42,7 @@ public class DefaultParseFilter extends ParseFilter {
 	 * The Constant MAX_RESPONSE_BODY_SIZE defining the size of response body that is considered too
 	 * big for a parsable file.
 	 * 
-	 * @deprecated (TODO add version) No longer in use, replaced by {@link SpiderParam#getMaxParseSizeBytes()}.
+	 * @deprecated (2.7.0) No longer in use, replaced by {@link SpiderParam#getMaxParseSizeBytes()}.
 	 */
 	@Deprecated
 	public static final int MAX_RESPONSE_BODY_SIZE = 512000;
@@ -74,7 +74,7 @@ public class DefaultParseFilter extends ParseFilter {
 	/**
 	 * Constructs a {@code DefaultParseFilter} with default configurations.
 	 *
-	 * @deprecated (TODO add version) Replaced by {@link #DefaultParseFilter(SpiderParam, ResourceBundle)}.
+	 * @deprecated (2.7.0) Replaced by {@link #DefaultParseFilter(SpiderParam, ResourceBundle)}.
 	 */
 	@Deprecated
 	public DefaultParseFilter() {
@@ -100,7 +100,7 @@ public class DefaultParseFilter extends ParseFilter {
 	 * @param params the spider configurations
 	 * @param resourceBundle the resource bundle to obtain the internationalised reasons.
 	 * @throws IllegalArgumentException if any of the given parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see SpiderParam#getMaxParseSizeBytes()
 	 */
 	public DefaultParseFilter(SpiderParam params, ResourceBundle resourceBundle) {

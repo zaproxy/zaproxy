@@ -456,7 +456,7 @@ public class AddOn  {
 	 * Gets the file version of the add-on.
 	 *
 	 * @return the file version.
-	 * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+	 * @deprecated (2.7.0) Use {@link #getVersion()} instead.
 	 */
 	@Deprecated
 	public int getFileVersion() {
@@ -466,10 +466,10 @@ public class AddOn  {
 	/**
 	 * Gets the semantic version of this add-on.
 	 * <p>
-	 * Since TODO add version, for add-ons that use just an integer as the version it's appended ".0.0", for example, for
+	 * Since 2.7.0, for add-ons that use just an integer as the version it's appended ".0.0", for example, for
 	 * version {@literal 14} it returns the version {@literal 14.0.0}.
 	 *
-	 * @return the semantic version of the add-on, since TODO add version, never {@code null}.
+	 * @return the semantic version of the add-on, since 2.7.0, never {@code null}.
 	 * @since 2.4.0
 	 */
 	public Version getVersion() {
@@ -1442,7 +1442,7 @@ public class AddOn  {
 			 * <p>
 			 * Issue details contain the instance of the {@code AddOn} and the required version.
 			 * 
-			 * @deprecated (TODO add version) No longer in use. It should be used just {@link #VERSION}. 
+			 * @deprecated (2.7.0) No longer in use. It should be used just {@link #VERSION}. 
 			 */
 			@Deprecated
 			PACKAGE_VERSION_NOT_BEFORE,
@@ -1452,7 +1452,7 @@ public class AddOn  {
 			 * <p>
 			 * Issue details contain the instance of the {@code AddOn} and the required version.
 			 * 
-			 * @deprecated (TODO add version) No longer in use. It should be used just {@link #VERSION}.
+			 * @deprecated (2.7.0) No longer in use. It should be used just {@link #VERSION}.
 			 */
 			@Deprecated
 			PACKAGE_VERSION_NOT_FROM,

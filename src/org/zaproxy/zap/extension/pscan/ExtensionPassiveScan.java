@@ -337,7 +337,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      *
      * @param id the ID of the plugin.
      * @return the {@code PluginPassiveScanner}, or {@code null} if not found (e.g. not installed).
-     * @since TODO add version
+     * @since 2.7.0
      */
     public PluginPassiveScanner getPluginPassiveScanner(int id) {
         for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {

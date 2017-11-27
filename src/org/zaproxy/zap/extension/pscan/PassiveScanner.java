@@ -44,7 +44,7 @@ public interface PassiveScanner {
 	 * Default implementation returns always {@link AlertThreshold#MEDIUM}.
 	 *
 	 * @return the alert threshold of the scanner.
-	 * @deprecated (TODO add version) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
+	 * @deprecated (2.7.0) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
 	 */
 	@Deprecated
 	default AlertThreshold getLevel() {
@@ -58,7 +58,7 @@ public interface PassiveScanner {
 	 *
 	 * @param level the new alert threshold.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @deprecated (TODO add version) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
+	 * @deprecated (2.7.0) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
 	 */
 	@Deprecated
 	default void setLevel(AlertThreshold level) {

@@ -47,7 +47,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
  * Filters, sorting, column order, and column visibility may all impact the data exported.
  *
  * @param <T> the type of the table.
- * @since TODO add version
+ * @since 2.7.0
  * @see TableExportButton
  */
 public class TableExportAction<T extends JTable> extends AbstractAction {

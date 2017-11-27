@@ -26,7 +26,7 @@ import org.apache.commons.httpclient.cookie.MalformedCookieException;
 /**
  * A {@link CookieSpecBase} that does not do any path validation.
  * 
- * @since TODO add version
+ * @since 2.7.0
  */
 public class ZapCookieSpec extends CookieSpecBase {
 

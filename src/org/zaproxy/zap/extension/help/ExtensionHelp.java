@@ -68,7 +68,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
 	private static final String HELP_SET_FILE_NAME = "helpset";
 	/**
-	 * @deprecated (TODO add version) Use {@link #getHelpIcon()} instead.
+	 * @deprecated (2.7.0) Use {@link #getHelpIcon()} instead.
 	 */
 	@Deprecated
 	public static final ImageIcon HELP_ICON = View.isInitialised() ? getHelpIcon() : null;
@@ -401,7 +401,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
      * Should be called/used only when in view mode.
      * 
      * @return the help icon, never {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static ImageIcon getHelpIcon() {
         if (helpIcon == null) {

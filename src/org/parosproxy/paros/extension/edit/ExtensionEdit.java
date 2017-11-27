@@ -115,7 +115,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
      * Should be called/used only when in view mode.
      * 
      * @return the keyboard shortcut, never {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static KeyStroke getFindDefaultKeyStroke() {
         if (findDefaultKeyStroke == null) {

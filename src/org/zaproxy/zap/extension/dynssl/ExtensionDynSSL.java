@@ -163,7 +163,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	 * Could return {@code null} if there is a problem getting the certificate.
 	 * 
 	 * @return The X.509 version of ZAPs current Root CA certificate.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public X509Certificate getRootCaCertificate() {
 		try {

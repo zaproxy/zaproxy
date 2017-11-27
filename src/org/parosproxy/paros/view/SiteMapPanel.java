@@ -409,7 +409,7 @@ public class SiteMapPanel extends AbstractPanel {
 	 * or {@code null} if nothing is selected or the selection is the root node.
 	 * 
 	 * @return Context the context which is selected in the UI
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public Context getSelectedContext() {
 		SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();

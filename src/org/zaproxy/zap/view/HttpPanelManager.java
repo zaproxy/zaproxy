@@ -118,7 +118,7 @@ public class HttpPanelManager {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Use {@link #removeRequestDefaultViewSelectors(String, String, Object)} instead
+	 * @deprecated (2.7.0) Use {@link #removeRequestDefaultViewSelectors(String, String, Object)} instead
 	 * */
 	@Deprecated
 	public void removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(String componentName, String defaultViewSelectorName, Object options) {

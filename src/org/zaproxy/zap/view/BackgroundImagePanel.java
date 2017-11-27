@@ -77,7 +77,7 @@ public class BackgroundImagePanel extends JPanel {
      * set the current Background image
      * @param imageUrl the url of the image that need to be set
      * @param scale the scale that should be applied to the image
-     * @since TODO Add version
+     * @since 2.7.0
      */
     public final void setBackgroundImage(URL imageUrl, double scale) {
         this.setBackgroundImage(imageUrl);

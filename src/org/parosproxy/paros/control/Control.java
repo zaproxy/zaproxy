@@ -466,7 +466,7 @@ public class Control extends AbstractControl implements SessionListener {
      * Should be called only by "core" classes.
      *
      * @throws Exception if an error occurred while persisting the properties.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void persistSessionProperties() throws Exception {
         model.persistSessionProperties();

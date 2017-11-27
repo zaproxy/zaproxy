@@ -354,7 +354,7 @@ public final class AddOnInstaller {
      *
      * @param addOnClassLoader the class loader of the given {@code addOn}.
      * @param addOn the add-on that will have the declared files updated.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static void updateAddOnFiles(AddOnClassLoader addOnClassLoader, AddOn addOn) {
         installAddOnFiles(addOnClassLoader, addOn, true);

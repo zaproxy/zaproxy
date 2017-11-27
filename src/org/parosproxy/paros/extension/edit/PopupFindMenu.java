@@ -81,7 +81,7 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
 
     /**
      * @return Returns the parentFrame.
-     * @deprecated (TODO add version) No longer supported, the invoker might not be contained in a {@code JFrame}. It should be
+     * @deprecated (2.7.0) No longer supported, the invoker might not be contained in a {@code JFrame}. It should be
      *             obtained its {@link SwingUtilities#getWindowAncestor(Component) ancestor Window} instead.
      */
     @Deprecated
@@ -94,7 +94,7 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
 
     /**
      * @param parentFrame The parentFrame to set.
-     * @deprecated (TODO add version) No longer supported, the parent component is obtained from the invoker moreover the
+     * @deprecated (2.7.0) No longer supported, the parent component is obtained from the invoker moreover the
      *             invoker might not be contained in a {@code JFrame}.
      */
     @Deprecated

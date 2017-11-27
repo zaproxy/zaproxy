@@ -106,7 +106,7 @@ public class ExtensionParam extends AbstractParam {
      * Gets the extensions' enabled state.
      * 
      * @return a {@code Map} containing the name of the extensions and corresponding enabled state.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #isExtensionEnabled(String)
      */
     public Map<String, Boolean> getExtensionsState() {

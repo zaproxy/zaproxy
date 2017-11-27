@@ -39,7 +39,7 @@ public class MaxChildrenParseFilter extends ParseFilter {
 	/**
 	 * Constructs a {@code MaxChildrenParseFilter}, with no reason of why the message was filtered.
 	 *
-	 * @deprecated (TODO add version) Use {@link #MaxChildrenParseFilter(ResourceBundle)} instead.
+	 * @deprecated (2.7.0) Use {@link #MaxChildrenParseFilter(ResourceBundle)} instead.
 	 */
 	@Deprecated
 	public MaxChildrenParseFilter() {
@@ -64,7 +64,7 @@ public class MaxChildrenParseFilter extends ParseFilter {
 	 *
 	 * @param resourceBundle the resource bundle to obtain the internationalised reason.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public MaxChildrenParseFilter(ResourceBundle resourceBundle) {
 		if (resourceBundle == null) {
