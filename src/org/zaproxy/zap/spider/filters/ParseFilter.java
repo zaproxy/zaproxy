@@ -34,7 +34,7 @@ public abstract class ParseFilter {
 	 * 
 	 * @param responseMessage the response message after the resource was fetched
 	 * @return true, if is filtered
-	 * @deprecated (TODO add version) Use {@link #filtered(HttpMessage)} instead, which allows to provide the reason why the
+	 * @deprecated (2.7.0) Use {@link #filtered(HttpMessage)} instead, which allows to provide the reason why the
 	 *             message was filtered.
 	 */
 	@Deprecated
@@ -49,7 +49,7 @@ public abstract class ParseFilter {
 	 *
 	 * @param responseMessage the HTTP message containing the response to be or not parsed.
 	 * @return the filter result, must not be {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public FilterResult filtered(HttpMessage responseMessage) {
 		return FilterResult.NOT_FILTERED;
@@ -60,7 +60,7 @@ public abstract class ParseFilter {
 	 * <p>
 	 * Used to indicate if a resource was filtered and why.
 	 *
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #NOT_FILTERED
 	 * @see #ParseFilter(String)
 	 */

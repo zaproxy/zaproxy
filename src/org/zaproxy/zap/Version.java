@@ -103,7 +103,7 @@ public final class Version implements Comparable<Version> {
      *
      * @param versionRange the version range to test.
      * @return {@code true} if the version range is valid, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #matches(String)
      */
     public static boolean isValidVersionRange(String versionRange) {

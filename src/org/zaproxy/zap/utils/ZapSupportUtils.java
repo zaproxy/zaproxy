@@ -39,7 +39,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
  * The functions in this class return details relevant for support and tickets
  * prefixed with labels.
  * 
- * @since TODO add version
+ * @since 2.7.0
  */
 public final class ZapSupportUtils {
 	

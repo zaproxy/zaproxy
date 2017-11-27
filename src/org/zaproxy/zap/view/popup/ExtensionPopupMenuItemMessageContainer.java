@@ -58,7 +58,7 @@ public class ExtensionPopupMenuItemMessageContainer extends ExtensionPopupMenuIt
      *
      * @param text the text of the menu item.
      * @param icon the icon of the menu item.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public ExtensionPopupMenuItemMessageContainer(String text, Icon icon) {
         super(text, icon);
@@ -70,7 +70,7 @@ public class ExtensionPopupMenuItemMessageContainer extends ExtensionPopupMenuIt
      * The text and icon (if any) are obtained from the given action.
      *
      * @param action the action of the menu item.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public ExtensionPopupMenuItemMessageContainer(Action action) {
         super(action);

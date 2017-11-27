@@ -927,7 +927,7 @@ public class SpiderParam extends AbstractParam {
      * </ul>
      * 
      * @param acceptCookies {@code true} if the spider should accept cookies, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #isAcceptCookies()
      */
     public void setAcceptCookies(boolean acceptCookies) {
@@ -941,7 +941,7 @@ public class SpiderParam extends AbstractParam {
      * For example, this might control whether or not the Spider uses the same session throughout a spidering process.
      *
      * @return {@code true} if the spider should accept cookies, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #setAcceptCookies(boolean)
      */
     public boolean isAcceptCookies() {
@@ -954,7 +954,7 @@ public class SpiderParam extends AbstractParam {
      * This allows the spider to skip big responses/files.
      * 
      * @param maxParseSizeBytes the maximum size, in bytes, that a response might have to be parsed.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #getMaxParseSizeBytes()
      */
     public void setMaxParseSizeBytes(int maxParseSizeBytes) {
@@ -966,7 +966,7 @@ public class SpiderParam extends AbstractParam {
      * Gets the maximum size, in bytes, that a response might have to be parsed.
      *
      * @return the maximum size, in bytes, that a response might have to be parsed.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #setMaxParseSizeBytes(int)
      */
     public int getMaxParseSizeBytes() {

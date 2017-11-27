@@ -1710,7 +1710,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 *
 	 * @param tabLabel the label of the tab, as set during construction of the dialogue.
 	 * @param scrollable {@code true} if the tab should be scrollable, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #createTabScrollable(String, JPanel)
 	 * @see #isTabScrollable(String)
 	 */
@@ -1780,7 +1780,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * 
 	 * @param tabLabel the label of the tab to check.
 	 * @return {@code true} if the tab is scrollable, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	protected boolean isTabScrollable(String tabLabel) {
 		JPanel tabPanel = this.tabNameMap.get(tabLabel);
@@ -1799,7 +1799,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param tabLabel the label of the tab, as set during construction of the dialogue.
 	 * @param tabPanel the panel of the tab that should be scrollable, never {@code null}.
 	 * @return the JScrollPane
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	protected JScrollPane createTabScrollable(String tabLabel, JPanel tabPanel) {
 		return new JScrollPane(tabPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

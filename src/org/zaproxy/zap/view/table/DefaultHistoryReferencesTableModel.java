@@ -248,7 +248,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
      * @param historyReference the history reference that will be removed from the model
      * @see DefaultHistoryReferencesTableEntry
      * @see HistoryReference
-     * @since TODO Add Version
+     * @since 2.7.0
      */
     public void removeHistoryReference(HistoryReference historyReference) {
         if (historyReference== null) {

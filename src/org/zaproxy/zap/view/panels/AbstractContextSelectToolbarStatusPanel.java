@@ -253,7 +253,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * <p>
 	 * This method should be called once the panel is no longer needed, to detach it from core (persistent) classes.
 	 * 
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public void unload() {
 		Model.getSingleton().getSession().removeOnContextsChangedListener(this);

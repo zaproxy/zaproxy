@@ -50,7 +50,7 @@ public class FontUtils {
 	
 	/**
 	 * Returns the Quicksand Bold font - https://fonts.google.com/specimen/Quicksand?selection.family=Quicksand
-	 * @since TODO Add version
+	 * @since 2.7.0
 	 * @return the Quicksand Bold font
 	 */
 	public static Font getQuicksandBoldFont() {
@@ -146,7 +146,7 @@ public class FontUtils {
 	 * Gets the specified font with the specified sytle and size, correctly scaled
 	 * @param style
 	 * @param size
-	 * @since TODO Add version
+	 * @since 2.7.0
 	 * @return
 	 */
 	public static Font getFont (Font font, int style, Size size) {
@@ -166,7 +166,7 @@ public class FontUtils {
 	 * Gets the specified font with the specified size, correctly scaled
 	 * @param font
 	 * @param size
-	 * @since TODO Add version
+	 * @since 2.7.0
 	 * @return the specified font with the specified size, correctly scaled
 	 */
 	public static Font getFont (Font font, Size size) {
@@ -197,7 +197,7 @@ public class FontUtils {
 	 * If no custom font was set it's used the system default font.
 	 *
 	 * @return {@code true} if a custom font was set, {@code false} otherwise.
-	 * @since TODO Add version
+	 * @since 2.7.0
 	 * @see #getSystemDefaultFont()
 	 */
 	public static boolean isDefaultFontSet() {

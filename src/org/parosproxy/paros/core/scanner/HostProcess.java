@@ -725,7 +725,7 @@ public class HostProcess implements Runnable {
      * Gets the alert count.
      * 
      * @return the alert count.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public int getAlertCount() {
         return alertCount;
@@ -766,7 +766,7 @@ public class HostProcess implements Runnable {
      *
      * @param pluginId the ID of the plugin that will be skipped.
      * @param reason the reason why the plugin was skipped, might be {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #pluginSkipped(Plugin, String)
      */
     public void pluginSkipped(int pluginId, String reason) {
@@ -1061,7 +1061,7 @@ public class HostProcess implements Runnable {
      *
      * @param pluginId the ID of the plugin.
      * @return the stats of the plugin, or {@code null} if not found.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public PluginStats getPluginStats(int pluginId) {
         synchronized (mapPluginStats) {

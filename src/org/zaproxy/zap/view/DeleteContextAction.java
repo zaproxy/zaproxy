@@ -34,7 +34,7 @@ import org.zaproxy.zap.model.Context;
  * <p>
  * The (default) accelerator for the action is given by {@link View#getDefaultDeleteKeyStroke()}.
  * 
- * @since TODO add version
+ * @since 2.7.0
  */
 public abstract class DeleteContextAction extends AbstractAction {
 

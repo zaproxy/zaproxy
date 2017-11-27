@@ -532,7 +532,7 @@ public class ExtensionLoader {
      * Should be called only by "core" classes.
      * 
      * @param session the session changed.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void sessionPropertiesChangedAllPlugin(Session session) {
         logger.debug("sessionPropertiesChangedAllPlugin");

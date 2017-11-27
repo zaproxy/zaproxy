@@ -31,7 +31,7 @@ public class HttpRequestConfig {
     /**
      * Constant that indicates that no value was set (thus using the value defined by the sender implementation).
      * 
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static final int NO_VALUE_SET = -1;
 
@@ -82,7 +82,7 @@ public class HttpRequestConfig {
      * Default value: {@code true}.
      *
      * @return {@code true} if the listeners should be notified, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public boolean isNotifyListeners() {
         return notifyListeners;
@@ -94,7 +94,7 @@ public class HttpRequestConfig {
      * Default value: {@link #NO_VALUE_SET}.
      * 
      * @return the socket timeout, in milliseconds.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public int getSoTimeout() {
         return soTimeout;
@@ -183,7 +183,7 @@ public class HttpRequestConfig {
          *
          * @param notifyListeners {@code true} if the listeners should be notified, {@code false} otherwise.
          * @return the builder.
-         * @since TODO add version
+         * @since 2.7.0
          */
         public Builder setNotifyListeners(boolean notifyListeners) {
             this.notifyListeners = notifyListeners;

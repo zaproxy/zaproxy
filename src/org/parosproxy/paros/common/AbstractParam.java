@@ -139,7 +139,7 @@ public abstract class AbstractParam implements Cloneable {
      * @param key the configuration key.
      * @param defaultValue the default value, if the key doesn't exist or it's not a {@code String}.
      * @return the value of the configuration, or default value.
-     * @since TODO add version
+     * @since 2.7.0
      */
     protected String getString(String key, String defaultValue) {
         try {
@@ -155,7 +155,7 @@ public abstract class AbstractParam implements Cloneable {
      *
      * @param key the configuration key.
      * @param e the {@code ConversionException}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     protected static void logConversionException(String key, ConversionException e) {
         logger.warn("Failed to read '" + key + "'", e);
@@ -169,7 +169,7 @@ public abstract class AbstractParam implements Cloneable {
      * @param key the configuration key.
      * @param defaultValue the default value, if the key doesn't exist or it's not a {@code boolean}.
      * @return the value of the configuration, or default value.
-     * @since TODO add version
+     * @since 2.7.0
      */
     protected boolean getBoolean(String key, boolean defaultValue) {
         try {
@@ -188,7 +188,7 @@ public abstract class AbstractParam implements Cloneable {
      * @param key the configuration key.
      * @param defaultValue the default value, if the key doesn't exist or it's not an {@code int}.
      * @return the value of the configuration, or default value.
-     * @since TODO add version
+     * @since 2.7.0
      */
     protected int getInt(String key, int defaultValue) {
         try {
@@ -207,7 +207,7 @@ public abstract class AbstractParam implements Cloneable {
      * @param key the configuration key.
      * @param defaultValue the default value, if the key doesn't exist or it's not an {@code Integer}.
      * @return the value of the configuration, or default value.
-     * @since TODO add version
+     * @since 2.7.0
      */
     protected Integer getInteger(String key, Integer defaultValue) {
         try {

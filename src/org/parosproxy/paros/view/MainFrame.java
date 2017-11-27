@@ -654,7 +654,7 @@ public class MainFrame extends AbstractFrame {
 	 * 
 	 * @see Constant#PROGRAM_NAME
 	 * @see Constant#PROGRAM_VERSION
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public void setTitle(Session session) {
 		StringBuilder strBuilder = new StringBuilder();
@@ -676,7 +676,7 @@ public class MainFrame extends AbstractFrame {
 	 * 
 	 * @see Constant#PROGRAM_NAME
 	 * @see Constant#PROGRAM_VERSION
-	 * @deprecated as of TODO add version, replaced by {@link #setTitle(Session)}
+	 * @deprecated as of 2.7.0, replaced by {@link #setTitle(Session)}
 	 */
 	@Override 
 	@Deprecated

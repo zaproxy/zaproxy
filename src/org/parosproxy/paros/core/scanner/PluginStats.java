@@ -23,7 +23,7 @@ package org.parosproxy.paros.core.scanner;
  * The stats of a {@link Plugin}, when the {@code Plugin} was started, how many messages were sent, number of alerts raised, and
  * its scan progress.
  * 
- * @since TODO add version
+ * @since 2.7.0
  */
 public class PluginStats {
 

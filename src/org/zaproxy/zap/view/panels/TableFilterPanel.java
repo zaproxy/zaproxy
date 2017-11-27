@@ -39,7 +39,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * A component class to facilitate filtering of JXTables.
  * 
  * @param <T> the type of the table.
- * @since TODO add version
+ * @since 2.7.0
  */
 public class TableFilterPanel<T extends JXTable> extends JPanel {
 
