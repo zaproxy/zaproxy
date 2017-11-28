@@ -37,6 +37,7 @@ public class ScanProgressItem {
     private HostProcess hProcess;
     private Plugin plugin;
     private int status;
+    private ScanProgressActionIcon progressAction;
 
     /**
      *
@@ -47,6 +48,7 @@ public class ScanProgressItem {
         this.hProcess = hProcess;
         this.plugin = plugin;
         this.status = status;
+        this.progressAction = new ScanProgressActionIcon(this);
     }
 
     /**
@@ -105,12 +107,21 @@ public class ScanProgressItem {
             // Make sure not return 100 (or more) if still running...
             // That might happen if more nodes are being scanned that the ones enumerated at the beginning.
             return progress >= 100 ? 99 : progress;
-        } else if (isCompleted()) {
+        } else if (isCompleted() || isSkipped()) {
             return 100;        
             
         } else {
             return 0;
         }
+    }
+
+    /**
+     * Gets the action of this scan progress item.
+     *
+     * @return the action of the scan progress item.
+     */
+    ScanProgressActionIcon getProgressAction() {
+        return progressAction;
     }
     
     /**
@@ -119,6 +130,15 @@ public class ScanProgressItem {
      */
     public boolean isRunning() {
         return (status == STATUS_RUNNING);
+    }
+
+    /**
+     * Tells whether or not the plugin is pending.
+     * 
+     * @return {@code true} if the plugin is pending, {@code false} otherwise.
+     */
+    boolean isPending() {
+        return (status == STATUS_PENDING);
     }
 
     /**
@@ -152,7 +172,7 @@ public class ScanProgressItem {
     }
 
     public void skip() {
-        if (isRunning()) {
+        if (!isCompleted() && !isStopped()) {
             hProcess.pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.user"));
         }
     }
@@ -169,8 +189,41 @@ public class ScanProgressItem {
 		return hProcess.getPluginRequestCount(plugin.getId());
 	}
 
+	/**
+	 * Gets the alert count of this scan progress item.
+	 *
+	 * @return the alert count.
+	 */
+	int getAlertCount() {
+		return hProcess.getPluginStats(plugin.getId()).getAlertCount();
+	}
+
 	@Override
 	public String toString() {
 		return Integer.toString(getProgressPercentage());
+	}
+
+	/**
+	 * Refresh the state of this scan progress item.
+	 */
+	void refresh() {
+		if (isCompleted()) {
+			return;
+		}
+
+		if (hProcess.getCompleted().contains(plugin)) {
+			status = STATUS_COMPLETED;
+		} else if (hProcess.getRunning().contains(plugin)) {
+			status = STATUS_RUNNING;
+		}
+	}
+
+	/**
+	 * Tells whether or not the scan is stopped.
+	 * 
+	 * @return {@code true} if the scan is stopped, {@code false} otherwise.
+	 */
+	boolean isStopped() {
+		return hProcess.isStop();
 	}
 }

@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -32,7 +33,6 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.model.Model;
 
 public class ExtensionExtension extends ExtensionAdaptor implements CommandLineListener {
 
@@ -50,6 +50,11 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
 	private void initialize() {
         this.setName(NAME);
         //this.setOrder(0);
+	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("ext.name");
 	}
 
 	@Override
@@ -70,13 +75,10 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
 	}
 	
 	public void enableExtension(String name, boolean enable) {
-		if (this.getOptionsExtensionPanel().enableExtension(name, enable)) {
-			try {
-				this.getOptionsExtensionPanel().saveParam(Model.getSingleton().getOptionsParam());
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
+		ExtensionParam extParam = getModel().getOptionsParam().getExtensionParam();
+		Map<String, Boolean> extensionsState = extParam.getExtensionsState();
+		extensionsState.put(name, enable);
+		extParam.setExtensionsState(extensionsState);
 	}
 	
 	@Override

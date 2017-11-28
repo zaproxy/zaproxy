@@ -67,6 +67,10 @@
 // ZAP: 2016/08/18 Hook ApiImplementor
 // ZAP: 2016/11/23 Call postInit() when starting an extension, startLifeCycle(Extension).
 // ZAP: 2017/02/19 Hook/remove extensions' components to/from the main tool bar.
+// ZAP: 2017/06/07 Allow to notify of changes in the session's properties (e.g. name, description).
+// ZAP: 2017/07/25 Hook HttpSenderListener.
+// ZAP: 2017/10/11 Include add-on in extensions' initialisation errors.
+// ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
 
 package org.parosproxy.paros.extension;
 
@@ -82,6 +86,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
@@ -99,6 +104,7 @@ import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.MainMenuBar;
@@ -112,6 +118,7 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -152,6 +159,13 @@ public class ExtensionLoader {
         return extensionList.get(i);
     }
 
+    /**
+     * Gets the {@code Extension} with the given name.
+     *
+     * @param name the name of the {@code Extension}.
+     * @return the {@code Extension} or {@code null} if not found/enabled.
+     * @see #getExtension(Class)
+     */
     public Extension getExtension(String name) {
         if (name != null) {
             for (int i = 0; i < extensionList.size(); i++) {
@@ -182,7 +196,7 @@ public class ExtensionLoader {
      * Gets the {@code Extension} with the given class.
      *
      * @param clazz the class of the {@code Extension}
-     * @return the {@code Extension} or {@code null} if not found.
+     * @return the {@code Extension} or {@code null} if not found/enabled.
      */
     public <T extends Extension> T getExtension(Class<T> clazz) {
         if (clazz != null) {
@@ -512,6 +526,30 @@ public class ExtensionLoader {
         }
     }
 
+    /**
+     * Notifies that the properties (e.g. name, description) of the current session were changed.
+     * <p>
+     * Should be called only by "core" classes.
+     * 
+     * @param session the session changed.
+     * @since 2.7.0
+     */
+    public void sessionPropertiesChangedAllPlugin(Session session) {
+        logger.debug("sessionPropertiesChangedAllPlugin");
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (SessionChangedListener listener : hook.getSessionListenerList()) {
+                try {
+                    if (listener != null) {
+                        listener.sessionPropertiesChanged(session);
+                    }
+
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
     public void addonFilesAdded() {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
@@ -600,14 +638,15 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).start();
+                extension.start();
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -727,8 +766,8 @@ public class ExtensionLoader {
         final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            final Extension ext = getExtension(i);
             try {
-                final Extension ext = getExtension(i);
                 logger.info("Initializing " + ext.getDescription());
                 final ExtensionHook extHook = new ExtensionHook(model, view);
                 ext.hook(extHook);
@@ -736,6 +775,7 @@ public class ExtensionLoader {
 
                 hookContextDataFactories(ext, extHook);
                 hookApiImplementors(ext, extHook);
+                hookHttpSenderListeners(ext, extHook);
 
                 if (view != null) {
                     EventQueue.invokeAndWait(new Runnable() {
@@ -755,16 +795,17 @@ public class ExtensionLoader {
                 
             } catch (Throwable e) {
                 // Catch Errors thrown by out of date extensions as well as Exceptions
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(ext, e);
             }
         }
         // Call postInit for all extensions after they have all been initialized
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).postInit();
+                extension.postInit();
             } catch (Throwable e) {
                 // Catch Errors thrown by out of date extensions as well as Exceptions
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
 
@@ -772,6 +813,19 @@ public class ExtensionLoader {
             view.getMainFrame().getMainMenuBar().validate();
             view.getMainFrame().validate();
         }
+    }
+
+    private static void logExtensionInitError(Extension extension, Throwable e) {
+        StringBuilder strBuilder = new StringBuilder(150);
+        strBuilder.append("Failed to initialise extension ");
+        strBuilder.append(extension.getClass().getCanonicalName());
+        AddOn addOn = extension.getAddOn();
+        if (addOn != null) {
+            strBuilder.append(" (from add-on ").append(addOn).append(')');
+        }
+        strBuilder.append(", cause: ");
+        strBuilder.append(ExceptionUtils.getRootCauseMessage(e));
+        logger.error(strBuilder.toString(), e);
     }
 
     private void hookContextDataFactories(Extension extension, ExtensionHook extHook) {
@@ -790,6 +844,16 @@ public class ExtensionLoader {
                 API.getInstance().registerApiImplementor(apiImplementor);
             } catch (Exception e) {
                 logger.error("Error while adding an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+    }
+
+    private void hookHttpSenderListeners(Extension extension, ExtensionHook extHook) {
+        for (HttpSenderListener httpSenderListener : extHook.getHttpSenderListeners()) {
+            try {
+                HttpSender.addListener(httpSenderListener);
+            } catch (Exception e) {
+                logger.error("Error while adding an HttpSenderListener from " + extension.getClass().getCanonicalName(), e);
             }
         }
     }
@@ -1132,15 +1196,16 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).init();
-                getExtension(i).databaseOpen(Model.getSingleton().getDb());
+                extension.init();
+                extension.databaseOpen(Model.getSingleton().getDb());
                 if (view != null) {
                 	view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
             } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1153,14 +1218,15 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).initModel(model);
+                extension.initModel(model);
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1177,8 +1243,8 @@ public class ExtensionLoader {
         final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            final Extension extension = getExtension(i);
             try {
-                final Extension extension = getExtension(i);
                 EventQueue.invokeAndWait(new Runnable() {
 
                     @Override
@@ -1189,7 +1255,7 @@ public class ExtensionLoader {
                 });
                 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1198,14 +1264,15 @@ public class ExtensionLoader {
         double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
+            Extension extension = getExtension(i);
             try {
-                getExtension(i).initXML(session, options);
+                extension.initXML(session, options);
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logExtensionInitError(extension, e);
             }
         }
     }
@@ -1258,6 +1325,14 @@ public class ExtensionLoader {
                 API.getInstance().removeApiImplementor(apiImplementor);
             } catch (Exception e) {
                 logger.error("Error while removing an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        for (HttpSenderListener httpSenderListener : hook.getHttpSenderListeners()) {
+            try {
+                HttpSender.removeListener(httpSenderListener);
+            } catch (Exception e) {
+                logger.error("Error while removing an HttpSenderListener from " + extension.getClass().getCanonicalName(), e);
             }
         }
 

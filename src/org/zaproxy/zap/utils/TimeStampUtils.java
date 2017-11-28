@@ -74,9 +74,7 @@ public final class TimeStampUtils {
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
 			final String formattedTimeStamp = sdf.format(new Date());
 			return formattedTimeStamp; 
-		} catch (IllegalArgumentException e) {
-			return(TimeStampUtils.currentDefaultFormattedTimeStamp());  
-		} catch (NullPointerException e) {
+		} catch (IllegalArgumentException | NullPointerException e) {
 			return(TimeStampUtils.currentDefaultFormattedTimeStamp());  
 		} 
 	}

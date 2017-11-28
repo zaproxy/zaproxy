@@ -89,6 +89,10 @@ public final class AddOnInstaller {
  
         // postInstall actions
         for (Extension ext : listExts) {
+            if (!ext.isEnabled()) {
+                continue;
+            }
+
             try {
                 ext.postInstall();
             } catch (Exception e) {
@@ -250,6 +254,8 @@ public final class AddOnInstaller {
                 uninstalledWithoutErrors = false;
             }
             callback.extensionRemoved(extUiName);
+        } else {
+            ExtensionFactory.removeAddOnExtension(extension);
         }
         addOn.removeLoadedExtension(extension);
 
@@ -296,9 +302,7 @@ public final class AddOnInstaller {
 
     private static void installAddOnPassiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
         List<PluginPassiveScanner> pscanrules = AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader);
-        ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionPassiveScan.NAME);
+        ExtensionPassiveScan extPscan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
 
         if (!pscanrules.isEmpty() && extPscan != null) {
             for (PluginPassiveScanner pscanrule : pscanrules) {
@@ -315,9 +319,7 @@ public final class AddOnInstaller {
         boolean uninstalledWithoutErrors = true;
 
         List<PluginPassiveScanner> loadedPscanrules = addOn.getLoadedPscanrules();
-        ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionPassiveScan.NAME);
+        ExtensionPassiveScan extPscan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
         if (!loadedPscanrules.isEmpty()) {
             logger.debug("Uninstall pscanrules: " + addOn.getPscanrules());
             callback.passiveScanRulesWillBeRemoved(loadedPscanrules.size());
@@ -347,6 +349,17 @@ public final class AddOnInstaller {
         installAddOnFiles(addOnClassLoader, addOn, false);
     }
 
+    /**
+     * Updates the files declared by the given {@code addOn}.
+     *
+     * @param addOnClassLoader the class loader of the given {@code addOn}.
+     * @param addOn the add-on that will have the declared files updated.
+     * @since 2.7.0
+     */
+    public static void updateAddOnFiles(AddOnClassLoader addOnClassLoader, AddOn addOn) {
+        installAddOnFiles(addOnClassLoader, addOn, true);
+    }
+
     private static void installAddOnFiles(AddOnClassLoader addOnClassLoader, AddOn addOn, boolean overwrite) {
         List<String> fileNames = addOn.getFiles();
 
@@ -361,14 +374,14 @@ public final class AddOnInstaller {
                 continue;
             }
             if (!outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
-                logger.error("Failed to create directories for: " + outfile.getAbsolutePath());
+                logger.error("Failed to create directories for add-on " + addOn + ": " + outfile.getAbsolutePath());
                 continue;
             }
 
             logger.debug("Installing file: " + name);
             URL fileURL = addOnClassLoader.findResource(name);
             if (fileURL == null) {
-                logger.error("File not found on add-on package: " + name);
+                logger.error("File not found in add-on " + addOn + ": " + name);
                 continue;
             }
             try (InputStream in = fileURL.openStream(); OutputStream out = new FileOutputStream(outfile)) {
@@ -378,7 +391,7 @@ public final class AddOnInstaller {
                     out.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
-                logger.error("Failed to install file " + outfile.getAbsolutePath(), e);
+                logger.error("Failed to install a file from add-on " + addOn + ": " + outfile.getAbsolutePath(), e);
             }
         }
         Control.getSingleton().getExtensionLoader().addonFilesAdded();
@@ -415,7 +428,7 @@ public final class AddOnInstaller {
             File file = new File(Constant.getZapHome(), name);
             try {
                 File parent = file.getParentFile();
-                if (!file.delete()) {
+                if (file.exists() && !file.delete()) {
                     logger.error("Failed to delete: " + file.getAbsolutePath());
                     uninstalledWithoutErrors = false;
                 }

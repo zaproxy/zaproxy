@@ -20,9 +20,14 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
@@ -36,6 +41,7 @@ public class BackgroundImagePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private BufferedImage img;
+    private double scale = 1;
 
     /**
      * Default constructor 
@@ -68,6 +74,17 @@ public class BackgroundImagePanel extends JPanel {
     }
 
     /**
+     * set the current Background image
+     * @param imageUrl the url of the image that need to be set
+     * @param scale the scale that should be applied to the image
+     * @since 2.7.0
+     */
+    public final void setBackgroundImage(URL imageUrl, double scale) {
+        this.setBackgroundImage(imageUrl);
+        this.scale = scale;
+    }
+
+    /**
      * Overridden method to paint a background before the rest
      * @param g the Graphics context
      */
@@ -75,7 +92,14 @@ public class BackgroundImagePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         if (img != null) {
             setOpaque(false);
-            g.drawImage(img, 0, 0, DisplayUtils.getScaledSize(img.getWidth()), DisplayUtils.getScaledSize(img.getHeight()), null);
+            Map<RenderingHints.Key, Object> hints = new HashMap<RenderingHints.Key, Object>();
+            hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            hints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ((Graphics2D) g).addRenderingHints(hints);
+            g.drawImage(img, 0, 0, 
+                    (int)(DisplayUtils.getScaledSize(img.getWidth()) * scale),
+                    (int)(DisplayUtils.getScaledSize(img.getHeight()) * scale), null);
         }
         
         super.paintComponent(g);

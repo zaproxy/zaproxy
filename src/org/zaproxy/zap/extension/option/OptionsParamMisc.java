@@ -22,6 +22,10 @@ package org.zaproxy.zap.extension.option;
 
 import org.parosproxy.paros.common.AbstractParam;
 
+/**
+ * @deprecated (2.7.0) Not used, it will be removed in a future version.
+ */
+@Deprecated
 public class OptionsParamMisc extends AbstractParam {
 
 	private static final String SAVE_DIR = "misc.saveDir";

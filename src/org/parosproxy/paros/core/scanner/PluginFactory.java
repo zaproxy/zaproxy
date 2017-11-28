@@ -46,6 +46,10 @@
 // ZAP: 2016/06/27 Reduce log level when loading the plugins
 // ZAP: 2016/06/29 Do not log when cloning PluginFactory
 // ZAP: 2016/07/25 Fix to correct handling of lists in plugins
+// ZAP: 2017/06/20 Allow to obtain a Plugin by ID.
+// ZAP: 2017/07/05 Log an error if the Plugin does not have a defined ID.
+// ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status comparison.
+// ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -53,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,6 +75,7 @@ public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
     private static List<AbstractPlugin> loadedPlugins = null;
+    private static Map<Integer, Plugin> mapLoadedPlugins;
     
     private List<Plugin> listAllPlugin = new ArrayList<Plugin>();
     private LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
@@ -94,7 +100,31 @@ public class PluginFactory {
 	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
 	        //sort by the criteria below.
 	        Collections.sort(loadedPlugins, riskComparator);
+
+            mapLoadedPlugins = new HashMap<>();
+            for (Plugin plugin : loadedPlugins) {
+                checkPluginId(plugin);
+                mapLoadedPlugins.put(plugin.getId(), plugin);
+            }
     	}
+    }
+
+    private static void checkPluginId(Plugin plugin) {
+        if (plugin.getId() == -1) {
+            log.error("The active scan rule [" + plugin.getClass().getCanonicalName() + "] does not have a defined ID.");
+        }
+    }
+
+    /**
+     * Gets the {@code Plugin} with the given ID.
+     *
+     * @param id the ID of the plugin.
+     * @return the {@code Plugin}, or {@code null} if not found (e.g. not installed).
+     * @since 2.7.0
+     */
+    public static Plugin getLoadedPlugin(int id) {
+        initPlugins();
+        return mapLoadedPlugins.get(id);
     }
     
     private static List<AbstractPlugin> getLoadedPlugins() {
@@ -139,7 +169,9 @@ public class PluginFactory {
      */
     public static void loadedPlugin(AbstractPlugin plugin) {
         if (!isPluginLoadedImpl(plugin)) {
+            checkPluginId(plugin);
             getLoadedPlugins().add(plugin);
+            mapLoadedPlugins.put(plugin.getId(), plugin);
             Collections.sort(loadedPlugins, riskComparator);
         }
     }
@@ -154,7 +186,7 @@ public class PluginFactory {
     public static boolean loadedPlugin(String className) {
         try {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
-        	loadedPlugin((AbstractPlugin) c.newInstance());
+        	loadedPlugin((AbstractPlugin) c.getDeclaredConstructor().newInstance());
         	return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -169,6 +201,7 @@ public class PluginFactory {
         for (Iterator<AbstractPlugin> it = getLoadedPlugins().iterator(); it.hasNext();) {
             if (it.next() == plugin) {
                 it.remove();
+                mapLoadedPlugins.remove(plugin.getId());
                 return;
             }
         }
@@ -188,6 +221,7 @@ public class PluginFactory {
     	for (AbstractPlugin plugin : loadedPlugins) {
             if (plugin.getClass().getName().equals(className)) {
             	loadedPlugins.remove(plugin);
+            	mapLoadedPlugins.remove(plugin.getId());
             	return true;
             }
     	}
@@ -198,16 +232,12 @@ public class PluginFactory {
     private static final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
         @Override
         public int compare(AbstractPlugin e1, AbstractPlugin e2) {
-        	if (e1.getStatus().ordinal() > e2.getStatus().ordinal()) {
-            	//High Risk alerts are checked before low risk alerts
-                return -1;
-        		
-        	}
-        	if (e1.getStatus().ordinal() < e2.getStatus().ordinal()) {
-            	//High Risk alerts are checked before low risk alerts
-                return 1;
-        		
-        	}
+            // Run stable plugins first
+            int res = e1.getStatus().compareTo(e2.getStatus());
+            if (res != 0) {
+                return -res;
+            }
+
             if (e1.getRisk() > e2.getRisk()) {
             	//High Risk alerts are checked before low risk alerts
                 return -1;
@@ -255,7 +285,10 @@ public class PluginFactory {
                 // ZAP: Removed unnecessary cast.
                 plugin = iterator.next();
                 if (plugin.isEnabled()) {
-                    listPending.add(plugin);
+                    addAllDependencies(plugin, listPending);
+                    if (!listPending.contains(plugin)) {
+                        listPending.add(plugin);
+                    }
                 }
             }
             
@@ -304,8 +337,8 @@ public class PluginFactory {
             if (pluginDep == null) {
                 allDepsAvailable = false;
             } else if (!to.contains(pluginDep)) {
-                to.add(pluginDep);
                 allDepsAvailable &= addAllDependencies(pluginDep, to);
+                to.add(pluginDep);
             }
         }
         return allDepsAvailable;
@@ -404,7 +437,7 @@ public class PluginFactory {
     }
 
     private static Plugin createNewPlugin(Plugin plugin, Configuration config) throws ReflectiveOperationException {
-        Plugin newPlugin = plugin.getClass().newInstance();
+        Plugin newPlugin = plugin.getClass().getDeclaredConstructor().newInstance();
         newPlugin.setConfig(new BaseConfiguration());
         plugin.cloneInto(newPlugin);
 
@@ -464,7 +497,7 @@ public class PluginFactory {
     	Plugin pluginCopy;
     	for (Plugin plugin : listAllPlugin) {
     		try {
-				pluginCopy  = plugin.getClass().newInstance();
+				pluginCopy  = plugin.getClass().getDeclaredConstructor().newInstance();
 				pluginCopy.setConfig(clone.config);
 				plugin.cloneInto(pluginCopy);
 				clone.addPlugin(pluginCopy);
@@ -478,7 +511,7 @@ public class PluginFactory {
     public boolean addPlugin(String name) {
         try {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
-        	Plugin plugin = (AbstractPlugin) c.newInstance();
+        	Plugin plugin = (AbstractPlugin) c.getDeclaredConstructor().newInstance();
 
             boolean duplicatedId = mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null;
             if (this.addPlugin(plugin)) {

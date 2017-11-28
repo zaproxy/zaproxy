@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
@@ -35,7 +34,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,15 +120,13 @@ public class ScanProgressDialog extends AbstractDialog {
     public ScanProgressDialog(Frame owner, String target, ExtensionActiveScan extension) {
         super(owner, false);
         if (target != null) {
-            this.setTitle(MessageFormat.format(Constant.messages.getString("ascan.progress.title"), target));
+            this.setTitle(Constant.messages.getString("ascan.progress.title", target));
         }
         this.extension = extension;
         this.initialize();
     }
 
     private void initialize() {
-        this.setSize(new Dimension(580, 504));
-
         JTabbedPane tabbedPane = new JTabbedPane();
         JPanel tab1 = new JPanel();
         tab1.setLayout(new GridBagLayout());
@@ -202,6 +198,7 @@ public class ScanProgressDialog extends AbstractDialog {
                 stopThread = true;
             }
         });
+        pack();
     }
 
     private JFreeChart createChart(final XYDataset dataset) {
@@ -340,10 +337,13 @@ public class ScanProgressDialog extends AbstractDialog {
             rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
             table.getColumnModel().getColumn(4).setPreferredWidth(60);
             table.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+
+            table.getColumnModel().getColumn(5).setPreferredWidth(60);
+            table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
             
             // Fifth column is for plugin's completion and actions
-            table.getColumnModel().getColumn(5).setPreferredWidth(40);                  
-            table.getColumnModel().getColumn(5).setCellRenderer(new ScanProgressActionRenderer());
+            table.getColumnModel().getColumn(6).setPreferredWidth(40);                  
+            table.getColumnModel().getColumn(6).setCellRenderer(new ScanProgressActionRenderer());
 
             ScanProgressActionListener listener = new ScanProgressActionListener(table, model);
             table.addMouseListener(listener);

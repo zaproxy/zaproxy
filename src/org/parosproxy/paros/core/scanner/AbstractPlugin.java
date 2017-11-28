@@ -53,6 +53,9 @@
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
 // ZAP: 2016/07/12 Do not allow techSet to be null
 // ZAP: 2017/03/27 Use HttpRequestConfig.
+// ZAP: 2017/05/31 Remove re-declaration of methods.
+// ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
+// ZAP: 2017/11/14 Notify completion in a finally block.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -130,12 +133,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     @Override
-    public abstract int getId();
-
-    @Override
-    public abstract String getName();
-
-    @Override
     public String getCodeName() {
         String result = getClass().getName();
         int pos = getClass().getName().lastIndexOf(".");
@@ -155,18 +152,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public String[] getDependency() {
         return NO_DEPENDENCIES;
     }
-
-    @Override
-    public abstract String getDescription();
-
-    @Override
-    public abstract int getCategory();
-
-    @Override
-    public abstract String getSolution();
-
-    @Override
-    public abstract String getReference();
 
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
@@ -282,7 +267,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
             if (extAntiCSRF == null) {
-                extAntiCSRF = (ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+                extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
                 List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(message);
@@ -397,17 +382,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             
         } catch (Exception e) {
             getLog().error(e.getMessage(), e);
+        } finally {
+            notifyPluginCompleted(getParent());
+            this.finished = new Date();
         }
-        
-        notifyPluginCompleted(getParent());
-        this.finished = new Date();
     }
-
-    /**
-     * The core scan method to be implemented by subclass.
-     */
-    @Override
-    public abstract void scan();
 
     /**
      * Generate an alert when a security issue (risk/info) is found. Default
@@ -803,9 +782,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public HostProcess getParent() {
         return parent;
     }
-
-    @Override
-    public abstract void notifyPluginCompleted(HostProcess parent);
 
     /**
      * Replace body by stripping of pattern string. The URLencoded and

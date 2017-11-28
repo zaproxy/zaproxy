@@ -46,10 +46,15 @@ import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.core.scanner.Plugin;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
 import org.zaproxy.zap.utils.FontUtils;
@@ -64,6 +69,8 @@ public class AlertViewPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AlertViewPanel.class);
 	
+	private static final int UNDEFINED_ID = -1;
+
 	private static final Insets DEFAULT_INSETS = new Insets(1,1,1,1);
 	
 	private JScrollPane defaultPane = null;
@@ -83,9 +90,9 @@ public class AlertViewPanel extends AbstractPanel {
 	private ZapTextArea alertOtherInfo = null;
 	private ZapTextArea alertSolution = null;
 	private ZapTextArea alertReference = null;
-	private JLabel alertCweId = null;
-	private JLabel alertWascId = null;
-	private JLabel alertSource;
+	private ZapLabel alertCweId = null;
+	private ZapLabel alertWascId = null;
+	private ZapLabel alertSource;
 	
 	private JComboBox<String> alertEditName = null;
 	private JComboBox<String> alertEditRisk = null;
@@ -248,17 +255,23 @@ public class AlertViewPanel extends AbstractPanel {
 			// Read only ones
 			alertName = new ZapLabel();
 			alertName.setFont(FontUtils.getFont(Font.BOLD));
+			alertName.setLineWrap(true);
 
 			alertRisk = new JLabel();
 			alertConfidence = new JLabel();
 			alertParam = new ZapLabel();
+			alertParam.setLineWrap(true);
 			alertAttack = new ZapLabel();
+			alertAttack.setLineWrap(true);
 			alertEvidence = new ZapLabel();
-			alertCweId = new JLabel();
-			alertWascId = new JLabel();
-			alertSource = new JLabel();
+			alertEvidence.setLineWrap(true);
+			alertCweId = new ZapLabel();
+			alertWascId = new ZapLabel();
+			alertSource = new ZapLabel();
+			alertSource.setLineWrap(true);
 
 			alertUrl = new ZapLabel();
+			alertUrl.setLineWrap(true);
 			
 			alertDescription = createZapTextArea();
 			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
@@ -401,9 +414,9 @@ public class AlertViewPanel extends AbstractPanel {
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
 			alertEvidence.setText(alert.getEvidence());
-			alertCweId.setText(Integer.toString(alert.getCweId()));
-			alertWascId.setText(Integer.toString(alert.getWascId()));
-			alertSource.setText(Constant.messages.getString(alert.getSource().getI18nKey()));
+			alertCweId.setText(normalisedId(alert.getCweId()));
+			alertWascId.setText(normalisedId(alert.getWascId()));
+			alertSource.setText(getSourceData(alert));
 		}
 		
 		setAlertDescription(alert.getDescription());
@@ -412,6 +425,36 @@ public class AlertViewPanel extends AbstractPanel {
 		setAlertReference(alert.getReference());
 
 		cardLayout.show(this, getAlertPane().getName());
+	}
+
+	private static String normalisedId(int id) {
+		return id != UNDEFINED_ID ? Integer.toString(id) : "";
+	}
+
+	private String getSourceData(Alert alert) {
+		String source = Constant.messages.getString(alert.getSource().getI18nKey());
+		if (alert.getPluginId() == UNDEFINED_ID) {
+			return source;
+		}
+
+		StringBuilder strBuilder = new StringBuilder(source);
+		strBuilder.append(" (").append(alert.getPluginId());
+		if (alert.getSource() == Alert.Source.ACTIVE) {
+			Plugin plugin = PluginFactory.getLoadedPlugin(alert.getPluginId());
+			if (plugin != null) {
+				strBuilder.append(" - ").append(plugin.getName());
+			}
+		} else if (alert.getSource() == Alert.Source.PASSIVE) {
+			ExtensionPassiveScan ext = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
+			if (ext != null) {
+				PluginPassiveScanner scanner = ext.getPluginPassiveScanner(alert.getPluginId());
+				if (scanner != null) {
+					strBuilder.append(" - ").append(scanner.getName());
+				}
+			}
+		}
+		strBuilder.append(')');
+		return strBuilder.toString();
 	}
 	
 	public void clearAlert () {

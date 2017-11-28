@@ -52,7 +52,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -80,6 +79,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     private AlertTreeModel filteredTreeModel = null;
     private AlertPanel alertPanel = null;
     private RecordScan recordScan = null;
+    private PopupMenuAlert popupMenuAlertAdd;
     private PopupMenuAlertEdit popupMenuAlertEdit = null;
     private PopupMenuAlertDelete popupMenuAlertDelete = null;
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
@@ -88,10 +88,16 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 	private AlertParam alertParam = null;
 	private OptionsAlertPanel optionsPanel = null;
 	private Properties alertOverrides = new Properties();
+	private AlertAddDialog dialogAlertAdd;
 
     public ExtensionAlert() {
         super(NAME);
         this.setOrder(27);
+    }
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("alerts.name");
     }
 
     @Override
@@ -100,6 +106,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 	    extensionHook.addOptionsParamSet(getAlertParam());
         if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertAdd());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
@@ -124,7 +131,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 		reloadOverridesFile();
 	}
 	
-	private void reloadOverridesFile() {
+	public boolean reloadOverridesFile() {
 		this.alertOverrides.clear();
 
 		String filename = this.getAlertParam().getOverridesFilename();
@@ -132,16 +139,20 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 			File file = new File(filename);
 			if (! file.isFile() || ! file.canRead()) {
 				logger.error("Cannot read alert overrides file " + file.getAbsolutePath());
-			} else {
-				try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
-					this.alertOverrides.load(br);
-					logger.info("Read " + this.alertOverrides.size() + 
-							" overrides from " + file.getAbsolutePath());
-				} catch (IOException e) {
-					logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
-				}
+				return false;
+			}
+
+			try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+				this.alertOverrides.load(br);
+				logger.info("Read " + this.alertOverrides.size() + 
+						" overrides from " + file.getAbsolutePath());
+				return true;
+			} catch (IOException e) {
+				logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
+				return false;
 			}
 		}
+		return true;
 	}
 
 	private OptionsAlertPanel getOptionsPanel() {
@@ -333,18 +344,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     AlertPanel getAlertPanel() {
         if (alertPanel == null) {
             alertPanel = new AlertPanel(this);
-            alertPanel.setView(getView());
             alertPanel.setSize(345, 122);
             setMainTreeModel();
         }
 
         return alertPanel;
-    }
-
-    @Override
-    public void initView(ViewDelegate view) {
-        super.initView(view);
-        getAlertPanel().setView(view);
     }
 
     AlertTreeModel getTreeModel() {
@@ -472,9 +476,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         //Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
         Vector<Integer> v = tableAlert.getAlertList();
 
-        final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionHistory.NAME);
+        final ExtensionHistory extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 
         for (int i = 0; i < v.size(); i++) {
             int alertId = v.get(i).intValue();
@@ -508,9 +510,16 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         siteTree.nodeStructureChanged((SiteNode) siteTree.getRoot());
     }
 
+    private PopupMenuAlert getPopupMenuAlertAdd() {
+        if (popupMenuAlertAdd == null) {
+            popupMenuAlertAdd = new PopupMenuAlert(Constant.messages.getString("alert.add.popup"), this);
+        }
+        return popupMenuAlertAdd;
+    }
+
     private PopupMenuAlertEdit getPopupMenuAlertEdit() {
         if (popupMenuAlertEdit == null) {
-            popupMenuAlertEdit = new PopupMenuAlertEdit();
+            popupMenuAlertEdit = new PopupMenuAlertEdit(this);
         }
         return popupMenuAlertEdit;
     }
@@ -531,7 +540,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 
     private PopupMenuShowAlerts getPopupMenuShowAlerts() {
         if (popupMenuShowAlerts == null) {
-            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup"));
+            popupMenuShowAlerts = new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup"), this);
         }
         return popupMenuShowAlerts;
     }
@@ -895,6 +904,57 @@ public class ExtensionAlert extends ExtensionAdaptor implements
      */
     public void setLinkWithSitesTreeSelection(boolean enabled) {
         getAlertPanel().setLinkWithSitesTreeSelection(enabled);
+    }
+    
+    /**
+     * Shows the Add Alert dialogue, to add a new alert for the given {@code HistoryReference}.
+     *
+     * @param ref the history reference for the alert.
+     * @since 2.7.0
+     */
+    public void showAlertAddDialog(HistoryReference ref) {
+        if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setVisible(true);
+            dialogAlertAdd.setHistoryRef(ref);
+        }
+    }
+
+    /**
+     * Shows the Add Alert dialogue, using the given {@code HttpMessage} and history type for the {@code HistoryReference} that
+     * will be created if the user creates the alert. The current session will be used to create the {@code HistoryReference}.
+     * The alert created will be added to the newly created {@code HistoryReference}.
+     * <p>
+     * Should be used when the alert is added to a temporary {@code HistoryReference} as the temporary {@code HistoryReference}s
+     * are deleted when the session is closed.
+     * 
+     * @param httpMessage the {@code HttpMessage} that will be used to create the {@code HistoryReference}, must not be
+     *            {@code null}.
+     * @param historyType the type of the history reference that will be used to create the {@code HistoryReference}.
+     * @since 2.7.0
+     * @see Model#getSession()
+     * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session, int, HttpMessage)
+     */
+    public void showAlertAddDialog(HttpMessage httpMessage, int historyType) {
+        if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setHttpMessage(httpMessage, historyType);
+            dialogAlertAdd.setVisible(true);
+        }
+    }
+
+    /**
+     * Shows the "Edit Alert" dialogue, with the given alert.
+     *
+     * @param alert the alert to be edited.
+     * @since 2.7.0
+     */
+    public void showAlertEditDialog(Alert alert) {
+        if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
+            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
+            dialogAlertAdd.setVisible(true);
+            dialogAlertAdd.setAlert(alert);
+        }
     }
 
     /**

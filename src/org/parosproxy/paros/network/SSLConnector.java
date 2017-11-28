@@ -30,6 +30,8 @@
 // ZAP: 2014/08/14 Issue 1274: ZAP Error [javax.net.ssl.SSLException]: Unsupported record version SSLv2Hello
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 // ZAP: 2015/10/13 Issue 1975: Allow use of default disabled cipher suites (such as RC4-SHA)
+// ZAP: 2017/04/14 Validate that SSLv2Hello is set in conjunction with at least one SSL/TLS version.
+// ZAP: 2017/09/22 Rely on SNI if the domain is no known when creating the SSL/TLS tunnel.
 
 package org.parosproxy.paros.network;
 
@@ -46,22 +48,32 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.StandardConstants;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
+import javax.net.ssl.X509KeyManager;
 
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.LRUMap;
@@ -252,6 +264,16 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 				"Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
 	}
 
+	/**
+	 * Gets the SSL/TLS versions that can be safely used (known to be supported by the JRE).
+	 *
+	 * @return the SSL/TLS versions that can be safely used.
+	 * @since 2.7.0
+	 */
+	public static String[] getFailSafeProtocols() {
+		return Arrays.copyOf(FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS, FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS.length);
+	}
+
 	public static String[] getSupportedProtocols() {
 		if (supportedProtocols == null) {
 			readSupportedProtocols(null);
@@ -328,6 +350,10 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 		if (enabledSupportedProtocols.isEmpty()) {
 			throw new IllegalArgumentException("No supported protocol(s) set.");
+		}
+
+		if (enabledSupportedProtocols.size() == 1 && enabledSupportedProtocols.contains(SECURITY_PROTOCOL_SSL_V2_HELLO)) {
+			throw new IllegalArgumentException("Only SSLv2Hello set, must have at least one SSL/TLS version enabled.");
 		}
 
 		String[] extractedSupportedProtocols = new String[enabledSupportedProtocols.size()];
@@ -524,13 +550,17 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			// Normally "SunX509", "IbmX509"...
 			KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
-			SslCertificateService scs = CachedSslCertifificateServiceImpl.getService();
-			KeyStore ks = scs.createCertForHost(hostname);
+			KeyManager[] keyManagers;
+			if (hostname != null && !hostname.isEmpty()) {
+				initKeyManagerFactoryWithCertForHostname(kmf, hostname);
+				keyManagers = kmf.getKeyManagers();
+			} else {
+				keyManagers = new KeyManager[] { new SniX509KeyManager(kmf) };
+			}
 
-			kmf.init(ks, SslCertificateService.PASSPHRASE);
 			java.security.SecureRandom x = new java.security.SecureRandom();
 			x.setSeed(System.currentTimeMillis());
-			ctx.init(kmf.getKeyManagers(), null, x);
+			ctx.init(keyManagers, null, x);
 
 			SSLSocketFactory tunnelSSLFactory = createDecoratedServerSslSocketFactory(ctx.getSocketFactory());
 
@@ -544,6 +574,13 @@ public class SSLConnector implements SecureProtocolSocketFactory {
             // friendly way?
             throw new RuntimeException(e);
         }
+	}
+
+	static void initKeyManagerFactoryWithCertForHostname(KeyManagerFactory keyManagerFactory, String hostname)
+			throws InvalidKeyException, UnrecoverableKeyException, NoSuchAlgorithmException, CertificateException,
+			NoSuchProviderException, SignatureException, KeyStoreException, IOException {
+		KeyStore ks = CachedSslCertifificateServiceImpl.getService().createCertForHost(hostname);
+		keyManagerFactory.init(ks, SslCertificateService.PASSPHRASE);
 	}
 
 	private static SSLSocketFactory createDecoratedServerSslSocketFactory(final SSLSocketFactory delegate) {
@@ -610,6 +647,109 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		}
 	}
 
+	private static class SniX509KeyManager implements X509KeyManager {
+
+		private final KeyManagerFactory keyManagerFactory;
+		private X509KeyManager x509KeyManager;
+
+		public SniX509KeyManager(KeyManagerFactory keyManagerFactory) {
+			this.keyManagerFactory = keyManagerFactory;
+		}
+
+		@Override
+		public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+			if (x509KeyManager == null) {
+				createX509KeyManager(socket);
+			}
+			return x509KeyManager.chooseServerAlias(keyType, issuers, socket);
+		}
+
+		private void createX509KeyManager(Socket socket) {
+			if (!(socket instanceof SSLSocket)) {
+				logAndThrow("Expected a SSLSocket to extract the domain from SNI extension.");
+			}
+
+			SSLSocket sslSocket = (SSLSocket) socket;
+			String hostname = extractHostname(sslSocket.getHandshakeSession());
+
+			if (hostname == null) {
+				logAndThrow("No domain extracted from SSL/TLS handshake session.");
+			}
+
+			try {
+				initKeyManagerFactoryWithCertForHostname(keyManagerFactory, hostname);
+			} catch (InvalidKeyException
+					 | UnrecoverableKeyException
+					 | NoSuchAlgorithmException
+					 | CertificateException
+					 | NoSuchProviderException
+					 | SignatureException
+					 | KeyStoreException
+					 | IOException e) {
+				logAndThrow("Failed to generate the certificate for '" + hostname + "' caused by: " + e.getMessage(), e);
+			}
+
+			x509KeyManager = getX509KeyManager(keyManagerFactory.getKeyManagers());
+			if (x509KeyManager == null) {
+				logAndThrow("No X509KeyManager found in: " + Arrays.toString(keyManagerFactory.getKeyManagers()));
+			}
+		}
+
+		private static void logAndThrow(String message) {
+			logAndThrow(message, null);
+		}
+
+		private static void logAndThrow(String message, Throwable cause) {
+			logger.warn(message, cause);
+			throw new RuntimeException(message, cause);
+		}
+
+		private static X509KeyManager getX509KeyManager(KeyManager[] keyManagers) {
+			for (int i = 0; i < keyManagers.length; i++) {
+				KeyManager keyManager = keyManagers[i];
+				if (keyManager instanceof X509KeyManager) {
+					return (X509KeyManager) keyManager;
+				}
+			}
+			return null;
+		}
+
+		private static String extractHostname(SSLSession sslSession) {
+			if (sslSession instanceof ExtendedSSLSession) {
+				for (SNIServerName serverName : ((ExtendedSSLSession) sslSession).getRequestedServerNames()) {
+					if (serverName.getType() == StandardConstants.SNI_HOST_NAME) {
+						return ((SNIHostName) serverName).getAsciiName();
+					}
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public X509Certificate[] getCertificateChain(String alias) {
+			return x509KeyManager.getCertificateChain(alias);
+		}
+
+		@Override
+		public PrivateKey getPrivateKey(String alias) {
+			return x509KeyManager.getPrivateKey(alias);
+		}
+
+		@Override
+		public String[] getServerAliases(String keyType, Principal[] issuers) {
+			return null;
+		}
+
+		@Override
+		public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+			return null;
+		}
+
+		@Override
+		public String[] getClientAliases(String keyType, Principal[] issuers) {
+			return null;
+		}
+	}
 }
 
 class RelaxedX509TrustManager extends X509ExtendedTrustManager {

@@ -61,6 +61,8 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 			addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 			addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
 			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
+
+			setCodeFoldingAllowed(true);
 		}
 
 		@Override

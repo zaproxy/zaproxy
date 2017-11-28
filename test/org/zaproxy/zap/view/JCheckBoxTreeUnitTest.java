@@ -621,7 +621,7 @@ public class JCheckBoxTreeUnitTest {
         }
 
         @Override
-        public Enumeration<?> children() {
+        public Enumeration<? extends TreeNode> children() {
             return null;
         }
     }
@@ -659,7 +659,7 @@ public class JCheckBoxTreeUnitTest {
         }
 
         @Override
-        public Enumeration<?> children() {
+        public Enumeration<? extends TreeNode> children() {
             return null;
         }
 
@@ -729,9 +729,9 @@ public class JCheckBoxTreeUnitTest {
             String nextNodeName = path[level];
 
             @SuppressWarnings("unchecked")
-            Enumeration<DefaultMutableTreeNode> children = currentNode.children();
+            Enumeration<TreeNode> children = currentNode.children();
             while (children.hasMoreElements()) {
-                DefaultMutableTreeNode childNode = children.nextElement();
+                DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) children.nextElement();
                 if (childNode.getUserObject().equals(nextNodeName)) {
                     addNodes(childNode, nodes, path, level + 1);
                     return;
@@ -772,9 +772,9 @@ public class JCheckBoxTreeUnitTest {
             String nextNodeName = nodes[level];
 
             @SuppressWarnings("unchecked")
-            Enumeration<DefaultMutableTreeNode> children = node.children();
+            Enumeration<TreeNode> children = node.children();
             while (children.hasMoreElements()) {
-                DefaultMutableTreeNode childNode = children.nextElement();
+                DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) children.nextElement();
                 if (childNode.getUserObject().equals(nextNodeName)) {
                     nextNode = childNode;
                     break;

@@ -32,6 +32,7 @@
 // ZAP: 2014/02/09 Add custom input vector scripting capabilities
 // ZAP: 2014/08/14 Issue 1279: Active scanner excluded parameters not working when "Where" is "Any"
 // ZAP: 2016/06/15 Add VariantHeader based on the current scan options
+// ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -67,6 +68,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             if ((enabledRPC & ScannerParam.RPC_ODATA) != 0) {
                 listVariant.add(new VariantODataIdQuery());
                 listVariant.add(new VariantODataFilterQuery());
+            }
+            
+            if ((targets & ScannerParam.TARGET_URLPATH) == 0) {
+            	//If we're not already doing URLPath we should do DDN when doing QueryString
+            	listVariant.add(new VariantDdnPath());
             }
         }
 
@@ -289,7 +295,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     private ExtensionScript getExtension() {
         if (extension == null) {
-            extension = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+            extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         }
         return extension;
     }

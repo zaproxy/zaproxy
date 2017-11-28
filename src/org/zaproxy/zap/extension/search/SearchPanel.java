@@ -48,6 +48,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -84,6 +85,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private JCheckBox chkInverse = null;
 	private JLabel numberOfMatchesLabel;
 	private JButton optionsButton;
+	private TableExportButton<SearchResultsTable> exportButton = null;
 	
 	private MessageFormat numberOfMatchesFormat;
 
@@ -237,6 +239,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			panelToolbar.add(new JToolBar.Separator(), newGBC(8));
 			panelToolbar.add(getNumberOfMatchesLabel(), newGBC(9));
 			panelToolbar.add(t1, gridBagConstraintsX);
+			panelToolbar.add(getExportButton(), newGBC(10));
 			panelToolbar.add(getOptionsButton(), optionsGridBag);
 		}
 		return panelToolbar;
@@ -361,6 +364,13 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 	private void setNumberOfMatches(int numberOfMatches) {
 		numberOfMatchesLabel.setText(numberOfMatchesFormat.format(new Object[] { Integer.valueOf(numberOfMatches) }));
+	}
+
+	private TableExportButton<SearchResultsTable> getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton<>(resultsTable);
+		}
+		return exportButton;
 	}
 
 	private JButton getOptionsButton() {

@@ -184,6 +184,10 @@ public class GuiBootstrap extends ZapBootstrap {
 
         setupLocale(options);
 
+        if (viewParam.isUseSystemsLocaleForFormat()) {
+            Locale.setDefault(Locale.Category.FORMAT, Constant.getSystemsLocale());
+        }
+
         View.getSingleton().showSplashScreen();
 
         promptForProxyDetailsIfNeeded(options);
@@ -220,7 +224,7 @@ public class GuiBootstrap extends ZapBootstrap {
                 warnAddOnsAndExtensionsNoLongerRunnable();
 
                 if (firstTime) {
-                    // Disabled for now - we have too many popups occuring when you
+                    // Disabled for now - we have too many popups occurring when you
                     // first start up
                     // be nice to have a clean start up wizard...
                     // ExtensionHelp.showHelp();
@@ -228,9 +232,8 @@ public class GuiBootstrap extends ZapBootstrap {
                 } else {
                     // Dont auto check for updates the first time, no chance of any
                     // proxy having been set
-                    final ExtensionAutoUpdate eau = (ExtensionAutoUpdate) Control.getSingleton()
-                            .getExtensionLoader()
-                            .getExtension("ExtensionAutoUpdate");
+                    final ExtensionAutoUpdate eau = Control.getSingleton()
+                            .getExtensionLoader().getExtension(ExtensionAutoUpdate.class);
                     if (eau != null) {
                         eau.alertIfNewVersions();
                     }

@@ -58,13 +58,30 @@ import net.sf.json.JSONObject;
 
 public class API {
 	public enum Format {XML, HTML, JSON, JSONP, UI, OTHER};
-	public enum RequestType {action, view, other};
+	public enum RequestType {action, view, other, pconn};
 	
-	public static String API_DOMAIN = "zap";
-	public static String API_URL = "http://" + API_DOMAIN + "/";
-	public static String API_URL_S = "https://" + API_DOMAIN + "/";
-	public static String API_KEY_PARAM = "apikey";
-	public static String API_NONCE_PARAM = "apinonce";
+	/**
+	 * The custom domain to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_DOMAIN = "zap";
+
+	/**
+	 * The HTTP URL to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_URL = "http://" + API_DOMAIN + "/";
+
+	/**
+	 * The HTTPS URL to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_URL_S = "https://" + API_DOMAIN + "/";
+	public static final String API_KEY_PARAM = "apikey";
+	public static final String API_NONCE_PARAM = "apinonce";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
@@ -88,6 +105,13 @@ public class API {
 	 * @see #getOptionsParamApi()
 	 */
 	private OptionsParamApi optionsParamApi;
+
+	/**
+	 * The options of the local proxy.
+	 * 
+	 * @see #getProxyParam()
+	 */
+	private ProxyParam proxyParam;
 
 	private Random random = new SecureRandom();
     private static final Logger logger = Logger.getLogger(API.class);
@@ -174,6 +198,17 @@ public class API {
 
 	void setOptionsParamApi(OptionsParamApi optionsParamApi) {
 		this.optionsParamApi = optionsParamApi;
+	}
+
+	private ProxyParam getProxyParam() {
+		if (proxyParam == null) {
+			proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+		}
+		return proxyParam;
+	}
+
+	void setProxyParam(ProxyParam proxyParam) {
+		this.proxyParam = proxyParam;
 	}
 	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
@@ -467,6 +502,26 @@ public class API {
 							}
 						}
 						msg = impl.handleApiOther(msg, name, params);
+						break;
+					case pconn:
+						ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
+						if (pconn != null) {
+							if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+								if ( ! this.hasValidKey(requestHeader, params)) {
+									throw new ApiException(ApiException.Type.BAD_API_KEY);
+								}
+							}
+							List<String> mandatoryParams = pconn.getMandatoryParamNames();
+							if (mandatoryParams != null) {
+								for (String param : mandatoryParams) {
+									if (!params.has(param) || params.getString(param).length() == 0) {
+										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+									}
+								}
+							}
+						}
+						impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
+						return true;
 					}
 				} else {
 					// Handle default front page, unless if the API UI is disabled
@@ -515,34 +570,56 @@ public class API {
 	}
 	
 	/**
-	 * Returns a URI for the specified parameters. The API key will be added if required
+	 * Returns a URI for the specified parameters.
+	 * <p>
+	 * An {@link #getOneTimeNonce(String) one time nonce query parameter} is added to the resulting URL, if required (that is,
+	 * not a view). In this case the URL is ended with an ampersand (for example,
+	 * {@code https://zap/format/prefix/action/name/?apinonce=xyz&}), otherwise it has a trailing slash (for example,
+	 * {@code http://zap/format/prefix/view/name/}).
+	 * 
 	 * @param format the format of the API response
 	 * @param prefix the prefix of the API implementor
 	 * @param type the request type
 	 * @param name the name of the endpoint
 	 * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will start with http://zap/..
 	 * @return the URL to access the defined endpoint
+	 * @see #getBaseURL(boolean)
 	 */
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String apiPath = format.name() + "/" + prefix + "/" + type.name() + "/" + name + "/";
-		String base = API_URL;
-		if (getOptionsParamApi().isSecureOnly()) {
-			base = API_URL_S;
-		}
-		if (!proxy) {
-			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			if (getOptionsParamApi().isSecureOnly()) {
-				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
-			} else {
-				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
-			}
-		}
-		
 		if (!RequestType.view.equals(type)) {
-			return base + apiPath + "/?" + API_NONCE_PARAM + "=" + this.getOneTimeNonce(apiPath) + "&";
-		} else {
-			return base + apiPath;
+			return getBaseURL(proxy) + apiPath + "?" + API_NONCE_PARAM + "=" + this.getOneTimeNonce("/" + apiPath) + "&";
 		}
+		return getBaseURL(proxy) + apiPath;
+	}
+
+	/**
+	 * Gets the base URL to access the ZAP API, possibly proxying through ZAP.
+	 * <p>
+	 * If proxying through ZAP the base URL will use the custom domain, {@value #API_DOMAIN}.
+	 * <p>
+	 * The resulting base URL has a trailing slash, for example, {@code https://127.0.0.1/} or {@code https://zap/}.
+	 * 
+	 * @param proxy {@code true} if the URL will be accessed while proxying through ZAP, {@code false} otherwise.
+	 * @return the base URL to access the ZAP API.
+	 * @since 2.7.0
+	 */
+	public String getBaseURL(boolean proxy) {
+		if (proxy) {
+			return getOptionsParamApi().isSecureOnly() ? API_URL_S : API_URL;
+		}
+
+		StringBuilder strBuilder = new StringBuilder(50);
+		strBuilder.append("http");
+		if (getOptionsParamApi().isSecureOnly()) {
+			strBuilder.append('s');
+		}
+		strBuilder.append("://")
+				.append(getProxyParam().getProxyIp())
+				.append(':')
+				.append(getProxyParam().getProxyPort())
+				.append('/');
+		return strBuilder.toString();
 	}
 	
 	private String responseToHtml(String name, ApiResponse res) {
@@ -775,10 +852,6 @@ public class API {
             if (cause instanceof ApiException) {
                 switch (((ApiException) cause).getType()) {
                 case DISABLED:
-                    responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("ApiException while handling API request:", cause);
-                    logError = false;
-                    break;
                 case BAD_TYPE:
                 case NO_IMPLEMENTOR:
                 case BAD_API_KEY:
@@ -787,7 +860,7 @@ public class API {
                 case BAD_VIEW:
                 case BAD_OTHER:
                     responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("API 'other' malformed request:", cause);
+                    logBadRequest(msg, cause);
                     logError = false;
                     break;
                 default:
@@ -803,7 +876,7 @@ public class API {
                 exception = (ApiException) cause;
                 if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getType())) {
                     responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("ApiException while handling API request:", cause);
+                    logBadRequest(msg, cause);
                 }
             } else {
                 exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
@@ -820,6 +893,13 @@ public class API {
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Failed to build API error response:", e);
         }
+    }
+
+    private static void logBadRequest(HttpMessage msg, Exception cause) {
+        logger.warn(
+                "Bad request to API endpoint [" + msg.getRequestHeader().getURI().getEscapedPath() + "] from ["
+                        + msg.getRequestHeader().getSenderAddress().getHostAddress() + "]:",
+                cause);
     }
 
     private static String getCharset(String contentType) {

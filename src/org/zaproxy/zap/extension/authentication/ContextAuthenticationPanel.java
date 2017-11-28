@@ -246,8 +246,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	 * @return true, if successful
 	 */
 	private boolean confirmAndExecuteUsersDeletion() {
-		ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
-				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+		ExtensionUserManagement usersExtension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 		if (usersExtension != null) {
 			if (usersExtension.getSharedContextUsers(getUISharedContext()).size() > 0) {
 				authenticationMethodsComboBox.transferFocus();

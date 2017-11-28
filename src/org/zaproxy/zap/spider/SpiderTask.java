@@ -44,6 +44,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 
 /**
@@ -209,7 +210,7 @@ public class SpiderTask implements Runnable {
 			fetchResource(msg);
 		} catch (Exception e) {
 			setErrorResponse(msg, e);
-			parent.notifyListenersReadURI(msg);
+			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("ioerror")));
 
 			// The exception was already logged, in fetchResource, with the URL (which we dont have here)
 			parent.postTaskExecution();
@@ -218,6 +219,7 @@ public class SpiderTask implements Runnable {
 
 		// Check if the should stop
 		if (parent.isStopped()) {
+		    parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("stopped")));
 			log.debug("Spider process is stopped. Skipping crawling task...");
 			parent.postTaskExecution();
 			return;
@@ -226,24 +228,25 @@ public class SpiderTask implements Runnable {
 		parent.checkPauseAndWait();
 
 		// Check the parse filters to see if the resource should be skipped from parsing
-		boolean isFiltered = false;
 		for (ParseFilter filter : parent.getController().getParseFilters()) {
-			if (filter.isFiltered(msg)) {
+			FilterResult filterResult = filter.filtered(msg);
+			if (filterResult.isFiltered()) {
 				if (log.isDebugEnabled()) {
-					log.debug("Resource fetched, but will not be parsed due to a ParseFilter rule: "
-							+ msg.getRequestHeader().getURI());
+					log.debug(
+							"Resource [" + msg.getRequestHeader().getURI()
+									+ "] fetched, but will not be parsed due to a ParseFilter rule: "
+									+ filterResult.getReason());
 				}
-				isFiltered = true;
-				break;
+
+				parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, filterResult.getReason()));
+				parent.postTaskExecution();
+				return;
 			}
-		}
-		if (! isFiltered) {
-			// Notify the SpiderListeners that a resource was read
-			parent.notifyListenersReadURI(msg);
 		}
 
 		// Check if the should stop
 		if (parent.isStopped()) {
+			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("stopped")));
 			log.debug("Spider process is stopped. Skipping crawling task...");
 			parent.postTaskExecution();
 			return;
@@ -251,14 +254,20 @@ public class SpiderTask implements Runnable {
 		// Check if the crawling process is paused
 		parent.checkPauseAndWait();
 		
-		// Process resource, if this is not the maximum depth
-		if (!isFiltered && depth < parent.getSpiderParam().getMaxDepth()) {
+		if (depth < parent.getSpiderParam().getMaxDepth()) {
+			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg));
 			processResource(msg);
+		} else {
+			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("maxdepth")));
 		}
 
 		// Update the progress and check if the spidering process should stop
 		parent.postTaskExecution();
 		log.debug("Spider Task finished.");
+	}
+
+	private String getSkippedMessage(String key) {
+		return parent.getExtensionSpider().getMessages().getString("spider.task.message.skipped." + key);
 	}
 
 	/**
@@ -275,6 +284,8 @@ public class SpiderTask implements Runnable {
 		HttpMessage msg;
 		try {
 			msg = reference.getHttpMessage();
+			// HistoryReference is about to be deleted, so no point keeping referencing it.
+			msg.setHistoryRef(null);
 		} finally {
 			deleteHistoryReference();
 		}
@@ -393,7 +404,7 @@ public class SpiderTask implements Runnable {
 
 	private ExtensionHistory getExtensionHistory() {
 		if (this.extHistory == null) {
-			this.extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+			this.extHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 		}
 		return this.extHistory;
 	}

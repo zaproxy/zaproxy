@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
+// ZAP: 2017/04/14 Improve error handling when resetting the panels
 
 package org.parosproxy.paros.view;
 
@@ -31,6 +32,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -38,6 +40,7 @@ import org.parosproxy.paros.model.OptionsParam;
 public class OptionsDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = -4374132178769109917L;
+	private static final Logger logger = Logger.getLogger(OptionsDialog.class);
 	private JButton[] extraButtons = null;
 
     public OptionsDialog() {
@@ -86,13 +89,12 @@ public class OptionsDialog extends AbstractParamDialog {
                             params.reloadConfigParamSets();
                             params.resetAll();
                             
-                            for (AbstractParamPanel panel : OptionsDialog.this.getPanels()) {
-                                panel.reset();
-                            }
+                            resetAllPanels();
                             // Reinit the dialog
                             OptionsDialog.this.initParam(params);
                             
                         } catch (Exception e1) {
+                            logger.error("Failed to reset to defaults:", e1);
                             View.getSingleton().showWarningDialog(
                                     Constant.messages.getString("options.dialog.reset.error", e1.getMessage()));
                         }
@@ -104,4 +106,15 @@ public class OptionsDialog extends AbstractParamDialog {
         return extraButtons;
     }
 	
+    private void resetAllPanels() {
+        for (AbstractParamPanel panel : OptionsDialog.this.getPanels()) {
+            try {
+                panel.reset();
+            } catch (Exception e) {
+                logger.error("Failed to reset " + panel.getName() + " options panel:", e);
+                View.getSingleton().showWarningDialog(
+                        Constant.messages.getString("options.dialog.reset.error.panel", panel.getName(), e.getMessage()));
+            }
+        }
+    }
 }

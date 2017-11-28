@@ -38,6 +38,11 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("http.panel.view.largeresponse.ext.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 		if (getView() != null) {

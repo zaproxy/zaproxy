@@ -262,32 +262,35 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		}
 		
 		this.rcTotals.incResponseCodeCount(msg.getResponseHeader().getStatusCode());
-		
-        if (hRef != null && this.rcTotals.getTotal() <= this.maxResultsToList) {
-            // Very large lists significantly impact the UI responsiveness
-            // limiting them makes large scans _much_ quicker
-        	addHistoryReference(hRef);
-    	}
+
+		if (hRef != null && View.isInitialised()) {
+			// Very large lists significantly impact the UI responsiveness
+			// limiting them makes large scans _much_ quicker
+			if (this.rcTotals.getTotal() > this.maxResultsToList) {
+				removeFirstHistoryReferenceInEdt();
+			}
+			addHistoryReferenceInEdt(hRef);
+		}
 	}
 
-    private void addHistoryReference(HistoryReference hRef) {
-        if (View.isInitialised()) {
-            addHistoryReferenceInEdt(hRef);
-        }
+	private void addHistoryReferenceInEdt(final HistoryReference hRef) {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				messagesTableModel.addHistoryReference(hRef);
+			}
+		});
 	}
 
-    private void addHistoryReferenceInEdt(final HistoryReference hRef) {
-        if (EventQueue.isDispatchThread()) {
-            messagesTableModel.addHistoryReference(hRef);
-        } else {
-            EventQueue.invokeLater(new Runnable() {
+	private void removeFirstHistoryReferenceInEdt() {
+		EventQueue.invokeLater(new Runnable() {
 
-                @Override
-                public void run() {
-                    addHistoryReference(hRef);
-                }
-            });
-        }
+			@Override
+			public void run() {
+				messagesTableModel.removeHistoryReference(getMessagesTableModel().getEntry(0).getHistoryReference());
+			}
+		});
 	}
 	
 	@Override

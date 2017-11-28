@@ -31,6 +31,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.StringUIUtils;
 import org.zaproxy.zap.view.table.AbstractCustomColumnHistoryReferencesTableModel;
 import org.zaproxy.zap.view.table.AbstractHistoryReferencesTableEntry;
+import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
 public class SearchResultsTableModel extends
         AbstractCustomColumnHistoryReferencesTableModel<SearchResultsTableModel.SearchResultTableEntry> {
@@ -39,10 +40,28 @@ public class SearchResultsTableModel extends
 
     private static final String MATCH_COLUMN_NAME = Constant.messages.getString("search.results.table.header.match");
 
+    private static final Column[] COLUMNS = new Column[] {
+            Column.HREF_ID,
+            Column.REQUEST_TIMESTAMP,
+            Column.RESPONSE_TIMESTAMP,
+            Column.METHOD,
+            Column.URL,
+            Column.STATUS_CODE,
+            Column.STATUS_REASON,
+            Column.RTT,
+            Column.SIZE_REQUEST_HEADER,
+            Column.SIZE_REQUEST_BODY,
+            Column.SIZE_RESPONSE_HEADER,
+            Column.SIZE_RESPONSE_BODY,
+            Column.HIGHEST_ALERT,
+            Column.NOTE,
+            Column.TAGS,
+            Column.CUSTOM };
+    
     private List<SearchResultTableEntry> results = new ArrayList<>();
 
     public SearchResultsTableModel() {
-        super(new Column[] { Column.HREF_ID, Column.METHOD, Column.URL, Column.CUSTOM });
+        super(COLUMNS);
     }
 
     public void addSearchResult(SearchResult sr) {
@@ -56,35 +75,18 @@ public class SearchResultsTableModel extends
 
     private static SearchResultTableEntry createSearchResultTableEntry(SearchResult sr, SearchResultTableEntry previousResult) {
         HistoryReference hRef = sr.getMessage().getHistoryRef();
-        Integer historyId = null;
-        String uri = null;
         String stringFound = null;
         if (previousResult != null) {
-            Integer previousId = previousResult.getHistoryId();
-            if (previousId.intValue() == hRef.getHistoryId()) {
-                historyId = previousId;
-            }
             if (previousResult.getStringFound().equals(sr.getStringFound())) {
                 stringFound = previousResult.getStringFound();
             }
-            uri = sr.getMessage().getRequestHeader().getURI().toString();
-            if (previousResult.getUri().equals(uri)) {
-                uri = previousResult.getUri();
-            }
         }
 
-        if (historyId == null) {
-            historyId = Integer.valueOf(hRef.getHistoryId());
-        }
         if (stringFound == null) {
             stringFound = sr.getStringFound();
         }
 
-        if (uri == null) {
-            uri = sr.getMessage().getRequestHeader().getURI().toString();
-        }
-
-        return new SearchResultTableEntry(hRef, historyId, hRef.getMethod(), uri, stringFound, sr);
+        return new SearchResultTableEntry(hRef, stringFound, sr);
     }
 
     @Override
@@ -155,29 +157,19 @@ public class SearchResultsTableModel extends
         return "A match with some long text";
     }
 
-    public static class SearchResultTableEntry extends AbstractHistoryReferencesTableEntry {
+    public static class SearchResultTableEntry extends DefaultHistoryReferencesTableEntry {
 
         private static final int MAX_CHARS_FOUND_STRING = 150;
 
-        private final Integer historyId;
-        private final String method;
-        private final String uri;
         private final String stringFound;
 
         private final SearchResult sr;
 
         public SearchResultTableEntry(
                 HistoryReference historyReference,
-                Integer historyId,
-                String method,
-                String uri,
                 String stringFound,
                 SearchResult sr) {
-            super(historyReference);
-
-            this.historyId = historyId;
-            this.method = method;
-            this.uri = uri;
+            super(historyReference, COLUMNS);
 
             String temp;
             if (stringFound.length() > MAX_CHARS_FOUND_STRING) {
@@ -187,21 +179,6 @@ public class SearchResultsTableModel extends
             }
             this.stringFound = StringUIUtils.replaceWithVisibleWhiteSpaceChars(temp);
             this.sr = new HistoryReferenceSearchResult(sr, stringFound);
-        }
-
-        @Override
-        public Integer getHistoryId() {
-            return historyId;
-        }
-
-        @Override
-        public String getMethod() {
-            return method;
-        }
-
-        @Override
-        public String getUri() {
-            return uri;
         }
 
         public String getStringFound() {

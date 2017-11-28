@@ -25,14 +25,19 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2017/04/07 Added name constants and getUIName()
+// ZAP: 2017/07/22 Added KeyStroke constant for consistency with other FindDialog usage
+// ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
+// ZAP: 2017/10/18 Use Window for parent of invoked component.
 
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JFrame;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -42,16 +47,30 @@ import org.parosproxy.paros.view.FindDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionEdit extends ExtensionAdaptor {
+	
+	private static final String NAME = "ExtensionEdit";
 
-    private FindDialog findDialog = null;
+	/**
+	 * The find default keyboard shortcut.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getFindDefaultKeyStroke()
+	 */
+	private static KeyStroke findDefaultKeyStroke;
+
     private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
 
     public ExtensionEdit() {
-        super("ExtensionEdit");
+        super(NAME);
         this.setOrder(4);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("edit.name");
+    }
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
@@ -65,11 +84,8 @@ public class ExtensionEdit extends ExtensionAdaptor {
 
 	}
     
-    private void showFindDialog(JFrame frame, JTextComponent lastInvoker) {
-        if (findDialog == null || findDialog.getParent() != frame) {
-            findDialog = new FindDialog(frame, false);            
-        }
-        
+    private void showFindDialog(Window window, JTextComponent lastInvoker) {
+        FindDialog findDialog = FindDialog.getDialog(window, false);
         findDialog.setLastInvoker(lastInvoker);
         findDialog.setVisible(true);
     }
@@ -81,8 +97,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
      */
     private ZapMenuItem getMenuFind() {
         if (menuFind == null) {
-            menuFind = new ZapMenuItem("menu.edit.find", 
-            		KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+            menuFind = new ZapMenuItem("menu.edit.find", getFindDefaultKeyStroke());
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -92,6 +107,22 @@ public class ExtensionEdit extends ExtensionAdaptor {
             });
         }
         return menuFind;
+    }
+
+    /**
+     * Gets the default keyboard shortcut for find functionality.
+     * <p>
+     * Should be called/used only when in view mode.
+     * 
+     * @return the keyboard shortcut, never {@code null}.
+     * @since 2.7.0
+     */
+    public static KeyStroke getFindDefaultKeyStroke() {
+        if (findDefaultKeyStroke == null) {
+            findDefaultKeyStroke = KeyStroke
+                    .getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false);
+        }
+        return findDefaultKeyStroke;
     }
 
     /**
@@ -106,12 +137,28 @@ public class ExtensionEdit extends ExtensionAdaptor {
             popupFindMenu.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showFindDialog(popupFindMenu.getParentFrame(), popupFindMenu.getLastInvoker());
-                    
+                    JTextComponent component = popupFindMenu.getLastInvoker();
+                    Window window = getWindowAncestor(component);
+                    if (window != null) {
+                        showFindDialog(window, component);
+                    }
                 }
             });
         }
         return popupFindMenu;
+    }
+
+    /**
+     * Gets the ancestor {@code Window} where the given {@code component} is contained.
+     *
+     * @param component the component.
+     * @return the {@code Window}, or {@code null} if the component is {@code null} or if not contained inside a {@code Window}.
+     */
+    private static Window getWindowAncestor(JTextComponent component) {
+        if (component == null) {
+            return null;
+        }
+        return SwingUtilities.getWindowAncestor(component);
     }
 	
 	@Override

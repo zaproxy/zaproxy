@@ -148,13 +148,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
             entry.refreshCachedValues();
         }
 
-        fireTableChanged(
-                new TableModelEvent(
-                        this,
-                        0,
-                        hrefList.size() - 1,
-                        getColumnIndex(Column.HIGHEST_ALERT),
-                        TableModelEvent.UPDATE));
+        fireTableChanged(new TableModelEvent(this, 0, hrefList.size() - 1));
     }
 
     @Override
@@ -246,6 +240,23 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
         addEntry(new DefaultHistoryReferencesTableEntry(historyReference, getColumns()));
     }
 
+    /**
+     * Convenience method that removes a {@code DefaultHistoryReferencesTableEntry} with the given history reference
+     * from the model. If the provided {@code HistoryReference} is {@code null} the function will return without having 
+     * done anything.
+     * 
+     * @param historyReference the history reference that will be removed from the model
+     * @see DefaultHistoryReferencesTableEntry
+     * @see HistoryReference
+     * @since 2.7.0
+     */
+    public void removeHistoryReference(HistoryReference historyReference) {
+        if (historyReference== null) {
+        	return;
+        }
+        removeEntry(historyReference.getHistoryId());
+    }
+    
     /**
      * Returns the history reference with the give ID. If the history reference is not found {@code null} is returned.
      * 

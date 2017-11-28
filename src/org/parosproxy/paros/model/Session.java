@@ -69,6 +69,9 @@
 // ZAP: 2017/01/04 Remove dependency on ExtensionSpider
 // ZAP: 2017/01/26 Remove dependency on ExtensionActiveScan
 // ZAP: 2017/03/13 Remove global excluded URLs from Session's state.
+// ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
+// ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
+// ZAP: 2017/10/11 Make contextsChangedListeners static.
 
 package org.parosproxy.paros.model;
 
@@ -87,6 +90,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import javax.swing.tree.TreeNode;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
@@ -562,6 +567,25 @@ public class Session {
 		
 		model.getDb().getTableSession().update(getSessionId(), getSessionName());
 	}
+
+	/**
+	 * Persists the properties (e.g. name, description) of the session.
+	 * <p>
+	 * Should be called only by "core" classes.
+	 *
+	 * @throws Exception if an error occurred while persisting the properties.
+	 * @since 2.7.0
+	 * @see #setSessionName(String)
+	 * @see #setSessionDesc(String)
+	 */
+	protected void persistProperties() throws Exception {
+		if (isNewState()) {
+			return;
+		}
+
+		configuration.save(new File(fileName));
+		model.getDb().getTableSession().update(getSessionId(), getSessionName());
+	}
 	
 	/**
 	 * Asynchronous call to snapshot a session.
@@ -837,9 +861,9 @@ public class Session {
 		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isContainsNodesInScope(sn)) {
 				nodes.add(sn);
 			}
@@ -852,9 +876,9 @@ public class Session {
 			return true;
 		}
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = node.children();
+		Enumeration<TreeNode> en = node.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isContainsNodesInScope(sn)) {
 				return true;
 			}
@@ -870,9 +894,9 @@ public class Session {
 	 */
 	private void fillNodesInScope(SiteNode rootNode, List<SiteNode> nodesList) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isInScope(sn))
 				nodesList.add(sn);
 			fillNodesInScope(sn, nodesList);
@@ -903,9 +927,9 @@ public class Session {
 	 */
 	private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList, Context context) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (context.isInContext(sn))
 				nodesList.add(sn);
 			fillNodesInContext(sn, nodesList, context);
@@ -1545,7 +1569,7 @@ public class Session {
 	
 	// ZAP: Added listeners for contexts changed events.
 	// TODO: Might be better structured elsewhere, so maybe just a temporary solution.
-	private List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
+	private static List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
 
 	public void addOnContextsChangedListener(OnContextsChangedListener l) {
 		contextsChangedListeners.add(l);

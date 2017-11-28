@@ -19,8 +19,10 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
@@ -32,12 +34,14 @@ import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicProgressBarUI;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -74,15 +78,15 @@ public class SplashScreen extends JFrame {
     public SplashScreen() {
         super();
 
-        setSize(DisplayUtils.getScaledDimension(420, 420));
+        setSize(DisplayUtils.getScaledDimension(420, 430));
         setLocationRelativeTo(null);
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(DisplayUtils.getZapIconImages());
 
         BackgroundImagePanel panel = new BackgroundImagePanel();
-        panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 420));    //420x560
+        panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 430));
         panel.setLayout(new GridBagLayout());
-        panel.setBackgroundImage(SplashScreen.class.getResource("/resource/zap-splash-background.png"));
+        panel.setBackgroundImage(SplashScreen.class.getResource("/resource/zap-splash-screen.png"), 0.5);
         
         Border margin = BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED);
         Border padding = BorderFactory.createEmptyBorder(4, 4, 4, 4);
@@ -92,26 +96,26 @@ public class SplashScreen extends JFrame {
         JLabel lblProgramName = new JLabel();
 
         lblProgramName.setText(Constant.PROGRAM_NAME);
-        lblProgramName.setFont(FontUtils.getFont(Font.BOLD, FontUtils.Size.huge));
+        lblProgramName.setFont(FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.much_larger));
         lblProgramName.setVisible(true);
         lblProgramName.setName("lblProgramName");
 
         lblVersion.setText(Constant.PROGRAM_VERSION);
-        lblVersion.setFont(FontUtils.getFont(FontUtils.Size.much_larger));
+        lblVersion.setFont(FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.larger));
         lblVersion.setName("lblVersion");
 
         // ProgramName is at the beginning of the panel (0,0)
-        panel.add(lblProgramName, LayoutHelper.getGBC(0, 0, 2, 1));
+        panel.add(lblProgramName, LayoutHelper.getGBC(0, 0, 2, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
         // Version is +8 horizontally respect to the other components
-        panel.add(lblVersion, LayoutHelper.getGBC(0, 1, 2, 1, new Insets(0, 8, 0, 8)));
+        panel.add(lblVersion, LayoutHelper.getGBC(0, 1, 2, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
         // Progress bar (height 12) is +56 and then +24 
         // vertically respect the other elements (tot + 92)
-        panel.add(getLoadingJProgressBar(), LayoutHelper.getGBC(0, 2, 1, 1.0, new Insets(56, 0, 24, 0))); 
+        panel.add(getLoadingJProgressBar(), LayoutHelper.getGBC(0, 2, 1, 1.0, DisplayUtils.getScaledInsets(20, 30, 64, 70))); 
         panel.add(Box.createHorizontalGlue(), LayoutHelper.getGBC(1, 2, 1, 1.0));
         // Panels should be with different heights for a good view
         panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 2, 1.0, 1.0));
         panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 0.5));
-
+        
         this.add(panel);
         this.pack();
 
@@ -169,6 +173,9 @@ public class SplashScreen extends JFrame {
             loadProgressBar.setMinimum(0);
             loadProgressBar.setMaximum(100);
             loadProgressBar.setValue(50);
+            loadProgressBar.setBorder(BorderFactory.createLineBorder(Color.black));
+            loadProgressBar.setUI(new CustomProgressBarUI());
+            loadProgressBar.setForeground(Color.decode("#4389FF"));
             setLoadingCompletion(0.0D);
         }
         
@@ -327,5 +334,38 @@ public class SplashScreen extends JFrame {
     private String getRandomTip() {
         return this.getTipsAndTricks().get(random.nextInt(this.getTipsAndTricks().size()));
     }
-    
+
+    public class CustomProgressBarUI extends BasicProgressBarUI {
+        // Based on
+        // www.java2s.com/Tutorials/Java/Swing_How_to/JProgressBar/Change_Progress_Bar_color_using_BasicProgressBarUI.htm
+
+        public CustomProgressBarUI() {
+            super();
+        }
+
+        @Override
+        public void paintDeterminate(Graphics g, JComponent c) {
+            if (!(g instanceof Graphics2D)) {
+                return;
+            }
+            Insets b = progressBar.getInsets(); // area for border
+            int barRectWidth = progressBar.getWidth() - (b.right + b.left);
+            int barRectHeight = progressBar.getHeight() - (b.top + b.bottom);
+            if (barRectWidth <= 0 || barRectHeight <= 0) {
+                return;
+            }
+            int amountFull = getAmountFull(b, barRectWidth, barRectHeight);
+
+            if (progressBar.getOrientation() == JProgressBar.HORIZONTAL) {
+                g.setColor(progressBar.getForeground());
+                g.fillRect(b.left, b.top, amountFull, barRectHeight);
+
+            } else { // VERTICAL
+
+            }
+            if (progressBar.isStringPainted()) {
+                paintString(g, b.left, b.top, barRectWidth, barRectHeight, amountFull, b);
+            }
+        }
+    }
 }

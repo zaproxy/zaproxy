@@ -37,6 +37,9 @@ public class ScanProgressActionIcon extends JLabel {
     private static final ImageIcon skipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_16.png"));
     private static final ImageIcon focusedSkipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_focused_16.png"));
     private static final ImageIcon pressedSkipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_pressed_16.png"));
+    private static final ImageIcon SKIP_PENDING_ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending.png"));
+    private static final ImageIcon SKIP_PENDING_FOCUSED_ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending-focused.png"));
+    private static final ImageIcon SKIP_PENDING_PRESSED_ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending-pressed.png"));
     
     public static final int CLICKABLE_ICON_WIDTH = 24;
     public static final int CLICKABLE_ICON_HEIGHT = 16;
@@ -76,19 +79,26 @@ public class ScanProgressActionIcon extends JLabel {
             setIcon(skippedIcon);
             setToolTipText(getSkipText());
 
-        } else if (item.isRunning()) {
+        } else if (item.isCompleted()) {
+            setIcon(completedIcon);
+            setToolTipText(Constant.messages.getString("ascan.progress.label.completed"));
+        } else if (item.isStopped()) {
+            setIcon(null);
+            setToolTipText(null);
+        } else if (item.isRunning() || item.isPending()) {
+            boolean running = item.isRunning();
             ImageIcon icon = null;
             switch (state) {
                 case STATE_NORMAL:
-                    icon = skipIcon;
+                    icon = running ? skipIcon : SKIP_PENDING_ICON;
                     break;
 
                 case STATE_FOCUSED:
-                    icon = focusedSkipIcon;
+                    icon = running ? focusedSkipIcon : SKIP_PENDING_FOCUSED_ICON;
                     break;
 
                 case STATE_PRESSED:
-                    icon = pressedSkipIcon;
+                    icon = running ? pressedSkipIcon : SKIP_PENDING_PRESSED_ICON;
                     break;
             }
 
@@ -96,8 +106,8 @@ public class ScanProgressActionIcon extends JLabel {
             setToolTipText(Constant.messages.getString("ascan.progress.label.skipaction"));
 
         } else {
-            setIcon(completedIcon);
-            setToolTipText(Constant.messages.getString("ascan.progress.label.completed"));
+            setIcon(null);
+            setToolTipText(null);
         }
     }
 
@@ -117,6 +127,7 @@ public class ScanProgressActionIcon extends JLabel {
     public void invokeAction() {
         // do the Action
         item.skip();
+        changeIcon();
     }
 
     public void setPressed() {

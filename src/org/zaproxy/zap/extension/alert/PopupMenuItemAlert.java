@@ -23,8 +23,6 @@ package org.zaproxy.zap.extension.alert;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Component;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JTree;
@@ -89,30 +87,10 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
     }
 
     private Set<Alert> getAlertNodes() {
-        TreePath[] paths = this.extAlert.getAlertPanel().getTreeAlert().getSelectionPaths();
-        if (paths == null || paths.length == 0) {
-            return Collections.emptySet();
-        }
-
-        HashSet<Alert> alertNodes = new HashSet<Alert>();
         if (!isMultiSelect()) {
-            DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode) paths[0].getLastPathComponent();
-            alertNodes.add((Alert) alertNode.getUserObject());
-            return alertNodes;
+            return extAlert.getAlertPanel().getSelectedAlert();
         }
-
-        for(int i = 0; i < paths.length; i++ ) {
-            DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode)paths[i].getLastPathComponent();
-            if(alertNode.getChildCount() == 0) {
-                alertNodes.add((Alert)alertNode.getUserObject());
-                continue;
-            }
-            for(int j = 0; j < alertNode.getChildCount(); j++ ) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode)alertNode.getChildAt(j);
-                alertNodes.add((Alert)node.getUserObject());
-            }
-        }
-        return alertNodes;
+        return extAlert.getAlertPanel().getSelectedAlerts();
     }
 
     /**

@@ -43,10 +43,11 @@
 		<brkPanelView>0</brkPanelView>
 		<showMainToolbar>1</showMainToolbar>
 	</view>
-    <start>
-        <checkForUpdates>false</checkForUpdates>
-    </start>
-    
+	<start>
+		<checkForUpdates>true</checkForUpdates>
+		<checkAddonUpdates>true</checkAddonUpdates>
+	</start>
+	
 	<certificate>
 		<use>0</use>
 		<clientCertLocation></clientCertLocation>
@@ -221,6 +222,11 @@
 			<token>
 				<enabled>true</enabled>
 				<name>authenticity_token</name>
+			</token>
+			<token>
+			        <!-- django-session-csrf default: https://github.com/mozilla/django-session-csrf#differences-from-django -->
+				<enabled>true</enabled>
+				<name>anoncsrf</name>
 			</token>
 		</tokens>
 	</anticsrf>

@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import java.util.Locale;
@@ -43,13 +44,15 @@ public final class ApiUtils {
 	 * @throws ApiException the api exception
 	 */
 	public static int getIntParam(JSONObject params, String paramName) throws ApiException {
-		int value;
-		try {
-			value = params.getInt(paramName);
-		} catch (Exception ex) {
-			throw new ApiException(Type.MISSING_PARAMETER, paramName + ": " + ex.getLocalizedMessage());
+		if (!params.containsKey(paramName)) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, paramName);
 		}
-		return value;
+
+		try {
+			return params.getInt(paramName);
+		} catch (JSONException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName, e);
+		}
 	}
 
 	/**

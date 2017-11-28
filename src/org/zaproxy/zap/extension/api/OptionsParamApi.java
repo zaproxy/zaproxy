@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -54,6 +53,8 @@ public class OptionsParamApi extends AbstractParam {
     
     private static final int DEFAULT_NONCE_TTL_IN_SECS = 5 * 60; // 5 mins
 
+    private static final String IPV6_LOOPBACK_ADDRS = "0:0:0:0:0:0:0:1";
+
 	private boolean enabled = true;
 	private boolean uiEnabled = true;
 	private boolean secureOnly;
@@ -77,46 +78,19 @@ public class OptionsParamApi extends AbstractParam {
     @Override
     protected void parse() {
         
-		enabled = getBooleanFromConfig(ENABLED, true);
-		uiEnabled = getBooleanFromConfig(UI_ENABLED, true);
-		secureOnly = getBooleanFromConfig(SECURE_ONLY, false);
-		disableKey = getBooleanFromConfig(DISABLE_KEY, false);
-		incErrorDetails = getBooleanFromConfig(INC_ERROR_DETAILS, false);
-		autofillKey = getBooleanFromConfig(AUTOFILL_KEY, false);
-		enableJSONP = getBooleanFromConfig(ENABLE_JSONP, false);
-		noKeyForSafeOps = getBooleanFromConfig(NO_KEY_FOR_SAFE_OPS, false);
-		reportPermErrors = getBooleanFromConfig(REPORT_PERM_ERRORS, false);
-		nonceTimeToLiveInSecs = getIntFromConfig(NONCE_TTL_IN_SECS, DEFAULT_NONCE_TTL_IN_SECS);
-		try {
-			key = getConfig().getString(API_KEY, "");
-		} catch (ConversionException e) {
-			LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
-			key = "";
-		}
+		enabled = getBoolean(ENABLED, true);
+		uiEnabled = getBoolean(UI_ENABLED, true);
+		secureOnly = getBoolean(SECURE_ONLY, false);
+		disableKey = getBoolean(DISABLE_KEY, false);
+		incErrorDetails = getBoolean(INC_ERROR_DETAILS, false);
+		autofillKey = getBoolean(AUTOFILL_KEY, false);
+		enableJSONP = getBoolean(ENABLE_JSONP, false);
+		noKeyForSafeOps = getBoolean(NO_KEY_FOR_SAFE_OPS, false);
+		reportPermErrors = getBoolean(REPORT_PERM_ERRORS, false);
+		nonceTimeToLiveInSecs = getInt(NONCE_TTL_IN_SECS, DEFAULT_NONCE_TTL_IN_SECS);
+		key = getString(API_KEY, "");
 		loadPermittedAddresses();
-        try {
-            this.confirmRemovePermittedAddress = getConfig().getBoolean(CONFIRM_REMOVE_ADDRESS, true);
-        } catch (ConversionException e) {
-            LOGGER.error("Error while loading the confirm remove permitted address option: " + e.getMessage(), e);
-        }
-    }
-
-	private boolean getBooleanFromConfig(String key, boolean defaultValue) {
-		try {
-			return getConfig().getBoolean(key, defaultValue);
-		} catch (ConversionException e) {
-			LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
-			return defaultValue;
-		}
-	}
-
-    private int getIntFromConfig(String key, int defaultValue) {
-        try {
-            return getConfig().getInteger(key, defaultValue);
-        } catch (ConversionException e) {
-            LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
-            return defaultValue;
-        }
+		this.confirmRemovePermittedAddress = getBoolean(CONFIRM_REMOVE_ADDRESS, true);
     }
 
 	@Override
@@ -371,7 +345,11 @@ public class OptionsParamApi extends AbstractParam {
             permittedAddresses.add(addr);
             addrsEnabled.add(addr);
 
-            addr = new DomainMatcher("zap");
+            addr = new DomainMatcher(API.API_DOMAIN);
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher(IPV6_LOOPBACK_ADDRS);
             permittedAddresses.add(addr);
             addrsEnabled.add(addr);
         }

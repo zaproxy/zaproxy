@@ -22,12 +22,15 @@ package org.parosproxy.paros.core.scanner;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +42,7 @@ import org.parosproxy.paros.model.Model;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -200,5 +204,139 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         assertThat(pluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
         assertThat(otherPluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
         assertThat(pluginFactory.getAllPlugin().get(1), is(not(sameInstance(otherPluginFactory.getAllPlugin().get(1)))));
+    }
+
+    @Test
+    public void shouldOrderHighRiskAlertPluginsBeforeMedium() {
+        // Given
+        AbstractPlugin pluginHighAlert = createAbstractPlugin(1, Alert.RISK_HIGH);
+        AbstractPlugin pluginMediumAlert = createAbstractPlugin(2, Alert.RISK_MEDIUM);
+        PluginFactory.loadedPlugin(pluginHighAlert);
+        PluginFactory.loadedPlugin(pluginMediumAlert);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginHighAlert, pluginFactory), is(lessThan(indexOf(pluginMediumAlert, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderMediumRiskAlertPluginsBeforeLow() {
+        // Given
+        AbstractPlugin pluginMediumAlert = createAbstractPlugin(1, Alert.RISK_MEDIUM);
+        AbstractPlugin pluginLowAlert = createAbstractPlugin(2, Alert.RISK_LOW);
+        PluginFactory.loadedPlugin(pluginMediumAlert);
+        PluginFactory.loadedPlugin(pluginLowAlert);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginMediumAlert, pluginFactory), is(lessThan(indexOf(pluginLowAlert, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderLowRiskAlertPluginsBeforeInfo() {
+        // Given
+        AbstractPlugin pluginLowAlert = createAbstractPlugin(1, Alert.RISK_LOW);
+        AbstractPlugin pluginInfoAlert = createAbstractPlugin(2, Alert.RISK_INFO);
+        PluginFactory.loadedPlugin(pluginLowAlert);
+        PluginFactory.loadedPlugin(pluginInfoAlert);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginLowAlert, pluginFactory), is(lessThan(indexOf(pluginInfoAlert, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderReleaseStatusPluginsBeforeBeta() {
+        // Given
+        AbstractPlugin pluginReleaseStatus = createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.release);
+        AbstractPlugin pluginBetaStatus = createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.beta);
+        PluginFactory.loadedPlugin(pluginReleaseStatus);
+        PluginFactory.loadedPlugin(pluginBetaStatus);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginReleaseStatus, pluginFactory), is(lessThan(indexOf(pluginBetaStatus, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderBetaStatusPluginBeforeAlpha() {
+        // Given
+        AbstractPlugin pluginBetaStatus = createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.beta);
+        AbstractPlugin pluginAlphaStatus = createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.alpha);
+        PluginFactory.loadedPlugin(pluginBetaStatus);
+        PluginFactory.loadedPlugin(pluginAlphaStatus);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginBetaStatus, pluginFactory), is(lessThan(indexOf(pluginAlphaStatus, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderAlphaStatusPluginBeforeUnknown() {
+        // Given
+        AbstractPlugin pluginAlphaStatus = createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.alpha);
+        AbstractPlugin pluginUnknownStatus = createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.unknown);
+        PluginFactory.loadedPlugin(pluginAlphaStatus);
+        PluginFactory.loadedPlugin(pluginUnknownStatus);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginAlphaStatus, pluginFactory), is(lessThan(indexOf(pluginUnknownStatus, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderByLowerPluginIdIfSameAlertRiskAndStatus() {
+        // Given
+        AbstractPlugin pluginLowerId = createAbstractPlugin(52, Alert.RISK_LOW, AddOn.Status.beta);
+        AbstractPlugin pluginHigherId = createAbstractPlugin(150, Alert.RISK_LOW, AddOn.Status.beta);
+        PluginFactory.loadedPlugin(pluginLowerId);
+        PluginFactory.loadedPlugin(pluginHigherId);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(pluginLowerId, pluginFactory), is(lessThan(indexOf(pluginHigherId, pluginFactory))));
+    }
+
+    @Test
+    public void shouldOrderDependenciesBeforeDependentPlugins() {
+        // Given
+        AbstractPlugin dependentPlugin = createAbstractPlugin(1, "DependentPlugin", "DependencyPlugin1", "DependencyPlugin2");
+        AbstractPlugin dependencyPlugin1 = createAbstractPlugin(2, "DependencyPlugin1", "DependencyPlugin2");
+        AbstractPlugin dependencyPlugin2 = createAbstractPlugin(3, "DependencyPlugin2");
+        PluginFactory.loadedPlugin(dependentPlugin);
+        PluginFactory.loadedPlugin(dependencyPlugin1);
+        PluginFactory.loadedPlugin(dependencyPlugin2);
+        PluginFactory pluginFactory = new PluginFactory();
+        pluginFactory.loadAllPlugin(emptyConfig());
+        // When
+        pluginFactory.reset();
+        // Then
+        assertThat(indexOf(dependencyPlugin1, pluginFactory), is(lessThan(indexOf(dependentPlugin, pluginFactory))));
+        assertThat(indexOf(dependencyPlugin2, pluginFactory), is(lessThan(indexOf(dependentPlugin, pluginFactory))));
+        assertThat(indexOf(dependencyPlugin2, pluginFactory), is(lessThan(indexOf(dependencyPlugin1, pluginFactory))));
+    }
+
+    private static int indexOf(AbstractPlugin plugin, PluginFactory pluginFactory) {
+        List<Plugin> pending = pluginFactory.getPending();
+        for (int i = 0; i < pending.size(); i++) {
+            if (plugin.getId() == pending.get(i).getId()) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

@@ -268,8 +268,7 @@ public class User extends Enableable {
 	 */
 	private static ExtensionAuthentication getAuthenticationExtension() {
 		if (extensionAuth == null) {
-			extensionAuth = (ExtensionAuthentication) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionAuthentication.NAME);
+			extensionAuth = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAuthentication.class);
 		}
 		return extensionAuth;
 	}

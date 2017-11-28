@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.CardLayout;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
@@ -77,7 +76,7 @@ public class BreakpointsPanel extends AbstractPanel {
         this.setName(Constant.messages.getString("brk.panel.title"));
 		this.setIcon(new ImageIcon(BreakpointsPanel.class.getResource("/resource/icon/16/101.png")));	// 'red X' icon
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
+				KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("brk.panel.mnemonic"));
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}

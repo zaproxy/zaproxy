@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.spider;
 
-import java.net.CookieManager;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -109,9 +108,6 @@ public class Spider {
 	/** The total count of all the submitted tasks. */
 	private int tasksTotalCount;
 
-	/** The cookie manager. */
-	private CookieManager cookieManager;
-	
 	/** The scan context. If null, the scan is not performed in a context. */
 	private Context scanContext;
 
@@ -176,7 +172,6 @@ public class Spider {
 		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
 		this.seedList = new LinkedHashSet<>();
-		this.cookieManager = new CookieManager();
 		this.scanContext = scanContext;
 		
 		init();
@@ -201,7 +196,7 @@ public class Spider {
 		}
 
 		// Add a default parse filter and any custom ones
-		this.addParseFilter(new DefaultParseFilter());
+		this.addParseFilter(new DefaultParseFilter(spiderParam, extension.getMessages()));
 		for (ParseFilter filter : extension.getCustomParseFilters())
 			this.addParseFilter(filter);
 		
@@ -429,15 +424,6 @@ public class Spider {
 	}
 
 	/**
-	 * Gets the cookie manager.
-	 * 
-	 * @return the cookie manager
-	 */
-	protected CookieManager getCookieManager() {
-		return cookieManager;
-	}
-
-	/**
 	 * Gets the model.
 	 * 
 	 * @return the model
@@ -515,7 +501,10 @@ public class Spider {
 				new SpiderThreadFactory("ZAP-SpiderThreadPool-" + id + "-thread-"));
 
 		// Initialize the HTTP sender
-		httpSender = new HttpSender(connectionParam, true, HttpSender.SPIDER_INITIATOR);
+		httpSender = new HttpSender(
+				connectionParam,
+				connectionParam.isHttpStateEnabled() ? true : !spiderParam.isAcceptCookies(),
+				HttpSender.SPIDER_INITIATOR);
 		// Do not follow redirections because the request is not updated, the redirections will be
 		// handled manually.
 		httpSender.setFollowRedirect(false);
@@ -811,13 +800,13 @@ public class Spider {
 	}
 
 	/**
-	 * Notifies the listeners regarding a read uri.
+	 * Notifies the listeners of a {@link SpiderTask}'s result.
 	 * 
-	 * @param msg the message
+	 * @param result the result of a spider task.
 	 */
-	protected synchronized void notifyListenersReadURI(HttpMessage msg) {
+	protected synchronized void notifyListenersSpiderTaskResult(SpiderTaskResult result) {
 		for (SpiderListener l : listeners) {
-			l.readURI(msg);
+			l.notifySpiderTaskResult(result);
 		}
 	}
 

@@ -32,6 +32,9 @@
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
 // ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
+// ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
+// ZAP: 2017/11/20 Use default value when reading "reverseProxy.ip".
 
 package org.parosproxy.paros.core.proxy;
 
@@ -40,7 +43,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -130,21 +132,17 @@ public class ProxyParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        proxyIp = getConfig().getString(PROXY_IP, "localhost");
+        proxyIp = getString(PROXY_IP, "localhost");
         determineProxyIpAnyLocalAddress();
         
-        try {
-            proxyPort = getConfig().getInt(PROXY_PORT, 8080);
-
-        } catch (Exception e) {
-        }
+        proxyPort = getInt(PROXY_PORT, 8080);
 
         try {
             proxySSLPort = 8443;	//getConfig().getInt(PROXY_SSL_PORT, 8443);
         } catch (Exception e) {
         }
 
-        reverseProxyIp = getConfig().getString(REVERSE_PROXY_IP);
+        reverseProxyIp = getString(REVERSE_PROXY_IP, "localhost");
         if (reverseProxyIp.equalsIgnoreCase("localhost") || reverseProxyIp.equalsIgnoreCase("127.0.0.1")) {
             try {
                 reverseProxyIp = InetAddress.getLocalHost().getHostAddress();
@@ -154,20 +152,16 @@ public class ProxyParam extends AbstractParam {
             }
         }
 
-        reverseProxyHttpPort = getConfig().getInt(REVERSE_PROXY_HTTP_PORT, 80);
-        reverseProxyHttpsPort = getConfig().getInt(REVERSE_PROXY_HTTPS_PORT, 443);
-        useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
+        reverseProxyHttpPort = getInt(REVERSE_PROXY_HTTP_PORT, 80);
+        reverseProxyHttpsPort = getInt(REVERSE_PROXY_HTTPS_PORT, 443);
+        useReverseProxy = getInt(USE_REVERSE_PROXY, 0);
 
-        removeUnsupportedEncodings = getConfig().getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
-        alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
+        removeUnsupportedEncodings = getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
+        alwaysDecodeGzip = getBoolean(ALWAYS_DECODE_GZIP, true);
 
         loadSecurityProtocolsEnabled();
 
-        try {
-            behindNat = getConfig().getBoolean(PROXY_BEHIND_NAT, false);
-        } catch (ConversionException e) {
-            logger.error("Failed to read '" + PROXY_BEHIND_NAT + "'", e);
-        }
+        behindNat = getBoolean(PROXY_BEHIND_NAT, false);
     }
 
     public String getProxyIp() {
@@ -379,7 +373,7 @@ public class ProxyParam extends AbstractParam {
         }
 
         this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
-        SSLConnector.setServerEnabledProtocols(enabledProtocols);
+        setServerEnabledProtocols();
     }
 
     private void loadSecurityProtocolsEnabled() {
@@ -387,9 +381,21 @@ public class ProxyParam extends AbstractParam {
         if (protocols.size() != 0) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
-            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+            setServerEnabledProtocols();
         } else {
             setSecurityProtocolsEnabled(SSLConnector.getServerEnabledProtocols());
+        }
+    }
+
+    private void setServerEnabledProtocols() {
+        try {
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+        } catch (IllegalArgumentException e) {
+            logger.warn(
+                    "Failed to set persisted protocols " + Arrays.toString(securityProtocolsEnabled) + " falling back to "
+                            + Arrays.toString(SSLConnector.getFailSafeProtocols()) + " caused by: " + e.getMessage());
+            securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
         }
     }
 

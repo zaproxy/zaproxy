@@ -103,17 +103,8 @@ public class HttpSessionsParam extends AbstractParam {
 			}
 		}
 
-		try {
-			this.enabledProxyOnly = getConfig().getBoolean(PROXY_ONLY_KEY, false);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
-
-		try {
-			this.confirmRemove = getConfig().getBoolean(CONFIRM_REMOVE_TOKEN_KEY, true);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.enabledProxyOnly = getBoolean(PROXY_ONLY_KEY, false);
+		this.confirmRemove = getBoolean(CONFIRM_REMOVE_TOKEN_KEY, true);
 	}
 
 	/**

@@ -31,6 +31,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventConsumer;
@@ -65,21 +66,19 @@ class SpiderMessagesTableModel
             Constant.messages.getString("spider.table.messages.header.processed") };
 
     private static final ProcessedCellItem SUCCESSFULLY_PROCESSED_CELL_ITEM;
-    private static final ProcessedCellItem IO_ERROR_CELL_ITEM;
 
     private final ExtensionHistory extensionHistory;
-    private AlertEventConsumer alertEventConsumer;
+    private EventConsumerImpl eventConsumer;
 
     private List<SpiderTableEntry> resources;
     private Map<Integer, Integer> idsToRows;
+
+    private Map<String, ProcessedCellItem> cacheProcessedCellItems;
 
     static {
         SUCCESSFULLY_PROCESSED_CELL_ITEM = new ProcessedCellItem(
                 true,
                 Constant.messages.getString("spider.table.messages.column.processed.successfully"));
-        IO_ERROR_CELL_ITEM = new ProcessedCellItem(
-                false,
-                Constant.messages.getString("spider.table.messages.column.processed.ioerror"));
     }
 
     public SpiderMessagesTableModel() {
@@ -91,13 +90,15 @@ class SpiderMessagesTableModel
 
         resources = new ArrayList<>();
         idsToRows = new HashMap<>();
+        cacheProcessedCellItems = new HashMap<>();
 
         if (createAlertEventConsumer) {
-            alertEventConsumer = new AlertEventConsumer();
+            eventConsumer = new EventConsumerImpl();
             extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
-            ZAP.getEventBus().registerConsumer(alertEventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus().registerConsumer(eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus().registerConsumer(eventConsumer, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
         } else {
-            alertEventConsumer = null;
+            eventConsumer = null;
             extensionHistory = null;
         }
     }
@@ -107,12 +108,14 @@ class SpiderMessagesTableModel
         // Nothing to do, the entries are added with the following method.
     }
 
-    public void addHistoryReference(HistoryReference historyReference, boolean ioError) {
+    public void addHistoryReference(HistoryReference historyReference, boolean processed, String reasonNotProcessed) {
         HistoryReference latestHistoryReference = historyReference;
         if (extensionHistory != null) {
             latestHistoryReference = extensionHistory.getHistoryReference(historyReference.getHistoryId());
         }
-        final SpiderTableEntry entry = new SpiderTableEntry(latestHistoryReference, ioError);
+        final SpiderTableEntry entry = new SpiderTableEntry(
+                latestHistoryReference,
+                getProcessedCellItem(processed, reasonNotProcessed));
         EventQueue.invokeLater(new Runnable() {
 
             @Override
@@ -125,15 +128,29 @@ class SpiderMessagesTableModel
         });
     }
 
+    private ProcessedCellItem getProcessedCellItem(boolean processed, String reasonNotProcessed) {
+        if (processed) {
+            return SUCCESSFULLY_PROCESSED_CELL_ITEM;
+        }
+        ProcessedCellItem processedCellItem = cacheProcessedCellItems.get(reasonNotProcessed);
+        if (processedCellItem == null) {
+            processedCellItem = new ProcessedCellItem(processed, reasonNotProcessed);
+            cacheProcessedCellItems.put(reasonNotProcessed, processedCellItem);
+        }
+        return processedCellItem;
+    }
+
     @Override
     public void clear() {
+        cacheProcessedCellItems = new HashMap<>();
         resources = new ArrayList<>();
         idsToRows = new HashMap<>();
         fireTableDataChanged();
 
-        if (alertEventConsumer != null) {
-            ZAP.getEventBus().unregisterConsumer(alertEventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
-            alertEventConsumer = null;
+        if (eventConsumer != null) {
+            ZAP.getEventBus().unregisterConsumer(eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus().unregisterConsumer(eventConsumer, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
+            eventConsumer = null;
         }
     }
 
@@ -203,7 +220,7 @@ class SpiderMessagesTableModel
     @Override
     protected Object getCustomValueAt(SpiderTableEntry entry, int columnIndex) {
         if (getCustomColumnIndex(columnIndex) == 0) {
-            return entry.isIoError() ? IO_ERROR_CELL_ITEM : SUCCESSFULLY_PROCESSED_CELL_ITEM;
+            return entry.getProcessedCellItem();
         }
         return null;
     }
@@ -249,15 +266,15 @@ class SpiderMessagesTableModel
 
     static class SpiderTableEntry extends DefaultHistoryReferencesTableEntry {
 
-        private final boolean ioError;
+        private final ProcessedCellItem processedCellItem;
 
-        public SpiderTableEntry(HistoryReference historyReference, boolean ioError) {
+        public SpiderTableEntry(HistoryReference historyReference, ProcessedCellItem processedCellItem) {
             super(historyReference, COLUMNS);
-            this.ioError = ioError;
+            this.processedCellItem = processedCellItem;
         }
 
-        public boolean isIoError() {
-            return ioError;
+        public ProcessedCellItem getProcessedCellItem() {
+            return processedCellItem;
         }
     }
 
@@ -321,11 +338,17 @@ class SpiderMessagesTableModel
         }
     }
 
-    private class AlertEventConsumer implements EventConsumer {
+    private class EventConsumerImpl implements EventConsumer {
 
         @Override
         public void eventReceived(Event event) {
             switch (event.getEventType()) {
+            case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
+            case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
+            case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
+                refreshEntry(
+                        Integer.valueOf(event.getParameters().get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID)));
+                break;
             case AlertEventPublisher.ALERT_ADDED_EVENT:
             case AlertEventPublisher.ALERT_CHANGED_EVENT:
             case AlertEventPublisher.ALERT_REMOVED_EVENT:

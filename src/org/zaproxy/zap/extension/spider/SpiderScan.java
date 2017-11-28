@@ -45,6 +45,7 @@ import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.SpiderTaskResult;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -330,7 +331,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	}
 
 	@Override
-	public void readURI(HttpMessage msg) {
+	public void notifySpiderTaskResult(SpiderTaskResult spiderTaskResult) {
+		HttpMessage msg = spiderTaskResult.getHttpMessage();
 		HttpRequestHeader requestHeader = msg.getRequestHeader();
 		HttpResponseHeader responseHeader = msg.getResponseHeader();
 		SpiderResource resource = new SpiderResource(
@@ -338,7 +340,9 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 				requestHeader.getMethod(),
 				requestHeader.getURI().toString(),
 				responseHeader.getStatusCode(),
-				responseHeader.getReasonPhrase());
+				responseHeader.getReasonPhrase(),
+				spiderTaskResult.isProcessed(),
+				spiderTaskResult.getReasonNotProcessed());
 
 		if (msg.isResponseFromTargetHost()) {
 			resourcesFound.add(resource);
@@ -347,11 +351,11 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		}
 
 		if (View.isInitialised()) {
-			addMessageToMessagesTableModel(msg);
+			addMessageToMessagesTableModel(spiderTaskResult);
 		}
 	}
 
-	private void addMessageToMessagesTableModel(final HttpMessage msg) {
+	private void addMessageToMessagesTableModel(final SpiderTaskResult spiderTaskResult) {
 		if (EventQueue.isDispatchThread() || cleared) {
 			if (cleared) {
 				return;
@@ -360,7 +364,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 			if (messagesTableModel == null) {
 				messagesTableModel = new SpiderMessagesTableModel();
 			}
-			messagesTableModel.addHistoryReference(msg.getHistoryRef(), !msg.isResponseFromTargetHost());
+			messagesTableModel.addHistoryReference(
+					spiderTaskResult.getHttpMessage().getHistoryRef(),
+					spiderTaskResult.isProcessed(),
+					spiderTaskResult.getReasonNotProcessed());
 			return;
 		}
 
@@ -368,7 +375,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 			@Override
 			public void run() {
-				addMessageToMessagesTableModel(msg);
+				addMessageToMessagesTableModel(spiderTaskResult);
 			}
 		});
 	}
@@ -444,6 +451,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		return numberOfURIsFound.get();
 	}
 
+    public int getNumberOfNodesAdded() {
+        return this.spiderThread.getNumberOfNodesAdded();
+    }
+
 	@Override
 	public boolean isPaused() {
 		return this.spiderThread.isPaused();
@@ -466,6 +477,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	public TableModel getResultsTableModel() {
 		return this.spiderThread.getResultsTableModel();
 	}
+
+    public SpiderPanelTableModel getAddedNodesTableModel() {
+        return this.spiderThread.getAddedNodesTableModel();
+    }
 
 	/**
 	 * Gets the {@code TableModel} of the messages sent during the spidering process.

@@ -20,11 +20,10 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.CardLayout;
-import java.awt.Event;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -32,6 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
@@ -40,6 +42,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ParamsPanel extends AbstractPanel{
@@ -60,6 +63,7 @@ public class ParamsPanel extends AbstractPanel{
 
 	private JXTable paramsTable = null;
 	private ParamsTableModel paramsModel = new ParamsTableModel();
+	private TableExportButton<JXTable> exportButton = null;
 	
     //private static Log log = LogFactory.getLog(ParamsPanel.class);
     
@@ -77,7 +81,7 @@ public class ParamsPanel extends AbstractPanel{
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("params.panel.title"));
 		this.setIcon(new ImageIcon(ParamsPanel.class.getResource("/resource/icon/16/179.png")));	// 'form' icon
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("params.panel.mnemonic"));
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}
@@ -135,6 +139,7 @@ public class ParamsPanel extends AbstractPanel{
 			GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 
 			gridBagConstraints0.gridx = 0;
@@ -151,8 +156,13 @@ public class ParamsPanel extends AbstractPanel{
 			gridBagConstraints2.gridy = 0;
 			gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
 			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+			
+			gridBagConstraints3.gridx = 3;
+			gridBagConstraints3.gridy = 0;
+			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
+			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
 
-			gridBagConstraintsx.gridx = 3;
+			gridBagConstraintsx.gridx = 4;
 			gridBagConstraintsx.gridy = 0;
 			gridBagConstraintsx.weightx = 1.0;
 			gridBagConstraintsx.weighty = 1.0;
@@ -166,10 +176,18 @@ public class ParamsPanel extends AbstractPanel{
 
 			panelToolbar.add(new JLabel(Constant.messages.getString("params.toolbar.site.label")), gridBagConstraints1);
 			panelToolbar.add(getSiteSelect(), gridBagConstraints2);
-			
+			panelToolbar.add(getExportButton(), gridBagConstraints3);
+
 			panelToolbar.add(t1, gridBagConstraintsx);
 		}
 		return panelToolbar;
+	}
+	
+	private TableExportButton<JXTable> getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton<>(getParamsTable());
+		}
+		return exportButton;
 	}
 
 	/*
@@ -204,23 +222,21 @@ public class ParamsPanel extends AbstractPanel{
 	
 	private void setParamsTableColumnSizes() {
 		
-		paramsTable.getColumnModel().getColumn(0).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(0).setPreferredWidth(100);	// type
-		
-		paramsTable.getColumnModel().getColumn(1).setMinWidth(100);
-		paramsTable.getColumnModel().getColumn(1).setPreferredWidth(200);	// name
-		
-		paramsTable.getColumnModel().getColumn(2).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(2).setPreferredWidth(100);	// used
-		
-		paramsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(3).setPreferredWidth(100);	// numvals
-		
-		paramsTable.getColumnModel().getColumn(4).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(4).setPreferredWidth(100);	// % change
-		
-		paramsTable.getColumnModel().getColumn(5).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(5).setPreferredWidth(200);	// flags
+		for (int i = 0; i < paramsTable.getColumnCount(); i++) {
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) paramsTable.getColumnModel();
+			TableColumn col = colModel.getColumn(i);
+			int width = 0;
+
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			if (renderer == null) {
+				renderer = paramsTable.getTableHeader().getDefaultRenderer();
+			}
+			Component comp = renderer.getTableCellRendererComponent(paramsTable, col.getHeaderValue(), false, false, 0,
+					0);
+			width = comp.getPreferredSize().width;
+			col.setPreferredWidth(width + 2);
+		}
+		paramsTable.getColumnModel().getColumn(6).setPreferredWidth(999);	// value
 		
 	}
 	

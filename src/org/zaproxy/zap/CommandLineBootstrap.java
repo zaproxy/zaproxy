@@ -26,6 +26,7 @@ import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.ZapSupportUtils;
 
 /**
  * The bootstrap process for command line mode.
@@ -71,6 +72,9 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
 
             } else if (getArgs().isReportVersion()) {
                 System.out.println(Constant.PROGRAM_VERSION);
+
+            } else if (getArgs().isDisplaySupportInfo()) {
+            	System.out.println(ZapSupportUtils.getAll(false));
 
             } else {
                 if (handleCmdLineSessionArgsSynchronously(control)) {

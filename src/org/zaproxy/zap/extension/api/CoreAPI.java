@@ -38,6 +38,8 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.tree.TreeNode;
+
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -73,12 +75,14 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
@@ -90,6 +94,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private enum ScanReportType {
 		HTML,
+		JSON,
 		XML,
 		MD
 	}
@@ -108,6 +113,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	private static final String ACTION_SEND_REQUEST = "sendRequest";
 	private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
+	private static final String ACTION_DELETE_ALERT = "deleteAlert";
 	private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
 	private static final String ACTION_SET_MODE = "setMode";
 	private static final String ACTION_DELETE_SITE_NODE = "deleteSiteNode";
@@ -116,15 +122,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN = "removeProxyChainExcludedDomain";
 	private static final String ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "enableAllProxyChainExcludedDomains";
 	private static final String ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "disableAllProxyChainExcludedDomains";
+
+	private static final String ACTION_OPTION_MAXIMUM_ALERT_INSTANCES = "setOptionMaximumAlertInstances";
+	private static final String ACTION_OPTION_MERGE_RELATED_ALERTS = "setOptionMergeRelatedAlerts";
+	private static final String ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH = "setOptionAlertOverridesFilePath";
+	private static final String ACTION_OPTION_USE_PROXY_CHAIN = "setOptionUseProxyChain";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
+	private static final String VIEW_ALERTS_SUMMARY = "alertsSummary";
 	private static final String VIEW_NUMBER_OF_ALERTS= "numberOfAlerts";
 	private static final String VIEW_HOSTS = "hosts";
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
 	private static final String VIEW_MESSAGE = "message";
 	private static final String VIEW_MESSAGES = "messages";
+    private static final String VIEW_MESSAGES_BY_ID = "messagesById";
 	private static final String VIEW_MODE = "mode";
 	private static final String VIEW_NUMBER_OF_MESSAGES = "numberOfMessages";
 	private static final String VIEW_VERSION = "version";
@@ -135,15 +148,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_OPTION_PROXY_CHAIN_SKIP_NAME = "optionProxyChainSkipName";
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS = "optionProxyExcludedDomains";
 	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED = "optionProxyExcludedDomainsEnabled";
+	private static final String VIEW_ZAP_HOME_PATH = "zapHomePath";
+
+	private static final String VIEW_OPTION_MAXIMUM_ALERT_INSTANCES = "optionMaximumAlertInstances";
+	private static final String VIEW_OPTION_MERGE_RELATED_ALERTS = "optionMergeRelatedAlerts";
+	private static final String VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH = "optionAlertOverridesFilePath";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
 	private static final String OTHER_ROOT_CERT = "rootcert";
 	private static final String OTHER_XML_REPORT = "xmlreport";
 	private static final String OTHER_HTML_REPORT = "htmlreport";
-    private static final String OTHER_MD_REPORT = "mdreport";
+	private static final String OTHER_JSON_REPORT = "jsonreport";
+	private static final String OTHER_MD_REPORT = "mdreport";
 	private static final String OTHER_MESSAGE_HAR = "messageHar";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
+    private static final String OTHER_MESSAGES_HAR_BY_ID = "messagesHarById";
 	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
 	private static final String OTHER_SCRIPT_JS = "script.js";
 
@@ -156,6 +176,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_START = "start";
 	private static final String PARAM_PROXY_DETAILS = "proxy";
 	private static final String PARAM_ID = "id";
+	private static final String PARAM_IDS = "ids";
 	private static final String PARAM_REQUEST = "request";
 	private static final String PARAM_FOLLOW_REDIRECTS = "followRedirects";
 	private static final String PARAM_MODE = "mode";
@@ -166,6 +187,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_IDX = "idx";
 	private static final String PARAM_IS_REGEX = "isRegex";
 	private static final String PARAM_IS_ENABLED = "isEnabled";
+	private static final String PARAM_RISK = "riskId";
+	private static final String PARAM_NUMBER_OF_INSTANCES = "numberOfInstances";
+	private static final String PARAM_ENABLED = "enabled";
+	private static final String PARAM_FILE_PATH = "filePath";
 
 	/* Update the version whenever the script is changed (once per release) */
 	protected static final int API_SCRIPT_VERSION = 1;
@@ -202,9 +227,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
     private static ExtensionHistory extHistory;
+    private ConnectionParam connectionParam;
 
 
-	public CoreAPI() {
+	public CoreAPI(ConnectionParam connectionParam) {
+		this.connectionParam = connectionParam;
+
 		this.addApiAction(
 				new ApiAction(ACTION_ACCESS_URL, new String[] { PARAM_URL }, new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
@@ -222,6 +250,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				new String[] { PARAM_REQUEST },
 				new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
+		this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID }));
 		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
 		this.addApiAction(new ApiAction(ACTION_DELETE_SITE_NODE, new String[] {PARAM_URL}, new String[] {PARAM_METHOD, PARAM_POST_DATA}));
 		this.addApiAction(
@@ -237,17 +266,23 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN, new String[] { PARAM_IDX }));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
+
+		this.addApiAction(new ApiAction(ACTION_OPTION_MAXIMUM_ALERT_INSTANCES, new String[] { PARAM_NUMBER_OF_INSTANCES }));
+		this.addApiAction(new ApiAction(ACTION_OPTION_MERGE_RELATED_ALERTS, new String[] { PARAM_ENABLED }));
+		this.addApiAction(new ApiAction(ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH, null, new String[] { PARAM_FILE_PATH }));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
-				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL }));
+				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK}));
+		this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
+		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }));
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
-		this.addApiView(new ApiView(VIEW_URLS));
+		this.addApiView(new ApiView(VIEW_URLS, null, new String[] { PARAM_BASE_URL }));
 		this.addApiView(new ApiView(VIEW_MESSAGE, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiView(new ApiView(VIEW_MESSAGES_BY_ID, new String[] { PARAM_IDS }));
 		this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] { PARAM_BASE_URL }));
 		this.addApiView(new ApiView(VIEW_MODE));
 		this.addApiView(new ApiView(VIEW_VERSION));
@@ -264,15 +299,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED);
 		apiView.setDeprecated(true);
 		this.addApiView(apiView);
+		this.addApiView(new ApiView(VIEW_ZAP_HOME_PATH));
+
+		this.addApiView(new ApiView(VIEW_OPTION_MAXIMUM_ALERT_INSTANCES));
+		this.addApiView(new ApiView(VIEW_OPTION_MERGE_RELATED_ALERTS));
+		this.addApiView(new ApiView(VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_HTML_REPORT));
-        this.addApiOthers(new ApiOther(OTHER_MD_REPORT));
+		this.addApiOthers(new ApiOther(OTHER_JSON_REPORT));
+		this.addApiOthers(new ApiOther(OTHER_MD_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] { PARAM_IDS }));
 		this.addApiOthers(new ApiOther(
 				OTHER_SEND_HAR_REQUEST,
 				new String[] { PARAM_REQUEST },
@@ -283,6 +325,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiShortcut(OTHER_SET_PROXY);
 		this.addApiShortcut(OTHER_SCRIPT_JS);
 
+		addApiOptions(this.connectionParam);
 	}
 
 	@Override
@@ -375,6 +418,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			if (session.isNewState()) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
 			}
+
+			List<String> actions = Control.getSingleton().getExtensionLoader().getActiveActions();
+			if (!actions.isEmpty()) {
+				throw new ApiException(ApiException.Type.BAD_STATE, "Active actions prevent the session snapshot: " + actions);
+			}
+
 			String fileName = session.getFileName();
 			
 			if (fileName.endsWith(".session")) {
@@ -477,6 +526,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				Mode mode = Mode.valueOf(params.getString(PARAM_MODE).toLowerCase());
 		    	if (View.isInitialised()) {
 	    			View.getSingleton().getMainFrame().getMainToolbarPanel().setMode(mode);
+	    			View.getSingleton().getMainFrame().getMainMenuBar().setMode(mode);
 		    	} else {
 	    			Control.getSingleton().setMode(mode);
 		    	}
@@ -484,8 +534,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_MODE);
 			}
 		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
-			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
-					Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
+			ExtensionDynSSL extDyn = Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
 			if (extDyn != null) {
 				try {
 					extDyn.createNewRootCa();
@@ -503,9 +552,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			validateForCurrentMode(request);
 			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
 		} else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
-            final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
-                    .getExtensionLoader()
-                    .getExtension(ExtensionAlert.NAME);
+            final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
             if (extAlert != null) {
                 extAlert.deleteAllAlerts();
             } else {
@@ -520,6 +567,33 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 removeHistoryReferenceAlerts(rootNode);
             }
+		} else if (ACTION_DELETE_ALERT.equals(name)) {
+			int alertId = ApiUtils.getIntParam(params, PARAM_ID);
+
+			RecordAlert recAlert;
+			try {
+				recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
+			} catch (DatabaseException e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+			}
+
+			if (recAlert == null) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
+			}
+
+			final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+			if (extAlert != null) {
+				extAlert.deleteAlert(new Alert(recAlert));
+			} else {
+				try {
+					Model.getSingleton().getDb().getTableAlert().deleteAlert(alertId);
+				} catch (DatabaseException e) {
+					logger.error(e.getMessage(), e);
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+				}
+			}
+
 		} else if (ACTION_COLLECT_GARBAGE.equals(name)) {
 			System.gc();
 			return ApiResponseElement.OK;
@@ -611,10 +685,48 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			setProxyChainExcludedDomainsEnabled(true);
 		} else if (ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name)) {
 			setProxyChainExcludedDomainsEnabled(false);
+		} else if (ACTION_OPTION_MAXIMUM_ALERT_INSTANCES.equals(name)) {
+			try {
+				getAlertParam(ApiException.Type.BAD_ACTION).setMaximumInstances(params.getInt(PARAM_NUMBER_OF_INSTANCES));
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_NUMBER_OF_INSTANCES, e);
+			}
+		} else if (ACTION_OPTION_MERGE_RELATED_ALERTS.equals(name)) {
+			try {
+				getAlertParam(ApiException.Type.BAD_ACTION).setMergeRelatedIssues(params.getBoolean(PARAM_ENABLED));
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ENABLED, e);
+			}
+		} else if (ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH.equals(name)) {
+			String filePath = getParam(params, PARAM_FILE_PATH, "");
+			if (!filePath.isEmpty()) {
+				File file = new File(filePath);
+				if (!file.isFile() || !file.canRead()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
+				}
+			}
+			getAlertParam(ApiException.Type.BAD_ACTION).setOverridesFilename(filePath);
+			if (!Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class).reloadOverridesFile()) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+    @Override
+    public ApiResponse handleApiOptionAction(String name, JSONObject params) throws ApiException {
+        if (ACTION_OPTION_USE_PROXY_CHAIN.equals(name)) {
+            boolean enabled = params.getBoolean("Boolean");
+            if (enabled && (connectionParam.getProxyChainName() == null || connectionParam.getProxyChainName().isEmpty())) {
+                return ApiResponseElement.FAIL;
+            }
+
+            connectionParam.setUseProxyChain(enabled);
+            return ApiResponseElement.OK;
+        }
+        return super.handleApiOptionAction(name, params);
 	}
 
 	private void setProxyChainExcludedDomainsEnabled(boolean enabled) {
@@ -624,6 +736,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			domain.setEnabled(enabled);
 		}
 		connectionParam.setProxyExcludedDomains(domains);
+	}
+
+	private AlertParam getAlertParam(ApiException.Type type) throws ApiException {
+		AlertParam alertOptions = Model.getSingleton().getOptionsParam().getParamSet(AlertParam.class);
+		if (alertOptions == null) {
+			throw new ApiException(type);
+		}
+		return alertOptions;
 	}
 
 	/**
@@ -783,9 +903,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = root.children();
+			Enumeration<TreeNode> en = root.children();
 			while (en.hasMoreElements()) {
-				String site = en.nextElement().getNodeName();
+				String site = ((SiteNode) en.nextElement()).getNodeName();
 				if (site.indexOf("//") >= 0) {
 					site = site.substring(site.indexOf("//") + 2);
 				}
@@ -798,14 +918,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = root.children();
+			Enumeration<TreeNode> en = root.children();
 			while (en.hasMoreElements()) {
-				((ApiResponseList)result).addItem(new ApiResponseElement("site", en.nextElement().getNodeName()));
+				((ApiResponseList)result).addItem(new ApiResponseElement("site", ((SiteNode) en.nextElement()).getNodeName()));
 			}
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-			this.getURLs(root, (ApiResponseList)result);
+			this.getURLs(getParam(params, PARAM_BASE_URL, ""), root, (ApiResponseList)result);
 		} else if (VIEW_ALERT.equals(name)){
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
 			RecordAlert recordAlert;
@@ -820,10 +940,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseElement(alertToSet(new Alert(recordAlert)));
 		} else if (VIEW_ALERTS.equals(name)) {
 			final ApiResponseList resultList = new ApiResponseList(name);
+			
 			processAlerts(
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1), new Processor<Alert>() {
+					this.getParam(params, PARAM_COUNT, -1), 
+					this.getParam(params, PARAM_RISK,  -1), new Processor<Alert>() {
 
 						@Override
 						public void process(Alert alert) {
@@ -836,20 +958,29 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			processAlerts(
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1), counter);
+					this.getParam(params, PARAM_COUNT, -1), 
+					this.getParam(params, PARAM_RISK, -1), counter);
 			
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+		} else if (VIEW_ALERTS_SUMMARY.equals(name)) {
+			final int[] riskSummary = { 0, 0, 0, 0 };
+			Processor<Alert> counter = new Processor<Alert>() {
+
+				@Override
+				public void process(Alert alert) {
+					riskSummary[alert.getRisk()]++;
+				}
+			};
+			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, -1, counter);
+
+			Map<String, Object> alertData = new HashMap<>();
+			for (int i = 0; i < riskSummary.length; i++) {
+				alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
+			}
+			result = new ApiResponseSet<Object>("risk", alertData);
 		} else if (VIEW_MESSAGE.equals(name)) {
 			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-			RecordHistory recordHistory;
-			try {
-				recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
-			} catch (HttpMalformedHeaderException | DatabaseException e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-			}
-			if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
-				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-			}
+			RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
 			result = new ApiResponseElement(ApiResponseConversionUtils.httpMessageToSet(recordHistory.getHistoryId(),
 					recordHistory.getHistoryType(), recordHistory.getHttpMessage()));
 		} else if (VIEW_MESSAGES.equals(name)) {
@@ -878,6 +1009,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					counter);
 
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+		} else if (VIEW_MESSAGES_BY_ID.equals(name)) {
+			ApiResponseList resultList = new ApiResponseList(name);
+			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+			for (Integer id : getIds(params)) {
+				RecordHistory recordHistory = getRecordHistory(tableHistory, id);
+				resultList.addItem(
+						ApiResponseConversionUtils.httpMessageToSet(
+								recordHistory.getHistoryId(),
+								recordHistory.getHistoryType(),
+								recordHistory.getHttpMessage()));
+			}
+			result = resultList;
 		} else if (VIEW_MODE.equals(name)) {
 			result = new ApiResponseElement(name, Control.getSingleton().getMode().name());
 		} else if (VIEW_VERSION.equals(name)) {
@@ -904,10 +1047,35 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					name,
 					Model.getSingleton().getOptionsParam().getConnectionParam().getProxyExcludedDomains(),
 					true);
+		} else if (VIEW_ZAP_HOME_PATH.equals(name)) {
+			result = new ApiResponseElement(name, Constant.getZapHome());
+		} else if (VIEW_OPTION_MAXIMUM_ALERT_INSTANCES.equals(name)) {
+			result = new ApiResponseElement(
+					name,
+					String.valueOf(getAlertParam(ApiException.Type.BAD_VIEW).getMaximumInstances()));
+		} else if (VIEW_OPTION_MERGE_RELATED_ALERTS.equals(name)) {
+			result = new ApiResponseElement(
+					name,
+					String.valueOf(getAlertParam(ApiException.Type.BAD_VIEW).isMergeRelatedIssues()));
+		} else if (VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH.equals(name)) {
+			result = new ApiResponseElement(name, getAlertParam(ApiException.Type.BAD_VIEW).getOverridesFilename());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
+	}
+
+	private RecordHistory getRecordHistory(TableHistory tableHistory, Integer id) throws ApiException {
+		RecordHistory recordHistory;
+		try {
+			recordHistory = tableHistory.read(id);
+		} catch (HttpMalformedHeaderException | DatabaseException e) {
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+		}
+		if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, Integer.toString(id));
+		}
+		return recordHistory;
 	}
 
 	private ApiResponse proxyChainExcludedDomainsToApiResponseList(
@@ -998,8 +1166,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			return msg;
 		} else if (OTHER_ROOT_CERT.equals(name)) {
-			ExtensionDynSSL extDynSSL = 
-					(ExtensionDynSSL) Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.EXTENSION_ID);
+			ExtensionDynSSL extDynSSL =  Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
 			if (extDynSSL != null) {
 				try {
 					Certificate rootCA = extDynSSL.getRootCA();
@@ -1043,35 +1210,38 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
-        } else if (OTHER_MD_REPORT.equals(name)) {
-            try {
-                writeReportLastScanTo(msg, ScanReportType.MD);
+		} else if (OTHER_JSON_REPORT.equals(name)) {
+			try {
+				writeReportLastScanTo(msg, ScanReportType.JSON);
 
-                return msg;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-            }
+				return msg;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
+		} else if (OTHER_MD_REPORT.equals(name)) {
+			try {
+				writeReportLastScanTo(msg, ScanReportType.MD);
+
+				return msg;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
 		} else if (OTHER_MESSAGE_HAR.equals(name)) {
 			byte[] responseBody;
 			try {
 				final HarEntries entries = new HarEntries();
 				TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-				RecordHistory recordHistory;
-				try {
-					recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
-				} catch (HttpMalformedHeaderException | DatabaseException e) {
-					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-				}
-				if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
-					throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-				}
+				RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
 				entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
 
 				HarLog harLog = HarUtils.createZapHarLog();
 				harLog.setEntries(entries);
 
 				responseBody = HarUtils.harLogToByteArray(harLog);
+			} catch (ApiException e) {
+				responseBody = e.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 
@@ -1087,26 +1257,36 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			msg.setResponseBody(responseBody);
 
 			return msg;
-		} else if (OTHER_MESSAGES_HAR.equals(name)) {
+		} else if (OTHER_MESSAGES_HAR_BY_ID.equals(name) || OTHER_MESSAGES_HAR.equals(name)) {
 			byte[] responseBody;
 			try {
 				final HarEntries entries = new HarEntries();
-				processHttpMessages(
-						this.getParam(params, PARAM_BASE_URL, (String) null),
-						this.getParam(params, PARAM_START, -1),
-						this.getParam(params, PARAM_COUNT, -1),
-						new Processor<RecordHistory>() {
+				if (OTHER_MESSAGES_HAR_BY_ID.equals(name)) {
+					TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+					for (Integer id : getIds(params)) {
+						RecordHistory recordHistory = getRecordHistory(tableHistory, id);
+						entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+					}
+				} else {
+					processHttpMessages(
+							this.getParam(params, PARAM_BASE_URL, (String) null),
+							this.getParam(params, PARAM_START, -1),
+							this.getParam(params, PARAM_COUNT, -1),
+							new Processor<RecordHistory>() {
 
-							@Override
-							public void process(RecordHistory recordHistory) {
-								entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
-							}
-						});
+								@Override
+								public void process(RecordHistory recordHistory) {
+									entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+								}
+							});
+				}
 
 				HarLog harLog = HarUtils.createZapHarLog();
 				harLog.setEntries(entries);
 
 				responseBody = HarUtils.harLogToByteArray(harLog);
+			} catch (ApiException e) {
+				responseBody = e.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 
@@ -1188,6 +1368,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		}
 	}
 
+	private static List<Integer> getIds(JSONObject params) throws ApiException {
+		List<Integer> listIds = new ArrayList<>();
+		for (String id : params.getString(PARAM_IDS).split(",")) {
+			try {
+				listIds.add(Integer.valueOf(id.trim()));
+			} catch (NumberFormatException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDS, e);
+			}
+		}
+
+		if (listIds.isEmpty()) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_IDS);
+		}
+		return listIds;
+	}
+
 	private boolean incErrorDetails() {
 		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
 	}
@@ -1203,10 +1399,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
 			response = report.toString();
 		} else if (ScanReportType.MD == reportType) {
-            msg.setResponseHeader(API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
-            response = ReportGenerator.stringToHtml(
-                    report.toString(),
-                    Paths.get(Constant.getZapInstall(), "xml/report.md.xsl").toString());
+			msg.setResponseHeader(API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
+			response = ReportGenerator.stringToHtml(
+					report.toString(),
+					Paths.get(Constant.getZapInstall(), "xml/report.md.xsl").toString());
+		} else if (ScanReportType.JSON == reportType) {
+			msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8"));
+			response = ReportGenerator.stringToJson(report.toString());
 		} else {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
 			response = ReportGenerator.stringToHtml(
@@ -1247,21 +1446,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return sb.toString();
 	}
 
-	private void getURLs(SiteNode parent, ApiResponseList list) {
+	private void getURLs(String baseUrl, SiteNode parent, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = parent.children();
+		Enumeration<TreeNode> en = parent.children();
 		while (en.hasMoreElements()) {
-			SiteNode child = en.nextElement();
-			String site = child.getNodeName();
-			if (site.indexOf("//") >= 0) {
-				site = site.substring(site.indexOf("//") + 2);
+			SiteNode child = (SiteNode) en.nextElement();
+			String uri = child.getHistoryReference().getURI().toString();
+			if (baseUrl.isEmpty() || uri.startsWith(baseUrl)) {
+				list.addItem(new ApiResponseElement("url", uri));
 			}
-			try {
-				list.addItem(new ApiResponseElement("url", child.getHistoryReference().getURI().toString()));
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-			getURLs(child, list);
+
+			getURLs(baseUrl, child, list);
 		}
 	}
 
@@ -1285,13 +1480,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("wascid", String.valueOf(alert.getWascId()));
 		map.put("sourceid", String.valueOf(alert.getSource().getId()));
 		map.put("solution", alert.getSolution());
-		if (alert.getHistoryRef() != null) {
-			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));
-		}
+		map.put("messageId",
+				(alert.getHistoryRef() != null) ? String.valueOf(alert.getHistoryRef().getHistoryId()) : "");
+
 		return new ApiResponseSet<String>("alert", map);
 	}
 
-	private void processAlerts(String baseUrl, int start, int count, Processor<Alert> processor) throws ApiException {
+	private void processAlerts(String baseUrl, int start, int count, int riskId, Processor<Alert> processor) throws ApiException {
 		List<Alert> alerts = new ArrayList<>();
 		try {
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
@@ -1309,6 +1504,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						&& !alerts.contains(alert)) {
 					if (baseUrl != null && ! alert.getUri().startsWith(baseUrl)) {
 						// Not subordinate to the specified URL
+						continue;
+					}
+					if (riskId != -1 && alert.getRisk() != riskId) {
 						continue;
 					}
 
@@ -1472,6 +1670,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		public ModeRedirectionValidator(Processor<HttpMessage> processor) {
 			this.processor = processor;
+			this.isRequestValid = true;
 		}
 
 		@Override

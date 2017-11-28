@@ -28,13 +28,13 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +42,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.script.Invocable;
 import javax.script.ScriptContext;
@@ -54,6 +53,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
@@ -65,19 +65,44 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
 	public static final int EXTENSION_ORDER = 60;
 	public static final String NAME = "ExtensionScript";
-	public static final ImageIcon ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/059.png")); // Script icon
+
+	/**
+	 * @deprecated (2.7.0) Use {@link #getScriptIcon()} instead.
+	 */
+	@Deprecated
+	public static final ImageIcon ICON = View.isInitialised() ? getScriptIcon() : null;
+	
+	/**
+	 * The {@code Charset} used to load/save the scripts from/to the file.
+	 * <p>
+	 * While the scripts can be loaded with any {@code Charset} (defaulting to this one) they are always saved with this
+	 * {@code Charset}.
+	 *
+	 * @since 2.7.0
+	 * @see #loadScript(ScriptWrapper)
+	 * @see #loadScript(ScriptWrapper, Charset)
+	 * @see #saveScript(ScriptWrapper)
+	 */
+	public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+
+	/**
+	 * The script icon.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getScriptIcon()
+	 */
+	private static ImageIcon scriptIcon;
 	
 	public static final String SCRIPTS_DIR = "scripts";
 	public static final String TEMPLATES_DIR = SCRIPTS_DIR + File.separator + "templates";
@@ -89,15 +114,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public static final String TYPE_PROXY = "proxy";
 	public static final String TYPE_STANDALONE = "standalone";
 	public static final String TYPE_TARGETED = "targeted";
-
-	private static final ImageIcon HTTP_SENDER_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-httpsender.png"));
-	private static final ImageIcon PROXY_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-proxy.png"));
-	private static final ImageIcon STANDALONE_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-standalone.png"));
-	private static final ImageIcon TARGETED_ICON = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-targeted.png"));
 	
 	private ScriptEngineManager mgr = new ScriptEngineManager();
 	private ScriptParam scriptParam = null;
@@ -143,20 +159,25 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("script.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
-		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", PROXY_ICON, true));
-		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false, 
+		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", createIcon("/resource/icon/16/script-proxy.png"), true));
+		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", createIcon("/resource/icon/16/script-standalone.png"), false,
 				new String[] {ScriptType.CAPABILITY_APPEND}));
-		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
-		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", HTTP_SENDER_ICON, true));
+		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", createIcon("/resource/icon/16/script-targeted.png"), false));
+		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", createIcon("/resource/icon/16/script-httpsender.png"), true));
 
 		extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
 
 		extensionHook.addProxyListener(this.getProxyListener());
-		HttpSender.addListener(getHttpSenderScriptListener());
+		extensionHook.addHttpSenderListener(getHttpSenderScriptListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
 
 	    extensionHook.addCommandLine(getCommandLineArguments());
@@ -170,6 +191,19 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 		extensionHook.addApiImplementor(new ScriptAPI(this));
 
+	}
+
+	/**
+	 * Creates an {@code ImageIcon} with the give resource path, if in view mode.
+	 *
+	 * @param resourcePath the resource path of the icon, must not be {@code null}.
+	 * @return the icon, or {@code null} if not in view mode.
+	 */
+	private ImageIcon createIcon(String resourcePath) {
+		if (getView() == null) {
+			return null;
+		}
+		return new ImageIcon(ExtensionScript.class.getResource(resourcePath));
 	}
 	
 	private OptionsScriptPanel getOptionsScriptPanel() {
@@ -200,7 +234,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			engineNames.add(engine.getLanguageName() + LANG_ENGINE_SEP + engine.getEngineName());
 		}
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
-			if (! engines.contains(sew.getEngine().getFactory())) {
+			if (! engines.contains(sew.getFactory())) {
 				engineNames.add(sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName());
 			}
 		}
@@ -252,8 +286,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			ScriptEngineWrapper engineWrapper,
 			ScriptEngineWrapper newEngineWrapper) {
 		for (@SuppressWarnings("unchecked")
-		Enumeration<ScriptNode> e = baseNode.depthFirstEnumeration(); e.hasMoreElements();) {
-			ScriptNode node = e.nextElement();
+		Enumeration<TreeNode> e = baseNode.depthFirstEnumeration(); e.hasMoreElements();) {
+			ScriptNode node = (ScriptNode) e.nextElement();
 			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
 				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
 				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
@@ -303,6 +337,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #hasSameScriptEngine(ScriptWrapper, ScriptEngineWrapper)
 	 */
 	public static boolean isSameScriptEngine(String name, String engineName, String engineLanguage) {
+		if (name == null) {
+			return false;
+		}
+
 		// In the configs we just use the engine name, in the UI we use the language name as well
 		if (name.indexOf(LANG_ENGINE_SEP) > 0) {
 			if (name.equals(engineLanguage + LANG_ENGINE_SEP + engineName)) {
@@ -356,8 +394,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	private void processTemplatesOfRemovedEngine(ScriptNode baseNode, ScriptEngineWrapper engineWrapper) {
 		@SuppressWarnings("unchecked")
-		List<ScriptNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
-		for (ScriptNode node : templateNodes) {
+		List<TreeNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
+		for (TreeNode tpNode : templateNodes) {
+			ScriptNode node = (ScriptNode) tpNode;
 			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
 				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
 				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
@@ -416,8 +455,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	protected ScriptParam getScriptParam() {
 		if (this.scriptParam == null) {
 			this.scriptParam = new ScriptParam();
-			// NASTY! Need to find a cleaner way of getting the configs to load before the UI
-			this.scriptParam.load(Model.getSingleton().getOptionsParam().getConfig());
 		}
 		return this.scriptParam;
 	}
@@ -537,7 +574,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void saveScript(ScriptWrapper script) throws IOException {
 		refreshScript(script);
-        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), DEFAULT_CHARSET)) {
             bw.append(script.getContents());
         }
         this.setChanged(script, false);
@@ -602,16 +639,29 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void postInit() {
+		ScriptEngineWrapper ecmaScriptEngineWrapper = null;
 		final List<String[]> scriptsNotAdded = new ArrayList<>(1);
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
+			// Change scripts using Rhino (Java 7) script engine to Nashorn (Java 8+).
+			if (script.getEngine() == null && isRhinoScriptEngine(script.getEngineName())) {
+				if (ecmaScriptEngineWrapper == null) {
+					ecmaScriptEngineWrapper = getEcmaScriptEngineWrapper();
+				}
+				if (ecmaScriptEngineWrapper != null) {
+					logger.info("Changing [" + script.getName() + "] (ECMAScript) script engine from [" + script.getEngineName()
+									+ "] to [" + ecmaScriptEngineWrapper.getEngineName() + "].");
+					script.setEngine(ecmaScriptEngineWrapper);
+				}
+			}
+
 			try {
 				this.loadScript(script);
 				if (script.getType() != null) {
 					this.addScript(script, false);
 				} else {
 					logger.warn(
-							"Failed to add script \"" + script.getName() + "\", script type not found: "
-									+ script.getTypeName());
+							"Failed to add script \"" + script.getName() + "\", provided script type \""
+									+ script.getTypeName() + "\" not found, available: " + getScriptTypesNames());
 					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(),
 							Constant.messages.getString("script.info.scriptsNotAdded.error.missingType", script.getTypeName()) });
 				}
@@ -649,6 +699,23 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				}
 			}
 		}
+    }
+
+    private static boolean isRhinoScriptEngine(String engineName) {
+        return "Mozilla Rhino".equals(engineName) || "Rhino".equals(engineName);
+    }
+    
+    private ScriptEngineWrapper getEcmaScriptEngineWrapper() {
+        for (ScriptEngineWrapper sew : this.engineWrappers) {
+            if ("ECMAScript".equals(sew.getLanguageName())) {
+                return sew;
+            }
+        }
+        return null;
+    }
+
+    private List<String> getScriptTypesNames() {
+        return getScriptTypes().stream().collect(ArrayList::new, (c, e) -> c.add(e.getName()), ArrayList::addAll);
     }
 
     private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
@@ -889,7 +956,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			if (this.getTreeModel().getTemplate(f.getName()) == null) {
 				String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
 				String engineName = this.getEngineNameForExtension(ext);
-				if (engineName != null && (engine == null || engine.getEngine().getFactory().getExtensions().contains(ext))) {
+				if (engineName != null && (engine == null || engine.getExtensions().contains(ext))) {
 					try {
 						ScriptWrapper template = new ScriptWrapper(f.getName(), "", 
 								this.getEngineWrapper(engineName), type, false, f);
@@ -907,9 +974,58 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 	}
 	
+	/**
+	 * Loads the script from the file, using {@link #DEFAULT_CHARSET}.
+	 * <p>
+	 * If the file contains invalid byte sequences (for {@code DEFAULT_CHARSET}) it will be loaded again using the
+	 * {@link Charset#defaultCharset() (JVM) default charset}, to load scripts saved with older ZAP versions (which relied on
+	 * default charset).
+	 *
+	 * @param script the ScriptWrapper to be loaded (read script from file).
+	 * @return the {@code ScriptWrapper} with the actual script read from the file.
+	 * @throws IOException if an error occurred while reading the script from the file.
+	 * @throws IllegalArgumentException if the {@code script} is {@code null}.
+	 * @see #loadScript(ScriptWrapper, Charset)
+	 */
 	public ScriptWrapper loadScript(ScriptWrapper script) throws IOException {
+		try {
+			return loadScript(script, DEFAULT_CHARSET);
+		} catch (MalformedInputException e) {
+			if (Charset.defaultCharset() == DEFAULT_CHARSET) {
+				// No point trying the (JVM) default charset if it's the same...
+				throw e;
+			}
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(
+						"Failed to load script [" + script.getName() + "] using [" + DEFAULT_CHARSET + "], falling back to ["
+								+ Charset.defaultCharset() + "].",
+						e);
+			}
+			return loadScript(script, Charset.defaultCharset());
+		}
+	}
+
+	/**
+	 * Loads the script from the file, using the given charset.
+	 *
+	 * @param script the ScriptWrapper to be loaded (read script from file).
+	 * @param charset the charset to use when reading the script from the file.
+	 * @return the {@code ScriptWrapper} with the actual script read from the file.
+	 * @throws IOException if an error occurred while reading the script from the file.
+	 * @throws IllegalArgumentException if the {@code script} or the {@code charset} is {@code null}.
+	 * @since 2.7.0
+	 * @see #loadScript(ScriptWrapper)
+	 */
+	public ScriptWrapper loadScript(ScriptWrapper script, Charset charset) throws IOException {
+		if (script == null) {
+			throw new IllegalArgumentException("Parameter script must not be null.");
+		}
+		if (charset == null) {
+			throw new IllegalArgumentException("Parameter charset must not be null.");
+		}
 	    StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), charset)) {
 			int len;
 			char[] buf = new char[1024];
 			while ((len = br.read(buf)) != -1) {
@@ -1057,6 +1173,12 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    	se.eval(script.getContents());
 	    } catch (Exception e) {
 	        handleScriptException(script, writer, e);
+	    } catch (NoClassDefFoundError | ExceptionInInitializerError e) {
+	        if (e.getCause() instanceof Exception) {
+	            handleScriptException(script, writer, (Exception) e.getCause());
+	        } else {
+	            handleUnspecifiedScriptError(script, writer, e.getMessage());
+	        }
 	    }
 
 	    if (se instanceof Invocable) {
@@ -1139,7 +1261,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				s.invokeWith(msg);
 				
 			} else {
-				handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.targeted.error"));
+				handleUnspecifiedScriptError(script, writer, Constant.messages.getString("script.interface.targeted.error"));
 			}
 		
 		} catch (Exception e) {
@@ -1177,22 +1299,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #handleScriptException(ScriptWrapper, Exception)
 	 */
 	public void handleFailedScriptInterface(ScriptWrapper script, String errorMessage) {
-		handleFailedScriptInterface(script, getWriters(script), errorMessage);
+		handleUnspecifiedScriptError(script, getWriters(script), errorMessage);
 	}
 
 	/**
-	 * Handles a failed attempt to convert a script into an interface.
+	 * Handles an unspecified error that occurred while calling or invoking a script.
 	 * <p>
 	 * The given {@code errorMessage} will be written to the given {@code writer} and the given {@code script} will be disabled
 	 * and flagged that has an error.
 	 *
-	 * @param script the script that failed to be converted to an interface, must not be {@code null}
+	 * @param script the script that failed to be called/invoked, must not be {@code null}
 	 * @param writer the writer associated with the script, must not be {@code null}
 	 * @param errorMessage the message that will be written to the given {@code writer}
 	 * @see #setError(ScriptWrapper, String)
 	 * @see #setEnabled(ScriptWrapper, boolean)
 	 */
-	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) {
+	private void handleUnspecifiedScriptError(ScriptWrapper script, Writer writer, String errorMessage) {
 		try {
 			writer.append(errorMessage);
 		} catch (IOException e) {
@@ -1221,7 +1343,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				}
 				
 			} else {
-				handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.proxy.error"));
+				handleUnspecifiedScriptError(script, writer, Constant.messages.getString("script.interface.proxy.error"));
 			}
 		
 		} catch (Exception e) {
@@ -1245,7 +1367,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                     senderScript.responseReceived(msg, initiator, new HttpSenderScriptHelper(sender));
                 }
             } else {
-                handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.httpsender.error"));
+                handleUnspecifiedScriptError(script, writer, Constant.messages.getString("script.interface.httpsender.error"));
             }
         } catch (Exception e) {
             handleScriptException(script, writer, e);
@@ -1255,13 +1377,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public void setChanged(ScriptWrapper script, boolean changed) {
 		script.setChanged(changed);
 		ScriptNode node = this.getTreeModel().getNodeForScript(script);
-		if (node.getNodeName().equals(script.getName())) {
-			// The name is the same
-			this.getTreeModel().nodeStructureChanged(script);
-		} else {
-			// The name has changed
-			node.setNodeName(script.getName());
-			this.getTreeModel().nodeStructureChanged(node.getParent());
+		if (node != null) {
+			if (node.getNodeName().equals(script.getName())) {
+				// The name is the same
+				this.getTreeModel().nodeStructureChanged(script);
+			} else {
+				// The name has changed
+				node.setNodeName(script.getName());
+				this.getTreeModel().nodeStructureChanged(node.getParent());
+			}
 		}
 		
 		notifyScriptChanged(script);
@@ -1434,7 +1558,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		for (ScriptType type : this.getScriptTypes()) {
 			for (ScriptWrapper script : this.getScripts(type)) {
 				if (script.isChanged()) {
-					list.add(MessageFormat.format(Constant.messages.getString("script.resource"), script.getName()));
+					list.add(Constant.messages.getString("script.resource", script.getName()));
 				}
 			}
 		}
@@ -1443,26 +1567,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void openCmdLineFile(File f) throws IOException, ScriptException {
 		if (! f.exists()) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.nofile", f.getAbsolutePath()));
 			return;
 		}
 		if (! f.canRead()) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noread", f.getAbsolutePath()));
 			return;
 		}
 		int dotIndex = f.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noext", f.getAbsolutePath()));
 			return;
 		}
 		String ext = f.getName().substring(dotIndex+1);
 		String engineName = this.getEngineNameForExtension(ext);
 		if (engineName == null) {
-			CommandLine.info(MessageFormat.format(
-					Constant.messages.getString("script.cmdline.noengine"), ext));
+			CommandLine.info(Constant.messages.getString("script.cmdline.noengine", ext));
 			return;
 		}
         ScriptWrapper sw = new ScriptWrapper(f.getName(), "", engineName,
@@ -1479,21 +1599,14 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void execute(CommandLineArgument[] args) {
-        if (arguments[ARG_SCRIPT_IDX].isEnabled()) {
-            for (CommandLineArgument arg : args) {
-            	Vector<String> params = arg.getArguments();
-                if (params != null) {
-                	for (String script : params) {
-                		try {
-                			openCmdLineFile(new File(script));
-                		} catch (Exception e) {
-                			logger.error(e.getMessage(), e);
-                		}
-                	}
+        if (args[ARG_SCRIPT_IDX].isEnabled()) {
+            for (String script : args[ARG_SCRIPT_IDX].getArguments()) {
+                try {
+                    openCmdLineFile(new File(script));
+                } catch (Exception e) {
+                    CommandLine.error(e.getMessage(), e);
                 }
             }
-        } else {
-            return;
         }
     }
 
@@ -1546,6 +1659,21 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public boolean supportsDb(String type) {
 		return true;
 	}
+
+    /**
+     * Gets the script icon.
+     * <p>
+     * Should be called/used only when in view mode.
+     * 
+     * @return the script icon, never {@code null}.
+     * @since 2.7.0
+     */
+    public static ImageIcon getScriptIcon() {
+        if (scriptIcon == null) {
+            scriptIcon = new ImageIcon(ExtensionScript.class.getResource("/resource/icon/16/059.png"));
+        }
+        return scriptIcon;
+    }
 
 	private static class ClearScriptVarsOnSessionChange implements SessionChangedListener {
 

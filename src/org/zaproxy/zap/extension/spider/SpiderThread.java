@@ -27,8 +27,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
+import javax.swing.tree.TreeNode;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
@@ -40,10 +42,12 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.SpiderTaskResult;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -99,6 +103,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	/** The results model. */
 	private SpiderPanelTableModel resultsModel;
 
+	/** The added nodes model, ie the names of the nodes that were added to the sites tree. */
+	private SpiderPanelTableModel addedNodesModel;
+
 	/** The start uri. */
 	private URI startURI = null;
 	
@@ -144,6 +151,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.site = site;
 		this.pendingSpiderListeners = new LinkedList<>();
 		this.resultsModel = extension.getView() != null ? new SpiderPanelTableModel() : null;
+		// This can be used in daemon mode via the API
+		this.addedNodesModel = new SpiderPanelTableModel(false);
 		this.spiderParams = spiderParams;
 
 		setName("ZAP-SpiderInitThread-"+ id);
@@ -386,9 +395,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		// If the "scanChildren" option is enabled, add them
 		if (scanChildren) {
 			@SuppressWarnings("unchecked")
-			Enumeration<SiteNode> en = node.children();
+			Enumeration<TreeNode> en = node.children();
 			while (en.hasMoreElements()) {
-				SiteNode sn = en.nextElement();
+				SiteNode sn = (SiteNode) en.nextElement();
 				addSeeds(sn);
 			}
 		}
@@ -432,6 +441,27 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		extension.getSpiderPanel().updateFoundCount();
 	}
 
+	private void addUriToAddedNodesModel(final String uri, final String method, final String params) {
+		if (!EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					addUriToAddedNodesModel(uri, method, params);
+				}
+			});
+			return;
+		}
+
+		// Add the new result
+		addedNodesModel.addScanResult(uri, method, null, false);
+
+		if (extension.getView() != null) {
+			// Update the count of added nodes
+			extension.getSpiderPanel().updateAddedCount();
+		}
+	}
+
 	private String getStatusLabel(FetchStatus status) {
 		switch (status) {
 		case SEED:
@@ -450,9 +480,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	}
 
 	@Override
-	public void readURI(final HttpMessage msg) {
+	public void notifySpiderTaskResult(SpiderTaskResult spiderTaskResult) {
 		// Add the read message to the Site Map (tree or db structure)
 		try {
+			HttpMessage msg = spiderTaskResult.getHttpMessage();
 			int type = msg.isResponseFromTargetHost() ? HistoryReference.TYPE_SPIDER : HistoryReference.TYPE_SPIDER_TEMPORARY;
 			HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(), type, msg);
 
@@ -470,7 +501,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @param historyReference the history reference of the message, must not be {@code null}
 	 * @param message the actual message, must not be {@code null}
 	 */
-	private static void addMessageToSitesTree(final HistoryReference historyReference, final HttpMessage message) {
+	private void addMessageToSitesTree(final HistoryReference historyReference, final HttpMessage message) {
 		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
 			EventQueue.invokeLater(new Runnable() {
 
@@ -482,7 +513,16 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			return;
 		}
 
-		SessionStructure.addPath(Model.getSingleton().getSession(), historyReference, message);
+		StructuralNode node = SessionStructure.addPath(
+				Model.getSingleton().getSession(), historyReference, message, true);
+		if (node != null) {
+			try {
+				addUriToAddedNodesModel(SessionStructure.getNodeName(message), 
+						message.getRequestHeader().getMethod(), "");
+			} catch (URIException e) {
+				log.error("Error while adding node to added nodes model: " + e.getMessage(), e);
+		    }
+		}
 	}
 
 	@Override
@@ -516,6 +556,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	    if (resultsModel != null) {
 	        this.resultsModel.removeAllElements();
 	    }
+        if (addedNodesModel != null) {
+            this.addedNodesModel.removeAllElements();
+        }
 	}
 
 	/**
@@ -560,6 +603,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		return this.resultsModel;
 	}
 
+    public SpiderPanelTableModel getAddedNodesTableModel() {
+        return this.addedNodesModel;
+    }
+
 	@Override
 	public void setScanContext(Context context) {
 		this.scanContext = context;
@@ -586,5 +633,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	public void setCustomParseFilters(List<ParseFilter> customParseFilters) {
 		this.customParseFilters  = customParseFilters;
 	}
+
+    public int getNumberOfNodesAdded() {
+        return getAddedNodesTableModel().getRowCount();
+    }
 
 }

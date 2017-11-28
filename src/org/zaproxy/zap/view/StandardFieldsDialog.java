@@ -30,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +86,23 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private JPanel mainPanel = null;
 	private List<JPanel> tabPanels = null;
 	private List<Integer> tabOffsets = null;
+
+	/**
+	 * The component used when showing the panels in tabs.
+	 * 
+	 * @see #getTabComponent(JPanel)
+	 * @see #panelToScrollPaneMap
+	 */
 	private JTabbedPane tabbedPane = null;
+
+	/**
+	 * The map that contains the {@code JScrollPane}s of the tabs ({@code JPanel}s) that were
+	 * {@link #setTabScrollable(String, boolean) set as scrollable}.
+	 * 
+	 * @see #getTabComponent(JPanel)
+	 * @see #tabbedPane
+	 */
+	private Map<JPanel, JScrollPane> panelToScrollPaneMap;
 	
 	private double labelWeight = 0;
 	private double fieldWeight = 1.0D;
@@ -174,6 +192,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 */
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels, boolean modal) {
 		super(owner, modal);
+		this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setTitle(Constant.messages.getString(titleLabel));
 		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);
@@ -217,6 +236,14 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		} else {
 			this.initializeTabbed(dim, tabLabels);
 		}
+
+		addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				handleCloseAction();
+			}
+		});
 		
         //  Handle escape key to close the dialog    
         KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
@@ -225,16 +252,20 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 
 			@Override
             public void actionPerformed(ActionEvent e) {
-				if (hasCancelSaveButtons()) {
-					cancelPressed();
-					return;
-				}
-
-				savePressed();
+				handleCloseAction();
             }
         };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
         getRootPane().getActionMap().put("ESCAPE",escapeAction);
+	}
+
+	private void handleCloseAction() {
+		if (hasCancelSaveButtons()) {
+			cancelPressed();
+			return;
+		}
+
+		savePressed();
 	}
 
 	public void setXWeights(double labelWeight, double fieldWeight) {
@@ -254,6 +285,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.setContentPane(contentPanel);
 		
 		tabbedPane = new JTabbedPane();
+		panelToScrollPaneMap = new HashMap<>();
 
 		initContentPanel(contentPanel, tabbedPane, getExtraButtons(), getHelpIndex());
 
@@ -392,7 +424,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 	
 	/**
-	 * Gets called when the cancel button is pressed - override to do anything other than just close the window
+	 * Called when the dialogue is cancelled (if it {@link #hasCancelSaveButtons() has a cancel/save button}), for example,
+	 * Cancel button is pressed or the dialogue is closed through the window decorations.
+	 * <p>
+	 * Hides the dialogue by default.
 	 */
 	public void cancelPressed() {
 		setVisible(false);
@@ -417,7 +452,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private JButton getHelpButton(final String helpIndex) {
 		if (helpButton == null) {
 			helpButton = new JButton();
-			helpButton.setIcon(ExtensionHelp.HELP_ICON);
+			helpButton.setIcon(ExtensionHelp.getHelpIcon());
 			helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
 
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -1624,7 +1659,25 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
 			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
 		}
-		tabbedPane.setSelectedComponent(this.tabPanels.get(tabIndex));
+		tabbedPane.setSelectedComponent(getTabComponent(this.tabPanels.get(tabIndex)));
+	}
+
+	/**
+	 * Gets the actual component added to a tab for the given panel.
+	 * <p>
+	 * Allows to transparently handle the cases where a {@link #setTabScrollable(String, boolean) tab was set scrollable}, so
+	 * the actual component added is a {@link JScrollPane} not the panel itself. This method should be used, always, when
+	 * managing the components of the {@link #tabbedPane}.
+	 *
+	 * @param panel the panel whose actual component will be returned.
+	 * @return the actual component added to the tab.
+	 */
+	private JComponent getTabComponent(JPanel panel) {
+		JScrollPane scrollPane = panelToScrollPaneMap.get(panel);
+		if (scrollPane != null) {
+			return scrollPane;
+		}
+		return panel;
 	}
 
 	/**
@@ -1638,15 +1691,118 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			for (String label : tabLabels) {
 				String name = Constant.messages.getString(label);
 				JPanel tabPanel = this.tabNameMap.get(label);
-				tabbedPane.addTab(name, tabPanel);
-				this.tabPanels.add(tabPanel);
+				tabbedPane.addTab(name, getTabComponent(tabPanel));
 			}
     	} else {
 			for (String label : tabLabels) {
 				JPanel tabPanel = this.tabNameMap.get(label);
-				this.tabbedPane.remove(tabPanel);
+				this.tabbedPane.remove(getTabComponent(tabPanel));
 			}
     	}
+	}
+
+	/**
+	 * Sets whether or not the tab with given label should be scrollable (that is, added to a {@link JScrollPane}).
+	 * <p>
+	 * <strong>Note:</strong> The scrollable state of the tabs should be changed only to non-custom panels, or to custom panels,
+	 * set through {@link #setCustomTabPanel(int, JComponent)}, if they are not already scrollable (otherwise it might happen
+	 * that the contents of the panel have two scroll bars).
+	 *
+	 * @param tabLabel the label of the tab, as set during construction of the dialogue.
+	 * @param scrollable {@code true} if the tab should be scrollable, {@code false} otherwise.
+	 * @since 2.7.0
+	 * @see #createTabScrollable(String, JPanel)
+	 * @see #isTabScrollable(String)
+	 */
+	protected void setTabScrollable(String tabLabel, boolean scrollable) {
+		JPanel tabPanel = this.tabNameMap.get(tabLabel);
+		if (tabPanel == null) {
+			return;
+		}
+
+		if (scrollable) {
+			if (isTabScrollable(tabPanel)) {
+				return;
+			}
+
+			String title = Constant.messages.getString(tabLabel);
+			int tabIndex = tabbedPane.indexOfTab(title);
+			boolean selected = tabbedPane.getSelectedIndex() == tabIndex;
+
+			JScrollPane scrollPane = createTabScrollable(tabLabel, tabPanel);
+			if (scrollPane == null) {
+				return;
+			}
+			panelToScrollPaneMap.put(tabPanel, scrollPane);
+
+			if (tabIndex == -1) {
+				return;
+			}
+
+			tabbedPane.insertTab(title, null, scrollPane, null, tabIndex);
+			if (selected) {
+				tabbedPane.setSelectedIndex(tabIndex);
+			}
+			return;
+		}
+
+		if (!isTabScrollable(tabPanel)) {
+			return;
+		}
+
+		String title = Constant.messages.getString(tabLabel);
+		int tabIndex = tabbedPane.indexOfTab(title);
+		tabbedPane.insertTab(title, null, tabPanel, null, tabIndex);
+		tabbedPane.removeTabAt(tabIndex + 1);
+		panelToScrollPaneMap.remove(tabPanel);
+	}
+
+	/**
+	 * Tells whether or not the given panel is scrollable.
+	 * <p>
+	 * <strong>Note:</strong> The scrollable state returned by this mehtod only applies to tabs that were set to be (or not)
+	 * scrollable through the method {@link #setTabScrollable(String, boolean)}, not to "panels" added directly to a tab with
+	 * {@link #setCustomTabPanel(int, JComponent)}.
+	 *
+	 * @param tabPanel the panel to check.
+	 * @return {@code true} if the tab is scrollable, {@code false} otherwise.
+	 */
+	private boolean isTabScrollable(JPanel tabPanel) {
+		return panelToScrollPaneMap.containsKey(tabPanel);
+	}
+
+	/**
+	 * Tells whether or not the tab with the given label is scrollable.
+	 * <p>
+	 * <strong>Note:</strong> The scrollable state returned by this mehtod only applies to tabs that were set to be (or not)
+	 * scrollable through the method {@link #setTabScrollable(String, boolean)}, not to "panels" added directly to a tab with
+	 * {@link #setCustomTabPanel(int, JComponent)}.
+	 * 
+	 * @param tabLabel the label of the tab to check.
+	 * @return {@code true} if the tab is scrollable, {@code false} otherwise.
+	 * @since 2.7.0
+	 */
+	protected boolean isTabScrollable(String tabLabel) {
+		JPanel tabPanel = this.tabNameMap.get(tabLabel);
+		if (tabPanel == null) {
+			return false;
+		}
+		return isTabScrollable(tabPanel);
+	}
+
+	/**
+	 * Creates and returns a {@link JScrollPane} for the given panel. Called when a tab is
+	 * {@link #setTabScrollable(String, boolean) set to be scrollable}.
+	 * <p>
+	 * By default this method returns a {@code JScrollPane} that has the vertical and horizontal scrollbars shown as needed.
+	 *
+	 * @param tabLabel the label of the tab, as set during construction of the dialogue.
+	 * @param tabPanel the panel of the tab that should be scrollable, never {@code null}.
+	 * @return the JScrollPane
+	 * @since 2.7.0
+	 */
+	protected JScrollPane createTabScrollable(String tabLabel, JPanel tabPanel) {
+		return new JScrollPane(tabPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
 	/**

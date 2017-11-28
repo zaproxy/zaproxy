@@ -28,16 +28,33 @@ package org.zaproxy.zap.network;
  */
 public class HttpRequestConfig {
 
+    /**
+     * Constant that indicates that no value was set (thus using the value defined by the sender implementation).
+     * 
+     * @since 2.7.0
+     */
+    public static final int NO_VALUE_SET = -1;
+
     private final boolean followRedirects;
     private final HttpRedirectionValidator redirectionValidator;
+    private final boolean notifyListeners;
+    private final int soTimeout;
 
-    HttpRequestConfig(boolean followRedirects, HttpRedirectionValidator redirectionValidator) {
+    HttpRequestConfig(
+            boolean followRedirects,
+            HttpRedirectionValidator redirectionValidator,
+            boolean notifyListeners,
+            int soTimeout) {
         this.followRedirects = followRedirects;
         this.redirectionValidator = redirectionValidator;
+        this.notifyListeners = notifyListeners;
+        this.soTimeout = soTimeout;
     }
 
     /**
      * Tells whether or not the redirects should be followed.
+     * <p>
+     * Default value: {@code false}.
      *
      * @return {@code true} if the redirects should be followed, {@code false} otherwise.
      * @see #getRedirectionValidator()
@@ -48,12 +65,39 @@ public class HttpRequestConfig {
 
     /**
      * Gets the {@code HttpRedirectionValidator}, to validate the followed redirections.
+     * <p>
+     * Default value: {@link DefaultHttpRedirectionValidator#INSTANCE}.
      *
      * @return the validator responsible for validation of redirections, never {@code null}.
      * @see #isFollowRedirects()
      */
     public HttpRedirectionValidator getRedirectionValidator() {
         return redirectionValidator;
+    }
+
+    /**
+     * Tells whether or not {@link HttpSenderListener}s should be notified before sending the request and after receiving the
+     * response.
+     * <p>
+     * Default value: {@code true}.
+     *
+     * @return {@code true} if the listeners should be notified, {@code false} otherwise.
+     * @since 2.7.0
+     */
+    public boolean isNotifyListeners() {
+        return notifyListeners;
+    }
+
+    /**
+     * Gets the socket timeout, in milliseconds, when sending the requests.
+     * <p>
+     * Default value: {@link #NO_VALUE_SET}.
+     * 
+     * @return the socket timeout, in milliseconds.
+     * @since 2.7.0
+     */
+    public int getSoTimeout() {
+        return soTimeout;
     }
 
     /**
@@ -86,15 +130,20 @@ public class HttpRequestConfig {
 
         private boolean followRedirects;
         private HttpRedirectionValidator redirectionValidator;
+        private boolean notifyListeners;
+        private int soTimeout;
 
         private Builder() {
             this.followRedirects = false;
             this.redirectionValidator = DefaultHttpRedirectionValidator.INSTANCE;
+            this.notifyListeners = true;
+            this.soTimeout = NO_VALUE_SET;
         }
 
         private Builder(HttpRequestConfig config) {
             this.followRedirects = config.isFollowRedirects();
             this.redirectionValidator = config.getRedirectionValidator();
+            this.notifyListeners = config.isNotifyListeners();
         }
 
         /**
@@ -129,12 +178,44 @@ public class HttpRequestConfig {
         }
 
         /**
+         * Sets whether or not {@link HttpSenderListener}s should be notified before sending the request and after receiving the
+         * response.
+         *
+         * @param notifyListeners {@code true} if the listeners should be notified, {@code false} otherwise.
+         * @return the builder.
+         * @since 2.7.0
+         */
+        public Builder setNotifyListeners(boolean notifyListeners) {
+            this.notifyListeners = notifyListeners;
+            return this;
+        }
+
+        /**
+         * Sets the value of the socket timeout ({@link java.net.SocketOptions#SO_TIMEOUT SO_TIMEOUT}), in milliseconds.
+         * <p>
+         * A value equal (or lower than) {@link HttpRequestConfig#NO_VALUE_SET} resets any value previously value. Value zero
+         * indicates an infinite timeout.
+         *
+         * @param soTimeout the socket timeout, in milliseconds.
+         * @return the builder.
+         */
+        public Builder setSoTimeout(int soTimeout) {
+            if (soTimeout <= NO_VALUE_SET) {
+                this.soTimeout = NO_VALUE_SET;
+                return this;
+            }
+
+            this.soTimeout = soTimeout;
+            return this;
+        }
+
+        /**
          * Builds a new {@code HttpRequestConfig}, with the configurations previously set.
          *
          * @return a new {@code HttpRequestConfig}.
          */
         public HttpRequestConfig build() {
-            return new HttpRequestConfig(followRedirects, redirectionValidator);
+            return new HttpRequestConfig(followRedirects, redirectionValidator, notifyListeners, soTimeout);
         }
     }
 }

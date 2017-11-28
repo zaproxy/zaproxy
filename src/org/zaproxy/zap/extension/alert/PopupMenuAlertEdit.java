@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.alert;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 
 
 /**
@@ -34,20 +32,17 @@ public class PopupMenuAlertEdit extends PopupMenuItemAlert {
 
 	private static final long serialVersionUID = 1L;
 
-	private ExtensionHistory extHist = null; 
+	private final ExtensionAlert extension; 
 
-    public PopupMenuAlertEdit() {
+    public PopupMenuAlertEdit(ExtensionAlert extension) {
         super(Constant.messages.getString("scanner.edit.popup"));
+
+        this.extension = extension;
 	}
 	
     @Override
     protected void performAction(Alert alert) {
-        if (extHist == null) {
-            extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-        }
-        if (extHist != null) {
-            extHist.showAlertAddDialog(alert);
-        }
+        extension.showAlertEditDialog(alert);
     }
 
     @Override

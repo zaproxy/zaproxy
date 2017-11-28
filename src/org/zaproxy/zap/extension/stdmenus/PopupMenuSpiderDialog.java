@@ -47,7 +47,7 @@ public class PopupMenuSpiderDialog extends PopupMenuItemSiteNodeContainer {
     
     private ExtensionSpider getExtensionActiveScan() {
     	if (extension == null) {
-    		extension = (ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
+    		extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.class);
     	}
     	return extension;
     }

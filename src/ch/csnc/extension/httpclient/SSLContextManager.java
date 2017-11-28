@@ -312,7 +312,7 @@ public class SSLContextManager {
 				return -1;
 			}
 
-			Provider mscapi = (Provider) Class.forName("se.assembla.jce.provider.ms.MSProvider").newInstance();
+			Provider mscapi = (Provider) Class.forName("se.assembla.jce.provider.ms.MSProvider").getDeclaredConstructor().newInstance();
 			Security.addProvider(mscapi);
 
 			// init the key store

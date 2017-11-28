@@ -41,16 +41,20 @@
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2017/01/30 Use HistoryTable.
 // ZAP: 2017/03/03 Tweak filter label.
+// ZAP: 2017/05/12 Support table export.
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2017/10/20 Add action/shortcut to delete history entries (Issue 3626).
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
-import java.awt.Event;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -72,6 +76,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
@@ -98,6 +103,8 @@ public class LogPanel extends AbstractPanel {
 	private LinkWithSitesTreeSelectionListener linkWithSitesTreeSelectionListener;
 
 	private DeselectableButtonGroup historyListFiltersButtonGroup;
+
+	private TableExportButton<HistoryReferencesTable> exportButton;
 
 	private final ViewDelegate view;
 	
@@ -127,7 +134,7 @@ public class LogPanel extends AbstractPanel {
 	    }
 		this.add(getHistoryPanel(), java.awt.BorderLayout.CENTER);
 		
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("history.panel.mnemonic"));
 		
 	}
@@ -224,6 +231,9 @@ public class LogPanel extends AbstractPanel {
 			panelToolbar.add(filterStatus, gbc);
 
 			++gbc.gridx;
+			panelToolbar.add(getExportButton(), gbc);
+
+			++gbc.gridx;
 			gbc.weightx = 1.0;
 			gbc.weighty = 1.0;
 			gbc.anchor = java.awt.GridBagConstraints.EAST;
@@ -294,6 +304,13 @@ public class LogPanel extends AbstractPanel {
 		return linkWithSitesTreeButton;
 	}
 
+	private TableExportButton<HistoryReferencesTable> getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton<>(getHistoryReferenceTable());
+		}
+		return exportButton;
+	}
+
 	public void setLinkWithSitesTreeSelection(boolean enabled) {
 		linkWithSitesTreeButton.setSelected(enabled);
 		final JTree sitesTree = view.getSiteTreePanel().getTreeSite();
@@ -334,6 +351,17 @@ public class LogPanel extends AbstractPanel {
 				}
 			});
 
+			String deleteHrefKey = "zap.delete.href";
+			historyReferencesTable.getInputMap().put(view.getDefaultDeleteKeyStroke(), deleteHrefKey);
+			historyReferencesTable.getActionMap().put(deleteHrefKey, new AbstractAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					extension.purgeHistory(historyReferencesTable.getSelectedHistoryReferences());
+				}
+			});
 		}
 		return historyReferencesTable;
 	}

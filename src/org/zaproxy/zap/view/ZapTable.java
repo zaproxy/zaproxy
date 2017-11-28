@@ -40,12 +40,14 @@ import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.table.ColumnControlButton;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
+import org.zaproxy.zap.utils.TableExportAction;
 
 /**
  * An enhanced {@code JXTable}. It has the following enhancements:
  * <ul>
  * <li>Ensures that the right-clicked row is selected before showing context menu (for installed JPopupMenu);</li>
  * <li>Allows to enable auto-scroll on new values when scroll bar is at bottom of the table (enabled by default);</li>
+ * <li>Has an export action, under the {@link org.jdesktop.swingx.table.ColumnControlPopup ColumnControlPopup};</li>
  * </ul>
  * 
  * @since 2.4.1
@@ -79,18 +81,53 @@ public class ZapTable extends JXTable {
         JComponent columnControl = getColumnControl();
         if (columnControl instanceof ZapColumnControlButton) {
             ZapColumnControlButton zapColumnControl = ((ZapColumnControlButton) columnControl);
-            zapColumnControl.addAction(getAutoScrollAction());
+            autoScrollAction = createAutoScrollAction();
+            if (autoScrollAction != null) {
+                zapColumnControl.addAction(autoScrollAction);
+            }
+            TableExportAction<ZapTable> exportAction = createTableExportAction();
+            if (exportAction != null) {
+                zapColumnControl.addAction(exportAction);
+            }
             zapColumnControl.populatePopup();
         }
 
         setAutoScrollOnNewValues(true);
     }
 
+    /**
+     * Creates the action to change the state of auto scroll on new values.
+     * <p>
+     * Called when customising the {@link ZapColumnControlButton}.
+     *
+     * @return the action to change the state of the auto scroll on new values, might be {@code null}.
+     * @since 2.7.0
+     * @see #setAutoScrollOnNewValues(boolean)
+     */
+    protected AutoScrollAction createAutoScrollAction() {
+        return new AutoScrollAction(this);
+    }
+
+    /**
+     * Gets the action to change the state of auto scroll on new values.
+     *
+     * @return the action to change the state of the auto scroll on new values, might be {@code null}.
+     */
     protected AutoScrollAction getAutoScrollAction() {
-        if (autoScrollAction == null) {
-            autoScrollAction = new AutoScrollAction(this);
-        }
         return autoScrollAction;
+    }
+
+    /**
+     * Creates the action to export the table.
+     * <p>
+     * Called when customising the {@link ZapColumnControlButton}.
+     *
+     * @return the action to export the table, might be {@code null}.
+     * @since 2.7.0
+     * @see #getColumnControl()
+     */
+    protected TableExportAction<ZapTable> createTableExportAction() {
+        return new TableExportAction<>(this);
     }
 
     /**

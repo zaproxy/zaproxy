@@ -21,16 +21,9 @@ package org.zaproxy.zap.extension.history;
 
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.SiteMap;
-import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
@@ -44,6 +37,7 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
         super(Constant.messages.getString("history.purge.popup"), true);
 
         this.extension = extension;
+        setAccelerator(extension.getView().getDefaultDeleteKeyStroke());
     }
 
     @Override
@@ -53,55 +47,12 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
 
     @Override
     public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
-        if (hrefs.size() > 1) {
-            int result = extension.getView().showConfirmDialog(Constant.messages.getString("history.purge.warning"));
-            if (result != JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-        synchronized (extension) {
-            for (HistoryReference href : hrefs) {
-                purgeHistory(href);
-            }
-        }
+        extension.purgeHistory(hrefs);
     }
 
     @Override
     public void performAction(HistoryReference href) {
-    }
-
-    private void purgeHistory(HistoryReference ref) {
-        if (ref == null) {
-            return;
-        }
-
-        extension.removeFromHistoryList(ref);
-
-        ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionAlert.NAME);
-
-        if (extAlert != null) {
-            extAlert.deleteHistoryReferenceAlerts(ref);
-        }
-
-        extension.delete(ref);
-
-        SiteNode node = ref.getSiteNode();
-        if (node == null) {
-            return;
-        }
-
-        SiteMap map = Model.getSingleton().getSession().getSiteTree();
-
-        if (node.getHistoryReference() == ref) {
-            // same active Node
-            extension.purge(map, node);
-
-        } else {
-            node.getPastHistoryReference().remove(ref);
-            map.removeHistoryReference(ref.getHistoryId());
-        }
+        // Nothing to do, the action is performed on all the references.
     }
 
     @Override

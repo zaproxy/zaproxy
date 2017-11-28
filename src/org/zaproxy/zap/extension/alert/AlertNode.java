@@ -31,7 +31,7 @@ import javax.swing.tree.TreeNode;
 public class AlertNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
 
-    private final Comparator<AlertNode> childComparator;
+    private final Comparator<TreeNode> childComparator;
 	private String nodeName = null;
     private int risk = -1;
     private Alert alert;
@@ -44,7 +44,7 @@ public class AlertNode extends DefaultMutableTreeNode {
         super();
         this.nodeName = nodeName;
         this.setRisk(risk);
-        this.childComparator = childComparator;
+        this.childComparator = new AlertNodeComparatorWrapper(childComparator);
     }
     
     @Override
@@ -137,4 +137,17 @@ public class AlertNode extends DefaultMutableTreeNode {
 		return risk;
 	}
 
+	private static class AlertNodeComparatorWrapper implements Comparator<TreeNode> {
+
+		private final Comparator<AlertNode> comparator;
+
+		public AlertNodeComparatorWrapper(Comparator<AlertNode> comparator) {
+			this.comparator = comparator;
+		}
+
+		@Override
+		public int compare(TreeNode o1, TreeNode o2) {
+			return comparator.compare((AlertNode) o1, (AlertNode) o2);
+		}
+	}
 }

@@ -25,10 +25,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +112,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	 */
 	public static class FormBasedAuthenticationMethod extends AuthenticationMethod {
 
-		private static final String ENCODING = "UTF-8";
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		public static final String MSG_USER_PATTERN = "{%username%}";
 		public static final String MSG_PASS_PATTERN = "{%password%}";
@@ -162,20 +159,12 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
 				throws URIException, HttpMalformedHeaderException, DatabaseException {
 
-			// Replace the username and password in the uri
-			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN,
-					encodeParameter(credentials.getUsername()));
-			requestURL = requestURL.replace(MSG_PASS_PATTERN,
-					encodeParameter(credentials.getPassword()));
-			URI requestURI = new URI(requestURL, false);
+			URI requestURI = createLoginUrl(loginRequestURL, credentials.getUsername(), credentials.getPassword());
 
 			// Replace the username and password in the post data of the request, if needed
 			String requestBody = null;
 			if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
-				requestBody = loginRequestBody.replace(MSG_USER_PATTERN,
-						encodeParameter(credentials.getUsername()));
-				requestBody = requestBody.replace(MSG_PASS_PATTERN,
-						encodeParameter(credentials.getPassword()));
+				requestBody = replaceUserData(loginRequestBody, credentials.getUsername(), credentials.getPassword());
 			}
 
 			// Prepare the actual message, either based on the existing one, or create a new one
@@ -200,15 +189,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 
 			return requestMessage;
-		}
-
-		private static String encodeParameter(String parameter) {
-			try {
-				return URLEncoder.encode(parameter, ENCODING);
-			} catch (UnsupportedEncodingException ignore) {
-				// UTF-8 is one of the standard charsets (see StandardCharsets.UTF_8).
-			}
-			return "";
 		}
 
 		@Override
@@ -347,11 +327,11 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				if (postData != null && postData.length() > 0) {
 					method = HttpRequestHeader.POST;
 				}
-				URI uri = new URI(url, true);
 
 				this.loginRequestURL = url;
 				this.loginRequestBody = postData;
 
+				URI uri = createLoginUrl(loginRequestURL, "", "");
 				// Note: The findNode just checks the parameter names, not their values
 				// Note: No need to make sure the other parameters (besides user/password) are the
 				// same, as POSTs with different values are not delimited in the SitesTree anyway
@@ -426,6 +406,33 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			} else if (!loginRequestURL.equals(other.loginRequestURL))
 				return false;
 			return true;
+		}
+	}
+
+	private static URI createLoginUrl(String loginData, String username, String password) throws URIException {
+		return new URI(replaceUserData(loginData, username, password), true);
+	}
+
+	private static String replaceUserData(String loginData, String username, String password) {
+		return loginData.replace(FormBasedAuthenticationMethod.MSG_USER_PATTERN, encodeParameter(username))
+				.replace(FormBasedAuthenticationMethod.MSG_PASS_PATTERN, encodeParameter(password));
+	}
+
+	private static String encodeParameter(String parameter) {
+		try {
+			return URLEncoder.encode(parameter, "UTF-8");
+		} catch (UnsupportedEncodingException ignore) {
+			// UTF-8 is one of the standard charsets (see StandardCharsets.UTF_8).
+		}
+		return "";
+	}
+
+	private static boolean isValidLoginUrl(String loginUrl) {
+		try {
+			createLoginUrl(loginUrl, "", "");
+			return true;
+		} catch (Exception e) {
+			return false;
 		}
 	}
 
@@ -557,9 +564,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		@Override
 		public void validateFields() {
-			try {
-				new URL(loginUrlField.getText());
-			} catch (Exception ex) {
+			if (!isValidLoginUrl(loginUrlField.getText())) {
 				loginUrlField.requestFocusInWindow();
 				throw new IllegalStateException(
 						Constant.messages.getString("authentication.method.fb.dialog.error.url.text"));
@@ -581,7 +586,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		
 		private ExtensionUserManagement getUserExt() {
 			if (userExt == null) {
-				userExt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				userExt = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 				
 			}
 			return userExt;
@@ -758,9 +763,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 			@Override
 			public PopupMenuItemContext getContextMenu(Context context, String parentMenu) {
-				return new PopupMenuItemContext(context, parentMenu, MessageFormat.format(
-						Constant.messages.getString("authentication.method.fb.popup.login.request"),
-						context.getName())) {
+				return new PopupMenuItemContext(context, parentMenu, 
+						Constant.messages.getString("authentication.method.fb.popup.login.request", context.getName())) {
 
 					private static final long serialVersionUID = 1967885623005183801L;
 					private ExtensionUserManagement usersExtension;
@@ -773,8 +777,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					 * @return true, if successful
 					 */
 					private boolean confirmUsersDeletion(Context uiSharedContext) {
-						usersExtension = (ExtensionUserManagement) Control.getSingleton()
-								.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+						usersExtension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 						if (usersExtension != null) {
 							if (usersExtension.getSharedContextUsers(uiSharedContext).size() > 0) {
 								int choice = JOptionPane.showConfirmDialog(this, Constant.messages
@@ -927,9 +930,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			public void handleAction(JSONObject params) throws ApiException {
 				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
 				String loginUrl = ApiUtils.getNonEmptyStringParam(params, PARAM_LOGIN_URL);
-				try {
-					new URL(loginUrl);
-				} catch (Exception ex) {
+				if (!isValidLoginUrl(loginUrl)) {
 					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_LOGIN_URL);
 				}
 				String postData = "";

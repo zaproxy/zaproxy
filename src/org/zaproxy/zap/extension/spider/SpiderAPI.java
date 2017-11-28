@@ -102,6 +102,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String VIEW_FULL_RESULTS = "fullResults";
 	private static final String VIEW_SCANS = "scans";
 	private static final String VIEW_ALL_URLS = "allUrls";
+	private static final String VIEW_ADDED_NODES = "addedNodes";
 
 	private static final String VIEW_DOMAINS_ALWAYS_IN_SCOPE = "domainsAlwaysInScope";
 	private static final String VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE = "optionDomainsAlwaysInScope";
@@ -177,6 +178,7 @@ public class SpiderAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_SCANS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 		this.addApiView(new ApiView(VIEW_ALL_URLS));
+		this.addApiView(new ApiView(VIEW_ADDED_NODES, null, new String[] { PARAM_SCAN_ID }));
 
 		this.addApiView(new ApiView(VIEW_DOMAINS_ALWAYS_IN_SCOPE));
 		ApiView view = new ApiView(VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE);
@@ -228,8 +230,8 @@ public class SpiderAPI extends ApiImplementor {
 			// The action is to start a new Scan from the perspective of a user
 			String urlUserScan = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 			int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
-			ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
-					.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+			ExtensionUserManagement usersExtension = Control.getSingleton()
+					.getExtensionLoader().getExtension(ExtensionUserManagement.class);
 			if (usersExtension == null) {
 				throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 			}
@@ -514,7 +516,7 @@ public class SpiderAPI extends ApiImplementor {
     		maxChildrenFetchFilter.setMaxChildren(maxChildren);
     		maxChildrenFetchFilter.setModel(extension.getModel());
     		
-    		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
+    		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter(extension.getMessages());
     		maxChildrenParseFilter.setMaxChildren(maxChildren);
     		maxChildrenParseFilter.setModel(extension.getModel());
 			objs.add(maxChildrenFetchFilter);
@@ -554,7 +556,7 @@ public class SpiderAPI extends ApiImplementor {
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
 			synchronized (scan.getResourcesFound()) {
 				for (SpiderResource sr : scan.getResourcesFound()) {
-					resultList.addItem(createApiResponseSet(sr));
+					resultList.addItem(createApiResponseSet(sr, sr.isProcessed(), sr.getReasonNotProcessed()));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -570,7 +572,7 @@ public class SpiderAPI extends ApiImplementor {
 			resultList = new ApiResponseList("urlsIoError");
 			synchronized (scan.getResourcesIoErrors()) {
 				for (SpiderResource sr : scan.getResourcesIoErrors()) {
-					resultList.addItem(createApiResponseSet(sr));
+					resultList.addItem(createApiResponseSet(sr, sr.isProcessed(), sr.getReasonNotProcessed()));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -623,6 +625,14 @@ public class SpiderAPI extends ApiImplementor {
 			}
 			
 			result = resultUrls;
+		} else if (VIEW_ADDED_NODES.equals(name)) {
+			result = new ApiResponseList(name);
+			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
+			if (scan != null) {
+				for (String s : scan.getAddedNodesTableModel().getAddedNodes()) {
+					((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
+				}
+			}
 		} else if (VIEW_DOMAINS_ALWAYS_IN_SCOPE.equals(name) || VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE.equals(name)) {
 			result = domainMatchersToApiResponseList(name, extension.getSpiderParam().getDomainsAlwaysInScope(), false);
 		} else if (VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE_ENABLED.equals(name)) {
@@ -633,13 +643,15 @@ public class SpiderAPI extends ApiImplementor {
 		return result;
 	}
 
-	private static ApiResponseSet<String> createApiResponseSet(SpiderResource sr) {
+	private static ApiResponseSet<String> createApiResponseSet(SpiderResource sr, boolean processed, String reasonNotProcessed) {
 		Map<String, String> map = new HashMap<>();
 		map.put("messageId", Integer.toString(sr.getHistoryId()));
 		map.put("method", sr.getMethod());
 		map.put("url", sr.getUri());
 		map.put("statusCode", Integer.toString(sr.getStatusCode()));
 		map.put("statusReason", sr.getStatusReason());
+		map.put("processed", Boolean.toString(processed));
+		map.put("reasonNotProcessed", reasonNotProcessed);
 		return new ApiResponseSet<>("resource", map);
 	}
 	

@@ -129,7 +129,7 @@ public class SqlTableContext extends SqlAbstractTable implements TableContext {
 	public synchronized void deleteAllDataForContextAndType(int contextId, int type) throws DatabaseException {
     	SqlPreparedStatementWrapper psDeleteAllDataForContextAndType = null;
     	try {
-        	psDeleteAllDataForContextAndType = DbSQL.getSingleton().getPreparedStatement("context.ps.alldataforcontexttype");
+        	psDeleteAllDataForContextAndType = DbSQL.getSingleton().getPreparedStatement("context.ps.deletealldataforcontexttype");
 			psDeleteAllDataForContextAndType.getPs().setInt(1, contextId);
 			psDeleteAllDataForContextAndType.getPs().setInt(2, type);
 			psDeleteAllDataForContextAndType.getPs().executeUpdate();
@@ -147,7 +147,7 @@ public class SqlTableContext extends SqlAbstractTable implements TableContext {
 	public synchronized void deleteAllDataForContext(int contextId) throws DatabaseException {
     	SqlPreparedStatementWrapper psDeleteAllDataForContext = null;
     	try {
-        	psDeleteAllDataForContext = DbSQL.getSingleton().getPreparedStatement("context.ps.alldataforcontext");
+        	psDeleteAllDataForContext = DbSQL.getSingleton().getPreparedStatement("context.ps.deletealldataforcontext");
 			psDeleteAllDataForContext.getPs().setInt(1, contextId);
 			psDeleteAllDataForContext.getPs().executeUpdate();
 		} catch (SQLException e) {

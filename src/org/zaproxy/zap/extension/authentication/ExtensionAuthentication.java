@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -37,7 +38,6 @@ import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
@@ -92,17 +92,22 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("authentication.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		// Register this as a context data factory
-		Model.getSingleton().addContextDataFactory(this);
+		extensionHook.addContextDataFactory(this);
 
 		if (getView() != null) {
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
 
 			// Factory for generating Session Context UserAuth panels
-			getView().addContextPanelFactory(this);
+			extensionHook.getHookView().addContextPanelFactory(this);
 		}
 
 		// Load the Authentication and Session Management methods
@@ -276,22 +281,29 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	@Override
 	public void persistContextData(Session session, Context context) {
 		try {
+			int contextIdx = context.getIndex();
 			AuthenticationMethodType t = context.getAuthenticationMethod().getType();
-			session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_TYPE,
+			session.setContextData(contextIdx, RecordContext.TYPE_AUTH_METHOD_TYPE,
 					Integer.toString(t.getUniqueIdentifier()));
 
-			if (context.getAuthenticationMethod().getLoggedInIndicatorPattern() != null)
-				session.setContextData(context.getIndex(), RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
-						context.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
+			persistLoggedIndicator(session, contextIdx, RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
+					context.getAuthenticationMethod().getLoggedInIndicatorPattern());
 
-			if (context.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null)
-				session.setContextData(context.getIndex(),
-						RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR, context.getAuthenticationMethod()
-								.getLoggedOutIndicatorPattern().toString());
+			persistLoggedIndicator(session, contextIdx, RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR, 
+					context.getAuthenticationMethod().getLoggedOutIndicatorPattern());
 
-			t.persistMethodToSession(session, context.getIndex(), context.getAuthenticationMethod());
+			t.persistMethodToSession(session, contextIdx, context.getAuthenticationMethod());
 		} catch (DatabaseException e) {
 			log.error("Unable to persist Authentication method.", e);
+		}
+	}
+
+	private static void persistLoggedIndicator(Session session, int contextIdx, int recordType, Pattern pattern)
+			throws DatabaseException {
+		if (pattern != null) {
+			session.setContextData(contextIdx, recordType, pattern.toString());
+		} else {
+			session.clearContextDataForType(contextIdx, recordType);
 		}
 	}
 

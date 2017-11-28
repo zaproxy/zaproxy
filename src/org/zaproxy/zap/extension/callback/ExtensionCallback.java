@@ -32,13 +32,17 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.model.OptionsParam;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 
 public class ExtensionCallback extends ExtensionAdaptor implements
         OptionsChangedListener {
 
     private static final String TEST_PREFIX = "ZapTest";
+    private static final String NAME = "ExtensionCallback";
 
     private ProxyServer proxyServer;
     private CallbackParam callbackParam;
@@ -58,6 +62,11 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                 .addOverrideMessageProxyListener(new CallbackProxyListener());
     }
 
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("callback.name");
+    }
+    
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
@@ -92,12 +101,13 @@ public class ExtensionCallback extends ExtensionAdaptor implements
 
     public String getCallbackAddress() {
         String addr = this.getCallbackParam().getRemoteAddress();
-        if (addr.contains(":")) {
-            // Looks like its IPv6
-            return "http://[" + addr + "]:" + actualPort + "/";
-        }
-        // Looks like IPv4
-        return "http://" + addr + ":" + actualPort + "/";
+        boolean ipv6 = addr.contains(":");
+        String hostname = ipv6 ? "[" + addr + "]" : addr;
+
+        boolean isSecure = this.getCallbackParam().isSecure();
+        String scheme = isSecure ? "https" : "http";
+
+        return scheme + "://" + hostname + ":" + actualPort + "/";
     }
 
     public String getTestUrl() {
@@ -187,6 +197,8 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                         + path + " from "
                         + msg.getRequestHeader().getSenderAddress());
 
+                msg.setResponseHeader(HttpHeader.HTTP11 + " " + HttpStatusCode.OK);
+
                 if (path.startsWith("/" + TEST_PREFIX)) {
                     String str = Constant.messages.getString(
                             "callback.test.msg", url, msg.getRequestHeader()
@@ -214,7 +226,7 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                 }
                 LOGGER.error("No callback handler for URL : " + url + " from "
                         + msg.getRequestHeader().getSenderAddress());
-            } catch (URIException e) {
+            } catch (URIException | HttpMalformedHeaderException e) {
                 LOGGER.error(e.getMessage(), e);
             }
             return true;

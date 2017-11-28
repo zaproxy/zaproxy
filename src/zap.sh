@@ -41,14 +41,20 @@ if [ "`echo ${JAVA_OUTPUT} | grep "continuing with system-provided Java"`" ] ; t
   unset JAVA_HOME
 fi
 
+DEFAULTJAVAGC="-XX:+UseG1GC"
+
 JAVA_VERSION=$(java -version 2>&1 | awk -F\" '/version/ { print $2 }')
-JAVA_MAJOR_VERSION=${JAVA_VERSION%%.*}
+JAVA_MAJOR_VERSION=${JAVA_VERSION%%[.|-]*}
 JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
 
-if [ $JAVA_MAJOR_VERSION -ge 1 ] && [ $JAVA_MINOR_VERSION -ge 7 ]; then
+# JEP 223, newer Java versions (>= 9) no longer use 1 as major version
+if [ $JAVA_MAJOR_VERSION -ge 9 ]; then
+  DEFAULTJAVAGC=""
+  echo "Found Java version $JAVA_VERSION"
+elif [ $JAVA_MAJOR_VERSION -ge 1 ] && [ $JAVA_MINOR_VERSION -ge 8 ]; then
   echo "Found Java version $JAVA_VERSION"
 else
-  echo "Exiting: ZAP requires a minimum of Java 7 to run, found $JAVA_VERSION"
+  echo "Exiting: ZAP requires a minimum of Java 8 to run, found $JAVA_VERSION"
   exit 1
 fi
 
@@ -74,10 +80,13 @@ fi
 
 if [ ! -z "$JMEM" ]; then
   echo "Using jvm memory setting from $JVMPROPS"
+  JAVAGC=""
 elif [ -z "$MEM" ]; then
   echo "Failed to obtain current memory, using jvm default memory settings"
+  JAVAGC=${DEFAULTJAVAGC}
 else
   echo "Available memory: $MEM MB"
+  JAVAGC=${DEFAULTJAVAGC}
   if [ "$MEM" -gt 512 ]; then
     # Always go with 1/4 of the available memory - specific JVMs may round this up or down
     QMEM=$(($MEM/4))
@@ -105,7 +114,7 @@ fi
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
   # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
-  exec java ${JMEM} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "${ARGS[@]}"
+  exec java ${JMEM} ${JAVAGC} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "${ARGS[@]}"
 else
-  exec java ${JMEM} -jar "${BASEDIR}/zap-dev.jar" "${ARGS[@]}"
+  exec java ${JMEM} ${JAVAGC} -jar "${BASEDIR}/zap-dev.jar" "${ARGS[@]}"
 fi

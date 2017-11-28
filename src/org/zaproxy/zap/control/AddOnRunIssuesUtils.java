@@ -161,16 +161,14 @@ public final class AddOnRunIssuesUtils {
         List<String> issues = new ArrayList<>(2);
         if (requirements.isNewerJavaVersionRequired()) {
             if (requirements.getAddOn() != requirements.getAddOnMinimumJavaVersion()) {
-                issues.add(MessageFormat.format(
-                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.javaversion.dependency"),
+                issues.add(Constant.messages.getString("cfu.warn.addon.with.missing.requirements.javaversion.dependency",
                         requirements.getMinimumJavaVersion(),
                         (SystemUtils.JAVA_VERSION == null
                                 ? Constant.messages.getString("cfu.warn.unknownJavaVersion")
                                 : SystemUtils.JAVA_VERSION),
                         requirements.getAddOnMinimumJavaVersion().getName()));
             } else {
-                issues.add(MessageFormat.format(
-                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.javaversion"),
+                issues.add(Constant.messages.getString("cfu.warn.addon.with.missing.requirements.javaversion",
                         requirements.getMinimumJavaVersion(),
                         (SystemUtils.JAVA_VERSION == null
                                 ? Constant.messages.getString("cfu.warn.unknownJavaVersion")
@@ -197,46 +195,19 @@ public final class AddOnRunIssuesUtils {
                     addOn = null;
                 }
                 if (addOn == null) {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.id"),
-                            addOnId);
+                    message = Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.id", addOnId);
 
                 } else {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon"),
-                            addOn.getName());
+                    message = Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon", addOn.getName());
                 }
-                break;
-            case PACKAGE_VERSION_NOT_BEFORE:
-                addOn = (AddOn) issueDetails.get(0);
-                message = MessageFormat.format(
-                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.version.notBefore"),
-                        addOn.getName(),
-                        issueDetails.get(1),
-                        Integer.valueOf(addOn.getFileVersion()));
-                break;
-            case PACKAGE_VERSION_NOT_FROM:
-                addOn = (AddOn) issueDetails.get(0);
-                message = MessageFormat.format(
-                        Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.version.notAfter"),
-                        addOn.getName(),
-                        issueDetails.get(1),
-                        Integer.valueOf(addOn.getFileVersion()));
                 break;
             case VERSION:
                 addOn = (AddOn) issueDetails.get(0);
-                if (addOn.getVersion() == null) {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.semver.notAvailable"),
-                            addOn.getName(),
-                            issueDetails.get(1));
-                } else {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("cfu.warn.addon.with.missing.requirements.addon.semver"),
-                            addOn.getName(),
-                            issueDetails.get(1),
-                            addOn.getVersion());
-                }
+                message = Constant.messages.getString(
+                        "cfu.warn.addon.with.missing.requirements.addon.version",
+                        addOn.getName(),
+                        issueDetails.get(1),
+                        addOn.getSemVer() != null ? addOn.getSemVer() : addOn.getVersion());
                 break;
             default:
                 message = Constant.messages.getString("cfu.warn.addon.with.missing.requirements.unknown");
@@ -366,33 +337,13 @@ public final class AddOnRunIssuesUtils {
         case MISSING:
             String addOnId = (String) issueDetails.get(0);
             return MessageFormat.format("Add-On with ID \"{0}\"", addOnId);
-        case PACKAGE_VERSION_NOT_BEFORE:
+        case VERSION:
             AddOn addOn = (AddOn) issueDetails.get(0);
             return MessageFormat.format(
-                    "Add-on \"{0}\" with version not before {1} (found version {2})",
+                    "Add-on \"{0}\" with version matching {1} (found version {2})",
                     addOn.getName(),
                     issueDetails.get(1),
-                    Integer.valueOf(addOn.getFileVersion()));
-        case PACKAGE_VERSION_NOT_FROM:
-            addOn = (AddOn) issueDetails.get(0);
-            return MessageFormat.format(
-                    "Add-on \"{0}\" with version not after {1} (found version {2})",
-                    addOn.getName(),
-                    issueDetails.get(1),
-                    Integer.valueOf(addOn.getFileVersion()));
-        case VERSION:
-            addOn = (AddOn) issueDetails.get(0);
-            if (addOn.getVersion() == null) {
-                return MessageFormat.format(
-                        "Add-on \"{0}\" with semantic version >= {1} (found no semantic version)",
-                        addOn.getName(),
-                        issueDetails.get(1));
-            }
-            return MessageFormat.format(
-                    "Add-on \"{0}\" with semantic version >= {1} (found version {2})",
-                    addOn.getName(),
-                    issueDetails.get(1),
-                    addOn.getVersion());
+                    addOn.getSemVer() != null ? addOn.getSemVer() : addOn.getVersion());
         default:
             LOGGER.warn("Failed to handle dependency issue with name \"" + requirements.getDependencyIssue().name()
                     + "\" and details: " + issueDetails);

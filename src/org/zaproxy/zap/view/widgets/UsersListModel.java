@@ -31,6 +31,7 @@ import org.zaproxy.zap.users.User;
 class UsersListModel extends AbstractListModel<User> implements ComboBoxModel<User> {
 
 	private static final long serialVersionUID = 5648260449088479312L;
+	private final TableModelListenerImpl tableModelListenerImpl;
 	private User selectedItem;
 	private UsersTableModel tableModel;
 	private User[] customUsers;
@@ -38,7 +39,15 @@ class UsersListModel extends AbstractListModel<User> implements ComboBoxModel<Us
 	UsersListModel(UsersTableModel tableModel) {
 		super();
 		this.tableModel = tableModel;
-		this.tableModel.addTableModelListener(new TableModelListenerImpl());
+		this.tableModelListenerImpl = new TableModelListenerImpl();
+		this.tableModel.addTableModelListener(tableModelListenerImpl);
+	}
+
+	/**
+	 * Unloads this instance, by removing the listener previously added to the table model.
+	 */
+	public void unload() {
+		this.tableModel.removeTableModelListener(tableModelListenerImpl);
 	}
 
 	@Override

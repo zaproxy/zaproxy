@@ -71,6 +71,9 @@
 // ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
 // ZAP: 2017/03/15 Disable API by default
 // ZAP: 2017/03/26 Check the public address when behind NAT.
+// ZAP: 2017/06/12 Do not notify listeners when request is excluded.
+// ZAP: 2017/09/22 Check if first message received is a SSL/TLS handshake and tweak exception message.
+// ZAP: 2017/10/02 Improve error handling when checking if SSL/TLS handshake.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -118,6 +121,7 @@ import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 
 public class ProxyThread implements Runnable {
@@ -131,6 +135,11 @@ public class ProxyThread implements Runnable {
     private static final String BAD_GATEWAY_RESPONSE_STATUS = "502 Bad Gateway";
     private static final String GATEWAY_TIMEOUT_RESPONSE_STATUS = "504 Gateway Timeout";
     
+    /**
+     * A {@code HttpRequestConfig} that does not allow notification of events to listeners.
+     */
+    private static final HttpRequestConfig EXCLUDED_REQ_CONFIG = HttpRequestConfig.builder().setNotifyListeners(false).build();
+
 	// change httpSender to static to be shared among proxies to reuse keep-alive connections
 
 	protected ProxyServer parentServer = null;
@@ -213,17 +222,35 @@ public class ProxyThread implements Runnable {
         } catch (MissingRootCertificateException e) {
         	throw new MissingRootCertificateException(e); // throw again, cause will be catched later.
 		} catch (Exception e) {
-			// ZAP: transform for further processing 
-			throw new IOException("Error while establishing SSL connection for '" + targethost + "'!", e);
+			StringBuilder strBuilder = new StringBuilder(125);
+			strBuilder.append("Error while establishing SSL connection for ");
+			if (targethost == null) {
+				strBuilder.append("an unknown target domain (relying on SNI extension), cause: " + e.getMessage());
+			} else {
+				strBuilder.append("'" + targethost + "'!");
+			}
+			throw new IOException(strBuilder.toString(), e);
 		}
         
         httpIn = new HttpInputStream(inSocket);
         httpOut = new HttpOutputStream(inSocket.getOutputStream());
     }
 	
-	private static boolean isSslTlsHandshake(byte[] bytes) {
-		if (bytes.length < 3) {
-			throw new IllegalArgumentException("The parameter bytes must have at least 3 bytes.");
+	private static boolean isSslTlsHandshake(BufferedInputStream inputStream) throws IOException {
+		byte[] bytes = new byte[3];
+		inputStream.mark(3);
+		int bytesRead = inputStream.read(bytes);
+		inputStream.reset();
+
+		if (bytesRead == -1) {
+			throw new IOException("Failed to check if SSL/TLS handshake, reached end of the stream.");
+		}
+
+		if (bytesRead < 3) {
+			if (log.isDebugEnabled()) {
+				log.debug("Failed to check if SSL/TLS handshake, got just " + bytesRead + " bytes: " + Arrays.toString(bytes));
+			}
+			return false;
 		}
 		// Check if ContentType is handshake(22)
 		if (bytes[0] == 0x16) {
@@ -238,12 +265,17 @@ public class ProxyThread implements Runnable {
 	@Override
 	public void run() {
         proxyThreadList.add(thread);
-		boolean isSecure = this instanceof ProxyThreadSSL;
+		boolean isSecure = false;
 		HttpRequestHeader firstHeader = null;
 		
 		try {
 			BufferedInputStream bufferedInputStream = new BufferedInputStream(inSocket.getInputStream(), 2048);
 			inSocket = new CustomStreamsSocket(inSocket, bufferedInputStream, inSocket.getOutputStream());
+
+			if (isSslTlsHandshake(bufferedInputStream)) {
+				isSecure = true;
+				beginSSL(null);
+			}
 
 			httpIn = new HttpInputStream(inSocket);
 			httpOut = new HttpOutputStream(inSocket.getOutputStream());
@@ -261,12 +293,7 @@ public class ProxyThread implements Runnable {
 					connectMsg.setTimeElapsedMillis((int) (System.currentTimeMillis() - connectMsg.getTimeSentMillis()));
 					notifyConnectMessage(connectMsg);
 					
-					byte[] bytes = new byte[3];
-					bufferedInputStream.mark(3);
-					bufferedInputStream.read(bytes);
-					bufferedInputStream.reset();
-					
-					if (isSslTlsHandshake(bytes)) {
+					if (isSslTlsHandshake(bufferedInputStream)) {
 				        isSecure = true;
 						beginSSL(firstHeader.getHostName());
 					}
@@ -456,20 +483,25 @@ public class ProxyThread implements Runnable {
 			}
 			
 			boolean send = true;
+			boolean excluded = parentServer.excludeUrl(msg.getRequestHeader().getURI());
 			synchronized (semaphore) {
 			    
-			    if (notifyOverrideListenersRequestSend(msg)) {
-			        send = false;
-			    } else if (! notifyListenerRequestSend(msg)) {
-		        	// One of the listeners has told us to drop the request
-			    	return;
-			    }
+				if (!excluded) {
+					if (notifyOverrideListenersRequestSend(msg)) {
+						send = false;
+					} else if (! notifyListenerRequestSend(msg)) {
+						// One of the listeners has told us to drop the request
+						return;
+					}
+				}
 			    
 			    try {
 //					bug occur where response cannot be processed by various listener
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
-			        if (send) {
+					if (excluded) {
+						getHttpSender().sendAndReceive(msg, EXCLUDED_REQ_CONFIG);
+					} else if (send) {
 					    if (msg.getResponseHeader().isEmpty()) {
 					    	// Normally the response is empty.
 					    	// The only reason it wont be is if a script or other ext has deliberately 'hijacked' this request
@@ -500,12 +532,15 @@ public class ProxyThread implements Runnable {
 					log.warn(message);
 					setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, message);
 
-			        notifyListenerResponseReceive(msg);
+					if (!excluded) {
+						notifyListenerResponseReceive(msg);
+					}
 			    } catch (IOException e) {
 			    	setErrorResponse(msg, BAD_GATEWAY_RESPONSE_STATUS, e);
-			    	
-			        notifyListenerResponseReceive(msg);
 
+					if (!excluded) {
+						notifyListenerResponseReceive(msg);
+					}
 
 			        //throw e;
 			    }
@@ -629,9 +664,6 @@ public class ProxyThread implements Runnable {
 	 * @return {@code true} if the message should be forwarded to the server, {@code false} otherwise
 	 */
 	private boolean notifyListenerRequestSend(HttpMessage httpMessage) {
-		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
-			return true;
-		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {
@@ -654,9 +686,6 @@ public class ProxyThread implements Runnable {
 	 * @return {@code true} if the message should be forwarded to the client, {@code false} otherwise
 	 */
 	private boolean notifyListenerResponseReceive(HttpMessage httpMessage) {
-		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
-			return true;
-		}
 		ProxyListener listener = null;
 		List<ProxyListener> listenerList = parentServer.getListenerList();
 		for (int i=0;i<listenerList.size();i++) {

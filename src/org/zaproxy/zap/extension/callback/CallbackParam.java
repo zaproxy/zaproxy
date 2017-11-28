@@ -19,23 +19,16 @@
  */
 package org.zaproxy.zap.extension.callback;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.utils.NetworkUtils;
 
 /**
  * @author psiinon
  *
  */
 public class CallbackParam extends AbstractParam {
-
-    private static final Logger logger = Logger.getLogger(CallbackParam.class);
 
     private static final String PROXY_BASE_KEY = "callback";
 
@@ -45,35 +38,26 @@ public class CallbackParam extends AbstractParam {
             + ".remoteaddr";
     private static final String PORT_KEY = PROXY_BASE_KEY + ".port";
 
+    private static final String SECURE_KEY = PROXY_BASE_KEY + ".secure";
+
     private String localAddress;
     private String remoteAddress;
     private int port;
+    private boolean secure;
 
     public CallbackParam() {
     }
 
     @Override
     protected void parse() {
-        try {
-            localAddress = getConfig().getString(LOCAL_ADDRESS_KEY, "0.0.0.0");
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        try {
-            remoteAddress = getConfig().getString(REMOTE_ADDRESS_KEY,
-                    getDefaultAddress());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        try {
-            port = getConfig().getInt(PORT_KEY, 0);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
+        localAddress = getString(LOCAL_ADDRESS_KEY, "0.0.0.0");
+        remoteAddress = getString(REMOTE_ADDRESS_KEY, getDefaultAddress());
+        port = getInt(PORT_KEY, 0);
+        secure = getBoolean(SECURE_KEY, false);
     }
 
     private String getDefaultAddress() {
-        List<String> addrs = getAvailableAddresses(false);
+        List<String> addrs = NetworkUtils.getAvailableAddresses(false);
         for (String addr : addrs) {
             if (!addr.contains(":") && !addr.equals("localhost")
                     && !addr.equals("127.0.0.1")) {
@@ -86,35 +70,6 @@ public class CallbackParam extends AbstractParam {
         }
         // Better than nothing
         return "localhost";
-    }
-
-    public List<String> getAvailableAddresses(boolean remoteOnly) {
-        List<String> list = new ArrayList<String>();
-        Enumeration<NetworkInterface> e;
-        try {
-            e = NetworkInterface.getNetworkInterfaces();
-            while (e.hasMoreElements()) {
-                NetworkInterface n = e.nextElement();
-                if (n.isLoopback() || !n.isUp()) {
-                    continue;
-                }
-                Enumeration<InetAddress> ee = n.getInetAddresses();
-                while (ee.hasMoreElements()) {
-                    InetAddress i = ee.nextElement();
-                    if (remoteOnly && i.isSiteLocalAddress()) {
-                        continue;
-                    }
-                    String addr = i.getHostAddress();
-                    if (addr.indexOf('%') > 0) {
-                        addr = addr.substring(0, addr.indexOf('%'));
-                    }
-                    list.add(addr);
-                }
-            }
-        } catch (SocketException e1) {
-            logger.error(e1.getMessage(), e1);
-        }
-        return list;
     }
 
     public String getLocalAddress() {
@@ -151,6 +106,18 @@ public class CallbackParam extends AbstractParam {
         }
         this.port = port;
         getConfig().setProperty(PORT_KEY, Integer.toString(this.port));
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(boolean secure) {
+        if (this.secure == secure) {
+            return;
+        }
+        this.secure = secure;
+        getConfig().setProperty(SECURE_KEY, Boolean.toString(this.secure));
     }
 
 }

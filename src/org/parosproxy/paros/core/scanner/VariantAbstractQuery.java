@@ -30,24 +30,32 @@
 // ZAP: 2016/05/04 Changes to address issues related to ParameterParser
 // ZAP: 2016/05/26 Use non-null String for names and values of parameters, scanners might not handle null names/values well
 // ZAP: 2016/09/13 Issue 2863: Attack query string even if not originally specified
+// ZAP: 2017/11/06 Use indexed names for array parameters (Issue 2496).
 
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.mutable.MutableInt;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.ParameterParser;
+import org.zaproxy.zap.model.StandardParameterParser;
 
 public abstract class VariantAbstractQuery implements Variant {
 
-    private List<NameValuePair> listParam = new ArrayList<>();
+    private List<NameValuePair> listParam;
+    private List<String> originalNames;
 
     public VariantAbstractQuery() {
+        listParam = Collections.emptyList();
+        originalNames = Collections.emptyList();
     }
 
     /**
@@ -111,22 +119,35 @@ public abstract class VariantAbstractQuery implements Variant {
      *
      * @param type the type of parameters
      * @param parameters the actual parameters to add
+     * @throws IllegalArgumentException if {@code parameters} is {@code null}.
      * @since 2.5.0
      * @see #getParamList()
      * @see NameValuePair#TYPE_QUERY_STRING
      * @see NameValuePair#TYPE_POST_DATA
      */
     protected void setParameters(int type, List<org.zaproxy.zap.model.NameValuePair> parameters) {
-        listParam.clear();
+        if (parameters == null) {
+            throw new IllegalArgumentException("Parameter parameters must not be null.");
+        }
 
+        int size = parameters.isEmpty() ? 1 : parameters.size();
+        listParam = new ArrayList<>(size);
+        originalNames = new ArrayList<>(size);
+
+        Map<String, MutableInt> arraysMap = new HashMap<>();
         int i = 0;
         for (org.zaproxy.zap.model.NameValuePair parameter : parameters) {
-            listParam.add(new NameValuePair(type, nonNullString(parameter.getName()), nonNullString(parameter.getValue()), i));
+            String originalName = nonNullString(parameter.getName());
+            originalNames.add(originalName);
+            String name = isParamArray(originalName) ? getArrayName(originalName, arraysMap) : originalName;
+            listParam.add(new NameValuePair(type, name, nonNullString(parameter.getValue()), i));
             i++;
         }
         if (i == 0) {
+            String param = "query";
         	// No query params, lets add one just to make sure
-            listParam.add(new NameValuePair(type, "query", "query", i));
+            listParam.add(new NameValuePair(type, param, param, i));
+            originalNames.add(param);
         }
     }
 
@@ -137,9 +158,24 @@ public abstract class VariantAbstractQuery implements Variant {
         return string;
     }
 
+    private String getArrayName(String originalName, Map<String, MutableInt> arraysMap) {
+        MutableInt count = arraysMap.get(originalName);
+        if (count == null) {
+            count = new MutableInt();
+            arraysMap.put(originalName, count);
+        }
+        String arrayName = originalName.substring(0, originalName.length() - 2) + "[" + count + "]";
+        count.increment();
+        return arrayName;
+    }
+
+    private static boolean isParamArray(String name) {
+        return name.endsWith("[]");
+    }
+
     @Override
     public List<NameValuePair> getParamList() {
-        return listParam;
+        return Collections.unmodifiableList(listParam);
     }
 
     /**
@@ -161,8 +197,10 @@ public abstract class VariantAbstractQuery implements Variant {
         if (originalPair.getType() == NameValuePair.TYPE_POST_DATA) {
             parser = Model.getSingleton().getSession().getFormParamParser(msg.getRequestHeader().getURI().toString());
 
-        } else {
+        } else if (originalPair.getType() == NameValuePair.TYPE_QUERY_STRING) {
             parser = Model.getSingleton().getSession().getUrlParamParser(msg.getRequestHeader().getURI().toString());
+        } else {
+            parser = new StandardParameterParser();
         }
     	
         StringBuilder sb = new StringBuilder();
@@ -172,11 +210,12 @@ public abstract class VariantAbstractQuery implements Variant {
         
         for (int i = 0; i < getParamList().size(); i++) {
             pair = getParamList().get(i);
+            String origName = originalNames.get(i);
             if (i == originalPair.getPosition()) {
-                isAppended = paramAppend(sb, getEscapedName(msg, name), encodedValue, parser);
+                isAppended = paramAppend(sb, getEscapedName(msg, pair.getName() == name ? origName : name), encodedValue, parser);
 
             } else {
-                isAppended = paramAppend(sb, getEscapedName(msg, pair.getName()), getEscapedValue(msg, pair.getValue()), parser);
+                isAppended = paramAppend(sb, getEscapedName(msg, origName), getEscapedValue(msg, pair.getValue()), parser);
             }
 
             if (isAppended && i < getParamList().size() - 1) {

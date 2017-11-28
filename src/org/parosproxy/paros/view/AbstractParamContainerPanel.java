@@ -23,6 +23,8 @@
 // ZAP: 2016/06/14 Issue 2578: Must click on text in Options column to select row
 // ZAP: 2016/08/23 Respect sort parameter when adding intermediate panels
 // ZAP: 2016/10/27 Explicitly show other panel when the selected panel is removed.
+// ZAP: 2017/06/23 Ensure panel with validation errors is visible.
+// ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
 
 package org.parosproxy.paros.view;
 
@@ -49,6 +51,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
@@ -60,7 +63,12 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class AbstractParamContainerPanel extends JSplitPane {
 
-    private static final String DEFAULT_ROOT_NODE_NAME = "Root";
+    /**
+     * The default name used for the root node of the tree showing the option panel names.
+     * 
+     * @since 2.7.0
+     */
+    public static final String DEFAULT_ROOT_NODE_NAME = "Root";
 
     private static final long serialVersionUID = -5223178126156052670L;
     protected Object paramObject = null;
@@ -492,6 +500,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
         nameLastSelectedPanel = name;
         currentShownPanel = panel; 
 
+        getTreeParam().setSelectionPath(new TreePath(getTreeNodeFromPanelName(name).getPath()));
+
         getPanelHeadline();
         getTxtHeadline().setText(name);
         getHelpButton().setVisible(panel.getHelpIndex() != null);
@@ -535,7 +545,12 @@ public class AbstractParamContainerPanel extends JSplitPane {
         AbstractParamPanel panel = null;
         while (en.hasMoreElements()) {
             panel = en.nextElement();
-            panel.validateParam(paramObject);
+            try {
+                panel.validateParam(paramObject);
+            } catch (Exception e) {
+                showParamPanel(panel, panel.getName());
+                throw e;
+            }
         }
     }
 
@@ -591,7 +606,6 @@ public class AbstractParamContainerPanel extends JSplitPane {
             
             if (node != null) {
                 showParamPanel(node.toString());
-                getTreeParam().setSelectionPath(new TreePath(node.getPath()));
             }
             
         } catch (Exception e) {
@@ -620,13 +634,17 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     private DefaultMutableTreeNode getTreeNodeFromPanelName(DefaultMutableTreeNode parent, String panel, boolean recurse) {
+        if (panel.equals(parent.toString())) {
+            return parent;
+        }
+
         DefaultMutableTreeNode node = null;
 
         // ZAP: Added @SuppressWarnings annotation.
         @SuppressWarnings("unchecked")
-        Enumeration<DefaultMutableTreeNode> children = parent.children();
+        Enumeration<TreeNode> children = parent.children();
         while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = children.nextElement();
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
             if (panel.equals(child.toString())) {
                 node = child;
                 break;
@@ -661,9 +679,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
         System.out.println();
 
         @SuppressWarnings("unchecked")
-        Enumeration<DefaultMutableTreeNode> children = parent.children();
+        Enumeration<TreeNode> children = parent.children();
         while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = children.nextElement();
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
             this.printTree(child, level + 1);
         }
     }

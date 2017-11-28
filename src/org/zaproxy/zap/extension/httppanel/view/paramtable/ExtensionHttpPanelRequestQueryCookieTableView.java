@@ -42,6 +42,11 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 	}
 	
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("http.panel.view.requestquery.ext.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 		if (getView() != null) {

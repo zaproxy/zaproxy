@@ -21,6 +21,7 @@ package org.zaproxy.zap.utils;
 
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ArrayList;
@@ -160,5 +161,19 @@ public class DisplayUtils {
 			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap1024x1024.png")));
 			zapIconImages = Collections.unmodifiableList(images);
 		}
+	}
+
+	/**
+	 * Gets correctly scaled Insets
+	 * @since 2.7.0
+	 */
+	public static Insets getScaledInsets(int top, int left, int bottom, int right) {
+		if (FontUtils.getScale() == 1) {
+			// dont need to scale
+			return new Insets(top, left, bottom, right);
+		}
+		return new Insets(
+				(int)(top * FontUtils.getScale()), (int)(left * FontUtils.getScale()), 
+				(int)(bottom * FontUtils.getScale()), (int)(right * FontUtils.getScale()));
 	}
 }

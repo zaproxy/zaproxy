@@ -20,6 +20,9 @@
 package org.zaproxy.zap.utils;
 
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.UIManager;
@@ -29,7 +32,9 @@ public class FontUtils {
 	public static enum Size {smallest, much_smaller, smaller, standard, larger, much_larger, huge};	
 	private static float scale = -1;
 	private static Font defaultFont;
+	private static boolean defaultFontSet;
 	private static Font systemDefaultFont;
+	private static Font quicksandBoldFont;
 	
 	public static Font getSystemDefaultFont() {
 		if (systemDefaultFont == null) {
@@ -41,6 +46,26 @@ public class FontUtils {
 		}
 		
 		return systemDefaultFont;
+	}
+	
+	/**
+	 * Returns the Quicksand Bold font - https://fonts.google.com/specimen/Quicksand?selection.family=Quicksand
+	 * @since 2.7.0
+	 * @return the Quicksand Bold font
+	 */
+	public static Font getQuicksandBoldFont() {
+		if (quicksandBoldFont == null) {
+			try {
+				quicksandBoldFont = Font.createFont(Font.TRUETYPE_FONT, 
+						FontUtils.class.getResourceAsStream("/resource/Quicksand-Bold.ttf"));
+				GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(quicksandBoldFont);
+				// Ensure its scaled properly - only need to do this when its first loaded
+				quicksandBoldFont = quicksandBoldFont.deriveFont((float)getDefaultFont().getSize()); 
+			} catch (IOException|FontFormatException e) {
+				quicksandBoldFont = defaultFont;
+			}
+		}
+		return quicksandBoldFont;
 	}
 	
 	public static boolean canChangeSize() {
@@ -65,6 +90,7 @@ public class FontUtils {
 			size = getDefaultFont().getSize();
 		}
 
+		defaultFontSet = name != null && !name.isEmpty();
 		setDefaultFont(new Font(name, Font.PLAIN, size));
 	}
 
@@ -78,26 +104,72 @@ public class FontUtils {
 		return defaultFont;
 	}
 	
+	/**
+	 * Gets the named font, correctly scaled
+	 * @param name
+	 * @return the named font, correctly scaled
+	 */
 	public static Font getFont (String name) {
-		return new Font(name, Font.PLAIN, getDefaultFont().getSize());
+		return getFont(name, Font.PLAIN);
 	}
 	
+	/**
+	 * Gets the default font with the specified style, correctly scaled
+	 * @param style
+	 * @return the default font with the specified style, correctly scaled
+	 */
 	public static Font getFont (int style) {
 		return getDefaultFont().deriveFont(style);
 	}
 	
+	/**
+	 * Gets the named font with the specified style, correctly scaled
+	 * @param name
+	 * @param style
+	 * @return the named font with the specified style, correctly scaled
+	 */
 	public static Font getFont (String name, int style) {
-		Font font = (Font) UIManager.getLookAndFeelDefaults().get("defaultFont");
-		return new Font(name, style, font.getSize());
+		return new Font(name, style, getDefaultFont().getSize());
 	}
 	
+	/**
+	 * Gets the default font with the specified sytle and size, correctly scaled
+	 * @param style
+	 * @param size
+	 * @return
+	 */
 	public static Font getFont (int style, Size size) {
-		return getFont(size).deriveFont(style);
+		return getFont(getDefaultFont(), size).deriveFont(style);
 	}
 	
+	/**
+	 * Gets the specified font with the specified sytle and size, correctly scaled
+	 * @param style
+	 * @param size
+	 * @since 2.7.0
+	 * @return
+	 */
+	public static Font getFont (Font font, int style, Size size) {
+		return getFont(font, size).deriveFont(style);
+	}
+
+	/**
+	 * Gets the default font with the specified size, correctly scaled
+	 * @param size
+	 * @return the default font with the specified size, correctly scaled
+	 */
 	public static Font getFont (Size size) {
-		Font font = getDefaultFont();
-		
+		return getFont(getDefaultFont(), size);
+	}
+
+	/**
+	 * Gets the specified font with the specified size, correctly scaled
+	 * @param font
+	 * @param size
+	 * @since 2.7.0
+	 * @return the specified font with the specified size, correctly scaled
+	 */
+	public static Font getFont (Font font, Size size) {
 		float s;
 		switch (size) {
 		case smallest:		s = (float) (font.getSize() * 0.5); break;
@@ -105,11 +177,11 @@ public class FontUtils {
 		case smaller:		s = (float) (font.getSize() * 0.8); break;
 		case standard:		s = (float) font.getSize(); break;
 		case larger:		s = (float) (font.getSize() * 1.5); break;
-		case much_larger:	s = (float) (font.getSize() * 2); break;
+		case much_larger:	s = (float) (font.getSize() * 3); break;
 		case huge:			s = (float) (font.getSize() * 4); break;
 		default: 			s = (float) (font.getSize()); break;
 		}
-		return getDefaultFont().deriveFont(s);
+		return font.deriveFont(s);
 	}
 
 	public static float getScale() {
@@ -117,5 +189,18 @@ public class FontUtils {
 			scale = getDefaultFont().getSize2D() / getSystemDefaultFont().getSize2D(); 
 		}
 		return scale;
+	}
+
+	/**
+	 * Tells whether or not a custom default font was set.
+	 * <p>
+	 * If no custom font was set it's used the system default font.
+	 *
+	 * @return {@code true} if a custom font was set, {@code false} otherwise.
+	 * @since 2.7.0
+	 * @see #getSystemDefaultFont()
+	 */
+	public static boolean isDefaultFontSet() {
+		return defaultFontSet;
 	}
 }

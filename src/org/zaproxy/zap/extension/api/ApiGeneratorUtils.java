@@ -75,8 +75,7 @@ public class ApiGeneratorUtils {
 		api.addApiOptions(new SpiderParam());
 		imps.add(api);
 
-		api = new CoreAPI();
-        api.addApiOptions(new ConnectionParam());
+		api = new CoreAPI(new ConnectionParam());
 		imps.add(api);
 
 		imps.add(new ParamsAPI(null));

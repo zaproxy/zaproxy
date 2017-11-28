@@ -29,10 +29,14 @@
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
+// ZAP: 2017/05/10 Issue 3460: Add Show Support Info help menuitem
+// ZAP: 2017/06/27 Issue 2375: Added option to change ZAP mode in edit menu
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 
 package org.parosproxy.paros.view;
 
-import java.awt.Event;
+import java.util.HashMap;
+import java.util.Map;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -41,16 +45,23 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.ButtonGroup;
+import javax.swing.SwingUtilities;
 
+import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.control.Control;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.MenuFileControl;
 import org.parosproxy.paros.control.MenuToolsControl;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.view.AboutDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
+import org.zaproxy.zap.view.ZapSupportDialog;
 
 public class MainMenuBar extends JMenuBar {
 
@@ -74,7 +85,11 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem menuFileProperties = null;
 	private JMenu menuHelp = null;
 	private ZapMenuItem menuHelpAbout = null;
+	private ZapMenuItem menuHelpSupport = null;
     private JMenu menuAnalyse = null;
+    private JMenu menuZapMode = null;
+    private ButtonGroup menuZapModeGroup = null;
+    private Map<Mode, JRadioButtonMenuItem> menuZapModeMap = null;
     // ZAP: Added standard report menu
 	private JMenu menuReport = null;
 	private JMenu menuOnline = null;
@@ -114,8 +129,49 @@ public class MainMenuBar extends JMenuBar {
 			menuEdit = new javax.swing.JMenu();
 			menuEdit.setText(Constant.messages.getString("menu.edit")); // ZAP: i18n
 			menuEdit.setMnemonic(Constant.messages.getChar("menu.edit.mnemonic"));
+			menuEdit.add(getMenuEditZAPMode());
+			menuEdit.addSeparator();
 		}
 		return menuEdit;
+	}
+
+	private JMenuItem getMenuEditZAPMode(){
+		if (menuZapMode == null) {
+			menuZapMode = new JMenu(Constant.messages.getString("menu.edit.zapmode"));
+			menuZapModeGroup = new ButtonGroup();
+			JRadioButtonMenuItem newButton;
+			menuZapModeMap = new HashMap<Mode, JRadioButtonMenuItem>();
+			for (Mode modeType : Mode.values()) {
+				 newButton = addZAPModeMenuItem(modeType);
+				 menuZapModeGroup.add(newButton);
+				 menuZapMode.add(newButton);
+				 menuZapModeMap.put(modeType, newButton);
+			}
+			Mode mode = Mode.valueOf(Model.getSingleton().getOptionsParam().getViewParam().getMode());
+			setMode(mode);
+		}
+		return menuZapMode;
+	}
+
+	private JRadioButtonMenuItem addZAPModeMenuItem(final Mode modeType){
+		final JRadioButtonMenuItem modeItem = new JRadioButtonMenuItem(Constant.messages.getString("view.toolbar.mode."+modeType.name()+".select"));
+		modeItem.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				Control.getSingleton().setMode(modeType);
+				View.getSingleton().getMainFrame().getMainToolbarPanel().setMode(modeType);
+			}
+		});
+		return modeItem;
+	}
+
+	public void setMode (final Mode mode) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				menuZapModeMap.get(mode).setSelected(true);
+			}
+		});
 	}
 
 	/**
@@ -168,7 +224,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuToolsOptions() {
 		if (menuToolsOptions == null) {
 			menuToolsOptions = new ZapMenuItem("menu.tools.options",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
 			menuToolsOptions.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -377,7 +433,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuFileProperties() {
 		if (menuFileProperties == null) {
 			menuFileProperties = new ZapMenuItem("menu.file.properties",
-					KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -427,6 +483,7 @@ public class MainMenuBar extends JMenuBar {
 			menuHelp.setText(Constant.messages.getString("menu.help")); // ZAP: i18n
 			menuHelp.setMnemonic(Constant.messages.getChar("menu.help.mnemonic"));
 			menuHelp.add(getMenuHelpAbout());
+			menuHelp.add(getMenuHelpSupport());
 		}
 		return menuHelp;
 	}
@@ -468,6 +525,21 @@ public class MainMenuBar extends JMenuBar {
 		}
 		return menuHelpAbout;
 	}
+	
+	private ZapMenuItem getMenuHelpSupport() {
+		if (menuHelpSupport == null) {			
+			menuHelpSupport = new ZapMenuItem("menu.help.zap.support");
+			menuHelpSupport.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					ZapSupportDialog zsd = new ZapSupportDialog(View.getSingleton().getMainFrame(), true);
+					zsd.setVisible(true);
+				}
+			});
+		}
+		return menuHelpSupport;
+	}
+	
     /**
      * This method initializes jMenu1	
      * 	

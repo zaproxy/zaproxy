@@ -30,6 +30,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
+// ZAP: 2017/07/12 and 2017/09/21 JavaDoc tweaks.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -43,7 +44,7 @@ import org.zaproxy.zap.model.TechSet;
 
 /**
  * This interface must be implemented by a Plugin for running the checks. The
- * AbstractHostPlugin, AbstractAppPlugin, AbstractAppParamPlugin implement this
+ * {@link AbstractHostPlugin}, {@link AbstractAppPlugin}, {@link AbstractAppParamPlugin} implement this
  * interface and is a good starting point for writing new plugins.
  *
  */
@@ -87,9 +88,9 @@ public interface Plugin extends Runnable {
     String getDescription();
 
     /**
-     * returns the maximum risk alert that is thrown by the plugin
+     * Gets the highest risk level of the alerts raised by the plugin.
      *
-     * @return the maximum risk alert that is thrown by the plugin
+     * @return the highest risk level of the alerts raised by the plugin.
      * @see Alert#RISK_HIGH
      * @see Alert#RISK_MEDIUM
      * @see Alert#RISK_LOW
@@ -98,6 +99,12 @@ public interface Plugin extends Runnable {
      */
     int getRisk();
 
+    /**
+     * Initialises the plugin with the given message and host process.
+     *
+     * @param msg the message to be scanned.
+     * @param parent the parent host process.
+     */
     void init(HttpMessage msg, HostProcess parent);
 
     /**
@@ -108,10 +115,11 @@ public interface Plugin extends Runnable {
     void scan();
 
     /**
-     * Array of dependency of this plugin. This plugin will start running until
-     * all the dependency completed running. The dependency is the class name.
+     * The {@link #getCodeName() names} of dependencies of the plugin.
+     * <p>
+     * The plugin will not run if the dependencies are not fulfilled nor run.
      *
-     * @return null if there is no dependency.
+     * @return an array with the names of the dependencies, or {@code null}/empty if none.
      */
     String[] getDependency();
 
@@ -275,6 +283,8 @@ public interface Plugin extends Runnable {
 
     /**
      * Sets the technologies enabled for the scan.
+     * <p>
+     * Called before {@link #init(HttpMessage, HostProcess) initialising the plugin}.
      *
      * @param ts the technologies enabled for the scan
      * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}.
@@ -336,5 +346,13 @@ public interface Plugin extends Runnable {
      */
     int getWascId();
     
+    /**
+     * Gets the status of the plugin (as given by the corresponding add-on).
+     * <p>
+     * The status is automatically set by core code during initialisation.
+     *
+     * @return the status of the plugin.
+     * @since 2.4.0
+     */
     AddOn.Status getStatus();
 }

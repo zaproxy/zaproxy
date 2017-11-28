@@ -26,6 +26,8 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
+// ZAP: 2017/06/07 Don't close the Session when changing session's name/description.
 
 package org.parosproxy.paros.view;
 
@@ -37,6 +39,7 @@ import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -48,6 +51,8 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class SessionGeneralPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = -8337361808959321380L;
+	
+	private static final Logger LOGGER = Logger.getLogger(SessionGeneralPanel.class);
 
 	private JPanel panelSession = null;  //  @jve:decl-index=0:visual-constraint="10,320"
 	private ZapTextField txtSessionName = null;
@@ -154,10 +159,13 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    	session.setSessionDesc(getTxtDescription().getText());
 	    	changed = true;
 	    }
-	    // ZAP Save session details
-	    if (changed && ! session.isNewState()) {
-	    	// TODO need to work out if this is really necessary, or if we can send a less 'dramatic' event ;)
-	    	Control.getSingleton().saveSession(session.getFileName());
+	    if (changed) {
+	        try {
+	            Control.getSingleton().persistSessionProperties();
+	        } catch (Exception e) {
+	            LOGGER.error("Failed to persist the session properties:", e);
+	            throw new Exception(Constant.messages.getString("session.general.error.persist.session.props"));
+	        }
 	    }
 	}
 

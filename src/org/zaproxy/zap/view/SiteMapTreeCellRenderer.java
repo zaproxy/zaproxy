@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.view;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -90,10 +89,11 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	        if( node.isFiltered()) {
 	        	// Hide the node
 	            setPreferredSize( new Dimension(0, 0) );
-	        } else {
-	            setPreferredSize(null);	// clears the prefered size, making the node visible
-	            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+	            return this;
 	        }
+
+			setPreferredSize(null);	// clears the prefered size, making the node visible
+			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
@@ -144,11 +144,9 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 				}
 				
 			}
-			if (sel) {
-				component.add(wrap(node.toString(), Color.WHITE));
-			} else {
-				component.add(wrap(node.toString()));
-			}
+			setText(node.toString());
+			setIcon(null);
+			component.add(this);
 
 	        for (SiteMapListener listener : listeners) {
 	        	listener.onReturnNodeRendererComponent(this, leaf, node);
@@ -159,19 +157,6 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 		return this;
 	}
 	
-    private JLabel wrap (String str) {
-        JLabel label = new JLabel(str);
-        label.setOpaque(false);
-        label.putClientProperty("html.disable", Boolean.TRUE);
-        return label;
-    }
-	
-    private JLabel wrap (String str, Color color) {
-        JLabel label = wrap(str);
-        label.setForeground(color);
-        return label;
-    }
-    
     private JLabel wrap (ImageIcon icon) {
         JLabel label = new JLabel(icon);
         label.setOpaque(false);

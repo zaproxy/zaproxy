@@ -65,13 +65,14 @@
 // ZAP: 2017/03/10 Reset proxy excluded URLs on new session
 // ZAP: 2017/03/13 Set global excluded URLs to the proxy when creating a new session or initialising.
 // ZAP: 2017/03/16 Allow to initialise Control without starting the Local Proxy.
+// ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -218,19 +219,15 @@ public class Control extends AbstractControl implements SessionListener {
                 String unsavedResources = wrapEntriesInLiTags(list);
 
                 if (activeActions.isEmpty()) {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("menu.file.exit.message.resourcesNotSaved"),
-                            unsavedResources);
+                    message = Constant.messages.getString("menu.file.exit.message.resourcesNotSaved", unsavedResources);
                 } else {
-                    message = MessageFormat.format(
-                            Constant.messages.getString("menu.file.exit.message.resourcesNotSavedAndActiveActions"),
+                    message = Constant.messages.getString(
+                            "menu.file.exit.message.resourcesNotSavedAndActiveActions",
                             unsavedResources,
                             activeActions);
                 }
             } else if (!activeActions.isEmpty()) {
-                message = MessageFormat.format(
-                        Constant.messages.getString("menu.file.exit.message.activeActions"),
-                        activeActions);
+                message = Constant.messages.getString("menu.file.exit.message.activeActions", activeActions);
             }
 
             if (message != null && view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
@@ -343,7 +340,6 @@ public class Control extends AbstractControl implements SessionListener {
 					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
 
 					// refresh display
-					view.getMainFrame().setTitle(session.getSessionName());
 					view.getOutputPanel().clear();
 				}
 			});
@@ -413,7 +409,6 @@ public class Control extends AbstractControl implements SessionListener {
 			});
 			
 			// refresh display
-			view.getMainFrame().setTitle(session.getSessionName());
 			view.getOutputPanel().clear();
 		}
 		
@@ -463,6 +458,19 @@ public class Control extends AbstractControl implements SessionListener {
 		lastCallback = callback;
 		model.saveSession(fileName, this);
 		// The session is saved in a thread, so notify the listeners via the callback
+    }
+
+    /**
+     * Persists the properties (e.g. name, description) of the current session.
+     * <p>
+     * Should be called only by "core" classes.
+     *
+     * @throws Exception if an error occurred while persisting the properties.
+     * @since 2.7.0
+     */
+    public void persistSessionProperties() throws Exception {
+        model.persistSessionProperties();
+        getExtensionLoader().sessionPropertiesChangedAllPlugin(model.getSession());
     }
 
     public void snapshotSession(final String fileName, final SessionListener callback) {
@@ -534,8 +542,10 @@ public class Control extends AbstractControl implements SessionListener {
 		return mode;
 	}
 	public void setMode(Mode mode) {
-		this.mode = mode;
-		getExtensionLoader().sessionModeChangedAllPlugin(mode);
-		model.getOptionsParam().getViewParam().setMode(mode.name());
+		if (this.mode != mode) {
+			this.mode = mode;
+			getExtensionLoader().sessionModeChangedAllPlugin(mode);
+			model.getOptionsParam().getViewParam().setMode(mode.name());
+		}
 	}
 }

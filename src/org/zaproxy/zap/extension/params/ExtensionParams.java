@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.tree.TreeNode;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -62,6 +64,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		implements SessionChangedListener, /*ProxyListener, */ SiteMapListener{
 
 	public static final String NAME = "ExtensionParams"; 
+
 	private ParamsPanel paramsPanel = null;
 	private PopupMenuParamSearch popupMenuSearch = null;
 	private PopupMenuAddAntiCSRF popupMenuAddAntiCsrf = null;
@@ -80,6 +83,11 @@ public class ExtensionParams extends ExtensionAdaptor
         this.setOrder(58);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("params.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -110,9 +118,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	        ExtensionHelp.enableHelpKey(getParamsPanel(), "ui.tabs.params");
 	    }
 
-        ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionPassiveScan.NAME);
+        ExtensionPassiveScan extensionPassiveScan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
         if (extensionPassiveScan != null) {
             paramScanner = new ParamScanner(this);
             extensionPassiveScan.addPassiveScanner(new ParamScanner(this));
@@ -121,9 +127,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	
 	@Override
 	public void unload() {
-		ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
-				.getExtensionLoader()
-				.getExtension(ExtensionPassiveScan.NAME);
+		ExtensionPassiveScan extensionPassiveScan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
 		if (extensionPassiveScan != null) {
 			extensionPassiveScan.removePassiveScanner(paramScanner);
 		}
@@ -204,8 +208,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	 */
 	protected ExtensionHttpSessions getExtensionHttpSessions() {
 		if(extensionHttpSessions==null){
-			extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionHttpSessions.NAME);
+			extensionHttpSessions = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class);
 		}
 		return extensionHttpSessions;
 		
@@ -224,9 +227,9 @@ public class ExtensionParams extends ExtensionAdaptor
 		// Repopulate
 		SiteNode root = (SiteNode)session.getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = root.children();
+		Enumeration<TreeNode> en = root.children();
 		while (en.hasMoreElements()) {
-			String site = en.nextElement().getNodeName();
+			String site = ((SiteNode) en.nextElement()).getNodeName();
 			if (getView() != null) {
 				this.getParamsPanel().addSite(site);
 			}
@@ -265,13 +268,13 @@ public class ExtensionParams extends ExtensionAdaptor
 		TreeSet<HtmlParameter> params;
 		Iterator<HtmlParameter> iter;
 		try {
-			params = msg.getCookieParams();
+			params = msg.getRequestHeader().getCookieParams();
 			iter = params.iterator();
 			while (iter.hasNext()) {
 				persist(sps.addParam(site, iter.next(), msg));
 			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
 		}
 
 		// URL Parameters
@@ -284,8 +287,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		// Form Parameters
 		// TODO flag anti csrf url ones too?
 		
-		ExtensionAntiCSRF extAntiCSRF = 
-			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+		ExtensionAntiCSRF extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
 		
 		params = msg.getFormParams();
 		iter = params.iterator();
@@ -346,10 +348,14 @@ public class ExtensionParams extends ExtensionAdaptor
 		SiteParameters sps = this.getSiteParameters(site);
 
 		// Cookie Parameters
-		TreeSet<HtmlParameter> params = msg.getCookieParams();
-		Iterator<HtmlParameter> iter = params.iterator();
-		while (iter.hasNext()) {
-			persist(sps.addParam(site, iter.next(), msg));
+		try {
+			TreeSet<HtmlParameter> params = msg.getResponseHeader().getCookieParams();
+			Iterator<HtmlParameter> iter = params.iterator();
+			while (iter.hasNext()) {
+				persist(sps.addParam(site, iter.next(), msg));
+			}
+		} catch (IllegalArgumentException e) {
+			logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
 		}
 
 		// Header "Parameters"
@@ -391,8 +397,7 @@ public class ExtensionParams extends ExtensionAdaptor
 
 		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		if (item != null) {
-			ExtensionSearch extSearch = 
-				(ExtensionSearch) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.NAME);
+			ExtensionSearch extSearch = Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.class);
 
 			if (extSearch != null) {
 				if (HtmlParameter.Type.url.equals(item.getType())) {
@@ -412,8 +417,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	public void addAntiCsrfToken() {
 		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		
-		ExtensionAntiCSRF extAntiCSRF = 
-			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+		ExtensionAntiCSRF extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
 
 		if (extAntiCSRF != null && item != null) {
 			extAntiCSRF.addAntiCsrfTokenName(item.getName());
@@ -431,8 +435,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	public void removeAntiCsrfToken() {
 		HtmlParameterStats item = this.getParamsPanel().getSelectedParam();
 		
-		ExtensionAntiCSRF extAntiCSRF = 
-			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+		ExtensionAntiCSRF extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
 
 		if (extAntiCSRF != null && item != null) {
 			extAntiCSRF.removeAntiCsrfTokenName(item.getName());

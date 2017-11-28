@@ -23,6 +23,7 @@
 // ZAP: 2016/01/19 Allow to obtain the ScanPolicy
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 // ZAP: 2016/07/25 Use new AllCategoryTableModel's constructor
+// ZAP: 2017/06/22 Focus the component that contains validation errors.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
@@ -453,13 +454,16 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     public void validateParam(Object obj) throws Exception {
     	String newName = getPolicyName().getText();
     	if (newName.length() == 0) {
+    		getPolicyName().requestFocusInWindow();
     		throw new Exception(Constant.messages.getString("ascan.policy.warn.noname"));
     	} else if (! extension.getPolicyManager().isLegalPolicyName(newName)) {
+    		getPolicyName().requestFocusInWindow();
     		throw new Exception(Constant.messages.getString("ascan.policy.warn.badname", PolicyManager.ILLEGAL_POLICY_NAME_CHRS));
 			
 		} else if (! newName.equals(currentName)) {
 			// Name changed
 			if (extension.getPolicyManager().getAllPolicyNames().contains(newName)) {
+				getPolicyName().requestFocusInWindow();
 	    		throw new Exception(Constant.messages.getString("ascan.policy.warn.exists"));
 			}
 		}

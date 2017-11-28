@@ -51,6 +51,11 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("uiutils.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -83,6 +88,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	private void sessionChangedEventHandler(Session session) {
 		View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
 		View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
+		View.getSingleton().getMainFrame().setTitle(session);
 	}
 
 
@@ -92,6 +98,16 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+	}
+
+	@Override
+	public void sessionPropertiesChanged(Session session) {
+		if (EventQueue.isDispatchThread()) {
+			View.getSingleton().getMainFrame().setTitle(session);
+			return;
+		}
+
+		EventQueue.invokeLater(() -> sessionPropertiesChanged(session));
 	}
 
 	@Override
