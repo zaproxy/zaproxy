@@ -601,7 +601,7 @@
 					<arg value="-format" />
 					<arg value="UDBZ" />
 					<arg value="-megabytes" />
-					<arg value="300" />
+					<arg value="800" />
 					<arg value="-srcfolder" />
 					<arg file="${dist-mac}" />
 					<arg value="-volname" />
