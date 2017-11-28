@@ -82,7 +82,7 @@ public class ApiException extends Exception {
 		 * <p>
 		 * The actual reason should be provided in {@code detail} of the exception.
 		 * 
-		 * @since TODO add version
+		 * @since 2.7.0
 		 */
 		BAD_STATE,
 	}

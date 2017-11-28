@@ -268,7 +268,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 * Gets the SSL/TLS versions that can be safely used (known to be supported by the JRE).
 	 *
 	 * @return the SSL/TLS versions that can be safely used.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public static String[] getFailSafeProtocols() {
 		return Arrays.copyOf(FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS, FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS.length);

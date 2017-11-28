@@ -516,7 +516,7 @@ public class OptionsParamView extends AbstractParam {
      * Sets whether or not the system's locale should be used for formatting.
      *
      * @param useSystemsLocale {@code true} if the system's locale should be used for formatting, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #isUseSystemsLocaleForFormat()
      * @see java.util.Locale.Category#FORMAT
      */
@@ -531,7 +531,7 @@ public class OptionsParamView extends AbstractParam {
      * Tells whether or not the system's locale should be used for formatting.
      *
      * @return {@code true} if the system's locale should be used for formatting, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #setUseSystemsLocaleForFormat(boolean)
      * @see java.util.Locale.Category#FORMAT
      */

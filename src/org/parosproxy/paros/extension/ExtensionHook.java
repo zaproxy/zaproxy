@@ -333,7 +333,7 @@ public class ExtensionHook {
      *
      * @param overrideMessageProxyListener the {@code OverrideMessageProxyListener} that will be added to the {@code Proxy}
      * @throws IllegalArgumentException if the given {@code overrideMessageProxyListener} is {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void addOverrideMessageProxyListener(OverrideMessageProxyListener overrideMessageProxyListener) {
         getOverrideMessageProxyListenerList().add(overrideMessageProxyListener);
@@ -428,7 +428,7 @@ public class ExtensionHook {
      *
      * @param httpSenderListener the HttpSenderListener that will be added to the {@code HttpSender}
      * @throws IllegalArgumentException if the given {@code httpSenderListener} is {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void addHttpSenderListener(HttpSenderListener httpSenderListener) {
         if (httpSenderListener == null) {
@@ -445,7 +445,7 @@ public class ExtensionHook {
      * Gets the {@link HttpSenderListener}s added to this hook.
      *
      * @return an unmodifiable {@code List} containing the added {@code HttpSenderListener}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     List<HttpSenderListener> getHttpSenderListeners() {
         if (httpSenderListeners == null) {

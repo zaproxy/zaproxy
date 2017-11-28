@@ -77,7 +77,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public static final String NAME = "ExtensionScript";
 
 	/**
-	 * @deprecated (TODO add version) Use {@link #getScriptIcon()} instead.
+	 * @deprecated (2.7.0) Use {@link #getScriptIcon()} instead.
 	 */
 	@Deprecated
 	public static final ImageIcon ICON = View.isInitialised() ? getScriptIcon() : null;
@@ -88,7 +88,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * While the scripts can be loaded with any {@code Charset} (defaulting to this one) they are always saved with this
 	 * {@code Charset}.
 	 *
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #loadScript(ScriptWrapper)
 	 * @see #loadScript(ScriptWrapper, Charset)
 	 * @see #saveScript(ScriptWrapper)
@@ -1014,7 +1014,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @return the {@code ScriptWrapper} with the actual script read from the file.
 	 * @throws IOException if an error occurred while reading the script from the file.
 	 * @throws IllegalArgumentException if the {@code script} or the {@code charset} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #loadScript(ScriptWrapper)
 	 */
 	public ScriptWrapper loadScript(ScriptWrapper script, Charset charset) throws IOException {
@@ -1666,7 +1666,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * Should be called/used only when in view mode.
      * 
      * @return the script icon, never {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static ImageIcon getScriptIcon() {
         if (scriptIcon == null) {

@@ -239,7 +239,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 	 * @see #getNodeName()
 	 * @see #getCleanNodeName()
 	 * @see #getCleanNodeName(boolean)
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public String getName() {
 		String name = this.getNodeName();

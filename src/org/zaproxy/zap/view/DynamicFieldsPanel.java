@@ -30,7 +30,7 @@ public class DynamicFieldsPanel extends JPanel {
 	/**
 	 * Constructs a {@code DynamicFieldsPanel} with no fields.
 	 * 
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setFields(String[])
 	 */
 	public DynamicFieldsPanel() {
@@ -57,7 +57,7 @@ public class DynamicFieldsPanel extends JPanel {
 	 *
 	 * @param requiredFields the required fields.
 	 * @throws IllegalArgumentException if the given argument is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setFields(String[], String[])
 	 */
 	public void setFields(String[] requiredFields) {
@@ -72,7 +72,7 @@ public class DynamicFieldsPanel extends JPanel {
 	 * @param requiredFields the required fields.
 	 * @param optionalFields the optional fields.
 	 * @throws IllegalArgumentException if the any of the arguments is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setFields(String[])
 	 */
 	public void setFields(String[] requiredFields, String[] optionalFields) {
@@ -118,7 +118,7 @@ public class DynamicFieldsPanel extends JPanel {
 	/**
 	 * Clears all the fields, leaving an empty panel.
 	 *
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setFields(String[])
 	 */
 	public void clearFields() {

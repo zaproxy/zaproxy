@@ -29,7 +29,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
- * @since TODO add version
+ * @since 2.7.0
  */
 public final class NetworkUtils {
     

@@ -26,7 +26,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * <p>
  * Contains the message and processing details.
  *
- * @since TODO add version
+ * @since 2.7.0
  */
 public class SpiderTaskResult {
 

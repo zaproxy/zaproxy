@@ -110,7 +110,7 @@ public interface ViewDelegate {
      * view (e.g. History tab, Alerts tree).
      *
      * @return the {@code KeyStroke} to delete items.
-     * @since TODO add version
+     * @since 2.7.0
      */
     KeyStroke getDefaultDeleteKeyStroke();
 }

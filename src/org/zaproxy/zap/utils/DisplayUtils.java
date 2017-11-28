@@ -165,7 +165,7 @@ public class DisplayUtils {
 
 	/**
 	 * Gets correctly scaled Insets
-	 * @since TODO Add version
+	 * @since 2.7.0
 	 */
 	public static Insets getScaledInsets(int top, int left, int bottom, int right) {
 		if (FontUtils.getScale() == 1) {

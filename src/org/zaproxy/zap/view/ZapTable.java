@@ -101,7 +101,7 @@ public class ZapTable extends JXTable {
      * Called when customising the {@link ZapColumnControlButton}.
      *
      * @return the action to change the state of the auto scroll on new values, might be {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #setAutoScrollOnNewValues(boolean)
      */
     protected AutoScrollAction createAutoScrollAction() {
@@ -123,7 +123,7 @@ public class ZapTable extends JXTable {
      * Called when customising the {@link ZapColumnControlButton}.
      *
      * @return the action to export the table, might be {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      * @see #getColumnControl()
      */
     protected TableExportAction<ZapTable> createTableExportAction() {

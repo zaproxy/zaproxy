@@ -255,7 +255,7 @@ public class HistoryReference {
     /**
      * A (temporary) HTTP message sent by the fuzzer.
      * 
-     * @since TODO add version
+     * @since 2.7.0
      * @see #TYPE_FUZZER
      * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
      */
@@ -328,7 +328,7 @@ public class HistoryReference {
 	 * @param keepMessage {@code true} if the {@code HttpMessage} should be kept in memory, {@code false} otherwise.
 	 * @throws HttpMalformedHeaderException if an error occurred while parsing the message.
 	 * @throws DatabaseException if an error occurred while reading the message.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #getHttpMessage()
 	 */
 	public HistoryReference(int historyId, boolean keepMessage) throws HttpMalformedHeaderException, DatabaseException {
@@ -456,7 +456,7 @@ public class HistoryReference {
 	/**
 	 * Clears the {@code HttpMessage} kept in memory.
 	 * 
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #HistoryReference(int, boolean)
 	 */
 	public void clearHttpMessage() {
@@ -745,7 +745,7 @@ public class HistoryReference {
 	 *
 	 * @param tags the new tags.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #addTag(String)
 	 * @see #deleteTag(String)
 	 */
@@ -775,7 +775,7 @@ public class HistoryReference {
 	 *
 	 * @param tags the new tags.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @deprecated (TODO add version) Use {@link #setTags(List)} instead.
+	 * @deprecated (2.7.0) Use {@link #setTags(List)} instead.
 	 */
 	@Deprecated
 	public void setTags(Vector<String> tags) {
@@ -886,7 +886,7 @@ public class HistoryReference {
 	 * @param historyId the history ID.
 	 * @return a {@code List} with the tags of the message, never {@code null}.
 	 * @throws DatabaseException if an error occurred while obtaining the tags from the database.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public static List<String> getTags(int historyId) throws DatabaseException {
 		if (staticTableTag == null) {

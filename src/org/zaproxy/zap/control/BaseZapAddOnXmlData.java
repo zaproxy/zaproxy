@@ -40,7 +40,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <li>name;</li>
  * <li>status (since 2.6.0);</li>
  * <li>version;</li>
- * <li>semver (since TODO add version, deprecated in favour of using version);</li>
+ * <li>semver (since 2.7.0, deprecated in favour of using version);</li>
  * <li>description;</li>
  * <li>author;</li>
  * <li>url;</li>
@@ -54,9 +54,9 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <ul>
  * <li>id;</li>
  * <li>version;</li>
- * <li>not-before-version (since TODO add version, deprecated in favour of using version);</li>
- * <li>not-from-version (since TODO add version, deprecated in favour of using version);</li>
- * <li>semver (since TODO add version, deprecated in favour of using version).</li>
+ * <li>not-before-version (since 2.7.0, deprecated in favour of using version);</li>
+ * <li>not-from-version (since 2.7.0, deprecated in favour of using version);</li>
+ * <li>semver (since 2.7.0, deprecated in favour of using version).</li>
  * </ul>
  * </li>
  * </ul>
@@ -74,9 +74,9 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <ul>
  * <li>id;</li>
  * <li>version;</li>
- * <li>not-before-version (since TODO add version, deprecated in favour of using version);</li>
- * <li>not-from-version (since TODO add version, deprecated in favour of using version);</li>
- * <li>semver (since TODO add version, deprecated in favour of using version).</li>
+ * <li>not-before-version (since 2.7.0, deprecated in favour of using version);</li>
+ * <li>not-from-version (since 2.7.0, deprecated in favour of using version);</li>
+ * <li>semver (since 2.7.0, deprecated in favour of using version).</li>
  * </ul>
  * </li>
  * </ul>
@@ -255,7 +255,7 @@ public abstract class BaseZapAddOnXmlData {
      * Gets the package/file version of the add-on.
      *
      * @return the package/file version
-     * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+     * @deprecated (2.7.0) Use {@link #getVersion()} instead.
      */
     @Deprecated
     public int getPackageVersion() {
@@ -490,7 +490,7 @@ public abstract class BaseZapAddOnXmlData {
          * {@literal >= 1.4.0 & < 2.0.0}).
          *
          * @return the required version of the add-on, never {@code null}.
-         * @since TODO add version
+         * @since 2.7.0
          */
         public String getVersion() {
             return version;
@@ -500,7 +500,7 @@ public abstract class BaseZapAddOnXmlData {
          * Gets the "not before version" of the add-on (e.g. {@literal 2}).
          *
          * @return the "not before version" of the add-on
-         * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+         * @deprecated (2.7.0) Use {@link #getVersion()} instead.
          */
         @Deprecated
         public int getNotBeforeVersion() {
@@ -511,7 +511,7 @@ public abstract class BaseZapAddOnXmlData {
          * Gets the "not from version" of the add-on (e.g. {@literal 5}).
          *
          * @return the "not from version" of the add-on
-         * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+         * @deprecated (2.7.0) Use {@link #getVersion()} instead.
          */
         @Deprecated
         public int getNotFromVersion() {
@@ -522,7 +522,7 @@ public abstract class BaseZapAddOnXmlData {
          * Gets the required version of the add-on, might not be an exact version (e.g. {@literal 1.*}).
          *
          * @return the required version of the add-on.
-         * @deprecated (TODO add version) Use {@link #getVersion()} instead.
+         * @deprecated (2.7.0) Use {@link #getVersion()} instead.
          */
         @Deprecated
         public String getSemVer() {

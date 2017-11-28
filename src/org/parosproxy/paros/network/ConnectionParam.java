@@ -113,7 +113,7 @@ public class ConnectionParam extends AbstractParam {
 	/**
 	 * The default connection timeout (in seconds).
 	 * 
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public static final int DEFAULT_TIMEOUT = 20;
 

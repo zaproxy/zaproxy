@@ -78,7 +78,7 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
      *
      * @param text the text of the menu item.
      * @param icon the icon of the menu item.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public ExtensionPopupMenuItem(String text, Icon icon) {
         super(text, icon);
@@ -90,7 +90,7 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
      * The text and icon (if any) are obtained from the given action.
      *
      * @param action the action of the menu item.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public ExtensionPopupMenuItem(Action action) {
         super(action);

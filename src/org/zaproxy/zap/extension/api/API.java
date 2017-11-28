@@ -602,7 +602,7 @@ public class API {
 	 * 
 	 * @param proxy {@code true} if the URL will be accessed while proxying through ZAP, {@code false} otherwise.
 	 * @return the base URL to access the ZAP API.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public String getBaseURL(boolean proxy) {
 		if (proxy) {

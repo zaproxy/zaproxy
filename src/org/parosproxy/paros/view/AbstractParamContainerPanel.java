@@ -66,7 +66,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * The default name used for the root node of the tree showing the option panel names.
      * 
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static final String DEFAULT_ROOT_NODE_NAME = "Root";
 

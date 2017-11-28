@@ -122,7 +122,7 @@ public class HttpResponseHeader extends HttpHeader {
      * @param statusCode the new status code.
      * @throws IllegalArgumentException if the given status code is not a (positive) 3 digit number.
      * @see #getStatusCode()
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void setStatusCode(int statusCode) {
         if (statusCode < 100 || statusCode > 999) {
@@ -148,7 +148,7 @@ public class HttpResponseHeader extends HttpHeader {
      *
      * @param reasonPhrase the new reason phrase.
      * @see #getReasonPhrase()
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void setReasonPhrase(String reasonPhrase) {
         this.mReasonPhrase = reasonPhrase != null ? reasonPhrase : "";
