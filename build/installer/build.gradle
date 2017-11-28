@@ -17,6 +17,8 @@ apply plugin: 'install4j'
 
 version file('../version.txt').getText('UTF-8')
 
+ext.jarname = 'zap'
+
 install4j {
     installDir = file("$install4jHomeDir")
     license = "$install4jLicense"
@@ -34,7 +36,7 @@ launch4j {
     libraryDir = '.'
 
     mainClassName = 'org.zaproxy.zap.ZAP'
-    jar = "${project.name}-${project.version}.jar"
+    jar = "${jarname}-${project.version}.jar"
 
     dontWrapJar = true
 
