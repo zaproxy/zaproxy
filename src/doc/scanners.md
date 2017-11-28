@@ -76,6 +76,7 @@ Scanners:
 10059	Http Parameter Pollution (Client Side)
 10060	Http Parameter Pollution (Server Side)
 10061   Server Leaks Information via "X-AspNet-Version"/"X-AspNetMvc-Version" HTTP Response Header Field(s)
+10062   Server Leaks PII in response body
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure
