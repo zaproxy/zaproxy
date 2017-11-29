@@ -47,7 +47,6 @@ import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiResponse;
-import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
@@ -145,7 +144,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
-			return new ApiResponseElement("methodName", API_METHOD_NAME);
+			Map<String, String> values = new HashMap<>();
+			values.put("methodName", API_METHOD_NAME);
+			return new AuthMethodApiResponseRepresentation<>(values);
 		}
 
 		@Override
