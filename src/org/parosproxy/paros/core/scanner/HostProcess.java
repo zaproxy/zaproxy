@@ -78,6 +78,7 @@
 // ZAP: 2017/07/18 Allow to obtain the (total) alert count.
 // ZAP: 2017/09/27 Allow to skip scanners by ID and don't allow to skip scanners already finished/skipped.
 // ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
+// ZAP: 2017/11/29 Skip plugins if there's nothing to scan.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -324,9 +325,13 @@ public class HostProcess implements Runnable {
      */
     private void logScanInfo() {
         StringBuilder strBuilder = new StringBuilder(150);
-        strBuilder.append("Scanning ");
-        strBuilder.append(nodeInScopeCount);
-        strBuilder.append(" node(s) ");
+        if (nodeInScopeCount != 0) {
+            strBuilder.append("Scanning ");
+            strBuilder.append(nodeInScopeCount);
+            strBuilder.append(" node(s) ");
+        } else {
+            strBuilder.append("No nodes to scan ");
+        }
         if (parentScanner.getJustScanInScope()) {
             strBuilder.append("[just in scope] ");
         }
@@ -335,13 +340,20 @@ public class HostProcess implements Runnable {
             strBuilder.append(" as ");
             strBuilder.append(user.getName());
         }
+        if (nodeInScopeCount == 0) {
+            strBuilder.append(", skipping all plugins.");
+        }
         log.info(strBuilder.toString());
     }
 
     private void processPlugin(final Plugin plugin) {
         mapPluginStats.get(plugin.getId()).start();
 
-        if (!plugin.targets(techSet)) {
+        if (nodeInScopeCount == 0) {
+            pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.nonodes"));
+            pluginCompleted(plugin);
+            return;
+        } else if (!plugin.targets(techSet)) {
             pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.techs"));
             pluginCompleted(plugin);
             return;
@@ -353,7 +365,7 @@ public class HostProcess implements Runnable {
         if (plugin instanceof AbstractHostPlugin) {
             checkPause();
 
-            if (messageIdToHostScan == -1 || isStop() || isSkipped(plugin) || !scanMessage(plugin, messageIdToHostScan)) {
+            if (isStop() || isSkipped(plugin) || !scanMessage(plugin, messageIdToHostScan)) {
                 // Mark the plugin as completed if it was not run so the scan process can continue as expected.
                 // The plugin might not be run, for example, if there was an error reading the message form DB.
                 pluginCompleted(plugin);
