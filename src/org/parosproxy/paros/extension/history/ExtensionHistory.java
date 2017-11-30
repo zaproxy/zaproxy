@@ -909,9 +909,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 notifyHistoryItemChanged(Integer.valueOf(event.getParameters().get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
                 break;
             case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
-            default:
                 notifyHistoryItemsChanged();
                 break;
+            default:
             }
         }
     }
