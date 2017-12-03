@@ -74,7 +74,7 @@ public class FindDialog extends AbstractDialog {
 
     /**
      * @throws HeadlessException
-     * @deprecated TODO add version, use #FindDialog(Window, boolean) instead
+     * @deprecated 2.7.0, use #FindDialog(Window, boolean) instead
      * @see #getDialog(Window, boolean)
      */
     @Deprecated
@@ -87,7 +87,7 @@ public class FindDialog extends AbstractDialog {
      * @param arg0
      * @param arg1
      * @throws HeadlessException
-     * @deprecated TODO add version, use #FindDialog(Window, boolean) instead 
+     * @deprecated 2.7.0, use #FindDialog(Window, boolean) instead 
      * @see #getDialog(Window, boolean)
      */
     @Deprecated
@@ -103,7 +103,7 @@ public class FindDialog extends AbstractDialog {
      * @param modal whether or not this FindDialog should be modal
      * @throws HeadlessException
      * @see #getDialog(Window, boolean)
-     * @since TODO add version
+     * @since 2.7.0
      */
     public FindDialog(Window parent, boolean modal) throws HeadlessException {
     	super(parent, modal);
@@ -140,7 +140,7 @@ public class FindDialog extends AbstractDialog {
 	 * or shouldn't ({@code false}) be modal.
 	 * @return The existing FindDialog for the parent (if there is one), or a new FindDialog.
 	 * @throws IllegalArgumentException if the {@code parent} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public static FindDialog getDialog(Window parent, boolean modal) {
 		if (parent == null) {

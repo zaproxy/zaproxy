@@ -72,7 +72,6 @@ import org.zaproxy.zap.authentication.UsernamePasswordAuthenticationCredentials.
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
@@ -374,7 +373,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			values.put("methodName", API_METHOD_NAME);
 			values.put("loginUrl", loginRequestURL);
 			values.put("loginRequestData", this.loginRequestBody);
-			return new ApiResponseSet<String>("method", values);
+			return new AuthMethodApiResponseRepresentation<>(values);
 		}
 
 		@Override

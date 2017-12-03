@@ -31,7 +31,7 @@ public class I18N {
      * Gets the core resource bundle.
      *
      * @return the core resource bundle, never {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public ResourceBundle getCoreResourceBundle() {
         return this.stdMessages;

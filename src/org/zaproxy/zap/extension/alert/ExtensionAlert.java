@@ -910,7 +910,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
      * Shows the Add Alert dialogue, to add a new alert for the given {@code HistoryReference}.
      *
      * @param ref the history reference for the alert.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void showAlertAddDialog(HistoryReference ref) {
         if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {
@@ -931,7 +931,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
      * @param httpMessage the {@code HttpMessage} that will be used to create the {@code HistoryReference}, must not be
      *            {@code null}.
      * @param historyType the type of the history reference that will be used to create the {@code HistoryReference}.
-     * @since TODO add version
+     * @since 2.7.0
      * @see Model#getSession()
      * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session, int, HttpMessage)
      */
@@ -947,7 +947,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
      * Shows the "Edit Alert" dialogue, with the given alert.
      *
      * @param alert the alert to be edited.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void showAlertEditDialog(Alert alert) {
         if (dialogAlertAdd == null || !dialogAlertAdd.isVisible()) {

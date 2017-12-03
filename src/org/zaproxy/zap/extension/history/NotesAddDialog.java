@@ -197,7 +197,7 @@ public class NotesAddDialog extends AbstractDialog {
 	
 	/**
 	 * @param plugin unused.
-	 * @deprecated (TODO add version) No longer used/needed.
+	 * @deprecated (2.7.0) No longer used/needed.
 	 */
 	@Deprecated
 	public void setPlugin(ExtensionHistory plugin) {

@@ -27,7 +27,7 @@ import org.zaproxy.zap.eventBus.EventPublisher;
  * <p>
  * Notifies of changes in the {@code HistoryReference}'s state/data.
  * 
- * @since TODO add version
+ * @since 2.7.0
  */
 public final class HistoryReferenceEventPublisher implements EventPublisher {
 

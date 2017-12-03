@@ -187,7 +187,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	}
 
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #getAlertThreshold()}.
+	 * @deprecated (2.7.0) Replaced by {@link #getAlertThreshold()}.
 	 */
 	@Override
 	@Deprecated
@@ -200,7 +200,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 * 
 	 * @param incDefault {@code true} if the value {@link AlertThreshold#DEFAULT} can be returned, {@code false} otherwise.
 	 * @return the alert threshold.
-	 * @deprecated (TODO add version) Replaced by {@link #getAlertThreshold(boolean)}.
+	 * @deprecated (2.7.0) Replaced by {@link #getAlertThreshold(boolean)}.
 	 */
 	@Deprecated
 	public AlertThreshold getLevel(boolean incDefault) {
@@ -213,7 +213,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 * If the alert threshold was set to DEFAULT it's returned the default value set.
 	 *
 	 * @return the alert threshold of the scanner.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setAlertThreshold(AlertThreshold)
 	 * @see #getAlertThreshold(boolean)
 	 */
@@ -239,7 +239,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	
 	/**
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @deprecated (TODO add version) Replaced by {@link #setAlertThreshold(AlertThreshold)}.
+	 * @deprecated (2.7.0) Replaced by {@link #setAlertThreshold(AlertThreshold)}.
 	 */
 	@Override
 	@Deprecated
@@ -252,7 +252,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 *
 	 * @param alertThreshold the new alert threshold.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #getAlertThreshold()
 	 */
 	public void setAlertThreshold(AlertThreshold alertThreshold) {
@@ -268,7 +268,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 * @param level the value of default alert threshold
 	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@code AlertThreshold.DEFAULT}.
 	 * @since 2.0.0
-	 * @deprecated (TODO add version) Replaced by {@link #setDefaultAlertThreshold(AlertThreshold)}.
+	 * @deprecated (2.7.0) Replaced by {@link #setDefaultAlertThreshold(AlertThreshold)}.
 	 * @see #setAlertThreshold(AlertThreshold)
 	 */
 	@Deprecated
@@ -281,7 +281,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 *
 	 * @param alertThreshold the value of default alert threshold.
 	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@code AlertThreshold.DEFAULT}.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setDefaultAlertThreshold(AlertThreshold)
 	 * @see #setAlertThreshold(AlertThreshold)
 	 */

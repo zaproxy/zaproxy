@@ -574,7 +574,7 @@ public class Session {
 	 * Should be called only by "core" classes.
 	 *
 	 * @throws Exception if an error occurred while persisting the properties.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see #setSessionName(String)
 	 * @see #setSessionDesc(String)
 	 */

@@ -1459,9 +1459,9 @@ return true;</string>
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
         <entry location="plugin/webdriverwindows-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserwindows-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserwindows-alpha-5.zap" fileType="regular" />
         <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowsermacos-alpha-5.zap" fileType="regular" />
         <entry location=".i4j_fileset_544" fileType="regular" />
       </exclude>
       <variables />
@@ -1482,9 +1482,11 @@ return true;</string>
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
+        <entry location="plugin/jxbrowser-alpha-7.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserwindows-alpha-5.zap" fileType="regular" />
         <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux64-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowsermacos-alpha-5.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserlinux64-alpha-5.zap" fileType="regular" />
         <entry location="plugin/webdriverlinux-beta-4.zap" fileType="regular" />
         <entry location="zap1024x1024.png" fileType="regular" />
         <entry location=".i4j_fileset_544" fileType="regular" />
@@ -1525,8 +1527,8 @@ return true;</string>
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
         <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux64-alpha-4.zap" fileType="regular" />
+        <entry location="plugin/jxbrowsermacos-alpha-5.zap" fileType="regular" />
+        <entry location="plugin/jxbrowserlinux64-alpha-5.zap" fileType="regular" />
         <entry location="plugin/webdriverlinux-beta-4.zap" fileType="regular" />
         <entry location="zap1024x1024.png" fileType="regular" />
         <entry location=".i4j_fileset_544" fileType="regular" />

@@ -39,7 +39,7 @@ public interface PassiveScript {
 	 *
 	 * @param historyType the history type of the message to be scanned.
 	 * @return {@code true} if the scanner applies to the given history type, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	default boolean appliesToHistoryType(int historyType) {
 		return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);

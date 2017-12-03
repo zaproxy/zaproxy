@@ -27,15 +27,15 @@ Vrlo vidljiv primjer je 2005 hack Harvard Business Školskog aplikacijskog proce
  
 Nedovoljno Podataka Autorizacije
 
-Mnoge aplikacije izlažu osnovne podatkovne identifikatore u URL-u. For example, when accessing a medical record on a system one might have a URL such as:
+Mnoge aplikacije izlažu osnovne podatkovne identifikatore u URL-u. Na primjer, kada se pristupa zdravstvenoj dokumentaciji na sistemu mogli bi imati URL kao što su:
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Ako aplikacije ne provjerava da li autenticirani korisnikov ID ima prava, onda bi to moglo prikazati podatke korisniku koji to ne bi trebao vidjeti.
 
 Nedovoljna autorizacija podataka je češća nego Nedovoljna Autorizacija Funkcija jer programeri generalno imaju potpuno znanje o funkcionalnost aplikacije, ali nemaju uvijek kompletno mapiranje svih podataka kojima će aplikacija pristupiti. Programeri često imaju čvrstu kontrolu nad mehanizmima autorizacije funkcije, ali se oslanjaju na druge sisteme, kao što su baze podataka za izvršavanje autorizacije podataka.</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. Eksplicitno upravljati povjerenim zonama u softveru.
+	<solution>Faze: Arhitektura i Dizajn, Operacija
+Vrlo pažljivo upravljati postavkom, upravljanjem i rukovanjem privilegijama. Eksplicitno upravljati povjerenim zonama u softveru.
 
 Phase: Architecture and Design	
 Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Arhitekti i dizajneri trebaju se oslanjati na principu najmanje privilegija za odlučivanja kada je to prikladno za korištenje i uklanje sistemskih privilegija.</solution>

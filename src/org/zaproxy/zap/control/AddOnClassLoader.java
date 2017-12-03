@@ -75,7 +75,7 @@ public class AddOnClassLoader extends URLClassLoader {
      * @param parent the parent class loader for delegation and sharing of class loading lock(s).
      * @param addOnClassnames the classnames that can be loaded
      * @throws IllegalArgumentException if the {@code addOnFileUrl} or {@code parent} is {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public AddOnClassLoader(URL addOnFileUrl, AddOnLoader parent, AddOnClassnames addOnClassnames) {
         this(addOnFileUrl, (ClassLoader) parent, Collections.<AddOnClassLoader> emptyList(), addOnClassnames);
@@ -139,7 +139,7 @@ public class AddOnClassLoader extends URLClassLoader {
      * @param dependencies the {@code AddOnClassLoader}s of the dependencies of the add-on
      * @param addOnClassnames the classnames that can be loaded
      * @throws IllegalArgumentException if the {@code addOnFileUrl}, {@code parent} or {@code dependencies} is {@code null}.
-     * @since TODO add version
+     * @since 2.7.0
      */
     public AddOnClassLoader(URL addOnFileUrl, AddOnLoader parent, List<AddOnClassLoader> dependencies, AddOnClassnames addOnClassnames) {
         this(addOnFileUrl, (ClassLoader) parent, dependencies, addOnClassnames);

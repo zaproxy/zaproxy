@@ -145,7 +145,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	 * Default is {@code false}.
 	 *
 	 * @param codeFoldingAllowed {@code true} if code folding is allowed, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 * @see RSyntaxTextArea#setCodeFoldingEnabled(boolean)
 	 */
 	protected void setCodeFoldingAllowed(boolean codeFoldingAllowed) {
@@ -156,7 +156,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	 * Tells whether or not code folding is allowed.
 	 *
 	 * @return {@code true} if code folding is allowed, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.7.0
 	 */
 	public boolean isCodeFoldingAllowed() {
 		return codeFoldingAllowed;

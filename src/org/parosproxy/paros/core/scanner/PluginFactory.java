@@ -120,7 +120,7 @@ public class PluginFactory {
      *
      * @param id the ID of the plugin.
      * @return the {@code Plugin}, or {@code null} if not found (e.g. not installed).
-     * @since TODO add version
+     * @since 2.7.0
      */
     public static Plugin getLoadedPlugin(int id) {
         initPlugins();

@@ -627,14 +627,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
 	/**
-	 * @deprecated (TODO add version) No longer used/needed.
+	 * @deprecated (2.7.0) No longer used/needed.
 	 */
 	@Deprecated
 	public void hideNotesAddDialog() {
 	}
 	
     /**
-     * @deprecated (TODO add version) Use {@link ExtensionAlert#showAlertAddDialog(HistoryReference)} instead.
+     * @deprecated (2.7.0) Use {@link ExtensionAlert#showAlertAddDialog(HistoryReference)} instead.
      * @param ref the {@code HistoryReference} that will have the new alert, if created.
      */
     @Deprecated
@@ -658,7 +658,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * deleted when the session is closed.
      * </p>
      * 
-     * @deprecated (TODO add version) Use {@link ExtensionAlert#showAlertAddDialog(HttpMessage, int)} instead.
+     * @deprecated (2.7.0) Use {@link ExtensionAlert#showAlertAddDialog(HttpMessage, int)} instead.
      * @param httpMessage
      *            the {@code HttpMessage} that will be used to create the
      *            {@code HistoryReference}, must not be {@code null}
@@ -680,7 +680,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link ExtensionAlert#showAlertEditDialog(Alert)} instead.
+     * @deprecated (2.7.0) Use {@link ExtensionAlert#showAlertEditDialog(Alert)} instead.
      * @param alert the alert to edit
      */
     @Deprecated
@@ -909,9 +909,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 notifyHistoryItemChanged(Integer.valueOf(event.getParameters().get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
                 break;
             case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
-            default:
                 notifyHistoryItemsChanged();
                 break;
+            default:
             }
         }
     }
@@ -922,7 +922,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      *
      * @param hrefs the history entries to delete.
      * @see View#getDefaultDeleteKeyStroke()
-     * @since TODO add version
+     * @since 2.7.0
      */
     public void purgeHistory(List<HistoryReference> hrefs) {
         if (getView() != null && hrefs.size() > 1) {

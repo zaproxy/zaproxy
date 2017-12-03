@@ -70,7 +70,7 @@ public interface SessionChangedListener {
      * This method may be called by other threads than {@link java.awt.EventQueue EventQueue}.
      * 
      * @param session the session changed.
-     * @since TODO add version
+     * @since 2.7.0
      */
     default void sessionPropertiesChanged(Session session) {
     }
