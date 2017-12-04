@@ -99,6 +99,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		MD
 	}
 
+	/**
+	 * The constant that indicates that no risk ID is being provided.
+	 * 
+	 * @see #getRiskId(JSONObject)
+	 * @see #processAlerts(String, int, int, int, Processor)
+	 */
+	private static final int NO_RISK_ID = -1;
+
 	private static final String PREFIX = "core";
 	private static final String ACTION_LOAD_SESSION = "loadSession";
 	private static final String ACTION_NEW_SESSION = "newSession";
@@ -945,7 +953,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
 					this.getParam(params, PARAM_COUNT, -1), 
-					this.getParam(params, PARAM_RISK,  -1), new Processor<Alert>() {
+					getRiskId(params), new Processor<Alert>() {
 
 						@Override
 						public void process(Alert alert) {
@@ -959,7 +967,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
 					this.getParam(params, PARAM_COUNT, -1), 
-					this.getParam(params, PARAM_RISK, -1), counter);
+					getRiskId(params), counter);
 			
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
 		} else if (VIEW_ALERTS_SUMMARY.equals(name)) {
@@ -971,7 +979,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					riskSummary[alert.getRisk()]++;
 				}
 			};
-			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, -1, counter);
+			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, NO_RISK_ID, counter);
 
 			Map<String, Object> alertData = new HashMap<>();
 			for (int i = 0; i < riskSummary.length; i++) {
@@ -1063,6 +1071,38 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
+	}
+
+	/**
+	 * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK} as parameter name.
+	 *
+	 * @param parameters the parameters of the API request.
+	 * @return the ID of the risk, or {@link #NO_RISK_ID} if none provided.
+	 * @throws ApiException if the provided risk ID is not valid (not an integer nor a valid risk ID).
+	 */
+	private int getRiskId(JSONObject parameters) throws ApiException {
+		String riskIdParam = getParam(parameters, PARAM_RISK, "").trim();
+		if (riskIdParam.isEmpty()) {
+			return NO_RISK_ID;
+		}
+
+		int riskId = NO_RISK_ID;
+		try {
+			riskId = Integer.parseInt(riskIdParam);
+		} catch (NumberFormatException e) {
+			throwInvalidRiskId();
+		}
+
+		if (riskId < Alert.RISK_INFO || riskId > Alert.RISK_HIGH) {
+			throwInvalidRiskId();
+		}
+		return riskId;
+	}
+
+	private static void throwInvalidRiskId() throws ApiException {
+		throw new ApiException(
+				ApiException.Type.ILLEGAL_PARAMETER,
+				"Parameter " + PARAM_RISK + " is not a valid risk ID (integer in interval [0, 3]).");
 	}
 
 	private RecordHistory getRecordHistory(TableHistory tableHistory, Integer id) throws ApiException {
@@ -1506,7 +1546,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						// Not subordinate to the specified URL
 						continue;
 					}
-					if (riskId != -1 && alert.getRisk() != riskId) {
+					if (riskId != NO_RISK_ID && alert.getRisk() != riskId) {
 						continue;
 					}
 
