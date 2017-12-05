@@ -44,6 +44,10 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 public class EncodeDecodeDialog extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -72,6 +76,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	private ZapTextArea illegalUTF82ByteField = null;
 	private ZapTextArea illegalUTF83ByteField = null;
 	private ZapTextArea illegalUTF84ByteField = null;
+	private ZapTextArea text2UnicodeField =null;
+	private ZapTextArea unicode2TextField =null;
 
 	private Encoder encoder = null;
 
@@ -152,6 +158,9 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			final JPanel jPanel4 = new JPanel();
 			jPanel4.setLayout(new GridBagLayout());
 
+			final JPanel jPanel5 = new JPanel();
+			jPanel5.setLayout(new GridBagLayout());
+
 			// 3 tabs - Encode, Decode, Hash??
 			addField(jPanel1, 1, getBase64EncodeField(), Constant.messages.getString("enc2.label.b64Enc"));
 			addField(jPanel1, 2, getUrlEncodeField(), Constant.messages.getString("enc2.label.urlEnc"));
@@ -173,6 +182,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			addField(jPanel4, 2, getIllegalUTF83ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.3byte"));
 			addField(jPanel4, 3, getIllegalUTF84ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.4byte"));
 
+            addField(jPanel5, 1, getText2UnicodeField(), Constant.messages.getString("enc2.label.unicode.text2unicode"));
+            addField(jPanel5, 2, getUnicode2TextField(), Constant.messages.getString("enc2.label.unicode.unicode2text"));
 
 
 
@@ -180,6 +191,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.decode"), jPanel2);
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.hash"), jPanel3);
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.illegalUTF8"), jPanel4);
+            jTabbed.addTab(Constant.messages.getString("enc2.tab.unicode"), jPanel5);
 
 
 			final java.awt.GridBagConstraints gbc1 = new GridBagConstraints();
@@ -382,6 +394,20 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return illegalUTF84ByteField;
 	}
 
+    private ZapTextArea getText2UnicodeField() {
+        if (text2UnicodeField == null) {
+            text2UnicodeField = newField(false);
+        }
+        return text2UnicodeField;
+    }
+
+    private ZapTextArea getUnicode2TextField() {
+        if (unicode2TextField == null) {
+            unicode2TextField = newField(false);
+        }
+        return unicode2TextField;
+    }
+
 	private Encoder getEncoder() {
 	    if (encoder == null) {
 	        encoder = new Encoder();
@@ -524,6 +550,19 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			illegalUTF84ByteField.setText("");
 		}
 
+        try {
+            text2UnicodeField.setText(getEncoder().getUnicodeEncode(getInputField().getText()));
+        } catch (final Exception e) {
+            // Not unexpected
+            text2UnicodeField.setText("something went wrong.");
+        }
+
+        try {
+            unicode2TextField.setText(getEncoder().getUnicodeDecode(getInputField().getText()));
+        } catch (final Exception e) {
+            // Not unexpected
+            unicode2TextField.setText("something went wrong.");
+        }
 
 	}
 
