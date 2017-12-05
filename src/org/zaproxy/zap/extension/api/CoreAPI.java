@@ -40,6 +40,7 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.swing.tree.TreeNode;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -977,7 +978,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			for (int i = 0; i < riskSummary.length; i++) {
 				alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
 			}
-			result = new ApiResponseSet<Object>("risk", alertData);
+			result = new ApiResponseSet<Object>("risk", alertData) {
+
+				@Override
+				public JSON toJSON() {
+					JSONObject response = new JSONObject();
+					response.put(name, super.toJSON());
+					return response;
+				}
+			};
 		} else if (VIEW_MESSAGE.equals(name)) {
 			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 			RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
