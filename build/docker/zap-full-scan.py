@@ -346,7 +346,7 @@ def main(argv):
         zap_wait_for_passive_scan(zap, timeout * 60)
 
         # Print out a count of the number of urls
-        num_urls = len(zap.core.urls)
+        num_urls = len(zap.core.urls())
         if num_urls == 0:
             logging.warning('No URLs found - is the target URL accessible? Local services may not be accessible from the Docker container')
         else:
@@ -432,7 +432,7 @@ def main(argv):
 
             if report_json:
                 # Save the report
-                write_report(base_dir + report_json, zap._request_other(zap.base_other + 'core/other/jsonreport/'))
+                write_report(base_dir + report_json, zap.core.jsonreport())
 
             if report_md:
                 # Save the report
