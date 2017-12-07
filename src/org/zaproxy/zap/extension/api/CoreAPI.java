@@ -32,8 +32,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -934,7 +936,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-			this.getURLs(getParam(params, PARAM_BASE_URL, ""), root, (ApiResponseList)result);
+			addUrlsToList(getParam(params, PARAM_BASE_URL, ""), root, new HashSet<String>(), (ApiResponseList)result);
 		} else if (VIEW_ALERT.equals(name)){
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
 			RecordAlert recordAlert;
@@ -1495,17 +1497,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return sb.toString();
 	}
 
-	private void getURLs(String baseUrl, SiteNode parent, ApiResponseList list) {
+	private static void addUrlsToList(String baseUrl, SiteNode parent, Set<String> addedUrls, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> en = parent.children();
 		while (en.hasMoreElements()) {
 			SiteNode child = (SiteNode) en.nextElement();
 			String uri = child.getHistoryReference().getURI().toString();
-			if (baseUrl.isEmpty() || uri.startsWith(baseUrl)) {
+			if (!addedUrls.contains(uri) && (baseUrl.isEmpty() || uri.startsWith(baseUrl))) {
 				list.addItem(new ApiResponseElement("url", uri));
+				addedUrls.add(uri);
 			}
 
-			getURLs(baseUrl, child, list);
+			addUrlsToList(baseUrl, child, addedUrls, list);
 		}
 	}
 
