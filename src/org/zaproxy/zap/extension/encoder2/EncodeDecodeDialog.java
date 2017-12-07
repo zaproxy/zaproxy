@@ -439,7 +439,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return StringEscapeUtils.unescapeJavaScript(JavaScriptText);
 	}
 
-	public String encodeUnicodeString(String str) {
+	private static String encodeUnicodeString(String str) {
 		str = str == null ? "" : str;
 		String tmp;
 		StringBuilder sb = new StringBuilder();
@@ -463,8 +463,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		}
 		return (sb.toString());
 	}
-
-	public String decodeUnicodeString(String str) {
+	
+	private static String decodeUnicodeString(String str) {
 		str = str == null ? "" : str;
 		if (str.indexOf("%u") == -1)
 			return "";
