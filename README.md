@@ -5,7 +5,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/24/badge)](https://bestpractices.coreinfrastructure.org/projects/24)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5559/badge.svg)](https://scan.coverity.com/projects/zaproxy-zaproxy)
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
-[![Javadocs](https://javadoc.io/badge/org.zaproxy/zap/2.6.0.svg)](https://javadoc.io/doc/org.zaproxy/zap/2.6.0)
+[![Javadocs](https://javadoc.io/badge/org.zaproxy/zap/2.7.0.svg)](https://javadoc.io/doc/org.zaproxy/zap/2.7.0)
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://www.owasp.org/index.php/OWASP_Project_Inventory#tab=Flagship_Projects)
 [![Twitter Follow](https://img.shields.io/twitter/follow/zaproxy.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/zaproxy)
 
@@ -24,7 +24,7 @@ For general information about ZAP:
   * [Swag!](https://github.com/zaproxy/zap-swag) - official ZAP swag that you can buy, as well as all of the original artwork released under the CC License
 
 For help using ZAP:
-  * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.6.0/ZAPGettingStartedGuide-2.6.pdf) - an introductory guide you can print
+  * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.7.0/ZAPGettingStartedGuide-2.7.pdf) - an introductory guide you can print
   * [Tutorial Videos](https://www.youtube.com/playlist?list=PLEBitBW-Hlsv8cEIUntAO8st2UGhmrjUB)
   * [Articles](https://github.com/zaproxy/zaproxy/wiki/ZAP-Articles) - that go into ZAP features in more depth
   * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)

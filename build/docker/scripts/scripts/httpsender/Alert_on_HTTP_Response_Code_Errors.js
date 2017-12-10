@@ -2,10 +2,6 @@
 // By default it will raise 'Info' level alerts for Client Errors (4xx) (apart from 404s) and 'Low' Level alerts for Server Errors (5xx)
 // But it can be easily changed.
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 pluginid = 100000	// https://github.com/zaproxy/zaproxy/blob/develop/src/doc/scanners.md
 
 function sendingRequest(msg, initiator, helper) {

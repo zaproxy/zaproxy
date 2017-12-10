@@ -2,10 +2,6 @@
 // By default it will raise 'Low' level alerts for content types that are not expected to be returned by APIs.
 // But it can be easily changed.
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/develop/src/doc/scanners.md
 
 var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExtensionLoader().getExtension(

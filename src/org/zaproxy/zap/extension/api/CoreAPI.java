@@ -32,14 +32,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.tree.TreeNode;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -98,6 +101,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		XML,
 		MD
 	}
+
+	/**
+	 * The constant that indicates that no risk ID is being provided.
+	 * 
+	 * @see #getRiskId(JSONObject)
+	 * @see #processAlerts(String, int, int, int, Processor)
+	 */
+	private static final int NO_RISK_ID = -1;
 
 	private static final String PREFIX = "core";
 	private static final String ACTION_LOAD_SESSION = "loadSession";
@@ -925,7 +936,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-			this.getURLs(getParam(params, PARAM_BASE_URL, ""), root, (ApiResponseList)result);
+			addUrlsToList(getParam(params, PARAM_BASE_URL, ""), root, new HashSet<String>(), (ApiResponseList)result);
 		} else if (VIEW_ALERT.equals(name)){
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
 			RecordAlert recordAlert;
@@ -945,7 +956,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
 					this.getParam(params, PARAM_COUNT, -1), 
-					this.getParam(params, PARAM_RISK,  -1), new Processor<Alert>() {
+					getRiskId(params), new Processor<Alert>() {
 
 						@Override
 						public void process(Alert alert) {
@@ -959,7 +970,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
 					this.getParam(params, PARAM_COUNT, -1), 
-					this.getParam(params, PARAM_RISK, -1), counter);
+					getRiskId(params), counter);
 			
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
 		} else if (VIEW_ALERTS_SUMMARY.equals(name)) {
@@ -971,13 +982,21 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					riskSummary[alert.getRisk()]++;
 				}
 			};
-			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, -1, counter);
+			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, NO_RISK_ID, counter);
 
 			Map<String, Object> alertData = new HashMap<>();
 			for (int i = 0; i < riskSummary.length; i++) {
 				alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
 			}
-			result = new ApiResponseSet<Object>("risk", alertData);
+			result = new ApiResponseSet<Object>("risk", alertData) {
+
+				@Override
+				public JSON toJSON() {
+					JSONObject response = new JSONObject();
+					response.put(name, super.toJSON());
+					return response;
+				}
+			};
 		} else if (VIEW_MESSAGE.equals(name)) {
 			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 			RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
@@ -1063,6 +1082,38 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
+	}
+
+	/**
+	 * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK} as parameter name.
+	 *
+	 * @param parameters the parameters of the API request.
+	 * @return the ID of the risk, or {@link #NO_RISK_ID} if none provided.
+	 * @throws ApiException if the provided risk ID is not valid (not an integer nor a valid risk ID).
+	 */
+	private int getRiskId(JSONObject parameters) throws ApiException {
+		String riskIdParam = getParam(parameters, PARAM_RISK, "").trim();
+		if (riskIdParam.isEmpty()) {
+			return NO_RISK_ID;
+		}
+
+		int riskId = NO_RISK_ID;
+		try {
+			riskId = Integer.parseInt(riskIdParam);
+		} catch (NumberFormatException e) {
+			throwInvalidRiskId();
+		}
+
+		if (riskId < Alert.RISK_INFO || riskId > Alert.RISK_HIGH) {
+			throwInvalidRiskId();
+		}
+		return riskId;
+	}
+
+	private static void throwInvalidRiskId() throws ApiException {
+		throw new ApiException(
+				ApiException.Type.ILLEGAL_PARAMETER,
+				"Parameter " + PARAM_RISK + " is not a valid risk ID (integer in interval [0, 3]).");
 	}
 
 	private RecordHistory getRecordHistory(TableHistory tableHistory, Integer id) throws ApiException {
@@ -1446,17 +1497,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return sb.toString();
 	}
 
-	private void getURLs(String baseUrl, SiteNode parent, ApiResponseList list) {
+	private static void addUrlsToList(String baseUrl, SiteNode parent, Set<String> addedUrls, ApiResponseList list) {
 		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> en = parent.children();
 		while (en.hasMoreElements()) {
 			SiteNode child = (SiteNode) en.nextElement();
 			String uri = child.getHistoryReference().getURI().toString();
-			if (baseUrl.isEmpty() || uri.startsWith(baseUrl)) {
+			if (!addedUrls.contains(uri) && (baseUrl.isEmpty() || uri.startsWith(baseUrl))) {
 				list.addItem(new ApiResponseElement("url", uri));
+				addedUrls.add(uri);
 			}
 
-			getURLs(baseUrl, child, list);
+			addUrlsToList(baseUrl, child, addedUrls, list);
 		}
 	}
 
@@ -1506,7 +1558,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						// Not subordinate to the specified URL
 						continue;
 					}
-					if (riskId != -1 && alert.getRisk() != riskId) {
+					if (riskId != NO_RISK_ID && alert.getRisk() != riskId) {
 						continue;
 					}
 
