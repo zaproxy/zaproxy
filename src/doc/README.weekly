@@ -25,8 +25,6 @@ If you have not used ZAP before it might be better to start with the latest
 'full' release.
 
 Weekly releases do not include an installer.
-You will need to download and install Java 1.7 (minimum) in order to run 
-weekly ZAP releases.
 
 How to start ZAP
 ----------------
@@ -66,4 +64,4 @@ https://github.com/zaproxy/zap-api-java/releases
 It is also available on Maven Central:
  - GroupId: 'org.zaproxy'
  - ArtifactId: 'zap-clientapi'
- - Version: '1.0.0'
+
