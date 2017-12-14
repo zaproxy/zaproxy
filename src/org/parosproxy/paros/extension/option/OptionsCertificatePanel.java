@@ -32,6 +32,7 @@
 // ZAP: 2017/08/16 Show error message if failed to activate the certificate.
 // ZAP: 2017/08/17 Reduce code duplication when showing cert/keystore errors
 // ZAP: 2017/12/12 Use first alias by default (Issue 3879).
+// ZAP: 2017/12/13 Do not allow to edit the name/key of active cert.
 
 package org.parosproxy.paros.extension.option;
 
@@ -476,6 +477,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			certificateLabel.setText(Constant.messages.getString("options.cert.label.activecerts"));
 
 			certificateTextField.setEnabled(false);
+			certificateTextField.setEditable(false);
 
 			showActiveCertificateButton.setText("->");
 			showActiveCertificateButton.setActionCommand(">");
