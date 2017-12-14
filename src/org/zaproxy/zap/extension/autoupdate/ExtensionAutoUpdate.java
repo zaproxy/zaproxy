@@ -420,7 +420,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				this.downloadProgressThread = null;
 			}
 			if (this.downloadProgressThread == null) {
-				this.downloadProgressThread = new Thread() {
+				this.downloadProgressThread = new Thread("ZAP-DownloadInstaller") {
 					@Override
 					public void run() {
 						while (downloadManager.getCurrentDownloadCount() > 0) {
@@ -933,13 +933,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	if (latestVersionInfo == null) {
     		
     		if (this.remoteCallThread == null || !this.remoteCallThread.isAlive()) {
-    			this.remoteCallThread = new Thread() {
+    			this.remoteCallThread = new Thread("ZAP-cfu") {
     			
 	    			@Override
 	    			public void run() {
 	    				// Using a thread as the first call could timeout
 	    				// and we dont want the ui to hang in the meantime
-	    				this.setName("ZAP-cfu");
 						String shortUrl;
 						String longUrl;
 						if (Constant.isDevBuild()) {
