@@ -238,6 +238,9 @@ def main(argv):
         except ValueError as e:
             logging.warning(e)
             sys.exit(3)
+        except:
+            logging.warning('Failed to read configs from ' + config_url)
+            sys.exit(3)
 
     if progress_file:
         # load progress file from filestore
