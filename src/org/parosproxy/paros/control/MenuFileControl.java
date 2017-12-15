@@ -48,6 +48,7 @@
 // ZAP: 2017/06/20 Inform of active actions before changing the session.
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2017/11/22 Do not allow to snapshot the session with active actions (Issue 3711).
+// ZAP: 2017/12/15 Confirm when overwriting session file (Issue 4153). 
 
 package org.parosproxy.paros.control;
  
@@ -78,6 +79,7 @@ import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
 import org.zaproxy.zap.view.SessionTableSelectDialog;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 
 public class MenuFileControl implements SessionListener {
@@ -315,22 +317,7 @@ public class MenuFileControl implements SessionListener {
 		JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
 		chooser.setFileHidingEnabled(false);	// By default ZAP on linux puts timestamped sessions under a 'dot' directory 
 		File file = null;
-	    chooser.setFileFilter(new FileFilter() {
-	           @Override
-	           public boolean accept(File file) {
-	                if (file.isDirectory()) {
-	                    return true;
-	                } else if (file.isFile() && file.getName().endsWith(".session")) {
-	                    return true;
-	                }
-	                return false;
-	            }
-	           @Override
-	           public String getDescription() {
-	        	   // ZAP: Rebrand
-	               return Constant.messages.getString("file.format.zap.session");
-	           }
-	    });
+	    chooser.setFileFilter(SessionFileChooser.SESSION_FILE_FILTER);
 	    int rc = chooser.showOpenDialog(view.getMainFrame());
 	    if(rc == JFileChooser.APPROVE_OPTION) {
 			try {
@@ -401,7 +388,7 @@ public class MenuFileControl implements SessionListener {
 		
 	    Session session = model.getSession();
 
-	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
+        JFileChooser chooser = new SessionFileChooser(model.getOptionsParam().getUserDirectory());
 	    // ZAP: set session name as file name proposal
 	    File fileproposal = new File(session.getSessionName());
 	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
@@ -409,22 +396,6 @@ public class MenuFileControl implements SessionListener {
 	    	fileproposal = new File(session.getFileName());
 	    }
 		chooser.setSelectedFile(fileproposal);
-	    chooser.setFileFilter(new FileFilter() {
-	           @Override
-	           public boolean accept(File file) {
-	                if (file.isDirectory()) {
-	                    return true;
-	                } else if (file.isFile() && file.getName().endsWith(".session")) {
-	                    return true;
-	                }
-	                return false;
-	            }
-	           @Override
-	           public String getDescription() {
-	        	   // ZAP: Rebrand
-	               return Constant.messages.getString("file.format.zap.session");
-	           }
-	    });
 		File file = null;
 	    int rc = chooser.showSaveDialog(view.getMainFrame());
 	    if(rc == JFileChooser.APPROVE_OPTION) {
@@ -432,11 +403,7 @@ public class MenuFileControl implements SessionListener {
     		if (file == null) {
     			return;
     		}
-            model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-    		String fileName = file.getAbsolutePath();
-    		if (!fileName.endsWith(".session")) {
-    		    fileName += ".session";
-    		}
+    		String fileName = createSessionFileName(file);
     		
     		try {
 	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSession"));	// ZAP: i18n
@@ -448,6 +415,14 @@ public class MenuFileControl implements SessionListener {
     		}
 	    }
 	}
+
+	private static String createSessionFileName(File file) {
+		String fileName = file.getAbsolutePath();
+		if (!fileName.endsWith(".session")) {
+			fileName += ".session";
+		}
+		return fileName;
+	}
 	
 	public void saveSnapshot() {
 		String activeActions = wrapEntriesInLiTags(control.getExtensionLoader().getActiveActions());
@@ -458,7 +433,7 @@ public class MenuFileControl implements SessionListener {
 
 	    Session session = model.getSession();
 
-	    JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
+	    JFileChooser chooser = new SessionFileChooser(model.getOptionsParam().getUserDirectory());
 	    // ZAP: set session name as file name proposal
 	    File fileproposal = new File(session.getSessionName());
 	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
@@ -469,21 +444,6 @@ public class MenuFileControl implements SessionListener {
 	    	fileproposal = new File(proposedFileName);
 	    }
 		chooser.setSelectedFile(fileproposal);
-	    chooser.setFileFilter(new FileFilter() {
-	           @Override
-	           public boolean accept(File file) {
-	                if (file.isDirectory()) {
-	                    return true;
-	                } else if (file.isFile() && file.getName().endsWith(".session")) {
-	                    return true;
-	                }
-	                return false;
-	            }
-	           @Override
-	           public String getDescription() {
-	               return Constant.messages.getString("file.format.zap.session");
-	           }
-	    });
 		File file = null;
 	    int rc = chooser.showSaveDialog(view.getMainFrame());
 	    if(rc == JFileChooser.APPROVE_OPTION) {
@@ -491,11 +451,7 @@ public class MenuFileControl implements SessionListener {
     		if (file == null) {
     			return;
     		}
-            model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-            String fileName = file.getAbsolutePath();
-    		if (!fileName.endsWith(".session")) {
-    		    fileName += ".session";
-    		}
+            String fileName = createSessionFileName(file);
     		
     		try {
 	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.savingSnapshot"));	// ZAP: i18n
@@ -627,4 +583,36 @@ public class MenuFileControl implements SessionListener {
 		exportDialog.setVisible(true);
 	}
 
+	private static class SessionFileChooser extends WritableFileChooser {
+
+		public static final FileFilter SESSION_FILE_FILTER = new FileFilter() {
+
+			@Override
+			public boolean accept(File file) {
+				return file.isDirectory() || file.isFile() && file.getName().endsWith(".session");
+			}
+
+			@Override
+			public String getDescription() {
+				return Constant.messages.getString("file.format.zap.session");
+			}
+		};
+
+		private static final long serialVersionUID = 1L;
+
+		public SessionFileChooser(File currentDirectory) {
+			super(currentDirectory);
+
+			setFileFilter(SESSION_FILE_FILTER);
+		}
+
+		@Override
+		public void approveSelection() {
+			File file = getSelectedFile();
+			if (file != null) {
+				setSelectedFile(new File(createSessionFileName(file)));
+			}
+			super.approveSelection();
+		}
+	}
 }
