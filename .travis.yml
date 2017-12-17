@@ -3,6 +3,7 @@ script: ant -buildfile build/build.xml test
 
 jdk:
   - oraclejdk8
+  - openjdk8
 
 env:
   global:

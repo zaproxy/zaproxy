@@ -31,6 +31,8 @@
 // ZAP: 2017/08/16 Tidy up usage of CertificateView.
 // ZAP: 2017/08/16 Show error message if failed to activate the certificate.
 // ZAP: 2017/08/17 Reduce code duplication when showing cert/keystore errors
+// ZAP: 2017/12/12 Use first alias by default (Issue 3879).
+// ZAP: 2017/12/13 Do not allow to edit the name/key of active cert.
 
 package org.parosproxy.paros.extension.option;
 
@@ -475,6 +477,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			certificateLabel.setText(Constant.messages.getString("options.cert.label.activecerts"));
 
 			certificateTextField.setEnabled(false);
+			certificateTextField.setEditable(false);
 
 			showActiveCertificateButton.setText("->");
 			showActiveCertificateButton.setActionCommand(">");
@@ -637,7 +640,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			retry = true;
 
 			certificatejTabbedPane.setSelectedIndex(0);
-			selectFirstAliasOfKeyStore(ksIndex);
+			activateFirstOnlyAliasOfKeyStore(ksIndex);
 
 			driverComboBox.setSelectedIndex(-1);
 			pkcs11PasswordField.setText("");
@@ -709,7 +712,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 	}//GEN-LAST:event_addPkcs11ButtonActionPerformed
 
-	private void selectFirstAliasOfKeyStore(int ksIndex) {
+	private void activateFirstOnlyAliasOfKeyStore(int ksIndex) {
 		if (ksIndex < 0 || ksIndex >= keyStoreList.getModel().getSize()) {
 			return;
 		}
@@ -717,7 +720,16 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		keyStoreList.setSelectedIndex(ksIndex);
 		if (aliasTable.getRowCount() != 0) {
 			aliasTable.setRowSelectionInterval(0, 0);
+
+			if (aliasTable.getRowCount() == 1 && !isCertActive()) {
+				setActiveAction();
+			}
 		}
+	}
+
+	private boolean isCertActive() {
+		String currentKey = contextManager.getDefaultKey();
+		return currentKey != null && !currentKey.isEmpty();
 	}
 
 	private void showErrorMessageSunPkcs11ProviderNotAvailable() {
@@ -793,7 +805,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 
 		certificatejTabbedPane.setSelectedIndex(0);
-		selectFirstAliasOfKeyStore(ksIndex);
+		activateFirstOnlyAliasOfKeyStore(ksIndex);
 
 		fileTextField.setText("");
 		pkcs12PasswordField.setText("");
@@ -849,6 +861,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	}
 	
 	private void setActiveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setActiveButtonActionPerformed
+		setActiveAction();
+	}//GEN-LAST:event_setActiveButtonActionPerformed
+	
+	private void setActiveAction() {
 		int ks = keyStoreList.getSelectedIndex();
 		int alias = aliasTable.getSelectedRow();
 		if (ks > -1 && alias>-1) {
@@ -887,10 +903,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			}
 			certificateTextField.setText(contextManager.getDefaultKey());
 		}
-
-
-
-	}//GEN-LAST:event_setActiveButtonActionPerformed
+	}
 
 	public String getPassword() {
 		JPasswordField askPasswordField = new JPasswordField();
