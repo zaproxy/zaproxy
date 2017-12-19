@@ -218,7 +218,7 @@ public class AttackModeScanner implements EventConsumer {
 
 	private ExtensionAlert getExtensionAlert() {
 		if (extAlert == null) {
-			extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
+			extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
 		}
 		return extAlert;
 	}

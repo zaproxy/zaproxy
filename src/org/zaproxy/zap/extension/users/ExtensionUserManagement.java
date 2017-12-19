@@ -34,9 +34,9 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordContext;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.control.ExtensionFactory;
@@ -84,10 +84,10 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	private UsersAPI api;
 
 	/** The Constant EXTENSION DEPENDENCIES. */
-	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
+	private static final List<Class<? extends Extension>> EXTENSION_DEPENDENCIES;
 	static {
 		// Prepare a list of Extensions on which this extension depends
-		List<Class<?>> dependencies = new ArrayList<>(3);
+		List<Class<? extends Extension>> dependencies = new ArrayList<>(3);
 		dependencies.add(ExtensionHttpSessions.class);
 		dependencies.add(ExtensionAuthentication.class);
 		dependencies.add(ExtensionSessionManagement.class);
@@ -111,8 +111,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	 */
 	protected ExtensionHttpSessions getExtensionHttpSessions() {
 		if (extensionHttpSessions == null) {
-			extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionHttpSessions.NAME);
+			extensionHttpSessions = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class);
 			if (extensionHttpSessions == null)
 				log.error("Http Sessions Extension should be enabled for the "
 						+ ExtensionUserManagement.class.getSimpleName() + " to work.");
@@ -132,6 +131,11 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("users.name");
+	}
+	
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
@@ -140,11 +144,11 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 		// Register this as a context data factory
-		Model.getSingleton().addContextDataFactory(this);
+		extensionHook.addContextDataFactory(this);
 
 		if (getView() != null) {
 			// Factory for generating Session Context Users panels
-			getView().addContextPanelFactory(this);
+			extensionHook.getHookView().addContextPanelFactory(this);
 		}
 
 		// Prepare API
@@ -153,7 +157,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
-	public List<Class<?>> getDependencies() {
+	public List<Class<? extends Extension>> getDependencies() {
 		return EXTENSION_DEPENDENCIES;
 	}
 

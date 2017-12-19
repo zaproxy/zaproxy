@@ -70,20 +70,36 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2016/06/21 Prevent deadlock between EDT and threads adding messages to the History tab
 // ZAP: 2017/01/30 Use HistoryTableModel.
+// ZAP: 2017/03/02 Issue 1634 Improve URL export.
+// ZAP: 2017/03/28 Issue 3253 Allow URLs to be exported per context.
+// ZAP: 2017/04/07 Added getUIName()
+// ZAP: 2017/05/01 Issue 3446 - Add ability to export a Site Map via Context Menu.
+// ZAP: 2017/05/02 Move alert related code to ExtensionAlert.
+// ZAP: 2017/05/03 Register and process events from HistoryReference.
+// ZPA: 2017/06/05 Sync HistoryReference cache.
+// ZAP: 2017/06/13 Handle notification of notes set and deprecate/remove code no longer needed.
+// ZAP: 2017/10/20 Move methods to delete history entries (Issue 3626).
+// ZAP: 2017/11/06 Added (un)registerProxy (Issue 3983)
+// ZAP: 2017/11/16 Update the table on sessionChanged (Issue 3207).
+// ZAP: 2017/11/22 Delete just the history references selected (Issue 4065).
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -93,10 +109,12 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
@@ -105,10 +123,11 @@ import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
+import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
+import org.zaproxy.zap.extension.history.PopupMenuExportSelectedURLs;
 import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
@@ -135,10 +154,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuTag popupMenuTag = null;
     // ZAP: Added Export URLs
 	private PopupMenuExportURLs popupMenuExportURLs = null;
+	private PopupMenuExportSelectedURLs popupMenuExportSelectedURLs = null;
+	private PopupMenuExportContextURLs popupMenuExportContextURLs = null;
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
 	private NotesAddDialog dialogNotesAdd = null;
-	private AlertAddDialog dialogAlertAdd = null;
 	private ManageTagsDialog manageTags = null;
 	
 	private boolean showJustInScope = false;
@@ -146,8 +166,18 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private String linkWithSitesTreeBaseUri;
 	
 	// Used to cache hrefs not added into the historyList
-	private ReferenceMap historyIdToRef = new ReferenceMap();
+	@SuppressWarnings("unchecked")
+	private Map<Integer, HistoryReference> historyIdToRef = Collections.synchronizedMap(new ReferenceMap());
 
+	/**
+	 * Flag that indicates whether or not the session is changing. To prevent updating the table more than once when opening a
+	 * session.
+	 * 
+	 * @see #sessionAboutToChange(Session)
+	 * @see #sessionScopeChanged(Session)
+	 * @see #sessionChanged(Session)
+	 */
+	private boolean sessionChanging;
     
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
 
@@ -157,6 +187,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         this.setOrder(16);
 
 	}
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("history.name");
+    }
 	
 	/**
 	 * This method initializes logPanel	
@@ -179,7 +214,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
     /**
-     * @deprecated (TODO add version) No longer used/needed.
+     * @deprecated (2.6.0) No longer used/needed.
      */
     @Deprecated
 	public void clearLogPanelDisplayQueue() {
@@ -198,7 +233,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		super.init();
 
 		historyTableModel = new HistoryTableModel();
-		ZAP.getEventBus().registerConsumer(new AlertEventConsumer(), AlertEventPublisher.getPublisher().getPublisherName());
+		EventConsumerImpl eventConsumerImpl = new EventConsumerImpl();
+		ZAP.getEventBus().registerConsumer(eventConsumerImpl, AlertEventPublisher.getPublisher().getPublisherName());
+		ZAP.getEventBus().registerConsumer(eventConsumerImpl, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
 	}
 
 	@SuppressWarnings("deprecation")
@@ -226,7 +263,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             // ZAP: Move 'export' menu items to Report menu
 	        extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
+            extensionHook.getHookMenu().addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
+            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportSelectedURLs());
+            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportContextURLs());
+            extensionHook.getHookMenu().addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
+
+            extensionHook.getHookMenu().addPopupMenuItem(createPopupMenuExportURLs());
+            extensionHook.getHookMenu().addPopupMenuItem(createPopupMenuExportSelectedURLs());
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 	    }
@@ -235,7 +279,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionChanged(final Session session)  {
-		// Actual work done in sessionScopeChanged
+		sessionChanging = false;
+		sessionChanged();
 	}
 	
 	private ProxyListenerLog getProxyListenerLog() {
@@ -245,6 +290,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return proxyListener;
 	}
 	
+	public void registerProxy(ProxyServer ps) {
+	    ps.addProxyListener(this.getProxyListenerLog());
+	}
+	
+    public void unregisterProxy(ProxyServer ps) {
+        ps.removeProxyListener(this.getProxyListenerLog());
+    }
+    
 	public void removeFromHistoryList(final HistoryReference href) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             this.historyTableModel.removeEntry(href.getHistoryId());
@@ -304,7 +357,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		if (href != null) {
 			return href;
 		}
-		href = (HistoryReference) historyIdToRef.get(historyId);
+		href = historyIdToRef.get(historyId);
 		if (href == null) {		
 			try {
 				href = new HistoryReference(historyId);
@@ -510,7 +563,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
 			resendDialog = new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.resend");
-			resendDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
+			resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return resendDialog;
 	}
@@ -567,24 +620,30 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void showNotesAddDialog(HistoryReference ref, String note) {
     	if (dialogNotesAdd == null) {
 	    	dialogNotesAdd = new NotesAddDialog(getView().getMainFrame(), false);
-	    	dialogNotesAdd.setPlugin(this);
 	    	populateNotesAddDialogAndSetVisible(ref, note);
     	} else if (!dialogNotesAdd.isVisible()) {
     		populateNotesAddDialogAndSetVisible(ref, note);
     	}
     }
 
+	/**
+	 * @deprecated (2.7.0) No longer used/needed.
+	 */
+	@Deprecated
 	public void hideNotesAddDialog() {
-		dialogNotesAdd.dispose();
 	}
 	
+    /**
+     * @deprecated (2.7.0) Use {@link ExtensionAlert#showAlertAddDialog(HistoryReference)} instead.
+     * @param ref the {@code HistoryReference} that will have the new alert, if created.
+     */
+    @Deprecated
     public void showAlertAddDialog(HistoryReference ref) {
-		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
-			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-	    	dialogAlertAdd.setPlugin(this);
-	    	dialogAlertAdd.setVisible(true);
-	    	dialogAlertAdd.setHistoryRef(ref);
-		}
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extAlert == null) {
+            return;
+        }
+        extAlert.showAlertAddDialog(ref);
     }
 
     /**
@@ -599,6 +658,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * deleted when the session is closed.
      * </p>
      * 
+     * @deprecated (2.7.0) Use {@link ExtensionAlert#showAlertAddDialog(HttpMessage, int)} instead.
      * @param httpMessage
      *            the {@code HttpMessage} that will be used to create the
      *            {@code HistoryReference}, must not be {@code null}
@@ -610,23 +670,26 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * @see HistoryReference#HistoryReference(org.parosproxy.paros.model.Session,
      *      int, HttpMessage)
      */
-    // ZAP: Added the method.
+    @Deprecated
     public void showAlertAddDialog(HttpMessage httpMessage, int historyType) {
-        if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
-            dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-            dialogAlertAdd.setPlugin(this);
-            dialogAlertAdd.setHttpMessage(httpMessage, historyType);
-            dialogAlertAdd.setVisible(true);
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extAlert == null) {
+            return;
         }
+        extAlert.showAlertAddDialog(httpMessage, historyType);
     }
 
+    /**
+     * @deprecated (2.7.0) Use {@link ExtensionAlert#showAlertEditDialog(Alert)} instead.
+     * @param alert the alert to edit
+     */
+    @Deprecated
     public void showAlertAddDialog(Alert alert) {
-		if (dialogAlertAdd == null || ! dialogAlertAdd.isVisible()) {
-			dialogAlertAdd = new AlertAddDialog(getView().getMainFrame(), false);
-	    	dialogAlertAdd.setPlugin(this);
-	    	dialogAlertAdd.setVisible(true);
-	    	dialogAlertAdd.setAlert(alert);
-		}
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extAlert == null) {
+            return;
+        }
+        extAlert.showAlertEditDialog(alert);
     }
 
 	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, List<String> tags) {
@@ -643,25 +706,41 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void showManageTagsDialog(HistoryReference ref, List<String> tags) {
     	if (manageTags == null) {
 	    	manageTags = new ManageTagsDialog(getView().getMainFrame(), false);
-	    	manageTags.setPlugin(this);
 	    	populateManageTagsDialogAndSetVisible(ref, tags);
     	} else if (!manageTags.isVisible()) {
     		populateManageTagsDialogAndSetVisible(ref, tags);
     	}
     }
-
-	public void hideManageTagsDialog() {
-		manageTags.dispose();
-	}
 	
 	private PopupMenuExportURLs getPopupMenuExportURLs() {
 		if (popupMenuExportURLs == null) {
-			popupMenuExportURLs = new PopupMenuExportURLs();
-			popupMenuExportURLs.setExtension(this);
+			popupMenuExportURLs = createPopupMenuExportURLs();
 		}
 		return popupMenuExportURLs;
 	}
 
+	private PopupMenuExportURLs createPopupMenuExportURLs() {
+		return new PopupMenuExportURLs(Constant.messages.getString("exportUrls.popup"), this);
+	}
+
+	private PopupMenuExportSelectedURLs getPopupMenuExportSelectedURLs() {
+		if (popupMenuExportSelectedURLs == null) {
+			popupMenuExportSelectedURLs = createPopupMenuExportSelectedURLs();
+		}
+		return popupMenuExportSelectedURLs;
+	}
+
+	private PopupMenuExportSelectedURLs createPopupMenuExportSelectedURLs() {
+		return new PopupMenuExportSelectedURLs(Constant.messages.getString("exportUrls.popup.selected"), this);
+	}
+	
+	private PopupMenuExportContextURLs getPopupMenuExportContextURLs() {
+		if (popupMenuExportContextURLs == null) {
+			popupMenuExportContextURLs = new PopupMenuExportContextURLs(
+					Constant.messages.getString("context.export.urls.menu"), this);
+		}
+		return popupMenuExportContextURLs;
+	}
 
 	public void showInHistory(HistoryReference href) {
 		this.getLogPanel().display(href);
@@ -670,6 +749,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionAboutToChange(final Session session) {
+		sessionChanging = true;
+
 		if (getView() == null || EventQueue.isDispatchThread()) {
 			historyTableModel.clear();
 			historyIdToRef.clear();
@@ -778,6 +859,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	@Override
 	public void sessionScopeChanged(Session session) {
+		if (sessionChanging) {
+			return;
+		}
+		sessionChanged();
+	}
+
+	private void sessionChanged() {
 		if (getView() != null) {
 			searchHistory(getFilterPlusDialog().getFilter());
 		} else {
@@ -803,21 +891,102 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	return true;
     }
 
-    private class AlertEventConsumer implements EventConsumer {
+    private class EventConsumerImpl implements EventConsumer {
 
         @Override
         public void eventReceived(Event event) {
             switch (event.getEventType()) {
+            case HistoryReferenceEventPublisher.EVENT_NOTE_SET:
+            case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
+            case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
+            case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
+                notifyHistoryItemChanged(
+                        Integer.valueOf(event.getParameters().get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID)));
+                break;
             case AlertEventPublisher.ALERT_ADDED_EVENT:
             case AlertEventPublisher.ALERT_CHANGED_EVENT:
             case AlertEventPublisher.ALERT_REMOVED_EVENT:
                 notifyHistoryItemChanged(Integer.valueOf(event.getParameters().get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
                 break;
             case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
-            default:
                 notifyHistoryItemsChanged();
                 break;
+            default:
             }
         }
+    }
+
+    /**
+     * Deletes the given history references from the {@link LogPanel History tab} and the session (database), along with the
+     * corresponding {@link SiteNode}s and {@link Alert}s.
+     *
+     * @param hrefs the history entries to delete.
+     * @see View#getDefaultDeleteKeyStroke()
+     * @since 2.7.0
+     */
+    public void purgeHistory(List<HistoryReference> hrefs) {
+        if (getView() != null && hrefs.size() > 1) {
+            int result = getView().showConfirmDialog(Constant.messages.getString("history.purge.warning"));
+            if (result != JOptionPane.YES_OPTION) {
+                return;
+            }
+            
+        }
+        synchronized (this) {
+            for (HistoryReference href : hrefs) {
+                purgeHistory(href);
+            }
+        }
+    }
+
+    private void purgeHistory(HistoryReference href) {
+        if (href == null) {
+            return;
+        }
+
+        removeFromHistoryList(href);
+
+        ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+
+        if (extAlert != null) {
+            extAlert.deleteHistoryReferenceAlerts(href);
+        }
+
+        SiteNode node = href.getSiteNode();
+        if (node != null) {
+            SiteMap map = Model.getSingleton().getSession().getSiteTree();
+            if (node.getHistoryReference() != href) {
+                node.getPastHistoryReference().remove(href);
+            } else if (!node.getPastHistoryReference().isEmpty()) {
+                node.setHistoryReference(node.getPastHistoryReference().remove(0));
+                node.getPastHistoryReference().remove(href);
+            } else {
+                if (node.isLeaf()) {
+                    SiteNode parent = node.getParent();
+                    map.removeNodeFromParent(node);
+                    purgeTemporaryParents(map, parent);
+                } else {
+                    try {
+                        node.setHistoryReference(map.createReference(node, href, href.getHttpMessage()));
+                    } catch (URIException | HttpMalformedHeaderException | NullPointerException | DatabaseException e) {
+                        logger.error("Failed to create temporary node:", e);
+                    }
+                }
+            }
+            map.removeHistoryReference(href.getHistoryId());
+        }
+
+        delete(href);
+    }
+
+    private void purgeTemporaryParents(SiteMap map, SiteNode node) {
+        if (node == null || node.isRoot() || !node.isLeaf()
+                || node.getHistoryReference().getHistoryType() != HistoryReference.TYPE_TEMPORARY) {
+            return;
+        }
+
+        SiteNode parent = node.getParent();
+        purge(map, node);
+        purgeTemporaryParents(map, parent);
     }
 }

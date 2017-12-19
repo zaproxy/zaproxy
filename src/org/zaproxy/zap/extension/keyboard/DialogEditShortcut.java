@@ -24,7 +24,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,8 +98,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
 	private void checkDuplicate() {
 		KeyboardShortcut ks = this.getDuplicate();
 		if (ks != null) {
-			this.setFieldValue(FIELD_INFO, 
-					MessageFormat.format(Constant.messages.getString("keyboard.dialog.warning.dup"), ks.getName()));
+			this.setFieldValue(FIELD_INFO, Constant.messages.getString("keyboard.dialog.warning.dup", ks.getName()));
 		} else {
 			this.setFieldValue(FIELD_INFO, "");
 		}

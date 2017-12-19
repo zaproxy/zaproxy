@@ -35,6 +35,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
@@ -42,7 +43,6 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -53,8 +53,6 @@ import org.zaproxy.zap.extension.script.ScriptType;
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
     public static final String NAME = "ExtensionPassiveScan";
-    private static final ImageIcon SCRIPT_ICON =
-            new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-pscan.png"));
     public static final String SCRIPT_TYPE_PASSIVE = "passive";
     private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
     private PassiveScannerList scannerList;
@@ -63,10 +61,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     private PassiveScanThread pst = null;
     private boolean passiveScanEnabled;
     private PassiveScanParam passiveScanParam;
-    private static final List<Class<?>> DEPENDENCIES;
+    private static final List<Class<? extends Extension>> DEPENDENCIES;
 
     static {
-        List<Class<?>> dep = new ArrayList<>(1);
+        List<Class<? extends Extension>> dep = new ArrayList<>(1);
         dep.add(ExtensionAlert.class);
 
         DEPENDENCIES = Collections.unmodifiableList(dep);
@@ -92,6 +90,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
+    public String getUIName() {
+    	return Constant.messages.getString("pscan.name");
+    }
+    
+    @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
 
@@ -105,13 +108,21 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
         }
 
-        ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         if (extScript != null) {
-            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", SCRIPT_ICON, true));
+            extScript.registerScriptType(
+                    new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", createScriptIcon(), true));
         }
 
 
         extensionHook.addApiImplementor(new PassiveScanAPI(this));
+    }
+
+    private ImageIcon createScriptIcon() {
+        if (getView() == null) {
+            return null;
+        }
+        return new ImageIcon(ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
     }
 
     @Override
@@ -314,12 +325,27 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      * @param enabled {@code true} if the scanner should be enabled, {@code false} otherwise
      */
     void setPluginPassiveScannerEnabled(int pluginId, boolean enabled) {
+        PluginPassiveScanner scanner = getPluginPassiveScanner(pluginId);
+        if (scanner != null) {
+            scanner.setEnabled(enabled);
+            scanner.save();
+        }
+    }
+
+    /**
+     * Gets the {@code PluginPassiveScanner} with the given ID.
+     *
+     * @param id the ID of the plugin.
+     * @return the {@code PluginPassiveScanner}, or {@code null} if not found (e.g. not installed).
+     * @since 2.7.0
+     */
+    public PluginPassiveScanner getPluginPassiveScanner(int id) {
         for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
-            if (pluginId == scanner.getPluginId()) {
-                scanner.setEnabled(enabled);
-                scanner.save();
+            if (id == scanner.getPluginId()) {
+                return scanner;
             }
         }
+        return null;
     }
 
     /**
@@ -329,12 +355,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      * @return {@code true} if the scanner exist, {@code false} otherwise.
      */
     boolean hasPluginPassiveScanner(int pluginId) {
-        for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
-            if (pluginId == scanner.getPluginId()) {
-                return true;
-            }
-        }
-        return false;
+        return getPluginPassiveScanner(pluginId) != null;
     }
 
     /**
@@ -348,12 +369,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      * @see org.parosproxy.paros.core.scanner.Plugin.AlertThreshold
      */
     void setPluginPassiveScannerAlertThreshold(int pluginId, Plugin.AlertThreshold alertThreshold) {
-        for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
-            if (pluginId == scanner.getPluginId()) {
-                scanner.setLevel(alertThreshold);
-                scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
-                scanner.save();
-            }
+        PluginPassiveScanner scanner = getPluginPassiveScanner(pluginId);
+        if (scanner != null) {
+            scanner.setAlertThreshold(alertThreshold);
+            scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
+            scanner.save();
         }
     }
  
@@ -363,7 +383,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
      */
     public void setAllScannerThreshold(AlertThreshold at) {
         for (PluginPassiveScanner test : getPluginPassiveScanners()) {        
-            test.setLevel(at);
+            test.setAlertThreshold(at);
             test.setEnabled(!AlertThreshold.OFF.equals(at));
             test.save();
         }
@@ -378,9 +398,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         
         for (PluginPassiveScanner test : getPluginPassiveScanners()) {                
             if (at == null) {
-                at = test.getLevel();
+                at = test.getAlertThreshold();
             
-            } else if (!at.equals(test.getLevel())) {
+            } else if (!at.equals(test.getAlertThreshold())) {
                 // Not all the same
                 return null;
             }
@@ -406,8 +426,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     private PassiveScanThread getPassiveScanThread() {
         if (pst == null) {
             final ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
-            final ExtensionHistory extHist = (ExtensionHistory) extensionLoader.getExtension(ExtensionHistory.NAME);
-            final ExtensionAlert extAlert = (ExtensionAlert) extensionLoader.getExtension(ExtensionAlert.NAME);
+            final ExtensionHistory extHist = extensionLoader.getExtension(ExtensionHistory.class);
+            final ExtensionAlert extAlert = extensionLoader.getExtension(ExtensionAlert.class);
 
             pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
 
@@ -469,7 +489,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
-    public List<Class<?>> getDependencies() {
+    public List<Class<? extends Extension>> getDependencies() {
         return DEPENDENCIES;
     }
 

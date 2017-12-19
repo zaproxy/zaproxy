@@ -125,6 +125,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("httpsessions.name");
+	}
+	
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
@@ -158,7 +163,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		extensionHook.addSessionListener(this);
 		extensionHook.addSiteMapListener(this);
-		HttpSender.addListener(this);
+		extensionHook.addHttpSenderListener(this);
 
 		if (getView() != null) {
 
@@ -364,7 +369,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			siteTokens = new HttpSessionTokensSet();
 			sessionTokens.put(site, siteTokens);
 		}
-		log.info("Added new session token for site '" + site + "': " + token);
+
+		if (log.isDebugEnabled()) {
+			log.debug("Added new session token for site '" + site + "': " + token);
+		}
+
 		siteTokens.addToken(token);
 		// If the session token is a default token and was previously marked as remove, undo that
 		unmarkRemovedDefaultSessionToken(site, token);
@@ -405,7 +414,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		// be detected again and added as a session token
 		if (isDefaultSessionToken(token))
 			markRemovedDefaultSessionToken(site, token);
-		log.info("Removed session token for site '" + site + "': " + token);
+
+		if (log.isDebugEnabled()) {
+			log.debug("Removed session token for site '" + site + "': " + token);
+		}
 	}
 
 	/**
@@ -608,7 +620,14 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			return;
 
 		// Check for default tokens in request messages
-		List<HttpCookie> requestCookies = msg.getRequestHeader().getHttpCookies();
+		List<HttpCookie> requestCookies;
+		try {
+			requestCookies = msg.getRequestHeader().getHttpCookies();
+		} catch (IllegalArgumentException e) {
+			log.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+			return;
+		}
+
 		for (HttpCookie cookie : requestCookies) {
 			// If it's a default session token and it is not already marked as session token and was
 			// not previously removed by the user

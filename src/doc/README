@@ -26,7 +26,7 @@ There are 3 options on Windows:
 
 Linux
 
-On Linux theres just a 'zap.sh' script in the installation directory, although
+On Linux there's just a 'zap.sh' script in the installation directory, although
 you can create a desktop icon manually as well.
 
 Mac OS
@@ -64,5 +64,4 @@ https://github.com/zaproxy/zap-api-java/releases
 It is also available on Maven Central:
  - GroupId: 'org.zaproxy'
  - ArtifactId: 'zap-clientapi'
- - Version: '1.0.0'
 

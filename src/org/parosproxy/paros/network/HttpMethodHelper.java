@@ -27,6 +27,8 @@
 // ZAP: 2013/07/10 Issue 721: Non POST and PUT requests receive a 504 when server expects a request body
 // ZAP: 2016/05/16 Throw exception if failed to set the request URI
 // ZAP: 2016/10/13 Include URI in exception's message
+// ZAP: 2017/04/20 Remove unused code
+// ZAP: 2017/06/19 Allow to create a method with custom parameters.
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -59,21 +61,12 @@ public class HttpMethodHelper {
 	private static final String PUT		= "PUT";
 	private static final String DELETE	= "DELETE";
 	private static final String TRACE	= "TRACE";
-	// TODO: What's up with the CONNECT method?
-	//private static final String CONNECT	= "CONNECT";
-	
 	
 	private static final String CRLF	=	"\r\n";
 	private static final String LF		=	"\n";
 	private static final Pattern patternCRLF	= Pattern.compile("\\r\\n", Pattern.MULTILINE);
 	private static final Pattern patternLF		= Pattern.compile("\\n", Pattern.MULTILINE);
 	
-	private String mUserAgent = "";
-	
-	public void setUserAgent(String userAgent) {
-		mUserAgent = userAgent;
-	}
-
 	// Not used - all abstract using Generic method but GET cannot be used.
 	public HttpMethod createRequestMethodNew(HttpRequestHeader header, HttpBody body) throws URIException {
 		HttpMethod httpMethod = null;
@@ -96,16 +89,13 @@ public class HttpMethodHelper {
 		int pos = 0;
 		// ZAP: FindBugs fix - always initialise pattern
 		Pattern pattern = patternCRLF;
-		String delimiter = CRLF;
 		
 		String msg = header.getHeadersAsString();
 		if ((pos = msg.indexOf(CRLF)) < 0) {
 			if ((pos = msg.indexOf(LF)) < 0) {
-				delimiter = LF;
 				pattern = patternLF;
 			}
 		} else {
-			delimiter = CRLF;
 			pattern = patternCRLF;
 		}
 	        
@@ -113,7 +103,6 @@ public class HttpMethodHelper {
 		String token = null;
 		String name = null;
 		String value = null;
-		//String host = null;
 		
 		for (int i=0; i<split.length; i++) {
 			token = split[i];
@@ -133,7 +122,6 @@ public class HttpMethodHelper {
 		// set body if post method or put method
 		if (body != null && body.length() > 0) {
 			EntityEnclosingMethod generic = (EntityEnclosingMethod) httpMethod;
-//			generic.setRequestEntity(new StringRequestEntity(body.toString()));
             generic.setRequestEntity(new ByteArrayRequestEntity(body.getBytes()));
 
         }
@@ -146,6 +134,10 @@ public class HttpMethodHelper {
 	//  This is the currently in use method.
 	// may be replaced by the New method - however the New method is not yet fully tested so this is stil used.
 	public HttpMethod createRequestMethod(HttpRequestHeader header, HttpBody body) throws URIException {
+		return createRequestMethod(header, body, null);
+	}
+
+	HttpMethod createRequestMethod(HttpRequestHeader header, HttpBody body, HttpMethodParams params) throws URIException {
 		HttpMethod httpMethod = null;
 		
 		String method = header.getMethod();
@@ -157,7 +149,6 @@ public class HttpMethodHelper {
 		}
 		
 		if (method.equalsIgnoreCase(GET)) {
-			//httpMethod = new GetMethod();
 			// ZAP: avoid discarding HTTP status code 101 that is used for WebSocket upgrade 
 			httpMethod = new ZapGetMethod();
 		} else if (method.equalsIgnoreCase(POST)) {
@@ -182,6 +173,10 @@ public class HttpMethodHelper {
 			throw new URIException("Failed to set URI [" + uri + "]: " + e1.getMessage());
 		}
 		
+		if (params != null) {
+			httpMethod.setParams(params);
+		}
+
 		HttpMethodParams httpParams = httpMethod.getParams();
 		// default to use HTTP 1.0
 		httpParams.setVersion(HttpVersion.HTTP_1_0);
@@ -226,7 +221,6 @@ public class HttpMethodHelper {
 		// set body if post method or put method
 		if (body != null && body.length() > 0 &&  (httpMethod instanceof EntityEnclosingMethod)) {
 			EntityEnclosingMethod post = (EntityEnclosingMethod) httpMethod;
-//			post.setRequestEntity(new StringRequestEntity(body.toString()));
             post.setRequestEntity(new ByteArrayRequestEntity(body.getBytes()));
 
 		}
@@ -235,132 +229,6 @@ public class HttpMethodHelper {
 		return httpMethod;
 
 	}
-	
-	
-	/*
-	 * Build a HttpMethod (eg GET, POST) from raw string.  All headers will be set accordingly as in
-	 * the raw string.
-	 * @param request	raw request string with header and body.
-	 * @param isSecure true if the connection is SSL.
-	 * @return an unexecuted HttpMethod
-	 */
-	/* This is the original code using a String as request.  Now obsolete
-	 * 
-	private HttpMethod createRequestMethod(String request, boolean isSecure) throws HttpException, URIException {
-		HttpMethod httpMethod = null;
-		Pattern pattern = null;
-		String delimiter = CRLF;
-		
-		int pos = 0;
-		
-		if (request == null || request.equals("")) {
-			throw new HttpException ("Null or empty request");
-		}
-		
-		if ((pos = request.indexOf(CRLF)) < 0) {
-			if ((pos = request.indexOf(LF)) < 0) {
-				throw new HttpException ("Invalid HTTP request with missing CR/LF");
-			} else {
-				delimiter = LF;
-				pattern = patternLF;
-			}
-		} else {
-			delimiter = CRLF;
-			pattern = patternCRLF;
-		}
-	        
-		String[] split = pattern.split(request);
-		String startLine = split[0];
-		httpMethod = createMethodFromStartLine(startLine);
-		
-		String token = null;
-		String name = null;
-		String value = null;
-		String host = null;
-		
-		for (int i=1; i<split.length; i++) {
-			token = split[i];
-			if (token.equals("")) {
-				continue;
-			}
-			
-			if ((pos = token.indexOf(":")) < 0) {
-				return null;
-			}
-			name  = token.substring(0, pos).trim();
-			value = token.substring(pos +1).trim();
-
-			if (name.equalsIgnoreCase(HEADER_HOST)) {
-				host = value;
-			}
-			
-			httpMethod.addRequestHeader(name, value);
-
-		}
-
-		URI uri = httpMethod.getURI();			
-		boolean isUriChanged = false;
-		if (uri.getScheme() == null || uri.getScheme().equals("")) {
-			uri = new URI(HTTP + "://" + host + uri.toString(), true);
-			isUriChanged = true;
-		}
-
-		if (isSecure && uri.getScheme().equalsIgnoreCase(HTTP)) {
-			uri = new URI(uri.toString().replaceFirst(HTTP, HTTPS), true);
-			isUriChanged = true;
-		}
-		
-		if (isUriChanged) {
-			httpMethod.setURI(uri);
-		}
-		
-		httpMethod.setFollowRedirects(false);
-		return httpMethod;
-	}
-	
-	private HttpMethod createMethodFromStartLine(String startLine) throws URIException {
-		HttpMethod httpMethod = null;
-		
-		Matcher matcher = patternRequestLine.matcher(startLine);
-		if (!matcher.find()) {
-			throw new URIException("Missing startLine in HTTP request");
-		}
-		
-		String method = matcher.group(1);
-		String uri	= matcher.group(2);
-		String version = matcher.group(3);
-		
-		if (method.equalsIgnoreCase(GET)) {
-			httpMethod = new GetMethod();
-		} else if (method.equalsIgnoreCase(POST)) {
-			httpMethod = new PostMethod();
-		} else if (method.equalsIgnoreCase(DELETE)) {
-			httpMethod = new DeleteMethod();
-		} else if (method.equalsIgnoreCase(PUT)) {
-			httpMethod = new PutMethod();
-		} else if (method.equalsIgnoreCase(HEAD)) {
-			httpMethod = new HeadMethod();
-		} else if (method.equalsIgnoreCase(OPTIONS)) {
-			httpMethod = new OptionsMethod();
-		} else if (method.equalsIgnoreCase(TRACE)) {
-			httpMethod = new TraceMethod(uri);
-		} else {
-			// httpMethod = GenericMethod();
-		}
-
-		httpMethod.setURI(new URI(uri, true));
-		HttpMethodParams httpParams = httpMethod.getParams();
-		// default to use HTTP 1.0
-		httpParams.setVersion(HttpVersion.HTTP_1_0);
-		if (version.equalsIgnoreCase(HTTP11)) {
-			httpParams.setVersion(HttpVersion.HTTP_1_1);
-		}
-
-		httpMethod.setParams(httpParams);
-		
-		return httpMethod;
-	}
-	*/
 	
 	public static void updateHttpRequestHeaderSent(HttpRequestHeader req, HttpMethod httpMethodSent) {
 		// Not used yet, no need to update request.
@@ -413,32 +281,4 @@ public class HttpMethodHelper {
 	public static HttpResponseHeader getHttpResponseHeader(HttpMethod httpMethod) throws HttpMalformedHeaderException {
 		return new HttpResponseHeader(getHttpResponseHeaderAsString(httpMethod));
 	}
-
-	/*
-	public static String getHttpRequestHeaderAsString(HttpMethod httpMethod) {
-		StringBuilder sb = new StringBuilder(200);
-		String name = null;
-		String value = null;
-
-		// add status line
-		try {
-			sb.append(httpMethod.getName()).append(' ').append(httpMethod.getURI().toString()).append(' ').append(httpMethod.getParams().getVersion()).append(CRLF);
-		} catch (URIException e) {
-			
-		}
-		
-		Header[] header = httpMethod.getRequestHeaders();
-		for (int i=0; i<header.length; i++) {
-			name = header[i].getName();
-			value = header[i].getValue();
-			sb.append(name).append(": ").append(value).append(CRLF);
-		}
-		
-		sb.append(CRLF);
-		return sb.toString();
-	}
-	*/
-
-	
-	
 }

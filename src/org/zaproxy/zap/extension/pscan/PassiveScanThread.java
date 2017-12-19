@@ -51,7 +51,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * @param passiveScannerList the passive scanners, must not be {@code null}.
 	 * @param extHist the extension to obtain the (cached) history references, might be {@code null}.
 	 * @param extensionAlert the extension used to raise the alerts, must not be {@code null}.
-	 * @deprecated (TODO add version) Use
+	 * @deprecated (2.6.0) Use
 	 *             {@link #PassiveScanThread(PassiveScannerList, ExtensionHistory, ExtensionAlert, PassiveScanParam)} instead.
 	 *             It will be removed in a future release.
 	 */
@@ -67,7 +67,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * @param extHist the extension to obtain the (cached) history references, might be {@code null}.
 	 * @param extensionAlert the extension used to raise the alerts, must not be {@code null}.
 	 * @param pscanOptions the passive scanner options, must not be {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert,
 			PassiveScanParam pscanOptions) {
@@ -158,7 +158,13 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 							}
 						}
 					} catch (Exception e) {
-						logger.error("Parser failed on record " + currentId + " from History table", e);
+						if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
+							if (logger.isDebugEnabled()) {
+								logger.debug("Temporary record " + currentId + " no longer available:", e);
+							}
+						} else {
+							logger.error("Parser failed on record " + currentId + " from History table", e);
+						}
 					}
 					
 				}
@@ -214,12 +220,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 	}
 
-    private void notifyHistoryItemChanged(HistoryReference historyReference) {
-        if (extHist != null) {
-            extHist.notifyHistoryItemChanged(historyReference);
-        }
-    }
-	
 	public void addTag(int id, String tag) {
 		if (shutDown) {
 			return;
@@ -228,7 +228,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		try {
 			if (! href.getTags().contains(tag)) {
 				href.addTag(tag);
-				notifyHistoryItemChanged(href);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

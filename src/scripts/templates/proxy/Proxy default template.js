@@ -6,10 +6,6 @@
 // Note that new proxy scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 /**
  * This function allows interaction with proxy requests (i.e.: outbound from the browser/client to the server).
  * 
@@ -17,7 +13,7 @@ if (typeof println == 'undefined') this.println = print;
  */
 function proxyRequest(msg) {
 	// Debugging can be done using println like this
-	println('proxyRequest called for url=' + msg.getRequestHeader().getURI().toString())
+	print('proxyRequest called for url=' + msg.getRequestHeader().getURI().toString())
 	
 	return true
 }
@@ -29,6 +25,6 @@ function proxyRequest(msg) {
  */
 function proxyResponse(msg) {
 	// Debugging can be done using println like this
-	println('proxyResponse called for url=' + msg.getRequestHeader().getURI().toString())
+	print('proxyResponse called for url=' + msg.getRequestHeader().getURI().toString())
 	return true
 }

@@ -45,7 +45,6 @@ import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAu
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
@@ -266,7 +265,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			values.put("methodName", API_METHOD_NAME);
 			values.put("scriptName", script.getName());
 			values.putAll(paramValues);
-			return new ApiResponseSet<String>("method", values);
+			return new AuthMethodApiResponseRepresentation<>(values);
 		}
 
 	}
@@ -648,8 +647,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	private ExtensionScript getScriptsExtension() {
 		if (extensionScript == null)
-			extensionScript = (ExtensionScript) Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionScript.NAME);
+			extensionScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
 		return extensionScript;
 	}
 

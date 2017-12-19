@@ -17,19 +17,21 @@
  */
 package org.zaproxy.zap.spider.filters;
 
-import java.util.regex.Matcher;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The DefaultParseFilter is an implementation of a {@link ParseFilter} that is default for
  * spidering process. Its filter rules are the following:
  * <ul>
- * <li>the resource body should be under MAX_RESPONSE_BODY_SIZE bytes, otherwise it's probably a
- * binary resource.</li>
+ * <li>the resource body should be under a {@link SpiderParam#getMaxParseSizeBytes() number of bytes}, otherwise it's considered
+ * a binary resource.</li>
  * <li>the resource must be of parsable type (text, html, xml, javascript). Actually, the content
  * type should be text/...</li>
  * </ul>
@@ -39,67 +41,120 @@ public class DefaultParseFilter extends ParseFilter {
 	/**
 	 * The Constant MAX_RESPONSE_BODY_SIZE defining the size of response body that is considered too
 	 * big for a parsable file.
+	 * 
+	 * @deprecated (2.7.0) No longer in use, replaced by {@link SpiderParam#getMaxParseSizeBytes()}.
 	 */
+	@Deprecated
 	public static final int MAX_RESPONSE_BODY_SIZE = 512000;
 
 	/**
 	 * a pattern to match the SQLite based ".svn/wc.db" file name.
 	 */
-	private static final Pattern svnSQLiteFilenamePattern = Pattern.compile (".*/\\.svn/wc.db$");
+	private static final Pattern SVN_SQLITE_FILENAME_PATTERN = Pattern.compile (".*/\\.svn/wc.db$");
 
 	/**
 	 * a pattern to match the XML based ".svn/entries" file name.
 	 */
-	private static final Pattern svnXMLFilenamePattern = Pattern.compile (".*/\\.svn/entries$");
+	private static final Pattern SVN_XML_FILENAME_PATTERN = Pattern.compile (".*/\\.svn/entries$");
 
 	/**
 	 * a pattern to match the Git index file.
 	 */
-	private static final Pattern gitFilenamePattern = Pattern.compile (".*/\\.git/index$");
+	private static final Pattern GIT_FILENAME_PATTERN = Pattern.compile (".*/\\.git/index$");
 
+	/**
+	 * The configurations of the spider, never {@code null}.
+	 */
+	private final SpiderParam params;
+
+	private final FilterResult filterResultEmpty;
+	private final FilterResult filterResultMaxSize;
+	private final FilterResult filterResultNotText;
+	
+	/**
+	 * Constructs a {@code DefaultParseFilter} with default configurations.
+	 *
+	 * @deprecated (2.7.0) Replaced by {@link #DefaultParseFilter(SpiderParam, ResourceBundle)}.
+	 */
+	@Deprecated
+	public DefaultParseFilter() {
+		this(new SpiderParam(), new ResourceBundle() {
+
+			@Override
+			public Enumeration<String> getKeys() {
+				return Collections.emptyEnumeration();
+			}
+
+			@Override
+			protected Object handleGetObject(String key) {
+				return "";
+			}
+		});
+	}
+
+	/**
+	 * Constructs a {@code DefaultParseFilter} with the given configurations and resource bundle.
+	 * <p>
+	 * The resource bundle is used to obtain the (internationalised) reasons of why the message was filtered.
+	 *
+	 * @param params the spider configurations
+	 * @param resourceBundle the resource bundle to obtain the internationalised reasons.
+	 * @throws IllegalArgumentException if any of the given parameters is {@code null}.
+	 * @since 2.7.0
+	 * @see SpiderParam#getMaxParseSizeBytes()
+	 */
+	public DefaultParseFilter(SpiderParam params, ResourceBundle resourceBundle) {
+		if (params == null) {
+			throw new IllegalArgumentException("Parameter params must not be null.");
+		}
+		if (resourceBundle == null) {
+			throw new IllegalArgumentException("Parameter resourceBundle must not be null.");
+		}
+		this.params = params;
+
+		filterResultEmpty = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.empty"));
+		filterResultMaxSize = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.maxsize"));
+		filterResultNotText = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.nottext"));
+	}
+	
 	@Override
-	public boolean isFiltered(HttpMessage responseMessage) {
+	public FilterResult filtered(HttpMessage responseMessage) {
+		if (responseMessage == null || responseMessage.getRequestHeader().isEmpty()
+				|| responseMessage.getResponseHeader().isEmpty()) {
+			return filterResultEmpty;
+		}
 
 		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it 
 		//regardless of type, and regardless of whether it exceeds the file size restriction below.
-		
-		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher, gitFilenameMatcher;
-		try {
-			String fullfilename = responseMessage.getRequestHeader().getURI().getPath();
-			//handle null paths
-			if (fullfilename == null) fullfilename = "";
-			svnSQLiteFilenameMatcher = svnSQLiteFilenamePattern.matcher(fullfilename);
-			svnXMLFilenameMatcher = svnXMLFilenamePattern.matcher(fullfilename);
-			gitFilenameMatcher = gitFilenamePattern.matcher(fullfilename);
-			
-			if ( svnSQLiteFilenameMatcher.find() || svnXMLFilenameMatcher.find() || gitFilenameMatcher.find())
-				return false;
-		} catch (URIException e) {
-			//give other parsers a chance to parse it.
-			log.error(e);			
+		String fullfilename = responseMessage.getRequestHeader().getURI().getEscapedPath();
+		if (fullfilename != null && (SVN_SQLITE_FILENAME_PATTERN.matcher(fullfilename).find()
+				|| SVN_XML_FILENAME_PATTERN.matcher(fullfilename).find()
+				|| GIT_FILENAME_PATTERN.matcher(fullfilename).find())) {
+			return FilterResult.NOT_FILTERED;
 		}
 
 		// Check response body size
-		if (responseMessage.getResponseBody().length() > MAX_RESPONSE_BODY_SIZE) {
+		if (responseMessage.getResponseBody().length() > params.getMaxParseSizeBytes()) {
 			if (log.isDebugEnabled()) {
 				log.debug("Resource too large: " + responseMessage.getRequestHeader().getURI());
 			}
-			return true;
+			return filterResultMaxSize;
 		}
 
 		// If it's a redirection, accept it, as the SpiderRedirectParser will process it
-		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
-			return false;
+		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode())) {
+			return FilterResult.NOT_FILTERED;
+		}
 		
 		// Check response type.
 		if (!responseMessage.getResponseHeader().isText()) {
 			if (log.isDebugEnabled()) {
 				log.debug("Resource is not text: " + responseMessage.getRequestHeader().getURI());
 			}
-			return true;
+			return filterResultNotText;
 		}
 
-		return false;
+		return FilterResult.NOT_FILTERED;
 	}
 
 }

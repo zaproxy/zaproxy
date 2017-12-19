@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -34,29 +33,41 @@ public class OptionsParamApi extends AbstractParam {
 	private static final Logger LOGGER = Logger.getLogger(OptionsParamApi.class);
 
 	public static final String ENABLED = "api.enabled";
+	public static final String UI_ENABLED = "api.uienabled";
 	public static final String SECURE_ONLY = "api.secure";
 	public static final String API_KEY = "api.key";
 	private static final String DISABLE_KEY = "api.disablekey";
 	private static final String INC_ERROR_DETAILS = "api.incerrordetails";
 	private static final String AUTOFILL_KEY = "api.autofillkey";
 	private static final String ENABLE_JSONP = "api.enablejsonp";
+	private static final String NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
+	private static final String REPORT_PERM_ERRORS = "api.reportpermerrors";
+	private static final String NONCE_TTL_IN_SECS = "api.noncettlsecs";
 	
-    private static final String PROXY_PERMITTED_ADDRS_KEY = "api.ipaddrs";
+    private static final String PROXY_PERMITTED_ADDRS_KEY = "api.addrs";
     private static final String ADDRESS_KEY = PROXY_PERMITTED_ADDRS_KEY + ".addr";
     private static final String ADDRESS_VALUE_KEY = "name";
     private static final String ADDRESS_REGEX_KEY = "regex";
     private static final String ADDRESS_ENABLED_KEY = "enabled";
-    private static final String CONFIRM_REMOVE_EXCLUDED_DOMAIN = "api.ipaddrs.confirmRemoveAddr";
+    private static final String CONFIRM_REMOVE_ADDRESS = "api.addrs.confirmRemoveAddr";
+    
+    private static final int DEFAULT_NONCE_TTL_IN_SECS = 5 * 60; // 5 mins
+
+    private static final String IPV6_LOOPBACK_ADDRS = "0:0:0:0:0:0:0:1";
 
 	private boolean enabled = true;
+	private boolean uiEnabled = true;
 	private boolean secureOnly;
 	private boolean disableKey;
 	private boolean incErrorDetails;
 	private boolean autofillKey;
 	private boolean enableJSONP;
+	private boolean noKeyForSafeOps;
+	private boolean reportPermErrors;
     private boolean confirmRemovePermittedAddress = true;
     private List<DomainMatcher> permittedAddresses = new ArrayList<>(0);
     private List<DomainMatcher> permittedAddressesEnabled = new ArrayList<>(0);
+    private int nonceTimeToLiveInSecs = DEFAULT_NONCE_TTL_IN_SECS;
 
 	private String key = "";
 	
@@ -67,34 +78,20 @@ public class OptionsParamApi extends AbstractParam {
     @Override
     protected void parse() {
         
-		enabled = getBooleanFromConfig(ENABLED, true);
-		secureOnly = getBooleanFromConfig(SECURE_ONLY, false);
-		disableKey = getBooleanFromConfig(DISABLE_KEY, false);
-		incErrorDetails = getBooleanFromConfig(INC_ERROR_DETAILS, false);
-		autofillKey = getBooleanFromConfig(AUTOFILL_KEY, false);
-		enableJSONP = getBooleanFromConfig(ENABLE_JSONP, false);
-		try {
-			key = getConfig().getString(API_KEY, "");
-		} catch (ConversionException e) {
-			LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
-			key = "";
-		}
+		enabled = getBoolean(ENABLED, true);
+		uiEnabled = getBoolean(UI_ENABLED, true);
+		secureOnly = getBoolean(SECURE_ONLY, false);
+		disableKey = getBoolean(DISABLE_KEY, false);
+		incErrorDetails = getBoolean(INC_ERROR_DETAILS, false);
+		autofillKey = getBoolean(AUTOFILL_KEY, false);
+		enableJSONP = getBoolean(ENABLE_JSONP, false);
+		noKeyForSafeOps = getBoolean(NO_KEY_FOR_SAFE_OPS, false);
+		reportPermErrors = getBoolean(REPORT_PERM_ERRORS, false);
+		nonceTimeToLiveInSecs = getInt(NONCE_TTL_IN_SECS, DEFAULT_NONCE_TTL_IN_SECS);
+		key = getString(API_KEY, "");
 		loadPermittedAddresses();
-        try {
-            this.confirmRemovePermittedAddress = getConfig().getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
-        } catch (ConversionException e) {
-            LOGGER.error("Error while loading the confirm remove permitted address option: " + e.getMessage(), e);
-        }
+		this.confirmRemovePermittedAddress = getBoolean(CONFIRM_REMOVE_ADDRESS, true);
     }
-
-	private boolean getBooleanFromConfig(String key, boolean defaultValue) {
-		try {
-			return getConfig().getBoolean(key, defaultValue);
-		} catch (ConversionException e) {
-			LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
-			return defaultValue;
-		}
-	}
 
 	@Override
 	public OptionsParamApi clone() {
@@ -109,6 +106,15 @@ public class OptionsParamApi extends AbstractParam {
 		this.enabled = enabled;
 		getConfig().setProperty(ENABLED, enabled);
 	}
+	
+    public boolean isUiEnabled() {
+        return uiEnabled;
+    }
+    
+    public void setUiEnabled(boolean uiEnabled) {
+        this.uiEnabled = uiEnabled;
+        getConfig().setProperty(UI_ENABLED, uiEnabled);
+    }
 
 	public boolean isSecureOnly() {
 		return secureOnly;
@@ -154,12 +160,41 @@ public class OptionsParamApi extends AbstractParam {
 		this.enableJSONP = enableJSONP;
 		getConfig().setProperty(ENABLE_JSONP, enableJSONP);
 	}
+	
+    public boolean isNoKeyForSafeOps() {
+        return noKeyForSafeOps;
+    }
+    
+    public void setNoKeyForSafeOps(boolean noKeyForSafeOps) {
+        this.noKeyForSafeOps = noKeyForSafeOps;
+        getConfig().setProperty(NO_KEY_FOR_SAFE_OPS, noKeyForSafeOps);
+    }
+    
+    public boolean isReportPermErrors() {
+        return reportPermErrors;
+    }
+
+    
+    public void setReportPermErrors(boolean reportErrors) {
+        this.reportPermErrors = reportErrors;
+        getConfig().setProperty(REPORT_PERM_ERRORS, reportErrors);
+    }
+
+	/**
+	 * Gets the time to live for API nonces. This should not be accessible via the API.
+	 * @return the time to live for API nonces
+	 * @since 2.6.0
+	 */
+	@ZapApiIgnore
+	public int getNonceTimeToLiveInSecs() {
+		return nonceTimeToLiveInSecs;
+	}
 
 	protected String getRealKey() {
 		return key;
 	}
 
-	public String getKey() {
+	protected String getKey() {
 		if (this.isDisableKey()) {
 			return "";
 		} else if (key == null || key.length() == 0) {
@@ -186,9 +221,9 @@ public class OptionsParamApi extends AbstractParam {
      * 
      * @param addr the client address to be checked
      * @return {@code true} if the given client address is allowed to access the API, {@code false} otherwise.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
-    public boolean isPermittedIpAddress(String addr) {
+    public boolean isPermittedAddress(String addr) {
         if (addr == null || addr.isEmpty()) {
             return false;
         }
@@ -205,7 +240,7 @@ public class OptionsParamApi extends AbstractParam {
      * Returns the client addresses that are allowed to access the API.
      *
      * @return the client addresses that are allowed to access the API.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     @ZapApiIgnore
     public List<DomainMatcher> getPermittedAddresses() {
@@ -216,7 +251,7 @@ public class OptionsParamApi extends AbstractParam {
      * Returns the enabled client addresses that are allowed to access the API.
      *
      * @return the enabled client addresses that are allowed to access the API.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     @ZapApiIgnore
     public List<DomainMatcher> getPermittedAddressesEnabled() {
@@ -227,7 +262,7 @@ public class OptionsParamApi extends AbstractParam {
      * Sets the client addresses that will be allowed to access the API.
      * 
      * @param addrs the client addresses that will be allowed to access the API.
-     * @since TODO Add Version
+     * @since 2.6.0
      */
     public void setPermittedAddresses(List<DomainMatcher> addrs) {
         if (addrs == null || addrs.isEmpty()) {
@@ -301,8 +336,20 @@ public class OptionsParamApi extends AbstractParam {
         addrsEnabled.trimToSize();
         
         if (permittedAddresses.size() == 0) {
-            // None specified - always add localhost (which can then be disabled)
+            // None specified - add in the defaults (which can then be disabled)
             DomainMatcher addr = new DomainMatcher("127.0.0.1");
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher("localhost");
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher(API.API_DOMAIN);
+            permittedAddresses.add(addr);
+            addrsEnabled.add(addr);
+
+            addr = new DomainMatcher(IPV6_LOOPBACK_ADDRS);
             permittedAddresses.add(addr);
             addrsEnabled.add(addr);
         }
@@ -330,7 +377,7 @@ public class OptionsParamApi extends AbstractParam {
     @ZapApiIgnore
     public void setConfirmRemovePermittedAddress(boolean confirmRemove) {
         this.confirmRemovePermittedAddress = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_EXCLUDED_DOMAIN, Boolean.valueOf(confirmRemovePermittedAddress));
+        getConfig().setProperty(CONFIRM_REMOVE_ADDRESS, Boolean.valueOf(confirmRemovePermittedAddress));
     }
 
 }

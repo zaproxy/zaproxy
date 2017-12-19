@@ -21,6 +21,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Serializable;
@@ -33,17 +34,24 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
+import javax.swing.text.JTextComponent;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.edit.ExtensionEdit;
+import org.parosproxy.paros.view.FindDialog;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
@@ -66,6 +74,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     private static final String DEFAULT_COMPONENT_KEY = "defaultcomponent";
 
     private static Comparator<HttpPanelComponentInterface> componentsComparator;
+    private static Action findAction;
     
     private JPanel panelHeader;
     private JPanel panelContent;
@@ -141,6 +150,8 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         toolBarMoreOptions.setFloatable(false);
         toolBarMoreOptions.setBorder(BorderFactory.createEmptyBorder());
         toolBarMoreOptions.setRollover(true);
+        toolBarMoreOptions.getActionMap().put("findAction", getFindAction());
+        toolBarMoreOptions.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(ExtensionEdit.getFindDefaultKeyStroke(), "findAction");
         
         endAllOptions = new JPanel();
         
@@ -185,6 +196,23 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
             panelHeader = new JPanel(new BorderLayout());
         }
         return panelHeader;
+    }
+    
+    private static Action getFindAction() {
+        if (findAction == null) {
+            findAction = new AbstractAction("findAction") {  
+                private static final long serialVersionUID = 8365172573382425660L;
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+                    if (focusOwner instanceof JTextComponent) {
+                        FindDialog findDialog = FindDialog.getDialog(SwingUtilities.getWindowAncestor(focusOwner), false);
+                        findDialog.setLastInvoker((JTextComponent) focusOwner);
+                    }
+                }
+            }; 
+        }
+        return findAction;
     }
     
     

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -66,7 +65,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener, OptionsChangedListener {
 
     /**
-     * @deprecated (TODO add version) Should not be used/relied on, breakpoint dialogues should be modal.
+     * @deprecated (2.6.0) Should not be used/relied on, breakpoint dialogues should be modal.
      */
     @Deprecated
     public enum DialogType {NONE, ADD, EDIT, REMOVE};
@@ -114,13 +113,18 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         super(NAME);
         this.setOrder(24);
 	}
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("brk.name");
+    }
 	
 	public BreakpointManagementInterface getBreakpointManagementInterface() {
 		return this.breakpointManagementInterface;
 	}
 	
 	/**
-	 * @deprecated (TODO add version) Classes outside of this package should not access the UI directly
+	 * @deprecated (2.6.0) Classes outside of this package should not access the UI directly
 	 */
     @Deprecated
 	public BreakPanel getBreakPanel() {
@@ -370,7 +374,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuToggleBreakOnResponses() {
         if (menuBreakOnResponses == null) {
             menuBreakOnResponses = new ZapMenuItem("menu.tools.brk.resp",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
             menuBreakOnResponses.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -481,7 +485,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     }
 
 	/**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
 	 */
     @Deprecated
 	public boolean canAddBreakpoint() {
@@ -489,7 +493,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
     
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public boolean canEditBreakpoint() {
@@ -497,7 +501,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public boolean canRemoveBreakpoint() {
@@ -505,7 +509,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public void dialogShown(DialogType type) {
@@ -513,7 +517,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
     /**
-     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     * @deprecated (2.6.0) Use modal breakpoint dialogues instead of relying on this behaviour.
      */
     @Deprecated
 	public void dialogClosed() {

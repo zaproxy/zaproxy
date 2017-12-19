@@ -52,6 +52,10 @@
 // ZAP: 2016/05/03 Remove exceptions' stack trace prints
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
 // ZAP: 2016/07/12 Do not allow techSet to be null
+// ZAP: 2017/03/27 Use HttpRequestConfig.
+// ZAP: 2017/05/31 Remove re-declaration of methods.
+// ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
+// ZAP: 2017/11/14 Notify completion in a finally block.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -73,12 +77,13 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
@@ -111,13 +116,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private AddOn.Status status = AddOn.Status.unknown;
 
     /**
-     * The redirection validator that ensures the followed redirections are in scan's scope.
+     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
+     * scan's scope.
      * <p>
      * Lazily initialised.
      * 
-     * @see #getRedirectionValidator()
+     * @see #getHttpRequestConfig()
      */
-    private HttpSender.RedirectionValidator redirectionValidator;
+    private HttpRequestConfig httpRequestConfig;
 
     /**
      * Default Constructor
@@ -125,12 +131,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public AbstractPlugin() {
         this.techSet = TechSet.AllTech;
     }
-
-    @Override
-    public abstract int getId();
-
-    @Override
-    public abstract String getName();
 
     @Override
     public String getCodeName() {
@@ -152,18 +152,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public String[] getDependency() {
         return NO_DEPENDENCIES;
     }
-
-    @Override
-    public abstract String getDescription();
-
-    @Override
-    public abstract int getCategory();
-
-    @Override
-    public abstract String getSolution();
-
-    @Override
-    public abstract String getReference();
 
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
@@ -279,7 +267,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
             if (extAntiCSRF == null) {
-                extAntiCSRF = (ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
+                extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
                 List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(message);
@@ -311,7 +299,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.performScannerHookBeforeScan(message, this);
 
         if (isFollowRedirect) {
-            parent.getHttpSender().sendAndReceive(message, getRedirectionValidator());
+            parent.getHttpSender().sendAndReceive(message, getHttpRequestConfig());
         } else {
             parent.getHttpSender().sendAndReceive(message, false);
         }
@@ -324,13 +312,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Gets the redirection validator, that ensures the followed redirections are in scan's scope.
+     * Gets the HTTP request configuration, that ensures the followed redirections are in scan's scope.
      *
-     * @return scan's scope redirection validator, never {@code null}
+     * @return the HTTP request configuration, never {@code null}.
+     * @see #httpRequestConfig
      */
-    private HttpSender.RedirectionValidator getRedirectionValidator() {
-        if (redirectionValidator == null) {
-            redirectionValidator = new HttpSender.RedirectionValidator() {
+    private HttpRequestConfig getHttpRequestConfig() {
+        if (httpRequestConfig == null) {
+            httpRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(new HttpRedirectionValidator() {
 
                 @Override
                 public boolean isValid(URI redirection) {
@@ -347,9 +336,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 public void notifyMessageReceived(HttpMessage message) {
                     // Nothing to do with the message.
                 }
-            };
+            }).build();
         }
-        return redirectionValidator;
+        return httpRequestConfig;
     }
 
     private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
@@ -393,17 +382,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             
         } catch (Exception e) {
             getLog().error(e.getMessage(), e);
+        } finally {
+            notifyPluginCompleted(getParent());
+            this.finished = new Date();
         }
-        
-        notifyPluginCompleted(getParent());
-        this.finished = new Date();
     }
-
-    /**
-     * The core scan method to be implemented by subclass.
-     */
-    @Override
-    public abstract void scan();
 
     /**
      * Generate an alert when a security issue (risk/info) is found. Default
@@ -800,9 +783,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return parent;
     }
 
-    @Override
-    public abstract void notifyPluginCompleted(HostProcess parent);
-
     /**
      * Replace body by stripping of pattern string. The URLencoded and
      * URLdecoded pattern will also be stripped off. This is mainly used for
@@ -978,7 +958,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * Returns the technologies enabled for the scan.
      *
-     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null} (since TODO add version).
+     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null} (since 2.6.0).
      * @since 2.4.0
      * @see #inScope(Tech)
      * @see #targets(TechSet)

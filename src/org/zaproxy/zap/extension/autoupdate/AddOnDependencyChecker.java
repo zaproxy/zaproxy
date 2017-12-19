@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.autoupdate;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -129,7 +128,7 @@ class AddOnDependencyChecker {
                 if (AddOn.InstallationStatus.AVAILABLE == availableAddOns.getAddOn(dep.getId()).getInstallationStatus()) {
                     installs.add(dep);
                 }
-            } else if (!addOn.dependsOn(installed)) {
+            } else if (dep.isUpdateTo(installed)) {
                 if (AddOn.InstallationStatus.AVAILABLE == availableAddOns.getAddOn(dep.getId()).getInstallationStatus()) {
                     oldVersions.add(installed);
                     newVersions.add(dep);
@@ -174,8 +173,8 @@ class AddOnDependencyChecker {
 
             int size = changesResult.getSelectedAddOns().size();
             if (size == 1) {
-                String baseMessage = MessageFormat.format(
-                        Constant.messages.getString("cfu.confirmation.dialogue.message.selectedAddOnNewerJavaVersion"),
+                String baseMessage = Constant.messages.getString(
+                        "cfu.confirmation.dialogue.message.selectedAddOnNewerJavaVersion",
                         changesResult.getSelectedAddOns().iterator().next().getMinimumJavaVersion());
                 return JOptionPane.showConfirmDialog(
                         parent,
@@ -909,7 +908,7 @@ class AddOnDependencyChecker {
             case 0:
                 return addOn.getName();
             case 1:
-                return Integer.valueOf(addOn.getFileVersion());
+                return addOn.getVersion();
             case 2:
                 return addOn.getMinimumJavaVersion();
             default:

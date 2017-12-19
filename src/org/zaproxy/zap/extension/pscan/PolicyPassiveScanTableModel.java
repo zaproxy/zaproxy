@@ -76,19 +76,27 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     }
     
     public void applyThreshold(AlertThreshold threshold, String quality) {
+        if (listScanners.isEmpty()) {
+            return;
+        }
+
     	for (ScannerWrapper ss : this.listScanners) {
     		if (quality.equals(ss.getQuality().toString())) {
     			ss.setThreshold(threshold);
     		}
     	}
-    	this.fireTableRowsUpdated(0, getRowCount());
+    	this.fireTableRowsUpdated(0, getRowCount() - 1);
     }
 
     public void applyThresholdToAll(AlertThreshold threshold) {
+        if (listScanners.isEmpty()) {
+            return;
+        }
+
     	for (ScannerWrapper ss : this.listScanners) {
    			ss.setThreshold(threshold);
     	}
-    	this.fireTableRowsUpdated(0, getRowCount());
+    	this.fireTableRowsUpdated(0, getRowCount() - 1);
     }
 
     /**
@@ -240,11 +248,11 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         }
 
     	public void reset() {
-    		this.threshold = scanner.getLevel();
+    		this.threshold = scanner.getAlertThreshold();
     	}
     	
     	public void persistChanges() {
-    		this.scanner.setLevel(threshold);
+    		this.scanner.setAlertThreshold(threshold);
     		this.scanner.setEnabled(!AlertThreshold.OFF.equals(threshold));
     		this.scanner.save();
     	}

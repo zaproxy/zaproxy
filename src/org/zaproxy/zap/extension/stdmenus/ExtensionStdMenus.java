@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -41,9 +40,11 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextExportDialog;
+import org.zaproxy.zap.view.DeleteContextAction;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextDataDriven;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
@@ -70,11 +71,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
 	private PopupContextTreeMenu popupContextTreeMenuDelete = null;
 	private PopupContextTreeMenu popupContextTreeMenuExport;
+	private PopupMenuExportContextURLs popupContextTreeMenuExportUrls;
 
 	// Still being developed
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
-	private PopupMenuAlert popupMenuAlert = null;
-
     private static Logger log = Logger.getLogger(ExtensionStdMenus.class);
 
 	public ExtensionStdMenus() {
@@ -85,6 +85,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private void initialize() {
 		this.setName(NAME);
 		this.setOrder(31);
+	}
+	
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("std.menu.ext.name");
 	}
 
 	@Override
@@ -117,8 +122,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
 			}
 
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
-
 			if (isExtensionHistoryEnabled) {
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
 			}
@@ -131,6 +134,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExport());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExportUrls());
 		}
 	}
 	
@@ -179,21 +183,28 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		}
 		return popupContextTreeMenuOutScope;
 	}
+	
+	private PopupMenuExportContextURLs getPopupContextTreeMenuExportUrls() {
+		if (popupContextTreeMenuExportUrls == null) {
+			popupContextTreeMenuExportUrls = new PopupMenuExportContextURLs(
+					Constant.messages.getString("context.export.urls.menu"), this);
+		}
+		return popupContextTreeMenuExportUrls;
+	}
 
 	private PopupContextTreeMenu getPopupContextTreeMenuDelete() {
 		if (popupContextTreeMenuDelete == null) {
 			popupContextTreeMenuDelete = new PopupContextTreeMenu(); 
+			popupContextTreeMenuDelete.setAction(new DeleteContextAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected Context getContext() {
+					return Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
+				}
+			});
 			popupContextTreeMenuDelete.setText(Constant.messages.getString("context.delete.popup"));
-            popupContextTreeMenuDelete.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                	Context ctx = Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
-                	if (View.getSingleton().showConfirmDialog(Constant.messages.getString("context.delete.warning"))
-                			== JOptionPane.OK_OPTION) {
-                		Model.getSingleton().getSession().deleteContext(ctx);
-                	}
-                }
-            });
 		}
 		return popupContextTreeMenuDelete;
 	}
@@ -333,7 +344,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupMenuResendMessage == null) {
 			popupMenuResendMessage = new PopupMenuResendMessage(
 					Constant.messages.getString("history.resend.popup"),
-					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
 			popupMenuResendMessage.setMenuIndex(menuIndex);
 		}
 		return popupMenuResendMessage;
@@ -351,18 +362,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupMenuShowInHistory == null) {
 			popupMenuShowInHistory = new PopupMenuShowInHistory(
 					Constant.messages.getString("history.showinhistory.popup"),
-					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
+					Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class));
 			popupMenuShowInHistory.setMenuIndex(menuIndex);
 		}
 		return popupMenuShowInHistory;
-	}
-
-	private PopupMenuAlert getPopupMenuAlert(int menuIndex) {
-		if (popupMenuAlert == null) {
-			popupMenuAlert = new PopupMenuAlert(Constant.messages.getString("history.alert.popup"));
-			popupMenuAlert.setMenuIndex(menuIndex);
-		}
-		return popupMenuAlert;
 	}
 
 	private PopupMenuItemContextInclude getPopupContextIncludeMenu(int menuIndex) {

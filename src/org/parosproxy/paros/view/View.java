@@ -71,17 +71,19 @@
 // ZAP: 2016/04/14 Allow to display a message
 // ZAP: 2016/10/26 Create UI shared context in the session dialogue when adding a context
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2017/10/20 Implement method to expose default delete keyboard shortcut (Issue 3626).
+// ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
-import java.awt.Event;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -208,6 +210,13 @@ public class View implements ViewDelegate {
     private Map<AddOn.Status, StatusUI> statusMap = new HashMap<>();
 
     private boolean postInitialisation;
+
+    /**
+     * The default {@link KeyStroke} to delete view items.
+     * <p>
+     * Lazily initialised in {@link #getDefaultDeleteKeyStroke()}.
+     */
+    private KeyStroke defaultDeleteKeyStroke;
 
     /**
      * @return Returns the mainFrame.
@@ -344,6 +353,14 @@ public class View implements ViewDelegate {
         return new org.zaproxy.zap.view.MessagePanelsPositionController(null, null, null, null);
     }
 
+    @Override
+    public KeyStroke getDefaultDeleteKeyStroke() {
+        if (defaultDeleteKeyStroke == null) {
+            defaultDeleteKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false);
+        }
+        return defaultDeleteKeyStroke;
+    }
+
     public void refreshTabViewMenus() {
         if (menuShowTabs != null) {
             // Remove the old ones
@@ -352,7 +369,7 @@ public class View implements ViewDelegate {
         menuShowTabs = new JMenu(Constant.messages.getString("menu.view.showtab"));
         mainFrame.getMainMenuBar().getMenuView().add(menuShowTabs);
 
-        ExtensionKeyboard extKey = (ExtensionKeyboard) Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.NAME);
+        ExtensionKeyboard extKey = Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.class);
 
         for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.SELECT)) {
             registerMenu(extKey, panel);
@@ -369,7 +386,7 @@ public class View implements ViewDelegate {
 
     private void registerMenu(ExtensionKeyboard extKey, final AbstractPanel ap) {
         ZapMenuItem tabMenu = new ZapMenuItem(
-                ap.getClass().getName(), MessageFormat.format(Constant.messages.getString("menu.view.tab"), ap.getName()),
+                ap.getClass().getName(), Constant.messages.getString("menu.view.tab", ap.getName()),
                 ap.getDefaultAccelerator());
         tabMenu.setMnemonic(ap.getMnemonic());
         if (ap.getIcon() != null) {
@@ -611,7 +628,7 @@ public class View implements ViewDelegate {
             requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
             requestPanel.setMnemonic(Constant.messages.getChar("http.panel.request.mnemonic"));
 
         }
@@ -629,7 +646,7 @@ public class View implements ViewDelegate {
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             responsePanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
+                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
             responsePanel.setMnemonic(Constant.messages.getChar("http.panel.response.mnemonic"));
         }
         return responsePanel;

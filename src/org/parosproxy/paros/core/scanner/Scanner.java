@@ -41,11 +41,13 @@
 // ZAP: 2016/07/12 Do not allow techSet to be null
 // ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
 // ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
+// ZAP: 2017/06/29 Remove code duplication in scan()
 
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -127,7 +129,7 @@ public class Scanner implements Runnable {
      * @param param the connection parameters
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public Scanner(ScannerParam scannerParam, ConnectionParam param, 
     		ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
@@ -256,56 +258,38 @@ public class Scanner implements Runnable {
 		            notifyHostNewScan(pmSet.getKey(), pmSet.getValue());
 		    	}
 		    }
-	    } else if (target.getContext() != null) {
-	    	// Loop through all of the top nodes containing children in this context
-	    	// TODO need to change for lowmem
-	    	if (Constant.isLowMemoryOptionSet()) {
-	    		throw new InvalidParameterException("Not yet supported for the low memory option :(");
-	    	}
-	    	List<SiteNode> nodes = target.getContext().getTopNodesInContextFromSiteTree();
-	    	for (SiteNode node : nodes) {
-			    HostProcess hostProcess = null;
-	            String hostAndPort = getHostAndPort(node);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, 
-	            		connectionParam, scanPolicy, ruleConfigParam);
-	            hostProcess.setStartNode(new StructuralSiteNode(node));
-	            hostProcess.setUser(this.user);
-	            hostProcess.setTechSet(this.techSet);
-	            this.hostProcesses.add(hostProcess);
-	            do { 
-	                thread = pool.getFreeThreadAndRun(hostProcess);
-	                if (thread == null) Util.sleep(500);
-	            } while (thread == null && !isStop());
-	            if (thread != null) {
-		            notifyHostNewScan(hostAndPort, hostProcess);
-	            }
-	    	}
-	    } else if (target.isInScopeOnly()) {
-	    	// TODO need to change for lowmem
-	    	if (Constant.isLowMemoryOptionSet()) {
-	    		throw new InvalidParameterException("Not yet supported for the low memory option :(");
-	    	}
-	    	this.justScanInScope = true;
-	    	List<SiteNode> nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
-	    	for (SiteNode node : nodes) {
-			    HostProcess hostProcess = null;
-	            String hostAndPort = getHostAndPort(node);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, 
-	            		connectionParam, scanPolicy, ruleConfigParam);
-	            hostProcess.setStartNode(new StructuralSiteNode(node));
-	            hostProcess.setUser(this.user);
-	            hostProcess.setTechSet(this.techSet);
-	            this.hostProcesses.add(hostProcess);
-	            do { 
-	                thread = pool.getFreeThreadAndRun(hostProcess);
-	                if (thread == null) Util.sleep(500);
-	            } while (thread == null && !isStop());
-	            if (thread != null) {
-		            notifyHostNewScan(hostAndPort, hostProcess);
-	            }
-	    	}
+	    } else if (target.getContext() != null || target.isInScopeOnly()){
+            // TODO need to change for lowmem
+            if (Constant.isLowMemoryOptionSet()) {
+                throw new InvalidParameterException("Not yet supported for the low memory option :(");
+            }
+
+            List<SiteNode> nodes = Collections.emptyList();
+            if (target.isInScopeOnly()) {
+            	this.justScanInScope = true;
+            	nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
+            } else if (target.getContext() != null) {
+            	nodes = target.getContext().getTopNodesInContextFromSiteTree();
+            }
+            // Loop through all of the top nodes containing children
+			for (SiteNode node : nodes) {
+            	HostProcess hostProcess = null;
+            	String hostAndPort = getHostAndPort(node);
+            	hostProcess = new HostProcess(hostAndPort, this, scannerParam,
+						connectionParam, scanPolicy, ruleConfigParam);
+            	hostProcess.setStartNode(new StructuralSiteNode(node));
+            	hostProcess.setUser(this.user);
+            	hostProcess.setTechSet(this.techSet);
+            	this.hostProcesses.add(hostProcess);
+            	do {
+            		thread = pool.getFreeThreadAndRun(hostProcess);
+            		if (thread == null) Util.sleep(500);
+            	} while (thread == null && !isStop());
+            	if (thread != null) {
+            		notifyHostNewScan(hostAndPort, hostProcess);
+            	}
+            }
 	    }
-	     
 	}
 
 	public boolean isStop() {
@@ -512,7 +496,7 @@ public class Scanner implements Runnable {
 	/**
 	 * Gets the technologies used in the scan.
 	 *
-	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @return the technologies, never {@code null} (since 2.6.0)
 	 * @since 2.4.0
 	 */
 	public TechSet getTechSet() {
@@ -524,7 +508,7 @@ public class Scanner implements Runnable {
 	 *
 	 * @param techSet the technologies to be used during the scan
 	 * @since 2.4.0
-	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}
+	 * @throws IllegalArgumentException (since 2.6.0) if the given parameter is {@code null}
 	 */
 	public void setTechSet(TechSet techSet) {
 		if (techSet == null) {

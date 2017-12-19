@@ -96,6 +96,22 @@ public class SpiderParam extends AbstractParam {
 	 */
 	private static final String SPIDER_SENDER_REFERER_HEADER = "spider.sendRefererHeader";
 
+	/**
+	 * Configuration key to write/read the {@link #acceptCookies} flag.
+	 */
+	private static final String SPIDER_ACCEPT_COOKIES = "spider.acceptCookies";
+
+	/**
+     * Configuration key to write/read the {@link #maxParseSizeBytes} flag.
+     */
+    private static final String SPIDER_MAX_PARSE_SIZE_BYTES = "spider.maxParseSizeBytes";
+
+    /**
+     * Default maximum size, in bytes, that a response might have to be parsed.
+     * 
+     * @see #maxParseSizeBytes
+     */
+    private static final int DEFAULT_MAX_PARSE_SIZE_BYTES = 2621440; // 2.5 MiB
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -185,6 +201,28 @@ public class SpiderParam extends AbstractParam {
 	private boolean sendRefererHeader = true;
 
 	/**
+	 * Flag that indicates if a spider process should accept cookies.
+	 * <p>
+	 * Default value is {@code true}.
+	 * 
+	 * @see #SPIDER_ACCEPT_COOKIES
+	 * @see #isAcceptCookies()
+	 * @see #setAcceptCookies(boolean)
+	 */
+	private boolean acceptCookies = true;
+
+	/**
+	 * The maximum size, in bytes, that a response might have to be parsed.
+	 * <p>
+	 * Default value is {@value #DEFAULT_MAX_PARSE_SIZE_BYTES} bytes.
+	 * 
+	 * @see #SPIDER_MAX_PARSE_SIZE_BYTES
+	 * @see #getMaxParseSizeBytes()
+	 * @see #setMaxParseSizeBytes(int)
+	 */
+	private int maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
+
+	/**
 	 * Instantiates a new spider param.
 	 * 
 	 */
@@ -195,45 +233,19 @@ public class SpiderParam extends AbstractParam {
 	protected void parse() {
 		updateOptions();
 
-		// Use try/catch for every parameter so if the parsing of one fails, it's continued for the
-		// others.
-		try {
-			this.threadCount = getConfig().getInt(SPIDER_THREAD, 2);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.threadCount = getInt(SPIDER_THREAD, 2);
 
-		try {
-			this.maxDepth = getConfig().getInt(SPIDER_MAX_DEPTH, 5);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.maxDepth = getInt(SPIDER_MAX_DEPTH, 5);
 
-		try {
-			this.maxDuration = getConfig().getInt(MAX_DURATION, 0);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.maxDuration = getInt(MAX_DURATION, 0);
 
-		try {
-			this.maxChildren = getConfig().getInt(MAX_CHILDREN, 0);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.maxChildren = getInt(MAX_CHILDREN, 0);
 
-		try {
-            this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
-        } catch (Exception e) {}
+		this.maxScansInUI = getInt(MAX_SCANS_IN_UI, 5);
 
-		try {
-            this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
-        } catch (Exception e) {}
+		this.showAdvancedDialog = getBoolean(SHOW_ADV_DIALOG, false);
 
-		try {
-			this.processForm = getConfig().getBoolean(SPIDER_PROCESS_FORM, false);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.processForm = getBoolean(SPIDER_PROCESS_FORM, false);
 
 		try {
 			this.postForm = getConfig().getBoolean(SPIDER_POST_FORM, false);
@@ -241,83 +253,38 @@ public class SpiderParam extends AbstractParam {
 			// conversion issue from 1.4.1: convert the field from int to boolean
 			log.info("Warning while parsing config file: " + SPIDER_POST_FORM
 					+ " was not in the expected format due to an upgrade. Converting  it!");
-			if (!getConfig().getProperty(SPIDER_POST_FORM).toString().equals("0")) {
-				getConfig().setProperty(SPIDER_POST_FORM, "true");
-				this.postForm = true;
-			} else {
-				getConfig().setProperty(SPIDER_POST_FORM, "false");
-				this.postForm = false;
-			}
+			this.postForm = !getConfig().getProperty(SPIDER_POST_FORM).toString().equals("0");
+			getConfig().setProperty(SPIDER_POST_FORM, String.valueOf(postForm));
 		}
 
-		try {
-			this.requestWait = getConfig().getInt(SPIDER_REQUEST_WAIT, 200);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.requestWait = getInt(SPIDER_REQUEST_WAIT, 200);
 
-		try {
-			this.parseComments = getConfig().getBoolean(SPIDER_PARSE_COMMENTS, true);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseComments = getBoolean(SPIDER_PARSE_COMMENTS, true);
 
-		try {
-			this.parseRobotsTxt = getConfig().getBoolean(SPIDER_PARSE_ROBOTS_TXT, true);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseRobotsTxt = getBoolean(SPIDER_PARSE_ROBOTS_TXT, true);
 		
-		try {
-			this.parseSitemapXml = getConfig().getBoolean(SPIDER_PARSE_SITEMAP_XML, true);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseSitemapXml = getBoolean(SPIDER_PARSE_SITEMAP_XML, true);
 		
-		try {
-			this.parseSVNentries = getConfig().getBoolean(SPIDER_PARSE_SVN_ENTRIES, false);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseSVNentries = getBoolean(SPIDER_PARSE_SVN_ENTRIES, false);
 
-		try {
-			this.parseGit = getConfig().getBoolean(SPIDER_PARSE_GIT, false);
-		} catch (Exception e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.parseGit = getBoolean(SPIDER_PARSE_GIT, false);
 
-		try {
-			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.skipURL = getString(SPIDER_SKIP_URL, "");
+		parseSkipURL(this.skipURL);
 
-		try {
-			setHandleParameters(HandleParametersOption.valueOf(getConfig().getString(SPIDER_HANDLE_PARAMETERS,
-					HandleParametersOption.USE_ALL.toString())));
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		handleParametersVisited = HandleParametersOption.valueOf(getString(SPIDER_HANDLE_PARAMETERS,
+				HandleParametersOption.USE_ALL.toString()));
 		
-		try {
-			this.handleODataParametersVisited = getConfig().getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
+		this.handleODataParametersVisited = getBoolean(SPIDER_HANDLE_ODATA_PARAMETERS, false);
 
 		loadDomainsAlwaysInScope();
-		try {
-		    this.confirmRemoveDomainAlwaysInScope = getConfig().getBoolean(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, true);
-		} catch (ConversionException e) {
-		    log.error("Error while loading the confirm \"domain always in scope\" remove option: " + e.getMessage(), e);
-		}
+		this.confirmRemoveDomainAlwaysInScope = getBoolean(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, true);
 
-		try {
-			this.sendRefererHeader = getConfig().getBoolean(SPIDER_SENDER_REFERER_HEADER, true);
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-			sendRefererHeader = true;
-		}
+		this.sendRefererHeader = getBoolean(SPIDER_SENDER_REFERER_HEADER, true);
+
+		this.acceptCookies = getBoolean(SPIDER_ACCEPT_COOKIES, true);
+
+		this.maxParseSizeBytes = getInt(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
 	}
 
     private void updateOptions() {
@@ -929,7 +896,7 @@ public class SpiderParam extends AbstractParam {
      * Gets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
      * 
      * @return the maximum number of child nodes that can be crawled.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public int getMaxChildren() {
         return maxChildren;
@@ -939,11 +906,71 @@ public class SpiderParam extends AbstractParam {
      * Sets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
      * 
      * @param maxChildren the maximum number of child nodes that can be crawled.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public void setMaxChildren(int maxChildren) {
         this.maxChildren = maxChildren;
         getConfig().setProperty(MAX_CHILDREN, Integer.valueOf(maxChildren));
+    }
+
+    /**
+     * Sets whether or not a spider process should accept cookies while spidering.
+     * <p>
+     * For example, this might control whether or not the Spider uses the same session throughout a spidering process.
+     * <p>
+     * <strong>Notes:</strong>
+     * <ul>
+     * <li>This option has low priority, the Spider will respect other (global) options related to the HTTP state. This option
+     * is ignored if, for example, a {@link org.zaproxy.zap.users.User User} was set or the option
+     * {@link org.parosproxy.paros.network.ConnectionParam#isHttpStateEnabled() Session Tracking (Cookie)} is enabled.</li>
+     * <li>The cookies are not shared between spider processes, each process has its own cookie jar.</li>
+     * </ul>
+     * 
+     * @param acceptCookies {@code true} if the spider should accept cookies, {@code false} otherwise.
+     * @since 2.7.0
+     * @see #isAcceptCookies()
+     */
+    public void setAcceptCookies(boolean acceptCookies) {
+        this.acceptCookies = acceptCookies;
+        getConfig().setProperty(SPIDER_ACCEPT_COOKIES, acceptCookies);
+    }
+
+    /**
+     * Tells whether or not a spider process should accept cookies while spidering.
+     * <p>
+     * For example, this might control whether or not the Spider uses the same session throughout a spidering process.
+     *
+     * @return {@code true} if the spider should accept cookies, {@code false} otherwise.
+     * @since 2.7.0
+     * @see #setAcceptCookies(boolean)
+     */
+    public boolean isAcceptCookies() {
+        return acceptCookies;
+    }
+
+    /**
+     * Sets the maximum size, in bytes, that a response might have to be parsed.
+     * <p>
+     * This allows the spider to skip big responses/files.
+     * 
+     * @param maxParseSizeBytes the maximum size, in bytes, that a response might have to be parsed.
+     * @since 2.7.0
+     * @see #getMaxParseSizeBytes()
+     */
+    public void setMaxParseSizeBytes(int maxParseSizeBytes) {
+        this.maxParseSizeBytes = maxParseSizeBytes;
+        getConfig().setProperty(SPIDER_MAX_PARSE_SIZE_BYTES, maxParseSizeBytes);
+    }
+
+    /**
+     * Gets the maximum size, in bytes, that a response might have to be parsed.
+     *
+     * @return the maximum size, in bytes, that a response might have to be parsed.
+     * @since 2.7.0
+     * @see #setMaxParseSizeBytes(int)
+     */
+    public int getMaxParseSizeBytes() {
+        return maxParseSizeBytes;
     }
 
 }

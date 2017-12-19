@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  * 
- * ZAP - 2013/09/09: Cleanup and lazy initialization of flags (speed-up)
  */
 package org.parosproxy.paros.network;
 
@@ -26,7 +25,7 @@ import java.util.Set;
 
 public class HtmlParameter implements Comparable<HtmlParameter> {
 	public enum Type {
-		cookie, form, url
+		cookie, form, url, header
 	};
 
 	public enum Flags {

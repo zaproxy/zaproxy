@@ -128,7 +128,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 				maxChildrenFetchFilter.setMaxChildren(spiderParams.getMaxChildren());
 				maxChildrenFetchFilter.setModel(extension.getModel());
 
-				MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
+				MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter(extension.getMessages());
 				maxChildrenParseFilter.setMaxChildren(spiderParams.getMaxChildren());
 				maxChildrenParseFilter.setModel(extension.getModel());
 

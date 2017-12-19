@@ -38,22 +38,28 @@
 // ZAP: 2015/06/01 Issue 1653: Support context menu key for trees
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2016/07/01 Issue 2642: Slow mouse wheel scrolling in site tree
+// ZAP: 2017/03/28 Issue 3253: Facilitate exporting URLs by context (add getSelectedContext)
+// ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2017/11/01 Delete context with keyboard shortcut.
+// ZAP: 2017/11/16 Hide filtered nodes in macOS L&F.
+// ZAP: 2017/11/29 Delete site nodes with keyboard shortcut.
 
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -62,6 +68,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -74,6 +82,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -88,6 +97,7 @@ import org.zaproxy.zap.view.ContextCreateDialog;
 import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextsSitesPanel;
 import org.zaproxy.zap.view.ContextsTreeCellRenderer;
+import org.zaproxy.zap.view.DeleteContextAction;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -145,7 +155,7 @@ public class SiteMapPanel extends AbstractPanel {
 		this.setHideable(false);
 	    this.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png")));
 	    this.setName(Constant.messages.getString("sites.panel.title"));
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("sites.panel.mnemonic"));
 
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
@@ -327,6 +337,14 @@ public class SiteMapPanel extends AbstractPanel {
 			treeSite.setName("treeSite");
 			treeSite.setToggleClickCount(1);
 
+			// Force macOS L&F to query the row height from SiteMapTreeCellRenderer to hide the filtered nodes.
+			// Other L&Fs hide the filtered nodes by default.
+			LookAndFeel laf = UIManager.getLookAndFeel();
+			if (laf != null && Constant.isMacOsX()
+					&& UIManager.getSystemLookAndFeelClassName().equals(laf.getClass().getName())) {
+				treeSite.setRowHeight(0);
+			}
+
 			treeSite.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
 				@Override
@@ -365,6 +383,32 @@ public class SiteMapPanel extends AbstractPanel {
 			// ZAP: Add custom tree cell renderer.
 	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer(listeners);
 			treeSite.setCellRenderer(renderer);
+
+			String deleteSiteNode = "zap.delete.sitenode";
+			treeSite.getInputMap().put(getView().getDefaultDeleteKeyStroke(), deleteSiteNode);
+			treeSite.getActionMap().put(deleteSiteNode, new AbstractAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ExtensionHistory extHistory = Control.getSingleton().getExtensionLoader().getExtension(
+							ExtensionHistory.class);
+					if (extHistory == null || treeSite.getSelectionCount() == 0) {
+						return;
+					}
+
+					int result = View.getSingleton().showConfirmDialog(Constant.messages.getString("sites.purge.warning"));
+					if (result != JOptionPane.YES_OPTION) {
+						return;
+					}
+
+					SiteMap siteMap = Model.getSingleton().getSession().getSiteTree();
+					for (TreePath path : treeSite.getSelectionPaths()) {
+						extHistory.purge(siteMap, (SiteNode) path.getLastPathComponent());
+					}
+				}
+			});
 		}
 		return treeSite;
 	}
@@ -390,6 +434,25 @@ public class SiteMapPanel extends AbstractPanel {
 		this.contextTree.nodeStructureChanged(root);
 	}
 
+	/**
+	 * Returns the Context which is selected in the Site Map panel of the UI
+	 * or {@code null} if nothing is selected or the selection is the root node.
+	 * 
+	 * @return Context the context which is selected in the UI
+	 * @since 2.7.0
+	 */
+	public Context getSelectedContext() {
+		SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();
+		if (node == null || node.isRoot()) {
+			return null;
+		}
+		Target target = (Target) node.getUserObject();
+		if (target != null) {
+			return target.getContext();
+		}
+		return null;
+	}
+	
 	private JTree getTreeContext() {
 		if (treeContext == null) {
 			reloadContextTree();
@@ -429,6 +492,19 @@ public class SiteMapPanel extends AbstractPanel {
 	        treeContext.setComponentPopupMenu(new ContextsCustomPopupMenu());
 
 			treeContext.setCellRenderer(new ContextsTreeCellRenderer());
+			DeleteContextAction delContextAction = new DeleteContextAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected Context getContext() {
+					return getSelectedContext();
+				}
+			};
+			treeContext.getInputMap().put(
+					(KeyStroke) delContextAction.getValue(DeleteContextAction.ACCELERATOR_KEY),
+					DeleteContextAction.ACTION_NAME);
+			treeContext.getActionMap().put(DeleteContextAction.ACTION_NAME, delContextAction);
 		}
 		return treeContext;
 	}

@@ -291,7 +291,7 @@ public class OptionsParam extends AbstractParam {
 	 * Gets the extensions' enabled state configurations.
 	 *
 	 * @return the extensions' enabled state configurations.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public ExtensionParam getExtensionParam() {
 		return extensionParam;

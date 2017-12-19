@@ -68,6 +68,7 @@
 // ZAP: 2016/07/07 Convert passive scanners options to new structure
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
+// ZAP: 2017/05/04 Issue 3440: Log Exception when overwriting a config file
 
 package org.parosproxy.paros;
 
@@ -553,6 +554,7 @@ public final class Constant {
 	            //  if there is any error in config file (eg config file not exist, corrupted),
 	            //  overwrite previous configuration file 
 	            // ZAP: changed to use the correct file
+	            LOG.error("Config file does not exist or is corrupted, will overwrite it: " + e.getMessage(), e);	        	
 	            copier.copy(getPathDefaultConfigFile().toFile(), new File(FILE_CONFIG));
 	            
 	        }

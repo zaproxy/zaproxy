@@ -47,6 +47,11 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
 	}
 
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("globalexcludeurl.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 

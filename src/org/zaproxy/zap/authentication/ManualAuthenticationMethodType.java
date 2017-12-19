@@ -47,7 +47,6 @@ import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiResponse;
-import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
@@ -145,7 +144,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
-			return new ApiResponseElement("methodName", API_METHOD_NAME);
+			Map<String, String> values = new HashMap<>();
+			values.put("methodName", API_METHOD_NAME);
+			return new AuthMethodApiResponseRepresentation<>(values);
 		}
 
 		@Override
@@ -200,6 +201,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public String encode(String parentStringSeparator) {
+			if (selectedSession == null) {
+				return "";
+			}
 			return Base64.encodeBase64String(selectedSession.getName().getBytes());
 		}
 
@@ -276,8 +280,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		private JComboBox<HttpSession> getSessionsComboBox() {
 			if (sessionsComboBox == null) {
-				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-						.getExtension(ExtensionHttpSessions.NAME);
+				ExtensionHttpSessions extensionHttpSessions = Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHttpSessions.class);
 				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(uiSharedContext);
 				if (log.isDebugEnabled())
 					log.debug("Found sessions for Manual Authentication Config: " + sessions);
@@ -414,8 +418,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				// is called only if
 				// the Users
 				// extension is loaded
-				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
-						.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				ExtensionUserManagement extensionUserManagement = Control.getSingleton()
+						.getExtensionLoader().getExtension(ExtensionUserManagement.class);
 				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
 				if (user == null) {
 					throw new ApiException(Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
@@ -423,8 +427,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				String sessionName = ApiUtils.getNonEmptyStringParam(params, PARAM_SESSION_NAME);
 
 				// Get the matching session
-				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
-						.getExtension(ExtensionHttpSessions.NAME);
+				ExtensionHttpSessions extensionHttpSessions = Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHttpSessions.class);
 				if (extensionHttpSessions == null) {
 					throw new ApiException(Type.NO_IMPLEMENTOR, "HttpSessions extension is not loaded.");
 				}

@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/04/18 Issue 2127: Added return statements & GUI dialogs after IOExceptions
 // ZAP: 2016/06/25 pull 2561: It specifies the Charset of stringToHtml to UTF-8
+// ZAP: 2017/06/21 Issue 3559: Support JSON format
 
 package org.parosproxy.paros.extension.report;
 
@@ -50,6 +51,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.json.xml.XMLSerializer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.view.View;
@@ -202,6 +204,26 @@ public class ReportGenerator {
 		return new File (outfilename);
 	}
 
+	public static File stringToJson(String inxml, String outfilename) {
+		BufferedWriter bw = null;
+		try {
+			bw = Files.newBufferedWriter(new File(outfilename).toPath(), StandardCharsets.UTF_8);
+			bw.write(stringToJson(inxml));
+		} catch (IOException e2) {
+			showDialogForGUI();
+			logger.error(e2.getMessage(), e2);
+		} finally {
+			try {
+				if (bw != null) {
+					bw.close();
+				}
+			} catch (IOException ex) {
+			}
+		}
+
+		return new File (outfilename);
+	}
+
 	public static String stringToHtml(String inxml, String infilexsl) {
 		Document doc = null;
 
@@ -277,6 +299,10 @@ public class ReportGenerator {
 		return outfile;
 
 	}
+
+	public static String stringToJson(String inxml) {
+        return new XMLSerializer().read(inxml).toString();
+    }
 
 	/**
 	 * Encode entity for HTML or XML output.

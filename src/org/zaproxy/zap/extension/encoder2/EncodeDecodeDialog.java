@@ -72,6 +72,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	private ZapTextArea illegalUTF82ByteField = null;
 	private ZapTextArea illegalUTF83ByteField = null;
 	private ZapTextArea illegalUTF84ByteField = null;
+	private ZapTextArea escapedTextField =null;
+	private ZapTextArea unescapedTextField =null;
 
 	private Encoder encoder = null;
 
@@ -152,6 +154,9 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			final JPanel jPanel4 = new JPanel();
 			jPanel4.setLayout(new GridBagLayout());
 
+			final JPanel jPanel5 = new JPanel();
+			jPanel5.setLayout(new GridBagLayout());
+
 			// 3 tabs - Encode, Decode, Hash??
 			addField(jPanel1, 1, getBase64EncodeField(), Constant.messages.getString("enc2.label.b64Enc"));
 			addField(jPanel1, 2, getUrlEncodeField(), Constant.messages.getString("enc2.label.urlEnc"));
@@ -173,6 +178,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			addField(jPanel4, 2, getIllegalUTF83ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.3byte"));
 			addField(jPanel4, 3, getIllegalUTF84ByteField(), Constant.messages.getString("enc2.label.illegalUTF8.4byte"));
 
+            addField(jPanel5, 1, getEscapedTextField(), Constant.messages.getString("enc2.label.unicode.escapedText"));
+            addField(jPanel5, 2, getUnescapedTextField(), Constant.messages.getString("enc2.label.unicode.unescapedText"));
 
 
 
@@ -180,6 +187,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.decode"), jPanel2);
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.hash"), jPanel3);
 			jTabbed.addTab(Constant.messages.getString("enc2.tab.illegalUTF8"), jPanel4);
+            jTabbed.addTab(Constant.messages.getString("enc2.tab.unicode"), jPanel5);
 
 
 			final java.awt.GridBagConstraints gbc1 = new GridBagConstraints();
@@ -382,6 +390,20 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return illegalUTF84ByteField;
 	}
 
+    private ZapTextArea getEscapedTextField() {
+        if (escapedTextField == null) {
+            escapedTextField = newField(false);
+        }
+        return escapedTextField;
+    }
+
+    private ZapTextArea getUnescapedTextField() {
+        if (unescapedTextField == null) {
+            unescapedTextField = newField(false);
+        }
+        return unescapedTextField;
+    }
+
 	private Encoder getEncoder() {
 	    if (encoder == null) {
 	        encoder = new Encoder();
@@ -416,25 +438,91 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	public String decodeJavaScriptString(String JavaScriptText) {
 		return StringEscapeUtils.unescapeJavaScript(JavaScriptText);
 	}
+
+	private static String encodeUnicodeString(String str) {
+		str = str == null ? "" : str;
+		String tmp;
+		StringBuilder sb = new StringBuilder();
+		char c;
+		int i, j;
+		sb.setLength(0);
+		for (i = 0; i < str.length(); i++)
+		{
+			c = str.charAt(i);
+			sb.append("%u");
+			j = (c >>>8); //pop high 8 bits
+			tmp = Integer.toHexString(j);
+			if (tmp.length() == 1)
+				sb.append('0');
+			sb.append(tmp);
+			j = (c & 0xFF); //pop low 8 bits
+			tmp = Integer.toHexString(j);
+			if (tmp.length() == 1)
+				sb.append('0');
+			sb.append(tmp);
+		}
+		return (sb.toString());
+	}
+	
+	private static String decodeUnicodeString(String str) {
+		str = str == null ? "" : str;
+		if (str.indexOf("%u") == -1)
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i <= str.length() - 6;)
+		{
+			String strTemp = str.substring(i, i + 6);
+			String value = strTemp.substring(2);
+			int c = 0;
+			for (int j = 0; j < value.length(); j++)
+			{
+				char tempChar = value.charAt(j);
+				int t = 0;
+				switch (tempChar)
+				{
+					case 'a':
+						t = 10;
+						break;
+					case 'b':
+						t = 11;
+						break;
+					case 'c':
+						t = 12;
+						break;
+					case 'd':
+						t = 13;
+						break;
+					case 'e':
+						t = 14;
+						break;
+					case 'f':
+						t = 15;
+						break;
+					default:
+						t = tempChar - 48;
+						break;
+				}
+				c += t * ((int) Math.pow(16, (value.length() - j - 1)));
+			}
+			sb.append((char) c);
+			i = i + 6;
+		}
+		return sb.toString();
+	}
 	
 	private void updateEncodeDecodeFields() {
 
 		// Base 64
 		try {
 			base64EncodeField.setText(getEncoder().getBase64Encode(getInputField().getText()));
-		} catch (NullPointerException e) {
-			log.error(e.getMessage(), e);
-		} catch (IOException e) {
+		} catch (NullPointerException | IOException e) {
 			log.error(e.getMessage(), e);
 		}
 
 		try {
 			base64DecodeField.setText(getEncoder().getBase64Decode(getInputField().getText()));
 			base64DecodeField.setEnabled(base64DecodeField.getText().length() > 0);
-		} catch (IOException e) {
-			base64DecodeField.setText(e.getMessage());
-			base64DecodeField.setEnabled(false);
-		} catch (IllegalArgumentException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			base64DecodeField.setText(e.getMessage());
 			base64DecodeField.setEnabled(false);
 		}
@@ -529,6 +617,17 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			illegalUTF84ByteField.setText("");
 		}
 
+        try {
+            escapedTextField.setText(encodeUnicodeString(getInputField().getText()));
+        } catch (final Exception e) {
+            escapedTextField.setText("");
+        }
+
+        try {
+            unescapedTextField.setText(decodeUnicodeString(getInputField().getText()));
+        } catch (final Exception e) {
+            unescapedTextField.setText("");
+        }
 
 	}
 

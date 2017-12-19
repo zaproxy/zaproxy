@@ -23,21 +23,26 @@ package org.zaproxy.zap.extension.alert;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -55,14 +60,13 @@ import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -131,14 +135,16 @@ public class AlertPanel extends AbstractPanel {
      * </p>
      */
     private DeselectableButtonGroup alertsTreeFiltersButtonGroup;
+    
+    private JButton editButton = null;
 
 	private ExtensionAlert extension = null;
-	private ExtensionHistory extHist = null; 
 
 	
     public AlertPanel(ExtensionAlert extension) {
         super();
         this.extension = extension;
+        this.view = extension.getView();
         alertsTreeFiltersButtonGroup = new DeselectableButtonGroup();
  		initialize();
     }
@@ -154,7 +160,7 @@ public class AlertPanel extends AbstractPanel {
 
         this.add(getPanelCommand(), getPanelCommand().getName());
 			
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("alerts.panel.mnemonic"));
 		this.setShowByDefault(true);
 	}
@@ -194,16 +200,16 @@ public class AlertPanel extends AbstractPanel {
 		if (panelToolbar == null) {
 			
 			panelToolbar = new javax.swing.JToolBar();
-			panelToolbar.setLayout(new java.awt.GridBagLayout());
 			panelToolbar.setEnabled(true);
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
 			panelToolbar.setName("AlertToolbar");
 			
-			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(0, 0, 1, 0.0D));
-			panelToolbar.add(getLinkWithSitesTreeButton(), LayoutHelper.getGBC(1, 0, 1, 0.0D));
-			panelToolbar.add(new JLabel(), LayoutHelper.getGBC(20, 0, 1, 1.0D));	// Spacer
+			panelToolbar.add(getScopeButton());
+			panelToolbar.add(getLinkWithSitesTreeButton());
+			panelToolbar.addSeparator();
+			panelToolbar.add(getEditButton());
 		}
 		return panelToolbar;
 	}
@@ -472,20 +478,7 @@ public class AlertPanel extends AbstractPanel {
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 				    if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1) {
 				    	// Its a double click - edit the alert
-					    DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
-					    if (node != null && node.getUserObject() != null) {
-					        Object obj = node.getUserObject();
-					        if (obj instanceof Alert) {
-					            Alert alert = (Alert) obj;
-					            
-								if (extHist == null) {
-									extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-								}
-								if (extHist != null) {
-									extHist.showAlertAddDialog(alert);
-								}
-					        }
-					    }
+					    editSelectedAlert();
 				    }
 				}
 			});
@@ -509,8 +502,83 @@ public class AlertPanel extends AbstractPanel {
 				}
 			});
 			treeAlert.setCellRenderer(new AlertTreeCellRenderer());
+			treeAlert.setExpandsSelectedPaths(true);
+			
+			String deleteAlertKey = "zap.delete.alert";
+			treeAlert.getInputMap().put(view.getDefaultDeleteKeyStroke(), deleteAlertKey);
+			treeAlert.getActionMap().put(deleteAlertKey, new AbstractAction() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Set<Alert> alerts = getSelectedAlerts();
+					if (alerts.size() > 1 && View.getSingleton().showConfirmDialog(
+							Constant.messages.getString("scanner.delete.confirm")) != JOptionPane.OK_OPTION) {
+						return;
+					}
+
+					for (Alert alert : alerts) {
+						extension.deleteAlert(alert);
+					}
+				}
+			});
 		}
 		return treeAlert;
+	}
+	
+	/**
+	 * Gets the selected alerts from the {@link #treeAlert alerts tree}.
+	 *
+	 * @return a {@code Set} with the selected alerts, never {@code null}.
+	 * @see #getSelectedAlert()
+	 */
+	Set<Alert> getSelectedAlerts() {
+		return getSelectedAlertsImpl(true);
+	}
+
+	/**
+	 * Gets the selected alerts from the {@link #treeAlert alerts tree}.
+	 *
+	 * @param allAlerts {@code true} if it should return all selected alerts, {@code false} to just return the first selected
+	 *			alert.
+	 * @return a {@code Set} with the selected alerts, never {@code null}.
+	 */
+	private Set<Alert> getSelectedAlertsImpl(boolean allAlerts) {
+		TreePath[] paths = getTreeAlert().getSelectionPaths();
+		if (paths == null || paths.length == 0) {
+			return Collections.emptySet();
+		}
+
+		Set<Alert> alerts = new HashSet<>();
+		if (!allAlerts) {
+			DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode) paths[0].getLastPathComponent();
+			alerts.add((Alert) alertNode.getUserObject());
+			return alerts;
+		}
+
+		for (int i = 0; i < paths.length; i++) {
+			DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
+			if (alertNode.getChildCount() == 0) {
+				alerts.add((Alert) alertNode.getUserObject());
+				continue;
+			}
+			for (int j = 0; j < alertNode.getChildCount(); j++) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) alertNode.getChildAt(j);
+				alerts.add((Alert) node.getUserObject());
+			}
+		}
+		return alerts;
+	}
+
+	/**
+	 * Gets the first selected alert from the {@link #treeAlert alerts tree}.
+	 *
+	 * @return a {@code Set} with the first selected alert, never {@code null}.
+	 * @see #getSelectedAlerts()
+	 */
+	Set<Alert> getSelectedAlert() {
+		return getSelectedAlertsImpl(false);
 	}
 	
 	/**
@@ -525,10 +593,6 @@ public class AlertPanel extends AbstractPanel {
 			paneScroll.setViewportView(getTreeAlert());
 		}
 		return paneScroll;
-	}
-	
-	void setView(ViewDelegate view) {
-	    this.view = view;
 	}
 	
     /**
@@ -627,5 +691,33 @@ public class AlertPanel extends AbstractPanel {
             recreateLinkWithSitesTreeModel((SiteNode) e.getPath().getLastPathComponent());
         }
     }
+    
+    private void editSelectedAlert() {
+    	DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
+	    if (node != null && node.getUserObject() != null) {
+	        Object obj = node.getUserObject();
+	        if (obj instanceof Alert) {
+	            Alert alert = (Alert) obj;
+	            
+				extension.showAlertEditDialog(alert);
+	        }
+	    }
+    }
+    
+	private JButton getEditButton() {
+		if (editButton == null) {
+			editButton = new JButton();
+			editButton.setToolTipText(Constant.messages.getString("alert.edit.button.tooltip"));
+			editButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/018.png")));
+
+			editButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					editSelectedAlert();
+				}
+			});
+		}
+		return editButton;
+	}
 
 }

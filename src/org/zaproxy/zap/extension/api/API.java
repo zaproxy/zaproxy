@@ -22,7 +22,9 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.security.SecureRandom;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +39,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import net.sf.json.JSONObject;
-
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
@@ -52,15 +54,34 @@ import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import net.sf.json.JSONObject;
 
 public class API {
 	public enum Format {XML, HTML, JSON, JSONP, UI, OTHER};
-	public enum RequestType {action, view, other};
+	public enum RequestType {action, view, other, pconn};
 	
-	public static String API_DOMAIN = "zap";
-	public static String API_URL = "http://" + API_DOMAIN + "/";
-	public static String API_URL_S = "https://" + API_DOMAIN + "/";
-	public static String API_KEY_PARAM = "apikey";
+	/**
+	 * The custom domain to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_DOMAIN = "zap";
+
+	/**
+	 * The HTTP URL to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_URL = "http://" + API_DOMAIN + "/";
+
+	/**
+	 * The HTTPS URL to access the ZAP API while proxying through ZAP.
+	 * 
+	 * @see #getBaseURL(boolean)
+	 */
+	public static final String API_URL_S = "https://" + API_DOMAIN + "/";
+	public static final String API_KEY_PARAM = "apikey";
+	public static final String API_NONCE_PARAM = "apinonce";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
@@ -75,8 +96,24 @@ public class API {
 	private Map<String, ApiImplementor> callBacks = new HashMap<>();
 
 	private Map<String, ApiImplementor> shortcuts = new HashMap<>();
+	
+	private Map<String, Nonce> nonces = Collections.synchronizedMap(new HashMap<String, Nonce>());
+	
+	/**
+	 * The options for the API.
+	 * 
+	 * @see #getOptionsParamApi()
+	 */
+	private OptionsParamApi optionsParamApi;
 
-	private Random random = new Random();
+	/**
+	 * The options of the local proxy.
+	 * 
+	 * @see #getProxyParam()
+	 */
+	private ProxyParam proxyParam;
+
+	private Random random = new SecureRandom();
     private static final Logger logger = Logger.getLogger(API.class);
 
 	private static synchronized API newInstance() {
@@ -152,8 +189,26 @@ public class API {
 		return true;
 	}
 	
-	private static OptionsParamApi getOptionsParamApi() {
-		return Model.getSingleton().getOptionsParam().getApiParam();
+	private OptionsParamApi getOptionsParamApi() {
+		if (optionsParamApi == null) {
+			optionsParamApi = Model.getSingleton().getOptionsParam().getApiParam();
+		}
+		return optionsParamApi;
+	}
+
+	void setOptionsParamApi(OptionsParamApi optionsParamApi) {
+		this.optionsParamApi = optionsParamApi;
+	}
+
+	private ProxyParam getProxyParam() {
+		if (proxyParam == null) {
+			proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+		}
+		return proxyParam;
+	}
+
+	void setProxyParam(ProxyParam proxyParam) {
+		this.proxyParam = proxyParam;
 	}
 	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
@@ -161,9 +216,14 @@ public class API {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
 	}
 
-	private boolean isPermittedIpAddr(HttpRequestHeader requestHeader) {
-		if (getOptionsParamApi().isPermittedIpAddress(requestHeader.getSenderAddress().getHostAddress())) {
-			return true;
+	private boolean isPermittedAddr(HttpRequestHeader requestHeader) {
+		if (getOptionsParamApi().isPermittedAddress(requestHeader.getSenderAddress().getHostAddress())) {
+			if (getOptionsParamApi().isPermittedAddress(requestHeader.getHostName())) {
+				return true;
+			}
+			logger.warn("Request to API URL " + requestHeader.getURI().toString() + " with host header " +
+					requestHeader.getHostName() + " not permitted");
+			return false;
 		}
 		logger.warn("Request to API URL " + requestHeader.getURI().toString() + " from " +
 				requestHeader.getSenderAddress().getHostAddress() + " not permitted");
@@ -180,7 +240,7 @@ public class API {
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
-			if (! isPermittedIpAddr(requestHeader)) {
+			if (! isPermittedAddr(requestHeader)) {
 				return true;
 			}
 			logger.debug("handleApiRequest Callback: " + url);
@@ -204,7 +264,7 @@ public class API {
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
-		if (! isPermittedIpAddr(requestHeader)) {
+		if (! isPermittedAddr(requestHeader)) {
 			return true;
 		}
 		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
@@ -232,8 +292,14 @@ public class API {
 			JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
 
 			if (shortcutImpl != null) {
+				if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+					if ( ! this.hasValidKey(requestHeader, params)) {
+						throw new ApiException(ApiException.Type.BAD_API_KEY);
+					}
+				}
 				msg = shortcutImpl.handleShortcut(msg);
 			} else if (callbackImpl != null) {
+				// Callbacks have suitably random URLs and therefore don't require keys/nonces
 				response = callbackImpl.handleCallBack(msg);
 			} else {
 			
@@ -244,6 +310,9 @@ public class API {
 
 				if (elements.length > 3 && elements[3].equalsIgnoreCase("favicon.ico")) {
 					// Treat the favicon as a special case:)
+					if (!getOptionsParamApi().isUiEnabled()) {
+						throw new ApiException(ApiException.Type.DISABLED);
+					}
 					InputStream is = API.class.getResourceAsStream("/resource/zap.ico");
 			    	byte[] icon = new byte[is.available()];
 			    	is.read(icon);
@@ -302,7 +371,7 @@ public class API {
 				}
 				
 				if (format.equals(Format.UI)) {
-					if ( ! isEnabled()) {
+					if ( ! isEnabled() || !getOptionsParamApi().isUiEnabled()) {
 						throw new ApiException(ApiException.Type.DISABLED);
 					}
 
@@ -312,42 +381,39 @@ public class API {
 					if ( ! isEnabled()) {
 						throw new ApiException(ApiException.Type.DISABLED);
 					}
-					String key = this.getApiKey();
+					// Do this now as it might contain the api key/nonce
+					if (requestHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+						String contentTypeHeader = requestHeader.getHeader(HttpHeader.CONTENT_TYPE);
+						if (contentTypeHeader != null
+								&& contentTypeHeader.equals(HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
+							params = getParams(msg.getRequestBody().toString());
+						} else {
+							throw new ApiException(ApiException.Type.CONTENT_TYPE_NOT_SUPPORTED);
+						}
+					}
 					
 					if (format.equals(Format.JSONP)) {
-						if (! getOptionsParamApi().isEnableJSONP()) {
+						if (!getOptionsParamApi().isEnableJSONP()) {
 							// Not enabled
 							throw new ApiException(ApiException.Type.DISABLED);
 						}
-						if (key != null && key.length() > 0) {
+						if (! this.hasValidKey(requestHeader, params)) {
 							// An api key is required for ALL JSONP requests
-							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
-								throw new ApiException(ApiException.Type.BAD_API_KEY);
-							}
+							throw new ApiException(ApiException.Type.BAD_API_KEY);
 						}
 					}
 
 					ApiResponse res;
 					switch (reqType) {
 					case action:
-						if (requestHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-							String contentTypeHeader = requestHeader.getHeader(HttpHeader.CONTENT_TYPE);
-							if(contentTypeHeader != null &&
-									contentTypeHeader.equals(HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
-								params = getParams(msg.getRequestBody().toString());
-							} else {
-								throw new ApiException(ApiException.Type.CONTENT_TYPE_NOT_SUPPORTED);
-							}
-						}
-
-						if (key != null && key.length() > 0) {
-							// Check if the right api key has been used
-							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+						if (!getOptionsParamApi().isDisableKey()) {
+							if ( ! this.hasValidKey(requestHeader, params)) {
 								throw new ApiException(ApiException.Type.BAD_API_KEY);
 							}
 						}
-						// Check for mandatory params
+
 						ApiAction action = impl.getApiAction(name);
+
 						if (action != null) {
 							// Checking for null to handle option actions
 							List<String> mandatoryParams = action.getMandatoryParamNames();
@@ -379,6 +445,11 @@ public class API {
 							
 						break;
 					case view:		
+						if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+							if ( ! this.hasValidKey(requestHeader, params)) {
+								throw new ApiException(ApiException.Type.BAD_API_KEY);
+							}
+						}
 						ApiView view = impl.getApiView(name);
 						if (view != null) {
 							// Checking for null to handle option actions
@@ -412,13 +483,15 @@ public class API {
 					case other:
 						ApiOther other = impl.getApiOther(name);
 						if (other != null) {
-							if (key != null && key.length() > 0 && other.isRequiresApiKey()) {
-								// Check if the right api key has been used
-								if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+							// Checking for null to handle option actions
+							if (!getOptionsParamApi().isDisableKey() && 
+									(!getOptionsParamApi().isNoKeyForSafeOps() ||
+										other.isRequiresApiKey())) {
+								// Check if a valid api key has been used
+								if ( ! this.hasValidKey(requestHeader, params)) {
 									throw new ApiException(ApiException.Type.BAD_API_KEY);
 								}
 							}
-							// Checking for null to handle option actions
 							List<String> mandatoryParams = other.getMandatoryParamNames();
 							if (mandatoryParams != null) {
 								for (String param : mandatoryParams) {
@@ -429,9 +502,32 @@ public class API {
 							}
 						}
 						msg = impl.handleApiOther(msg, name, params);
+						break;
+					case pconn:
+						ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
+						if (pconn != null) {
+							if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+								if ( ! this.hasValidKey(requestHeader, params)) {
+									throw new ApiException(ApiException.Type.BAD_API_KEY);
+								}
+							}
+							List<String> mandatoryParams = pconn.getMandatoryParamNames();
+							if (mandatoryParams != null) {
+								for (String param : mandatoryParams) {
+									if (!params.has(param) || params.getString(param).length() == 0) {
+										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+									}
+								}
+							}
+						}
+						impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
+						return true;
 					}
 				} else {
-					// Handle default front page, even if the API is disabled
+					// Handle default front page, unless if the API UI is disabled
+					if ( ! isEnabled() || !getOptionsParamApi().isUiEnabled()) {
+						throw new ApiException(ApiException.Type.DISABLED);
+					}
 					response = webUI.handleRequest(requestHeader.getURI(), this.isEnabled());
 					format = Format.UI;
 					contentType = "text/html; charset=UTF-8";
@@ -440,6 +536,16 @@ public class API {
 			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (Exception e) {
+			if (! getOptionsParamApi().isReportPermErrors()) {
+				if (e instanceof ApiException) {
+					ApiException exception = (ApiException) e;
+					if (exception.getType().equals(ApiException.Type.DISABLED) ||
+							exception.getType().equals(ApiException.Type.BAD_API_KEY)) {
+						// Fail silently
+						return true;
+					}
+				}
+			}
 			handleException(msg, format, contentType, e);
 			error = true;
 		}
@@ -464,36 +570,56 @@ public class API {
 	}
 	
 	/**
-	 * Returns a URI for the specified parameters. The API key will be added if required
+	 * Returns a URI for the specified parameters.
+	 * <p>
+	 * An {@link #getOneTimeNonce(String) one time nonce query parameter} is added to the resulting URL, if required (that is,
+	 * not a view). In this case the URL is ended with an ampersand (for example,
+	 * {@code https://zap/format/prefix/action/name/?apinonce=xyz&}), otherwise it has a trailing slash (for example,
+	 * {@code http://zap/format/prefix/view/name/}).
+	 * 
 	 * @param format the format of the API response
 	 * @param prefix the prefix of the API implementor
 	 * @param type the request type
 	 * @param name the name of the endpoint
 	 * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will start with http://zap/..
 	 * @return the URL to access the defined endpoint
+	 * @see #getBaseURL(boolean)
 	 */
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
-		String key = this.getApiKey();
-		String base = API_URL;
+		String apiPath = format.name() + "/" + prefix + "/" + type.name() + "/" + name + "/";
+		if (!RequestType.view.equals(type)) {
+			return getBaseURL(proxy) + apiPath + "?" + API_NONCE_PARAM + "=" + this.getOneTimeNonce("/" + apiPath) + "&";
+		}
+		return getBaseURL(proxy) + apiPath;
+	}
+
+	/**
+	 * Gets the base URL to access the ZAP API, possibly proxying through ZAP.
+	 * <p>
+	 * If proxying through ZAP the base URL will use the custom domain, {@value #API_DOMAIN}.
+	 * <p>
+	 * The resulting base URL has a trailing slash, for example, {@code https://127.0.0.1/} or {@code https://zap/}.
+	 * 
+	 * @param proxy {@code true} if the URL will be accessed while proxying through ZAP, {@code false} otherwise.
+	 * @return the base URL to access the ZAP API.
+	 * @since 2.7.0
+	 */
+	public String getBaseURL(boolean proxy) {
+		if (proxy) {
+			return getOptionsParamApi().isSecureOnly() ? API_URL_S : API_URL;
+		}
+
+		StringBuilder strBuilder = new StringBuilder(50);
+		strBuilder.append("http");
 		if (getOptionsParamApi().isSecureOnly()) {
-			base = API_URL_S;
+			strBuilder.append('s');
 		}
-		if (!proxy) {
-			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			if (getOptionsParamApi().isSecureOnly()) {
-				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
-			} else {
-				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
-			}
-		}
-		
-		if (!RequestType.view.equals(type) && key.length() > 0) {
-			// Not a view and the API key is set so it must be supplied
-			return base + format.name() + "/" + prefix + "/" + type.name() + 
-					"/" + name + "/?" + API_KEY_PARAM + "=" + key + "&";
-		} else {
-			return base + format.name() + "/" + prefix + "/" + type.name() + "/" + name + "/?";
-		}
+		strBuilder.append("://")
+				.append(getProxyParam().getProxyIp())
+				.append(':')
+				.append(getProxyParam().getProxyPort())
+				.append('/');
+		return strBuilder.toString();
 	}
 	
 	private String responseToHtml(String name, ApiResponse res) {
@@ -577,12 +703,110 @@ public class API {
 		this.callBacks.put(url, impl);
 		return url;
 	}
-	
-	public String getApiKey() {
-		// Dont cache - could be changes via the options screen
-		return getOptionsParamApi().getKey();
+
+	/**
+	 * Returns a one time nonce to be used with the API call specified by the URL
+	 * @param apiUrl the API URL
+	 * @return a one time nonce
+	 * @since 2.6.0
+	 */
+	public String getOneTimeNonce(String apiUrl) {
+		String nonce = Long.toHexString(random.nextLong());
+		this.nonces.put(nonce, new Nonce(nonce, apiUrl, true));
+		return nonce;
 	}
-	
+
+	/**
+	 * Returns a nonce that will be valid for the lifetime of the ZAP process to used with the API call specified by the URL
+	 * @param apiUrl the API URL
+	 * @return a nonce that will be valid for the lifetime of the ZAP process
+	 * @since 2.6.0
+	 */
+	public String getLongLivedNonce(String apiUrl) {
+		String nonce = Long.toHexString(random.nextLong());
+		this.nonces.put(nonce, new Nonce(nonce, apiUrl, false));
+		return nonce;
+	}
+
+	/**
+	 * Returns true if the API call has a valid key
+	 * @param msg the message
+	 * @return true if the API call has a valid key
+	 * @since 2.6.0
+	 */
+	public boolean hasValidKey(HttpMessage msg) {
+		try {
+			return this.hasValidKey(msg.getRequestHeader(), getParams(msg.getRequestHeader().getURI().getEscapedQuery()));
+		} catch (ApiException e) {
+			logger.error(e.getMessage(), e);
+			return false;
+		}
+	}
+
+	/**
+	 * Returns true if the API call has a valid key
+	 * @param reqHeader the request header
+	 * @param params the parameters
+	 * @return true if the API call has a valid key
+	 * @since 2.6.0
+	 */
+	public boolean hasValidKey(HttpRequestHeader reqHeader, JSONObject params) {
+		try {
+			String apiPath;
+			try {
+				apiPath = reqHeader.getURI().getPath();
+			} catch (URIException e) {
+				logger.error(e.getMessage(), e);
+				return false;
+			}
+			String nonceParam = reqHeader.getHeader(HttpHeader.X_ZAP_API_NONCE);
+			if (nonceParam == null && params.has(API_NONCE_PARAM)) {
+				nonceParam = params.getString(API_NONCE_PARAM);
+			}
+			
+			if (nonceParam != null) {
+				Nonce nonce = nonces.get(nonceParam);
+				if (nonce == null) {
+					logger.warn("API nonce " + nonceParam + " not found in request from " + reqHeader.getSenderAddress().getHostAddress());
+					return false;
+				} else if (nonce.isOneTime()) {
+					nonces.remove(nonceParam);
+				}
+				if (! nonce.isValid()) {
+					logger.warn("API nonce " + nonce.getNonceKey() + " expired at " + nonce.getExpires().toString() +
+							" in request from " + reqHeader.getSenderAddress().getHostAddress());
+					return false;
+				}
+				
+				if (! apiPath.equals(nonce.getApiPath())) {
+					logger.warn("API nonce path was " + nonce.getApiPath() + " but call was for " + apiPath + 
+						" in request from " + reqHeader.getSenderAddress().getHostAddress());
+					return false;
+				}
+			} else {
+				String keyParam = reqHeader.getHeader(HttpHeader.X_ZAP_API_KEY);
+				if (keyParam == null && params.has(API_KEY_PARAM)) {
+					keyParam = params.getString(API_KEY_PARAM);
+				}
+				if (!getOptionsParamApi().getKey().equals(keyParam)) {
+					logger.warn("API key incorrect or not supplied: " + keyParam +
+							" in request from " + reqHeader.getSenderAddress().getHostAddress());
+					return false;
+				}
+			}
+			
+			return true;
+		} finally {
+			synchronized (nonces) {
+				for (Entry<String, Nonce> entry : nonces.entrySet()) {
+					if (! entry.getValue().isValid()) {
+						nonces.remove(entry.getKey());
+					}
+				}
+			}
+		}
+	}
+
     public static String getDefaultResponseHeader(String contentType) {
         return getDefaultResponseHeader(contentType, 0);
     }
@@ -621,17 +845,13 @@ public class API {
         return sb.toString();
     }
 
-    private static void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
+    private void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
         String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
         if (format == Format.OTHER) {
             boolean logError = true;
             if (cause instanceof ApiException) {
                 switch (((ApiException) cause).getType()) {
                 case DISABLED:
-                    responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("ApiException while handling API request:", cause);
-                    logError = false;
-                    break;
                 case BAD_TYPE:
                 case NO_IMPLEMENTOR:
                 case BAD_API_KEY:
@@ -640,7 +860,7 @@ public class API {
                 case BAD_VIEW:
                 case BAD_OTHER:
                     responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("API 'other' malformed request:", cause);
+                    logBadRequest(msg, cause);
                     logError = false;
                     break;
                 default:
@@ -656,7 +876,7 @@ public class API {
                 exception = (ApiException) cause;
                 if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getType())) {
                     responseStatus = STATUS_BAD_REQUEST;
-                    logger.warn("ApiException while handling API request:", cause);
+                    logBadRequest(msg, cause);
                 }
             } else {
                 exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
@@ -675,11 +895,53 @@ public class API {
         }
     }
 
+    private static void logBadRequest(HttpMessage msg, Exception cause) {
+        logger.warn(
+                "Bad request to API endpoint [" + msg.getRequestHeader().getURI().getEscapedPath() + "] from ["
+                        + msg.getRequestHeader().getSenderAddress().getHostAddress() + "]:",
+                cause);
+    }
+
     private static String getCharset(String contentType) {
         int idx = contentType.indexOf("charset=");
         if (idx == -1) {
             return "UTF-8";
         }
         return contentType.substring(idx + 8);
+    }
+    
+    private class Nonce {
+        private final String nonceKey;
+        private final String apiPath;
+        private final boolean oneTime;
+        private final Date expires;
+        
+        public Nonce(String nonceKey, String apiStr, boolean oneTime) {
+            this.nonceKey = nonceKey;
+            this.apiPath = apiStr;
+            this.oneTime = oneTime;
+            this.expires = DateUtils.addSeconds(new Date(), getOptionsParamApi().getNonceTimeToLiveInSecs());
+        }
+        
+        public String getNonceKey() {
+            return nonceKey;
+        }
+
+        public String getApiPath() {
+            return apiPath;
+        }
+        
+        public boolean isOneTime() {
+            return oneTime;
+        }
+        
+        public boolean isValid() {
+            return ! oneTime || expires.after(new Date());
+        }
+
+        public Date getExpires() {
+            return expires;
+        }
+
     }
 }

@@ -39,6 +39,7 @@ public class PopupMenuAlertDelete extends PopupMenuItemAlert {
 
     public PopupMenuAlertDelete() {
         super(Constant.messages.getString("scanner.delete.popup"), true);
+        setAccelerator(getExtensionAlert().getView().getDefaultDeleteKeyStroke());
 	}
 	
     @Override

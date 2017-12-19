@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as far as possible
 
 package org.parosproxy.paros.extension.option;
 
@@ -25,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -139,8 +137,7 @@ public class OptionsJvmPanel extends AbstractParamPanel {
             }
         } catch (IOException e) {
             View.getSingleton().showWarningDialog(this, 
-                    MessageFormat.format(
-                            Constant.messages.getString("jvm.options.error.writing"),
+                            Constant.messages.getString("jvm.options.error.writing",
                             JVM_PROPERTIES_FILE.toAbsolutePath(),
                             e.getMessage()));
         }

@@ -122,7 +122,7 @@ public class MainToolbarPanel extends JPanel {
 	 * 
 	 * @param component the component to add.
 	 * @throws IllegalArgumentException if the component is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see DisplayUtils#scaleIcon(JButton)
 	 * @see DisplayUtils#scaleIcon(JToggleButton)
 	 */
@@ -155,7 +155,7 @@ public class MainToolbarPanel extends JPanel {
 	 * 
 	 * @param component the component to remove.
 	 * @throws IllegalArgumentException if the component is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public void removeToolBarComponent(Component component) {
 		validateComponentNonNull(component);
@@ -227,6 +227,7 @@ public class MainToolbarPanel extends JPanel {
 						default: return;	// Not recognised
 					}
 					Control.getSingleton().setMode(mode);
+					View.getSingleton().getMainFrame().getMainMenuBar().setMode(mode);
 				}
 			});
 		}

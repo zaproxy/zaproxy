@@ -30,6 +30,8 @@
 // ZAP: 2014/04/09 i1145: Cookie parsing error if a comma is used
 // ZAP: 2015/02/26 Include json as a text content type
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
+// ZAP: 2017/03/21 Add method to check if response type is json (isJson())
+// ZAP: 2017/11/10 Allow to set the status code and reason.
 
 package org.parosproxy.paros.network;
 
@@ -102,12 +104,54 @@ public class HttpResponseHeader extends HttpHeader {
 		mVersion = version.toUpperCase();
 	}
 
+    /**
+     * Gets the status code.
+     *
+     * @return the status code.
+     * @see #setStatusCode(int)
+     */
     public int getStatusCode() {
         return mStatusCode;
     }
 
+    /**
+     * Sets the status code.
+     * <p>
+     * <code>status-code = 3DIGIT</code>
+     *
+     * @param statusCode the new status code.
+     * @throws IllegalArgumentException if the given status code is not a (positive) 3 digit number.
+     * @see #getStatusCode()
+     * @since 2.7.0
+     */
+    public void setStatusCode(int statusCode) {
+        if (statusCode < 100 || statusCode > 999) {
+            throw new IllegalArgumentException("The status code must be a (positive) 3 digit number.");
+        }
+        this.mStatusCode = statusCode;
+    }
+
+    /**
+     * Gets the reason phrase.
+     *
+     * @return the reason phrase.
+     * @see #setReasonPhrase(String)
+     */
     public String getReasonPhrase() {
         return mReasonPhrase;
+    }
+
+    /**
+     * Sets the reason phrase.
+     * <p>
+     * If {@code null} it's set an empty string.
+     *
+     * @param reasonPhrase the new reason phrase.
+     * @see #getReasonPhrase()
+     * @since 2.7.0
+     */
+    public void setReasonPhrase(String reasonPhrase) {
+        this.mReasonPhrase = reasonPhrase != null ? reasonPhrase : "";
     }
 
     private void parse() throws HttpMalformedHeaderException {
@@ -120,9 +164,7 @@ public class HttpResponseHeader extends HttpHeader {
 		
 		mVersion 			= matcher.group(1);
 		mStatusCodeString	= matcher.group(2);
-		String tmp 			= matcher.group(3);
-
-		mReasonPhrase = (tmp != null) ? tmp : "";
+		setReasonPhrase(matcher.group(3));
 		 
         if (!mVersion.equalsIgnoreCase(HTTP10) && !mVersion.equalsIgnoreCase(HTTP11)) {
 			mMalformedHeader = true;
@@ -220,6 +262,18 @@ public class HttpResponseHeader extends HttpHeader {
 		
 	}
 	
+	public boolean isJson() {
+		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
+
+		if (contentType != null) {
+			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JSON) > -1) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+
 	
 	public boolean isJavaScript() {
 		String contentType = getHeader(CONTENT_TYPE.toUpperCase());

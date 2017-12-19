@@ -35,6 +35,8 @@
 // ZAP: 2016/04/21 Allow to obtain the number of requests sent during the analysis
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
 // ZAP: 2016/09/20 JavaDoc tweaks
+// ZAP: 2017/03/27 Use HttpRequestConfig.
+// ZAP: 2017/06/15 Allow to obtain the running time of the analysis.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -48,6 +50,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HttpHeader;
@@ -56,6 +59,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 public class Analyser {
 
@@ -74,6 +79,9 @@ public class Analyser {
     private TreeMap<String, SampleResponse> mapVisited = new TreeMap<>();
     private boolean isStop = false;
 
+    private StopWatch stopWatch;
+    private boolean stopWatchStarted;
+
     // ZAP Added delayInMs
     private int delayInMs;
 
@@ -85,6 +93,16 @@ public class Analyser {
      */
     private int requestCount;
 
+    /**
+     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
+     * scan's scope.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getHttpRequestConfig()
+     */
+    private HttpRequestConfig httpRequestConfig;
+
     // ZAP: Added parent
     HostProcess parent = null;
     
@@ -94,6 +112,7 @@ public class Analyser {
     public Analyser(HttpSender httpSender, HostProcess parent) {
         this.httpSender = httpSender;
         this.parent = parent;
+        this.stopWatch = new StopWatch();
     }
 
     public boolean isStop() {
@@ -105,7 +124,18 @@ public class Analyser {
     }
 
     public void start(StructuralNode node) {
-        inOrderAnalyse(node);
+        if (stopWatchStarted) {
+            stopWatch.resume();
+        } else {
+            stopWatch.start();
+            stopWatchStarted = true;
+        }
+
+        try {
+            inOrderAnalyse(node);
+        } finally {
+            stopWatch.suspend();
+        }
     }
 
     private void addAnalysedHost(URI uri, HttpMessage msg, int errorIndicator) {
@@ -482,30 +512,43 @@ public class Analyser {
             }
         }
 
-        httpSender.sendAndReceive(msg, new HttpSender.RedirectionValidator() {
-
-            @Override
-            public boolean isValid(URI redirection) {
-                if (!parent.nodeInScope(redirection.getEscapedURI())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Skipping redirection out of scan's scope: " + redirection);
-                    }
-                    return false;
-                }
-                return true;
-            }
-
-            @Override
-            public void notifyMessageReceived(HttpMessage message) {
-                // Nothing to do with the message.
-            }
-        });
+        httpSender.sendAndReceive(msg, getHttpRequestConfig());
         requestCount++;
 
         // ZAP: Notify parent
         if (parent != null) {
             parent.notifyNewMessage(msg);
         }
+    }
+
+    /**
+     * Gets the HTTP request configuration, that ensures the followed redirections are in scan's scope.
+     *
+     * @return the HTTP request configuration, never {@code null}.
+     * @see #httpRequestConfig
+     */
+    private HttpRequestConfig getHttpRequestConfig() {
+        if (httpRequestConfig == null) {
+            httpRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(new HttpRedirectionValidator() {
+
+                @Override
+                public boolean isValid(URI redirection) {
+                    if (!parent.nodeInScope(redirection.getEscapedURI())) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Skipping redirection out of scan's scope: " + redirection);
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void notifyMessageReceived(HttpMessage message) {
+                    // Nothing to do with the message.
+                }
+            }).build();
+        }
+        return httpRequestConfig;
     }
 
     public int getDelayInMs() {
@@ -524,6 +567,16 @@ public class Analyser {
      */
     public int getRequestCount() {
         return requestCount;
+    }
+
+    /**
+     * Gets the running time, in milliseconds, of the analyser.
+     *
+     * @return the running time of the analyser.
+     * @since 2.7.0
+     */
+    public long getRunningTime() {
+        return stopWatch.getTime();
     }
 
 }

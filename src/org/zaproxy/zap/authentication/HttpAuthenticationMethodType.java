@@ -27,7 +27,6 @@ import org.zaproxy.zap.authentication.UsernamePasswordAuthenticationCredentials.
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
@@ -124,7 +123,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 						(this.realm == null || this.realm.isEmpty()) ? AuthScope.ANY_REALM : this.realm);
 				stateCredentials = new NTCredentials(userCredentials.getUsername(),
 						userCredentials.getPassword(), InetAddress.getLocalHost().getCanonicalHostName(),
-						this.hostname);
+						this.realm);
 				session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
 			} catch (UnknownHostException e1) {
 				log.error(e1.getMessage(), e1);
@@ -139,7 +138,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 			values.put("host", this.hostname);
 			values.put("port", Integer.toString(this.port));
 			values.put("realm", this.realm);
-			return new ApiResponseSet<String>("method", values);
+			return new AuthMethodApiResponseRepresentation<>(values);
 		}
 
 	}

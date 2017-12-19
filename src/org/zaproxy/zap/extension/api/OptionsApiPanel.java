@@ -46,11 +46,14 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelMisc = null;
 	private JCheckBox chkEnabled = null;
+	private JCheckBox chkUiEnabled = null;
 	private JCheckBox chkSecureOnly = null;
+	private JCheckBox reportPermErrors = null;
 	private JCheckBox disableKey = null;
 	private JCheckBox incErrorDetails = null;
 	private JCheckBox autofillKey = null;
 	private JCheckBox enableJSONP = null;
+	private JCheckBox noKeyForSafeOps = null;
 	private ZapTextField keyField = null; 
 	private JButton generateKeyButton = null;
 
@@ -84,6 +87,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			panelMisc.setLayout(new GridBagLayout());
 			int y = 0;
 			panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getChkUiEnabled(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			panelMisc.add(getChkSecureOnly(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			
 			panelMisc.add(new JLabel(Constant.messages.getString("api.options.label.apiKey")), 
@@ -94,7 +98,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			JPanel jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			jPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
-					Constant.messages.getString("api.options.ipaddr.title"),
+					Constant.messages.getString("api.options.addr.title"),
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
 					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
@@ -106,6 +110,8 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			warning.setForeground(Color.RED);
 			panelMisc.add(warning, LayoutHelper.getGBC(0, y++, 2, 0.5D));
 			panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getNoKeyForSafeOps(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+			panelMisc.add(getReportPermErrors(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			panelMisc.add(getIncErrorDetails(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			panelMisc.add(getAutofillKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 			panelMisc.add(getEnableJSONP(), LayoutHelper.getGBC(0, y++, 1, 0.5));
@@ -129,6 +135,16 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		return chkEnabled;
 	}
 	
+    private JCheckBox getChkUiEnabled() {
+        if (chkUiEnabled == null) {
+            chkUiEnabled = new JCheckBox();
+            chkUiEnabled.setText(Constant.messages.getString("api.options.uiEnabled"));
+            chkUiEnabled.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            chkUiEnabled.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        }
+        return chkUiEnabled;
+    }
+    
 	private JCheckBox getChkSecureOnly() {
 		if (chkSecureOnly == null) {
 			chkSecureOnly = new JCheckBox();
@@ -170,6 +186,25 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		return enableJSONP;
 	}
 
+    private JCheckBox getReportPermErrors() {
+        if (reportPermErrors == null) {
+            reportPermErrors = new JCheckBox();
+            reportPermErrors.setText(Constant.messages.getString("api.options.reportPermErrors"));
+            reportPermErrors.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            reportPermErrors.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        }
+        return reportPermErrors;
+    }
+
+    private JCheckBox getNoKeyForSafeOps() {
+        if (noKeyForSafeOps == null) {
+            noKeyForSafeOps = new JCheckBox();
+            noKeyForSafeOps.setText(Constant.messages.getString("api.options.noKeyForSafeOps"));
+            noKeyForSafeOps.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            noKeyForSafeOps.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        }
+        return noKeyForSafeOps;
+    }
 
 	private JCheckBox getIncErrorDetails() {
 		if (incErrorDetails == null) {
@@ -226,11 +261,14 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkEnabled().setSelected(options.getApiParam().isEnabled());
+	    getChkUiEnabled().setSelected(options.getApiParam().isUiEnabled());
 	    getChkSecureOnly().setSelected(options.getApiParam().isSecureOnly());
 	    getDisableKey().setSelected(options.getApiParam().isDisableKey());
 	    getIncErrorDetails().setSelected(options.getApiParam().isIncErrorDetails());
 	    getAutofillKey().setSelected(options.getApiParam().isAutofillKey());
 	    getEnableJSONP().setSelected(options.getApiParam().isEnableJSONP());
+	    getReportPermErrors().setSelected(options.getApiParam().isReportPermErrors());
+	    getNoKeyForSafeOps().setSelected(options.getApiParam().isNoKeyForSafeOps());
 	    getKeyField().setText(options.getApiParam().getKey());
 	    //getChkPostActions().setSelected(options.getApiParam().isPostActions());
 
@@ -243,6 +281,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	@Override
 	public void validateParam(Object obj) throws Exception {
 	    if (! getDisableKey().isSelected() && getKeyField().getText().length() == 0) {
+	    	getKeyField().requestFocusInWindow();
 	    	throw new Exception (Constant.messages.getString("api.options.nokey.error"));
 	    }
 	}
@@ -251,12 +290,15 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getApiParam().setEnabled(getChkEnabled().isSelected());
+	    options.getApiParam().setUiEnabled(getChkUiEnabled().isSelected());
 	    options.getApiParam().setSecureOnly(getChkSecureOnly().isSelected());
 	    options.getApiParam().setDisableKey(getDisableKey().isSelected());
 	    options.getApiParam().setIncErrorDetails(getIncErrorDetails().isSelected());
 	    options.getApiParam().setAutofillKey(getAutofillKey().isSelected());
 	    options.getApiParam().setEnableJSONP(getEnableJSONP().isSelected());
-	    
+	    options.getApiParam().setReportPermErrors(getReportPermErrors().isSelected());
+	    options.getApiParam().setNoKeyForSafeOps(getNoKeyForSafeOps().isSelected());
+
 	    if (!getDisableKey().isSelected()) {
 	    	// Dont loose the old value on disabling
 	    	options.getApiParam().setKey(getKeyField().getText());
@@ -291,13 +333,13 @@ public class OptionsApiPanel extends AbstractParamPanel {
         
         private static final long serialVersionUID = 2332044353650231701L;
         
-        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("api.options.ipaddr.dialog.remove.title");
-        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("api.options.ipaddr.dialog.remove.text");
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("api.options.addr.dialog.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("api.options.addr.dialog.remove.text");
         
-        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.ipaddr.dialog.remove.button.confirm");
-        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("api.options.ipaddr.dialog.remove.button.cancel");
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.button.cancel");
         
-        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("api.options.ipaddr.dialog.remove.checkbox.label");
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("api.options.addr.dialog.remove.checkbox.label");
         
         private DialogAddPermittedAddress addDialog = null;
         private DialogModifyPermittedAddress modifyDialog = null;

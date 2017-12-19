@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 
 package org.parosproxy.paros.extension.history;
 
@@ -151,80 +150,55 @@ public class HistoryFilter {
 	}
 	
 	public String toShortString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(Constant.messages.getString("history.filter.label.filter"));
-		sb.append(" ");
-		boolean empty = true;
+		StringBuilder sb = new StringBuilder(250);
 		if (methodList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.methods"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.methods"));
 		}
 		if (codeList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.codes"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.codes"));
 		}
 		if (tagList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.tags"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.tags"));
 		}
 		if (riskList.size() > 0 || confidenceList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.alerts"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.alerts"));
 		}
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.notes"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.notes"));
 		}
 		if (urlIncPatternList != null && urlIncPatternList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.urlincregex"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.urlincregex"));
 		}
 		if (urlExcPatternList != null && urlExcPatternList.size() > 0) {
-			if (empty) {
-				sb.append(Constant.messages.getString("history.filter.label.on"));
-				sb.append(' ');
-			} else {
+			if (sb.length() > 0) {
 				sb.append(", ");
 			}
-			empty = false;
-			sb.append(Constant.messages.getString("history.filter.label.urlexcregex"));
+			sb.append(Constant.messages.getString("history.filter.desc.label.urlexcregex"));
 		}
 		
-		if (empty) {
+		if (sb.length() > 0) {
+			sb.insert(0, ' ');
+			sb.insert(0, Constant.messages.getString("history.filter.label.on"));
+			sb.insert(0, ' ');
+			sb.insert(0, Constant.messages.getString("history.filter.label.filter"));
+		} else {
+			sb.append(Constant.messages.getString("history.filter.label.filter"));
+			sb.append(' ');
 			sb.append(Constant.messages.getString("history.filter.label.off"));
 		}
 		return sb.toString();
@@ -238,7 +212,7 @@ public class HistoryFilter {
 		if (methodList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.methods"));
-			sb.append(": ");
+			sb.append(' ');
 			for (String method : methodList) {
 				sb.append(method);
 				sb.append(' ');
@@ -247,7 +221,7 @@ public class HistoryFilter {
 		if (codeList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.codes"));
-			sb.append(": ");
+			sb.append(' ');
 			Integer lastCode = null;
 			boolean inBlock = false;
 			for (Integer code : codeList) {
@@ -275,13 +249,13 @@ public class HistoryFilter {
 				// finish off the series
 				sb.append('-');
 				sb.append(lastCode);
-				sb.append(' ');
 			}
+			sb.append(' ');
 		}
 		if (tagList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.tags"));
-			sb.append(": ");
+			sb.append(' ');
 			for (String tag : tagList) {
 				sb.append(tag);
 				sb.append(' ');
@@ -290,7 +264,7 @@ public class HistoryFilter {
 		if (riskList.size() > 0 || confidenceList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.alerts"));
-			sb.append(": ");
+			sb.append(' ');
 			for (String risk : riskList) {
 				sb.append(risk);
 				sb.append(' ');
@@ -303,7 +277,7 @@ public class HistoryFilter {
 		if (note != null && ! note.equals(NOTES_IGNORE)) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.notes"));
-			sb.append(": ");
+			sb.append(' ');
 			sb.append(note);
 		}
 		if (empty) {

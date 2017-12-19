@@ -23,32 +23,31 @@ package org.zaproxy.zap.extension.script;
 import java.util.List;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.swing.ImageIcon;
 
 public abstract class ScriptEngineWrapper {
 
-	private ScriptEngine engine;
-	private String languageName;
-	private String engineName;
-	
+	private final ScriptEngineFactory factory;
 	
 	public ScriptEngineWrapper(ScriptEngine engine) {
-		this.engine = engine;
-		this.engineName = engine.getFactory().getEngineName();
-		this.languageName = engine.getFactory().getLanguageName();
+		this.factory = engine.getFactory();
 	}
 	
 	public String getLanguageName() {
-		return languageName;
+		return factory.getLanguageName();
 	}
 
 	public String getEngineName() {
-		return engineName;
+		return factory.getEngineName();
 	}
 	
 	public ScriptEngine getEngine() {
-		// TODO Nasty hack!
-		return engine.getFactory().getScriptEngine();
+		return factory.getScriptEngine();
+	}
+	
+	ScriptEngineFactory getFactory() {
+		return factory;
 	}
 	
 	public abstract boolean isTextBased();
@@ -59,14 +58,15 @@ public abstract class ScriptEngineWrapper {
 	
 	public abstract ImageIcon getIcon();
 
-	public abstract List<String> getExtensions();
+	public List<String> getExtensions() {
+		return factory.getExtensions();
+	}
 	
 	public abstract boolean isRawEngine();
 	
 	/**
-	 * Returns true if this engine supported script types without defined templates.
-	 * @param type
-	 * @return
+	 * Returns true if this engine supports script types without defined templates.
+	 * @return {@code true} if the engine doesn't require templates, {@code false} otherwise.
 	 */
 	public abstract boolean isSupportsMissingTemplates();
 	

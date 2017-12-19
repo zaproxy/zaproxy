@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.history;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 public class PopupMenuTag extends PopupMenuItemHistoryReferenceContainer {
@@ -38,8 +37,8 @@ public class PopupMenuTag extends PopupMenuItemHistoryReferenceContainer {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-        return (invoker == Invoker.HISTORY_PANEL);
+    protected boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
+        return !HistoryReference.getTemporaryTypes().contains(historyReference.getHistoryType());
     }
 
     @Override

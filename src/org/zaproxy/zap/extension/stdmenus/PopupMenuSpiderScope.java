@@ -28,7 +28,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
 /**
- * @deprecated (TODO add version) Superseded by {@link PopupMenuSpiderDialog}.
+ * @deprecated (2.6.0) Superseded by {@link PopupMenuSpiderDialog}.
  */
 @Deprecated
 public class PopupMenuSpiderScope extends PopupMenuItemSiteNodeContainer {
@@ -46,7 +46,7 @@ public class PopupMenuSpiderScope extends PopupMenuItemSiteNodeContainer {
     
     private ExtensionSpider getExtensionSpider() {
     	if (extension == null) {
-    		extension = (ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
+    		extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.class);
     	}
     	return extension;
     }

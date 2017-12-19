@@ -116,11 +116,26 @@ public class GuiBootstrap extends ZapBootstrap {
         setX11AwtAppClassName();
         setDefaultViewLocale(Constant.getLocale());
 
-        if (isFirstTime()) {
+        if (isShowLicense()) {
             setupLookAndFeel();
             showLicense();
         } else {
-            init(false);
+            boolean firstTime = isFirstTime();
+            if (firstTime) {
+                createAcceptedLicenseFile();
+            }
+            init(firstTime);
+        }
+    }
+
+    private void createAcceptedLicenseFile() {
+        try {
+            Files.createFile(Paths.get(Constant.getInstance().ACCEPTED_LICENSE));
+
+        } catch (final IOException ie) {
+            JOptionPane.showMessageDialog(null, Constant.messages.getString("start.unknown.error"));
+            logger.error("Failed to create 'accepted license' file: ", ie);
+            return;
         }
     }
 
@@ -169,6 +184,10 @@ public class GuiBootstrap extends ZapBootstrap {
 
         setupLocale(options);
 
+        if (viewParam.isUseSystemsLocaleForFormat()) {
+            Locale.setDefault(Locale.Category.FORMAT, Constant.getSystemsLocale());
+        }
+
         View.getSingleton().showSplashScreen();
 
         promptForProxyDetailsIfNeeded(options);
@@ -197,13 +216,15 @@ public class GuiBootstrap extends ZapBootstrap {
                     View.getSingleton().hideSplashScreen();
 
                     logger.fatal("Failed to initialise GUI: ", e);
-                    return;
+
+                    // We must exit otherwise EDT would keep ZAP running.
+                    System.exit(1);
                 }
 
                 warnAddOnsAndExtensionsNoLongerRunnable();
 
                 if (firstTime) {
-                    // Disabled for now - we have too many popups occuring when you
+                    // Disabled for now - we have too many popups occurring when you
                     // first start up
                     // be nice to have a clean start up wizard...
                     // ExtensionHelp.showHelp();
@@ -211,9 +232,8 @@ public class GuiBootstrap extends ZapBootstrap {
                 } else {
                     // Dont auto check for updates the first time, no chance of any
                     // proxy having been set
-                    final ExtensionAutoUpdate eau = (ExtensionAutoUpdate) Control.getSingleton()
-                            .getExtensionLoader()
-                            .getExtension("ExtensionAutoUpdate");
+                    final ExtensionAutoUpdate eau = Control.getSingleton()
+                            .getExtensionLoader().getExtension(ExtensionAutoUpdate.class);
                     if (eau != null) {
                         eau.alertIfNewVersions();
                     }
@@ -505,14 +525,7 @@ public class GuiBootstrap extends ZapBootstrap {
                     return;
                 }
 
-                try {
-                    Files.createFile(Paths.get(Constant.getInstance().ACCEPTED_LICENSE));
-
-                } catch (final IOException ie) {
-                    JOptionPane.showMessageDialog(null, Constant.messages.getString("start.unknown.error"));
-                    logger.error("Failed to create 'accepted license' file: ", ie);
-                    return;
-                }
+                createAcceptedLicenseFile();
 
                 init(true);
             }
@@ -540,6 +553,22 @@ public class GuiBootstrap extends ZapBootstrap {
                 Constant.messages.getString("start.gui.warn.addOnsOrExtensionsNoLongerRunning"),
                 addOnLoader.getAddOnCollection(),
                 addOnsNoLongerRunning);
+    }
+
+    /**
+     * Tells whether or not ZAP license should be shown, if the license was already accepted it does not need to be shown again.
+     * <p>
+     * The license is considered accepted if a file named {@link Constant#ACCEPTED_LICENSE_DEFAULT AcceptedLicense} exists in
+     * the installation and/or home directory.
+     *
+     * @return {@code true} if the license should be shown, {@code false} otherwise.
+     */
+    private static boolean isShowLicense() {
+        Path acceptedLicenseFile = Paths.get(Constant.getZapInstall(), Constant.getInstance().ACCEPTED_LICENSE_DEFAULT);
+        if (Files.exists(acceptedLicenseFile)) {
+            return false;
+        }
+        return isFirstTime();
     }
 
     /**

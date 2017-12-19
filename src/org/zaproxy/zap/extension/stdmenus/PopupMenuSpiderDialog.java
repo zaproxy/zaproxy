@@ -28,7 +28,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
 /**
- * @deprecated (TODO add version) No longer in use, replaced by
+ * @deprecated (2.6.0) No longer in use, replaced by
  *             {@link org.zaproxy.zap.extension.spider.PopupMenuItemSpiderDialog}.
  */
 @Deprecated
@@ -47,7 +47,7 @@ public class PopupMenuSpiderDialog extends PopupMenuItemSiteNodeContainer {
     
     private ExtensionSpider getExtensionActiveScan() {
     	if (extension == null) {
-    		extension = (ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
+    		extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.class);
     	}
     	return extension;
     }

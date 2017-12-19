@@ -91,7 +91,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
      * @param icon the icon for the tab of the panel
      * @param controller the scan controller
      * @param scanParam unused
-     * @deprecated (TODO add version) Use {@link #ScanPanel2(String, ImageIcon, ScanController)} instead.
+     * @deprecated (2.6.0) Use {@link #ScanPanel2(String, ImageIcon, ScanController)} instead.
      */
     @Deprecated
     public ScanPanel2(String prefix, ImageIcon icon, SC controller, AbstractParam scanParam) {
@@ -104,7 +104,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
      * @param prefix the prefix for the resource messages
      * @param icon the icon for the tab of the panel
      * @param controller the scan controller
-     * @since TODO add version
+     * @since 2.6.0
      */
     public ScanPanel2(String prefix, ImageIcon icon, SC controller) {
         super();

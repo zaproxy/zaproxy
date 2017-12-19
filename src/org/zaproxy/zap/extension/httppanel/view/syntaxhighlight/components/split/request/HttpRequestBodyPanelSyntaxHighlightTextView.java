@@ -104,6 +104,8 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
 			
 			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+
+			setCodeFoldingAllowed(true);
 		}
 		
         @Override

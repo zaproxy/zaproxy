@@ -42,7 +42,7 @@ public class PopupMenuActiveScanURL extends PopupMenuItemSiteNodeContainer {
     
     private ExtensionActiveScan getExtensionActiveScan() {
     	if (extension == null) {
-    		extension = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
+    		extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.class);
     	}
     	return extension;
     }

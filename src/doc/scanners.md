@@ -70,6 +70,13 @@ Scanners:
 10053   Apache Range Header DoS (CVE-2011-3192)
 10054   Cookie set without SameSite attribute
 10055   Content Security Policy Scanner
+10056   X-Debug-Token Scanner
+10057   Username Hash iDOR Scanner
+10058   GET for POST Scanner
+10059	Http Parameter Pollution (Client Side)
+10060	Http Parameter Pollution (Server Side)
+10061   Server Leaks Information via "X-AspNet-Version"/"X-AspNetMvc-Version" HTTP Response Header Field(s)
+10062   Server Leaks PII in response body
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure
@@ -139,11 +146,17 @@ Scanners:
 40025   Proxy Disclosure
 40026   Cross site scripting (DOM)
 40027   SQL Injection MsSQL
+40028   ELMAH Scanner
+40029   trace.axd Scanner
+40030   Backslash Powered Scanner
+40031   Cross Site Scripting - Detection by Callback
+40032   .htaccess Scanner
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
 50002   Fuzzer HTTP Processor scripts
 50003   Stats passive scan rule
+50004   Zest scripts (Action - Fail)
 
 60000   Example simple passive rule 
 60001   Example file passive rule 
@@ -166,4 +179,10 @@ Scanners:
 90029   SOAP XML Injection
 90030   WSDL File Detection
 90033   Loosely Scoped Cookie
+
+100000  Client/Server HTTP Error Response Codes [Script]
+100001  Unexpected Content Types [Script]
+
+322420463 Retire.js
+
 ```

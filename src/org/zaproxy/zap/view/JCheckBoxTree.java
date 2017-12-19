@@ -3,8 +3,8 @@ package org.zaproxy.zap.view;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -211,7 +211,7 @@ public class JCheckBoxTree extends JTree {
             }
         };
         // Calling checking mechanism on mouse click
-        this.addMouseListener(new MouseListener() {
+        this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent arg0) {
                 TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
@@ -228,18 +228,6 @@ public class JCheckBoxTree extends JTree {
                 fireCheckChangeEvent(new CheckChangeEvent(new Object()));
                 // Repainting tree after the data structures were updated
                 JCheckBoxTree.this.repaint();                          
-            }           
-            @Override
-            public void mouseEntered(MouseEvent arg0) {         
-            }           
-            @Override
-            public void mouseExited(MouseEvent arg0) {              
-            }
-            @Override
-            public void mousePressed(MouseEvent arg0) {             
-            }
-            @Override
-            public void mouseReleased(MouseEvent arg0) {
             }           
         });
         this.setSelectionModel(dtsm);

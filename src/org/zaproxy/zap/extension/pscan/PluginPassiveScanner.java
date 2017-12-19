@@ -53,8 +53,15 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 
 	/**
 	 * The configuration key used to save/load the alert threshold of a passive scanner.
+	 * <p>
+	 * To be replaced by {@link #ALERT_THRESHOLD_KEY}.
 	 */
 	private static final String LEVEL_KEY = "level";
+
+	/**
+	 * The configuration key used to save/load the alert threshold of a passive scanner.
+	 */
+	private static final String ALERT_THRESHOLD_KEY = "alertthreshold";
 
 	/**
 	 * The configuration key used to save/load the enabled state of a passive scanner.
@@ -68,8 +75,8 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	private static final Set<Integer> DEFAULT_HISTORY_TYPES_SET = 
 			Collections.unmodifiableSet(new HashSet<Integer>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
 
-	private AlertThreshold level = AlertThreshold.DEFAULT;
-	private AlertThreshold defaultLevel = AlertThreshold.MEDIUM;
+	private AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
+	private AlertThreshold defaultAlertThreshold = AlertThreshold.MEDIUM;
 	private Configuration config = null;
 	private AddOn.Status status = AddOn.Status.unknown;
 
@@ -97,7 +104,12 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 		List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(PSCANS_KEY);
 		for (HierarchicalConfiguration sub : fields) {
 			if (isPluginConfiguration(sub)) {
-				setLevel(AlertThreshold.valueOf(sub.getString(LEVEL_KEY, AlertThreshold.DEFAULT.name())));
+				// For compatibility with older versions:
+				String alertThresholdName = sub.getString(LEVEL_KEY, null);
+				if (alertThresholdName == null) {
+					alertThresholdName = sub.getString(ALERT_THRESHOLD_KEY, AlertThreshold.DEFAULT.name());
+				}
+				setAlertThreshold(AlertThreshold.valueOf(alertThresholdName));
 				setEnabled(sub.getBoolean(ENABLED_KEY, true));
 				break;
 			}
@@ -157,8 +169,10 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 		boolean persistId = false;
 		String entryKey = PSCANS_KEY + "(" + (removed ? fields.size() - 1 : fields.size()) + ").";
 
-		if (getLevel() != AlertThreshold.MEDIUM) {
-			conf.setProperty(entryKey + LEVEL_KEY, getLevel().name());
+		if (getAlertThreshold() != AlertThreshold.MEDIUM) {
+			conf.setProperty(entryKey + ALERT_THRESHOLD_KEY, getAlertThreshold().name());
+			// For compatibility with older versions:
+			conf.setProperty(entryKey + LEVEL_KEY, getAlertThreshold().name());
 			persistId = true;
 		}
 
@@ -172,43 +186,110 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 		}
 	}
 
+	/**
+	 * @deprecated (2.7.0) Replaced by {@link #getAlertThreshold()}.
+	 */
 	@Override
+	@Deprecated
 	public AlertThreshold getLevel() {
-		if (AlertThreshold.DEFAULT.equals(level)) {
-			return defaultLevel;
-		}
-		return level;
+		return getAlertThreshold();
 	}
 	
+	/**
+	 * Gets the alert threshold of the scanner, possibly returning {@link AlertThreshold#DEFAULT}.
+	 * 
+	 * @param incDefault {@code true} if the value {@link AlertThreshold#DEFAULT} can be returned, {@code false} otherwise.
+	 * @return the alert threshold.
+	 * @deprecated (2.7.0) Replaced by {@link #getAlertThreshold(boolean)}.
+	 */
+	@Deprecated
 	public AlertThreshold getLevel(boolean incDefault) {
-		return level;
+		return getAlertThreshold(incDefault);
+	}
+	
+	/**
+	 * Gets the alert threshold of the scanner.
+	 * <p>
+	 * If the alert threshold was set to DEFAULT it's returned the default value set.
+	 *
+	 * @return the alert threshold of the scanner.
+	 * @since 2.7.0
+	 * @see #setAlertThreshold(AlertThreshold)
+	 * @see #getAlertThreshold(boolean)
+	 */
+	public AlertThreshold getAlertThreshold() {
+		if (AlertThreshold.DEFAULT.equals(alertThreshold)) {
+			return defaultAlertThreshold;
+		}
+		return alertThreshold;
+	}
+
+	/**
+	 * Gets the alert threshold of the scanner, possibly returning {@link AlertThreshold#DEFAULT}.
+	 *
+	 * @param incDefault {@code true} if the value {@link AlertThreshold#DEFAULT} can be returned, {@code false} otherwise.
+	 * @return the alert threshold.
+	 */
+	public AlertThreshold getAlertThreshold(boolean incDefault) {
+		if (!incDefault && alertThreshold == AlertThreshold.DEFAULT) {
+			return defaultAlertThreshold;
+		}
+		return alertThreshold;
 	}
 	
 	/**
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @see #getLevel()
+	 * @deprecated (2.7.0) Replaced by {@link #setAlertThreshold(AlertThreshold)}.
 	 */
 	@Override
+	@Deprecated
 	public void setLevel(AlertThreshold level) {
-		if (level == null) {
-			throw new IllegalArgumentException("Parameter level must not be null.");
+		setAlertThreshold(level);
+	}
+
+	/**
+	 * Sets the alert threshold of the scanner.
+	 *
+	 * @param alertThreshold the new alert threshold.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since 2.7.0
+	 * @see #getAlertThreshold()
+	 */
+	public void setAlertThreshold(AlertThreshold alertThreshold) {
+		if (alertThreshold == null) {
+			throw new IllegalArgumentException("Parameter alertThreshold must not be null.");
 		}
-		this.level = level;
+		this.alertThreshold = alertThreshold;
 	}
 
 	/**
 	 * Sets the alert threshold that should be returned when set to {@link AlertThreshold#DEFAULT}.
 	 *
 	 * @param level the value of default alert threshold
-	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@codeAlertThreshold.DEFAULT}.
+	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@code AlertThreshold.DEFAULT}.
 	 * @since 2.0.0
-	 * @see #setLevel(AlertThreshold)
+	 * @deprecated (2.7.0) Replaced by {@link #setDefaultAlertThreshold(AlertThreshold)}.
+	 * @see #setAlertThreshold(AlertThreshold)
 	 */
+	@Deprecated
 	public void setDefaultLevel(AlertThreshold level) {
-		if (level == null || level == AlertThreshold.DEFAULT) {
-			throw new IllegalArgumentException("Parameter level must not be null or DEFAULT.");
+		setDefaultAlertThreshold(level);
+	}
+
+	/**
+	 * Sets the alert threshold that should be returned when set to {@link AlertThreshold#DEFAULT}.
+	 *
+	 * @param alertThreshold the value of default alert threshold.
+	 * @throws IllegalArgumentException if the given parameter is {@code null} or {@code AlertThreshold.DEFAULT}.
+	 * @since 2.7.0
+	 * @see #setDefaultAlertThreshold(AlertThreshold)
+	 * @see #setAlertThreshold(AlertThreshold)
+	 */
+	public void setDefaultAlertThreshold(AlertThreshold alertThreshold) {
+		if (alertThreshold == null || alertThreshold == AlertThreshold.DEFAULT) {
+			throw new IllegalArgumentException("Parameter alertThreshold must not be null or DEFAULT.");
 		}
-		this.defaultLevel = level;
+		this.defaultAlertThreshold = alertThreshold;
 	}
 
 	/**

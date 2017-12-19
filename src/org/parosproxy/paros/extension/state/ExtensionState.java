@@ -32,11 +32,10 @@
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
+// ZAP: 2017/04/07 Added getUIName()
+// ZAP: 2017/05/02 Removed Menu Item 'Session tracking'
 
 package org.parosproxy.paros.extension.state;
-
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.httpclient.HttpState;
 import org.parosproxy.paros.Constant;
@@ -45,20 +44,21 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionState extends ExtensionAdaptor implements SessionChangedListener {
-
-	private JCheckBoxMenuItem menuSessionTrackingEnable = null;
-
-	private ZapMenuItem menuResetSessionState = null;
+	
+	private static final String NAME = "ExtensionState";
 
     public ExtensionState() {
-        super("ExtensionState");
+        super(NAME);
         this.setOrder(12);
 	}
 	
-
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("state.name");
+    }
+    
 	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
@@ -67,68 +67,12 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	    // ZAP: Changed to check if there is a view.
 	    if (getView() != null) {
 		    extensionHook.getHookMenu().addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
-		    extensionHook.getHookMenu().addEditMenuItem(getMenuSessionTrackingEnable());
-		    extensionHook.getHookMenu().addEditMenuItem(getMenuResetSessionState());
 	    }
-	}
-
-	
-	/**
-	 * This method initializes menuViewImage	
-	 * 	
-	 * @return javax.swing.JCheckBoxMenuItem	
-	 */    
-	private JCheckBoxMenuItem getMenuSessionTrackingEnable() {
-		if (menuSessionTrackingEnable == null) {
-		    menuSessionTrackingEnable = new JCheckBoxMenuItem();
-		    menuSessionTrackingEnable.setText(Constant.messages.getString("menu.edit.enableTracking"));	// ZAP: i18n
-			getMenuResetSessionState().setEnabled(menuSessionTrackingEnable.isSelected());
-
-			menuSessionTrackingEnable.addItemListener(new java.awt.event.ItemListener() { 
-
-				@Override
-				public void itemStateChanged(java.awt.event.ItemEvent e) {    
-
-					getModel().getOptionsParam().getConnectionParam().setHttpStateEnabled(menuSessionTrackingEnable.isEnabled());
-					getMenuResetSessionState().setEnabled(menuSessionTrackingEnable.isSelected());
-			        resetSessionState();
-				}
-			});
-
-		}
-		return menuSessionTrackingEnable;
-	}
-	
-
-          //  @jve:decl-index=0:}  //  @jve:decl-index=0:
-	/**
-	 * This method initializes jMenuItem	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	private ZapMenuItem getMenuResetSessionState() {
-		if (menuResetSessionState == null) {
-			menuResetSessionState = new ZapMenuItem("menu.edit.resetState");
-			menuResetSessionState.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    if (getView().showConfirmDialog(Constant.messages.getString("state.reset.warning")) == JOptionPane.OK_OPTION) {
-				        resetSessionState();
-				    }
-
-				}
-			});
-		}
-		return menuResetSessionState;
 	}
 
     @Override
     public void sessionChanged(Session session) {
         getModel().getOptionsParam().getConnectionParam().setHttpState(new HttpState());        
-    }
-
-    private void resetSessionState() {
-        getModel().getOptionsParam().getConnectionParam().setHttpState(new HttpState());
     }
 
 	@Override

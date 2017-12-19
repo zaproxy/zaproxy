@@ -1,7 +1,3 @@
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
-
 // The authenticate function is called whenever ZAP requires to authenticate, for a Context for which this script
 // was selected as the Authentication Method. The function should send any messages that are required to do the authentication
 // and should return a message with an authenticated response so the calling method.
@@ -18,12 +14,12 @@ if (typeof println == 'undefined') this.println = print;
 //					returned by the getCredentialsParamsNames() below
 
 function authenticate(helper, paramsValues, credentials) {
-	println("Authenticating via JavaScript script...");
+	print("Authenticating via JavaScript script...");
 	
 	// Make sure any Java classes used explicitly are imported
-	importClass(org.parosproxy.paros.network.HttpRequestHeader)
-	importClass(org.parosproxy.paros.network.HttpHeader)
-	importClass(org.apache.commons.httpclient.URI)
+	var HttpRequestHeader = Java.type("org.parosproxy.paros.network.HttpRequestHeader")
+	var HttpHeader = Java.type("org.parosproxy.paros.network.HttpHeader")
+	var URI = Java.type("org.apache.commons.httpclient.URI")
 
 	// Prepare the login request details
 	requestUri = new URI("http://localhost:8080/bodgeit/login.jsp", false);
@@ -39,7 +35,7 @@ function authenticate(helper, paramsValues, credentials) {
 
 	// Send the authentication message and return it
 	helper.sendAndReceive(msg);
-	println("Received BodgeIt response status code: "+ msg.getResponseHeader().getStatusCode());
+	print("Received BodgeIt response status code: "+ msg.getResponseHeader().getStatusCode());
 
 	return msg;
 }

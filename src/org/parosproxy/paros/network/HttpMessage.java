@@ -46,6 +46,7 @@
 // ZAP: 2015/08/19 Deprecate/change methods with unused parameters 
 // ZAP: 2016/05/31 Implement hashCode()
 // ZAP: 2017/02/01 Set whether or not the charset should be determined when setting a (String) response.
+// ZAP: 2017/08/23 queryEquals correct comparison and add JavaDoc. equalType update JavaDoc.
 
 package org.parosproxy.paros.network;
 
@@ -423,10 +424,17 @@ public class HttpMessage implements Message {
 	}
 
 	/**
-	 * 2 messages are equal type if the host, port, path and query names are equal.
-	 * Even though the query value may differ.
+	 * Compares this {@code HttpMessage} against another. Messages are equal
+	 * type if the host, port, path and parameter names are equal. Even though
+	 * the query values may differ. For POST this assumes x-www-form-urlencoded,
+	 * for other types (such as JSON) this means that parameter names and values
+	 * (the full request body) could be included.
+	 * 
 	 * @param msg
-	 * @return
+	 *            the message against which this {@code HttpMessage} is being
+	 *            compared.
+	 * @return {@code true} if the messages are considered equal,
+	 *         {@code false} otherwise
 	 */
 	public boolean equalType(HttpMessage msg) {
 	    boolean result = false;
@@ -479,15 +487,27 @@ public class HttpMessage implements Message {
 	    return result;
 	}
 	
+	/**
+	 * Compares the parameter names used in GET and POST messages. For POST
+	 * this assumes x-www-form-urlencoded, for other types (such as JSON)
+	 * this means that parameter names and values (the full request body) 
+	 * could be included.
+	 * 
+	 * @param msg
+	 *            the message against which this {@code HttpMessage} parameter
+	 *            names are being compared.
+	 * 
+	 * @return {@code true} if the set of parameter names are considered equal,
+	 *         {@code false} otherwise
+	 */
 	private boolean queryEquals(HttpMessage msg) {
 	    boolean result = false;
 	    
 	    SortedSet<String> set1 = null;
 	    SortedSet<String> set2 = null;
 
-        // compare the URI query part.  2 msg is consider same param set here.
         set1 = getParamNameSet(HtmlParameter.Type.url);
-	    set2 = getParamNameSet(HtmlParameter.Type.url);
+	    set2 = msg.getParamNameSet(HtmlParameter.Type.url);
 
 	    if (!set1.equals(set2)) {
 	        return false;
@@ -499,7 +519,7 @@ public class HttpMessage implements Message {
 	    if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
 	        
 	        set1 = getParamNameSet(HtmlParameter.Type.form);
-		    set2 = getParamNameSet(HtmlParameter.Type.form);	        
+		    set2 = msg.getParamNameSet(HtmlParameter.Type.form);	        
 
 		    if (!set1.equals(set2)) {
 		        return false;

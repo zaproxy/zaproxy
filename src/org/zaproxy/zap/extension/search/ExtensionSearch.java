@@ -68,6 +68,11 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("search.name");
+    }
+    
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

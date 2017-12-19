@@ -24,6 +24,11 @@ import org.zaproxy.zap.control.AddOnCollection;
 
 public interface CheckForUpdateCallback {
 
+	/**
+	 * Called when the check for updates finishes without {@link #insecureUrl(String, Exception) insecure URL errors}.
+	 *
+	 * @param aoc the latest {@code AddOnCollection}, or {@code null} if not obtained (e.g. I/O errors).
+	 */
 	void gotLatestData (AddOnCollection aoc);
 	
 	void insecureUrl(String url, Exception cause);

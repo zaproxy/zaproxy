@@ -47,6 +47,8 @@
 // ZAP: 2016/09/20 JavaDoc tweaks
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
+// ZAP: 2017/08/30: Issue 1984: Ensure element setters set empty string if passed a null value
+// ZAP: 2017/09/15 Initialise the source from the RecordAlert always.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -71,7 +73,7 @@ public class Alert implements Comparable<Alert>  {
     /**
      * The source of the alerts.
      *
-     * @since TODO add version
+     * @since 2.6.0
      */
     public enum Source {
         /**
@@ -225,18 +227,11 @@ public class Alert implements Comparable<Alert>  {
 
 	public Alert(RecordAlert recordAlert) {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
-	    // ZAP: Set the alertId
-	    this.alertId = recordAlert.getAlertId();
-	    this.source = Source.getSource(recordAlert.getSourceId());
-        try {
-        	HistoryReference hRef = new HistoryReference(recordAlert.getHistoryId());
-            setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-            		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
-            		recordAlert.getSolution(), recordAlert.getReference(),
-            		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-            		null);
 
-            setHistoryRef(hRef);
+        HistoryReference hRef = null;
+        try {
+            hRef = new HistoryReference(recordAlert.getHistoryId());
+
         } catch (HttpMalformedHeaderException e) {
         	// ZAP: Just an indication the history record doesnt exist
         	logger.debug(e.getMessage(), e);
@@ -244,19 +239,32 @@ public class Alert implements Comparable<Alert>  {
         	// ZAP: Log the exception
         	logger.error(e.getMessage(), e);
         }
-	    
+
+        init(recordAlert, hRef);
+	}
+
+	private void init(RecordAlert recordAlert, HistoryReference ref) {
+		this.alertId = recordAlert.getAlertId();
+		this.source = Source.getSource(recordAlert.getSourceId());
+		setDetail(
+				recordAlert.getDescription(),
+				recordAlert.getUri(),
+				recordAlert.getParam(),
+				recordAlert.getAttack(),
+				recordAlert.getOtherInfo(),
+				recordAlert.getSolution(),
+				recordAlert.getReference(),
+				recordAlert.getEvidence(),
+				recordAlert.getCweId(),
+				recordAlert.getWascId(),
+				null);
+		setHistoryRef(ref);
 	}
 	
 	public Alert(RecordAlert recordAlert, HistoryReference ref) {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
-	    // ZAP: Set the alertId
-	    this.alertId = recordAlert.getAlertId();
-        setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-        		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
-        		recordAlert.getSolution(), recordAlert.getReference(), 
-        		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-        		null);
-        setHistoryRef(ref);
+
+		init(recordAlert, ref);
 	}
 	/**
 	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}.
@@ -289,8 +297,7 @@ public class Alert implements Comparable<Alert>  {
 	 * @since 2.5.0
 	 */
 	public void setName(String name) {
-	    if (name == null) return;
-	    this.name = name;
+	    this.name = (name == null) ? "" : name;
 	}
 	
 	/**
@@ -361,41 +368,28 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	public void setUri(String uri) {
-    	// ZAP: Cope with null
-	    if (uri == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.uri = uri;
+		this.uri = (uri == null) ? "" : uri;
 	}
 	
 	
 	public void setDescription(String description) {
-	    if (description == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.description = description;
+		this.description = (description == null) ? "" : description;
 	}
 	
 	public void setParam(String param) {
-	    if (param == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.param = param;
+		this.param = (param == null) ? "" : param;
 	}
 	
 	public void setOtherInfo(String otherInfo) {
-	    if (otherInfo == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.otherInfo = otherInfo;
+		this.otherInfo = (otherInfo == null) ? "" : otherInfo;
 	}
 
 	public void setSolution(String solution) {
-	    if (solution == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.solution = solution;
+		this.solution = (solution == null) ? "" : solution;
 	}
 
 	public void setReference(String reference) {
-	    if (reference == null) return;
-	    // ZAP: Changed to not create a new String.
-		this.reference = reference;
+		this.reference = (reference == null) ? "" : reference;
 	}
 
 	public void setMessage(HttpMessage message) {
@@ -695,7 +689,7 @@ public class Alert implements Comparable<Alert>  {
     /**
      * Gets the correctly scaled icon for this alert.
      * @return the correctly scaled icon for this alert
-     * @since TODO add version
+     * @since 2.6.0
      */
     public ImageIcon getIcon() {
         if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
@@ -804,7 +798,7 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	public void setAttack(String attack) {
-		this.attack = attack;
+		this.attack = (attack == null) ? "" : attack;
 	}
 
 	public String getMethod() {
@@ -824,7 +818,7 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	public void setEvidence(String evidence) {
-		this.evidence = evidence;
+		this.evidence = (evidence == null) ? "" : evidence;
 	}
 
 	public int getCweId() {
@@ -847,7 +841,7 @@ public class Alert implements Comparable<Alert>  {
 	 * Gets the source of the alert.
 	 *
 	 * @return the source of the alert, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public Source getSource() {
 		return source;
@@ -861,7 +855,7 @@ public class Alert implements Comparable<Alert>  {
 	 *
 	 * @param source the source of the alert.
 	 * @throws IllegalArgumentException if the given {@code source} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public void setSource(Source source) {
 		if (source == null) {

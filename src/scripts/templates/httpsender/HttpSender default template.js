@@ -23,18 +23,14 @@
 // New requests can be made like this:
 // msg2 = msg.cloneAll() // msg2 can then be safely changed as required without affecting msg
 // helper.getHttpSender().sendAndReceive(msg2, false);
-// println('msg2 response=' + msg2.getResponseHeader().getStatusCode())
-
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
+// print('msg2 response=' + msg2.getResponseHeader().getStatusCode())
 
 function sendingRequest(msg, initiator, helper) {
 	// Debugging can be done using println like this
-	println('sendingRequest called for url=' + msg.getRequestHeader().getURI().toString())
+	print('sendingRequest called for url=' + msg.getRequestHeader().getURI().toString())
 }
 
 function responseReceived(msg, initiator, helper) {
 	// Debugging can be done using println like this
-	println('responseReceived called for url=' + msg.getRequestHeader().getURI().toString())
+	print('responseReceived called for url=' + msg.getRequestHeader().getURI().toString())
 }

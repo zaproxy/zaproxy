@@ -62,6 +62,11 @@
 // ZAP: 2016/08/04 Added removeListener(..)
 // ZAP: 2016/12/07 Add initiator constant for AJAX spider requests
 // ZAP: 2016/12/12 Add initiator constant for Forced Browse requests
+// ZAP: 2017/03/27 Introduce HttpRequestConfig.
+// ZAP: 2017/06/12 Allow to ignore listeners.
+// ZAP: 2017/06/19 Allow to send a request with custom socket timeout.
+// ZAP: 2017/11/20 Add initiator constant for Token Generator requests.
+// ZAP: 2017/11/27 Use custom CookieSpec (ZapCookieSpec).
 
 package org.parosproxy.paros.network;
 
@@ -99,6 +104,9 @@ import org.apache.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.network.ZapCookieSpec;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.network.ZapNTLMScheme;
 import org.zaproxy.zap.users.User;
 
@@ -114,6 +122,7 @@ public class HttpSender {
 	public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
 	public static final int AJAX_SPIDER_INITIATOR = 10;
 	public static final int FORCED_BROWSE_INITIATOR = 11;
+	public static final int TOKEN_GENERATOR_INITIATOR = 12;
 
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
@@ -138,6 +147,8 @@ public class HttpSender {
 		}
 
 		AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
+		CookiePolicy.registerCookieSpec(CookiePolicy.DEFAULT, ZapCookieSpec.class);
+		CookiePolicy.registerCookieSpec(CookiePolicy.BROWSER_COMPATIBILITY, ZapCookieSpec.class);
 	}
 
 	private static HttpMethodHelper helper = new HttpMethodHelper();
@@ -198,7 +209,14 @@ public class HttpSender {
 
 		if (useGlobalState) {
 			checkState();
+		} else {
+			setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		}
+	}
+
+	private void setClientsCookiePolicy(String policy) {
+		client.getParams().setCookiePolicy(policy);
+		clientViaProxy.getParams().setCookiePolicy(policy);
 	}
 
 	public static SSLConnector getSSLConnector() {
@@ -209,11 +227,9 @@ public class HttpSender {
 		if (param.isHttpStateEnabled()) {
 			client.setState(param.getHttpState());
 			clientViaProxy.setState(param.getHttpState());
-			client.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			clientViaProxy.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+			setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		} else {
-			client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-			clientViaProxy.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+			setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		}
 	}
 
@@ -372,7 +388,7 @@ public class HttpSender {
 	 * @param isFollowRedirect
 	 * @throws HttpException
 	 * @throws IOException
-	 * @see #sendAndReceive(HttpMessage, RedirectionValidator)
+	 * @see #sendAndReceive(HttpMessage, HttpRequestConfig)
 	 */
 	public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 
@@ -471,6 +487,10 @@ public class HttpSender {
 
 	// ZAP: Make sure a message that needs to be authenticated is authenticated
 	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
+		sendAuthenticated(msg, isFollowRedirect, null);
+	}
+
+	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
 		// Modify the request message if a 'Requesting User' has been set
 		User forceUser = this.getUser(msg);
 		if (initiator != AUTHENTICATION_INITIATOR && forceUser != null)
@@ -478,7 +498,7 @@ public class HttpSender {
 
 		log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
 		// Send the message
-		send(msg, isFollowRedirect);
+		send(msg, isFollowRedirect, params);
 
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
@@ -489,18 +509,18 @@ public class HttpSender {
 					+ ". Authenticating and trying again...");
 			forceUser.queueAuthentication(msg);
 			forceUser.processMessageToMatchUser(msg);
-			send(msg, isFollowRedirect);
+			send(msg, isFollowRedirect, params);
 		} else
 			log.debug("SUCCESSFUL");
 
 	}
 
-	private void send(HttpMessage msg, boolean isFollowRedirect) throws IOException {
+	private void send(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
 		HttpMethod method = null;
 		HttpResponseHeader resHeader = null;
 
 		try {
-			method = runMethod(msg, isFollowRedirect);
+			method = runMethod(msg, isFollowRedirect, params);
 			// successfully executed;
 			resHeader = HttpMethodHelper.getHttpResponseHeader(method);
 			resHeader.setHeader(HttpHeader.TRANSFER_ENCODING, null); // replaceAll("Transfer-Encoding: chunked\r\n",
@@ -527,11 +547,11 @@ public class HttpSender {
 		}
 	}
 
-	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect) throws IOException {
+	private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
 		HttpMethod method = null;
 		// no more retry
 		modifyUserAgent(msg);
-		method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody());
+		method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody(), params);
 		if (!(method instanceof EntityEnclosingMethod)) {
 			// cant do this for EntityEnclosingMethod methods - it will fail
 			method.setFollowRedirects(isFollowRedirect);
@@ -829,46 +849,89 @@ public class HttpSender {
     }
 
     /**
-     * Sends the request of given HTTP {@code message}, following redirections per rules defined by the given {@code validator}.
-     * After the call to this method the given {@code message} will have the contents of the last response received (possibly
-     * the response of a redirection).
-     * <p>
-     * The validator is notified of each message sent and received (first message and redirections followed, if any).
+     * Sends the request of given HTTP {@code message} with the given configurations.
      *
      * @param message the message that will be sent
-     * @param validator the validator responsible for validation of redirections
+     * @param requestConfig the request configurations.
      * @throws IllegalArgumentException if any of the parameters is {@code null}
      * @throws IOException if an error occurred while sending the message or following the redirections
-     * @since TODO add version
+     * @since 2.6.0
      * @see #sendAndReceive(HttpMessage, boolean)
      */
-    public void sendAndReceive(HttpMessage message, RedirectionValidator validator) throws IOException {
+    public void sendAndReceive(HttpMessage message, HttpRequestConfig requestConfig) throws IOException {
         if (message == null) {
             throw new IllegalArgumentException("Parameter message must not be null.");
         }
-        if (validator == null) {
-            throw new IllegalArgumentException("Parameter validator must not be null.");
+        if (requestConfig == null) {
+            throw new IllegalArgumentException("Parameter requestConfig must not be null.");
         }
 
-        sendAndReceive(message, false);
-        validator.notifyMessageReceived(message);
+        sendAndReceiveImpl(message, requestConfig);
 
-        followRedirections(message, validator);
+        if (requestConfig.isFollowRedirects()) {
+            followRedirections(message, requestConfig);
+        }
     }
 
     /**
-     * Follows redirections using the response of the given {@code message}. The given {@code validator} will be called for each
-     * redirection received. After the call to this method the given {@code message} will have the contents of the last response
-     * received (possibly the response of a redirection).
+     * Helper method that sends the request of the given HTTP {@code message} with the given configurations.
+     * <p>
+     * No redirections are followed (see {@link #followRedirections(HttpMessage, HttpRequestConfig)}).
+     *
+     * @param message the message that will be sent.
+     * @param requestConfig the request configurations.
+     * @throws IOException if an error occurred while sending the message or following the redirections.
+     */
+    private void sendAndReceiveImpl(HttpMessage message, HttpRequestConfig requestConfig) throws IOException {
+        if (log.isDebugEnabled()) {
+            log.debug("Sending " + message.getRequestHeader().getMethod() + " " + message.getRequestHeader().getURI());
+        }
+        message.setTimeSentMillis(System.currentTimeMillis());
+
+        try {
+            if (requestConfig.isNotifyListeners()) {
+                notifyRequestListeners(message);
+            }
+
+            HttpMethodParams params = null;
+            if (requestConfig.getSoTimeout() != HttpRequestConfig.NO_VALUE_SET) {
+                params = new HttpMethodParams();
+                params.setSoTimeout(requestConfig.getSoTimeout());
+            }
+            sendAuthenticated(message, false, params);
+
+        } finally {
+            message.setTimeElapsedMillis((int) (System.currentTimeMillis() - message.getTimeSentMillis()));
+
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Received response after " + message.getTimeElapsedMillis() + "ms for "
+                                + message.getRequestHeader().getMethod() + " " + message.getRequestHeader().getURI());
+            }
+
+            if (requestConfig.isNotifyListeners()) {
+                notifyResponseListeners(message);
+            }
+        }
+    }
+
+    /**
+     * Follows redirections using the response of the given {@code message}. The {@code validator} in the give request
+     * configuration will be called for each redirection received. After the call to this method the given {@code message} will
+     * have the contents of the last response received (possibly the response of a redirection).
      * <p>
      * The validator is notified of each message sent and received (first message and redirections followed, if any).
      *
      * @param message the message that will be sent, must not be {@code null}
-     * @param validator the validator responsible for validation of redirections, must not be {@code null}
+     * @param requestConfig the request configuration that contains the validator responsible for validation of redirections,
+     *            must not be {@code null}.
      * @throws IOException if an error occurred while sending the message or following the redirections
      * @see #isRedirectionNeeded(int)
      */
-    private void followRedirections(HttpMessage message, RedirectionValidator validator) throws IOException {
+    private void followRedirections(HttpMessage message, HttpRequestConfig requestConfig) throws IOException {
+        HttpRedirectionValidator validator = requestConfig.getRedirectionValidator();
+        validator.notifyMessageReceived(message);
+
         HttpMessage redirectMessage = message;
         int maxRedirections = client.getParams().getIntParameter(HttpClientParams.MAX_REDIRECTS, 100);
         for (int i = 0; i < maxRedirections && isRedirectionNeeded(redirectMessage.getResponseHeader().getStatusCode()); i++) {
@@ -887,7 +950,7 @@ public class HttpSender {
                 redirectMessage.setRequestBody("");
             }
 
-            sendAndReceive(redirectMessage, false);
+            sendAndReceiveImpl(redirectMessage, requestConfig);
             validator.notifyMessageReceived(redirectMessage);
 
             // Update the response of the (original) message
@@ -958,29 +1021,4 @@ public class HttpSender {
         }
     }
 
-    /**
-     * A validator of redirections.
-     * <p>
-     * As convenience the validator will also be notified of the HTTP messages sent and received (first message and followed
-     * redirections, if any).
-     * 
-     * @since TODO add version
-     */
-    public interface RedirectionValidator {
-
-        /**
-         * Tells whether or not the given {@code redirection} is valid, to be followed.
-         *
-         * @param redirection the redirection being checked, never {@code null}
-         * @return {@code true} if the redirection is valid, {@code false} otherwise
-         */
-        boolean isValid(URI redirection);
-
-        /**
-         * Notifies that a new message was sent and received (called for the first message and followed redirections, if any).
-         *
-         * @param message the HTTP message that was received, never {@code null}
-         */
-        void notifyMessageReceived(HttpMessage message);
-    }
 }

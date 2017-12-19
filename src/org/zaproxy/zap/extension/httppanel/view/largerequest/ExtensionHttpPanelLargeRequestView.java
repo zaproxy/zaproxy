@@ -38,6 +38,11 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
     public ExtensionHttpPanelLargeRequestView() {
         super(NAME);
     }
+    
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("http.panel.view.largerequest.ext.name");
+    }
 
     @Override
     public void hook(ExtensionHook extensionHook) {
@@ -74,7 +79,7 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
             panelManager.removeRequestDefaultViewSelectorFactory(
                     RequestSplitComponent.NAME,
                     LargeRequestDefaultSplitViewSelectorFactory.NAME);
-            panelManager.removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(
+            panelManager.removeRequestDefaultViewSelectors(
                     RequestSplitComponent.NAME,
                     LargeRequestDefaultSplitViewSelector.NAME,
                     RequestSplitComponent.ViewComponent.BODY);
@@ -84,7 +89,7 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
             panelManager.removeRequestDefaultViewSelectorFactory(
                     RequestAllComponent.NAME,
                     LargeRequestDefaultAllViewSelectorFactory.NAME);
-            panelManager.removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(
+            panelManager.removeRequestDefaultViewSelectors(
                     RequestAllComponent.NAME,
                     LargeRequestDefaultAllViewSelector.NAME,
                     null);

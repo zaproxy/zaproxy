@@ -4,56 +4,73 @@
 // Note that new custom input vector scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
-// The following handles differences in printing between Java 7's Rhino JS engine
-// and Java 8's Nashorn JS engine
-if (typeof println == 'undefined') this.println = print;
+// The helper parameter leveraged within this variant provides access to the methods
+// in VariantCustom 
+// https://github.com/zaproxy/zaproxy/blob/develop/src/org/parosproxy/paros/core/scanner/VariantCustom.java
+
+var B64STATE = 'b64';
+var paramStates = [];
 
 function parseParameters(helper, msg) {
     // Debugging can be done using println like this
-    println('custom input vector handler called for url=' + msg.getRequestHeader().getURI().toString());
-    
+    print('Custom input vector handler called for url=' + msg.getRequestHeader().getURI().toString());
+
     // Sample scan of a query string object
     // searching for Base64 encoded parameters
-    query = msg.getRequestHeader().getURI().getQuery();
-    
+    query = msg.getRequestHeader().getURI().getEscapedQuery();
+
     if (query == null) {
         return;
     }
-    
+
     vars = query.split("&");
     nob64 = "";
     for (var i = 0; i < vars.length; i++) {
         pair = vars[i].split("=");
-        if (helper.isBase64(pair[1])) {
-            value = helper.decodeBase64(pair[1]);
+
+        if (helper.isBase64(decodeURIComponent(pair[1]))) {
+            value = helper.decodeBase64(decodeURIComponent(pair[1]));
             helper.addParamQuery(pair[0], value);
-            
+            paramStates.push(B64STATE);
         } else {
-            nob64 = nob64 + "&" + vars;
+            helper.addParamQuery(pair[0], pair[1]);
+            paramStates.push('');
         }
-    }
-    
-    // We add all the other parameters as a unique string inside the last one
-    if (helper.getParamNumber() > 0) {
-        helper.addParamQuery("notb64", nob64);
     }
 }
 
 function setParameter(helper, msg, param, value, escaped) {
     size = helper.getParamNumber();
-    if (size > 1) {         
-        query = helper.getParamValue(size);
-        
-        for (var i = 0; i < size; i++) {
-            pname = getParamName(i);
-            pvalue = getParamValue(i);                
-            if (pname == param) {      
-                    pvalue = helper.encodeBase64(value);
+    query = "";
+
+    for (var i = 0; i < size; i++) {
+        pname = helper.getParamName(i);
+        pvalue = helper.getParamValue(i);
+
+        if (paramStates[i] === B64STATE) { //Handle values that were originally base64
+            if (pname == param) {
+                //Encode the injected value
+                pvalue = encodeURIComponent(helper.encodeBase64(value));
+            } else {
+                //Use the original value
+                pvalue = encodeURIComponent(helper.encodeBase64(pvalue));
             }
-                    
-            query = pname + "=" + pvalue + "&" + query;
+        } else { //Handle regular values
+            if (pname == param) {
+                if (escaped == false) {
+                    value = encodeURIComponent(value);
+                }
+                pvalue = value;
+            } else {
+                pvalue = pvalue;
+            }
         }
-            
-        msg.getRequestHeader().getURI().setEscapedQuery(query);
+        query = pname + "=" + pvalue + "&" + query;
     }
+    //Strip trailing ampersand
+    if (query.substr(-1) == '&') {
+        query=query.slice(0,-1);
+    }
+    //Set the parameters
+    msg.getRequestHeader().getURI().setEscapedQuery(query);
 }

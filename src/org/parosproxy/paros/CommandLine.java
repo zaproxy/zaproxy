@@ -34,13 +34,18 @@
 // ZAP: 2016/08/19 Issue 2782: Support -configfile
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/07 Allow to disable default standard output logging
+// ZAP: 2017/03/26 Allow to obtain configs in the order specified
+// ZAP: 2017/05/12 Issue 3460: Support -suppinfo 
+// ZAP: 2017/05/31 Handle null args and include a message in all exceptions.
+// ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually exclusive).
 
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -72,12 +77,13 @@ public class CommandLine {
     public static final String CONFIG_FILE = "-configfile";
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
+    public static final String SUPPORT_INFO = "-suppinfo";
 
     /**
      * Command line option to disable the default logging through standard output.
      * 
      * @see #isNoStdOutLog()
-     * @since TODO add version
+     * @since 2.6.0
      */
     public static final String NOSTDOUT = "-nostdout";
 
@@ -87,12 +93,13 @@ public class CommandLine {
     private boolean GUI = true;
     private boolean daemon = false;
     private boolean reportVersion = false;
+    private boolean displaySupportInfo = false;
     private boolean lowMem = false;
     private boolean experimentalDb = false;
     private int port = -1;
     private String host = null;
-    private String[] args = null;
-    private final Hashtable<String, String> configs = new Hashtable<>();
+    private String[] args;
+    private final Map<String, String> configs = new LinkedHashMap<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
     private List<CommandLineArgument[]> commandList = null;
 
@@ -102,8 +109,14 @@ public class CommandLine {
     private boolean noStdOutLog;
 
     public CommandLine(String[] args) throws Exception {
-        this.args = args;
+        this.args = args == null ? new String[0] : args;
         parseFirst(this.args);
+
+        if (isEnabled(CommandLine.CMD) && isEnabled(CommandLine.DAEMON)) {
+            throw new IllegalArgumentException(
+                    "Command line arguments " + CommandLine.CMD + " and " + CommandLine.DAEMON
+                            + " cannot be used at the same time.");
+        }
     }
 
     private boolean checkPair(String[] args, String paramName, int i) throws Exception {
@@ -116,7 +129,7 @@ public class CommandLine {
         if (key.equalsIgnoreCase(paramName)) {
             value = args[i + 1];
             if (value == null) {
-                throw new Exception();
+                throw new Exception("Missing parameter for keyword '" + paramName + "'.");
             }
             
             keywords.put(paramName, value);
@@ -249,24 +262,20 @@ public class CommandLine {
         for (String arg : args) {
             if (arg != null) {
                 if (arg.startsWith("-")) {
-                    throw new Exception(
-                            MessageFormat.format(Constant.messages.getString("start.cmdline.badparam"), arg));
+                    throw new Exception(Constant.messages.getString("start.cmdline.badparam", arg));
                     
                 } else {
                     // Assume they were trying to specify a file
                     File f = new File(arg);
                     if (!f.exists()) {
-                        throw new Exception(
-                                MessageFormat.format(Constant.messages.getString("start.cmdline.nofile"), arg));
+                        throw new Exception(Constant.messages.getString("start.cmdline.nofile", arg));
                     
                     } else if (!f.canRead()) {
-                        throw new Exception(
-                                MessageFormat.format(Constant.messages.getString("start.cmdline.noread"), arg));
+                        throw new Exception(Constant.messages.getString("start.cmdline.noread", arg));
                     
                     } else {
                         // We probably dont handle this sort of file
-                        throw new Exception(
-                                MessageFormat.format(Constant.messages.getString("start.cmdline.badfile"), arg));
+                        throw new Exception(Constant.messages.getString("start.cmdline.badfile", arg));
                     }
                 }
             }
@@ -314,6 +323,10 @@ public class CommandLine {
             setGUI(false);
         } else if (checkSwitch(args, NOSTDOUT, i)) {
             noStdOutLog = true;
+        } else if (checkSwitch(args, SUPPORT_INFO, i)) {
+            displaySupportInfo = true;
+            setDaemon(false);
+            setGUI(false);
         }
 
         return result;
@@ -355,14 +368,10 @@ public class CommandLine {
             File confFile = new File(conf);
             if (! confFile.isFile()) {
                 // We cant use i18n here as the messages wont have been loaded
-                String error = "No such file: " + confFile.getAbsolutePath();
-                System.out.println(error);
-                throw new Exception(error);
+                throw new Exception("No such file: " + confFile.getAbsolutePath());
             } else if (! confFile.canRead()) {
                 // We cant use i18n here as the messages wont have been loaded
-                String error = "File not readable: " + confFile.getAbsolutePath();
-                System.out.println(error);
-                throw new Exception(error);
+                throw new Exception("File not readable: " + confFile.getAbsolutePath());
             }
             Properties prop = new Properties();
             try (FileInputStream inStream = new FileInputStream(confFile)) {
@@ -423,6 +432,10 @@ public class CommandLine {
         return this.reportVersion;
     }
 
+    public boolean isDisplaySupportInfo() {
+        return this.displaySupportInfo;
+    }
+
     public int getPort() {
         return this.port;
     }
@@ -431,7 +444,24 @@ public class CommandLine {
         return host;
     }
 
+    /**
+     * Gets the {@code config} command line arguments, in no specific order.
+     *
+     * @return the {@code config} command line arguments.
+     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they were specified.
+     */
+    @Deprecated
     public Hashtable<String, String> getConfigs() {
+        return new Hashtable<>(configs);
+    }
+
+    /**
+     * Gets the {@code config} command line arguments, in the order they were specified.
+     *
+     * @return the {@code config} command line arguments.
+     * @since 2.6.0
+     */
+    public Map<String, String> getOrderedConfigs() {
         return configs;
     }
 
@@ -447,7 +477,7 @@ public class CommandLine {
      * Tells whether or not the default logging through standard output should be disabled.
      *
      * @return {@code true} if the default logging through standard output should be disabled, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public boolean isNoStdOutLog() {
         return noStdOutLog;
@@ -462,8 +492,7 @@ public class CommandLine {
             zap = "zap.sh";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append(MessageFormat.format(
-				Constant.messages.getString("cmdline.help"), zap));
+        sb.append(Constant.messages.getString("cmdline.help", zap));
 
         if (cmdList != null) {
 	        for (CommandLineArgument[] extArgs : cmdList) {

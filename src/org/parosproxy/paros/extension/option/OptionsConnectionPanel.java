@@ -33,6 +33,8 @@
 // ZAP: 2016/03/08 Issue 646: Outgoing proxy password as JPasswordField (pips) instead of ZapTextField
 // ZAP: 2016/03/18 Add checkbox to allow showing of the password
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
+// ZAP: 2017/05/02 Checkbox to Enable / Disable HTTP State
+// ZAP: 2017/06/19 Use ZapNumberSpinner for connection timeout.
 
 package org.parosproxy.paros.extension.option;
 
@@ -93,10 +95,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox chkProxyChainAuth = null;
 	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
-	private ZapTextField txtTimeoutInSecs = null;
+	private ZapNumberSpinner spinnerTimeoutInSecs;
 	private JPanel panelGeneral = null;
-    private JCheckBox checkBoxSingleCookieRequestHeader;
-    private JComboBox<String> commonUserAgents = null;
+	private JCheckBox checkBoxSingleCookieRequestHeader;
+	private JCheckBox checkBoxHttpStateEnabled;
+	private JComboBox<String> commonUserAgents = null;
 	private ZapTextField defaultUserAgent = null;
 
 	private JPanel dnsPanel;
@@ -536,10 +539,10 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    
-	    this.txtTimeoutInSecs.setText(Integer.toString(connectionParam.getTimeoutInSecs()));
-	    txtTimeoutInSecs.discardAllEdits();
+	    this.spinnerTimeoutInSecs.setValue(connectionParam.getTimeoutInSecs());
 	    
 	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
+	    checkBoxHttpStateEnabled.setSelected(connectionParam.isHttpStateEnabled());
         
 	    getProxyExcludedDomainsTableModel().setExcludedDomains(connectionParam.getProxyExcludedDomains());
 	    getProxyExcludedDomainsPanel().setRemoveWithoutConfirmation(!connectionParam.isConfirmRemoveProxyExcludedDomain());
@@ -633,13 +636,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	@Override
 	public void validateParam(Object obj) throws Exception {
 
-        try {
-            Integer.parseInt(txtTimeoutInSecs.getText());
-        } catch (NumberFormatException nfe) {
-        	txtTimeoutInSecs.requestFocus();
-            throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
-        }
-        
 	    if (chkUseProxyChain.isSelected()) {
 	    	// ZAP: empty proxy name validation
         	if(txtProxyChainName.getText().isEmpty()) {
@@ -662,15 +658,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
-	    int timeout;
 
-        try {
-            timeout = Integer.parseInt(txtTimeoutInSecs.getText());
-        } catch (NumberFormatException nfe) {
-        	txtTimeoutInSecs.requestFocus();
-            throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
-        }
-        
 	    connectionParam.setProxyChainName(txtProxyChainName.getText());
 		// ZAP: Do not allow invalid port numbers
 	    connectionParam.setProxyChainPort(spinnerProxyChainPort.getValue());
@@ -693,8 +681,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    } else {
 		    connectionParam.setProxyChainPassword(new String(txtProxyChainPassword.getPassword()));
 	    }
-	    connectionParam.setTimeoutInSecs(timeout);
+	    connectionParam.setTimeoutInSecs(spinnerTimeoutInSecs.getValue());
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
+	    connectionParam.setHttpStateEnabled(checkBoxHttpStateEnabled.isSelected());
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
@@ -821,53 +810,69 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             
 			JLabel uaLabel = new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
 			uaLabel.setLabelFor(this.getDefaultUserAgent());
-			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1,0.5D));
-			panelGeneral.add(this.getCommonUserAgents(), 
-					LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2,2,2,2)));
-			panelGeneral.add(this.getDefaultUserAgent(), 
-					LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2,2,2,2)));
+			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1, 0.5D));
+			panelGeneral.add(getCommonUserAgents(), LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2, 2, 2, 2)));
+			panelGeneral.add(getDefaultUserAgent(), LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2, 2, 2, 2)));
 
-            panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
+			panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
+			panelGeneral.add(getCheckBoxHttpStateEnabled(), LayoutHelper.getGBC(0, 4, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
 }
 		return panelGeneral;
 	}
 
-    private SecurityProtocolsPanel getSecurityProtocolsPanel() {
-        if (securityProtocolsPanel == null) {
-            securityProtocolsPanel = new SecurityProtocolsPanel();
-        }
-        return securityProtocolsPanel;
-    }
+	private SecurityProtocolsPanel getSecurityProtocolsPanel() {
 
-	private ZapTextField getTxtTimeoutInSecs() {
-		if (txtTimeoutInSecs == null) {
-			txtTimeoutInSecs = new ZapTextField();
+		if (securityProtocolsPanel == null) {
+			securityProtocolsPanel = new SecurityProtocolsPanel();
 		}
-		return txtTimeoutInSecs;
+		return securityProtocolsPanel;
 	}
-	
-    private JCheckBox getCheckBoxSingleCookeRequestHeader() {
-        if (checkBoxSingleCookieRequestHeader == null) {
-            checkBoxSingleCookieRequestHeader = new JCheckBox(Constant.messages.getString("conn.options.singleCookieRequestHeader"));
-        }
-        return checkBoxSingleCookieRequestHeader;
-    }
 
-    private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
-        if (proxyExcludedDomainsPanel == null) {
-            proxyExcludedDomainsPanel = new ProxyExcludedDomainsMultipleOptionsPanel(getProxyExcludedDomainsTableModel());
-        }
-        return proxyExcludedDomainsPanel;
-    }
+	private ZapNumberSpinner getTxtTimeoutInSecs() {
+		if (spinnerTimeoutInSecs == null) {
+			spinnerTimeoutInSecs = new ZapNumberSpinner(0, ConnectionParam.DEFAULT_TIMEOUT, Integer.MAX_VALUE);
+		}
+		return spinnerTimeoutInSecs;
+	}
 
-    private ProxyExcludedDomainsTableModel getProxyExcludedDomainsTableModel() {
-        if (proxyExcludedDomainsTableModel == null) {
-            proxyExcludedDomainsTableModel = new ProxyExcludedDomainsTableModel();
-        }
-        return proxyExcludedDomainsTableModel;
-    }
-	
+	private JCheckBox getCheckBoxSingleCookeRequestHeader() {
+
+		if (checkBoxSingleCookieRequestHeader == null) {
+			checkBoxSingleCookieRequestHeader = new JCheckBox(Constant.messages.getString("conn.options.singleCookieRequestHeader"));
+		}
+		return checkBoxSingleCookieRequestHeader;
+	}
+
+	public JCheckBox getCheckBoxHttpStateEnabled() {
+
+		if (checkBoxHttpStateEnabled == null) {
+			checkBoxHttpStateEnabled = new JCheckBox(Constant.messages.getString("conn.options.httpStateEnabled"));
+		}
+		return checkBoxHttpStateEnabled;
+	}
+
+	public void setCheckBoxHttpStateEnabled(JCheckBox checkBoxHttpStateEnabled) {
+
+		this.checkBoxHttpStateEnabled = checkBoxHttpStateEnabled;
+	}
+
+	private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
+
+		if (proxyExcludedDomainsPanel == null) {
+			proxyExcludedDomainsPanel = new ProxyExcludedDomainsMultipleOptionsPanel(getProxyExcludedDomainsTableModel());
+		}
+		return proxyExcludedDomainsPanel;
+	}
+
+	private ProxyExcludedDomainsTableModel getProxyExcludedDomainsTableModel() {
+
+		if (proxyExcludedDomainsTableModel == null) {
+			proxyExcludedDomainsTableModel = new ProxyExcludedDomainsTableModel();
+		}
+		return proxyExcludedDomainsTableModel;
+	}
+
 	@Override
 	public String getHelpIndex() {
 		// ZAP: added help index

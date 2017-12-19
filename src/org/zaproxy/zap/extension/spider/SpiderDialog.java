@@ -56,7 +56,9 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
     private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
     private static final String FIELD_MAX_DURATION = "spider.custom.label.maxDuration"; 
+    private static final String FIELD_MAX_PARSE_SIZE_BYTES = "spider.custom.label.maxParseSizeBytes";
     private static final String FIELD_SEND_REFERER = "spider.custom.label.sendReferer";
+    private static final String FIELD_ACCEPT_COOKIES = "spider.custom.label.acceptcookies";
     private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
     private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
     private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments"; 
@@ -84,8 +86,8 @@ public class SpiderDialog extends StandardFieldsDialog {
 	 */
 	private boolean subtreeOnlyPreviousCheckedState;
     
-    private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-			.getExtension(ExtensionUserManagement.NAME);
+    private ExtensionUserManagement extUserMgmt = Control.getSingleton().getExtensionLoader()
+			.getExtension(ExtensionUserManagement.class);
     
     private Target target = null;
 
@@ -112,17 +114,20 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addTargetSelectField(0, FIELD_START, this.target, true, false);
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
+        setUsers();
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         this.addCheckBoxField(0, FIELD_SUBTREE_ONLY, subtreeOnlyPreviousCheckedState);
         // This option is always read from the 'global' options
-        this.addCheckBoxField(0, FIELD_ADVANCED, getSpiderParam().isShowAdvancedDialog());
+        this.addCheckBoxField(0, FIELD_ADVANCED, extension.getSpiderParam().isShowAdvancedDialog());
         this.addPadding(0);
 
         // Advanced options
         this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
         this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
         this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
+        this.addNumberField(1, FIELD_MAX_PARSE_SIZE_BYTES, 0, Integer.MAX_VALUE, getSpiderParam().getMaxParseSizeBytes());
         this.addCheckBoxField(1, FIELD_SEND_REFERER, getSpiderParam().isSendRefererHeader());
+        this.addCheckBoxField(1, FIELD_ACCEPT_COOKIES, getSpiderParam().isAcceptCookies());
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
         this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
         this.addCheckBoxField(1, FIELD_PARSE_COMMENTS, getSpiderParam().isParseComments());
@@ -173,6 +178,8 @@ public class SpiderDialog extends StandardFieldsDialog {
         	this.setAdvancedTabs(false);
         }
         
+        setTabScrollable("spider.custom.tab.adv", true);
+
         this.pack();
     }
     
@@ -303,7 +310,9 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
         	spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
         	spiderParam.setMaxChildren(this.getIntValue(FIELD_MAX_CHILDREN));
+        	spiderParam.setMaxParseSizeBytes(this.getIntValue(FIELD_MAX_PARSE_SIZE_BYTES));
         	spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
+        	spiderParam.setAcceptCookies(this.getBoolValue(FIELD_ACCEPT_COOKIES));
         	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
         	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
         	spiderParam.setParseComments(this.getBoolValue(FIELD_PARSE_COMMENTS));
@@ -415,5 +424,11 @@ public class SpiderDialog extends StandardFieldsDialog {
     void reset() {
         target = null;
         reset(true);
+    }
+
+    @Override
+    public void cancelPressed() {
+        this.target=null;
+        super.cancelPressed();
     }
 }

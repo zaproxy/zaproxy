@@ -5,6 +5,6 @@ Architecture: all
 Maintainer: Simon Bennetts <psiinon@gmail.com>
 Section: net
 Priority: extra
-Depends: openjdk-7-jre
+Depends: java8-runtime
 Homepage: https://github.com/zaproxy/zaproxy
 Description: OWASP Zed Attack Proxy -an easy to use tool for finding vulnerabilities in web applications.

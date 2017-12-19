@@ -20,9 +20,9 @@
 
 package org.zaproxy.zap.extension.ext;
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -45,18 +45,10 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     
     private static Logger log = Logger.getLogger(OptionsExtensionTableModel.class);
 
+    private Map<String, Boolean> extensionsState = new HashMap<>();
+
     public OptionsExtensionTableModel() {
         super();
-        // Sort extensions by name
-        Collections.sort(extensions, new Comparator<Extension>() {
-
-			@Override
-			public int compare(Extension ext0, Extension ext1) {
-				if (ext0 == null || ext1 == null) {
-					return 0;
-				}
-				return ext0.getUIName().compareTo(ext1.getUIName());
-			}});
     }
 
     @Override
@@ -75,7 +67,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         if (ext != null) {
         	try {
 				switch (col) {
-				case 0:	return ext.isEnabled();
+				case 0:	return getEnabledState(ext);
 				case 1:
 					if (ext.isCore()) {
 						return Constant.messages.getString("options.ext.label.iscore");
@@ -90,19 +82,28 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         }
         return null;
     }
+
+    private boolean getEnabledState(Extension extension) {
+        Boolean enabledState = extensionsState.get(extension.getName());
+        if (enabledState == null) {
+            return true;
+        }
+        return enabledState;
+    }
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
     	if (columnIndex == 0) {
+    	    Extension selectedExtension = getExtension(rowIndex);
     		// Dont allow enabled core extensions to be edited via the UI (can edit the config file directly;)
-    		if (getExtension(rowIndex).isCore() && getExtension(rowIndex).isEnabled()) {
+    		if (selectedExtension.isCore() && getEnabledState(selectedExtension)) {
     			return false;
     		}
     		// Check dependencies
-    		List<Class<?>> deps = getExtension(rowIndex).getDependencies();
-    		for (Class<?>dep : deps) {
+    		List<Class<? extends Extension>> deps = selectedExtension.getDependencies();
+    		for (Class<? extends Extension> dep : deps) {
     			Extension ext = getExtension(dep);
-    			if (ext == null || ! ext.isEnabled()) {
+    			if (ext == null || ! getEnabledState(ext)) {
     				return false;
     			}
     		}
@@ -111,7 +112,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         return false;
     }
     
-    private Extension getExtension(Class<?> c) {
+    private Extension getExtension(Class<? extends Extension> c) {
 		for (Extension ext: extensions) {
 			if (ext.getClass().equals(c)) {
 				return ext;
@@ -123,7 +124,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object value, int row, int col) {
     	if (col == 0) {
-    		getExtension(row).setEnabled((Boolean) value);
+    		extensionsState.put(getExtension(row).getName(), (Boolean) value);
             fireTableCellUpdated(row, col);
     		// En/Disable dependencies
     		enableDependants(getExtension(row), (Boolean) value);
@@ -134,7 +135,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     	int row = 0;
 		for (Extension ext: extensions) {
 			if (ext.getDependencies().contains(extension.getClass())) {
-				ext.setEnabled(enabled);
+				extensionsState.put(ext.getName(), enabled);
 				this.fireTableCellUpdated(row, 0);
 				enableDependants(ext, enabled); 
 			}
@@ -160,17 +161,13 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         return  extensions.get(row);
 	}
 
-	protected Extension getExtension (String name) {
-		for (Extension ext : extensions) {
-			if (ext.getName().equals(name)) {
-				return ext;
-			}
-		}
-        return  null;
+	void setExtensionsState(Map<String, Boolean> extensionsState) {
+		this.extensionsState = extensionsState;
+		fireTableDataChanged();
 	}
 
-	protected List<Extension> getExtensions() {
-		return extensions;
+	Map<String, Boolean> getExtensionsState() {
+		return extensionsState;
 	}
     
 }

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -47,6 +46,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -56,7 +56,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.script.ExtensionScript;
@@ -76,25 +75,19 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     
     public static final String NAME = "ExtensionActiveScan";
     
-    private static final ImageIcon SCRIPT_ICON_ACTIVE
-            = new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
-    
-    private static final ImageIcon SCRIPT_ICON_VARIANT
-            = new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-variant.png"));
-
     public static final String SCRIPT_TYPE_ACTIVE = "active";
     public static final String SCRIPT_TYPE_VARIANT = "variant";
 
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
-    private static final List<Class<?>> DEPENDENCIES;
+    private static final List<Class<? extends Extension>> DEPENDENCIES;
     
     private AttackModeScanner attackModeScanner;
     
     private ActiveScanController ascanController = null;
 
     static {
-        List<Class<?>> dep = new ArrayList<>(1);
+        List<Class<? extends Extension>> dep = new ArrayList<>(1);
         dep.add(ExtensionAlert.class);
 
         DEPENDENCIES = Collections.unmodifiableList(dep);
@@ -127,6 +120,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
     
     @Override
+    public String getUIName() {
+    	return Constant.messages.getString("ascan.name");
+    }
+    
+    @Override
     public void postInit() {
     	policyManager.init();
 
@@ -155,7 +153,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
-	        View.getSingleton().addMainToolbarButton(this.getPolicyButton());
+	        extensionHook.getHookView().addMainToolBarComponent(this.getPolicyButton());
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(
 					attackModeScanner.getScanStatus().getCountLabel());
 
@@ -168,16 +166,25 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         // TODO this isnt currently implemented
         //extensionHook.addCommandLine(getCommandLineArguments());
 
-        ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         if (extScript != null) {
-            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", SCRIPT_ICON_ACTIVE, true));
-            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", SCRIPT_ICON_VARIANT, true));
+            extScript.registerScriptType(
+                    new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", createIcon("script-ascan.png"), true));
+            extScript.registerScriptType(
+                    new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", createIcon("script-variant.png"), true));
         }
 
-        this.ascanController.setExtAlert((ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
+        this.ascanController.setExtAlert(Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class));
         this.activeScanApi = new ActiveScanAPI(this);
         this.activeScanApi.addApiOptions(getScannerParam());
         extensionHook.addApiImplementor(activeScanApi);
+    }
+
+    private ImageIcon createIcon(String iconName) {
+        if (getView() == null) {
+            return null;
+        }
+        return new ImageIcon(ExtensionActiveScan.class.getResource("/resource/icon/16/" + iconName));
     }
 
     @Override
@@ -344,7 +351,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ZapMenuItem getMenuItemCustomScan() {
         if (menuItemCustomScan == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.ascanadv",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+                    KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
@@ -490,7 +497,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
     @Override
-    public List<Class<?>> getDependencies() {
+    public List<Class<? extends Extension>> getDependencies() {
         return DEPENDENCIES;
     }
 

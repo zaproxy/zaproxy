@@ -112,7 +112,15 @@ public class HttpPanelManager {
 	public void removeRequestDefaultViewSelectorFactory(String componentName, String defaultViewSelectorFactoryName) {
 		requestPanels.removeDefaultViewSelectorFactory(componentName, defaultViewSelectorFactoryName);
 	}
-	
+
+	public void removeRequestDefaultViewSelectors(String componentName, String defaultViewSelectorName, Object options) {
+		requestPanels.removeDefaultViewSelectors(componentName, defaultViewSelectorName, options);
+	}
+
+	/**
+	 * @deprecated (2.7.0) Use {@link #removeRequestDefaultViewSelectors(String, String, Object)} instead
+	 * */
+	@Deprecated
 	public void removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(String componentName, String defaultViewSelectorName, Object options) {
 		requestPanels.removeDefaultViewSelectors(componentName, defaultViewSelectorName, options);
 	}

@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2014/05/16 Issue 81: ZAP changes request data (while switching views)
+// ZAP: 2017/05/31 Added multi-catch in a specific handler. 
+
 package org.zaproxy.zap.extension.httppanel.view.posttable;
 
 import java.io.UnsupportedEncodingException;
@@ -100,10 +102,7 @@ public class RequestPostTableModel extends AbstractTableModel {
       	  	    cell[0] = name;
       	  	    cell[1] = value;
       	  	    listPair.add(cell);
-            } catch (UnsupportedEncodingException e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
-            } catch (IllegalArgumentException e) {
+            } catch (UnsupportedEncodingException | IllegalArgumentException e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);
             }
@@ -146,10 +145,7 @@ public class RequestPostTableModel extends AbstractTableModel {
                     
                     hasValues = true;
             	}
-            } catch (UnsupportedEncodingException e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
-            } catch (IllegalArgumentException e) {
+            } catch (UnsupportedEncodingException | IllegalArgumentException e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);
             }

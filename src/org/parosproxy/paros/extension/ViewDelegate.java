@@ -25,8 +25,11 @@
 // ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
 // ZAP: 2016/03/22 Allow to remove ContextPanelFactory
 // ZAP: 2016/04/14 Allow to display a message
+// ZAP: 2017/10/20 Allow to obtain default delete keyboard shortcut (Issue 3626).
 
 package org.parosproxy.paros.extension;
+
+import javax.swing.KeyStroke;
 
 import org.parosproxy.paros.view.MainFrame;
 import org.parosproxy.paros.view.MainPopupMenu;
@@ -102,4 +105,12 @@ public interface ViewDelegate {
      */
     void displayMessage(Message message);
 
+    /**
+     * Gets the default {@link KeyStroke} used to delete items (e.g. {@code HistoryReference}, {@code Alert}) show in the
+     * view (e.g. History tab, Alerts tree).
+     *
+     * @return the {@code KeyStroke} to delete items.
+     * @since 2.7.0
+     */
+    KeyStroke getDefaultDeleteKeyStroke();
 }

@@ -39,7 +39,7 @@ public class SizeBytesStringValue implements StringValue {
             Constant.messages.getString("generic.value.size.bytes.value.unit"));
 
     // Use the same NumberFormat instance since the renderes are used in EDT only.
-    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Constant.getLocale());
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
     static {
         NUMBER_FORMAT.setMaximumFractionDigits(2);
     }
@@ -65,7 +65,7 @@ public class SizeBytesStringValue implements StringValue {
      * Default is {@code true}.
      *
      * @return {@code true} if it should use just bytes, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public boolean isUseJustBytesUnit() {
         return useJustBytesUnit;
@@ -76,7 +76,7 @@ public class SizeBytesStringValue implements StringValue {
      * (e.g. KiB, MiB).
      *
      * @param useJustBytesUnit {@code true} if it should use just bytes, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.6.0
      */
     public void setUseJustBytesUnit(boolean useJustBytesUnit) {
         this.useJustBytesUnit = useJustBytesUnit;

@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -64,6 +65,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 
 	private static final String ANTI_ALIASING = "aa";
 	private static final String SHOW_LINE_NUMBERS = "linenumbers";
+	private static final String CODE_FOLDING = "codefolding";
 	private static final String WORD_WRAP = "wordwrap";
 	private static final String HIGHLIGHT_CURRENT_LINE = "highlightline";
 	private static final String FADE_CURRENT_HIGHLIGHT_LINE = "fadehighlightline";
@@ -76,6 +78,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	
 	private Message message;
 	private Vector<SyntaxStyle> syntaxStyles;
+	private boolean codeFoldingAllowed;
 	
 	private static SyntaxMenu syntaxMenu = null;
 	private static ViewMenu viewMenu = null;
@@ -124,10 +127,39 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		setCloseMarkupTags(false);
 		setClearWhitespaceLinesEnabled(false);
 		
-		// Correct the font size
-		this.setFont(FontUtils.getFont(this.getFont().getFontName()));
+		Font font;
+		if (!FontUtils.isDefaultFontSet()) {
+			// Use default RSyntaxTextArea font instead but with correct font size.
+			font = FontUtils.getFont(this.getFont().getFontName());
+		} else {
+			font = FontUtils.getFont(Font.PLAIN);
+		}
+		this.setFont(font);
 		
 		initHighlighter();
+	}
+
+	/**
+	 * Sets whether or not code folding is allowed, to show or not a context menu item to enable/disable code folding.
+	 * <p>
+	 * Default is {@code false}.
+	 *
+	 * @param codeFoldingAllowed {@code true} if code folding is allowed, {@code false} otherwise.
+	 * @since 2.7.0
+	 * @see RSyntaxTextArea#setCodeFoldingEnabled(boolean)
+	 */
+	protected void setCodeFoldingAllowed(boolean codeFoldingAllowed) {
+		this.codeFoldingAllowed = codeFoldingAllowed;
+	}
+
+	/**
+	 * Tells whether or not code folding is allowed.
+	 *
+	 * @return {@code true} if code folding is allowed, {@code false} otherwise.
+	 * @since 2.7.0
+	 */
+	public boolean isCodeFoldingAllowed() {
+		return codeFoldingAllowed;
 	}
 	
 	@Override
@@ -257,6 +289,11 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			if (c instanceof RTextScrollPane) {
 				final RTextScrollPane scrollPane = (RTextScrollPane)c;
 				scrollPane.setLineNumbersEnabled(fileConfiguration.getBoolean(key + SHOW_LINE_NUMBERS, scrollPane.getLineNumbersEnabled()));
+
+				if (isCodeFoldingAllowed()) {
+					setCodeFoldingEnabled(fileConfiguration.getBoolean(key + CODE_FOLDING, this.isCodeFoldingEnabled()));
+					scrollPane.setFoldIndicatorEnabled(this.isCodeFoldingEnabled());
+				}
 			}
 		}
 		
@@ -285,6 +322,10 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			if (c instanceof RTextScrollPane) {
 				final RTextScrollPane scrollPane = (RTextScrollPane)c;
 				fileConfiguration.setProperty(key + SHOW_LINE_NUMBERS, Boolean.valueOf(scrollPane.getLineNumbersEnabled()));
+
+				if (isCodeFoldingAllowed()) {
+					fileConfiguration.setProperty(key + CODE_FOLDING, Boolean.valueOf(this.isCodeFoldingEnabled()));
+				}
 			}
 		}
 		

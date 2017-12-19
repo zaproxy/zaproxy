@@ -36,7 +36,11 @@
 // ZAP: 2041/08/14 Issue 1305: Outgoing proxy is disabled when updating from old versions
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 // ZAP: 2017/01/11 Exclude some options from the API (manually handled to return correct values).
-
+// ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
+// ZAP: 2017/05/02 Added option key to enable / disable HTTP State 
+// ZAP: 2017/05/15 Ensure HttpState is non-null when HTTP State is enabled.
+// ZAP: 2017/06/19 Do not allow to set negative timeout values and expose the default value.
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
 package org.parosproxy.paros.network;
 
 import java.security.Security;
@@ -46,7 +50,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
@@ -85,6 +88,7 @@ public class ConnectionParam extends AbstractParam {
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
 	private static final String SINGLE_COOKIE_REQUEST_HEADER = CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
+	private static final String HTTP_STATE_ENABLED = CONNECTION_BASE_KEY + ".httpStateEnabled";
 	private static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
 
 	private static final String DEFAULT_DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0";
@@ -97,7 +101,7 @@ public class ConnectionParam extends AbstractParam {
 	/**
 	 * The default TTL (in seconds) of successful DNS queries.
 	 * 
-	 * @since TODO add version
+	 * @since 2.6.0
 	 */
 	public static final int DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES = 30;
 
@@ -105,6 +109,13 @@ public class ConnectionParam extends AbstractParam {
 	 * The configuration key for TTL of successful DNS queries.
 	 */
 	private static final String DNS_TTL_SUCCESSFUL_QUERIES_KEY = CONNECTION_BASE_KEY + ".dnsTtlSuccessfulQueries";
+
+	/**
+	 * The default connection timeout (in seconds).
+	 * 
+	 * @since 2.7.0
+	 */
+	public static final int DEFAULT_TIMEOUT = 20;
 
     private boolean useProxyChain;
 	private String proxyChainName = "";
@@ -123,7 +134,7 @@ public class ConnectionParam extends AbstractParam {
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
-	private int timeoutInSecs = 120;
+	private int timeoutInSecs = DEFAULT_TIMEOUT;
 
 	private boolean singleCookieRequestHeader = true;
 	private String defaultUserAgent = "";
@@ -143,6 +154,11 @@ public class ConnectionParam extends AbstractParam {
      * @param httpStateEnabled The httpStateEnabled to set.
      */
     public void setHttpStateEnabled(boolean httpStateEnabled) {
+        setHttpStateEnabledImpl(httpStateEnabled);
+        getConfig().setProperty(HTTP_STATE_ENABLED, Boolean.valueOf(this.httpStateEnabled));
+    }
+
+    private void setHttpStateEnabledImpl(boolean httpStateEnabled) {
         this.httpStateEnabled = httpStateEnabled;
         if (this.httpStateEnabled) {
     	    httpState = new HttpState();
@@ -158,75 +174,45 @@ public class ConnectionParam extends AbstractParam {
 	protected void parse() {
 		updateOptions();
 
-		try {
-			dnsTtlSuccessfulQueries = getConfig().getInt(DNS_TTL_SUCCESSFUL_QUERIES_KEY, 30);
-			Security.setProperty(DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY, Integer.toString(dnsTtlSuccessfulQueries));
-		} catch (ConversionException e) {
-			log.error("Failed to read '" + DNS_TTL_SUCCESSFUL_QUERIES_KEY + "'", e);
-			dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
-		}
+		dnsTtlSuccessfulQueries = getInt(DNS_TTL_SUCCESSFUL_QUERIES_KEY, DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES);
+		Security.setProperty(DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY, Integer.toString(dnsTtlSuccessfulQueries));
 
-		useProxyChain = getConfig().getBoolean(USE_PROXY_CHAIN_KEY, false);
-		useProxyChainAuth = getConfig().getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
+		useProxyChain = getBoolean(USE_PROXY_CHAIN_KEY, false);
+		useProxyChainAuth = getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
 
-		setProxyChainName(getConfig().getString(PROXY_CHAIN_NAME, ""));
-		try {
-			setProxyChainPort(getConfig().getInt(PROXY_CHAIN_PORT, 8080));
-		} catch (Exception e) {
-        	// ZAP: Log exceptions
-        	log.error(e.getMessage(), e);
-		}
+		setProxyChainName(getString(PROXY_CHAIN_NAME, ""));
+		setProxyChainPort(getInt(PROXY_CHAIN_PORT, 8080));
 
 		loadProxyExcludedDomains();
-		try {
-		    this.confirmRemoveProxyExcludeDomain = getConfig().getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
-		} catch (ConversionException e) {
-		    log.error("Error while loading the confirm excluded domain remove option: " + e.getMessage(), e);
-		}
+		this.confirmRemoveProxyExcludeDomain = getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
 
-		try {
-			setProxyChainRealm(getConfig().getString(PROXY_CHAIN_REALM, ""));
-			setProxyChainUserName(getConfig().getString(PROXY_CHAIN_USER_NAME, ""));
-		} catch (Exception e) {
-        	// ZAP: Log exceptions
-        	log.error(e.getMessage(), e);
-		}
+		setProxyChainRealm(getString(PROXY_CHAIN_REALM, ""));
+		setProxyChainUserName(getString(PROXY_CHAIN_USER_NAME, ""));
+		
 		try {
 			// ZAP: Added prompt option
 			if (getConfig().getProperty(PROXY_CHAIN_PROMPT) instanceof String &&
 					((String)getConfig().getProperty(PROXY_CHAIN_PROMPT)).isEmpty()) {
 				// In 1.2.0 the default for this field was empty, which causes a crash in 1.3.*
 				setProxyChainPrompt(false);
-			} else if (getConfig().getBoolean(PROXY_CHAIN_PROMPT, false)) {
+			} else if (getBoolean(PROXY_CHAIN_PROMPT, false)) {
 				setProxyChainPrompt(true);
 			} else {
 				setProxyChainPrompt(false);
-				setProxyChainPassword(getConfig().getString(PROXY_CHAIN_PASSWORD, ""));
+				setProxyChainPassword(getString(PROXY_CHAIN_PASSWORD, ""));
 			}
 		} catch (Exception e) {
         	// ZAP: Log exceptions
         	log.error(e.getMessage(), e);
 		}
 		
-		try {
-			setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
-		} catch (Exception e) {
-        	// ZAP: Log exceptions
-        	log.error(e.getMessage(), e);
-		}
+		setTimeoutInSecsImpl(getInt(TIMEOUT_IN_SECS, DEFAULT_TIMEOUT));
 
-        try {
-            this.singleCookieRequestHeader = getConfig().getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
-        } catch (ConversionException e) {
-            log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
-        }
-        
-        try {
-			this.defaultUserAgent = getConfig().getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
-		} catch (Exception e) {
-            log.error("Error while loading the option defaultUserAgent: " + e.getMessage(), e);
-			this.defaultUserAgent = DEFAULT_DEFAULT_USER_AGENT;
-		}
+		this.singleCookieRequestHeader = getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
+
+		setHttpStateEnabledImpl(getBoolean(HTTP_STATE_ENABLED, false));
+
+		this.defaultUserAgent = getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
         
         loadSecurityProtocolsEnabled();
 	}
@@ -523,8 +509,17 @@ public class ConnectionParam extends AbstractParam {
 		return timeoutInSecs;
 	}
 	public void setTimeoutInSecs(int timeoutInSecs) {
-		this.timeoutInSecs = timeoutInSecs;
+		setTimeoutInSecsImpl(timeoutInSecs);
 		getConfig().setProperty(TIMEOUT_IN_SECS, this.timeoutInSecs);
+	}
+
+	private void setTimeoutInSecsImpl(int timeoutInSecs) {
+		if (timeoutInSecs < 0) {
+			this.timeoutInSecs = 0;
+			return;
+		}
+
+		this.timeoutInSecs = timeoutInSecs;
 	}
     
 	/**
@@ -720,7 +715,7 @@ public class ConnectionParam extends AbstractParam {
         }
 
         this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
-        SSLConnector.setClientEnabledProtocols(enabledProtocols);
+        setClientEnabledProtocols();
     }
 
     private void loadSecurityProtocolsEnabled() {
@@ -728,9 +723,21 @@ public class ConnectionParam extends AbstractParam {
         if (protocols.size() != 0) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
-            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
+            setClientEnabledProtocols();
         } else {
             setSecurityProtocolsEnabled(SSLConnector.getClientEnabledProtocols());
+        }
+    }
+
+    private void setClientEnabledProtocols() {
+        try {
+            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
+        } catch (IllegalArgumentException e) {
+            log.warn(
+                    "Failed to set persisted protocols " + Arrays.toString(securityProtocolsEnabled) + " falling back to "
+                            + Arrays.toString(SSLConnector.getFailSafeProtocols()) + " caused by: " + e.getMessage());
+            securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
+            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
         }
     }
     
@@ -746,7 +753,7 @@ public class ConnectionParam extends AbstractParam {
 	 * Gets the TTL (in seconds) of successful DNS queries.
 	 *
 	 * @return the TTL in seconds
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #setDnsTtlSuccessfulQueries(int)
 	 */
 	public int getDnsTtlSuccessfulQueries() {
@@ -764,7 +771,7 @@ public class ConnectionParam extends AbstractParam {
 	 * </ul>
 	 *
 	 * @param ttl the TTL in seconds
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #getDnsTtlSuccessfulQueries()
 	 */
 	public void setDnsTtlSuccessfulQueries(int ttl) {

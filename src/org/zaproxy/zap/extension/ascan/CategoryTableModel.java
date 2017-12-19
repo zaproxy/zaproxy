@@ -26,6 +26,7 @@
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
+// ZAP: 2017/06/05 Return AlertThreshold.OFF if the plugin is disabled.
 
 package org.zaproxy.zap.extension.ascan;
 
@@ -227,6 +228,9 @@ public class CategoryTableModel extends DefaultTableModel {
         	case 0:
         		return wrapper.getPlugin().getName();
         	case 1:
+        		if (!wrapper.getPlugin().isEnabled()) {
+        			return AlertThreshold.OFF;
+        		}
         		return strToI18n(wrapper.getPlugin().getAlertThreshold(true).name());
         	case 2:
         		return strToI18n(wrapper.getPlugin().getAttackStrength(true).name());

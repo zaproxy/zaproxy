@@ -23,7 +23,6 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,16 +56,23 @@ import org.zaproxy.zap.utils.DesktopUtils;
 
 public class ExtensionCompare extends ExtensionAdaptor implements SessionChangedListener, SessionListener {
 
+	private static final String NAME = "ExtensionCompare";
+	
 	private static final String CRLF = "\r\n";
 	private JMenuItem menuCompare = null;
 
     private static Logger log = Logger.getLogger(ExtensionCompare.class);
 
     public ExtensionCompare() {
-        super("ExtensionCompare");
+        super(NAME);
         this.setOrder(44);
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("cmp.name");
+    }
+    
 	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
@@ -136,7 +142,12 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     	}
 
         List<Integer> hIds = th.getHistoryIdsOfHistType(
-                rh.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
+                rh.getSessionId(),
+                HistoryReference.TYPE_PROXIED,
+                HistoryReference.TYPE_ZAP_USER,
+                HistoryReference.TYPE_SPIDER,
+                HistoryReference.TYPE_SPIDER_AJAX);
+
     	for (Integer hId : hIds) {
     		RecordHistory recH = th.read(hId);
     		URI uri = recH.getHttpMessage().getRequestHeader().getURI();
@@ -283,8 +294,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 						} catch (Exception e) {
 				        	log.error(e.getMessage(), e);
 							View.getSingleton().showMessageDialog(
-									MessageFormat.format(Constant.messages.getString("report.complete.warning"),
-											new Object[] {outputFile.getAbsolutePath()}));
+									Constant.messages.getString("report.complete.warning", outputFile.getAbsolutePath()));
 						}
 
 				    } catch (Exception e1) {

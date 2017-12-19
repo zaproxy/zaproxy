@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.tree.TreeNode;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
@@ -244,9 +246,9 @@ public class Context {
 	 */
 	private boolean hasNodesInContext(SiteNode node) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = node.children();
+		Enumeration<TreeNode> en = node.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isInContext(sn)) {
 				return true;
 			}
@@ -268,9 +270,9 @@ public class Context {
 		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isContainsNodesInContext(sn)) {
 				nodes.add(sn);
 			}
@@ -286,9 +288,9 @@ public class Context {
 	 */
 	private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList) {
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = rootNode.children();
+		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isInContext(sn)) {
 				nodesList.add(sn);
 			}
@@ -307,9 +309,9 @@ public class Context {
 			return true;
 		}
 		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = node.children();
+		Enumeration<TreeNode> en = node.children();
 		while (en.hasMoreElements()) {
-			SiteNode sn = en.nextElement();
+			SiteNode sn = (SiteNode) en.nextElement();
 			if (isContainsNodesInContext(sn)) {
 				return true;
 			}
@@ -461,7 +463,7 @@ public class Context {
 	/**
 	 * Gets the name of the context.
 	 *
-	 * @return the name of the context, never {@code null} (since TODO add version).
+	 * @return the name of the context, never {@code null} (since 2.6.0).
 	 */
 	public String getName() {
 		return name;
@@ -471,7 +473,7 @@ public class Context {
 	 * Sets the name of the context.
 	 *
 	 * @param name the new name of the context
-	 * @throws IllegalContextNameException (since TODO add version) if the given name is {@code null} or empty.
+	 * @throws IllegalContextNameException (since 2.6.0) if the given name is {@code null} or empty.
 	 */
 	public void setName(String name) {
 		if (name == null || name.isEmpty()) {

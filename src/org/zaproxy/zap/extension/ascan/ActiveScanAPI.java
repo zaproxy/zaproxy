@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,6 +69,7 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ActiveScanAPI extends ApiImplementor {
 
@@ -99,10 +101,13 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String ACTION_ADD_SCAN_POLICY = "addScanPolicy";
 	private static final String ACTION_REMOVE_SCAN_POLICY = "removeScanPolicy";
 	private static final String ACTION_UPDATE_SCAN_POLICY = "updateScanPolicy";
+	private static final String ACTION_IMPORT_SCAN_POLICY = "importScanPolicy";
 
 	private static final String ACTION_ADD_EXCLUDED_PARAM = "addExcludedParam";
 	private static final String ACTION_MODIFY_EXCLUDED_PARAM = "modifyExcludedParam";
 	private static final String ACTION_REMOVE_EXCLUDED_PARAM = "removeExcludedParam";
+
+	private static final String ACTION_SKIP_SCANNER = "skipScanner";
 
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_SCANS = "scans";
@@ -130,9 +135,11 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String PARAM_ATTACK_STRENGTH = "attackStrength";
 	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
 	private static final String PARAM_SCAN_POLICY_NAME = "scanPolicyName";
+	private static final String PARAM_PATH = "path";
 	// TODO rename to categoryId? Note any changes like this to the existing API must be clearly documented to users
 	private static final String PARAM_CATEGORY_ID = "policyId";
 	private static final String PARAM_SCAN_ID = "scanId";
+	private static final String PARAM_SCANNER_ID = "scannerId";
 	private static final String PARAM_METHOD = "method";
 	private static final String PARAM_POST_DATA = "postData";
 	private static final String PARAM_IDX = "idx";
@@ -178,6 +185,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_UPDATE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
 				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
+		this.addApiAction(new ApiAction(ACTION_IMPORT_SCAN_POLICY, new String[] { PARAM_PATH }));
 
 		this.addApiAction(
 				new ApiAction(ACTION_ADD_EXCLUDED_PARAM, new String[] { PARAM_NAME }, new String[] { PARAM_TYPE, PARAM_URL }));
@@ -187,6 +195,8 @@ public class ActiveScanAPI extends ApiImplementor {
 						new String[] { PARAM_IDX },
 						new String[] { PARAM_NAME, PARAM_TYPE, PARAM_URL }));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_EXCLUDED_PARAM, new String[] { PARAM_IDX }));
+
+		this.addApiAction(new ApiAction(ACTION_SKIP_SCANNER, new String[] { PARAM_SCAN_ID, PARAM_SCANNER_ID }));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] { PARAM_SCAN_ID }));
@@ -433,6 +443,39 @@ public class ActiveScanAPI extends ApiImplementor {
 				updateAttackStrength(policy, params);
 				controller.getPolicyManager().savePolicy(policy);
 				break;
+			case ACTION_IMPORT_SCAN_POLICY:
+				File file = new File(params.getString(PARAM_PATH));
+				if (!file.exists()) {
+					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_PATH);
+				}
+				if (!file.isFile()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PATH);
+				}
+
+				ScanPolicy scanPolicy;
+				try {
+					scanPolicy = new ScanPolicy(new ZapXmlConfiguration(file));
+				} catch (IllegalArgumentException | ConfigurationException e) {
+					throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, file.toString(), e);
+				}
+
+				String scanPolicyName = scanPolicy.getName();
+				if (scanPolicyName.isEmpty()) {
+					scanPolicyName = file.getName();
+				}
+				if (controller.getPolicyManager().getAllPolicyNames().contains(scanPolicyName)) {
+					throw new ApiException(ApiException.Type.ALREADY_EXISTS, scanPolicyName);
+				}
+				if (!controller.getPolicyManager().isLegalPolicyName(scanPolicyName)) {
+					throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, scanPolicyName);
+				}
+
+				try {
+					controller.getPolicyManager().savePolicy(scanPolicy);
+				} catch (ConfigurationException e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+				}
+				break;
 			case ACTION_ADD_EXCLUDED_PARAM:
 				int type = getParam(params, PARAM_TYPE, NameValuePair.TYPE_UNDEFINED);
 				if (!ScannerParamFilter.getTypes().containsKey(type)) {
@@ -498,6 +541,15 @@ public class ActiveScanAPI extends ApiImplementor {
 				} catch (JSONException e) {
 					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
 				}
+				break;
+			case ACTION_SKIP_SCANNER:
+				int pluginId = getParam(params, PARAM_SCANNER_ID, -1);
+				if (pluginId == -1) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_SCANNER_ID);
+				}
+
+				String reason = Constant.messages.getString("ascan.progress.label.skipped.reason.user");
+				getActiveScan(params).getHostProcesses().forEach(hp -> hp.pluginSkipped(pluginId, reason));
 				break;
 			default:
 				throw new ApiException(ApiException.Type.BAD_ACTION);
@@ -781,11 +833,13 @@ public class ActiveScanAPI extends ApiImplementor {
 			break;
 		case VIEW_SCANS:
 			ApiResponseList resultList = new ApiResponseList(name);
-			for (GenericScanner2 scan : controller.getAllScans()) {
+			for (ActiveScan scan : controller.getAllScans()) {
 				Map<String, String> map = new HashMap<>();
 				map.put("id", Integer.toString(scan.getScanId()));
 				map.put("progress", Integer.toString(scan.getProgress()));
-				map.put("state", ((ActiveScan)scan).getState().name());
+				map.put("state", scan.getState().name());
+				map.put("reqCount", Integer.toString(scan.getTotalRequests()));
+				map.put("alertCount", Integer.toString(scan.getAlertsIds().size()));
 				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
@@ -796,22 +850,13 @@ public class ActiveScanAPI extends ApiImplementor {
 			if (activeScan != null) {
 				for (HostProcess hp : activeScan.getHostProcesses()) {
 					ApiResponseList hpList = new ApiResponseList("HostProcess");
-					resultList.addItem(new ApiResponseElement("id", XMLStringUtil.escapeControlChrs(hp.getHostAndPort())));
+					resultList.addItem(new ApiResponseElement("id", hp.getHostAndPort()));
 
 					for (Plugin plugin : hp.getCompleted()) {
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
 						int reqs = hp.getPluginRequestCount(plugin.getId());
-						if (hp.isSkipped(plugin)) {
-						    String skippedReason = hp.getSkippedReason(plugin);
-						    if (skippedReason == null) {
-						        skippedReason = Constant.messages.getString("ascan.progress.label.skipped");
-						    } else {
-						        skippedReason = Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
-						    }
-							hpList.addItem(createPluginProgressEntry(plugin, skippedReason, timeTaken, reqs));
-						} else {
-							hpList.addItem(createPluginProgressEntry(plugin, "Complete", timeTaken, reqs));
-						}
+						int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
+						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Complete"), timeTaken, reqs, alertCount));
 			        }
 
 			        for (Plugin plugin : hp.getRunning()) {
@@ -823,21 +868,12 @@ public class ActiveScanAPI extends ApiImplementor {
 						}
 						long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
 						int reqs = hp.getPluginRequestCount(plugin.getId());
-						hpList.addItem(createPluginProgressEntry(plugin, pc + "%", timeTaken, reqs));
+						int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
+						hpList.addItem(createPluginProgressEntry(plugin, pc + "%", timeTaken, reqs, alertCount));
 			        }
 
 			        for (Plugin plugin : hp.getPending()) {
-						if (hp.isSkipped(plugin)) {
-                            String skippedReason = hp.getSkippedReason(plugin);
-                            if (skippedReason == null) {
-                                skippedReason = Constant.messages.getString("ascan.progress.label.skipped");
-                            } else {
-                                skippedReason = Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
-                            }
-                            hpList.addItem(createPluginProgressEntry(plugin, skippedReason, 0, 0));
-						} else {
-							hpList.addItem(createPluginProgressEntry(plugin, "Pending", 0, 0));
-						}
+						hpList.addItem(createPluginProgressEntry(plugin, getStatus(hp, plugin, "Pending"), 0, 0, 0));
 			        }
 					resultList.addItem(hpList);
 
@@ -949,14 +985,15 @@ public class ActiveScanAPI extends ApiImplementor {
 		return result;
 	}
 
-	private static ApiResponseList createPluginProgressEntry(Plugin plugin, String status, long timeTaken, int requestCount) {
+	private static ApiResponseList createPluginProgressEntry(Plugin plugin, String status, long timeTaken, int requestCount, int alertCount) {
 		ApiResponseList pList = new ApiResponseList("Plugin");
-		pList.addItem(new ApiResponseElement("name", XMLStringUtil.escapeControlChrs(plugin.getName())));
+		pList.addItem(new ApiResponseElement("name", plugin.getName()));
 		pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
 		pList.addItem(new ApiResponseElement("quality", plugin.getStatus().toString()));
 		pList.addItem(new ApiResponseElement("status", status));
 		pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
 		pList.addItem(new ApiResponseElement("reqCount", Integer.toString(requestCount)));
+		pList.addItem(new ApiResponseElement("alertCount", Integer.toString(alertCount)));
 		return pList;
 	}
 
@@ -997,6 +1034,18 @@ public class ActiveScanAPI extends ApiImplementor {
 			}
 		}
 		return alertThreshold;
+	}
+
+	private static String getStatus(HostProcess hp, Plugin plugin, String defaultStatus) {
+		if (!hp.isSkipped(plugin)) {
+			return defaultStatus;
+		}
+
+		String skippedReason = hp.getSkippedReason(plugin);
+		if (skippedReason == null) {
+			return Constant.messages.getString("ascan.progress.label.skipped");
+		}
+		return Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
 	}
 
 	private static class ExcludedParamApiResponse extends ApiResponse {

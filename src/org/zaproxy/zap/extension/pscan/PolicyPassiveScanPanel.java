@@ -33,11 +33,11 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.TableColumn;
 
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.Model;
@@ -46,11 +46,12 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.panels.TableFilterPanel;
 
 public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
-    private JTable tableTest = null;
+    private JXTable tableTest = null;
     private JScrollPane jScrollPane = null;
     private PolicyPassiveScanTableModel passiveScanTableModel = null;
     private JComboBox<String> applyToThreshold = null;
@@ -70,6 +71,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
             this.setSize(375, 204);
         }
         this.setName(Constant.messages.getString("pscan.options.policy.title"));
+    	JPanel passiveScannersFilterPanel = new TableFilterPanel<JXTable>(getTableTest());
         
         // 'Apply to' controls
         JPanel applyToPanel = new JPanel();
@@ -97,9 +99,11 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
         this.add(applyToPanel,
                 LayoutHelper.getGBC(0, 0, 3, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
 
-        
+        this.add(passiveScannersFilterPanel,LayoutHelper.getGBC(0, 1, 1, 1.0D, 0.0D,
+                        GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(0, 0, 0, 0)));
+
         this.add(getJScrollPane(), 
-        		LayoutHelper.getGBC(0, 1, 1, 1.0, 1.0,
+        		LayoutHelper.getGBC(0, 2, 1, 1.0, 1.0,
         				GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(0, 0, 0, 0)));
     }
 
@@ -151,14 +155,9 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     private static final int[] width = {300, 60, 100};
 
-    /**
-     * This method initializes tableTest
-     *
-     * @return javax.swing.JTable
-     */
-    private JTable getTableTest() {
+    private JXTable getTableTest() {
         if (tableTest == null) {
-            tableTest = new JTable();
+            tableTest = new JXTable();
             tableTest.setModel(getPassiveScanTableModel());
             tableTest.setRowHeight(DisplayUtils.getScaledSize(18));
             tableTest.setIntercellSpacing(new java.awt.Dimension(1, 1));

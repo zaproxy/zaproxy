@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.CardLayout;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
@@ -30,6 +29,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,6 +40,10 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.IconValues;
+import org.jdesktop.swingx.renderer.MappedValue;
+import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -47,7 +51,9 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter;
 
 /**
  * The HttpSessionsPanel used as a display panel for the {@link ExtensionHttpSessions}, allowing the
@@ -70,6 +76,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JComboBox<String> siteSelect = null;
 	private JButton newSessionButton = null;
 	private JXTable sessionsTable = null;
+	private TableExportButton<JXTable> exportButton = null;
 	private JButton optionsButton = null;
 
 	/** The current site. */
@@ -101,7 +108,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 		this.setName(Constant.messages.getString("httpsessions.panel.title"));
 		this.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/session.png")));
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
+				KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("httpsessions.panel.mnemonic"));
 		this.add(getPanelCommand(), getPanelCommand().getName());
 	}
@@ -140,6 +147,13 @@ public class HttpSessionsPanel extends AbstractPanel {
 			panelCommand.add(getWorkPane(), workPaneGridBag);
 		}
 		return panelCommand;
+	}
+
+	private TableExportButton<JXTable> getExportButton() {
+		if (exportButton == null) {
+			exportButton = new TableExportButton<>(getHttpSessionsTable());
+		}
+		return exportButton;
 	}
 
 	/**
@@ -212,6 +226,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			GridBagConstraints newSessionGridBag = new GridBagConstraints();
 			GridBagConstraints emptyGridBag = new GridBagConstraints();
 			GridBagConstraints optionsGridBag = new GridBagConstraints();
+			GridBagConstraints exportButtonGbc = new GridBagConstraints();
 
 			labelGridBag.gridx = 0;
 			labelGridBag.gridy = 0;
@@ -228,7 +243,12 @@ public class HttpSessionsPanel extends AbstractPanel {
 			newSessionGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
 			newSessionGridBag.anchor = java.awt.GridBagConstraints.WEST;
 
-			emptyGridBag.gridx = 3;
+			exportButtonGbc.gridx = 3;
+			exportButtonGbc.gridy = 0;
+			exportButtonGbc.insets = new java.awt.Insets(0, 0, 0, 0);
+			exportButtonGbc.anchor = java.awt.GridBagConstraints.WEST;
+
+			emptyGridBag.gridx = 4;
 			emptyGridBag.gridy = 0;
 			emptyGridBag.weightx = 1.0;
 			emptyGridBag.weighty = 1.0;
@@ -236,7 +256,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			emptyGridBag.anchor = java.awt.GridBagConstraints.WEST;
 			emptyGridBag.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-			optionsGridBag.gridx = 4;
+			optionsGridBag.gridx = 5;
 			optionsGridBag.gridy = 0;
 			optionsGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
 			optionsGridBag.anchor = java.awt.GridBagConstraints.EAST;
@@ -246,6 +266,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			panelToolbar.add(label, labelGridBag);
 			panelToolbar.add(getSiteSelect(), siteSelectGridBag);
 			panelToolbar.add(getNewSessionButton(), newSessionGridBag);
+			panelToolbar.add(getExportButton(), exportButtonGbc);
 			panelToolbar.add(getOptionsButton(), optionsGridBag);
 
 			// Add an empty JLabel to fill the space
@@ -296,6 +317,11 @@ public class HttpSessionsPanel extends AbstractPanel {
 			sessionsTable.setRowSelectionAllowed(true);
 			sessionsTable.setAutoCreateRowSorter(true);
 			sessionsTable.setColumnControlVisible(true);
+			sessionsTable.setAutoCreateColumnsFromModel(false);
+
+			sessionsTable.getColumnExt(0).setCellRenderer(
+					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+			sessionsTable.getColumnExt(0).setHighlighters(new ActiveSessionIconHighlighter(0));
 
 			this.setSessionsTableColumnSizes();
 
@@ -478,5 +504,32 @@ public class HttpSessionsPanel extends AbstractPanel {
 		}
 		final int rowIndex = sessionsTable.convertRowIndexToModel(selectedRow);
 		return this.sessionsModel.getHttpSessionAt(rowIndex);
+	}
+
+	/**
+	 * A {@link org.jdesktop.swingx.decorator.Highlighter Highlighter} for a column that indicates, using an icon, whether or
+	 * not a session is active.
+	 * <p>
+	 * The expected type/class of the cell value is {@code Boolean}.
+	 */
+	private static class ActiveSessionIconHighlighter extends AbstractTableCellItemIconHighlighter {
+
+		/** The icon that indicates that a session is active. */
+		private static final ImageIcon ACTIVE_ICON = new ImageIcon(
+				HttpSessionsPanel.class.getResource("/resource/icon/16/102.png"));
+
+		public ActiveSessionIconHighlighter(int columnIndex) {
+			super(columnIndex);
+		}
+
+		@Override
+		protected Icon getIcon(final Object cellItem) {
+			return ACTIVE_ICON;
+		}
+
+		@Override
+		protected boolean isHighlighted(final Object cellItem) {
+			return ((Boolean) cellItem).booleanValue();
+		}
 	}
 }

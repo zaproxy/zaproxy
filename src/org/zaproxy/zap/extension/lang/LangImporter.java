@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -97,7 +96,7 @@ public final class LangImporter {
 		
 		if (View.isInitialised()) {
 			JOptionPane.showMessageDialog(null,
-					MessageFormat.format(Constant.messages.getString(message), langFileCount),
+					Constant.messages.getString(message, langFileCount),
 					Constant.messages.getString("options.lang.importer.dialog.title"),                                            
 					(langFileCount > 0) ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
 		}

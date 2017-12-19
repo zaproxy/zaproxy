@@ -53,73 +53,73 @@ Tüm protokollerin katı bir şekilde tanımlandığına emin olun, mesela sın�
 
 Faz: Gereksinimler
 Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
-If possible, choose a language or compiler that performs automatic bounds checking.
+Mümkünse, otomatik sınır kontrolü yapan bir dil veya derleyici seçin.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
+Sayıları beklenmedik sonuçlara izin vermeden kullanabilen kütüphane veya frameworkler kullanın.
+Örnek olarak, SafeInt(C++) veya IntegerLib(C or C++) gibi güvenli integer yönetimi kütüphaneleri projenize ekleyin.
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
-Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
+Faz: Gerçekleme
+Her bir sayısal girdide, sayının beklendik aralığın içinde olduğunu sağlayan girdi doğrulaması yapın. Girdinin beklenen aralıkta hem minimum hem de maksimum gereksinimleri karşıladığına emin olun.
+Mümkün oldukça unsigned integer kullanın. Bu, tamsayı taşması için sağlama yapmayı kolaylaştırır. Eğer signed integer kullanmanız gerekliyse, aralık kontrolünün maksimum değerlerle birlikte minimum değerleri de kontrol ettiğine emin olun.
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+Faz: Gerçekleme
+Programlama dilinizin temelini ve sayısal hesaplamalarla nasıl etkileştiğini anlayın (CWE-681). Bayt boyutu uyumsuzluklarını, hassaslığı, imzalı / imzasız ayrımları, kesimleri, türler arası dönüştürmeyi, "sayı değil" hesaplamalarını ve dilinizin çok büyük ve çok küçük sayıları temel gösterimde nasıl ele aldığını yakından kontrol edin.
+Ayrıca, 32-bit, 64-bit ve sayısal gösterimi etkileyebilecek diğer potansiyel farklılıkları hesaba katmak için de dikkatli olun.
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+Faz: Gerçekleme
+Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzlukları gibi, potansiyel kritik güvenlik sorunlarını bertaraf edin. Zafiyet çok ender olarak sömürülebilir olsa da, küçük bir başarısızlık, bütün sistemi riske atabilir.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
-	<desc>Insufficient Transport Layer Protection
-Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+	<alert>Yetersiz Taşıma Katmanı Koruması</alert>
+	<desc>Yetersiz Taşıma Katmanı Koruması
+Yetersiz Taşıma Katmanı Koruması, iletişimin güvenilir olmayan üçüncü taraflarca görülebilmesine izin vererek, web uygulamasının ele geçirilebilmesi için saldırı vektörü sağlar ve/veya hassas bilgilerin çalınmasına sebep olur. Web siteleri, genellikle taşıma katmanında şifreleme sağlamak için Güvenli Soket Katmanı / Taşıma Katmanı Güvenliği (SSL/TLS) kullanır. Buna rağmen, web sitesi SSL/TLS kullanacak ya da doğru bir şekilde kullanacak şekilde yapılandırılmadıysa, web sitesi trafik yakalama ve değiştirmeye korumasız hale gelebilir.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Taşıma Katmanı Şifrelemesi Eksikliği
+Taşıma Katmanı şifrelenmediğinde, web sitesi ve istemci arasındaki tüm iletişim açık metin şeklinde yapılır ve bu, iletişimi yakalamaya, enjeksiyona ve yönlendirmeye açık hale getirir. (Aynı zamanda aradaki adam saldırısı olarak da bilinir). Saldırgan pasif olarak iletişimi dinleyerek, kullanıcı adı ve parola gibi hassas bilgilere erişebilir. Saldırgan aktif bir şekilde iletişime içerik enjekte ederek ya da iletişimden içerik çıkararak, zararlı yazılım enjekte edebilir ya da istemcinin güvenilir olmayan uzak içeriğe erişimine sebep olabilir. Saldırgan ayrıca iletişimi yönlendirerek websitesi ve istemcinin artık birbiriyle direk iletişim kurmamasını sağlayıp, farkında olmadan saldırganla iletişim kurmasına sebep olabilir.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+Zayıf Şifreleme Desteği
+Tarihte, yüksek dereceli şifreleme'nin Amerika Birleşik Devletleri dışına ihracı yasaklanmıştı. Bu yüzden, web siteleri sadece zayıf şifreleme kullanmasına izin verilen kullanıcılar için zayıf kriptografik seçenekleri destekleyecek şekilde yapılandırılmıştı. Zayıf şifreleme, kırılmaya açık olduğu için saldırıya karşı zafiyetlidir; tipik bir ev bilgisayarında iki haftadan kısa veya adanmış bir donanımda bir kaç saniyede kırılabilir.
+Günümüzde, tüm modern tarayıcılar ve web siteleri çok daha güçlü şifreleme kullanmaktadır, fakat web siteleri hala modası geçmiş zayıf şifrelemeyi destekleyecek şekilde yapılandırılmışlardır. Bu sebeple, saldırgan kullanıcıyı bir websitesine bağlanırken daha zayıf bir şifreleme kullanmaya zorlayabilir, böylece saldırgan zayıf şifrelemeyi kırabilir. Bu sebeple, sunucu sadece güçlü şifreleme kabul edecek ve zayıf şifreleme kullanan müşteriye hizmet vermeyecek şekilde yapılandırılmalıdır. Buna ek olarak, bazı web siteleri, müşterisi güçlü sifreleme destekliyorken bile zayıf şifreleme seçecek şekilde yanlış yapılandırılmıştır. OWASP, SSL/TLS sorunlarını test etmek için bir rehber yayınladı ve bu rehber zayıf şifreleme desteği, yanlış yapılandırma, bazı kaynak ve araçları içermektedir.</desc>
+	<solution>Faz: Gereksinimler
+Hangi veri ve kaynakların şifreli bir şekilde korunacak kadar değerli olduğunu düzgün bir şekilde belirleyin. Bu veri/kaynağa herhangi bir iletişim veya depolama, iyi denetlenmiş bir şifreleme algoritması gerektirmelidir.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Faz: Mimari ve Tasarım
+Tehdit modellemesi ve diğer teknikleri kullanarak, verinizin ayrı bir zafiyet veya zayıflık yoluyla ele geçirilebileceğini varsayarak, şifrelemenin nerede en etkili olacağına karar verin. Özel tutulması gereken verilerin, güvenli olmayan izinler (CWE-732) gibi zafiyetlerin kullanılmasına kazara maruz kalmadığına emin olun.
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
+Faz: Mimari ve Tasarım
+Şifrelemeyi sistem tasarımınıza düzgün bir şekilde entegre ederken aşağıdaki hususları içerdiğine ama sadece bunlara bağlı kalmadığına emin olun:
+     Sistemdeki kullanıcıların özel bilgilerinin depolaması ve iletimindeki şifreleme
+     Sistemin yetkisiz ifşaası veya kurcalanmasına karşı koruyacak şifreleme
+Şifreleme için gerekleri ve bağlamı tanımlayın:
+    Tek-yönlü (mesela, sadece kullanıcı veya alıcının anahtara sahip olması gerektiği). Bu, açık anahtar şifrelemesi veya şifreleme yapan kısmın (mesela yazılım) özel anahtara erişmesine gerek duymadığı diğer tekniklerle başarılabilir.
       Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. They will likely be exposed to attacks that are well-understood by cryptographers. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Faz: Mimari ve Tasarım
+Kendi kriptografik algoritmanızı geliştirmeyin. Onlar, muhtemelen kriptograflar tarafından iyi anlaşılmış saldırılara maruz kalacaklar. Tersine mühendislik teknikleri olgun. Eğer algoritmanız açığa çıkar, saldırganlar nasıl çalıştığını çözerlerse, o zayıftır.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-For example, US government systems require FIPS 140-2 certification.
-As with all cryptographic mechanisms, the source code should be available for analysis.
-Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+Faz: Mimari ve Tasarım
+Bu alanda uzmanlarca güçlü kabul edilen, iyi onaylanmış algoritmaları ve bunların iyi test edilmiş gerçeklemelerini kullanın.
+Mesela, ABD hükümet sistemleri FIPS 140-2 sertifikası gerektiriyor.
+Tüm kriptografik mekanizmalarla, kaynak kodu analiz için açık bulunmalı.
+Periyodik olarak, geçerliliğini yitirmiş kriptografi kullanılmadığı kontrol edilmeli. Bir zamanlar kırılması için milyarlarca hesaplama yılı gerektiği düşünülen eski algoritmalar, günümüzde bir kaç gün veya saatte kırılabilmektedir. Bunlardan MD4, MD5, SHA1, DES, ve diğer algoritmalar bir zamanlar güçlü kabul ediliyordu.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Faz: Mimari ve Tasarım
+Sisteminizi sınırları tartışmasız bir şekilde çizilmiş, "güvenli" alanlar oluşturacak şekilde bölümlere ayırın. Hassas bilginin güven sınırları dışına gitmesine izin vermeyin ve güvenli alan dışındaki bir bölümle karşılaştığınızda her zaman dikkatli olun.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Faz: Gerçekleme; Mimari ve Tasarım
+endüstri tarafından onaylanmış teknikler kullanırken, onları dikkatli kullanmalısınız. Yoğun kaynaklı adımları atlayarak kestirmeden gitmeyin (CWE-325). Bu adımlar, yaygın saldırıları önlemek için genellikle gereklidir.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
-This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
-	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
-	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
+Faz: Gerçekleme
+İsimlendirme kurallarını ve güçlü tipleri, hassas bilgi kullanılırken daha kolay farkedebilmek için kullanın. Nesne, yapı ve diğer kompleks yapıları kullanırken, hassas ve hassas olmayan veriyi mümkün oldukça ayırın.
+Bu, şifrelenmemiş veriyi kodda daha kolay farkedebilmenizi sağlar.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
+	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 </vuln_item_wasc_4>
 
 <vuln_items>wasc_5</vuln_items>
@@ -201,8 +201,8 @@ Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayı
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -240,8 +240,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -280,8 +280,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -417,7 +417,7 @@ Failure to scrub HTML/Script comments prior to a push to the production environm
 Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
 
 Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</solution>
+	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Hassas bilginin güven sınırları dışına gitmesine izin vermeyin ve güvenli alan dışındaki bir bölümle karşılaştığınızda her zaman dikkatli olun.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
@@ -481,8 +481,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Mimari ve Tasarım
+Bu zafiyetin meydana gelmesine izin vermeyen veya bu zafiyetten kaçınmayı kolaylaştıracak yapılar sunan, güvenilir bir kütüphane veya framework kullanın.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.

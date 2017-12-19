@@ -27,6 +27,11 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 	}
 	
 	@Override
+	public String getUIName() {
+		return Constant.messages.getString("http.panel.view.formtable.ext.name");
+	}
+	
+	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 		if (getView() != null) {

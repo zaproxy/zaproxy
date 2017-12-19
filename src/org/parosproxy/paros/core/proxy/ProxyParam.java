@@ -31,6 +31,10 @@
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
+// ZAP: 2017/03/26 Allow to configure if the proxy is behind NAT.
+// ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
+// ZAP: 2017/09/26 Use helper methods to read the configurations.
+// ZAP: 2017/11/20 Use default value when reading "reverseProxy.ip".
 
 package org.parosproxy.paros.core.proxy;
 
@@ -65,6 +69,10 @@ public class ProxyParam extends AbstractParam {
     private static final String REVERSE_PROXY_HTTP_PORT = "proxy.reverseProxy.httpPort";
     private static final String REVERSE_PROXY_HTTPS_PORT = "proxy.reverseProxy.httpsPort";
 
+    /**
+     * The configuration key to save/load the option {@link #behindNat}.
+     */
+    private static final String PROXY_BEHIND_NAT = PROXY_BASE_KEY + ".behindnat";
 
     private static final String SECURITY_PROTOCOLS_ENABLED = PROXY_BASE_KEY + ".securityProtocolsEnabled";
     private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + ".protocol";
@@ -110,6 +118,13 @@ public class ProxyParam extends AbstractParam {
      */
     private boolean alwaysDecodeGzip = true;
 
+    /**
+     * Flag that controls whether or not the local proxy is behind NAT.
+     * <p>
+     * Default is {@code false}.
+     */
+    private boolean behindNat;
+
     private String[] securityProtocolsEnabled;
 
     public ProxyParam() {
@@ -117,21 +132,17 @@ public class ProxyParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        proxyIp = getConfig().getString(PROXY_IP, "localhost");
+        proxyIp = getString(PROXY_IP, "localhost");
         determineProxyIpAnyLocalAddress();
         
-        try {
-            proxyPort = getConfig().getInt(PROXY_PORT, 8080);
-
-        } catch (Exception e) {
-        }
+        proxyPort = getInt(PROXY_PORT, 8080);
 
         try {
             proxySSLPort = 8443;	//getConfig().getInt(PROXY_SSL_PORT, 8443);
         } catch (Exception e) {
         }
 
-        reverseProxyIp = getConfig().getString(REVERSE_PROXY_IP);
+        reverseProxyIp = getString(REVERSE_PROXY_IP, "localhost");
         if (reverseProxyIp.equalsIgnoreCase("localhost") || reverseProxyIp.equalsIgnoreCase("127.0.0.1")) {
             try {
                 reverseProxyIp = InetAddress.getLocalHost().getHostAddress();
@@ -141,14 +152,16 @@ public class ProxyParam extends AbstractParam {
             }
         }
 
-        reverseProxyHttpPort = getConfig().getInt(REVERSE_PROXY_HTTP_PORT, 80);
-        reverseProxyHttpsPort = getConfig().getInt(REVERSE_PROXY_HTTPS_PORT, 443);
-        useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
+        reverseProxyHttpPort = getInt(REVERSE_PROXY_HTTP_PORT, 80);
+        reverseProxyHttpsPort = getInt(REVERSE_PROXY_HTTPS_PORT, 443);
+        useReverseProxy = getInt(USE_REVERSE_PROXY, 0);
 
-        removeUnsupportedEncodings = getConfig().getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
-        alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
+        removeUnsupportedEncodings = getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
+        alwaysDecodeGzip = getBoolean(ALWAYS_DECODE_GZIP, true);
 
         loadSecurityProtocolsEnabled();
+
+        behindNat = getBoolean(PROXY_BEHIND_NAT, false);
     }
 
     public String getProxyIp() {
@@ -251,7 +264,7 @@ public class ProxyParam extends AbstractParam {
      * @param modifyAcceptEncodingHeader {@code true} if the proxy should
      * modify/remove the "Accept-Encoding" request-header field, {@code false}
      * otherwise
-     * @deprecated (TODO add version) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
+     * @deprecated (2.6.0) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
      * @since 2.0.0
      */
     @Deprecated
@@ -265,7 +278,7 @@ public class ProxyParam extends AbstractParam {
      *
      * @return {@code true} if the proxy should modify/remove the
      * "Accept-Encoding" request-header field, {@code false} otherwise
-     * @deprecated (TODO add version) Use {@link #isRemoveUnsupportedEncodings()} instead.
+     * @deprecated (2.6.0) Use {@link #isRemoveUnsupportedEncodings()} instead.
      * @since 2.0.0
      */
     @Deprecated
@@ -279,7 +292,7 @@ public class ProxyParam extends AbstractParam {
      * The whole header is removed if empty after the removal of unsupported encodings.
      *
      * @param remove {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.6.0
      * @see #isRemoveUnsupportedEncodings()
      */
     public void setRemoveUnsupportedEncodings(boolean remove) {
@@ -295,7 +308,7 @@ public class ProxyParam extends AbstractParam {
      * The whole header is removed if empty after the removal of unsupported encodings.
      *
      * @return {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.6.0
      * @see #setRemoveUnsupportedEncodings(boolean)
      */
     public boolean isRemoveUnsupportedEncodings() {
@@ -360,7 +373,7 @@ public class ProxyParam extends AbstractParam {
         }
 
         this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
-        SSLConnector.setServerEnabledProtocols(enabledProtocols);
+        setServerEnabledProtocols();
     }
 
     private void loadSecurityProtocolsEnabled() {
@@ -368,9 +381,21 @@ public class ProxyParam extends AbstractParam {
         if (protocols.size() != 0) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
-            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+            setServerEnabledProtocols();
         } else {
             setSecurityProtocolsEnabled(SSLConnector.getServerEnabledProtocols());
+        }
+    }
+
+    private void setServerEnabledProtocols() {
+        try {
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+        } catch (IllegalArgumentException e) {
+            logger.warn(
+                    "Failed to set persisted protocols " + Arrays.toString(securityProtocolsEnabled) + " falling back to "
+                            + Arrays.toString(SSLConnector.getFailSafeProtocols()) + " caused by: " + e.getMessage());
+            securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
         }
     }
 
@@ -402,5 +427,24 @@ public class ProxyParam extends AbstractParam {
         } catch (UnknownHostException e) {
             proxyIpAnyLocalAddress = false;
         }
+    }
+
+    /**
+     * Tells whether or not the proxy is behind NAT.
+     *
+     * @return {@code true} if the proxy is behind NAT, {@code false} otherwise.
+     */
+    public boolean isBehindNat() {
+        return behindNat;
+    }
+
+    /**
+     * Sets whether or not the proxy is behind NAT.
+     *
+     * @param behindNat {@code true} if the proxy is behind NAT, {@code false} otherwise.
+     */
+    public void setBehindNat(boolean behindNat) {
+        this.behindNat = behindNat;
+        getConfig().setProperty(PROXY_BEHIND_NAT, Boolean.valueOf(behindNat));
     }
 }

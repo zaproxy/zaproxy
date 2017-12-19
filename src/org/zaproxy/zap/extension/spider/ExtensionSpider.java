@@ -22,7 +22,6 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -56,6 +55,8 @@ import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.model.ValueGenerator;
+import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -68,6 +69,8 @@ import org.zaproxy.zap.view.ZapMenuItem;
  * The ExtensionSpider is the Extension that controls the Spider.
  */
 public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ScanController<SpiderScan> {
+
+	private ValueGenerator generator = new DefaultValueGenerator();
 
 	public static final int EXTENSION_ORDER = 30;
 	
@@ -127,6 +130,22 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.scanController = new SpiderScanController(this);
 	}
 
+	public void setValueGenerator (ValueGenerator generator) {
+		if (generator == null){
+			throw new IllegalArgumentException("Parameter generator must not be null.");
+		}
+		this.generator = generator;
+	}
+
+	public ValueGenerator getValueGenerator() {
+		return generator;
+	}
+
+	@Override
+	public String getUIName() {
+		return Constant.messages.getString("spider.name");
+	}
+	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
@@ -430,7 +449,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * 
 	 * @param parser the parser
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addCustomParser(SpiderParser)
 	 */
 	public void removeCustomParser(SpiderParser parser) {
@@ -460,7 +479,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * 
 	 * @param filter the filter
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addCustomFetchFilter(FetchFilter)
 	 */
 	public void removeCustomFetchFilter(FetchFilter filter) {
@@ -490,7 +509,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * 
 	 * @param filter the filter
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.6.0
 	 * @see #addCustomParseFilter(ParseFilter)
 	 */
 	public void removeCustomParseFilter(ParseFilter filter) {
@@ -784,7 +803,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
     private ZapMenuItem getMenuItemCustomScan() {
         if (menuItemCustomScan  == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.spider",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+                    KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {

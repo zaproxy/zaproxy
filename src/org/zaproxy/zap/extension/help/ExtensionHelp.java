@@ -35,6 +35,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 
@@ -66,8 +67,22 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static final String HELP_ID_PROPERTY = "HelpID";
 
 	private static final String HELP_SET_FILE_NAME = "helpset";
-	public static final ImageIcon HELP_ICON = DisplayUtils.getScaledIcon(
-			new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+	/**
+	 * @deprecated (2.7.0) Use {@link #getHelpIcon()} instead.
+	 */
+	@Deprecated
+	public static final ImageIcon HELP_ICON = View.isInitialised() ? getHelpIcon() : null;
+
+	/**
+	 * The help icon.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getHelpIcon()
+	 */
+	private static ImageIcon helpIcon;
+	
+	private static final String NAME = "ExtensionHelp";
 
 	private ZapMenuItem menuHelpZap = null;
 	private JButton helpButton = null;
@@ -96,10 +111,15 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static final Logger logger = Logger.getLogger(ExtensionHelp.class);
 	
     public ExtensionHelp() {
-        super("ExtensionHelp");
+        super(NAME);
         this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	
+    @Override
+    public String getUIName() {
+    	return Constant.messages.getString("help.name");
+    }
+    
 	@Override
 	public void initView(ViewDelegate view) {
 		super.initView(view);
@@ -115,8 +135,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	    if (getView() != null) {	        
 	        extensionHook.getHookMenu().addHelpMenuItem(getMenuHelpZapUserGuide());
 
-	        View.getSingleton().addMainToolbarSeparator();
-	        View.getSingleton().addMainToolbarButton(this.getHelpButton());
+	        extensionHook.getHookView().addMainToolBarComponent(new JToolBar.Separator());
+	        extensionHook.getHookView().addMainToolBarComponent(this.getHelpButton());
 
             enableHelpKey(this.getView().getSiteTreePanel(), "ui.tabs.sites");
             enableHelpKey(this.getView().getRequestPanel(), "ui.tabs.request");
@@ -373,6 +393,21 @@ public class ExtensionHelp extends ExtensionAdaptor {
                 setHelpEnabled(false);
             }
         }
+    }
+
+    /**
+     * Gets the help icon.
+     * <p>
+     * Should be called/used only when in view mode.
+     * 
+     * @return the help icon, never {@code null}.
+     * @since 2.7.0
+     */
+    public static ImageIcon getHelpIcon() {
+        if (helpIcon == null) {
+            helpIcon = DisplayUtils.getScaledIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+        }
+        return helpIcon;
     }
 
 }

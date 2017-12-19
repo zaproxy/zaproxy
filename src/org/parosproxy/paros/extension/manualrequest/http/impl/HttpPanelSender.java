@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.EventQueue;
@@ -34,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
@@ -50,6 +50,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 /**
  * Knows how to send {@link HttpMessage} objects.
@@ -88,8 +90,11 @@ public class HttpPanelSender implements MessageSender {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
-            if (getButtonFollowRedirects().isSelected()) {
-                getDelegate().sendAndReceive(httpMessage, redirectionValidator);
+            boolean followRedirects = getButtonFollowRedirects().isSelected();
+            if (followRedirects) {
+                getDelegate().sendAndReceive(
+                        httpMessage,
+                        HttpRequestConfig.builder().setRedirectionValidator(redirectionValidator).build());
             } else {
                 getDelegate().sendAndReceive(httpMessage, false);
             }
@@ -101,19 +106,9 @@ public class HttpPanelSender implements MessageSender {
                         // Indicate UI new response arrived
                         responsePanel.updateContent();
 
-                        try {
-                            Session session = Model.getSingleton().getSession();
-                            HistoryReference ref = new HistoryReference(session, HistoryReference.TYPE_ZAP_USER, httpMessage);
-                            final ExtensionHistory extHistory = getHistoryExtension();
-                            if (extHistory != null) {
-                                extHistory.addHistory(ref);
-                            }
-                            SessionStructure.addPath(session, ref, httpMessage);
-                        } catch (final Exception e) {
-                            logger.error(e.getMessage(), e);
-                        }
-
-                        if (!redirectionValidator.isRequestValid()) {
+                        if (!followRedirects) {
+                            persistAndShowMessage(httpMessage);
+                        } else if (!redirectionValidator.isRequestValid()) {
                             View.getSingleton().showWarningDialog(
                                     Constant.messages.getString(
                                             "manReq.outofscope.redirection.warning",
@@ -139,6 +134,25 @@ public class HttpPanelSender implements MessageSender {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void persistAndShowMessage(HttpMessage httpMessage) {
+        if (!EventQueue.isDispatchThread()) {
+            EventQueue.invokeLater(() -> persistAndShowMessage(httpMessage));
+            return;
+        }
+
+        try {
+            Session session = Model.getSingleton().getSession();
+            HistoryReference ref = new HistoryReference(session, HistoryReference.TYPE_ZAP_USER, httpMessage);
+            final ExtensionHistory extHistory = getHistoryExtension();
+            if (extHistory != null) {
+                extHistory.addHistory(ref);
+            }
+            SessionStructure.addPath(Model.getSingleton().getSession(), ref, httpMessage);
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            logger.warn("Failed to persist message sent:", e);
         }
     }
 
@@ -175,8 +189,7 @@ public class HttpPanelSender implements MessageSender {
 
     protected ExtensionHistory getHistoryExtension() {
         if (extension == null) {
-            extension = ((ExtensionHistory) Control.getSingleton()
-                    .getExtensionLoader().getExtension(ExtensionHistory.NAME));
+            extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
         }
         return extension;
     }
@@ -237,11 +250,11 @@ public class HttpPanelSender implements MessageSender {
     }
 
     /**
-     * A {@code RedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
+     * A {@link HttpRedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
      *
      * @see #isRequestValid()
      */
-    private static class ModeRedirectionValidator implements HttpSender.RedirectionValidator {
+    private class ModeRedirectionValidator implements HttpRedirectionValidator {
 
         private boolean isRequestValid;
         private URI invalidRedirection;
@@ -252,6 +265,7 @@ public class HttpPanelSender implements MessageSender {
 
         @Override
         public void notifyMessageReceived(HttpMessage message) {
+            persistAndShowMessage(message);
         }
 
         @Override
