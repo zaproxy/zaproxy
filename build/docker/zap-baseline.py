@@ -49,7 +49,6 @@ import os.path
 import sys
 import time
 from datetime import datetime
-from six.moves.urllib.request import urlopen
 from zapv2 import ZAPv2
 from zap_common import *
 
@@ -71,31 +70,32 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 def usage():
-    print ('Usage: zap-baseline.py -t <target> [options]')
-    print ('    -t target         target URL including the protocol, eg https://www.example.com')
-    print ('Options:')
-    print ('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
-    print ('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
-    print ('    -g gen_file       generate default config file (all rules set to WARN)')
-    print ('    -m mins           the number of minutes to spider for (default 1)')
-    print ('    -r report_html    file to write the full ZAP HTML report')
-    print ('    -w report_md      file to write the full ZAP Wiki (Markdown) report')
-    print ('    -x report_xml     file to write the full ZAP XML report')
-    print ('    -J report_json    file to write the full ZAP JSON document')
-    print ('    -a                include the alpha passive scan rules as well')
-    print ('    -d                show debug messages')
-    print ('    -P                specify listen port')
-    print ('    -D                delay in seconds to wait for passive scanning ')
-    print ('    -i                default rules not in the config file to INFO')
-    print ('    -j                use the Ajax spider in addition to the traditional one')
-    print ('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
-    print ('    -n context_file   context file which will be loaded prior to spidering the target')
-    print ('    -p progress_file  progress file which specifies issues that are being addressed')
-    print ('    -s                short output format - dont show PASSes or example URLs')
-    print ('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
-    print ('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
-    print ('')
-    print ('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
+    print('Usage: zap-baseline.py -t <target> [options]')
+    print('    -t target         target URL including the protocol, eg https://www.example.com')
+    print('Options:')
+    print('    -h                print this help message')
+    print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
+    print('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
+    print('    -g gen_file       generate default config file (all rules set to WARN)')
+    print('    -m mins           the number of minutes to spider for (default 1)')
+    print('    -r report_html    file to write the full ZAP HTML report')
+    print('    -w report_md      file to write the full ZAP Wiki (Markdown) report')
+    print('    -x report_xml     file to write the full ZAP XML report')
+    print('    -J report_json    file to write the full ZAP JSON document')
+    print('    -a                include the alpha passive scan rules as well')
+    print('    -d                show debug messages')
+    print('    -P                specify listen port')
+    print('    -D                delay in seconds to wait for passive scanning ')
+    print('    -i                default rules not in the config file to INFO')
+    print('    -j                use the Ajax spider in addition to the traditional one')
+    print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
+    print('    -n context_file   context file which will be loaded prior to spidering the target')
+    print('    -p progress_file  progress file which specifies issues that are being addressed')
+    print('    -s                short output format - dont show PASSes or example URLs')
+    print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
+    print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
+    print('')
+    print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
 
 
 def main(argv):
@@ -113,7 +113,7 @@ def main(argv):
     report_html = ''
     report_md = ''
     report_xml = ''
-    report_json = '' 
+    report_json = ''
     target = ''
     zap_alpha = False
     info_unspecified = False
@@ -132,17 +132,18 @@ def main(argv):
     warn_inprog_count = 0
     fail_inprog_count = 0
 
-    check_zap_client_version()
-
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:daijp:sz:P:D:T:")
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
         sys.exit(3)
 
     for opt, arg in opts:
-        if opt == '-t':
+        if opt == '-h':
+            usage()
+            sys.exit(0)
+        elif opt == '-t':
             target = arg
             logging.debug('Target: ' + target)
         elif opt == '-c':
@@ -190,6 +191,8 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+
+    check_zap_client_version()
 
     # Check target supplied and ok
     if len(target) == 0:
