@@ -303,6 +303,15 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				try {
 					final ZapXmlConfiguration conf = new ZapXmlConfiguration(f);
 					final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
+					if (rootcastr == null || rootcastr.isEmpty()) {
+						JOptionPane.showMessageDialog(
+								this,
+								Constant.messages.getString("dynssl.message.nocertinconf"),
+								Constant.messages.getString("dynssl.message.nocertinconf.title"),
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
 					ks = SslCertificateUtils.string2Keystore(rootcastr);
 				} catch (final Exception e) {
 					logger.error("Error importing Root CA cert from config file:", e);
@@ -310,6 +319,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 							Constant.messages.getString("dynssl.message1.filecouldntloaded"),
 							Constant.messages.getString("dynssl.message1.title"),
 							JOptionPane.ERROR_MESSAGE);
+					return;
 				}
 			}
 			if (ks != null) {
