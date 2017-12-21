@@ -85,7 +85,7 @@ public class DownloadManager extends Thread {
 						dl.cancelDownload();
 						if (View.isInitialised()) {
 							View.getSingleton().showWarningDialog(
-									Constant.messages.getString("cfu.warn.badhash", new Object[] {dl.getTargetFile().getName()}));
+									Constant.messages.getString("cfu.warn.badhash", dl.getTargetFile().getName()));
 						}
 					}
 					finishedDownloads.add(dl);
