@@ -79,6 +79,8 @@ public class DownloadManager extends Thread {
 				        logger.debug("Download failed " + dl.getTargetFile().getAbsolutePath());
 				    } else if (dl.isValidated()) {
 						logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
+					} else if (dl.isCancelled()) {
+						logger.debug("Download cancelled " + dl.getTargetFile().getAbsolutePath());
 					} else {
 						// Corrupt or corrupted file? Pretty bad anyway
 						logger.error("Validation failed " + dl.getTargetFile().getAbsolutePath());
