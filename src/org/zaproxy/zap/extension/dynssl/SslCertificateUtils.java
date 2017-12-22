@@ -42,13 +42,11 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -180,7 +178,7 @@ public class SslCertificateUtils {
 		keystore.store(baos, SslCertificateService.PASSPHRASE);
 		final byte[] bytes = baos.toByteArray();
 		baos.close();
-		return Base64.encodeBase64URLSafeString(bytes);
+		return Base64.getUrlEncoder().encodeToString(bytes);
 	}
 
 	/**
@@ -192,7 +190,7 @@ public class SslCertificateUtils {
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static final KeyStore string2Keystore(String str) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-		final byte[] bytes = Base64.decodeBase64(str);
+		final byte[] bytes = Base64.getUrlDecoder().decode(str);
 		final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 		ks.load(bais, SslCertificateService.PASSPHRASE);
@@ -277,7 +275,7 @@ public class SslCertificateUtils {
 	    }
 	    String[] tokens = pem.split(beginDelimiter);
 	    tokens = tokens[1].split(endDelimiter);
-	    return DatatypeConverter.parseBase64Binary(tokens[0]);        
+	    return Base64.getMimeDecoder().decode(tokens[0]);
 	}
 
 	private static RSAPrivateKey generatePrivateKeyFromDER(byte[] keyBytes) throws InvalidKeySpecException, NoSuchAlgorithmException {
