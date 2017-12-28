@@ -25,6 +25,7 @@
 // private to protected. Use i18n strings for labels and warnings.
 // ZAP: 2012/07/09 Added 10 more pixels to the dialog's height.
 // Changed visibility of getJPanel1().
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;
@@ -45,6 +46,10 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextField;
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public class FilterReplaceDialog extends AbstractDialog {
 
 

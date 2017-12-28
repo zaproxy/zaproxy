@@ -26,6 +26,7 @@
 // method setValueAt(Object, int , int).
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -36,6 +37,10 @@ import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public class AllFilterTableModel extends DefaultTableModel {
 	private static final long serialVersionUID = 1L;
 	

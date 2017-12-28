@@ -66,7 +66,6 @@ public final class CoreFunctionality {
 		if (builtInExtensions == null) {
 			ArrayList<Extension> extensions = new ArrayList<>();
 			extensions.add(new org.parosproxy.paros.extension.edit.ExtensionEdit());
-			extensions.add(new org.parosproxy.paros.extension.filter.ExtensionFilter());
 			extensions.add(new org.parosproxy.paros.extension.history.ExtensionHistory());
 			extensions.add(new org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor());
 			extensions.add(new org.parosproxy.paros.extension.option.ExtensionOption());
