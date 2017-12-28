@@ -94,6 +94,10 @@ public class AddOnLoader extends URLClassLoader {
 	
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
 
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
     private Lock installationLock = new ReentrantLock();
     private AddOnCollection aoc = null;
     private List<File> jars = new ArrayList<>();
