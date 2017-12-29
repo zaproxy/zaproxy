@@ -56,6 +56,7 @@
 // ZAP: 2017/05/31 Remove re-declaration of methods.
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 // ZAP: 2017/11/14 Notify completion in a finally block.
+// ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -71,7 +72,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
@@ -82,8 +82,6 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
-import org.zaproxy.zap.network.HttpRedirectionValidator;
-import org.zaproxy.zap.network.HttpRequestConfig;
 
 public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
@@ -114,16 +112,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private Date started = null;
     private Date finished = null;
     private AddOn.Status status = AddOn.Status.unknown;
-
-    /**
-     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
-     * scan's scope.
-     * <p>
-     * Lazily initialised.
-     * 
-     * @see #getHttpRequestConfig()
-     */
-    private HttpRequestConfig httpRequestConfig;
 
     /**
      * Default Constructor
@@ -299,7 +287,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.performScannerHookBeforeScan(message, this);
 
         if (isFollowRedirect) {
-            parent.getHttpSender().sendAndReceive(message, getHttpRequestConfig());
+            parent.getHttpSender().sendAndReceive(message, getParent().getRedirectRequestConfig());
         } else {
             parent.getHttpSender().sendAndReceive(message, false);
         }
@@ -309,36 +297,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         
         //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
-    }
-
-    /**
-     * Gets the HTTP request configuration, that ensures the followed redirections are in scan's scope.
-     *
-     * @return the HTTP request configuration, never {@code null}.
-     * @see #httpRequestConfig
-     */
-    private HttpRequestConfig getHttpRequestConfig() {
-        if (httpRequestConfig == null) {
-            httpRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(new HttpRedirectionValidator() {
-
-                @Override
-                public boolean isValid(URI redirection) {
-                    if (!getParent().nodeInScope(redirection.getEscapedURI())) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Skipping redirection out of scan's scope: " + redirection);
-                        }
-                        return false;
-                    }
-                    return true;
-                }
-
-                @Override
-                public void notifyMessageReceived(HttpMessage message) {
-                    // Nothing to do with the message.
-                }
-            }).build();
-        }
-        return httpRequestConfig;
     }
 
     private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {

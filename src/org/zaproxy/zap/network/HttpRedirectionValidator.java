@@ -30,6 +30,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * 
  * @since 2.6.0
  */
+@FunctionalInterface
 public interface HttpRedirectionValidator {
 
     /**
@@ -45,5 +46,6 @@ public interface HttpRedirectionValidator {
      *
      * @param message the HTTP message that was received, never {@code null}.
      */
-    void notifyMessageReceived(HttpMessage message);
+    default void notifyMessageReceived(HttpMessage message) {
+    }
 }
