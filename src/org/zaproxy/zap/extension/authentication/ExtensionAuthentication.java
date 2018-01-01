@@ -92,6 +92,11 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
+
+	@Override
 	public String getUIName() {
 		return Constant.messages.getString("authentication.name");
 	}

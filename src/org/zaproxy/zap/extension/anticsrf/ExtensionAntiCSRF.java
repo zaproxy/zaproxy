@@ -86,6 +86,11 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 
     @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
+
+    @Override
     public void init() {
         antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
     }
