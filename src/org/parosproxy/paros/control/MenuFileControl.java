@@ -49,6 +49,7 @@
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2017/11/22 Do not allow to snapshot the session with active actions (Issue 3711).
 // ZAP: 2017/12/15 Confirm when overwriting session file (Issue 4153). 
+// ZAP: 2018/01/01 Prevent the selection of the current session on save/snapshot.
 
 package org.parosproxy.paros.control;
  
@@ -388,7 +389,7 @@ public class MenuFileControl implements SessionListener {
 		
 	    Session session = model.getSession();
 
-        JFileChooser chooser = new SessionFileChooser(model.getOptionsParam().getUserDirectory());
+        JFileChooser chooser = new SessionFileChooser(model.getOptionsParam().getUserDirectory(), session);
 	    // ZAP: set session name as file name proposal
 	    File fileproposal = new File(session.getSessionName());
 	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
@@ -433,7 +434,7 @@ public class MenuFileControl implements SessionListener {
 
 	    Session session = model.getSession();
 
-	    JFileChooser chooser = new SessionFileChooser(model.getOptionsParam().getUserDirectory());
+	    JFileChooser chooser = new SessionFileChooser(model.getOptionsParam().getUserDirectory(), session);
 	    // ZAP: set session name as file name proposal
 	    File fileproposal = new File(session.getSessionName());
 	    if (session.getFileName() != null && session.getFileName().trim().length() > 0) {
@@ -600,17 +601,31 @@ public class MenuFileControl implements SessionListener {
 
 		private static final long serialVersionUID = 1L;
 
-		public SessionFileChooser(File currentDirectory) {
+		private final Session currentSession;
+
+		public SessionFileChooser(File currentDirectory, Session currentSession) {
 			super(currentDirectory);
 
 			setFileFilter(SESSION_FILE_FILTER);
+			this.currentSession = currentSession;
 		}
 
 		@Override
 		public void approveSelection() {
 			File file = getSelectedFile();
 			if (file != null) {
-				setSelectedFile(new File(createSessionFileName(file)));
+				File sessionFile = new File(createSessionFileName(file));
+				setSelectedFile(sessionFile);
+
+				if (!currentSession.isNewState()) {
+					File currentFile = new File(currentSession.getFileName());
+					if (currentFile.getAbsolutePath().equals(sessionFile.getAbsolutePath())) {
+						showErrorDialog(
+								Constant.messages.getString("menu.file.error.selectedCurrentSession.msg"),
+								Constant.messages.getString("menu.file.error.selectedCurrentSession.title"));
+						return;
+					}
+				}
 			}
 			super.approveSelection();
 		}
