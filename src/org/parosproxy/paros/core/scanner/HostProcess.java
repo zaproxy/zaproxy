@@ -80,6 +80,7 @@
 // ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 // ZAP: 2017/11/29 Skip plugins if there's nothing to scan.
 // ZAP: 2017/12/29 Provide means to validate the redirections.
+// ZAP: 2018/01/01 Update initialisation of PluginStats.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -290,7 +291,7 @@ public class HostProcess implements Runnable {
             pluginFactory.reset();
             synchronized (mapPluginStats) {
                 for (Plugin plugin : pluginFactory.getPending()) {
-                    mapPluginStats.put(plugin.getId(), new PluginStats());
+                    mapPluginStats.put(plugin.getId(), new PluginStats(plugin.getName()));
                 }
             }
 
