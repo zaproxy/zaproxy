@@ -63,6 +63,12 @@ public class SpiderParserTestUtils {
         return new TestSpiderParserListener();
     }
 
+    public static TestSpiderParserListener createAndAddTestSpiderParserListener(SpiderParser parser) {
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        parser.addSpiderParserListener(listener);
+        return listener;
+    }
+
     public static class TestSpiderParserListener implements SpiderParserListener {
 
         private final List<SpiderResource> resources;
