@@ -65,10 +65,22 @@ public class WritableFileChooser extends JFileChooser {
 		super.approveSelection();
 	}
 
+	/**
+	 * Convenience method that shows an error dialogue with the given message and title.
+	 * <p>
+	 * The {@code parent} of the error dialogue is this file chooser.
+	 *
+	 * @param message the error message.
+	 * @param title the title of the dialogue.
+	 * @since TODO add version
+	 */
+	protected void showErrorDialog(String message, String title) {
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+	}
+
 	private void warnNotWritable(String i18nKeyMessage, String path) {
-		JOptionPane.showMessageDialog(this,
+		showErrorDialog(
 				Constant.messages.getString(i18nKeyMessage, path),
-				Constant.messages.getString("report.write.permission.dialog.title"),
-				JOptionPane.ERROR_MESSAGE);
+				Constant.messages.getString("report.write.permission.dialog.title"));
 	}
 }
