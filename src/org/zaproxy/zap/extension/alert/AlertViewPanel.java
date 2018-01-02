@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
@@ -155,6 +156,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private JScrollPane getAlertPane() {
 		if (alertPane == null) {
 			alertPane = new JScrollPane();
+			alertPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			alertPane.setViewportView(getAlertDisplay());
 			alertPane.setName("alertPane");
 		}
@@ -274,6 +276,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertUrl.setLineWrap(true);
 			
 			alertDescription = createZapTextArea();
+			alertDescription.setLineWrap(true);
 			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
 			descSp.setViewportView(alertDescription);
 			alertDescription.addKeyListener(new KeyAdapter() {
@@ -287,6 +290,7 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertOtherInfo = createZapTextArea();
+			alertOtherInfo.setLineWrap(true);
 			JScrollPane otherSp = createJScrollPane(Constant.messages.getString("alert.label.other"));
 			otherSp.setViewportView(alertOtherInfo);
 			alertOtherInfo.addKeyListener(new KeyAdapter() {
@@ -300,6 +304,7 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertSolution = createZapTextArea();
+			alertSolution.setLineWrap(true);
 			JScrollPane solutionSp = createJScrollPane(Constant.messages.getString("alert.label.solution"));
 			solutionSp.setViewportView(alertSolution);
 			alertSolution.addKeyListener(new KeyAdapter() {
@@ -313,6 +318,7 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertReference = createZapTextArea();
+			alertReference.setLineWrap(true);
 			JScrollPane referenceSp = createJScrollPane(Constant.messages.getString("alert.label.ref"));
 			referenceSp.setViewportView(alertReference);
 			alertReference.addKeyListener(new KeyAdapter() {
