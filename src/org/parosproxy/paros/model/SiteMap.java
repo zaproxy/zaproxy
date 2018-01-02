@@ -54,6 +54,7 @@
 // ZAP: 2017/06/29: Issue 3714: Added newOnly option to addPath
 // ZAP: 2017/07/09: Issue 3727: Sorting of SiteMap should not include HTTP method (verb) in the node's name
 // ZAP: 2017/11/22 Expose method to create temporary nodes (Issue 4065).
+// ZAP: 2017/12/26 Remove redundant request header null checks.
 
 package org.parosproxy.paros.model;
 
@@ -184,7 +185,7 @@ public class SiteMap extends SortedTreeModel {
     	if (Constant.isLowMemoryOptionSet()) {
     		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
     	}
-    	if (msg == null || msg.getRequestHeader() == null) {
+    	if (msg == null) {
     		return null;
     	}
         SiteNode resultNode = null;
@@ -285,7 +286,7 @@ public class SiteMap extends SortedTreeModel {
      * Find the closest parent for the message - no new nodes will be created
      */
     public synchronized SiteNode findClosestParent(HttpMessage msg) {
-    	if (msg == null || msg.getRequestHeader() == null) {
+    	if (msg == null) {
     		return null;
     	}
     	return this.findClosestParent(msg.getRequestHeader().getURI());
