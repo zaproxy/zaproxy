@@ -435,9 +435,9 @@ public class API {
 									break;
 						case JSONP: response = this.getJsonpWrapper(res.toJSON().toString()); 
 									break;
-						case XML:	response = this.responseToXml(name, res);
+						case XML:	response = responseToXml(name, res);
 									break;
-						case HTML:	response = this.responseToHtml(name, res);
+						case HTML:	response = responseToHtml(res);
 									break;
 						default:
 									break;
@@ -471,9 +471,9 @@ public class API {
 									break;
 						case JSONP: response = this.getJsonpWrapper(res.toJSON().toString()); 
 									break;
-						case XML:	response = this.responseToXml(name, res);
+						case XML:	response = responseToXml(name, res);
 									break;
-						case HTML:	response = this.responseToHtml(name, res);
+						case HTML:	response = responseToHtml(res);
 									break;
 						default:
 									break;
@@ -622,25 +622,43 @@ public class API {
 		return strBuilder.toString();
 	}
 	
-	private String responseToHtml(String name, ApiResponse res) {
+	/**
+	 * Gets the HTML representation of the given API {@code response}.
+	 * <p>
+	 * An empty HTML head with the HTML body containing the API response (as given by {@link ApiResponse#toHTML(StringBuilder)}.
+	 *
+	 * @param response the API response, must not be {@code null}.
+	 * @return the HTML representation of the given response.
+	 */
+	static String responseToHtml(ApiResponse response) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<head>\n");
 		sb.append("</head>\n");
 		sb.append("<body>\n");
-		res.toHTML(sb);
+		response.toHTML(sb);
 		sb.append("</body>\n");
 		return sb.toString();
 	}
 
-	private String responseToXml(String name, ApiResponse res) {
+	/**
+	 * Gets the XML representation of the given API {@code response}.
+	 * <p>
+	 * An XML element named with name of the endpoint and with child elements as given by
+	 * {@link ApiResponse#toXML(Document, Element)}.
+	 *
+	 * @param endpointName the name of the API endpoint, must not be {@code null}.
+	 * @param response the API response, must not be {@code null}.
+	 * @return the XML representation of the given response, or an empty string if an error occurred while converting.
+	 */
+	static String responseToXml(String endpointName, ApiResponse response) {
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 	
 			Document doc = docBuilder.newDocument();
-			Element rootElement = doc.createElement(name);
+			Element rootElement = doc.createElement(endpointName);
 			doc.appendChild(rootElement);
-			res.toXML(doc, rootElement);
+			response.toXML(doc, rootElement);
 			
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
@@ -653,7 +671,7 @@ public class API {
 			return sw.toString();
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error("Failed to convert API response to XML: " + e.getMessage(), e);
 		}
 		return "";
 	}
