@@ -69,6 +69,7 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/05/04 Issue 3440: Log Exception when overwriting a config file
+// ZAP: 2017/12/26 Remove class methods no longer used.
 
 package org.parosproxy.paros;
 
@@ -221,7 +222,6 @@ public final class Constant {
     public static final String USER_AGENT = "";
 
     private static String staticEyeCatcher = "0W45pz4p";
-    private static boolean staticSP = false;
     
     private static final String USER_CONTEXTS_DIR = "contexts";
     private static final String USER_POLICIES_DIR = "policies";
@@ -306,15 +306,6 @@ public final class Constant {
     public static void setEyeCatcher(String eyeCatcher) {
         staticEyeCatcher = eyeCatcher;
     }
-    
-    public static void setSP(boolean isSP) {
-        staticSP = isSP;
-    }
-
-    public static boolean isSP() {
-        return staticSP;
-    }
-
 
     public Constant() {
     	initializeFilesAndDirectories();
