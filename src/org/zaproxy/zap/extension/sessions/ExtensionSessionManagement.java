@@ -81,6 +81,11 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 	}
 
 	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
+
+	@Override
 	public String getUIName() {
 		return Constant.messages.getString("sessionmanagement.name");
 	}

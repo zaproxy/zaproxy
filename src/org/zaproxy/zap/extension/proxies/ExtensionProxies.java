@@ -68,6 +68,11 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
     }
 
     @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
+
+    @Override
     public String getUIName() {
         return Constant.messages.getString("proxies.name");
     }

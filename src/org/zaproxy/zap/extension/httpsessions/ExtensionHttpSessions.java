@@ -125,6 +125,11 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
+
+	@Override
 	public String getUIName() {
 		return Constant.messages.getString("httpsessions.name");
 	}

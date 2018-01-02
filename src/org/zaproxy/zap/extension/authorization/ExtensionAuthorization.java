@@ -72,6 +72,11 @@ public class ExtensionAuthorization extends ExtensionAdaptor implements ContextP
 	}
 
 	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
+
+	@Override
 	public String getUIName() {
 		return Constant.messages.getString("autorization.name");
 	}
