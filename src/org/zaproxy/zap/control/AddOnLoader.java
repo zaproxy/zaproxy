@@ -841,10 +841,36 @@ public class AddOnLoader extends URLClassLoader {
 		return Collections.unmodifiableList(list);
 	}
 
+	/**
+	 * Gets a list of classes that implement the given type in the given package.
+	 * <p>
+	 * It searches in the dependencies, add-ons, and the ZAP JAR.
+	 *
+	 * @param packageName the name of the package that the classes must be in.
+	 * @param classType the type of the classes.
+	 * @return a list with the classes that implement the given type, never {@code null}.
+	 * @deprecated (TODO add version) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
+	 *             it's preferable to provide means to register/declare the required classes instead of searching "everywhere".
+	 */
+	@Deprecated
 	public <T> List<T> getImplementors (String packageName, Class<T> classType) {
 		return this.getImplementors(null, packageName, classType);
     }
 
+	/**
+	 * Gets a list of classes that implement the given type in the given package.
+	 * <p>
+	 * It searches in the given add-on, if not {@code null}, otherwise it searches in the dependencies, add-ons, and the ZAP
+	 * JAR.
+	 *
+	 * @param ao the add-on to search in, might be {@code null}.
+	 * @param packageName the name of the package that the classes must be in.
+	 * @param classType the type of the classes.
+	 * @return a list with the classes that implement the given type, never {@code null}.
+	 * @deprecated (TODO add version) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
+	 *             it's preferable to provide means to register/declare the required classes instead of searching "everywhere".
+	 */
+	@Deprecated
 	public <T> List<T> getImplementors (AddOn ao, String packageName, Class<T> classType) {
         Class<?> cls = null;
         List<T> listClass = new ArrayList<>();
