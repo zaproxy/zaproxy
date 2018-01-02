@@ -37,6 +37,7 @@
 // ZAP: 2016/09/20 JavaDoc tweaks
 // ZAP: 2017/03/27 Use HttpRequestConfig.
 // ZAP: 2017/06/15 Allow to obtain the running time of the analysis.
+// ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -59,8 +60,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.StructuralNode;
-import org.zaproxy.zap.network.HttpRedirectionValidator;
-import org.zaproxy.zap.network.HttpRequestConfig;
 
 public class Analyser {
 
@@ -92,16 +91,6 @@ public class Analyser {
      * @see #getRequestCount()
      */
     private int requestCount;
-
-    /**
-     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
-     * scan's scope.
-     * <p>
-     * Lazily initialised.
-     * 
-     * @see #getHttpRequestConfig()
-     */
-    private HttpRequestConfig httpRequestConfig;
 
     // ZAP: Added parent
     HostProcess parent = null;
@@ -512,43 +501,13 @@ public class Analyser {
             }
         }
 
-        httpSender.sendAndReceive(msg, getHttpRequestConfig());
+        httpSender.sendAndReceive(msg, parent.getRedirectRequestConfig());
         requestCount++;
 
         // ZAP: Notify parent
         if (parent != null) {
             parent.notifyNewMessage(msg);
         }
-    }
-
-    /**
-     * Gets the HTTP request configuration, that ensures the followed redirections are in scan's scope.
-     *
-     * @return the HTTP request configuration, never {@code null}.
-     * @see #httpRequestConfig
-     */
-    private HttpRequestConfig getHttpRequestConfig() {
-        if (httpRequestConfig == null) {
-            httpRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(new HttpRedirectionValidator() {
-
-                @Override
-                public boolean isValid(URI redirection) {
-                    if (!parent.nodeInScope(redirection.getEscapedURI())) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Skipping redirection out of scan's scope: " + redirection);
-                        }
-                        return false;
-                    }
-                    return true;
-                }
-
-                @Override
-                public void notifyMessageReceived(HttpMessage message) {
-                    // Nothing to do with the message.
-                }
-            }).build();
-        }
-        return httpRequestConfig;
     }
 
     public int getDelayInMs() {

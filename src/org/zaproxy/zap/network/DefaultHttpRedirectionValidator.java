@@ -20,7 +20,6 @@
 package org.zaproxy.zap.network;
 
 import org.apache.commons.httpclient.URI;
-import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Default implementation of {@link HttpRedirectionValidator}, all redirections are considered valid and notifications of new
@@ -45,13 +44,5 @@ public class DefaultHttpRedirectionValidator implements HttpRedirectionValidator
     @Override
     public boolean isValid(URI redirection) {
         return true;
-    }
-
-    /**
-     * Does nothing.
-     */
-    @Override
-    public void notifyMessageReceived(HttpMessage message) {
-        // Nothing to do.
     }
 }
