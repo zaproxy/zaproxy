@@ -22,6 +22,7 @@
 // unnecessary cast and changed to use the method Integer.valueOf.
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -34,6 +35,10 @@ import org.apache.log4j.Logger;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public class FilterFactory {
 
     private static Logger log = Logger.getLogger(FilterFactory.class);

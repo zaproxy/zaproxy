@@ -24,6 +24,7 @@
 // to ease extensibility and moved code from getFilterReplaceDialog() there.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 package org.parosproxy.paros.extension.filter;
 
 import java.util.regex.Pattern;
@@ -31,6 +32,10 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public abstract class FilterAbstractReplace extends FilterAdaptor {
     
     private FilterReplaceDialog filterReplaceDialog = null;

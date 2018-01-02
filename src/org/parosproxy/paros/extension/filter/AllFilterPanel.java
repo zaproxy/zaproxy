@@ -27,6 +27,7 @@
 // ZAP: 2015/02/16 Issue 1528: Support user defined font size
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -46,6 +47,10 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public class AllFilterPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
