@@ -193,7 +193,7 @@ public class HttpRequestConfig {
         /**
          * Sets the value of the socket timeout ({@link java.net.SocketOptions#SO_TIMEOUT SO_TIMEOUT}), in milliseconds.
          * <p>
-         * A value equal (or lower than) {@link HttpRequestConfig#NO_VALUE_SET} resets any value previously value. Value zero
+         * A value equal (or lower than) {@link HttpRequestConfig#NO_VALUE_SET} resets any value previously set. Value zero
          * indicates an infinite timeout.
          *
          * @param soTimeout the socket timeout, in milliseconds.
