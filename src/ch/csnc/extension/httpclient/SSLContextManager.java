@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -62,6 +63,7 @@ import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.csnc.extension.util.Encoding;
@@ -77,6 +79,11 @@ public class SSLContextManager {
 	 * The canonical class name of IBMPKCS11Impl Provider.
 	 */
 	public static final String IBM_PKCS11_CONONICAL_CLASS_NAME = "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
+
+	/**
+	 * The name of Sun PKCS#11 Provider.
+	 */
+	private static final String SUN_PKCS11_PROVIDER_NAME = "SunPKCS11";
 
 	/**
 	 * The name for providers of type PKCS#11.
@@ -98,6 +105,13 @@ public class SSLContextManager {
 	 * @see KeyStore#getInstance(String, Provider)
 	 */
 	private static final String IBM_PKCS11_KEYSTORE_TYPE = "PKCS11IMPLKS";
+
+	/**
+	 * Flag that indicates if the check for Java 9 and SunPKCS11 was already done.
+	 * 
+	 * @see #isJava9SunPKCS11()
+	 */
+	private static Boolean java9SunPKCS11;
 
 	private Map<String, SSLContext> _contextMaps = new TreeMap<String, SSLContext>();
 	private SSLContext _noClientCertContext;
@@ -360,10 +374,19 @@ public class SSLContextManager {
 	}
 
 	private static Provider createPKCS11Provider(PKCS11Configuration configuration) throws ClassNotFoundException,
-			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
 		Provider pkcs11 = null;
 		if (isSunPKCS11Provider()) {
-			pkcs11 = createInstance(SUN_PKCS11_CANONICAL_CLASS_NAME, InputStream.class, configuration.toInpuStream());
+			if (isJava9SunPKCS11()) {
+				Provider provider = Security.getProvider(SUN_PKCS11_PROVIDER_NAME);
+				Method configure = provider.getClass().getMethod("configure", String.class);
+				File configFile = File.createTempFile("pkcs11", ".cfg");
+				configFile.deleteOnExit();
+				FileUtils.write(configFile, configuration.toString());
+				pkcs11 = (Provider) configure.invoke(provider, configFile.getAbsolutePath());
+			} else {
+				pkcs11 = createInstance(SUN_PKCS11_CANONICAL_CLASS_NAME, InputStream.class, configuration.toInpuStream());
+			}
 		} else if (isIbmPKCS11Provider()) {
 			pkcs11 = createInstance(IBM_PKCS11_CONONICAL_CLASS_NAME, BufferedReader.class, new BufferedReader(
 					new InputStreamReader(configuration.toInpuStream())));
@@ -385,6 +408,24 @@ public class SSLContextManager {
 		} catch (Throwable ignore) {
 		}
 		return false;
+	}
+
+	private static boolean isJava9SunPKCS11() {
+		if (java9SunPKCS11 != null) {
+			return java9SunPKCS11;
+		}
+
+		java9SunPKCS11 = Boolean.FALSE;
+		try {
+			Provider provider = Security.getProvider(SUN_PKCS11_PROVIDER_NAME);
+			if (provider != null) {
+				provider.getClass().getMethod("configure", String.class);
+				java9SunPKCS11 = Boolean.TRUE;
+			}
+		} catch (NoSuchMethodException ignore) {
+			// The provider/method is available only in Java 9+.
+		}
+		return java9SunPKCS11;
 	}
 
 	private static boolean isIbmPKCS11Provider() {
