@@ -927,11 +927,27 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 		} else if (VIEW_SITES.equals(name)) {
 			result = new ApiResponseList(name);
-			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-			@SuppressWarnings("unchecked")
-			Enumeration<TreeNode> en = root.children();
-			while (en.hasMoreElements()) {
-				((ApiResponseList)result).addItem(new ApiResponseElement("site", ((SiteNode) en.nextElement()).getNodeName()));
+			if (!Constant.isLowMemoryOptionSet()) {
+				SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+				@SuppressWarnings("unchecked")
+				Enumeration<TreeNode> en = root.children();
+				while (en.hasMoreElements()) {
+					((ApiResponseList)result).addItem(new ApiResponseElement("site", ((SiteNode) en.nextElement()).getNodeName()));
+				}
+			}else{
+			    try {
+				Model model = Model.getSingleton();
+				RecordStructure rs = model.getDb().getTableStructure().find(session.getSessionId(), "Root", "GET");
+				StructuralNode rootStructuralNode = new StructuralTableNode(rs);
+				// ((ApiResponseList)result).addItem(new ApiResponseElement("site", rootStructuralNode.getName()));
+
+				for (Iterator<StructuralNode> iterator = rootStructuralNode.getChildIterator(); iterator.hasNext();) {
+				    StructuralNode child = iterator.next();
+				    ((ApiResponseList)result).addItem(new ApiResponseElement("site", child.getName()));
+				}
+			    } catch (DatabaseException e) {
+				logger.debug(e.getMessage(), e);
+			    }
 			}
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
