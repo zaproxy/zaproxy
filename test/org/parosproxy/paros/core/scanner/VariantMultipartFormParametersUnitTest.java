@@ -57,7 +57,7 @@ public class VariantMultipartFormParametersUnitTest {
 		// Given
 		VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
 		// When
-		variant.getParamList().add(new NameValuePair(NameValuePair.TYPE_POST_DATA, "name", "fred", 1));
+		variant.getParamList().add(new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_PARAM, "name", "fred", 1));
 		// Then = UnsupportedOperationException
 	}
 
@@ -81,12 +81,16 @@ public class VariantMultipartFormParametersUnitTest {
 		assertThat(variant.getParamList().size(), is(equalTo(4)));
 		assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
 		assertThat(variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
+		assertThat(variant.getParamList().get(0).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
 		assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
 		assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
+		assertThat(variant.getParamList().get(1).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
 		assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
 		assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
+		assertThat(variant.getParamList().get(2).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
 		assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
 		assertThat(variant.getParamList().get(3).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
+		assertThat(variant.getParamList().get(3).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
 	}
 
 	@Test
@@ -99,7 +103,7 @@ public class VariantMultipartFormParametersUnitTest {
 		variant.setMessage(message);
 		// When
 		variant.setParameter(message,
-				new NameValuePair(NameValuePair.TYPE_POST_DATA, paramName, DEFAULT_PARAM_CONTENT, 1),
+				new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_PARAM, paramName, DEFAULT_PARAM_CONTENT, 1),
 				paramName, newValue);
 		HttpMessage newMsg = createMessage(newValue, DEFAULT_FILE_NAME, DEFAULT_CONTENT_TYPE,
 				DEFAULT_FILE_PARAM_CONTENT);
@@ -118,7 +122,7 @@ public class VariantMultipartFormParametersUnitTest {
 		variant.setMessage(message);
 		// When
 		variant.setParameter(message,
-				new NameValuePair(NameValuePair.TYPE_POST_DATA, paramName, origValue, 2),
+				new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origValue, 2),
 				paramName, newValue);
 		HttpMessage newMsg = createMessage(DEFAULT_PARAM_CONTENT, DEFAULT_FILE_NAME, DEFAULT_CONTENT_TYPE,
 				newValue);
@@ -136,7 +140,7 @@ public class VariantMultipartFormParametersUnitTest {
 		variant.setMessage(message);
 		// When
 		variant.setParameter(message,
-				new NameValuePair(NameValuePair.TYPE_POST_DATA, paramName, DEFAULT_FILE_NAME, 3),
+				new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME, paramName, DEFAULT_FILE_NAME, 3),
 				paramName, newValue);
 		HttpMessage newMsg = createMessage(DEFAULT_PARAM_CONTENT, newValue, DEFAULT_CONTENT_TYPE,
 				DEFAULT_FILE_PARAM_CONTENT);
@@ -154,7 +158,7 @@ public class VariantMultipartFormParametersUnitTest {
 		variant.setMessage(message);
 		// When
 		variant.setParameter(message,
-				new NameValuePair(NameValuePair.TYPE_POST_DATA, paramName, DEFAULT_CONTENT_TYPE, 4),
+				new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE, paramName, DEFAULT_CONTENT_TYPE, 4),
 				paramName, newValue);
 		HttpMessage newMsg = createMessage(DEFAULT_PARAM_CONTENT, DEFAULT_FILE_NAME, newValue,
 				DEFAULT_FILE_PARAM_CONTENT);
