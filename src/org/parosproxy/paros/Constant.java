@@ -70,6 +70,7 @@
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/05/04 Issue 3440: Log Exception when overwriting a config file
 // ZAP: 2017/12/26 Remove class methods no longer used.
+// ZAP: 2018/01/03 No longer create filter dir and deprecate FOLDER_FILTER constant.
 
 package org.parosproxy.paros;
 
@@ -171,8 +172,11 @@ public final class Constant {
      * The name of the directory for filter related files (the path should be built using {@link #getZapHome()} as the parent
      * directory).
      * 
+     * @deprecated (TODO add version) Should not be used, the filter functionality is deprecated (replaced by scripts and
+     *             Replacer add-on).
      * @since 1.0.0
      */
+    @Deprecated
     public static final String FOLDER_FILTER = "filter";
 
     /**
@@ -447,13 +451,6 @@ public final class Constant {
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
-                }
-            }
-            f = new File(zapHome, FOLDER_FILTER);
-            if (!f.isDirectory()) {
-                LOG.info("Creating directory: " + f.getAbsolutePath());
-                if (!f.mkdir()) {
-                    System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
 
