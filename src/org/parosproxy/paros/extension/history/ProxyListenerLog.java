@@ -82,13 +82,16 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
 //	        return;
 //	    }
 	    
-	    HttpMessage existingMsg = model.getSession().getSiteTree().pollPath(msg);
+	    HttpMessage existingMsg = null;
+	    if (!Constant.isLowMemoryOptionSet()) {
+		existingMsg = model.getSession().getSiteTree().pollPath(msg);
 
-	    // check if a msg of the same type exist
-	    if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
-	        if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
-	            // exist, no modification necessary
-	            return true;
+	        // check if a msg of the same type exist
+	        if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
+	             if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
+	                 // exist, no modification necessary
+	                 return true;
+	             }
 	        }
 	    }
         
