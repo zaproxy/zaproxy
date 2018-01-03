@@ -662,8 +662,10 @@ public class ExtensionAlert extends ExtensionAdaptor
             logger.error(e.getMessage(), e);
         }
 
-        SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        siteTree.getRoot().deleteAllAlerts();
+        if (!Constant.isLowMemoryOptionSet()) {
+            SiteMap siteTree = this.getModel().getSession().getSiteTree();
+            siteTree.getRoot().deleteAllAlerts();
+        }
 
         for (HistoryReference href : hrefs.values()) {
             href.deleteAllAlerts();
