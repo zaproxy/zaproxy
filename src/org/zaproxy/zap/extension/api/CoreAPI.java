@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
+import org.parosproxy.paros.db.RecordStructure;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -82,6 +84,8 @@ import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
+import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralTableNode;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
@@ -926,29 +930,29 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				((ApiResponseList)result).addItem(new ApiResponseElement("host", site));
 			}
 		} else if (VIEW_SITES.equals(name)) {
-			result = new ApiResponseList(name);
-			if (!Constant.isLowMemoryOptionSet()) {
-				SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-				@SuppressWarnings("unchecked")
-				Enumeration<TreeNode> en = root.children();
-				while (en.hasMoreElements()) {
-					((ApiResponseList)result).addItem(new ApiResponseElement("site", ((SiteNode) en.nextElement()).getNodeName()));
-				}
-			}else{
-			    try {
-				Model model = Model.getSingleton();
-				RecordStructure rs = model.getDb().getTableStructure().find(session.getSessionId(), "Root", "GET");
-				StructuralNode rootStructuralNode = new StructuralTableNode(rs);
-				// ((ApiResponseList)result).addItem(new ApiResponseElement("site", rootStructuralNode.getName()));
-
-				for (Iterator<StructuralNode> iterator = rootStructuralNode.getChildIterator(); iterator.hasNext();) {
-				    StructuralNode child = iterator.next();
-				    ((ApiResponseList)result).addItem(new ApiResponseElement("site", child.getName()));
-				}
-			    } catch (DatabaseException e) {
-				logger.debug(e.getMessage(), e);
-			    }
-			}
+		    result = new ApiResponseList(name);
+	        if (!Constant.isLowMemoryOptionSet()) {
+    			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+    			@SuppressWarnings("unchecked")
+    			Enumeration<TreeNode> en = root.children();
+    			while (en.hasMoreElements()) {
+    				((ApiResponseList)result).addItem(new ApiResponseElement("site", ((SiteNode) en.nextElement()).getNodeName()));
+    			}
+	        }else{
+	            try {
+	                Model model = Model.getSingleton();
+	                RecordStructure rs = model.getDb().getTableStructure().find(session.getSessionId(), "Root", "GET");
+	                StructuralNode rootStructuralNode = new StructuralTableNode(rs);
+	                // ((ApiResponseList)result).addItem(new ApiResponseElement("site", rootStructuralNode.getName()));
+	                
+	                for (Iterator<StructuralNode> iterator = rootStructuralNode.getChildIterator(); iterator.hasNext();) {
+	                    StructuralNode child = iterator.next();
+	                    ((ApiResponseList)result).addItem(new ApiResponseElement("site", child.getName()));
+	                }
+	            } catch (DatabaseException e) {
+	                logger.debug(e.getMessage(), e);
+	            }
+	        }
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
