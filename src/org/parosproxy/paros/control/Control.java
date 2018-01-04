@@ -67,6 +67,7 @@
 // ZAP: 2017/03/16 Allow to initialise Control without starting the Local Proxy.
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2018/01/04 Do not notify extensions if failed to change the session.
 
 package org.parosproxy.paros.control;
 
@@ -504,8 +505,8 @@ public class Control extends AbstractControl implements SessionListener {
 
 	@Override
 	public void sessionOpened(File file, Exception e) {
-		getExtensionLoader().databaseOpen(model.getDb());
-		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		notifyExtensionsSessionChanged(e);
+
 		if (lastCallback != null) {
 			lastCallback.sessionOpened(file, e);
 			lastCallback = null;
@@ -513,10 +514,22 @@ public class Control extends AbstractControl implements SessionListener {
 		
 	}
 
+	/**
+	 * Notifies the extensions that the session changed, if the given exception is {@code null}.
+	 *
+	 * @param exception the exception that happened when changing the session, or {@code null} if none.
+	 */
+	private void notifyExtensionsSessionChanged(Exception exception) {
+		if (exception == null) {
+			getExtensionLoader().databaseOpen(model.getDb());
+			getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		}
+	}
+
 	@Override
 	public void sessionSaved(Exception e) {
-		getExtensionLoader().databaseOpen(model.getDb());
-		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		notifyExtensionsSessionChanged(e);
+
 		if (lastCallback != null) {
 			lastCallback.sessionSaved(e);
 			lastCallback = null;
