@@ -71,6 +71,7 @@
 // ZAP: 2017/05/04 Issue 3440: Log Exception when overwriting a config file
 // ZAP: 2017/12/26 Remove class methods no longer used.
 // ZAP: 2018/01/03 No longer create filter dir and deprecate FOLDER_FILTER constant.
+//                 Exit immediately if not able to create the home dir.
 
 package org.parosproxy.paros;
 
@@ -402,10 +403,18 @@ public final class Constant {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
             
             if (!f.isDirectory()) {
-                if (! f.mkdir() ) {
-                	// ZAP: report failure to create directory
-                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                if (f.exists()) {
+                    System.err.println("The home path is not a directory: " + zapHome);
+                    System.exit(1);
                 }
+                if (!f.mkdir()) {
+                    System.err.println("Unable to create home directory: " + zapHome);
+                    System.err.println("Is the path correct and there's write permission?");
+                    System.exit(1);
+                }
+            } else if (!f.canWrite()) {
+                System.err.println("The home path is not writable: " + zapHome);
+                System.exit(1);
             }
             
             // Setup the logging
