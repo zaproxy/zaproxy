@@ -22,6 +22,7 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
 // ZAP: 2016/02/22 Add hashCode, equals and toString methods. Remove redundant instance variable initialisations.
+// ZAP: 2018/01/03 Added type constants for revised multipart/form-data handling
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {
@@ -32,6 +33,30 @@ public class NameValuePair {
     public static final int TYPE_COOKIE = ScannerParam.TARGET_COOKIE;
     public static final int TYPE_HEADER = ScannerParam.TARGET_HTTPHEADERS;
     public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
+    /**
+     * A "normal" (non-file) multipart/form-data parameter
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_MULTIPART_DATA_PARAM = 33;
+    /**
+     * A file (content) multipart/form-data file parameter
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_MULTIPART_DATA_FILE_PARAM = 34;
+    /**
+     * The filename portion of a multipart/form-data file parameter
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_MULTIPART_DATA_FILE_NAME = 35;
+    /**
+     * The content-type portion of a multipart/form-data file parameter
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_MULTIPART_DATA_FILE_CONTENTTYPE = 36;
     public static final int TYPE_UNDEFINED = -1;
     
     private final int targetType;
