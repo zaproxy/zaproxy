@@ -410,13 +410,19 @@ class AddOnDependencyChecker {
             }
         }
 
+        Set<AddOn> changedAddOns = new HashSet<>();
+        changedAddOns.addAll(selectedAddOns);
+        changedAddOns.addAll(installs);
+        changedAddOns.addAll(newVersions);
+
         Set<AddOn> expectedInstalledAddOns = new HashSet<>(remainingInstalledAddOns);
-        expectedInstalledAddOns.addAll(selectedAddOns);
-        expectedInstalledAddOns.addAll(installs);
-        expectedInstalledAddOns.addAll(newVersions);
+        expectedInstalledAddOns.addAll(changedAddOns);
+
+        changedAddOns.addAll(oldVersions);
 
         for (AddOn addOn : remainingInstalledAddOns) {
-            if (addOn.calculateRunRequirements(expectedInstalledAddOns).hasDependencyIssue()) {
+            if (addOn.dependsOn(changedAddOns)
+                    && addOn.calculateRunRequirements(expectedInstalledAddOns).hasDependencyIssue()) {
                 uninstalls.add(addOn);
             }
         }
