@@ -72,6 +72,7 @@
 // ZAP: 2017/12/26 Remove class methods no longer used.
 // ZAP: 2018/01/03 No longer create filter dir and deprecate FOLDER_FILTER constant.
 //                 Exit immediately if not able to create the home dir.
+// ZAP: 2018/01/04 Clear SNI Terminator options when updating from older ZAP versions.
 
 package org.parosproxy.paros;
 
@@ -131,9 +132,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2005000;
+    private static final long VERSION_TAG = 2007000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_7_0_TAG = 2007000;
     private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
@@ -540,6 +542,9 @@ public final class Constant {
                     if (ver <= V_2_5_0_TAG) {
                         upgradeFrom2_5_0(config);
                     }
+                    if (ver <= V_2_7_0_TAG) {
+                        upgradeFrom2_7_0(config);
+                    }
 	            	LOG.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -857,6 +862,11 @@ public final class Constant {
             config.setProperty(elementBaseKey + "enabled", data[1]);
             config.setProperty(elementBaseKey + "level", data[2]);
         }
+    }
+
+    private static void upgradeFrom2_7_0(XMLConfiguration config) {
+        // Remove options from SNI Terminator.
+        config.clearTree("sniterm");
     }
 
 	public static void setLocale (String loc) {
