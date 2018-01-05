@@ -648,9 +648,10 @@ public class API {
 	 *
 	 * @param endpointName the name of the API endpoint, must not be {@code null}.
 	 * @param response the API response, must not be {@code null}.
-	 * @return the XML representation of the given response, or an empty string if an error occurred while converting.
+	 * @return the XML representation of the given response.
+	 * @throws ApiException if an error occurred while converting the response.
 	 */
-	static String responseToXml(String endpointName, ApiResponse response) {
+	static String responseToXml(String endpointName, ApiResponse response) throws ApiException {
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -672,8 +673,8 @@ public class API {
 
 		} catch (Exception e) {
 			logger.error("Failed to convert API response to XML: " + e.getMessage(), e);
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 		}
-		return "";
 	}
 
 	public static JSONObject getParams (String params) throws ApiException {
