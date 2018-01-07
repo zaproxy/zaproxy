@@ -43,6 +43,7 @@
 // ZAP: 2017/11/01 Delete context with keyboard shortcut.
 // ZAP: 2017/11/16 Hide filtered nodes in macOS L&F.
 // ZAP: 2017/11/29 Delete site nodes with keyboard shortcut.
+// ZAP: 2017/12/22 Select context on row click.
 
 package org.parosproxy.paros.view;
 
@@ -477,6 +478,10 @@ public class SiteMapPanel extends AbstractPanel {
 				    if (treeSite.getLastSelectedPathComponent() != null) {
 				    	// They selected a context node, deselect any context
 				    	getTreeSite().clearSelection();
+				    }
+				    TreePath path = treeContext.getClosestPathForLocation(e.getX(), e.getY());
+				    if (path != null && !treeContext.isPathSelected(path)) {
+				        treeContext.setSelectionPath(path);
 				    }
 				    if (e.getClickCount() > 1) {
 				    	// Its a double click - show the relevant context dialog

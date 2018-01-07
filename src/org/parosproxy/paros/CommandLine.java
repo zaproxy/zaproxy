@@ -39,6 +39,7 @@
 // ZAP: 2017/05/31 Handle null args and include a message in all exceptions.
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually exclusive).
+// ZAP: 2017/12/26 Remove unused command line arg SP.
 
 package org.parosproxy.paros;
 
@@ -88,7 +89,6 @@ public class CommandLine {
     public static final String NOSTDOUT = "-nostdout";
 
     static final String NO_USER_AGENT = "-nouseragent";
-    static final String SP = "-sp";
 
     private boolean GUI = true;
     private boolean daemon = false;
@@ -291,10 +291,6 @@ public class CommandLine {
             Constant.setEyeCatcher("");
             result = true;
 
-        } else if (checkSwitch(args, SP, i)) {
-            Constant.setSP(true);
-            result = true;
-            
         } else if (checkSwitch(args, CMD, i)) {
             setDaemon(false);
             setGUI(false);

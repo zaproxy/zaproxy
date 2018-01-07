@@ -9,6 +9,11 @@ function sendingRequest(msg, initiator, helper) {
 }
 
 function responseReceived(msg, initiator, helper) {
+	if (initiator == 7) { // CHECK_FOR_UPDATES_INITIATOR
+		// Not of interest.
+		return
+	}
+
 	var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExtensionLoader().getExtension(
 		org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
 	if (extensionAlert != null) {
@@ -52,9 +57,6 @@ function responseReceived(msg, initiator, helper) {
 						break
 					case 6:	// MANUAL_REQUEST_INITIATOR
 						type = 15 // User 
-						break
-					case 7:	// CHECK_FOR_UPDATES_INITIATOR
-						type = 1 // Proxied 
 						break
 					case 8:	// BEAN_SHELL_INITIATOR
 						type = 15 // User 

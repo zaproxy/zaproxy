@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added argument type to generic type.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -35,6 +36,10 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamDialog;
 
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public class FilterDialog extends AbstractParamDialog {
 
 	private static final long serialVersionUID = 1L;

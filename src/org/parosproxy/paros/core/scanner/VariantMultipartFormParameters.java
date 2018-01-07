@@ -74,6 +74,7 @@ public class VariantMultipartFormParameters implements Variant {
 		for (String part : msg.getRequestBody().toString().split(boundary)) {
 			if (!StringUtils.isBlank(part)) {
 				String partHeaderLine = part.substring(0, part.indexOf(HttpHeader.CRLF + HttpHeader.CRLF));
+				boolean isFileParam = partHeaderLine.contains("filename=");
 				part = boundary + part;
 				Matcher nameMatcher = FIELD_NAME_PATTERN.matcher(partHeaderLine);
 				Matcher valueMatcher = FIELD_VALUE_PATTERN.matcher(part);
@@ -91,7 +92,11 @@ public class VariantMultipartFormParameters implements Variant {
 				String value = part.replaceAll(boundary + partHeaderLine + HttpHeader.CRLF + HttpHeader.CRLF, "");
 				value = value.replaceAll(HttpHeader.CRLF + "(" + Pattern.quote(getBoundary(contentType)) + "--"
 						+ HttpHeader.CRLF + ")?$", ""); // Strip final boundary
-				extractedParameters.add(new NameValuePair(NameValuePair.TYPE_POST_DATA, name, value, position));
+				if (isFileParam) {
+					extractedParameters.add(new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, name, value, position));
+				} else {
+					extractedParameters.add(new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_PARAM, name, value, position));
+				}
 				int start = offset + part.indexOf(HttpHeader.CRLF + HttpHeader.CRLF) + 4; // 4 for two CRLFs
 				int end = start + value.length();
 				if (LOGGER.isDebugEnabled()) {
@@ -102,12 +107,13 @@ public class VariantMultipartFormParameters implements Variant {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("Name: " + name + " value: " + valueMatcher.group("value"));
 				}
-				if (partHeaderLine.contains("filename=")) {
+				if (isFileParam) {
 					// Extract the filename
 					Matcher fnValueMatcher = FILENAME_PART_PATTERN.matcher(part);
 					fnValueMatcher.find();
 					String fnValue = fnValueMatcher.group("filename");
-					extractedParameters.add(new NameValuePair(NameValuePair.TYPE_POST_DATA, name, fnValue, ++position));
+					extractedParameters.add(
+							new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME, name, fnValue, ++position));
 					int fnStart = offset + part.indexOf(fnValue);
 					int fnEnd = fnStart + fnValue.length();
 					if (LOGGER.isDebugEnabled()) {
@@ -119,7 +125,8 @@ public class VariantMultipartFormParameters implements Variant {
 					Matcher ctValueMatcher = CONTENTTYPE_PART_PATTERN.matcher(part);
 					ctValueMatcher.find();
 					String ctValue = ctValueMatcher.group("contenttype");
-					extractedParameters.add(new NameValuePair(NameValuePair.TYPE_POST_DATA, name, ctValue, ++position));
+					extractedParameters.add(new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE, name,
+							ctValue, ++position));
 					int ctStart = offset + part.indexOf(ctValue);
 					int ctEnd = ctStart + ctValue.length();
 					if (LOGGER.isDebugEnabled()) {

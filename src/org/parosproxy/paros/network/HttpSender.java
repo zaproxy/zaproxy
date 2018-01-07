@@ -67,6 +67,7 @@
 // ZAP: 2017/06/19 Allow to send a request with custom socket timeout.
 // ZAP: 2017/11/20 Add initiator constant for Token Generator requests.
 // ZAP: 2017/11/27 Use custom CookieSpec (ZapCookieSpec).
+// ZAP: 2017/12/20 Apply socket connect timeout (Issue 4171).
 
 package org.parosproxy.paros.network;
 
@@ -75,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
@@ -618,8 +620,9 @@ public class HttpSender {
 	}
 
 	private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
-		// ZAP: set timeout
-		mgr.getParams().setSoTimeout(this.param.getTimeoutInSecs() * 1000);
+		int timeout = (int) TimeUnit.SECONDS.toMillis(this.param.getTimeoutInSecs());
+		mgr.getParams().setSoTimeout(timeout);
+		mgr.getParams().setConnectionTimeout(timeout);
 		mgr.getParams().setStaleCheckingEnabled(true);
 
 		// Set to arbitrary large values to prevent locking

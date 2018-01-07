@@ -63,6 +63,11 @@ public class ExtensionCallback extends ExtensionAdaptor implements
     }
 
     @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
+
+    @Override
     public String getUIName() {
     	return Constant.messages.getString("callback.name");
     }

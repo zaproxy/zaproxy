@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 package org.parosproxy.paros.extension.filter;
 
 import org.parosproxy.paros.Constant;
@@ -28,6 +29,10 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 public class FilterIfModifiedSince extends FilterAdaptor {
 
     @Override

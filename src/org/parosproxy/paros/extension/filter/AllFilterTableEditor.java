@@ -22,6 +22,7 @@
 // removed unnecessary cast.
 // ZAP: 2012/07/09 Update row in UI after editing its properties.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Component;
@@ -31,6 +32,10 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
+/**
+ * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ */
+@Deprecated
 class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor {
 	private static final long serialVersionUID = 1L;
     

@@ -69,6 +69,10 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/05/04 Issue 3440: Log Exception when overwriting a config file
+// ZAP: 2017/12/26 Remove class methods no longer used.
+// ZAP: 2018/01/03 No longer create filter dir and deprecate FOLDER_FILTER constant.
+//                 Exit immediately if not able to create the home dir.
+// ZAP: 2018/01/04 Clear SNI Terminator options when updating from older ZAP versions.
 
 package org.parosproxy.paros;
 
@@ -128,9 +132,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2005000;
+    private static final long VERSION_TAG = 2007000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_7_0_TAG = 2007000;
     private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
@@ -170,8 +175,11 @@ public final class Constant {
      * The name of the directory for filter related files (the path should be built using {@link #getZapHome()} as the parent
      * directory).
      * 
+     * @deprecated (TODO add version) Should not be used, the filter functionality is deprecated (replaced by scripts and
+     *             Replacer add-on).
      * @since 1.0.0
      */
+    @Deprecated
     public static final String FOLDER_FILTER = "filter";
 
     /**
@@ -221,7 +229,6 @@ public final class Constant {
     public static final String USER_AGENT = "";
 
     private static String staticEyeCatcher = "0W45pz4p";
-    private static boolean staticSP = false;
     
     private static final String USER_CONTEXTS_DIR = "contexts";
     private static final String USER_POLICIES_DIR = "policies";
@@ -306,15 +313,6 @@ public final class Constant {
     public static void setEyeCatcher(String eyeCatcher) {
         staticEyeCatcher = eyeCatcher;
     }
-    
-    public static void setSP(boolean isSP) {
-        staticSP = isSP;
-    }
-
-    public static boolean isSP() {
-        return staticSP;
-    }
-
 
     public Constant() {
     	initializeFilesAndDirectories();
@@ -407,10 +405,18 @@ public final class Constant {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
             
             if (!f.isDirectory()) {
-                if (! f.mkdir() ) {
-                	// ZAP: report failure to create directory
-                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                if (f.exists()) {
+                    System.err.println("The home path is not a directory: " + zapHome);
+                    System.exit(1);
                 }
+                if (!f.mkdir()) {
+                    System.err.println("Unable to create home directory: " + zapHome);
+                    System.err.println("Is the path correct and there's write permission?");
+                    System.exit(1);
+                }
+            } else if (!f.canWrite()) {
+                System.err.println("The home path is not writable: " + zapHome);
+                System.exit(1);
             }
             
             // Setup the logging
@@ -456,13 +462,6 @@ public final class Constant {
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
-                }
-            }
-            f = new File(zapHome, FOLDER_FILTER);
-            if (!f.isDirectory()) {
-                LOG.info("Creating directory: " + f.getAbsolutePath());
-                if (!f.mkdir()) {
-                    System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
 
@@ -542,6 +541,9 @@ public final class Constant {
                     }
                     if (ver <= V_2_5_0_TAG) {
                         upgradeFrom2_5_0(config);
+                    }
+                    if (ver <= V_2_7_0_TAG) {
+                        upgradeFrom2_7_0(config);
                     }
 	            	LOG.info("Upgraded from " + ver);
             		
@@ -860,6 +862,11 @@ public final class Constant {
             config.setProperty(elementBaseKey + "enabled", data[1]);
             config.setProperty(elementBaseKey + "level", data[2]);
         }
+    }
+
+    private static void upgradeFrom2_7_0(XMLConfiguration config) {
+        // Remove options from SNI Terminator.
+        config.clearTree("sniterm");
     }
 
 	public static void setLocale (String loc) {

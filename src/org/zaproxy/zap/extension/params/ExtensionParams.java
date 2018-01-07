@@ -82,6 +82,11 @@ public class ExtensionParams extends ExtensionAdaptor
         super(NAME);
         this.setOrder(58);
 	}
+
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 	
     @Override
     public String getUIName() {

@@ -27,6 +27,7 @@ package org.parosproxy.paros.core.scanner;
  */
 public class PluginStats {
 
+    private final String pluginName;
     private long startTime;
     private int messageCount;
     private int alertCount;
@@ -37,9 +38,21 @@ public class PluginStats {
     /**
      * Constructs a {@code PluginStats}.
      * 
+     * @param pluginName the name of the plugin.
      * @see #start()
      */
-    PluginStats() {
+    PluginStats(String pluginName) {
+        this.pluginName = pluginName == null ? "" : pluginName;
+    }
+
+    /**
+     * Gets the name of the plugin.
+     *
+     * @return the name of the plugin, never {@code null}.
+     * @since TODO add version
+     */
+    public String getPluginName() {
+        return pluginName;
     }
 
     /**

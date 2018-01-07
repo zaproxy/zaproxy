@@ -79,6 +79,8 @@
 // ZAP: 2017/09/27 Allow to skip scanners by ID and don't allow to skip scanners already finished/skipped.
 // ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 // ZAP: 2017/11/29 Skip plugins if there's nothing to scan.
+// ZAP: 2017/12/29 Provide means to validate the redirections.
+// ZAP: 2018/01/01 Update initialisation of PluginStats.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -108,6 +110,8 @@ import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.network.HttpRedirectionValidator;
+import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
@@ -168,6 +172,27 @@ public class HostProcess implements Runnable {
      * @see #messageIdToHostScan
      */
     private List<Integer> messagesIdsToAppScan;
+
+    /**
+     * The HTTP request configuration, uses a {@link HttpRedirectionValidator} that ensures the followed redirections are in
+     * scan's scope.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getRedirectRequestConfig()
+     * @see #redirectionValidator
+     */
+    private HttpRequestConfig redirectRequestConfig;
+
+    /**
+     * The redirection validator that ensures the followed redirections are in scan's scope.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getRedirectionValidator()
+     * @see #redirectRequestConfig
+     */
+    private HttpRedirectionValidator redirectionValidator;
     
     /**
      * Constructs a {@code HostProcess}, with no rules' configurations.
@@ -266,7 +291,7 @@ public class HostProcess implements Runnable {
             pluginFactory.reset();
             synchronized (mapPluginStats) {
                 for (Plugin plugin : pluginFactory.getPending()) {
-                    mapPluginStats.put(plugin.getId(), new PluginStats());
+                    mapPluginStats.put(plugin.getId(), new PluginStats(plugin.getName()));
                 }
             }
 
@@ -753,6 +778,42 @@ public class HostProcess implements Runnable {
         }
         
         return analyser;
+    }
+
+    /**
+     * Gets the HTTP request configuration that ensures the followed redirections are in scan's scope.
+     *
+     * @return the HTTP request configuration, never {@code null}.
+     * @since TODO add version
+     * @see #getRedirectionValidator()
+     */
+    HttpRequestConfig getRedirectRequestConfig() {
+        if (redirectRequestConfig == null) {
+            redirectRequestConfig = HttpRequestConfig.builder().setRedirectionValidator(getRedirectionValidator()).build();
+        }
+        return redirectRequestConfig;
+    }
+
+    /**
+     * Gets the redirection validator that ensures the followed redirections are in scan's scope.
+     *
+     * @return the redirection validator, never {@code null}.
+     * @since TODO add version
+     * @see #getRedirectRequestConfig()
+     */
+    HttpRedirectionValidator getRedirectionValidator() {
+        if (redirectionValidator == null) {
+            redirectionValidator = redirection -> {
+                if (!nodeInScope(redirection.getEscapedURI())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Skipping redirection out of scan's scope: " + redirection);
+                    }
+                    return false;
+                }
+                return true;
+            };
+        }
+        return redirectionValidator;
     }
 
     public boolean handleAntiCsrfTokens() {

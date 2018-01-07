@@ -140,6 +140,10 @@ public class Downloader extends Thread {
 		}
 	}
 
+	boolean isCancelled() {
+		return cancelDownload;
+	}
+
 	public void cancelDownload() {
 		this.cancelDownload = true;
 		if (complete && this.targetFile.exists()) {

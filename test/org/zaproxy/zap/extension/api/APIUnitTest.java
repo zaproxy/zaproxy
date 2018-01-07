@@ -43,9 +43,12 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 /**
@@ -335,6 +338,100 @@ public class APIUnitTest {
         String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
         assertThat(baseUrl, is(equalTo("https://127.0.0.1:8080/JSON/test/view/test/")));
+    }
+
+    @Test
+    public void shouldGetEmptyXmlFromResponseWithNullEndpointName() {
+        // Given
+        String endpointName = null;
+        ApiResponse response = ApiResponseTest.INSTANCE;
+        // When
+        String xmlResponse = API.responseToXml(endpointName, response);
+        // Then
+        assertThat(xmlResponse, is(equalTo("")));
+    }
+
+    @Test
+    public void shouldGetEmptyXmlFromResponseWithEmptyEndpointName() {
+        // Given
+        String endpointName = "";
+        ApiResponse response = ApiResponseTest.INSTANCE;
+        // When
+        String xmlResponse = API.responseToXml(endpointName, response);
+        // Then
+        assertThat(xmlResponse, is(equalTo("")));
+    }
+
+    @Test
+    public void shouldGetEmptyXmlFromResponseWithNonXmlValidEndpointName() {
+        // Given
+        String endpointName = "<";
+        ApiResponse response = ApiResponseTest.INSTANCE;
+        // When
+        String xmlResponse = API.responseToXml(endpointName, response);
+        // Then
+        assertThat(xmlResponse, is(equalTo("")));
+    }
+
+    @Test
+    public void shouldGetEmptyXmlFromNullResponse() {
+        // Given
+        String endpointName = "Name";
+        ApiResponse response = null;
+        // When
+        String xmlResponse = API.responseToXml(endpointName, response);
+        // Then
+        assertThat(xmlResponse, is(equalTo("")));
+    }
+
+    @Test
+    public void shouldGetXmlFromResponse() {
+        // Given
+        String endpointName = "Name";
+        ApiResponse response = ApiResponseTest.INSTANCE;
+        // When
+        String xmlResponse = API.responseToXml(endpointName, response);
+        // Then
+        assertThat(xmlResponse, is(equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><Name>XML</Name>")));
+    }
+
+    @Test
+    public void shouldGetHtmlFromResponse() {
+        // Given
+        ApiResponse response = ApiResponseTest.INSTANCE;
+        // When
+        String htmlResponse = API.responseToHtml(response);
+        // Then
+        assertThat(htmlResponse, is(equalTo("<head>\n</head>\n<body>\nHTML</body>\n")));
+    }
+
+    private static class ApiResponseTest extends ApiResponse {
+
+        private static final ApiResponseTest INSTANCE = new ApiResponseTest("");
+
+        public ApiResponseTest(String name) {
+            super(name);
+        }
+
+        @Override
+        public JSON toJSON() {
+            return null;
+        }
+
+        @Override
+        public void toXML(Document doc, Element rootElement) {
+            rootElement.appendChild(doc.createTextNode("XML"));
+        }
+
+        @Override
+        public void toHTML(StringBuilder sb) {
+            sb.append("HTML");
+        }
+
+        @Override
+        public String toString(int indent) {
+            return null;
+        }
     }
 
     private static void assertApiNonceMatch(API api, String baseUrl) {

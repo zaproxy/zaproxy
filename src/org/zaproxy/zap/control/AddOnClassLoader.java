@@ -35,6 +35,10 @@ import java.util.List;
  */
 public class AddOnClassLoader extends URLClassLoader {
 
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
     private final ParentClassLoader parent;
     private final List<AddOnClassLoader> childClassLoaders;
     private List<AddOnClassLoader> dependencies;

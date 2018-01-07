@@ -79,13 +79,15 @@ public class DownloadManager extends Thread {
 				        logger.debug("Download failed " + dl.getTargetFile().getAbsolutePath());
 				    } else if (dl.isValidated()) {
 						logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
+					} else if (dl.isCancelled()) {
+						logger.debug("Download cancelled " + dl.getTargetFile().getAbsolutePath());
 					} else {
 						// Corrupt or corrupted file? Pretty bad anyway
 						logger.error("Validation failed " + dl.getTargetFile().getAbsolutePath());
 						dl.cancelDownload();
 						if (View.isInitialised()) {
 							View.getSingleton().showWarningDialog(
-									Constant.messages.getString("cfu.warn.badhash", new Object[] {dl.getTargetFile().getName()}));
+									Constant.messages.getString("cfu.warn.badhash", dl.getTargetFile().getName()));
 						}
 					}
 					finishedDownloads.add(dl);

@@ -26,7 +26,7 @@ Scanners:
 
 10010   Cookie set without HttpOnly flag
 10011   Cookie set without secure flag
-10012   Password Autocomplete in browser
+10012   Password Autocomplete in browser [Deprecated]
 10013   Weak HTTP authentication over an unsecured connection [Deprecated]
 10014   Cross Site Request Forgery [Deprecated]
 10015   Incomplete or no cache-control and pragma HTTPHeader set

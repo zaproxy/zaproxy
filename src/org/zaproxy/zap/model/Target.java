@@ -154,7 +154,7 @@ public class Target {
     public String getDisplayName() {
     	if (this.getStartNode() == null) {
     		if (context != null) {
-    			return Constant.messages.getString("context.prefixName", new Object[] {context.getName()});
+    			return Constant.messages.getString("context.prefixName", context.getName());
     		} else if (this.inScopeOnly) {
     			return Constant.messages.getString("target.allInScope");
     		} else {
