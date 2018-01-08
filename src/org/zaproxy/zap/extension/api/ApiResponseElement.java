@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.api;
 
 import net.sf.json.JSON;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -65,12 +66,9 @@ public class ApiResponseElement extends ApiResponse {
 
 	@Override
 	public JSON toJSON() {
-		if (value == null && apiResponse == null) {
-			return null;
-		}
 		JSONObject jo = new JSONObject();
 		if (apiResponse == null) {
-			jo.put(this.getName(), this.value);
+			jo.put(this.getName(), this.value == null ? JSONNull.getInstance() : this.value);
 		} else {
 			jo.put(this.getName(), apiResponse.toJSON());
 		}
@@ -80,7 +78,7 @@ public class ApiResponseElement extends ApiResponse {
 	@Override
 	public void toXML(Document doc, Element parent) {
 		if (apiResponse == null) {
-			parent.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.getValue())));
+			parent.appendChild(doc.createTextNode(getValue() != null ? XMLStringUtil.escapeControlChrs(this.getValue()) : ""));
 		} else {
 			apiResponse.toXML(doc, parent);
 		}
