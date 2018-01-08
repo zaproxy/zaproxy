@@ -350,6 +350,35 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getScriptVars(scriptName).size(), is(equalTo(0)));
     }
 
+    @Test
+    public void shouldClearGlobalVariables() {
+        // Given
+        String scriptName = "ScriptName";
+        ScriptVars.setScriptVar(scriptName, createKey(), createValue());
+        ScriptVars.setGlobalVar(createKey(), createValue());
+        // When
+        ScriptVars.clearGlobalVars();
+        // Then
+        assertThat(ScriptVars.getGlobalVars().size(), is(equalTo(0)));
+        assertThat(ScriptVars.getScriptVars(scriptName).size(), is(equalTo(1)));
+    }
+
+    @Test
+    public void shouldClearScriptVariables() {
+        // Given
+        String scriptName1 = "ScriptName1";
+        String scriptName2 = "ScriptName2";
+        ScriptVars.setScriptVar(scriptName1, createKey(), createValue());
+        ScriptVars.setScriptVar(scriptName2, createKey(), createValue());
+        ScriptVars.setGlobalVar(createKey(), createValue());
+        // When
+        ScriptVars.clearScriptVars(scriptName1);
+        // Then
+        assertThat(ScriptVars.getScriptVars(scriptName1).size(), is(equalTo(0)));
+        assertThat(ScriptVars.getGlobalVars().size(), is(equalTo(1)));
+        assertThat(ScriptVars.getScriptVars(scriptName2).size(), is(equalTo(1)));
+    }
+
     private static String createKey() {
         return "Key-" + Math.random();
     }

@@ -295,12 +295,37 @@ public final class ScriptVars {
 	}
 
 	/**
+	 * Clears the global variables.
+	 * 
+	 * @since TODO add version
+	 * @see #clear()
+	 * @see #clearScriptVars(String)
+	 */
+	public static void clearGlobalVars() {
+		globalVars.clear();
+	}
+
+	/**
+	 * Clears the variables of the script with the given name.
+	 * 
+	 * @param scriptName the name of the script.
+	 * @since TODO add version
+	 * @see #clear()
+	 * @see #clearGlobalVars()
+	 */
+	public static void clearScriptVars(String scriptName) {
+		scriptVars.remove(scriptName);
+	}
+
+	/**
 	 * Clears all variables, global and script.
 	 * 
-	 * @since 2.5.0
+	 * @since TODO add version
+	 * @see #clearGlobalVars()
+	 * @see #clearScriptVars(String)
 	 */
-	static void clear() {
-		globalVars.clear();
+	public static void clear() {
+		clearGlobalVars();
 		scriptVars.clear();
 	}
 }
