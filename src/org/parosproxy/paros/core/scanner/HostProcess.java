@@ -1096,7 +1096,7 @@ public class HostProcess implements Runnable {
 	}
 	
 	/**
-	 * Gets the request count of the plugin with the give ID.
+	 * Gets the request count of the plugin with the given ID.
 	 *
 	 * @param pluginId the ID of the plugin
 	 * @return the request count

@@ -251,7 +251,7 @@ public final class ScriptVars {
 	}
 
 	/**
-	 * Gets a variable from the script with the give name.
+	 * Gets a variable from the script with the given name.
 	 * 
 	 * @param scriptName the name of the script.
 	 * @param key the key of the variable.
