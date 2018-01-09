@@ -40,6 +40,8 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
 
     public PopupMenuPurgeSites() {
         super(Constant.messages.getString("sites.purge.popup"), true);
+
+        setAccelerator(View.getSingleton().getDefaultDeleteKeyStroke());
     }
 
     @Override
