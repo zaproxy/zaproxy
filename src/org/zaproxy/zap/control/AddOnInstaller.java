@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
@@ -121,8 +122,37 @@ public final class AddOnInstaller {
      * @see Extension
      * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
+     * @deprecated (TODO add version) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
      */
+    @Deprecated
     public static boolean uninstall(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+        return uninstall(addOn, callback, null);
+    }
+
+    /**
+     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and
+     * files) of the given {@code addOn}.
+     * <p>
+     * The components are uninstalled in the following order (inverse to installation):
+     * <ol>
+     * <li>Passive scanners;</li>
+     * <li>Active scanners;</li>
+     * <li>Extensions;</li>
+     * <li>Files (if not in use by other add-ons);</li>
+     * </ol>
+     * 
+     * @param addOn the add-on that will be uninstalled.
+     * @param callback the callback that will be notified of the progress of the uninstallation.
+     * @param installedAddOns the add-ons currently installed.
+     * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
+     * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @since TODO add version
+     * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
+     * @see Extension
+     * @see PassiveScanner
+     * @see org.parosproxy.paros.core.scanner.Plugin
+     */
+    public static boolean uninstall(AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
@@ -131,7 +161,7 @@ public final class AddOnInstaller {
             uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
-            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn, callback);
+            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn, callback, installedAddOns);
     
             return uninstalledWithoutErrors;
         } catch (Throwable e) {
@@ -406,15 +436,38 @@ public final class AddOnInstaller {
      *
      * @param addOn the add-on
      * @param callback the callback for notification of progress
-     * @return {@code true} if not error occurred while remove the files, {@code false} otherwise.
+     * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @deprecated (TODO add version) Use {@link #uninstallAddOnFiles(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
      */
+    @Deprecated
     public static boolean uninstallAddOnFiles(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+        return uninstallAddOnFiles(addOn, callback, null);
+    }
+
+    /**
+     * Uninstalls the files of the given add-on.
+     * <p>
+     * <strong>Note:</strong> Files that are in use by other installed add-ons are not uninstalled.
+     *
+     * @param addOn the add-on whose files should be uninstalled.
+     * @param callback the callback for notification of progress.
+     * @param installedAddOns the add-ons currently installed (to check if the files can be safely uninstalled).
+     * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
+     * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @since TODO add version
+     */
+    public static boolean uninstallAddOnFiles(
+            AddOn addOn,
+            AddOnUninstallationProgressCallback callback,
+            Set<AddOn> installedAddOns) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
-        List<String> fileNames = addOn.getFiles();
-        if (fileNames == null || fileNames.isEmpty()) {
+        List<String> fileNames = getFilesSafeForUninstall(
+                addOn,
+                installedAddOns == null ? Collections.emptySet() : installedAddOns);
+        if (fileNames.isEmpty()) {
             return true;
         }
 
@@ -449,6 +502,34 @@ public final class AddOnInstaller {
         Control.getSingleton().getExtensionLoader().addonFilesRemoved();
 
         return uninstalledWithoutErrors;
+    }
+
+    /**
+     * Gets the files of the given add-on that can be safely uninstalled, that is, are not in use/declared by other add-ons.
+     * 
+     * @param addOn the add-on whose files should be uninstalled.
+     * @param installedAddOns the add-ons currently installed.
+     * @return the files that can be safely uninstalled.
+     */
+    private static List<String> getFilesSafeForUninstall(AddOn addOn, Set<AddOn> installedAddOns) {
+        if (addOn.getFiles() == null || addOn.getFiles().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> files = new ArrayList<>(addOn.getFiles());
+        installedAddOns.forEach(installedAddOn -> {
+            if (installedAddOn == addOn) {
+                return;
+            }
+
+            List<String> addOnFiles = installedAddOn.getFiles();
+            if (addOnFiles == null || addOnFiles.isEmpty()) {
+                return;
+            }
+
+            files.removeAll(addOnFiles);
+        });
+        return files;
     }
 
     private static void deleteEmptyDirsCreatedForAddOnFiles(File file) {

@@ -550,7 +550,7 @@ public class AddOnLoader extends URLClassLoader {
 			if (runnableAddOns.remove(ao) != null) {
 			    saveAddOnsRunState(runnableAddOns);
 			}
-			AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK);
+			AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK, runnableAddOns.keySet());
 			removeAddOnClassLoader(ao);
 			deleteAddOnFile(ao, upgrading);
 			ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
@@ -576,7 +576,7 @@ public class AddOnLoader extends URLClassLoader {
 		unloadDependentExtensions(ao);
 		softUninstallDependentAddOns(ao);
 
-		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao, callback);
+		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao, callback, runnableAddOns.keySet());
 
 		if (uninstalledWithoutErrors && ! this.aoc.removeAddOn(ao)) {
 			uninstalledWithoutErrors = false;
