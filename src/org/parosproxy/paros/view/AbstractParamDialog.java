@@ -30,6 +30,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/12/10 Issue 1427: Standardize on [Cancel] [OK] button order
 // ZAP: 2016/11/17 Issue 2701 Added support for additional buttons to support Factory Reset
+// ZAP: 2018/01/08 Allow to expand the node of a param panel.
 
 package org.parosproxy.paros.view;
 
@@ -346,8 +347,24 @@ public class AbstractParamDialog extends AbstractDialog {
     	this.getJSplitPane().saveParam();
     }
 
+    /**
+     * Expands the root node.
+     *
+     * @see #expandParamPanelNode(String)
+     */
     protected void expandRoot() {
         this.getJSplitPane().expandRoot();
+    }
+
+    /**
+     * Expands the node of the param panel with the given name.
+     *
+     * @param panelName the name of the panel whose node should be expanded, should not be {@code null}.
+     * @since TODO add version
+     * @see #expandRoot()
+     */
+    protected void expandParamPanelNode(String panelName) {
+        getJSplitPane().expandParamPanelNode(panelName);
     }
 
     public int showDialog(boolean showRoot) {

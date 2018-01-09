@@ -25,6 +25,7 @@
 // ZAP: 2016/10/27 Explicitly show other panel when the selected panel is removed.
 // ZAP: 2017/06/23 Ensure panel with validation errors is visible.
 // ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
+// ZAP: 2018/01/08 Allow to expand the node of a param panel.
 
 package org.parosproxy.paros.view;
 
@@ -575,6 +576,19 @@ public class AbstractParamContainerPanel extends JSplitPane {
 
     public void expandRoot() {
         getTreeParam().expandPath(new TreePath(getRootNode()));
+    }
+
+    /**
+     * Expands the node of the param panel with the given name.
+     *
+     * @param panelName the name of the panel whose node should be expanded, should not be {@code null}.
+     * @since TODO add version
+     */
+    public void expandParamPanelNode(String panelName) {
+        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
+        if (node != null) {
+            getTreeParam().expandPath(new TreePath(node.getPath()));
+        }
     }
 
     public void showDialog(boolean showRoot) {
