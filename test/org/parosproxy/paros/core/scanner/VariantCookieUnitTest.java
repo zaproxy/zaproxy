@@ -135,7 +135,7 @@ public class VariantCookieUnitTest {
         assertThat(variantCookie.getParamList(), contains(
                 cookie("a", "", 0),
                 cookie("", "d", 1),
-                cookie("e", null, 2),
+                cookie(null, "e", 2),
                 cookie("g", "\"h", 3),
                 cookie("i", "j\"", 4)));
     }
@@ -154,8 +154,8 @@ public class VariantCookieUnitTest {
                 contains(
                         cookie("a", "", 0),
                         cookie("", "d", 1),
-                        cookie("e", null, 2),
-                        cookie("g", null, 3),
+                        cookie(null, "e", 2),
+                        cookie(null, "g", 3),
                         cookie("", "j", 4),
                         cookie("l", "", 5),
                         cookie("n", "\"", 6),
@@ -166,28 +166,33 @@ public class VariantCookieUnitTest {
     public void shouldDecodeValueFromExtractedParameters() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
-        HttpMessage messageWithCookies = createMessageWithCookies("a=b; c=d; e=%26%27%28%29%2A", "=%27");
+        HttpMessage messageWithCookies = createMessageWithCookies("a=b; c=d; e=%26%27%28%29%2A", "=%27", "%26");
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
-        assertThat(variantCookie.getParamList().size(), is(equalTo(4)));
+        assertThat(variantCookie.getParamList().size(), is(equalTo(5)));
         assertThat(
                 variantCookie.getParamList(),
-                contains(cookie("a", "b", 0), cookie("c", "d", 1), cookie("e", "&'()*", 2), cookie("", "'", 3)));
+                contains(
+                        cookie("a", "b", 0),
+                        cookie("c", "d", 1),
+                        cookie("e", "&'()*", 2),
+                        cookie("", "'", 3),
+                        cookie(null, "&", 4)));
     }
 
     @Test
     public void shouldNotDecodeNameFromExtractedParameters() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
-        HttpMessage messageWithCookies = createMessageWithCookies("%29=b; c=d; e=f", "%26");
+        HttpMessage messageWithCookies = createMessageWithCookies("%29=b; c=d; e=f", "%26=");
         // When
         variantCookie.setMessage(messageWithCookies);
         // Then
         assertThat(variantCookie.getParamList().size(), is(equalTo(4)));
         assertThat(
                 variantCookie.getParamList(),
-                contains(cookie("%29", "b", 0), cookie("c", "d", 1), cookie("e", "f", 2), cookie("%26", null, 3)));
+                contains(cookie("%29", "b", 0), cookie("c", "d", 1), cookie("e", "f", 2), cookie("%26", "", 3)));
     }
 
     @Test
@@ -224,10 +229,10 @@ public class VariantCookieUnitTest {
         HttpMessage message = createMessageWithCookies("a; =b; =d; e=;");
         variantCookie.setMessage(message);
         // When
-        String injectedCookie = variantCookie.setParameter(message, cookie("b", null, 1), "y", "z");
+        String injectedCookie = variantCookie.setParameter(message, cookie(null, "b", 1), "y", "z");
         // Then
         assertThat(injectedCookie, is(equalTo("y=z")));
-        assertThat(message, containsCookieHeader("a; y=z; =d; e="));
+        assertThat(message, containsCookieHeader("a; y=z; d; e="));
     }
 
     @Test
@@ -331,8 +336,8 @@ public class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie("e", "f", 2), null, "z");
         // Then
-        assertThat(injectedCookie, is(equalTo("=z")));
-        assertThat(message, containsCookieHeader("a=b; c=d; =z"));
+        assertThat(injectedCookie, is(equalTo("z")));
+        assertThat(message, containsCookieHeader("a=b; c=d; z"));
     }
 
     @Test
@@ -344,8 +349,8 @@ public class VariantCookieUnitTest {
         // When
         String injectedCookie = variantCookie.setParameter(message, cookie("c", "d", 1), "c", null);
         // Then
-        assertThat(injectedCookie, is(equalTo("c")));
-        assertThat(message, containsCookieHeader("a=b; c; e=f"));
+        assertThat(injectedCookie, is(equalTo("c=")));
+        assertThat(message, containsCookieHeader("a=b; c=; e=f"));
     }
 
     @Test
