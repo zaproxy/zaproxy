@@ -37,26 +37,42 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 	private Type type;
 	private Set<String> flags;
 
+	/**
+	 * Constructs a {@code HtmlParameter} with the given type, name, and value.
+	 *
+	 * @param type the type.
+	 * @param name the name.
+	 * @param value the value.
+	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
+	 */
 	public HtmlParameter(Type type, String name, String value) {
 		super();
-		this.name = name;
-		this.value = value;
-		this.type = type;
+		setName(name);
+		setValue(value);
+		setType(type);
 	}
 
+	/**
+	 * Constructs a {@code HtmlParameter}, with type {@link Type#cookie}, from the given cookie line.
+	 * <p>
+	 * The cookie line can be from a {@code Cookie} or {@code Set-Cookie} header.
+	 *
+	 * @param cookieLine the cookie line
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 */
 	public HtmlParameter(String cookieLine) {
 		super();
-		String[] array = cookieLine.split(";");
-		if (array == null || array.length == 0) {
-			throw new IllegalArgumentException(cookieLine);
-		}
-		int eqOffset = array[0].indexOf("=");
-		if (eqOffset <= 0) {
-			throw new IllegalArgumentException(cookieLine);
-		}
+		validateNotNull(cookieLine, "cookieLine");
 		this.type = Type.cookie;
-		this.name = array[0].substring(0, eqOffset).trim();
-		this.value = array[0].substring(eqOffset + 1).trim();
+		String[] array = cookieLine.split(";");
+		int eqOffset = array[0].indexOf('=');
+		if (eqOffset == -1) {
+			this.name = "";
+			this.value = array[0].trim();
+		} else {
+			this.name = array[0].substring(0, eqOffset).trim();
+			this.value = array[0].substring(eqOffset + 1).trim();
+		}
 		if (array.length > 1) {
 			for (int i = 1; i < array.length; i++) {
 				this.addFlag(array[i].trim());
@@ -64,11 +80,24 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 		}
 	}
 
+	private static void validateNotNull(Object parameter, String parameterName) {
+		if (parameter == null) {
+			throw new IllegalArgumentException("Parameter " + parameterName + " must not be null");
+		}
+	}
+
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name.
+	 *
+	 * @param name the new name.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 */
 	public void setName(String name) {
+		validateNotNull(name, "name");
 		this.name = name;
 	}
 
@@ -76,7 +105,14 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 		return value;
 	}
 
+	/**
+	 * Sets the value.
+	 *
+	 * @param value the new value.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 */
 	public void setValue(String value) {
+		validateNotNull(value, "value");
 		this.value = value;
 	}
 
@@ -84,7 +120,14 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 		return type;
 	}
 
+	/**
+	 * Sets the type.
+	 *
+	 * @param type the new type.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 */
 	public void setType(Type type) {
+		validateNotNull(type, "type");
 		this.type = type;
 	}
 
