@@ -37,6 +37,8 @@ public class Tech implements Comparable<Tech> {
     public static final Tech Sybase = new Tech(Db, "Sybase");
     public static final Tech Db2 = new Tech(Db, "IBM DB2");
     public static final Tech HypersonicSQL = new Tech(Db, "HypersonicSQL");
+    public static final Tech MongoDB = new Tech(Db, "MongoDB");
+    public static final Tech CouchDB = new Tech(Db, "CouchDB");
 
     public static final Tech Lang = new Tech("Language", "technologies.lang");
     public static final Tech ASP = new Tech(Lang, "ASP");
@@ -59,7 +61,8 @@ public class Tech implements Comparable<Tech> {
     public static final Tech Tomcat = new Tech(WS, "Tomcat");
 
     public static final Tech[] builtInTech = {
-        Db, MySQL, PostgreSQL, MsSQL, Oracle, SQLite, Access, Firebird, MaxDB, Sybase, Db2, HypersonicSQL, 
+        Db, MySQL, PostgreSQL, MsSQL, Oracle, SQLite, Access, Firebird, MaxDB, Sybase, Db2, HypersonicSQL, MongoDB, 
+        CouchDB, 
         Lang, ASP, C, PHP, XML,
         OS, Linux, MacOS, Windows,
         SCM, Git, SVN,
