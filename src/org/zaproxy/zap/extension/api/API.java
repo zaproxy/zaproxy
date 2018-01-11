@@ -161,10 +161,13 @@ public class API {
 	
 	/**
 	 * Removes the given {@code ApiImplementor} from the ZAP API.
+	 * <p>
+	 * Since TODO add version, the callbacks previously created for the implementor are removed as well.
 	 *
 	 * @param impl the implementor that will be removed
 	 * @since 2.1.0
 	 * @see #registerApiImplementor(ApiImplementor)
+	 * @see #getCallBackUrl(ApiImplementor, String)
 	 */
 	public void removeApiImplementor(ApiImplementor impl) {
 		if (!implementors.containsKey(impl.getPrefix())) {
@@ -179,6 +182,7 @@ public class API {
 				this.shortcuts.remove(key);
 			}
 		}
+		removeCallBackUrls(impl);
 	}
 	
 	public boolean isEnabled() {
@@ -714,10 +718,51 @@ public class API {
 		return Collections.unmodifiableMap(implementors);
 	}
 	
+	/**
+	 * Gets (and registers) a new callback URL for the given implementor and site.
+	 *
+	 * @param impl the implementor that will handle the callback.
+	 * @param site the site that will call the callback.
+	 * @return the callback URL.
+	 * @since 2.0.0
+	 * @see #removeCallBackUrl(String)
+	 * @see #removeCallBackUrls(ApiImplementor)
+	 * @see #removeApiImplementor(ApiImplementor)
+	 */
 	public String getCallBackUrl(ApiImplementor impl, String site) {
 		String url = site + CALL_BACK_URL + random.nextLong();
 		this.callBacks.put(url, impl);
 		return url;
+	}
+
+	/**
+	 * Removes the given callback URL.
+	 *
+	 * @param url the callback URL.
+	 * @since TODO add version
+	 * @see #getCallBackUrl(ApiImplementor, String)
+	 * @see #removeCallBackUrls(ApiImplementor)
+	 * @see #removeApiImplementor(ApiImplementor)
+	 */
+	public void removeCallBackUrl(String url) {
+		this.callBacks.remove(url);
+	}
+
+	/**
+	 * Removes the given implementor as a callback handler.
+	 *
+	 * @param impl the implementor to remove.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 * @see #getCallBackUrl(ApiImplementor, String)
+	 * @see #removeCallBackUrl(String)
+	 * @see #removeApiImplementor(ApiImplementor)
+	 */
+	public void removeCallBackUrls(ApiImplementor impl) {
+		if (impl == null) {
+			throw new IllegalArgumentException("Parameter impl must not be null.");
+		}
+		this.callBacks.values().removeIf(impl::equals);
 	}
 
 	/**
