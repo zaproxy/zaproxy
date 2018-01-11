@@ -70,7 +70,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldDenyAllAddressesIfNoneSet() throws Exception {
+    public void shouldAcceptCallbackIfNoAddressesSet() throws Exception {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -83,11 +83,11 @@ public class APIUnitTest {
                 createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(equalTo(true)));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
     @Test
-    public void shouldDenyAddressNotSet() throws Exception {
+    public void shouldAcceptCallbackEvenIfAddressNotSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -102,11 +102,11 @@ public class APIUnitTest {
                 createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(equalTo(true)));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
     @Test
-    public void shouldDenyHostnameNotSet() throws Exception {
+    public void shouldAcceptCallbackEvenIfHostnameNotSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -121,7 +121,7 @@ public class APIUnitTest {
                 createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(equalTo(true)));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
     @Test

@@ -240,9 +240,6 @@ public class API {
 		
 		// Check for callbacks
 		if (url.contains(CALL_BACK_URL)) {
-			if (! isPermittedAddr(requestHeader)) {
-				return true;
-			}
 			logger.debug("handleApiRequest Callback: " + url);
 			for (Entry<String, ApiImplementor> callback : callBacks.entrySet()) {
 				if (url.startsWith(callback.getKey())) {
@@ -264,7 +261,8 @@ public class API {
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
-		if (! isPermittedAddr(requestHeader)) {
+		if (callbackImpl == null && ! isPermittedAddr(requestHeader)) {
+			// Callback by their very nature are on the target domain
 			return true;
 		}
 		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
@@ -533,7 +531,6 @@ public class API {
 					contentType = "text/html; charset=UTF-8";
 				}
 			}
-			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (Exception e) {
 			if (! getOptionsParamApi().isReportPermErrors()) {
