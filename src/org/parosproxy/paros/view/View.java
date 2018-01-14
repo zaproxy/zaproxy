@@ -75,6 +75,7 @@
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2017/10/20 Implement method to expose default delete keyboard shortcut (Issue 3626).
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
+// ZAP: 2018/01/08 Expand first context added.
 
 package org.parosproxy.paros.view;
 
@@ -713,6 +714,7 @@ public class View implements ViewDelegate {
     }
 
     public void addContext(Context c) {
+        boolean expandContextNode = contextPanels.isEmpty();
         getSessionDialog().createUISharedContext(c);
 
         String contextsNodeName = Constant.messages.getString("context.list");
@@ -746,6 +748,10 @@ public class View implements ViewDelegate {
             addPanelForContext(c, cpf, contextPanelPath);
         }
         this.getSiteTreePanel().reloadContextTree();
+
+        if (expandContextNode) {
+            getSessionDialog().expandParamPanelNode(contextGenPanel.getName());
+        }
     }
 
     /**

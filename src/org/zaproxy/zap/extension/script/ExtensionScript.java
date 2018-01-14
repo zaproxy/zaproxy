@@ -194,7 +194,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	/**
-	 * Creates an {@code ImageIcon} with the give resource path, if in view mode.
+	 * Creates an {@code ImageIcon} with the given resource path, if in view mode.
 	 *
 	 * @param resourcePath the resource path of the icon, must not be {@code null}.
 	 * @return the icon, or {@code null} if not in view mode.

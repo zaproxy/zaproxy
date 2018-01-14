@@ -73,7 +73,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldDenyAllAddressesIfNoneSet() throws Exception {
+    public void shouldAcceptCallbackIfNoAddressesSet() throws Exception {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -86,11 +86,11 @@ public class APIUnitTest {
                 createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(equalTo(true)));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
     @Test
-    public void shouldDenyAddressNotSet() throws Exception {
+    public void shouldAcceptCallbackEvenIfAddressNotSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -105,11 +105,11 @@ public class APIUnitTest {
                 createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(equalTo(true)));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
     @Test
-    public void shouldDenyHostnameNotSet() throws Exception {
+    public void shouldAcceptCallbackEvenIfHostnameNotSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -124,7 +124,7 @@ public class APIUnitTest {
                 createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(equalTo(true)));
-        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
     @Test
@@ -340,52 +340,48 @@ public class APIUnitTest {
         assertThat(baseUrl, is(equalTo("https://127.0.0.1:8080/JSON/test/view/test/")));
     }
 
-    @Test
-    public void shouldGetEmptyXmlFromResponseWithNullEndpointName() {
+    @Test(expected = ApiException.class)
+    public void shouldFailToGetXmlFromResponseWithNullEndpointName() throws ApiException {
         // Given
         String endpointName = null;
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
-        String xmlResponse = API.responseToXml(endpointName, response);
-        // Then
-        assertThat(xmlResponse, is(equalTo("")));
+        API.responseToXml(endpointName, response);
+        // Then = ApiException
     }
 
-    @Test
-    public void shouldGetEmptyXmlFromResponseWithEmptyEndpointName() {
+    @Test(expected = ApiException.class)
+    public void shouldFailToGetXmlFromResponseWithEmptyEndpointName() throws ApiException {
         // Given
         String endpointName = "";
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
-        String xmlResponse = API.responseToXml(endpointName, response);
-        // Then
-        assertThat(xmlResponse, is(equalTo("")));
+        API.responseToXml(endpointName, response);
+        // Then = ApiException
     }
 
-    @Test
-    public void shouldGetEmptyXmlFromResponseWithNonXmlValidEndpointName() {
+    @Test(expected = ApiException.class)
+    public void shouldFailToGetXmlFromResponseWithInvalidXmlEndpointName() throws ApiException {
         // Given
         String endpointName = "<";
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
-        String xmlResponse = API.responseToXml(endpointName, response);
-        // Then
-        assertThat(xmlResponse, is(equalTo("")));
+        API.responseToXml(endpointName, response);
+        // Then = ApiException
     }
 
-    @Test
-    public void shouldGetEmptyXmlFromNullResponse() {
+    @Test(expected = ApiException.class)
+    public void shouldFailToGetXmlFromNullResponse() throws ApiException {
         // Given
         String endpointName = "Name";
         ApiResponse response = null;
         // When
-        String xmlResponse = API.responseToXml(endpointName, response);
-        // Then
-        assertThat(xmlResponse, is(equalTo("")));
+        API.responseToXml(endpointName, response);
+        // Then = ApiException
     }
 
     @Test
-    public void shouldGetXmlFromResponse() {
+    public void shouldGetXmlFromResponse() throws ApiException {
         // Given
         String endpointName = "Name";
         ApiResponse response = ApiResponseTest.INSTANCE;

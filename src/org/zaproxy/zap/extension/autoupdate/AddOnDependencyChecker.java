@@ -246,7 +246,9 @@ class AddOnDependencyChecker {
 
         SelectableAddOnTableModel optionalAddOnsTableModel = null;
         if (!changesResult.getOptionalAddOns().isEmpty()) {
-            optionalAddOnsTableModel = new SelectableAddOnTableModel(changesResult.getOptionalAddOns());
+            optionalAddOnsTableModel = new SelectableAddOnTableModel(
+                    Constant.messages.getString("cfu.generic.table.header.selectInstall"),
+                    changesResult.getOptionalAddOns());
             issues += optionalAddOnsTableModel.getMinimumJavaVersionIssues();
             tabs.add(
                     Constant.messages.getString("cfu.confirmation.dialogue.tab.header.optionalAddOns"),
@@ -931,11 +933,13 @@ class AddOnDependencyChecker {
 
         private static final long serialVersionUID = 2337381848530495407L;
 
+        private final String selectionRowName;
         private final Boolean[] selections;
 
-        public SelectableAddOnTableModel(Collection<AddOn> addOns) {
+        public SelectableAddOnTableModel(String selectionRowName, Collection<AddOn> addOns) {
             super(addOns, true);
 
+            this.selectionRowName = selectionRowName;
             selections = new Boolean[addOns.size()];
             for (int i = 0; i < selections.length; i++) {
                 selections[i] = Boolean.FALSE;
@@ -945,7 +949,7 @@ class AddOnDependencyChecker {
         @Override
         public String getColumnName(int column) {
             if (column == 0) {
-                return "";
+                return selectionRowName;
             }
             return super.getColumnName(column - 1);
         }

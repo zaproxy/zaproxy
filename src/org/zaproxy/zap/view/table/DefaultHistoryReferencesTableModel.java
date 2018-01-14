@@ -258,10 +258,10 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
     
     /**
-     * Returns the history reference with the give ID. If the history reference is not found {@code null} is returned.
+     * Returns the history reference with the given ID. If the history reference is not found {@code null} is returned.
      * 
      * @param historyReferenceId the ID of the history reference that will be searched
-     * @return the history refernce, or {@code null} if not found
+     * @return the history reference, or {@code null} if not found
      */
     public HistoryReference getHistoryReference(int historyReferenceId) {
         DefaultHistoryReferencesTableEntry entry = getEntryWithHistoryId(historyReferenceId);

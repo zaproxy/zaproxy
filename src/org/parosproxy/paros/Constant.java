@@ -73,6 +73,7 @@
 // ZAP: 2018/01/03 No longer create filter dir and deprecate FOLDER_FILTER constant.
 //                 Exit immediately if not able to create the home dir.
 // ZAP: 2018/01/04 Clear SNI Terminator options when updating from older ZAP versions.
+// ZAP: 2018/01/05 Prevent use of install dir as home dir.
 
 package org.parosproxy.paros;
 
@@ -417,6 +418,12 @@ public final class Constant {
             } else if (!f.canWrite()) {
                 System.err.println("The home path is not writable: " + zapHome);
                 System.exit(1);
+            } else {
+                Path installDir = Paths.get(getZapInstall()).toRealPath();
+                if (installDir.equals(Paths.get(zapHome).toRealPath())) {
+                    System.err.println("The install dir should not be used as home dir: " + installDir);
+                    System.exit(1);
+                }
             }
             
             // Setup the logging

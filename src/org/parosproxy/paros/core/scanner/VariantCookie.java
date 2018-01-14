@@ -62,11 +62,9 @@ public class VariantCookie implements Variant {
             String[] cookieArray = cookieLine.split("; ?");
             for (String cookie : cookieArray) {
                 String[] nameValuePair = cookie.split("=", 2);
-                String name = nameValuePair[0];
-                String value = null;
-                if (nameValuePair.length == 2) {
-                    value = getUnescapedValue(nameValuePair[1]);
-                }
+                boolean hasNameValuePair = nameValuePair.length == 2;
+                String name = hasNameValuePair ? nameValuePair[0] : null;
+                String value = getUnescapedValue(!hasNameValuePair ? nameValuePair[0] : nameValuePair[1]);
                 extractedParameters.add(new NameValuePair(NameValuePair.TYPE_COOKIE, name, value, extractedParameters.size()));
             }
         }
@@ -166,16 +164,16 @@ public class VariantCookie implements Variant {
                 }
             }
 
-            if (cookieString.length() != 0 && !(cookieName == null && cookieValue == null)) {
+            if (cookieString.length() != 0 && !((cookieName == null || cookieName.isEmpty()) && cookieValue == null)) {
                 cookieString.append("; ");
             }
 
-            if (cookieName != null) {
+            if (cookieName != null && !cookieName.isEmpty()) {
                 cookieString.append(cookieName);
+                cookieString.append('=');
             }
 
             if (cookieValue != null) {
-                cookieString.append('=');
                 cookieString.append(cookieValue);
             }
         }
@@ -186,11 +184,14 @@ public class VariantCookie implements Variant {
         }
 
         if (escapedValue == null) {
-            return name;
+            if (name == null || name.isEmpty()) {
+                return null;
+            }
+            return name + "=";
         }
 
         if (name == null) {
-            return "=" + escapedValue;
+            return escapedValue;
         }
 
         return name + "=" + escapedValue;

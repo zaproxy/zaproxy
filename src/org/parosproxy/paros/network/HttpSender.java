@@ -919,7 +919,7 @@ public class HttpSender {
     }
 
     /**
-     * Follows redirections using the response of the given {@code message}. The {@code validator} in the give request
+     * Follows redirections using the response of the given {@code message}. The {@code validator} in the given request
      * configuration will be called for each redirection received. After the call to this method the given {@code message} will
      * have the contents of the last response received (possibly the response of a redirection).
      * <p>

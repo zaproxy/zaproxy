@@ -3,12 +3,12 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
-	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+	<alert>Hindi sapat na nagpapatunay</alert>
+	<desc>Hindi sapat na nagpapatunay ay nangyayari kapag ang isang web site ay nagpapahintulot sa attacker na ma-access ang sensitibo o functionality nang hindi na kinakailangang mapatunayan ng wasto. Web-based na administrasyon na mga gamit ay isang magandang halimbawa ng mga web sites na pagbibigay ng access sa sensitibong pag-andar. Depende sa partikular na online na pagkukunan, ang mga web applications ay hindi dapat direktang naa-access nang hindi nangangailangan ng gumagamit upang maayos na mapatunayan ang kanilang pagkakakilanlan.
 
-To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+Upang makakuha sa paligid ng pag-set up sa authentication, ilang resources ay hindi protektado ng "pagtatago" ang tiyak na lokasyon at hindi nag-uugnay sa lokasyon sa pangunahing web site o iba pang mga pampublikong lugar. Gayunpaman, ang paraang ito ay hindi higit kaya sa mga "Security Through Obscurity". Ito ay mahalaga na maunawaan na kahit na isang resource na ito ay hindi kilala sa attacker, ito pa rin ay nanatiling magagamit ng direkta sa isang partikular na URL. Ang partikular na URL ay mangyaring natuklasan sa pamamagitan ng isang Brute Force na paraan para sa mga common file at mga lokasyon ng direktoryo (/admin para sa halimbawa), ang mga maling mensahe, referrer logs, o dokumento tulad ng mga help files. Ang mga pagkukunan, kung sila ay nilalaman o pagpapagana-hinihimok, dapat sapat protektado.</desc>
+	<solution>Yugto: Arkitektura at Disenyo
+Gamitin ang pagpapatunay na framework o library na tulad ng OWASP ESAPI Authentication feature.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -16,29 +16,28 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<alert>Hindi sapat na pagpapatunay</alert>
+	<desc>Hindi sapat na pagpagtunay na mga resulta kapag ang isang application ay hindi nagsasagawa ng sapat na pahintulot upang matiyak ang pagsasagawa ng gumagamit o pag-access ng datos sa paraang naayos sa patakaran sa seguridad. Mga pagpapahintulot na mga procedure ay dapat ipapatupad kung anong user, serbisyo o aplikasyon ay pinahintulutang gawin. Nang ang gumamit ay mapagtibay sa isang web site, ito ay hindi nangangahulugan na ang mga gumagamit ay dapat magkaroon ng full access sa lahat ng nilalaman at mga functionality.
 
-Insufficient Function Authorization
+Hindi sapat ang Function Authorization
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
+Maraming mga applications ang pinagkaloob ng iba't ibang mga aplikasyon functionality ng iba't ibang mga gumagamit. Isang news site na ito ay nagpapahintulot sa mga gumagamit na makita ang mga kuwento ng balita, pero hindi na ilathala sa kanila. Isang accounting na sistema ay nagkakaroon ng iba't ibang mga pahintulot para sa isang Accounts Payable clerk at isang Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
 
 A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
  
-Insufficient Data Authorization
+Hindi sapat na Data Authorization
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+Maraming mga applications ang inilantad na batayan ng pagkakailan sa isang URL. Halimbawa, kapag ina-access ang isang medikal na talaan sa isang sistema ng isa ay magkaroon ng isang URL tulad ng:
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Kung ang aplikasyon ay hindi sunusuri na yung mga naka-authenticated na user ID ay mayroong karapatan sa pagbasa, at pagkatapos ay maidispley itong mga datos para sa gumagamit ay dapat hindi makita.
 
-Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software.
+Hindi sapat na Data Authorization ay mas karaniwan kaya sa hindi sapat na Function Authorization dahil ang mga programmer karaniwang nagkaroon ng kumpletong kaalaman sa functionality ng aplikasyon, ngunit hindi laging may isang kumpletong mapping ng lahat ng data na ma-access ang mga aplikasyon. Mga programmer ay madalas magkaroon ng mahigpit na kontrol sa mga function authorization mechanisms, ngunit umaasa sa iba pang mga sistema tulad ng mga database upang masagawa ang pahintulot ng datos.</desc>
+	<solution>Yugto: Arkitektura at Disenyo; Operasyon ay mabuting pinamahala ang settings, management, at paghawak ng mga pribilehiyo. Malinaw na pagpapangasiwa ng mga trust zones sa software.
 
-Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
+Yugto: Arkitektura at Disenyo
+Pagsiguro na ang nararapat na compartmentalization ay naitayo into sa sistema ng disenyo at na ang compartmentalization ay nagbibigay pahintulot para sa pagpapalakas ng pahintulot sa separation functionality. Mga arkitekto at mga designers ay dapat umasa sa prinsipyo ng pinakamaliit na pribilehiyong magdesisyon kapag ang mga ito ay nararapat na gamitin at drop sa sistema ng mga pribilehiyo.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -46,19 +45,19 @@ Ensure that appropriate compartmentalization is built into the system design and
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<alert>Nag-uumapaw ang integer</alert>
+	<desc>Ang integer Overflow ay kondisyon na nangyayari kapag ang resulta ng isang pang-aritmetic operasyon, tulad ng pagpaparami o karagdagan, ay lampas na sa pinakamalaking sukat ng integer type na ginagamit para maitago ito. Kapag ang integer overflow ay nagaganap, lilitaw ang mga naisalin na halaga "wrapped around" ang pinakamataas ng halaga ay nagsimula muli sa pinakamababang halaga, katulad ng isang orasan na kumakatawan sa 13:00 sa pamamagitan ng pagturo sa 1:00.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+Halimbawa, isang 8-bit nilagdaan na integer sa pinaka-karaniwang na arkitektura ng computer ay may isang pinakamataas na halaga ng 127 at isang pinakamababa na halaga na -128. Kung ang programmer ay nag-stores ng halaga na 127 sa naturang isang variable at nagdadagdag ng 1 na ito, ang resulta ay dapat 128. Gayunman, ang halaga ay lumampas ang pinakamataas para sa ganitong uri ng integer, kaya ang naisalin na halaga ay "wrap around" at maging ang -128.</desc>
+	<solution>Yugto: Mga requirements
+Pagsiguro na ang lahat ng mga protocols ay istriktong itinutukoy, Gayon man ang lahat ng mga out-of-bounds behavior ay kiniala ang simple, at kinakailangan ang istriktong conformance sa protocol.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-If possible, choose a language or compiler that performs automatic bounds checking.
+Yugto: Mga Requirements
+Paggamit ng wika na hindi nag pahintulot sa gamitong mga kahinaan o nagbibigay ng constructs na gumagawa ng kahinaan na madaling itong maiwasan.
+Kung posibleng, makapili ng wika o compiler na gumagawa ng automatic bounds checking.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
 Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
 Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
 
@@ -198,13 +197,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Yugto: Mga Requirements
+Paggamit ng wika na hindi nag pahintulot sa gamitong mga kahinaan o nagbibigay ng constructs na gumagawa ng kahinaan na madaling itong maiwasan.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -242,8 +241,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -282,8 +281,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -483,8 +482,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.
