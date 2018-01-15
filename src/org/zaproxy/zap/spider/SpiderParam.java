@@ -35,6 +35,14 @@ import org.zaproxy.zap.extension.api.ZapApiIgnore;
  */
 public class SpiderParam extends AbstractParam {
 
+	/**
+	 * The value that indicates that the crawl depth is unlimited.
+	 * 
+	 * @since TODO add version
+	 * @see #setMaxDepth(int)
+	 */
+	public static final int UNLIMITED_DEPTH = 0;
+
 	/** The Constant SPIDER_MAX_DEPTH. */
 	private static final String SPIDER_MAX_DEPTH = "spider.maxDepth";
 
@@ -331,21 +339,25 @@ public class SpiderParam extends AbstractParam {
     }
 
 	/**
-	 * Gets the max depth.
+	 * Gets the maximum depth the spider can crawl.
 	 * 
-	 * @return Returns the maxDepth.
+	 * @return the maximum depth, or {@value #UNLIMITED_DEPTH} if unlimited.
+	 * @see #setMaxDepth(int)
 	 */
 	public int getMaxDepth() {
 		return maxDepth;
 	}
 
 	/**
-	 * Sets the max depth.
+	 * Sets the maximum depth the spider can crawl.
+	 * <p>
+	 * Value {@value #UNLIMITED_DEPTH} for unlimited depth.
 	 * 
-	 * @param maxDepth The maxDepth to set.
+	 * @param maxDepth the new maximum depth.
+	 * @see #getMaxDepth()
 	 */
 	public void setMaxDepth(int maxDepth) {
-		this.maxDepth = maxDepth;
+		this.maxDepth = maxDepth > UNLIMITED_DEPTH ? maxDepth : UNLIMITED_DEPTH;
 		getConfig().setProperty(SPIDER_MAX_DEPTH, Integer.toString(this.maxDepth));
 
 	}
