@@ -33,6 +33,7 @@
 // ZAP: 2014/08/14 Issue 1279: Active scanner excluded parameters not working when "Where" is "Any"
 // ZAP: 2016/06/15 Add VariantHeader based on the current scan options
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
+// ZAP: 2018/01/16 Modify the VariantJSONQuery constructor call
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
             // ZAP: To handle JSON based POST requests
             if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
-                listVariant.add(new VariantJSONQuery());
+                listVariant.add(new VariantJSONQuery(NameValuePair.TYPE_JSON));
             }
 
             // ZAP: To handle GWT Serialized POST requests

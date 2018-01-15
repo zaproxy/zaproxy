@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-
+// ZAP: 2018/01/16 Added the variantType variable and a new constructor that sets this variable.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -40,7 +40,16 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     private final List<RPCParameter> listParam = new ArrayList<>();
     private final List<NameValuePair> params = new ArrayList<>();
     private String requestContent;
-
+    private final int variantType;
+    
+    public VariantAbstractRPCQuery() {
+       	this(NameValuePair.TYPE_POST_DATA);    
+    }
+    
+    public VariantAbstractRPCQuery(int vt) {
+    	variantType = vt;
+    }
+    
     @Override
     public void setMessage(HttpMessage msg) {
         // First check if it's a gwt rpc form data request
@@ -174,7 +183,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
         for (int i = 0; i < listParam.size(); i++) {
             RPCParameter param = listParam.get(i);
-            params.add(new NameValuePair(NameValuePair.TYPE_POST_DATA, param.getName(), param.getValue(), i));
+            params.add(new NameValuePair(variantType, param.getName(), param.getValue(), i));
         }         
     }
     
