@@ -92,7 +92,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
             // ZAP: To handle JSON based POST requests
             if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
-                listVariant.add(new VariantJSONQuery());
+                listVariant.add(new VariantJSONQuery(NameValuePair.TYPE_JSON));
             }
 
             // ZAP: To handle GWT Serialized POST requests

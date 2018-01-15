@@ -32,6 +32,7 @@ public class NameValuePair {
     public static final int TYPE_COOKIE = ScannerParam.TARGET_COOKIE;
     public static final int TYPE_HEADER = ScannerParam.TARGET_HTTPHEADERS;
     public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
+    public static final int TYPE_JSON = ScannerParam.RPC_JSON;
     public static final int TYPE_UNDEFINED = -1;
     
     private final int targetType;

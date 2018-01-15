@@ -41,6 +41,14 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     private SimpleStringReader sr;
 
+    public VariantJSONQuery () {
+    	super();
+    }
+
+    public VariantJSONQuery (int vt) {
+    	super(vt);
+    }
+    
     /**
      * 
      * @param contentType
