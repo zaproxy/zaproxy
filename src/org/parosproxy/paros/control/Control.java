@@ -68,6 +68,7 @@
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2018/01/04 Do not notify extensions if failed to change the session.
+// ZAP: 2018/01/12 Save configurations as last shutdown action.
 
 package org.parosproxy.paros.control;
 
@@ -182,21 +183,26 @@ public class Control extends AbstractControl implements SessionListener {
      */
     @Override
     public void shutdown(boolean compact) {
-        // ZAP: Save the configurations of the main panels.
-        if (view != null) {
-	        view.getRequestPanel().saveConfig(model.getOptionsParam().getConfig());
-	        view.getResponsePanel().saveConfig(model.getOptionsParam().getConfig());
+        try {
+            if (view != null) {
+                view.getRequestPanel().saveConfig(model.getOptionsParam().getConfig());
+                view.getResponsePanel().saveConfig(model.getOptionsParam().getConfig());
+            }
+
+            getProxy(null).stopServer();
+            super.shutdown(compact);
+        } finally {
+            // Ensure all extensions' config changes done during shutdown are saved.
+            saveConfigurations();
         }
-        
-	    // ZAP: Save the configuration file.
-		try {
-			model.getOptionsParam().getConfig().save();
-		} catch (ConfigurationException e) {
-			log.error("Error saving config", e);
-		}
-		
-        getProxy(null).stopServer();
-        super.shutdown(compact);
+    }
+
+    private void saveConfigurations() {
+        try {
+            model.getOptionsParam().getConfig().save();
+        } catch (ConfigurationException e) {
+            log.error("Error saving configurations:", e);
+        }
     }
     
     public void exit (boolean noPrompt, final File openOnExit) {
