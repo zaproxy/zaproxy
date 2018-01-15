@@ -122,7 +122,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addPadding(0);
 
         // Advanced options
-        this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
+        this.addNumberField(1, FIELD_MAX_DEPTH, 0, 19, getSpiderParam().getMaxDepth());
         this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
         this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
         this.addNumberField(1, FIELD_MAX_PARSE_SIZE_BYTES, 0, Integer.MAX_VALUE, getSpiderParam().getMaxParseSizeBytes());
