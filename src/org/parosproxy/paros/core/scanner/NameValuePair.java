@@ -34,6 +34,7 @@ public class NameValuePair {
     public static final int TYPE_COOKIE = ScannerParam.TARGET_COOKIE;
     public static final int TYPE_HEADER = ScannerParam.TARGET_HTTPHEADERS;
     public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
+
     /**
      * A "normal" (non-file) multipart/form-data parameter
      * 
