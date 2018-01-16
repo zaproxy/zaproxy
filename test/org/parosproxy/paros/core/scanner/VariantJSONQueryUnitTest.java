@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// ZAP: 2018/01/16 Modify the VariantJSONQuery constructor call
+// ZAP: 2018/01/16 Changed the call to the VariantJSONQuery constructor
 package org.parosproxy.paros.core.scanner;
 
 import org.junit.Test;

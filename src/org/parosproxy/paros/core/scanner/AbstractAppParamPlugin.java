@@ -33,7 +33,7 @@
 // ZAP: 2014/08/14 Issue 1279: Active scanner excluded parameters not working when "Where" is "Any"
 // ZAP: 2016/06/15 Add VariantHeader based on the current scan options
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
-// ZAP: 2018/01/16 Modify the VariantJSONQuery constructor call
+//ZAP: 2018/01/16 Changed the call to the VariantJSONQuery constructor
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
