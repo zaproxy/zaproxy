@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// ZAP: 2018/01/16 Changed the call to the VariantJSONQuery constructor
 package org.parosproxy.paros.core.scanner;
 
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldHaveParametersListEmptyByDefault() {
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
@@ -49,7 +48,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldFindStringValueInJsonObject() throws HttpMalformedHeaderException{
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\"}"));
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
@@ -61,7 +60,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldFindStringWithEscapedCharacterInJsonObject() throws HttpMalformedHeaderException{
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\n\"}"));
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
@@ -73,7 +72,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldFindStringWithEscapedQuotationMarkInJsonObject() throws HttpMalformedHeaderException{
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\\\"\"}"));
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
@@ -85,7 +84,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldFindPropertyWithEscapedCharacterInJsonObject() throws HttpMalformedHeaderException{
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\n\":\"bar\"}"));
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
@@ -97,7 +96,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldFindPropertyWithEscapedQuotationMarkInJsonObject() throws HttpMalformedHeaderException{
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\\\"\":\"bar\"}"));
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
@@ -109,7 +108,7 @@ public class VariantJSONQueryUnitTest {
     @Test
     public void shouldFindValueWithEscapedQuotationMarkInJsonArray() throws HttpMalformedHeaderException {
         // Given
-        VariantJSONQuery variantJSONQuery = new VariantJSONQuery(NameValuePair.TYPE_JSON);
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("[\"bar\\\"\"]"));
         // When
         List<NameValuePair> parameters = variantJSONQuery.getParamList();

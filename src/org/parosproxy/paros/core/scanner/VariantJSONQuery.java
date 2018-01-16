@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2018/01/16 Added a new constructor that takes as parameter the variant type ID
+// ZAP: 2018/01/16 Added a new constructor that takes as parameter the variant type ID and the modified the other one to pass at the super one the right variant type value
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -41,6 +41,10 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     private SimpleStringReader sr;
 
+    public VariantJSONQuery () {
+    	super(NameValuePair.TYPE_JSON);
+    }
+    
     public VariantJSONQuery (int variantType) {
     	super(variantType);
     }
