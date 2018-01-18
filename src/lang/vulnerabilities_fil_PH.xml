@@ -21,7 +21,7 @@ Gamitin ang pagpapatunay na framework o library na tulad ng OWASP ESAPI Authenti
 
 Hindi sapat ang Function Authorization
 
-Maraming mga applications ang pinagkaloob ng iba't ibang mga aplikasyon functionality ng iba't ibang mga gumagamit. Isang news site na ito ay nagpapahintulot sa mga gumagamit na makita ang mga kuwento ng balita, pero hindi na ilathala sa kanila. Isang accounting na sistema ay nagkakaroon ng iba't ibang mga pahintulot para sa isang Accounts Payable clerk at isang Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
+Maraming mga applications ang pinagkaloob ng iba't ibang mga aplikasyon functionality ng iba't ibang mga gumagamit. Isang news site na ito ay nagpapahintulot sa mga gumagamit na makita ang mga kuwento ng balita, pero hindi na ilathala sa kanila. Isang accounting na sistema ay nagkakaroon ng iba't ibang mga pahintulot para sa isang Accounts Payable clerk at isang Accounts Receivable clerk. Kulang ang kakayahan ng awtorisasyon ay nangyayari kapag ang isang aplikasyon ay hindi pumipigil sa mga taga-gamit na ma-dagdag ang pag-andar ng aplikasyon na lumalabag sa patakaran sa katiwasayan.
 
 A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
  
@@ -58,66 +58,63 @@ Kung posibleng, makapili ng wika o compiler na gumagawa ng automatic bounds chec
 
 Yugto: Arkitekture at Disenyo
 Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+Gamitin ng mga aklatan o mga balangkas na pinapadaling mahawakan ang mga numero nang walang hindi akalaing mga kahihinatnan.
+Mga Halimbawa ang mga ligtas na pagbuo sa pagkapit ng pagbubuo tulad ng SafeInt (C++) o IntegerLib (C or C++.
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
-Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
+Salita: Pagsasagawa
+Magsagawa ng pagpapatunay ng pag-input sa anumang numerong input sa pamamagitan ng pagtutukoy sa nasa loob ng inaasahan na saklaw. Pilitin na matugunan ng input ang parehong pinakamababa at pinakamataas na kinakailangan para sa inaasahang saklaw.
+Gamitin ang hindi na pirmahang pambuo kung saan posible. Ito ay ginagawang mas madali ang pagsasagawa ng mga pag-susuri ng katinuan para sa overflow ng pagbubuo. Ito ay kung dapat mong gumamit ng mga na pirmahang pagbubuo, siguraduhin na ang iyong hanay ng pagsusuri ay may kasamang mga pinakamababa na halaga pati na rin ang pinakamataas na halaga.
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+Panimula: pagsasagawa
+Intindihin ang pinagbabatayang representasyon ng lengguwahe ng iyong palatuntunan at kung paano ito maiuugnay sa pagkalkula ng numerong (CWE-681). Mag-bigay alintana sa pagkakaiba ng byte, katumpakan, naka-pirma / hindi-pirma mga pagkakakilanlan, pag-putol, pag-salin at paghahagis sa pagitan ng mga anyo, mga "hindi-isang-bilang" na kalkulasyon, at kung paano ang iyong lengguwahe ay humahawak ng mga numero na masyadong malaki o masyadong maliit para sa pinagbabatayang paglalarawan nito.
+Kailangan mag-ingat sa account para sa 32-bit, 64-bit, at iba pang maaaring pagkakaiba na pweding makaapekto sa Nauukol sa bilang na representasyon.
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+Panimula: pagsasagawa
+Ang pag-susuri ng mga tagatipon ng babala at alisin ang maaring mga problema na pangkaligtasan sa katiwasayan, tulad ng naka-pirma / hindi naka-pirma ay hindi magkatulad. Maski na ang kahinaan ay bihira na nagagamit, ang isang kabiguan ay maaaring mapunta sa pangako ng buong sistema.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
-	<desc>Insufficient Transport Layer Protection
-Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+	<alert>Kulang ang pag-lipat ng patong na proteksyon</alert>
+	<desc>Kulang ang pag-lipat ng patong na proteksyon
+Kulang ang pag-lipat ng patong na proteksyon pinahihintulutan ang komunikasyon na mahayag sa hindi pinagkakatiwalaan na mga third party, na nagbibigay ng isang attack vector upang mangako ang isang web aplikasyon at / o kumuha ng sensitibong kaalaman. Ang karamihan ng website ay gumagamit ng Secure Sockets Layer / Transport Layer Security (SSL / TLS) upang maghanda ng encryption sa transport layer. Gaano man, maliban kung wala ang website ay naka-configure na gagamitin SSL/TLS at naka-configure upang gamitin SSL/TLS maayos, pweding mahina ang website sa pagharang ng trapiko at pagbabago.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Sa kawalan ng transport patong encryption nang transport ay hindi encrypted patong, ng lahat ng komunikasyon sa pagitan ng mga website na kliyente ay nagsugo na linisin ang teksto na ang mga dahon pagbuksan pati, injection at redirection (kilala rin bilang man-in-the-middle/MITM attack). Ang isang pag-salakay ay maaaring pumipigil sa komunikasyon, na nagbibigay sa kanila ng daan sa anumang sensitibong datos na ipadala gaya ng mga ginagamit na pagngalan at password. Ang isang pag-salakay ay pwede ring aktibong mag-iniksyon/mag-tanggal ng nilalaman mula sa komunikasyon, na nagpapahintulot sa pag-atake ng pag-salakay at pag-omit ng kaalaman, mag-impok ng malisyosong pag-script, o maging sanhi ng kliyente na ma-kadaan ang remote sa hindi pinagkakatiwalaang nilalaman. Ang isang pagsalakay ay pwedi ring dumirekta ang komunikasyon sa isang paraan na ang website at kliyente ay hindi na makapagsabi sa isa't isa, ngunit sa halip ay hindi makilala ang pakikipag-usap sa pagsalakay sa konteksto ng iba pang pinagkakatiwalaang pangkat.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+Ang Cipher Support ay Mahina
+Sa pangkasaysayan, ang mataas na ranggo ng cryptography ay pinag-takda mula sa pag-luwas sa labas ng Estados Unidos. Dahil dito ang, websites ay kailangan naka configure upang masupportahan ang mahinang cryptographic na pagpipilian para s mga kliyente na pinag-takda lamang sa paggamit ng mga mahinang ciphers. Ang mahina na ciphers ay hindi-ligtas laban sa pag-atake dahil sa kamag-anak na kadalian ng pagwasak sa kanila; mas mababa sa dalawang linggo sa isang pangkaraniwan na kompyuter sa bahay at ilang segundo gamit ang dedikadong hardware.
+Ngayon, ang lahat ng mga modernong browser at mga website ay ginagamit ng mas malakas na encryption, subalit ang ilang mga website ay naka-configure pa rin upang masuportahan ang mga laos na mahinang ciphers. Dahil dito, ang isang pagsalakay ay pweding mapilit ang client na i-baba sa isang mahinang cipher kapag kumukonekta sa website, na nagpapahintulot sa pagsalakay na sirain ang mahinang pag-encrypt. Dahil sa kadahilanang ito, dapat i-configure ang server upang tanggapin lamang ang mga malalakas na ciphers at hindi magbibigay ng paglilingkod sa anumang kliyente na humiling ng paggamit ng mahinang cipher. Sa karagdagan, ang ilang mga website ay may maling pag-kaayos upang pumili ng isang mahina na cipher kahit na ang kliyente ay sinusuportahan sa isang mas malakas na isa. Nag-aalok ang OWASP ng gabay sa pagsusuri para sa mga problema ng SSL / TLS, kabilang ang mahinang suporta sa cipher at misconfiguration, at may iba pang mga mapagkukunan at kasangkapan pati na rin.</desc>
+	<solution>Malinis na tukuyin kung aling mga datos o mga mapagkukunan ay sapat na mahalaga na dapat silang protteksyunan sa pag-encrypt. Hilingín na ang anumang paghahatid o pag-imbak ng datos / mapagkukunan na ito ay dapat gumamit ng gumagana na vetted na mga algorithm ng pag-encrypt.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Yugto: Arkitektura at Plano
+Gamit ang pagmomolde ng pagbabanta o iba pang mga pamamaraan, ipalagay na ang iyong dattos ay maaaring makompromiso sa pamamagitan ng isang hiwalay na kahinaan o kahinaan, at matukoy kung saan ang encryption ay pweding pinaka-epektibo. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
-      Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
+Yugto: Arkitektura at desenyo
+siguraduhin na ang encrytion ay naintegrated sa system ng design kasama narin pero hindi kailangang limitahan.
+ang encryption ay kailangang maitago o mailagay sa pribadong datos ng mga gumagamit o may nag mamay ari ng system
+Ang encryption ay kailangang protektahan ang system mismo  sa mga hindi awtorisadong pagsisiwalat o pakikialam.
+alamin ang mga kailangang at separadong konteksto ng encryption. Ito ay makakamit sa pamamagitan ng pampublikong susi o pamamaraan ng crytography, o ibang teknik kung san ang encryting party (i.e.,ang software)ay hindi kailangang magkaroon ng access para sa pribadong key o pamamaraan.
+      Dalawang daan(i.e.,ang encryption ay pwedeng mag awtomatik sa pag galaw o pag perform sa ngalan ng may nagmamay ari, pero ang key ay kailangang maging available o kailangan magamit nang sa ganoo ang plaintext ay awtomatikong ma rerecover o maaaring marecover ng nag mamay ari). Ito ay nangangailangan ng mapag iimbakan ng mga pribadong key sa format na maaaring marecover pa ng mismong nag mamay ari (o kaya ng operating system o sa nag ooperate ng system) sa paraan na hindi marerecover ng iba.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. They will likely be exposed to attacks that are well-understood by cryptographers. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Yugto: Arkitektura at Desenyo
+Huwag mag develop o gumawa ng sariling crytographic algorithms. Maaring may mga naka exposed o nakalantad para umatake para sa mga nakakaalam ng cryptograps. Ang mga teknik ng reverse engineering ay pang bihasa. Kung ang algorithm ay makompormiso ng mga sumasalakay at malaman kung papaano ito gumagana, ang ibig sabihin nito na algorithm ay mahina.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-For example, US government systems require FIPS 140-2 certification.
-As with all cryptographic mechanisms, the source code should be available for analysis.
-Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+Yugto: Arkitektura at Desenyo 
+Piliin ang ang magaling o magandang vetted algorithm na kasalukuyang itunuturing na malakas ng mga eksperto sa larangan ng arkitektura, at piliin ang magaling o magandang vetted na pinatutupad.
+Halimbawa, ang Sistema ng Gobyerno ng Estados Unidos ay kailangan ng FIPS 140-2 na katunayan o katibayan.
+Katulad ng lahat ng mga mapaparaan ng kriptograpiko, ang source code ay kailangan magagamit sa pag aanalize.
+Laging tiyakin na hindi ka gumagamit ng lipas o wala ng bisang kriptograpi. Ang ibang matanda o lumang algorithms, minsang napag isipan kailanganan ng bilyong taon para sa suma ng oras, ngayon ay kayang buwagin o sirain ng isang araw o ilang oras lamang. Kasama nito ang MD4, MD5, SHA1 DES, at ang ibang algorithms kung saan ang mga ito ay pinagpipitagan bilang malakas.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Yugto: Arkitektura at Desenyo
+pag samasamahinang iyongmga sistema ng sagoon ay magkaroon ka ng seguridad. sa lugar na kung saan ay nagtitiwala kang hindi ito magagalaw o makukuha ng iba. Huwag payagan ang mga sensitibong datos na mag punta sa labas ng pinagkaktiwalaang lugar o lalagyanan at kaialngang lagi ay maging maingat lalo na sa pag interface sa mga kasama sa labas ng ligtas na lalagyan o lugar.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Yugto: Implementasyon; Arkitektura at Desenyo
+Kapag ikaw gumagamit ng pang industriyang na aprobahan ng mga teknik, ikaw ay kailangan na gamitin ng tama. Huwag gupitin o hatiin ang sulok sa pamamagitan ng paglaktaw ng mapagkukunan ng matinding hakbang.(cwe-325). Narito ang mga hakbang na palaging ginagamit o karanawang ginagamit para maiwasan ang mga sumasalakay.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
+Yugto: Implementasyon
+Gumamit ng pangalan na gianmitan ng mga pang konbesyon at malakas na uri upang makagawa ng mas madaling spot kapag sensitibo ang datos na ginagamit. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
 This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
@@ -418,7 +415,7 @@ Failure to scrub HTML/Script comments prior to a push to the production environm
 Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
 
 Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</solution>
+	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Huwag payagan ang mga sensitibong datos na mag punta sa labas ng pinagkaktiwalaang lugar o lalagyanan at kaialngang lagi ay maging maingat lalo na sa pag interface sa mga kasama sa labas ng ligtas na lalagyan o lugar.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
