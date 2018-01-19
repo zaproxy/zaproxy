@@ -19,15 +19,15 @@ Use un framework de autenticación o librería como OWASP ESAPI Authentication f
 	<alert>Permisos de autorización insuficientes</alert>
 	<desc>Insuficientes resultados de autorización cuando una aplicación no realiza comprobaciones de autorización adecuada para garantizar que el usuario es realizar una función o acceder a los datos de manera consistente con la política de seguridad. Procedimientos de autorización deben asegurar que un usuario, servicio o aplicación realizan acciones que les están permitidas. Cuando un usuario se autentica a un sitio web, no necesariamente significa que el usuario debe tener acceso completo a todo el contenido y funcionalidad.
 
-Insufficient Function Authorization
+La autorización de funciones es insuficiente
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
+Muchas aplicaciones conceden varias funcionalidades de aplicación a usuarios diferentes. Un lugar de noticias aceptará que los usuarios puedan ver noticias, pero no publicarlas. Un sistema de contabilidad tendrá varios permisos para un empleado de Cuentas por pagar y también para un empleado de Cuentas por cobrar. La autorización de función insuficiente ocurre cuando una aplicación no restringe a los usuarios acceder a la funcionalidad de la aplicación en violación de la política de seguridad.
 
-A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
+Un ejemplo muy claro fue el truco realizado en el 2005 del proceso de solicitud de Harvard Business School. Una falla de autorización permitió a los usuarios observar sus propios datos cuando en realidad ellos no debería haber tenido acceso a esa parte del sitio web.
  
-Insufficient Data Authorization
+La autorización de datos es insuficiente
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+Muchas aplicaciones manifiestan identificadores de datos ocultas en una URL. For example, when accessing a medical record on a system one might have a URL such as:
 
 http://example.com/RecordView?id=12345
 
@@ -50,24 +50,24 @@ Ensure that appropriate compartmentalization is built into the system design and
 	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
 
 For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+	<solution>Frase: Requisitos
+Asegúrese de que todos los protocolos se encuentren estrictamente definidos, de forma tal que todos los comportamientos fuera del límite establecido puedan identificarse de forma sencilla y necesiten una estricta conformidad con el protocolo.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-If possible, choose a language or compiler that performs automatic bounds checking.
+Frase: Requisitos
+Utilice un lenguaje que no acepte que ocurra esta debilidad o que proporcione construcciones que hagan que esta debilidad sea mucho más sencilla de evitar.
+Si es posible, seleccione un idioma que realice la verificación de forma automatica de límites.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
+Frase: Arquitectura y Diseño
+Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
+Utilice bibliotecas o marcos que ayuden en el manejo de números sin consecuencias inesperadas.
 Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
-Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
+Frase Implementación
+Realice la aprobación de la entrada en cualquier entrada númerica asegurandose de que se localicen dentro del rango esperado. Haga cumplir la función que la entrada cumple con los requisitos minimos y máximos para el rango esperado.
+Utilice enteros sin signos cada vez que sea posible. Esto permite que sea mas sencillo realizar comprobaciones de cordura para desbordamientos de enteros. Si usted debe utilizar enteros con signos, asegúrese de qu su verificación de rangos incluya todos los valores mínimos y máximos.
 
 Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
+Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Preste mucha atención a las discrepancias de tamaños de bytes, precisión, distinciones firmadas/no firmadas, conversión, conversión entre tipos, cálculos de "no un número" y cómo su lenguaje trabaja con números que son demasiado grandes o demasiado pequeños para su representación oculta.
 Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
 
 Phase: Implementation
@@ -198,13 +198,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Frase: Requisitos
+Utilice un lenguaje que no acepte que ocurra esta debilidad o que proporcione construcciones que hagan que esta debilidad sea mucho más sencilla de evitar.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Frase: Arquitectura y Diseño
+Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -242,8 +242,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Frase: Arquitectura y Diseño
+Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -282,8 +282,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Frase: Arquitectura y Diseño
+Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -483,8 +483,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Frase: Arquitectura y Diseño
+Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.
