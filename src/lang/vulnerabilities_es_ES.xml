@@ -88,11 +88,11 @@ When the transport layer is not encrypted, all communication between the website
 Weak Cipher Support
 Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
 Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+	<solution>Fase: Requisitos
+Especifique de forma clara qué datos o recursos son lo suficientemente valiosos como para que estos estén protegidos por encriptación. Notificar cualquier transmisión o almacenamiento de estos datos/recursos que utilice algoritmos de encriptación muy revisados.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Fase: Arquitectura y Diseño
+Al utilizar el tallado de amenazas u otras ténicas, suponga que sus datos pueden esta comprometidos por medio de una vulnerabilidad o debilidad separadas, determine dónde se puede ser más efectivo el cifrado. Asegúrese de que los datos que usted cree que deberían ser privados no se expongan de forma inadvertida por medio de debilidades tales como permisos que no son seguros (CWE-732).
 
 Phase: Architecture and Design
 Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
@@ -102,24 +102,24 @@ Identify the separate needs and contexts for encryption:
       One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
       Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. They will likely be exposed to attacks that are well-understood by cryptographers. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Fase: Arquitectura y Diseño
+No desarrolles tus algoritmos criptográficos propios. Es probable que ellos se encuentren expuestos a ataques bien entendios por los criptógrafos. Las técnicas de la ingeniería inversa son completas. Si tu algoritmo puede estar comprometido si los atacantes investigan cómo funciona, entonces es especialmente debil.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
+Fase: Arquitectura y Diseño
+Elija un algoritmo que esté bien revisado que los expertos en el campo consideran actualmente como sólido y elija implementaciones muy probadas.
 For example, US government systems require FIPS 140-2 certification.
 As with all cryptographic mechanisms, the source code should be available for analysis.
 Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Fase: Arquitectura y Diseño
+Compartimentalizar su sistema para que tenga zonas "seguras" donde los límites de confianza se puedan dibujar sin equivocación. No permita que los datos que son confidenciales salgan del límite de la confianza y siempre debe tener cuidado al interactuar con algún compartimiento que no se encuentre dentro de la zona segura.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Fases: Implementación; Arquitectura y Diseño
+Cuando uted utiliza técnicas aprobadas por alguna industria, usted necesita utilizarlas de forma correcta. No corte las equinas olvidando los paso intensivos en recurso (CWE-325). Estos pasos muchas veces son esenciales para poder prevenir ataques comunes.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
-This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
+Fase: Implementación
+Utilice ajustes de nomenclatura y tipos fuertes para que sea mucho más fácil detectar cuándo se este utilizando datos confidenciales. Al originar estructuras, objetos u oras entidades muy complejas, separe los datos confidenciales de los no confidenciales la mayor cantidad de veces que pueda.
+Esto permite que sea mucho más fácil detectar lugares en el código donde se utilizan dao que no se encuentran encriptados.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
 </vuln_item_wasc_4>
@@ -135,29 +135,28 @@ An attacker can use RFI for:
     * Running malicious code on clients: the attacker's malicious code can manipulate the content of the response sent to the client. The attacker can embed malicious code in the response that will be run by the client (for example, Javascript to steal the client session cookies).
 
 PHP is particularly vulnerable to RFI attacks due to the extensive use of "file includes" in PHP programming and due to default server configurations that increase susceptibility to an RFI attack.</desc>
-	<solution>Phase: Architecture and Design
-When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
-For example, ID 1 could map to "inbox.txt" and ID 2 could map to "profile.txt". Features such as the ESAPI AccessReferenceMap provide this capability.
+	<solution>Fase: Arquitectura y Diseño
+Cuando el grupo de objetos aceptables, como nombres de archivos o URL, es limitado o conocido, usted debe crear una asignación de un grupo de valores de entradas fijos (como ID númericos) a los nombres de archivos o URL reales, y rechace todas las demás entradas.
+Por ejemplo, la ID 1 se podría asignar a "inbox.txt" y la ID 2 se podría asignar a "profile.txt". Las características tales como AccessReferenceMap de ESAPI otorgan esta capacidad.
 
-Phases: Architecture and Design; Operation
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
-This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
-Be careful to avoid CWE-243 and other weaknesses related to jails.
-For PHP, the interpreter offers restrictions such as open basedir or safe mode which can make it more difficult for an attacker to escape out of the application. Also consider Suhosin, a hardened PHP extension, which includes various options that disable some of the more dangerous PHP features.
+Fases: Arquitectura y Diseño; Operación
+Active su código en un entorno de "cárcel" o similar que refuerce los limites estrictos establecidos entre el proceso y el sistema operativo. Esto puede ser que restrinja de forma efectiva a qué archivos se pueden ingresar en un directorio particular o qué comandos puede utilizar su software.
+Los ejemplos de niveles de sistema operativo incluyen el Unix chroot jail, AppArmor, and SELinux. Normalmente, el código proporcionado puede otorgar cierta protección. Por ejemplo, java.io.FilePermission en Java SecurityManager le permite especificar las restricciones en las operaciones de archivos.
+Esto puede que no sea la solución viable, y solo limita el impacto al sistema operativo; el resto de tu aplicación puede estar expuesta.
+Usted debe tener cuidado de evitar CWE-243 y otras debilidades relacionadas con las cárceles.
+Para PHP, el traductor ofrece restricciones como por ejemplo openirir abierto o modo seguro, que pueden hacer que sea mucho más dificil para un atacante escapar de la aplicación. También debe considerar Suhosin, una extensión de PHP reforzada, la cual incorpora varias opciones que desactivan algunas de las funciones de PHP más peligrosas.
 
-Phase: Implementation
-Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
-For filenames, use stringent whitelists that limit the character set to be used. If feasible, only allow a single "." character in the filename to avoid weaknesses such as CWE-23, and exclude directory separators such as "/" to avoid CWE-36. Use a whitelist of allowable file extensions, which will help to avoid CWE-434.
+Fase: Implementación
+Supongamos que toda la entrada es maliciosa. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. Como un ejemplo de lógica de reglas comerciales, "bote" puede ser sintácticamente válido porque solo incluye caracteres alfanuméricos, pero no es válido si está esperando colores como "rojo" o "azul". Para los nombres de los archivos, utilice las listas blancas estrictas que limiten el grupo de caracteres que se van a utilizar. If feasible, only allow a single "." character in the filename to avoid weaknesses such as CWE-23, and exclude directory separators such as "/" to avoid CWE-36. Use a whitelist of allowable file extensions, which will help to avoid CWE-434.
 
-Phases: Architecture and Design; Operation
-Store library, include, and utility files outside of the web document root, if possible. Otherwise, store them in a separate directory and use the web server's access control capabilities to prevent attackers from directly requesting them. One common practice is to define a fixed constant in each calling program, then check for the existence of the constant in the library/include file; if the constant does not exist, then the file was directly requested, and it can exit immediately.
-This significantly reduces the chance of an attacker being able to bypass any protection mechanisms that are in the base program but not in the include files. It will also reduce your attack surface.
+Fases: Arquitectura y Diseño; Operación
+Guardar biblioteca, incluir, y utilizar archivos de utilidad fuera de la raíz del documento web, si es posible. De lo contrario, guárdelos en un directorio que se encuentre separado y utilice las capacidades de control de acceso del servidor web para poder evitar que los atacantes los soliciten de forma directa. Un ejercicio muy común es definir una constante fija en cada uno de los programas de llamada, luego revisar la existencia de la constante en el archivo de biblioteca/inclusión; si la constante no existe, entonces el archivo se solicitó de forma directa y puede salir inmediatamente.
+Esto simplifica de forma significativa la posibilidad de que un atacante pueda evadir cualquier mecanismo de protección que se encuentre en el programa base pero no en los archivos de inclusión. Tambien simplificará su superficie de ataque.
 
-Phases: Architecture and Design; Implementation
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
-Many file inclusion problems occur because the programmer assumed that certain inputs could not be modified, especially for cookies and URL components.</solution>
+Fases: Arquitectura y Diseño; Implementación
+Comprenda todas las zonas potenciales donde las entradas que no son confiables pueden ingresar a su software: parámetros o argumentos, cookies, cualquier cosa que fue leída de la red, variables de entorno, búsquedas de DNS inversas, resultado de las consultas, encabezados de la solicitudes, elementos de URL, correos electrónicos, archivos, bases de datos y cualquier sistema que sea externo que proporcione algunos datos a la aplicación. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
+Muchos de los problemas de inclusión de archivos suceden porque el programador asumió que algunas entradas no se podían cambiar, especialmente para las cookies y los componentes de la URL.</solution>
 	<reference>http://projects.webappsec.org/Remote-File-Inclusion</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
 </vuln_item_wasc_5>
@@ -173,12 +172,12 @@ If an attacker passes a format string consisting of printf conversion characters
     * Cause segmentation faults / software crashes
 
 Format String attacks are related to other attacks in the Threat Classification: Buffer Overflows and Integer Overflows. All three are based in their ability to manipulate memory or its interpretation in a way that contributes to an attacker's goal.</desc>
-	<solution>Phase: Requirements
-Choose a language that is not subject to this flaw.
+	<solution>Fase: Requisitos
+Seleccione un idioma que no esté sujeto a esta falla.
 
-Phase: Implementation
-Ensure that all format string functions are passed a static string which cannot be controlled by the user and that the proper number of arguments are always sent to that function as well. If at all possible, use functions that do not support the %n operator in format strings.
-Build: Heed the warnings of compilers and linkers, since they may alert you to improper usage.
+Fase: Implementación
+Por favor asegurese de que todas las funciones de cadena de formato transladen una cadena estática que no puede ser controlada por el usuario y que la cantidad apropiada de argumentos siempre se envía también a esa función. Si es posible, utilice todas las funciones que no admitan el operador %n en las cadenas de formatos.
+Generar: preste mucha atención a las advertencias de los compiladores y vinculadores, que pueden advertile sobre el uso no adecuado.
 </solution>
 	<reference>http://projects.webappsec.org/Format-String</reference>
 	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
@@ -207,15 +206,15 @@ Frase: Arquitectura y Diseño
 Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
-Phase: Build and Compilation
-Run or compile your software using features or extensions that automatically provide a protection mechanism that mitigates or eliminates buffer overflows.
-For example, certain compilers and extensions provide automatic buffer overflow detection mechanisms that are built into the compiled code. Examples include the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
+Fase: Construcción y Compilación
+Activa o compile su software usando las funciones o extensiones las cuales otorgan de forma automática un mecanismo de protección que mitiga o elimina los desbordes del búfer.
+Por ejemplo, hay ciertos compiladores y extensiones que otorgan mecanismos automáticos de detección de desbordamiento del búfer que se encuentran incorporados en el código compilado. Examples include the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
 
 Phase: Implementation
 Consider adhering to the following rules when allocating and managing an application's memory:
       Double check that your buffer is as large as you specify.
       When using functions that accept a number of bytes to copy, such as strncpy(), be aware that if the destination buffer size is equal to the source buffer size, it may not NULL-terminate the string.
-      Check buffer boundaries if calling this function in a loop and make sure you are not in danger of writing past the allocated space.
+      Confirme si los limites del búfer llaman a esta función en un bucle y también asegúrese de que no sufra ningún peligro al escribir mas allá del espacio asignado.
       If necessary, truncate all input strings to a reasonable length before passing them to the copy and concatenation functions.
 
 Phase: Operation
@@ -261,9 +260,9 @@ For every web page that is generated, use and specify a character encoding such 
 
 To help mitigate XSS attacks against the user's session cookie, set the session cookie to be HttpOnly. In browsers that support the HttpOnly feature (such as more recent versions of Internet Explorer and Firefox), this attribute can prevent the user's session cookie from being accessible to malicious client-side scripts that use document.cookie. This is not a complete solution, since HttpOnly is not supported by all browsers. More importantly, XMLHTTPRequest and other powerful browser technologies provide read access to HTTP headers, including the Set-Cookie header in which the HttpOnly flag is set.
 
-Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+Assume all input is malicious. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
 Ensure that you perform input validation at well-defined interfaces within the application. This will help protect the application even if a component is reused or moved elsewhere.
 	</solution>
@@ -419,7 +418,7 @@ Failure to scrub HTML/Script comments prior to a push to the production environm
 Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
 
 Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</solution>
+	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. No permita que los datos que son confidenciales salgan del límite de la confianza y siempre debe tener cuidado al interactuar con algún compartimiento que no se encuentre dentro de la zona segura.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
@@ -500,9 +499,9 @@ If you need to use dynamically-generated query strings or commands in spite of t
 
 Instead of building your own implementation, such features may be available in the database or programming language. For example, the Oracle DBMS ASSERT package can check or enforce that parameters have certain properties that make them less vulnerable to SQL injection. For MySQL, the mysql real escape string() API function is available in both C and PHP.
 
-Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+Assume all input is malicious. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
 When constructing SQL query strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. This will indirectly limit the scope of an attack, but this technique is less important than proper output encoding and escaping.
 
@@ -527,7 +526,7 @@ Validation can include checks for type safety and correct syntax. String input c
 
 Use an input validation framework such as Struts or the OWASP ESAPI Validation API.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
+Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
 
 For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server.
 
@@ -537,9 +536,9 @@ Do not rely exclusively on blacklist validation to detect malicious input or to 
 
 When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.
 
-Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+Assume all input is malicious. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
 Phase: Implementation
 
@@ -718,7 +717,7 @@ When a web application fails to properly sanitize user-supplied input, it is pos
 	<desc>Mail Command Injection is an attack technique used to exploit mail servers and webmail applications that construct IMAP/SMTP statements from user-supplied input that is not properly sanitized. Depending on the type of statement taken advantage by the attacker, we meet two types of injections: IMAP and SMTP Injection. An IMAP/SMTP Injection may make it possible to access a mail server which you previously had no access to before-hand. In some cases, these internal systems do not have the same level of infrastructure security hardening applied to them as most front-end web servers. Hence, attackers may find that the mail server yields better results in terms of exploitation. On the other hand, this technique allows to evade possible restrictions that could exist at application level (CAPTCHA, maximum number of requests, etc.).</desc>
 	<solution>Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, request headers as well as content, URL components, e-mail, files, databases, and any external systems that provide data to the application. Perform input validation at well-defined interfaces.
 
-Assume all input is malicious. Use an "accept known good" input validation strategy (i.e., use a whitelist). Reject any input that does not strictly conform to specifications, or transform it into something that does. Use a blacklist to reject any unexpected inputs and detect potential attacks.
+Assume all input is malicious. Use an "accept known good" input validation strategy (i.e., use a whitelist). Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. Use a blacklist to reject any unexpected inputs and detect potential attacks.
 
 Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
 
@@ -743,10 +742,10 @@ When your application combines data from multiple sources, perform the validatio
 OS Commanding is the direct result of mixing trusted code and untrusted data. This attack is possible when an application accepts untrusted input to build operating system commands in an insecure manner involving improper data sanitization, and/or improper calling of external programs. In OS Commanding, executed commands by an attacker will run with the same privileges of the component that executed the command, (e.g. database server, web application server, web server, wrapper, application). Since the commands are executed under the privileges of the executing component an attacker can leverage this to gain access or damage parts that are otherwise unreachable (e.g. the operating system directories and files).</desc>
 	<solution>If at all possible, use library calls rather than external processes to recreate the desired functionality.
 
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
+Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Esto puede ser que restrinja de forma efectiva a qué archivos se pueden ingresar en un directorio particular o qué comandos puede utilizar su software.
 
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
-This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
+Los ejemplos de niveles de sistema operativo incluyen el Unix chroot jail, AppArmor, and SELinux. Normalmente, el código proporcionado puede otorgar cierta protección. Por ejemplo, java.io.FilePermission en Java SecurityManager le permite especificar las restricciones en las operaciones de archivos.
+Esto puede que no sea la solución viable, y solo limita el impacto al sistema operativo; el resto de tu aplicación puede estar expuesta.
 
 For any data that will be used to generate a command to be executed, keep as much of that data out of external control as possible. For example, in web applications, this may require storing the command locally in the session's state instead of sending it out to the client in a hidden form field.
 
@@ -762,9 +761,9 @@ If available, use structured mechanisms that automatically enforce the separatio
 
 Some languages offer multiple functions that can be used to invoke commands. Where possible, identify any function that invokes a command shell using a single string, and replace it with a function that requires individual arguments. These functions typically perform appropriate quoting and filtering of arguments. For example, in C, the system() function accepts a string that contains the entire command to be executed, whereas execl(), execve(), and others require an array of strings, one for each argument. In Windows, CreateProcess() only accepts one command at a time. In Perl, if system() is provided with an array of arguments, then it will quote each of the arguments.
 
-Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+Assume all input is malicious. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
 When constructing OS command strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. This will indirectly limit the scope of an attack, but this technique is less important than proper output encoding and escaping.
 
@@ -802,9 +801,9 @@ Most web sites restrict user access to a specific portion of the file-system, ty
 The most basic Path Traversal attack uses the "../" special-character sequence to alter the resource location requested in the URL. Although most popular web servers will prevent this technique from escaping the web document root, alternate encodings of the "../" sequence may help bypass the security filters. These method variations include valid and invalid Unicode-encoding ("..%u2216" or "..%c0%af") of the forward slash character, backslash characters ("..\") on Windows-based servers, URL encoded characters "%2e%2e%2f"), and double URL encoding ("..%255c") of the backslash character.
 
 Even if the web server properly restricts Path Traversal attempts in the URL path, a web application itself may still be vulnerable due to improper handling of user-supplied input. This is a common problem of web applications that use template mechanisms or load static text from files. In variations of the attack, the original URL parameter value is substituted with the file name of one of the web application's dynamic scripts. Consequently, the results can reveal source code because the file is interpreted as text instead of an executable script. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
-	<solution>Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+	<solution>Assume all input is malicious. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
 For filenames, use stringent whitelists that limit the character set to be used. If feasible, only allow a single "." character in the filename to avoid weaknesses, and exclude directory separators such as "/". Use a whitelist of allowable file extensions.
 
@@ -818,11 +817,11 @@ Run your code using the lowest privileges that are required to accomplish the ne
 
 When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
 
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
+Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Esto puede ser que restrinja de forma efectiva a qué archivos se pueden ingresar en un directorio particular o qué comandos puede utilizar su software.
 
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+Los ejemplos de niveles de sistema operativo incluyen el Unix chroot jail, AppArmor, and SELinux. Normalmente, el código proporcionado puede otorgar cierta protección. Por ejemplo, java.io.FilePermission en Java SecurityManager le permite especificar las restricciones en las operaciones de archivos.
 
-This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
+Esto puede que no sea la solución viable, y solo limita el impacto al sistema operativo; el resto de tu aplicación puede estar expuesta.
 </solution>
 	<reference>http://projects.webappsec.org/Path-Traversal</reference>
 	<reference>http://cwe.mitre.org/data/definitions/22.html</reference>
@@ -889,9 +888,9 @@ For platforms such as ASP that do not generate new values for sessionid cookies,
 <vuln_item_wasc_38>
 	<alert>URL Redirector Abuse</alert>
 	<desc>URL redirectors represent common functionality employed by web sites to forward an incoming request to an alternate resource. This can be done for a variety of reasons and is often done to allow resources to be moved within the directory structure and to avoid breaking functionality for users that request the resource at its previous location. URL redirectors may also be used to implement load balancing, leveraging abbreviated URLs or recording outgoing links. It is this last implementation which is often used in phishing attacks as described in the example below. URL redirectors do not necessarily represent a direct security vulnerability but can be abused by attackers trying to social engineer victims into believing that they are navigating to a site other than the true destination.</desc>
-	<solution>Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+	<solution>Assume all input is malicious. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
 Use a whitelist of approved URLs or domains to be used for redirection.
 
@@ -899,9 +898,9 @@ Use an intermediate disclaimer page that provides the user with a clear warning 
 
 When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
 
-For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Features such as the ESAPI AccessReferenceMap provide this capability.
+For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Las características tales como AccessReferenceMap de ESAPI otorgan esta capacidad.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
+Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
 
 Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
