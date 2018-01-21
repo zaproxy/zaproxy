@@ -464,7 +464,7 @@ Aynı şekilde, varsayılan yüklemeler iyi bilinen kullanıcı adlarını ve ş
 <vuln_items>wasc_18</vuln_items>
 <vuln_item_wasc_18>
 	<alert>Kimlik ve Oturum Tahmini</alert>
-	<desc>Kimlik/Oturum tahmini, bir web sitesi kullanıcısını kaçırmak veya kimliğine bürünmek için kullanılan bir yöntemdir. Belirli bir oturumu veya kullanıcıyı tanımlayan benzersiz değerini tahmin etmek saldırıyı gerçekleştirir. Oturum Kaçırma olarak da bilinen bu olaylarda, sonuçlar saldırganlara güvenliği ihlal edilen kullanıcının ayrıcalıklarıyla web sitesi isteklerini vermesine olanak sağlayabilir.
+	<desc>Kimlik/Oturum tahmini, bir web sitesi kullanıcısını kaçırmak veya kimliğine bürünmek için kullanılan bir yöntemdir. Kestirmeden sonuca varmak belirli bir oturumu veya kullanıcıyı tanımlayan benzersiz değerini tahmin etmek saldırıyı gerçekleştirir. Oturum Kaçırma olarak da bilinen bu olaylarda, sonuçlar saldırganlara güvenliği ihlal edilen kullanıcının ayrıcalıklarıyla web sitesi isteklerini vermesine olanak sağlayabilir.
 
 Birçok web sitesi, iletişim ilk kurulduğunda bir kullanıcıyı kimliklendirmek ve takip etmek üzere tasarlanmıştır. Bunu yapmak için, kullanıcı genelde kullanıcı adı / şifre (kimlik bilgileri) kombinasyonu sağlayarak kimlik bilgilerini web sitesinde ispatlamalıdır. Bu özel bilgileri her işlemle ileri geri taşımaktansa, web siteleri kullanıcı oturumunu kimliklendirilmiş olarak tanımlamak için eşsiz bir "oturum kimliği" oluşturacaktır. Kimliklendirilmiş oturumun bir "kanıtı olarak", kullanıcı ile web sitesi arasındaki sonraki iletişim, oturum kimliği ile etiketlenir. Bir saldırgan, başka bir kullanıcının oturum kimliğini tahmin edebiliyorsa sahte etkinlik mümkündür.</desc>
 	<solution>TBA</solution>
