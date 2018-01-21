@@ -254,7 +254,8 @@ public class SpiderTask implements Runnable {
 		// Check if the crawling process is paused
 		parent.checkPauseAndWait();
 		
-		if (depth < parent.getSpiderParam().getMaxDepth()) {
+		int maxDepth = parent.getSpiderParam().getMaxDepth();
+		if (maxDepth == SpiderParam.UNLIMITED_DEPTH || depth < maxDepth) {
 			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg));
 			processResource(msg);
 		} else {

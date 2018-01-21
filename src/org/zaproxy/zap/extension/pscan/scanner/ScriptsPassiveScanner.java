@@ -114,7 +114,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 					logger.debug("Script [Name=" + wrapper.getName() + ", Engine=" + wrapper.getEngineName()
 									+ "]  does not implement the optional method appliesToHistoryType: ", e);
 				}
-				return true;
+				return super.appliesToHistoryType(currentHistoryType);
 			}
 			throw e;
 		}

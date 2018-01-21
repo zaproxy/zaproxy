@@ -98,6 +98,7 @@
 			<compilerarg value="-Xlint:all"/>
 			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
 			<compilerarg value="-Werror"/>
+			<compilerarg value="-parameters"/>
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
