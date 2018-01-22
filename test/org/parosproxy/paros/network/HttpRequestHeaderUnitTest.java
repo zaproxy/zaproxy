@@ -20,8 +20,12 @@
 package org.parosproxy.paros.network;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+
+import java.util.TreeSet;
 
 import org.apache.commons.httpclient.URI;
 import org.junit.Test;
@@ -93,6 +97,125 @@ public class HttpRequestHeaderUnitTest {
             boolean image = header.isImage();
             // Then
             assertThat(image, is(equalTo(true)));
+        }
+    }
+
+    @Test
+    public void shouldSetCookieParam() {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader();
+        TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"));
+        // When
+        header.setCookieParams(cookies);
+        // Then
+        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("c1=v1")));
+        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+    }
+
+    @Test
+    public void shouldSetCookieParams() {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader();
+        TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"), cookieParam("c2", "v2"), cookieParam("", "v3"));
+        // When
+        header.setCookieParams(cookies);
+        // Then
+        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v3; c1=v1; c2=v2")));
+        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+    }
+
+    @Test
+    public void shouldSetCookieParamWithEmptyName() {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader();
+        TreeSet<HtmlParameter> cookies = parameters(cookieParam("", "v1"));
+        // When
+        header.setCookieParams(cookies);
+        // Then
+        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v1")));
+        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+    }
+
+    @Test
+    public void shouldRemoveCookieHeaderIfEmptyCookieParam() {
+        // Given
+        HttpRequestHeader header = new HttpRequestHeader();
+        TreeSet<HtmlParameter> cookies = parameters(cookieParam("", ""));
+        // When
+        header.setCookieParams(cookies);
+        // Then
+        assertThat(header.getHeaders(HttpHeader.COOKIE), is(nullValue()));
+    }
+
+    @Test
+    public void shouldRemoveCookieHeadersWhenSettingNoCookieParams() {
+        // Given
+        HttpRequestHeader header = createRequestHeaderWithCookies();
+        TreeSet<HtmlParameter> noCookies = new TreeSet<>();
+        // When
+        header.setCookieParams(noCookies);
+        // Then
+        assertThat(header.getHeaders(HttpHeader.COOKIE), is(nullValue()));
+    }
+
+    @Test
+    public void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
+        // Given
+        HttpRequestHeader header = createRequestHeaderWithCookies();
+        TreeSet<HtmlParameter> paramsWithouCookies = parameters(urlParam("p1", "v1"), formParam("p2", "v2"));
+        // When
+        header.setCookieParams(paramsWithouCookies);
+        // Then
+        assertThat(header.getHeaders(HttpHeader.COOKIE), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReplaceAnyCookieHeaderWhenSettingCookieParams() {
+        // Given
+        HttpRequestHeader header = createRequestHeaderWithCookies();
+        TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"), cookieParam("c2", "v2"), cookieParam("", "v3"));
+        // When
+        header.setCookieParams(cookies);
+        // Then
+        assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v3; c1=v1; c2=v2")));
+        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+    }
+
+    private static HtmlParameter urlParam(String name, String value) {
+        return param(HtmlParameter.Type.url, name, value);
+    }
+
+    private static HtmlParameter formParam(String name, String value) {
+        return param(HtmlParameter.Type.form, name, value);
+    }
+
+    private static HtmlParameter cookieParam(String name, String value) {
+        return param(HtmlParameter.Type.cookie, name, value);
+    }
+
+    private static HtmlParameter param(HtmlParameter.Type type, String name, String value) {
+        return new HtmlParameter(type, name, value);
+    }
+
+    private static TreeSet<HtmlParameter> parameters(HtmlParameter... params) {
+        TreeSet<HtmlParameter> parameters = new TreeSet<>();
+        if (params == null || params.length == 0) {
+            return parameters;
+        }
+        for (HtmlParameter param : params) {
+            parameters.add(param);
+        }
+        return parameters;
+    }
+
+    private static HttpRequestHeader createRequestHeaderWithCookies() {
+        try {
+            HttpRequestHeader header = new HttpRequestHeader(
+                    "GET / HTTP/1.1\r\n" + "Cookie: cookie1=value1; cookie2=value2\r\n"
+                            + "Cookie: cookie3=value3; cookie4=value4\r\n");
+            return header;
+        } catch (HttpMalformedHeaderException e) {
+            throw new RuntimeException(e);
         }
     }
 }
