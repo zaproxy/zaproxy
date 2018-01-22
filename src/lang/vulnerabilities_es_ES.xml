@@ -9,8 +9,8 @@
 Para poder prevenir la configuración de autenticación, algunos recursos se protegen "escondiendo" la ubicación específica y no vinculando la ubicación en el sitio web principal u otros lugares que sean públicos. Sin embargo, este planteamiento no es más que "Seguridad por medio de la oscuridad". Es importante entender que, aunque un atacante no conoce un recurso, continua siendo accesible directamente por medio de una URL específica. La URL establecída podría descubrirse por medio de una prueba de fuerza bruta para ubicaciones comunes de archivos y directorios (/admin por ejemplo), mensajes de fallas, registros de referencia o documentación, como archivos de ayuda. Estos recursos, ya sea que se encuentren impulsados por el contenido o la funcionalidad, tienen que estar protegidos de forma adecuada.</desc>
 	<solution>Fase: Arquitectura y Diseño
 Use un framework de autenticación o librería como OWASP ESAPI Authentication feature.</solution>
-	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
-	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
+	<reference>htttp://projects.webappsec.org/Insufficient-Authentication</reference>
+	<reference>htttp://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 </vuln_item_wasc_1>
 
@@ -46,10 +46,10 @@ Asegúrese de que ingrese un comportamiento que sea adecuado en el diseño del s
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
+	<alert>Desbordamientos de enteros</alert>
 	<desc>Un desborde de los enteros es la condición que sucede cuando el resultado de la operación aritmética, como la multiplicación o la suma, sobrepasan el tamaño máximo del tipo de entero qu fue utilizado para almacenarlo. Cuando sucede un desbordamiento de enteros, el valor que fue interpretado va a parecer haber "envuelto" el valor máximo e iniciado de nuevo en el valor mínimo, parecido a un reloj que represente 13:00 señalando a la 1:00.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
+Por ejemplo, un entero con un signo de 8 bits en las arquitecturas de computadora más comunes tienen un valor máximo de 127 y un valor mínimo de -128. Si un programador almacena el valor de 127 en la mencionada variable y le agrega un 1, el resultado tendría que ser 128. Sin embargo, este valor sobrepasa el máximo para este tipo de entero, por lo tanto el valor interpretado se "ajustará" y se convertira en -128.</desc>
 	<solution>Frase: Requisitos
 Asegúrese de que todos los protocolos se encuentren estrictamente definidos, de forma tal que todos los comportamientos fuera del límite establecido puedan identificarse de forma sencilla y necesiten una estricta conformidad con el protocolo.
 
@@ -60,7 +60,7 @@ Si es posible, seleccione un idioma que realice la verificación de forma automa
 Frase: Arquitectura y Diseño
 Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
 Utilice bibliotecas o marcos que ayuden en el manejo de números sin consecuencias inesperadas.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+Los ejemplos incluyen algunos paquetes seguros de manejo de enteros como SafeInt (C++) o IntegerLib (C o C++).
 
 Frase Implementación
 Realice la aprobación de la entrada en cualquier entrada númerica asegurandose de que se localicen dentro del rango esperado. Haga cumplir la función que la entrada cumple con los requisitos minimos y máximos para el rango esperado.
@@ -87,7 +87,7 @@ Cuando la cubierta de transporte no está encriptada, todas las comunicaciones e
 
 La compatibilidad con cifrado es débil
 Históricamente, se ha impedido la exportación de criptografía de alto grado fuera de los Estados Unidos. Porque debido a esto, los sitios web se modificaron para aceptar opciones criptográficas débiles para aquellos clientes que estaban restringidos a solo utilizar cifrados muy débiles. Los cifrados débiles están mu expuestos a los ataques debido a la relativa facilidad para romperlos; menos de dos semanas en una computadora doméstica común y unos segundos utilizando un hardware dedicado.
-Hoy en dia, todos los navegadores y sitios web modernos utilizan un cifrado mucho más avanzado, pero algunos sitios web todavía están configurados para aceptar cifrados débiles que no se encuentran actualizados. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
+Hoy en dia, todos los navegadores y sitios web modernos utilizan un cifrado mucho más avanzado, pero algunos sitios web todavía están configurados para aceptar cifrados débiles que no se encuentran actualizados. Debido a esto, un atacante puede obligar al cliente a degradar a un cifrado mucho más débil cuando se conecta al sitio web, lo que permite que el atacante rompa el cifrado débil. Por esta razón, el servidor debe modificarse para que solo acepte cifrados que sean potentes y no proporcione servicio a ningún cliente que solicite la utilización de un cifrado más débil. Además, algunos sitios web están mal configurados para seleccionar un cifrado más débil, incluso cuando el cliente respaldará uno mucho más compacto. OWASP ofrece una guía para probar los problemas de SSL/TLS, incluyendo el soporte de cifrado débil y la configuración erronea, y también hay más recursos y herramientas.</desc>
 	<solution>Fase: Requisitos
 Especifique de forma clara qué datos o recursos son lo suficientemente valiosos como para que estos estén protegidos por encriptación. Notificar cualquier transmisión o almacenamiento de estos datos/recursos que utilice algoritmos de encriptación muy revisados.
 
@@ -109,7 +109,7 @@ Fase: Arquitectura y Diseño
 Elija un algoritmo que esté bien revisado que los expertos en el campo consideran actualmente como sólido y elija implementaciones muy probadas.
 Por ejemplo, los sistemas del gobierno de Estados Unidos necesitan una certificación FIPS 140-2.
 Como con todos los mecanismos criptográficos, el código de fuente se debe encontrar disponible para poder realizar el análisis.
-De forma periódica usted se debe de asegurar de no estar utilizando una criptografía que sea obsoleta. Algunos algoritmos más antiguos, que alguna vez se pensó que requerirían billones de años, ahora pueden ser quebrados en días u horas. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+De forma periódica usted se debe de asegurar de no estar utilizando una criptografía que sea obsoleta. Algunos algoritmos más antiguos, que alguna vez se pensó que requerirían billones de años, ahora pueden ser quebrados en días u horas. Esto incluye MD4, MD5, SHA1, DES, y otros algoritmos los cuales alguna vez se había considerado fuertes.
 
 Fase: Arquitectura y Diseño
 Compartimentalizar su sistema para que tenga zonas "seguras" donde los límites de confianza se puedan dibujar sin equivocación. No permita que los datos que son confidenciales salgan del límite de la confianza y siempre debe tener cuidado al interactuar con algún compartimiento que no se encuentre dentro de la zona segura.
@@ -127,14 +127,14 @@ Esto permite que sea mucho más fácil detectar lugares en el código donde se u
 <vuln_items>wasc_5</vuln_items>
 <vuln_item_wasc_5>
 	<alert>Remote File Inclusion</alert>
-	<desc>Remote File Include (RFI) is an attack technique used to exploit "dynamic file include" mechanisms in web applications. When web applications take user input (URL, parameter value, etc.) and pass them into file include commands, the web application might be tricked into including remote files with malicious code.
+	<desc>Remote File Include (RFI) es una técnica de ataque muy utilizada para poder explotar los mecanismos de "inclusión dinámico de los archivos" en las aplicaciones web. Cuando las aplicaciones web toman la entrada del usuari (URL, valor del parámetro, etc) y las cambian a los comandos de incluir los archivos, la aplicación web puede ser engañada para incluir los archivos remotos con un código maligno.
 
-Casi todos los marcos de las aplicaciones web permiten la inclusión de los archivos. La inclusión de los archivos se utiliza de forma principal para envolver un código común en archivos separados que después se referencian en los módulos principales de la aplicación. When a web application references an include file, the code in this file may be executed implicitly or explicitly by calling specific procedures. If the choice of module to load is based on elements from the HTTP request, the web application might be vulnerable to RFI.
-An attacker can use RFI for:
-    * Running malicious code on the server: any code in the included malicious files will be run by the server. Si el archivo incluído no es ejecutado con algún protector, el código en los archivos incluidos se ejecutará en el contexto del uso del servidor. This could lead to a complete system compromise.
-    * Running malicious code on clients: the attacker's malicious code can manipulate the content of the response sent to the client. El atacante puede incorporar un código malicioso en la respuesta que será ejecutada por el cliente (por ejemplo, que Javascript robe las cookies de la sesión del cliente).
+Casi todos los marcos de las aplicaciones web permiten la inclusión de los archivos. La inclusión de los archivos se utiliza de forma principal para envolver un código común en archivos separados que después se referencian en los módulos principales de la aplicación. Cuando una aplicación web realiza referencia a un archivo de inclusión, el código que se encuentra en este archivo puede activarse de forma implícita o explícita llamando a procedimientos específicos. Si la selección del módulo a cargar se basa en los elementos de la solicitud de HTTP, la aplicación web podría ser muy vulnerable a RFI.
+Un atacater puede utilizar RFI para:
+*Activar un código maligno en el servior: cualquier código  incluidos en los archivos maliciosos serán ejecutados por el servidor. Si el archivo incluído no es ejecutado con algún protector, el código en los archivos incluidos se ejecutará en el contexto del uso del servidor. Esto podría originar el compromiso completo de todo el sistema.
+    *La activación de códigos maliciosos en los clientes: el código malicioso del atacante tienen la capacidad de manipular todo el contenido de la respuesta enviada al cliente. El atacante puede incorporar un código malicioso en la respuesta que será ejecutada por el cliente (por ejemplo, que Javascript robe las cookies de la sesión del cliente).
 
-PHP is particularly vulnerable to RFI attacks due to the extensive use of "file includes" in PHP programming and due to default server configurations that increase susceptibility to an RFI attack.</desc>
+PHP es de forma particular muy vulnerable a los ataques de RFI ya que debido al uso masivo de "archivos incluidos" en la programación de PHP y debido a las modificaciones del servidor el cual está predeterminado aumentan la susceptibilidad a un ataque de RFI.</desc>
 	<solution>Fase: Arquitectura y Diseño
 Cuando el grupo de objetos aceptables, como nombres de archivos o URL, es limitado o conocido, usted debe crear una asignación de un grupo de valores de entradas fijos (como ID númericos) a los nombres de archivos o URL reales, y rechace todas las demás entradas.
 Por ejemplo, la ID 1 se podría asignar a "inbox.txt" y la ID 2 se podría asignar a "profile.txt". Las características tales como AccessReferenceMap de ESAPI otorgan esta capacidad.
@@ -148,7 +148,7 @@ Para PHP, el traductor ofrece restricciones como por ejemplo openirir abierto o 
 
 Fase: Implementación
 Supongamos que toda la entrada es maliciosa. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
-Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. Como un ejemplo de lógica de reglas comerciales, "bote" puede ser sintácticamente válido porque solo incluye caracteres alfanuméricos, pero no es válido si está esperando colores como "rojo" o "azul". Para los nombres de los archivos, utilice las listas blancas estrictas que limiten el grupo de caracteres que se van a utilizar. If feasible, only allow a single "." character in the filename to avoid weaknesses such as CWE-23, and exclude directory separators such as "/" to avoid CWE-36. Use a whitelist of allowable file extensions, which will help to avoid CWE-434.
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. Como un ejemplo de lógica de reglas comerciales, "bote" puede ser sintácticamente válido porque solo incluye caracteres alfanuméricos, pero no es válido si está esperando colores como "rojo" o "azul". Para los nombres de los archivos, utilice las listas blancas estrictas que limiten el grupo de caracteres que se van a utilizar. If feasible, only allow a single "." character in the filename to avoid weaknesses such as CWE-23, and exclude directory separators such as "/" to avoid CWE-36. Utilice una lista blanca de las extensiones de los archivos permitidos, lo que ayudará a prevenir a CWE-434.
 
 Fases: Arquitectura y Diseño; Operación
 Guardar biblioteca, incluir, y utilizar archivos de utilidad fuera de la raíz del documento web, si es posible. De lo contrario, guárdelos en un directorio que se encuentre separado y utilice las capacidades de control de acceso del servidor web para poder evitar que los atacantes los soliciten de forma directa. Un ejercicio muy común es definir una constante fija en cada uno de los programas de llamada, luego revisar la existencia de la constante en el archivo de biblioteca/inclusión; si la constante no existe, entonces el archivo se solicitó de forma directa y puede salir inmediatamente.
@@ -164,14 +164,13 @@ Muchos de los problemas de inclusión de archivos suceden porque el programador 
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
 	<alert>Format String</alert>
-	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
+	<desc>Los ataques de cadena de formato modifican el flujo de una aplicación por medio del uso de cadenas de caracteres para ingresar a otro espacio de la memoria. Las vulnerabilidades se originan cuando los datos que fueron proporcionados por el usuario se usan de forma directa como entrada de cadena de formato para algunas funciones de C/C++ (por ejemplo, fprintf, printf, sprintf, setproctitle, syslog, ...).
 
-If an attacker passes a format string consisting of printf conversion characters (e.g. "%f", "%p", "%n", etc.) as a parameter value to the web application, they may:
-    * Execute arbitrary code on the server
-    * Read values off the stack
-    * Cause segmentation faults / software crashes
-
-Format String attacks are related to other attacks in the Threat Classification: Buffer Overflows and Integer Overflows. All three are based in their ability to manipulate memory or its interpretation in a way that contributes to an attacker's goal.</desc>
+Si un atacante pasa una secuencia de formato que consista en caracteres de conversión printf (por ejemplo,  "%f", "%p", "%n", etc.) como el valor de un parámetro para la aplicación web, podrían: 
+    *Ejecutar códigos arbitrarios en el servidor
+    * Leer valores del almacenamiento 
+    * Causar fallas de segmentación / daño al software.
+ Los ataques de este tipo están relacionados a otros ataques clasificados como Amenazantes: Buffer Overflows e Integer Overflows. Los tres se basan en su habilidad para manipular la memoria o su interpretación en una forma que contribuye al objetivo de un atacante.</desc>
 	<solution>Fase: Requisitos
 Seleccione un idioma que no esté sujeto a esta falla.
 
@@ -199,7 +198,7 @@ Los desbordamientos de búfer se agrupan con mayor frecuencia con el software es
 </desc>
 	<solution>Frase: Requisitos
 Utilice un lenguaje que no acepte que ocurra esta debilidad o que proporcione construcciones que hagan que esta debilidad sea mucho más sencilla de evitar.
-For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
+Por ejemplo, muchos de los lenguajes que utilizan su propia gestión de memoria, como Java y Perl, no se encuentran sujeta los desbordamientos de búfer. Otros lenguajes, como Ada y C#, normalmente otorgan protección contro el desbordamiento, pero el programador puede desactivar dicha protección.
 Sea cauteloso ya que la interfaz de un lenguaje para código nativo, puede todavía recibir desbordes, incluso si el lenguaje mismo es teóricamente seguro.
 
 Frase: Arquitectura y Diseño
@@ -208,14 +207,14 @@ Examples include the Safe C String Library (SafeStr) by Messier and Viega, and t
 
 Fase: Construcción y Compilación
 Activa o compile su software usando las funciones o extensiones las cuales otorgan de forma automática un mecanismo de protección que mitiga o elimina los desbordes del búfer.
-Por ejemplo, hay ciertos compiladores y extensiones que otorgan mecanismos automáticos de detección de desbordamiento del búfer que se encuentran incorporados en el código compilado. Examples include the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
+Por ejemplo, hay ciertos compiladores y extensiones que otorgan mecanismos automáticos de detección de desbordamiento del búfer que se encuentran incorporados en el código compilado. Los ejemplos incluyen la bandera de Microsoft Visual Studio/Gs, Fedora/Red Hat FORTIFY SOURCE GCC, StarckGuard y ProPolice.
 
 Fase: Implementación
 Considere asociarse a las siguientes reglas al asignar y administrar la memoria de cualquier aplicación:
 Verifique que su memoria sea lo suficientemente grande como usted la especifique.
       Cuando use las funciones que acepten una cantidad de bytes para copiar, como strncpy(), tiene que tener en cuenta que si el tamaño del búfer de origen es igual al tamaño del búfer de destino, entonces puede que no termine NULL con la cadena.
       Confirme si los limites del búfer llaman a esta función en un bucle y también asegúrese de que no sufra ningún peligro al escribir mas allá del espacio asignado.
-      If necessary, truncate all input strings to a reasonable length before passing them to the copy and concatenation functions.
+      Si es necesario, corte el extremo de todas las cadenas de entrada a una longitud que sea razonable antes de pasarlas a las funciones de copia y enlace de ideas.
 
 Fase: Operación
 Utilice una característica como proceso cuyo resultado no es imaginable para el diseño de espacio de direcciones (ASLR).
@@ -235,20 +234,20 @@ Cambiar las funciones de copia ilimitadas con funciones similares que acepten ar
 <vuln_items>wasc_8</vuln_items>
 <vuln_item_wasc_8>
 	<alert>Cross-site Scripting</alert>
-	<desc>Cross_site Scripting (XSS) es una técnica de ataque que comprende hacer eco del código que fue proporcionado por el atacante en la instancia del navegador de un usuario. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
-When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.
+	<desc>Cross_site Scripting (XSS) es una técnica de ataque que comprende hacer eco del código que fue proporcionado por el atacante en la instancia del navegador de un usuario. Una instancia de navegador puede ser un cliente de navegador web corriente, o un objeto de navegador integrado e un producto de software, como el navegador que se encuentra dentro de WinAmp, un lector de RSS o un cliente de correos electrónicos. El código por sí mismo se encuentra escrito en HTML/JavaScript, pero también puede extenderse a VBScript, ActiveX, Jave, Flash o cualquier otra tecnología que sea compatible con el navegador.
+Cuando un atacante consigue el navegador de un usuario para poder ejecutar su código, el código se ejecutará dentro del contexto de seguridad (o zona) del sitio web de hospedaje. Con este nivel de privilegio, el código tiene la extensión de leer, modificar y transmitir cualquier dato que sea sensible al que pueda ingresar al navegador. Un usuario de Cross-Site Scripted puede ser que tenga su cuenta secuetrada (robo de cookies), su navegador redirigido a otra ubicación, posiblemente mostrando contenido ilegal entregado por el sitio web que están visitando. Los ataques de scripting entre los sitios relativamente comprometen la relación de la confianza entre el usuario y el sitio web. Las aplicaciones que usan instancias de objetos del navegador que suben contenido desde el sistema de archivos puede activar el código bajo la zona de lam máquina, lo cual permite que el sistema se vea comprometido.
 
-There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
-Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
-Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Algunos ejemplos de los objetivos preferidos de los atacantes incluyen mensajes en carteleras de anuncios, mensajes de correo electrónico y programas de chat. El usuario desprevenido no tendrá que interactuar con ningún sitio/enlace adicional (por ejemplo, un sitio o link malicioso enviado por correo electrónico), solamente bastará con abrir la página web que contiene el código.</desc>
+Hay tres tipos de ataques diferentes de scripting entre los sitios: no persistentes, persistentes y basados en DOM.
+Los ataques que no son persistentes y los basados en DOM necesitan que el usuario visite un enlace que fue diseñado con código maliciosos o visite alguna página web maliciosa que incluya un formulario web que, cuando se publique en el sitio que es vulnerable, originará el ataque. El uso de un formulario que es malicioso normalmente tendrá lugarcuando el recurso que es vulnerable solo acepte las solicitudes HTTP POST. En tal caso, el formulario puede se enviado de forma automática, sin el conocimiento de la víctima (por ejemplo, por medio de JavaScript). Al hacer clic en el enlace que es malicioso o al enviar el formulario malicioso, la carga que es útil de CSS recibirá eco y será interpretada por el navegador del usuario y se activará. Otra técnica para poder prevenir solicitudes casi arbitrarias (GET y POST) es por medio del uso de un cliente integrado, como adobe Flash.
+Los ataques continuos se originan cuando el código que es malicioso se envía a un sitio web donde se almacena durante un período de tiempo. Algunos ejemplos de los objetivos preferidos de los atacantes incluyen mensajes en carteleras de anuncios, mensajes de correo electrónico y programas de chat. El usuario desprevenido no tendrá que interactuar con ningún sitio/enlace adicional (por ejemplo, un sitio o link malicioso enviado por correo electrónico), solamente bastará con abrir la página web que contiene el código.</desc>
 	<solution>Frase: Arquitectura y Diseño
 Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
-Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
+Los ejemplos de las bibliotecas y marcos que facilitan el origen de resultados que son codificados de forma correcta incluyen la biblioteca Anti-XSS de Microsoft, el módulo de codificación OWASP ESAPI y Apache Wicket.
 
 Fases: Implementación; Arquitectura y Diseño
-Comprenda el contexto en el que se va a utilizar sus datos y la condificación que se va a esperar. Esto es fundamentalmente importante cuando se transmiten los datos entre diferentes componentes o cuando se generan las salidas que pueden comprender múltiples codificaciones al mismo tiempo, como paginas web o mensajes de correos de varias zonas. Study all expected communication protocols and data representations to determine the required encoding strategies.
-For any data that will be output to another web page, especially any data that was received from external inputs, use the appropriate encoding on all non-alphanumeric characters.
-Consult the XSS Prevention Cheat Sheet for more details on the types of encoding and escaping that are needed.
+Comprenda el contexto en el que se va a utilizar sus datos y la condificación que se va a esperar. Esto es fundamentalmente importante cuando se transmiten los datos entre diferentes componentes o cuando se generan las salidas que pueden comprender múltiples codificaciones al mismo tiempo, como paginas web o mensajes de correos de varias zonas. Estudie todos los protocolos de comunicacón y representaciones de los datos que son esperadas para poder determinar las estrategias de codificación que son necesarias.
+Por cualquier dato que se enviará a otra página web, en especial cualquier dato recibido de las entradas externas, utiice la codificación que sea conveniente en todos los caracteres que no sean alfanuméricos.
+Consulte la hoja de referencia de prevención de CSS para poder obtener más información detallada de los diferentes tipos de condificación y escape que se requieren.
 
 Fase: Arquitectura y Diseño
 Cualquier comprobación de seguridad que se vaya a realizar en el lado del cliente, asegúrese de que estas comprobaciones se encuentre duplicadas en el lado del servidor, para evitar el CWE-602. Los atacantes pueden eludir las comprobaciones del lado del cliente modificando los valores después de que se hayan realizado las comprobaciones, o cambiando al cliente para poder eliminar de forma completa las comprobaciones del lado del cliente. Después, estos valores que fueron modificados serán enviados al servidor.
@@ -273,17 +272,17 @@ Asegurese de hacer la aceptación de las entradas en interfaces que se encuentre
 <vuln_items>wasc_9</vuln_items>
 <vuln_item_wasc_9>
 	<alert>Cross Site Request Forgery</alert>
-	<desc>A cross-site request forgery is an attack that involves forcing a victim to send an HTTP request to a target destination without their knowledge or intent in order to perform an action as the victim. The underlying cause is application functionality using predictable URL/form actions in a repeatable way. The nature of the attack is that CSRF exploits the trust that a web site has for a user. By contrast, cross-site scripting (XSS) exploits the trust that a user has for a web site. Like XSS, CSRF attacks are not necessarily cross-site, but they can be. Cross-site request forgery is also known as CSRF, XSRF, one-click attack, session riding, confused deputy, and sea surf.
+	<desc>Una solicutud falsa entre sitios en un ataque que compromete y obliga a una víctima a enviar su solicitud HTTP a un destino objetivo sin su conocimiento o intención para poder realizar una acción como víctima. La causa oculta es la funcionalidad de la aplicación utilizando acciones de URL/formulario que pueden ser adivinados de forma repetible. La naturaleza del ataque es que CSRG explota la confianza que un sitio web proporciona a un usuario. Por el contrario, las cadenas de comandos de los sitios cruzados (XSS) explotan la confianza que un usuario proporciona en un sitio web. Al igual que XSS, los ataques CSRG no son de forma necesaria de sitios cruzados, pero hay la posibilidad de que si pueden serlo. La falsificación de las solicitudes ente los sitios también se conoce como CSRF, XSRG, ataques con un solo clic, montaje de sesión, diputado confundido y navegación en alta mar.
 
-CSRF attacks are effective in a number of situations, including:
-    * The victim has an active session on the target site.
-    * The victim is authenticated via HTTP auth on the target site.
-    * The victim is on the same local network as the target site.
+Los ataques de CSRG son muy efectivos en varias situaciones, que incluyen:
+*La victima tiene una sesión activa en el sitio de destino.
+    *La víctima se autoriza por medio de la autenticación HTTP en el sitio de destino.
+    *La víctima se encuentra en la misma red local que el sitio de destino.
 
-CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
+CSRF se ha utilizado especialmente para poder realizar una acción contra un sitio objetivo utilizando los privilegios de la víctima, pero se han revelado técnicas recientes para difundir información al obtener el acceso a la respuesta. El riesgo de divulgación de información aumenta de forma drástica cuando el sitio de destino se encuentra vulnerable a XSS, porque XSS se puede utilizar como una plataforma para CSRF, lo que le permite al atacante que opere desde adentro de los líites de la misma política de origen.</desc>
 	<solution>Frase: Arquitectura y Diseño
 Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
-For example, use anti-CSRF packages such as the OWASP CSRFGuard.
+Por ejemplo, utilice el paquete anti-CSRG como el CSRGuard de OWASP.
 
 Fase: Implementación
 Asegúrese de que su aplicación esté libre de fallas de secuencias de comandos entre sitios, ya que la mayoría de las defensas de CSRF pueden detenerse por alto por medio del uso de secuencias de comandos manejadas por el atacante.
@@ -308,12 +307,12 @@ Revise que la solicitud se creó en la página esperada. Esto podría quebrar la
 
 <vuln_items>wasc_10</vuln_items>
 <vuln_item_wasc_10>
-	<alert>Denial of Service</alert>
+	<alert>Denegación de Servicio</alert>
 	<desc>Denegación de Servicio (DoS) es una técnica de ataque con la intención de evitar que un sitio web funcione para la activad común del usuario. Los ataques DoS, que normalmente se realizan a la cubierta de red, también son posibles en la cubierta de la aplicación. Estos ataques malignos pueden ser exitosos al privar a un sistema de recursos críticos, al explotar ciertas vulnerabilidades o abuso de funcionalidades.
 
-Many times DoS attacks will attempt to consume all of a web site's available system resources such as: CPU, memory, disk space etc. When any one of these critical resources reach full utilization, the web site will normally be inaccessible.
+Muchas veces los ataques DoS tratarán de consumir todos los recursos que se encuentran disponibles del sistema en un sitio web como: CPU, memoria, espacio en el disco, etc. Cuando cualquiera de todos estos recursos críticos llegan a univel de plena utilización, el sitio web normalmente será inaccesible.
 
-As today's web application environments include a web server, database server and an authentication server, DoS at the application layer may target each of these independent components. Unlike DoS at the network layer, where a large number of connection attempts are required, DoS at the application layer is a much simpler task to perform.</desc>
+Como los dominios de las aplicaciones web actuales incluyen un servidor web, un servidor de base datos y un servidor de autenticación, DoS en la cubierta de la aplicación puede dirigir cada uno de estos elementos independientes. A diferencia de DoS en la cubierta de la red, donde se necesita de una gran cantidad de intentos de conexión, DoS en la cubierta de la aplicación es una tarea mucho mas sencilla de lograr.</desc>
 	<solution>Fase: Arquitectura y Diseño
 Diseñar los mecanismos de reglamentación en la arquitectura del sistema. La mejor protección es restringir la cantidad de recursos que un usuario que no esté autorizado puede provocar que se gaste. Un modelo sólido de autenticación y control de acceso ayudará a evitare esos ataques en primer lugar. La aplicación de inicio de sesión tiene que estar protegida contra los ataques DoS tanto como se pueda. Ajustar el acceso a la base de datos, por medio de conjuntos de resultados de almacenamiento en caché, esto puede ayudar a disminuir los recursos gastados. Para ajustar aún más el potencial de un ataque DoS, considere rastrear la tasa e solicitudes que fue recibida de los usuarios y las solicitudes de bloqueo que excedan una parte inicial de velocidad definido.
 
@@ -334,10 +333,10 @@ Asegúrese de que todas las fallas ocurridas en la asignación de recursos coloq
 
 <vuln_items>wasc_11a</vuln_items>
 <vuln_item_wasc_11a>
-	<alert>Brute Forcing Log-in Credentials</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
+	<alert>Forzadas brutalmente las credenciales de inicio de sesión</alert>
+	<desc>Un ataque de fuerza bruta es una técnica para poder determinar un valor que es desconocido por medio del uso de un proceso que es automático para probar una gran cantidad de valores posibles. El ataque aprovecha el hecho de que la incertidumbre de un conjunto de mensajes de los valores es menor de lo que se observa. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
 
-The most common type of a brute force attack in web applications is an attack against log-in credentials. Since users need to remember passwords, they often select easy to memorize words or phrases as passwords, making a brute force attack using a dictionary useful. Such an attack attempting to log-in to a system using a large list of words and phrases as potential passwords is often called a "word list attack" or a "dictionary attack". Attempted passwords may also include variations of words common to passwords such as those generated by replacing "o" with "0" and "i" with "1" as well as personal information including family member names, birth dates and phone numbers.
+El tipo más común de ataques de fuerza bruta en las aplicaciones web es aquel de un ataque contra las credenciales del inicio de sesión. Dado que todos los usuarios necesitan recordar las contraseñas, de formo frecuente seleccionan la opcion fácil de memorizar las palabras o frases como contraseñas, lo que hace que un ataque de fuerza bruta utilizando un diccionario sea muy eficaz. Tal ataque que trata de iniciar la sesión en un sistema utilizando una gran lista de palabras y frases como contraseñas que son potencialmente, normalmente se le denomina "ataque de lista de palabras" o "ataque de diccionario". Las contraseñas que fueron tratadas también pueden incluir cambios de palabras comunes a las contraseñas, como las que fueron generados por el reemplazo "o" con "0" e "i" con "1", así como información personal, incluyendo los nombres de los miembros de la familia, fechas de nacimiento y números de teléfonos.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -346,10 +345,10 @@ The most common type of a brute force attack in web applications is an attack ag
 
 <vuln_items>wasc_11b</vuln_items>
 <vuln_item_wasc_11b>
-	<alert>Brute Forcing Session Identifiers</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
+	<alert>Identificadores de sesiones forzadas brutalmente</alert>
+	<desc>Un ataque de fuerza bruta es una técnica para poder determinar un valor que es desconocido por medio del uso de un proceso que es automático para probar una gran cantidad de valores posibles. El ataque aprovecha el hecho de que la incertidumbre de un conjunto de mensajes de los valores es menor de lo que se observa. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
 
-Since HTTP is a stateless protocol, in order to maintain state web applications need to ensure that a session identifier is sent by the browser with each request. The session identifier is most commonly stored in an HTTP cookie or URL. Using a brute force attack, an attacker can guess the session identifier of another user. This can lead to the attacker impersonating the user, retrieving personal information and performing actions on behalf of the user.
+Dado que HTTP es un protocolo que no tienen estado, para poder mantener las aplicaciones web de estado usted debe asegurarse de que el navegador envíe un identificador de la sesión con cada solicitud. El identificador de la sesión normalmente se almacena en una cookie o URL HTTP. Utilizando un ataque de fuerza bruta, un atacante puede determinar el identificador de la sesión de otro usuario. Esto puedo provocar al atacante a suplantar al usuario, recuperar información personal y producir una serie de acciones en nombre del usuario.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -358,28 +357,28 @@ Since HTTP is a stateless protocol, in order to maintain state web applications 
 
 <vuln_items>wasc_11c</vuln_items>
 <vuln_item_wasc_11c>
-	<alert>Brute Forcing Directories and Files</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
+	<alert>Archivos y Directorios de fuerza bruta</alert>
+	<desc>Un ataque de fuerza bruta es una técnica para poder determinar un valor que es desconocido por medio del uso de un proceso que es automático para probar una gran cantidad de valores posibles. El ataque aprovecha el hecho de que la incertidumbre de un conjunto de mensajes de los valores es menor de lo que se observa. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
 
-When files reside in directories that are served by the web server but are not linked anywhere, accessing those files requires knowing their file name. In some cases those files have been left by mistake: for example a backup file automatically created when editing a file or leftovers from an older version of the web application. In other cases files are intentionally left unlinked as a "security by obscurity" mechanism allowing only people who know the file names to access them.
+Cuando los archivos se encuentran en directorios que son sevidos por el servidor web pero no se encuentra vinculados en ningún lugar, el acceso a esos archivos requiere conocer su nombre de archivo. En algunos casos, esos archivos se han dejado por error: por ejemplo, un archivo de copia de seguridad que fue creado de forma automática al editar un archivo o restos de una anterior versión de la aplicación web. En otros casos, los archivos se separan de forma intencional como un mecanismo de "seguridad por oscuridad" que permite que solo las personas que conocen los nombres de los archivos puedan ingresar a ellos.
 
-A brute force attack tries to locate the unlinked file by trying to access a large number of files. The list of attempted file names might be taken from a list of known potential files or based on variants of the visible files on the web site. More information on brute forcing directories and files can be found in the associated vulnerability, predictable resource location.
+Un ataque de fuerza bruta intenta localizar el archivo sin vínculo al intentar acceder a un largo número de archivos. La lista de nombres archivos intentados podría ser tomada desde una lista de archivos potencialmente conocidos o basada en las variantes de los archivos visibles en la web. Mas información sobre los directorios y archivos brutalmente forzados puede ser encontrado en la vulnerabilidad asociada, ubicación de recursos predecibles.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
 	<reference>TBA</reference>
 </vuln_item_wasc_11c>
 
-<vuln_items>wasc_11d</vuln_items>
+<vuln_items>wasc_11c</vuln_items>
 <vuln_item_wasc_11d>
-	<alert>Brute Forcing Credit Card Information</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
+	<alert>Información de tarjeta de crédito forzada brutalmente</alert>
+	<desc>Un ataque de fuerza bruta es una técnica para poder determinar un valor que es desconocido por medio del uso de un proceso que es automático para probar una gran cantidad de valores posibles. El ataque aprovecha el hecho de que la incertidumbre de un conjunto de mensajes de los valores es menor de lo que se observa. Por ejemplo, mientras una contraseña alfanumérica de 8 caracteres puede tener 2.8 trillones de variables, muchas personas elegirán sus contraseñas de un grupo menor que contiene palabras y términos más comunes.
 
-Shopping online with stolen credit cards usually requires information in addition to the credit card number, most often the CVV/SCS and/or expiration date. A fraudster may hold a stolen credit card number without the additional information. For example the CVV/CSC is not imprinted on the card or stored on the magnetic stripe so it cannot be collected by mechanical or magnetic credit card swiping devices.
+Comprar en línea con una tarjeta de crédito robado normalmente requiere información además del número de la tarjeta de crédito, normalmente el CW/SCS y/o la fecha de vencimiento. Un defraudador puede tener el número de la tarjeta de crédito robada sin la información adicional. Por ejemplo el CW/CSC no esta impreso en la tarjeta o almacenado en la banda magnética por lo que no puede ser recolectado por mecánicos o magnéticos dispositivos de deslizamiento de la tarjeta de crédito.
 
-In order to fill in the missing information the hacker can guess the missing information using a brute force technique, trying all possible values.
-    * Guessing CVV/CSC requires only 1000 or 10000 attempts as the number is only 3 or 4 digits, depending on the card type.
-    * Guessing an expiration date requires only several dozen attempts.
+Para completar la información faltante el hacker puede adivinar la información que falta usando una técnica de fuerza bruta, tratando todos los valores posibles.
+    * Adivinar el CW/CSC solo requiere 1000 o 10000 intentos ya que el número es solo de 3 o 4 dígitos, dependiendo del tipo de tarjeta.
+    * Adivinar la fecha de vencimiento solo requiere varias docenas de intentos.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -388,16 +387,16 @@ In order to fill in the missing information the hacker can guess the missing inf
 
 <vuln_items>wasc_12</vuln_items>
 <vuln_item_wasc_12>
-	<alert>Content Spoofing</alert>
-	<desc>Content Spoofing is an attack technique that allows an attacker to inject a malicious payload that is later misrepresented as legitimate content of a web application.
+	<alert>Suplantación de Contenido</alert>
+	<desc>La suplantación de contenido es una técnica de ataque que permite al atacante inyectar una carga maliciosa que es interpretada después como contenido legítimo de la aplicación web.
  
-Text Only Content Spoofing
-A common approach to dynamically build pages involves passing the body or portions thereof into the page via a query string value. This approach is common on error pages, or sites providing story or news entries. The content specified in this parameter is later reflected into the page to provide the content for the page.
+Texto solo de contenido suplantado
+Un enfoque común para crear páginas dinámicamente implicar pasar el cuerpo o parte de los mismos en la página por un valor de cadena de consulta. Este enfoque es común en las páginas de error, o sitios que proporcionan historias o entras de noticias. El contenido especificado en este parámetro es luego reflejado en la página para suministrar el contenido para la página.
  
-Markup Reflected Content Spoofing
-Some web pages are served using dynamically built HTML content sources. For example, the source location of a frame <frame src="http://foo.example/file.html"/>) could be specified by a URL parameter value. (http://foo.example/page?frame_src=http://foo.example/file.html). An attacker may be able to replace the "frame_src" parameter value with "frame_src=http://attacker.example/spoof.html". Unlike redirectors, when the resulting web page is served the browser location bar visibly remains under the user expected domain (foo.example), but the foreign data (attacker.example) is shrouded by legitimate content.
+Marcado Reflejado en el Contenido Suplantado
+Algunas páginas web son servidas usando fuentes de contenido HTML construidas dinámicamente. Por ejemplo, la ubicación de origen de un marco <frame src="http://foo.example/file.html"/>) podría estar especificada en un valor de parámetro URL. (http://foo.example/page?frame_src=http://foo.example/file.html). Un atacante podría ser capaz de reemplazar el valor de parámetro de "frame_src" con "frame_src=http://attacker.example/spoof.html". A diferencia de los redirectores, cuando la página web resultante se sirve la barra de buscador del navegador permanece visiblemente bajo el usurario que espera dominio (foo.example), pero los datos extranjeros (attacker.example) están envueltos por contenido legítimo.
 
-Specially crafted links can be sent to a user via e-mail, instant messages, left on bulletin board postings, or forced upon users by a Cross-site Scripting attack. Si un atacante consigue que un usuario visite una página web designada por sus URL maliciosas, el usuario creerá que está viendo contenido auténtico de un sitio cuando no es así. Users will implicitly trust the spoofed content since the browser location bar displays http://foo.example, when in fact the underlying HTML frame is referencing http://attacker.example.
+Los enlaces que son diseñados de forma especial pueden enviarse a un usuario por medio de correos eléctronicos, mensajes instantáneos, dejarlos en publicaciones de boletines informativos o obligados a los usuarios por medio de un ataque Cross-Site Scripting. Si un atacante consigue que un usuario visite una página web designada por sus URL maliciosas, el usuario creerá que está viendo contenido auténtico de un sitio cuando no es así. Los usuarios confían de foma implícita en el contenido que es falso, ya que la barra de ubicación del navegador muestra http://foo.example, cuando en realidad el marco HTML oculto hace referencia a http://attacker.example.
 
 Este ataque mancilla la relación de confianza establecida entre el usuario y el sitio web. La técnica ha sido usada para para crear páginas web falsas, incluyendo formularios de logueo, alteraciones, artículos de prensa falsos, etc.
 	</desc>
@@ -408,14 +407,14 @@ Este ataque mancilla la relación de confianza establecida entre el usuario y el
 
 <vuln_items>wasc_13</vuln_items>
 <vuln_item_wasc_13>
-	<alert>Information Leakage</alert>
-	<desc>Information Leakage is an application weakness where an application reveals sensitive data, such as technical details of the web application, environment, or user-specific data. Sensitive data may be used by an attacker to exploit the target web application, its hosting network, or its users. Therefore, leakage of sensitive data should be limited or prevented whenever possible. Information Leakage, in its most common form, is the result of one or more of the following conditions: A failure to scrub out HTML/Script comments containing sensitive information, improper application or server configurations, or differences in page responses for valid versus invalid data.
+	<alert>Escape de información</alert>
+	<desc>El escape de la información es una debilidad de la aplicación donde una aplicación muestra datos muy sensibles, como detalles técnicos de la aplicación web, el dominio o datos específicos del usuario. Los datos que son confidenciales pueder ser utilizados po un atacante pra poder explotar la aplicación web objetivo, su red de alojamieno o sus usuarios. Por lo tanto, el escape de datos confidenciales se debe limitar o prevenir siempre que se pueda. El escape de la información, en su forma mas común, es el resultado de una o más de las condiciones presentadas a continuación: Una falla al intentar eliminar comentariosde HTML/Script que contienen información confidencial, aplicaciones que no son adecuadas o configuraciones del servidor, o diferencias en las respuestas de la páginas para los datos válidos versus los que no son válidos.
 
-Fallos en la eliminación de comentarios HTML/Script previo a la ejecución en el ámbito de producción, puede resultar en la filtración de información sensible y contextual como ser la estructura del directorio de un servidor, la estructura de las búsquedas SQL e información interna de la red. Un desarrollador periódicamente dejará comentarios dentro del HTML y/o del código de secuencia de comandos para facilitar la revisión contra fallas o el proceso de integración durante la fase de pre-producción. Although there is no harm in allowing developers to include inline comments within the content they develop, these comments should all be removed prior to the content's public release.
+Fallos en la eliminación de comentarios HTML/Script previo a la ejecución en el ámbito de producción, puede resultar en la filtración de información sensible y contextual como ser la estructura del directorio de un servidor, la estructura de las búsquedas SQL e información interna de la red. Un desarrollador periódicamente dejará comentarios dentro del HTML y/o del código de secuencia de comandos para facilitar la revisión contra fallas o el proceso de integración durante la fase de pre-producción. Aunque no hay ningún tipo de problema al permitir que los desarrolladores incluyan los comentarios en línea dentro del contenido que ellos desarrollan, estos comentarios tienen que eliminarse antes de que se realice la publicación del contenido.
 
-Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
+Los números presentes de una versión de software y los mensajes de fallas detallados (como los números de versión de la ASP.NET) son ejemplos claros de configuraciones realizadas al servidor de forma incorrecta. Esta información es muy útil para un atacante al proporcionar información muy detallada sobre el marco, los lenguajes o las funciones que se encuentran preconstruidas que utiliza una aplicación web. La mayoría de las configuracines de servidor que son predeterminadas otorgan unos númros de versión de software y mensajes de fallas detalladas para la eliminación y solución de problemas. Se pueden realizar cambios de configuración para poder deshabilitar estas funciones, evitando la visualiación de esta información.
 
-Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
+Las páginas que proporcionan las respuestas diferentes en función de la validez de los datos también pueden originar el escape de información; en especial cuando los datos que son considerados confidenciales se revelan como resultado del diseño de la aplicación web. Los ejemplos de datos confidenciales incluyen (pero no se limitan solamente a): números de cuenta, identificadores de usuario (número de licencia de conducir, número de pasaporte, números de seguridad social, etc) e información muy puntual del usuario (contraseñas, sesiones, direcciones). El escape de la información en este contexto se refiere a la exposición de los datos clave para un usuario los cuales son considerados confidenciales o secretos, que no deben ser expuestos a plena vista, ni siquiera para el mismo usuario. Los números de tarjates de crédito y otra información muy controlada son ejemplos de los datos principales del usuario que se deben proteger aún más contra la exposición o el escape, incluso con los controles convenientes de encriptación y acceso ya instalados.</desc>
 	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. No permita que los datos que son confidenciales salgan del límite de la confianza y siempre debe tener cuidado al interactuar con algún compartimiento que no se encuentre dentro de la zona segura.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
@@ -424,9 +423,9 @@ Pages that provide different responses based on the validity of the data can als
 <vuln_items>wasc_14</vuln_items>
 <vuln_item_wasc_14>
 	<alert>Server Misconfiguration</alert>
-	<desc>Server Misconfiguration attacks exploit configuration weaknesses found in web servers and application servers. Many servers come with unnecessary default and sample files, including applications, configuration files, scripts, and web pages. They may also have unnecessary services enabled, such as content management and remote administration functionality. Debugging functions may be enabled or administrative functions may be accessible to anonymous users. These features may provide a means for a hacker to bypass authentication methods and gain access to sensitive information, perhaps with elevated privileges.
+	<desc>Los ataques de configuración incorrecta del sevidor explotan todas las deficiencias de la modificación que se encuentra en los servidores web y los servidores de las aplicaciones. Muchos servidores vienen con arhivos ya predeterminados y de muestra innecesarias, inluidas las aplicaciones de configuración, cadenas de mandos y páginas web. También pueden contener servicios activado y que son innecesarios, omo la administración de contenido y la funcionalidad de administración de forma remota. Las funciones de eliminación pueden activarse o las funciones administrativas pueder ser muy accesibles para los usuarios anónimos. Esas caraterísticas pueden otorgar un medio para que un pirata informático evada los métodos de autenticación y consiga acceso a información que es confidencial, tal vez con privilegios muy elevados.
 
-Servers may include well-known default accounts and passwords. Failure to fully lock down or harden the server may leave improperly set file and directory permissions. Misconfigured SSL certificates and encryption settings, the use of default certificates, and improper authentication implementation with external systems may compromise the confidentiality of information.
+Los servidores pueden incluir las cuentas y contraseñas predeterminadas muy conocidas. Si no se bloque de forma completa o se fortalece el servidor, puede dejar archivos y permisos de directorio establecidos de forma incorrecta. Misconfigured SSL certificates and encryption settings, the use of default certificates, and improper authentication implementation with external systems may compromise the confidentiality of information.
 
 Verbose and informative error messages may result in data leakage, and the information revealed could be used to formulate the next level of attack. Incorrect configurations in the server software may permit directory indexing and path traversal attacks.</desc>
 	<solution>TBA</solution>
@@ -437,7 +436,7 @@ Verbose and informative error messages may result in data leakage, and the infor
 <vuln_items>wasc_15</vuln_items>
 <vuln_item_wasc_15>
 	<alert>Application Misconfiguration</alert>
-	<desc>Application Misconfiguration attacks exploit configuration weaknesses found in web applications. Many applications come with unnecessary and unsafe features, such as debug and QA features, enabled by default. These features may provide a means for a hacker to bypass authentication methods and gain access to sensitive information, perhaps with elevated privileges.
+	<desc>Los ataques de configuración incorrecta de la aplicación explotan todas las deficiencias de la configuración que se localizan en las aplicaciones web. Muchas aplicaciones vienen con características que no son necesarias e inseguras, como funciones de eliminación y QA, habilitadas por defecto. Esas caraterísticas pueden otorgar un medio para que un pirata informático evada los métodos de autenticación y consiga acceso a información que es confidencial, tal vez con privilegios muy elevados.
 
 Likewise, default installations may include well-known usernames and passwords, hard-coded backdoor accounts, special access mechanisms, and incorrect permissions set for files accessible through web servers. Default samples may be accessible in production environments. Application-based configuration files that are not properly locked down may reveal clear text connection strings to the database, and default settings in configuration files may not have been set with security in mind. All of these misconfigurations may lead to unauthorized access to sensitive information.</desc>
 	<solution>TBA</solution>
@@ -524,7 +523,7 @@ Validation can include checks for type safety and correct syntax. String input c
 
 Use an input validation framework such as Struts or the OWASP ESAPI Validation API.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
+Identifique todas las áreas potenciales a través de las cuales puede ingresar a su software contenido poco confiable: parámetros o argumentos, cookies, cualquier cosa que sea leída desde la red, variables del ámbito, títulos o contenido de las solicitudes, componentes URL, correos electrónicos, archivos, bases de datos y cualquier sistema externo que le brinde información a la aplicación. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
 
 For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side. Los atacantes pueden eludir las comprobaciones del lado del cliente modificando los valores después de que se hayan realizado las comprobaciones, o cambiando al cliente para poder eliminar de forma completa las comprobaciones del lado del cliente. Después, estos valores que fueron modificados serán enviados al servidor.
 
@@ -558,14 +557,14 @@ When exchanging data between components, ensure that both components are using t
 	<alert>Insufficient Anti automation</alert>
 	<desc>Insufficient Anti-automation occurs when a web application permits an attacker to automate a process that was originally designed to be performed only in a manual fashion, i.e. by a human web user.
 
-Web application functionality that is often a target for automation attacks may include:
-    * Application login forms – attackers may automate brute force login requests in an attempt to guess user credentials
-    * Service registration forms – attackers may automatically create thousands of new accounts
-    * Email forms – attackers may exploit email forms as spam relays or for flooding a certain user’s mailbox
-    * Account maintenance – attackers may perform mass DoS against an application, by flooding it with numerous requests to disable or delete user accounts
-    * Account information forms – attackers may perform mass attempts to harvest user personal information from a web application
-    * Comment forms / Content Submission forms – these may be used for spamming blogs, web forums and web bulletin boards by automatically submitting contents such as spam or even web-based malware
-    * Forms tied to SQL database queries - these may be exploited in order to perform a denial of service attack against the application. The attack is performed by sending numerous heavy SQL queries in a short period of time, hence denying real users from service.
+Las funciones de aplicaciones web que suelen ser objeto de ataques de automatización pueden ser: 
+    * Formularios de inicio de sesión - los atacantes pueden automatizar requerimientos de login  por la fuerza,  para tratar de adivinar las credenciales del usuario 
+    * Formularios de registro de servicios - los atacantes pueden crear automáticamente miles de nuevas cuentas 
+    * Formularios de correo electrónico - los atacantes podrían utilizar los formularios de correo electrónico como derivados de spam o para desbordar la casilla de correo electrónico de cierto usuario 
+    * Mantenimiento de cuenta - los atacantes pueden ejecutar DoS masivamente contra una aplicación, desbordándola con numerosos pedidos para desactivar o eliminar cuentas de usuarios 
+    * Formularios de información de cuentas - los atacantes pueden ejecutar masivamente un intento de conseguir información personal del usuario desde una aplicación web 
+    * Formularios de comentarios / Formularios de envío de contenido - estos pueden ser usados por blogs de spam, foros web y carteleras web de boletines, enviando automáticamente contenidos como spam o incluso programas maliciosos que estén alojados en la web
+    * Formularios enlazados a búsquedas de bases de datos SQL - estos pueden ser usados a fin de ejecutar una negación de ataque de servicio contra la aplicación. The attack is performed by sending numerous heavy SQL queries in a short period of time, hence denying real users from service.
     * eShopping / eCommerce - eShopping and eCommerce applications that do not enforce human-only buyers, can be exploited in order to buy preferred items in large amounts, such as sporting events tickets. These are later sold by scalpers for higher prices.
     * Online polls - polls and other types of online voting systems can be automatically subverted in favor of a certain choice.
     * Web-based SMS message sending - attackers may exploit SMS message sending systems in order to spam mobile phone users
@@ -599,7 +598,7 @@ Si se encuentra disponible, utilice los mecanismos estructurados que apliquen de
 
 For example, stored procedures can enforce database query structure and reduce the likelihood of SQL injection.
 
-Understand the context in which your data will be used and the encoding that will be expected. Esto es fundamentalmente importante cuando se transmiten los datos entre diferentes componentes o cuando se generan las salidas que pueden comprender múltiples codificaciones al mismo tiempo, como paginas web o mensajes de correos de varias zonas. Study all expected communication protocols and data representations to determine the required encoding strategies.
+Understand the context in which your data will be used and the encoding that will be expected. Esto es fundamentalmente importante cuando se transmiten los datos entre diferentes componentes o cuando se generan las salidas que pueden comprender múltiples codificaciones al mismo tiempo, como paginas web o mensajes de correos de varias zonas. Estudie todos los protocolos de comunicacón y representaciones de los datos que son esperadas para poder determinar las estrategias de codificación que son necesarias.
 
 In some cases, input validation may be an important strategy when output encoding is not a complete solution. For example, you may be providing the same output that will be processed by multiple consumers that use different encodings or representations. In other cases, you may be required to allow user-supplied input to contain control information, such as limited HTML tags that support formatting in a wiki or bulletin board. When this type of requirement must be met, use an extremely strict whitelist to limit which control sequences can be used. Verify that the resulting syntactic structure is what you expect. Use your normal encoding methods for the remainder of the input.
 
@@ -613,7 +612,7 @@ When exchanging data between components, ensure that both components are using t
 <vuln_items>wasc_23</vuln_items>
 <vuln_item_wasc_23>
 	<alert>XML Injection</alert>
-	<desc>XML Injection is an attack technique used to manipulate or compromise the logic of an XML application or service. The injection of unintended XML content and/or structures into an XML message can alter the intend logic of the application. Further, XML injection can cause the insertion of malicious content into the resulting message/document.</desc>
+	<desc>XML Injection es una técnica de ataque usada para manipular o dañar la lógica de una aplicación o servicio XML. The injection of unintended XML content and/or structures into an XML message can alter the intend logic of the application. Further, XML injection can cause the insertion of malicious content into the resulting message/document.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-Injection</reference>
 	<reference></reference>
@@ -622,10 +621,8 @@ When exchanging data between components, ensure that both components are using t
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
 	<alert>HTTP Request Splitting</alert>
-	<desc>HTTP Request Splitting is an attack that enables forcing the browser to send arbitrary HTTP requests, inflicting XSS and poisoning the browser's cache. The essence of the attack is the ability of the attacker, once the victim (browser) is forced to load the attacker's malicious HTML page, to manipulate one of the browser's functions to send 2 HTTP requests instead of one HTTP request. Two such mechanisms have been exploited to date: the XmlHttpRequest object (XHR for short) and the HTTP digest authentication mechanism. For this attack to work, the browser must use a forward HTTP proxy (not all of them "support" this attack), or the attack must be carried out against a host located on the same IP (from the browser's perspective) with the attacker's machine.</desc>
-	<solution>Avoid using CRLF as a special sequence.
-
-Appropriately filter or quote CRLF sequences in user-controlled input.</solution>
+	<desc>HTTP Request Splitting es un ataque que logra forzar al navegador para que envíe arbitrariamente requerimientos HTTP, infligiendo XSS y dañando el caché del navegador. The essence of the attack is the ability of the attacker, once the victim (browser) is forced to load the attacker's malicious HTML page, to manipulate one of the browser's functions to send 2 HTTP requests instead of one HTTP request. Two such mechanisms have been exploited to date: the XmlHttpRequest object (XHR for short) and the HTTP digest authentication mechanism. For this attack to work, the browser must use a forward HTTP proxy (not all of them "support" this attack), or the attack must be carried out against a host located on the same IP (from the browser's perspective) with the attacker's machine.</desc>
+	<solution>Evite usar CRLF como una secuencia especial. Filtre adecuadamente o cite secuencias CRLF en ingresos controlados por el usuario.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
 </vuln_item_wasc_24>
@@ -633,12 +630,10 @@ Appropriately filter or quote CRLF sequences in user-controlled input.</solution
 <vuln_items>wasc_25</vuln_items>
 <vuln_item_wasc_25>
 	<alert>HTTP Response Splitting</alert>
-	<desc>In the HTTP Response Splitting attack, there are always 3 parties (at least) involved:
-    * Web server, which has a security hole enabling HTTP Response Splitting
-    * Target - an entity that interacts with the web server perhaps on behalf of the attacker. Typically this is a cache server forward/reverse proxy), or a browser (possibly with a browser cache).
-    * Attacker - initiates the attack
-
-The essence of HTTP Response Splitting is the attacker's ability to send a single HTTP request that forces the web server to form an output stream, which is then interpreted by the target as two HTTP responses instead of one response, in the normal case. The first response may be partially controlled by the attacker, but this is less important. What is material is that the attacker completely controls the form of the second response from the HTTP status line to the last byte of the HTTP response body. Once this is possible, the attacker realizes the attack by sending two requests through the target. The first one invokes two responses from the web server, and the second request would typically be to some "innocent" resource on the web server. However, the second request would be matched, by the target, to the second HTTP response, which is fully controlled by the attacker. The attacker, therefore, tricks the target into believing that a particular resource on the web server (designated by the second request) is the server's HTTP response (server content), while it is in fact some data, which is forged by the attacker through the web server - this is the second response.
+	<desc>En el ataque HTTP Response Splitting, siempre hay involucradas tres partes (al menos): 
+    * El servidor web, que tiene una falla de seguridad habilitando HTTP Response Splitting 
+    * El objetivo - una entidad que  interactúa con  el servidor  web, quizás en representación del atacante. Typically this is a cache server forward/reverse proxy), or a browser (possibly with a browser cache).
+    * El atacante - inicia el ataque. La esencia del HTTP Response Splitting es la habilidad del atacante para enviar una sola solicitud HTTP que fuerza al servidor web para que forme una transmisión de salida, que entonces es interpretada por el objetivo como dos respuestas HTTP en lugar de una, como sería el caso normal. The first response may be partially controlled by the attacker, but this is less important. What is material is that the attacker completely controls the form of the second response from the HTTP status line to the last byte of the HTTP response body. Once this is possible, the attacker realizes the attack by sending two requests through the target. The first one invokes two responses from the web server, and the second request would typically be to some "innocent" resource on the web server. However, the second request would be matched, by the target, to the second HTTP response, which is fully controlled by the attacker. The attacker, therefore, tricks the target into believing that a particular resource on the web server (designated by the second request) is the server's HTTP response (server content), while it is in fact some data, which is forged by the attacker through the web server - this is the second response.
 
 HTTP Response Splitting attacks take place where the server script embeds user data in HTTP response headers. This typically happens when the script embeds user data in the redirection URL of a redirection response (HTTP status code 3xx), or when the script embeds user data in a cookie value or name when the response sets a cookie.</desc>
 	<solution>Construct HTTP headers very carefully, avoiding the use of non-validated input data.</solution>
@@ -649,7 +644,7 @@ HTTP Response Splitting attacks take place where the server script embeds user d
 <vuln_items>wasc_26</vuln_items>
 <vuln_item_wasc_26>
 	<alert>HTTP Request Smuggling</alert>
-	<desc>HTTP Request Smuggling is an attack technique that abuses the discrepancy in parsing of non RFC compliant HTTP requests between two HTTP devices (typically a front-end proxy or HTTP-enabled firewall and a back-end web server) to smuggle a request to the second device "through" the first device. This technique enables the attacker to send one set of requests to the second device while the first device sees a different set of requests. In turn, this facilitates several possible exploitations, such as partial cache poisoning, bypassing firewall protection and XSS.</desc>
+	<desc>HTTP Request Smuggling es una técnica de ataque que abusa de la diferencia de fraseo de solicitudes HTTP que no cumplen con RFC entre dos dispositivos HTTP (típicamente un proxy front-end o un firewall habilitado por HTTP y un servidor back-end) a fin de contrabandear una solicitud al segundo dispositivo “a través” del primer dispositivo. This technique enables the attacker to send one set of requests to the second device while the first device sees a different set of requests. In turn, this facilitates several possible exploitations, such as partial cache poisoning, bypassing firewall protection and XSS.</desc>
 	<solution>Use a web server that employs a strict HTTP parsing procedure, such as Apache (See paper in reference).
 
 Use only SSL communication.
@@ -699,7 +694,7 @@ Inputs should be decoded and canonicalized to the application's current internal
 <vuln_items>wasc_29</vuln_items>
 <vuln_item_wasc_29>
 	<alert>LDAP Injection</alert>
-	<desc>LDAP Injection is an attack technique used to exploit web sites that construct LDAP statements from user-supplied input.
+	<desc>LDAP Injection es una técnica de ataque usada para dañar sitios web que construyen enunciados LDAP desde entradas hechas por los usuarios.
 
 Lightweight Directory Access Protocol (LDAP) is an open-standard protocol for both querying and manipulating X.500 directory services. The LDAP protocol runs over Internet transport protocols, such as TCP. Web applications may use user-supplied input to create custom LDAP statements for dynamic web page requests.
 
@@ -712,7 +707,7 @@ When a web application fails to properly sanitize user-supplied input, it is pos
 <vuln_items>wasc_30</vuln_items>
 <vuln_item_wasc_30>
 	<alert>Mail Command Injection</alert>
-	<desc>Mail Command Injection is an attack technique used to exploit mail servers and webmail applications that construct IMAP/SMTP statements from user-supplied input that is not properly sanitized. Depending on the type of statement taken advantage by the attacker, we meet two types of injections: IMAP and SMTP Injection. An IMAP/SMTP Injection may make it possible to access a mail server which you previously had no access to before-hand. In some cases, these internal systems do not have the same level of infrastructure security hardening applied to them as most front-end web servers. Hence, attackers may find that the mail server yields better results in terms of exploitation. On the other hand, this technique allows to evade possible restrictions that could exist at application level (CAPTCHA, maximum number of requests, etc.).</desc>
+	<desc>Mail Command Injection es una técnica de ataque usada para dañar servidores y aplicaciones de correo electrónico que construyen enunciados IMAP/SMTP desde entradas hechas por usuarios, que no han sido purificadas adecuadamente. Depending on the type of statement taken advantage by the attacker, we meet two types of injections: IMAP and SMTP Injection. An IMAP/SMTP Injection may make it possible to access a mail server which you previously had no access to before-hand. In some cases, these internal systems do not have the same level of infrastructure security hardening applied to them as most front-end web servers. Hence, attackers may find that the mail server yields better results in terms of exploitation. On the other hand, this technique allows to evade possible restrictions that could exist at application level (CAPTCHA, maximum number of requests, etc.).</desc>
 	<solution>Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, request headers as well as content, URL components, e-mail, files, databases, and any external systems that provide data to the application. Perform input validation at well-defined interfaces.
 
 Asuma que toda la entrada es maliciosa. Use an "accept known good" input validation strategy (i.e., use a whitelist). Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. Use a blacklist to reject any unexpected inputs and detect potential attacks.
@@ -761,9 +756,7 @@ Some languages offer multiple functions that can be used to invoke commands. Whe
 
 Asuma que toda la entrada es maliciosa. Utilice una estrategia de validación de entrada "aceptar bien conocidos", es decir, utilice alguna lista blanca de entradas aceptables que se ajuste de forma estricta a las especificaciones. Rechace cualquier entrada que no se adapte de forma estricta a las especificaciones, o cambielas por algo que sí lo haga. No confíe solamente en la búsqueda de entradas maliciosas o malformadas (es decir, no confíe en una lista negra). Sin embargo, las listas negras pueden ser muy útiles para detectar posibles ataques o diagnosticar que entradas están tan malformadas que se deberían rechazar directamente.
 
-Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
-
-When constructing OS command strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. This will indirectly limit the scope of an attack, but this technique is less important than proper output encoding and escaping.
+Al realizar la validación de entrada, usted debe considerar todas las propiedades potencialmente destacadas, incluida la longitud, el tipo de entrada, el rango completo de valores aceptables, las entradas faltantes o adicionales, la sintaxis, el sentido entre los campos que se encuentran relacionados y la conformidad con todas las reglas comerciales. Como un ejemplo de las reglas lógicas del negocio, “bote” puede ser sintácticamente válido porque solamente contiene caracteres alfanuméricos, pero no es válido si usted espera colores como ser “rojo” o “azul”. Cuando se construyen secuencias de comando OS, utilice listados de aprobación estrictos que limiten el conjunto de caracteres, basados en el valor del parámetro que se espere en la solicitud. This will indirectly limit the scope of an attack, but this technique is less important than proper output encoding and escaping.
 
 Note that proper output encoding, escaping, and quoting is the most effective solution for preventing OS command injection, although input validation may provide some defense-in-depth. This is because it effectively limits what will appear in output. Input validation will not always prevent OS command injection, especially if you are required to support free-form text fields that could contain arbitrary characters. For example, when invoking a mail program, you might need to allow the subject field to contain otherwise-dangerous inputs like ";" and ">" characters, which would need to be escaped or otherwise handled. In this case, stripping the character might reduce the risk of OS command injection, but it would produce incorrect behavior because the subject field would not be recorded as the user intended. This might seem to be a minor inconvenience, but it could be more important when the program relies on well-structured subject lines in order to pass messages to other components.
 
@@ -792,7 +785,7 @@ A certificate binds an identity to a cryptographic key to authenticate a communi
 <vuln_items>wasc_33</vuln_items>
 <vuln_item_wasc_33>
 	<alert>Path Traversal</alert>
-	<desc>The Path Traversal attack technique allows an attacker access to files, directories, and commands that potentially reside outside the web document root directory. An attacker may manipulate a URL in such a way that the web site will execute or reveal the contents of arbitrary files anywhere on the web server. Any device that exposes an HTTP-based interface is potentially vulnerable to Path Traversal.
+	<desc>La técnica de ataque Path Traversal permite a un atacante acceder a los archivos, directorios y comandos que potencialmente residen fuera del directorio raíz de documentos web. An attacker may manipulate a URL in such a way that the web site will execute or reveal the contents of arbitrary files anywhere on the web server. Any device that exposes an HTTP-based interface is potentially vulnerable to Path Traversal.
 
 Most web sites restrict user access to a specific portion of the file-system, typically called the "web document root" or "CGI root" directory. These directories contain the files intended for user access and the executable necessary to drive web application functionality. To access files or execute commands anywhere on the file-system, Path Traversal attacks will utilize the ability of special-characters sequences.
 
@@ -831,9 +824,7 @@ Esto puede que no sea la solución viable, y solo limita el impacto al sistema o
 	<desc>Predictable Resource Location is an attack technique used to uncover hidden web site content and functionality. By making educated guesses via brute forcing an attacker can guess file and directory names not intended for public viewing. Brute forcing filenames is easy because files/paths often have common naming convention and reside in standard locations. These can include temporary files, backup files, logs, administrative site sections, configuration files, demo applications, and sample files. These files may disclose sensitive information about the website, web application internals, database information, passwords, machine names, file paths to other sensitive areas, etc...
 
 This will not only assist with identifying site surface which may lead to additional site vulnerabilities, but also may disclose valuable information to an attacker about the environment or its users. Predictable Resource Location is also known as Forced Browsing, Forceful Browsing, File Enumeration, and Directory Enumeration.</desc>
-	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
-
-Consider using MVC based frameworks such as Struts.</solution>
+	<solution>Aplique adecuadamente las autorizaciones de control de acceso para cada acceso en todas las URLs, secuencias de comando o archivos restringidos. Considere usar infraestructuras basadas en MVC como Struts.</solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
@@ -898,7 +889,7 @@ When the set of acceptable objects, such as filenames or URLs, is limited or kno
 
 For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Las características tales como AccessReferenceMap de ESAPI otorgan esta capacidad.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
+Identifique todas las áreas potenciales a través de las cuales puede ingresar a su software contenido poco confiable: parámetros o argumentos, cookies, cualquier cosa que sea leída desde la red, variables del ámbito, títulos o contenido de las solicitudes, componentes URL, correos electrónicos, archivos, bases de datos y cualquier sistema externo que le brinde información a la aplicación. Recuerde que esas entradas pueden ser obtenidas de forma indirecta por medio de llamadas API.
 
 Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
@@ -1011,7 +1002,7 @@ Properly validate user input. Reject data where appropriate, filter where approp
 <vuln_items>wasc_47</vuln_items>
 <vuln_item_wasc_47>
 	<alert>Insufficient Session Expiration</alert>
-	<desc>Insufficient Session Expiration occurs when a Web application permits an attacker to reuse old session credentials or session IDs for authorization. Insufficient Session Expiration increases a Web site's exposure to attacks that steal or reuse user's session identifiers.
+	<desc>Insufficient Session Expiration ocurre cuando una aplicación web permite a un atacante reutilizar credenciales de una sesión vieja o IDs de sesión para la autorización. Insufficient Session Expiration increases a Web site's exposure to attacks that steal or reuse user's session identifiers.
 
 Since HTTP is a stateless protocol, Web sites commonly use cookies to store session IDs that uniquely identify a user from request to request. Consequently, each session ID's confidentiality must be maintained in order to prevent multiple users from accessing the same account. A stolen session ID can be used to view another user's account or perform a fraudulent transaction.
 
@@ -1040,9 +1031,7 @@ A Web application should invalidate a session after a predefined idle time has p
 Examples of automated password recovery processes include requiring the user to answer a "secret question" defined as part of the user registration process. This question can either be selected from a list of canned questions or supplied by the user. Another mechanism in use is having the user provide a "hint" during registration that will help the user remember his password. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. After the user has proven who they are, the recovery system will display or e-mail them a new password.
 
 A web site is considered to have Insufficient Password Recovery when an attacker is able to foil the recovery mechanism being used. This happens when the information required to validate a user's identity for recovery is either easily guessed or can be circumvented. Password recovery systems may be compromised through the use of brute force attacks, inherent system weaknesses, or easily guessed secret questions.</desc>
-	<solution>Make sure that all input supplied by the user to the password recovery mechanism is thoroughly filtered and validated
-
-Do not use standard weak security questions and use several security questions.
+	<solution>Asegúrese de que todas las entradas brindadas por el usuario para los mecanismos de recupero de contraseñas son filtradas y validadas a lo largo del proceso. No utilice preguntas de seguridad que sean estándar y/o débiles y utilice varias preguntas diferentes.
 
 Make sure that there is throttling on the number of incorrect answers to a security question. Disable the password recovery functionality after a certain (small) number of incorrect guesses.
 
