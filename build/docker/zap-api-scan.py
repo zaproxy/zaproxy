@@ -56,6 +56,7 @@ import subprocess
 import sys
 import time
 from datetime import datetime
+from six.moves.urllib.parse import urljoin
 from zapv2 import ZAPv2
 from zap_common import *
 
@@ -99,6 +100,7 @@ def usage():
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
+    print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('')
     print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-API-Scan')
@@ -123,6 +125,7 @@ def main(argv):
     target = ''
     target_file = ''
     target_url = ''
+    host_override = ''
     format = ''
     zap_alpha = False
     info_unspecified = False
@@ -141,7 +144,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:")
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:O:")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -197,6 +200,8 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+        elif opt == '-O':
+            host_override = arg
 
     check_zap_client_version()
 
@@ -343,8 +348,11 @@ def main(argv):
         if format == 'openapi':
             if target_url:
                 logging.debug('Import OpenAPI URL ' + target_url)
-                res = zap.openapi.import_url(target)
+                res = zap.openapi.import_url(target, host_override)
                 urls = zap.core.urls()
+                if host_override:
+                    target = urljoin(target_url, '//' + host_override)
+                    logging.info('Using host override, new target: {0}'.format(target))
             else:
                 logging.debug('Import OpenAPI File ' + target_file)
                 res = zap.openapi.import_file(base_dir + target_file)
