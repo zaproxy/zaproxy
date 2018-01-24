@@ -222,6 +222,9 @@ public class ScriptAPI extends ApiImplementor {
 			if (!file.exists()) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, file.getAbsolutePath());
 			}
+			if (extension.getScript(params.getString(ACTION_PARAM_SCRIPT_NAME)) != null) {
+				throw new ApiException(ApiException.Type.ALREADY_EXISTS, ACTION_PARAM_SCRIPT_NAME);
+			}
 			
 			ScriptWrapper script = new ScriptWrapper(
 					params.getString(ACTION_PARAM_SCRIPT_NAME),
