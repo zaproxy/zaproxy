@@ -140,6 +140,12 @@ public class AlertPanel extends AbstractPanel {
 
 	private ExtensionAlert extension = null;
 
+    /**
+     * A button that allows to delete all alerts.
+     * 
+     * @see #getDeleteAllButton()
+     */
+    private JButton deleteAllButton;
 	
     public AlertPanel(ExtensionAlert extension) {
         super();
@@ -210,6 +216,8 @@ public class AlertPanel extends AbstractPanel {
 			panelToolbar.add(getLinkWithSitesTreeButton());
 			panelToolbar.addSeparator();
 			panelToolbar.add(getEditButton());
+			panelToolbar.addSeparator();
+			panelToolbar.add(getDeleteAllButton());
 		}
 		return panelToolbar;
 	}
@@ -718,6 +726,24 @@ public class AlertPanel extends AbstractPanel {
 			});
 		}
 		return editButton;
+	}
+
+	private JButton getDeleteAllButton() {
+		if (deleteAllButton == null) {
+			deleteAllButton = new JButton();
+			deleteAllButton.setToolTipText(Constant.messages.getString("alert.deleteall.button.tooltip"));
+			deleteAllButton
+					.setIcon(DisplayUtils.getScaledIcon(AlertPanel.class.getResource("/resource/icon/fugue/broom-alerts.png")));
+
+			deleteAllButton.addActionListener(e -> {
+				if (View.getSingleton()
+						.showConfirmDialog(Constant.messages.getString("alert.deleteall.confirm")) != JOptionPane.OK_OPTION) {
+					return;
+				}
+				extension.deleteAllAlerts();
+			});
+		}
+		return deleteAllButton;
 	}
 
 }
