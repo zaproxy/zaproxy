@@ -151,8 +151,8 @@ Mga yugto: Arkitektura at plano; Operasyon
 Magtabi ng aklatan, isama, at mga utility file sa labas ng web document root, kung pepwedi. O kaya, i-store sila sa isang nakahiwalay na direktoryo at gamitin ang mga kakayahan ng access kontrol ng web server para mapigilan ang mga aatake mula sa direktang pag-hiling sa kanila. Isang karaniwang pagsasanay ay ang pagtukoy sa isang fixed na constant sa bawat calling program, pagkatapos ay ang pag-check sa pagkakaroon ng constant sa library/include file; kung ang constant aay hindi umiiral, kung gayon ang file ay direktang iniling, at ito ay maaaring i-exit kaagad.
 Ito ay makabuluhang magpapababa ng tsansa ng isang aatake na magawang lagpasan ang anumang mga mekanismong proteksyon na nasa base program ngunit hindi nasa include files. Mababawasan din nito ang iyong attack surface.
 
-Phases: Architecture and Design; Implementation
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
+Yugto: Arkitektura at Plano; Pagpapatupad
+Maunawaan ang lahat ng mga potensyal na lugar kung saan pweding ipasok ng mga hindi pinagkakatiwalaang input ang iyong software: mga parameter o argumento, cookies, sa anumang nabasa mula sa network, mga baryante ng kapaligiran, saliwang pag-tingin sa taas ng DNS, mga resulta ng tanong, sa ulo ng kahilingan, mga bahagi ng URL, e-mail, mga file, database, at anumang mga panlabas na sistema na nagbibigay ng datos sa pagpapairal. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
 Many file inclusion problems occur because the programmer assumed that certain inputs could not be modified, especially for cookies and URL components.</solution>
 	<reference>http://projects.webappsec.org/Remote-File-Inclusion</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
@@ -161,19 +161,19 @@ Many file inclusion problems occur because the programmer assumed that certain i
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
 	<alert>String ng Format</alert>
-	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
+	<desc>Ang pagbago ng pag-atake ng String ng ayos ang daloy ng isang pag-papairal sa pamamagitan ng paggamit ng mga tampok sa pag-ayos ng format ng library upang ma-kadaan ang iba pang espasyo ng memorya. Ang mga kahinaan ay nangyayari kapag ang datos na naibigay ng taga-gamit ay direktang ginagamit bilang pag-format ng input ng string para sa ilang C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
 
-If an attacker passes a format string consisting of printf conversion characters (e.g. "%f", "%p", "%n", etc.) as a parameter value to the web application, they may:
-    * Execute arbitrary code on the server
-    * Read values off the stack
-    * Cause segmentation faults / software crashes
+Kung ang isang sasalakay ay makapasa sa isang format na string na binubuo ng mga character ng printf na pinag-usapan (e.g. "%f", "%p", "%n", etc.) bilang isang parameter na halaga sa web aplikasyon, pwedi silang:
+    * Ipatupad ang arbitrary code ng server
+    * Basahin ng mga halaga mula sa stack
+    * Ang sanhi ng mga pagkakamali ng segmentation / pag-kasira ng software
 
-Format String attacks are related to other attacks in the Threat Classification: Buffer Overflows and Integer Overflows. All three are based in their ability to manipulate memory or its interpretation in a way that contributes to an attacker's goal.</desc>
-	<solution>Phase: Requirements
-Choose a language that is not subject to this flaw.
+Ang pag-atake ng string ay may kaugnayan sa iba pang mga pag-atake sa banta ng pag-uuri: Buffer pag-apaw sa pag-apaw ng Integer. Ang lahat ng tatlo ay batay sa kanilang kakayahan na mamahala ang memorya o interpretasyon nito sa isang paraan na nag-aambag sa layunin ng magsasalakay.</desc>
+	<solution>Ang yugto: pangangailangan
+Pumili ng isang lengguwahe na hindi napapailalim sa lamat na ito.
 
-Phase: Implementation
-Ensure that all format string functions are passed a static string which cannot be controlled by the user and that the proper number of arguments are always sent to that function as well. Kung posible, gumamit ng mga function na hindi sumusuporta sa %n operator sa mga format string.
+Ang yugto: Pagpapatupad
+Siguraduhin na ang lahat ng mga tungkuli ng format ng string ay pinapasa sa isang estatika na string na hindi pweding kontrolin ng gumagamit at ang tamang bilang ng mga argumento ay palaging ipinapadala sa tungkulin na rin. Kung posible, gumamit ng mga function na hindi sumusuporta sa %n operator sa mga format string.
 Build: Heed the warnings of compilers and linkers, since they may alert you to improper usage.
 </solution>
 	<reference>http://projects.webappsec.org/Format-String</reference>
@@ -183,47 +183,47 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
 	<alert>Buffer Overflow</alert>
-	<desc>A Buffer Overflow is a flaw that occurs when more data is written to a block of memory, or buffer, than the buffer is allocated to hold. Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
-    * Control the process execution
-    * Crash the process
-    * Modify internal variables
+	<desc>Ang Buffer Overflow ay isang lamat na nangyayari kapag mas maraming datos ang nakasulat sa isang bloke ng memorya, o buffer, kaysa sa buffer ay inilaan upang hawakan. Ang pagargabyado sa overflow ng buffer ay nagbibigay-daan sa isang magsasalakay na baguhin ang mga bahagi ng patlang na kinaroroonan ng target na pag-proseso. Ang kakayahan na ito ay pweding magamit para sa maraming layunin, kabilang ang mga sumusunod:
+    * ang pag-kontrol sa pagpapatupad ng proseso
+    * Sirain ang pag-proseso
+    * Baguhin ang panloob na mga baryante
 
-The attacker’s goal is almost always to control the target process’ execution. Ito ay maisasagawa sa pamamagitan ng pagtukoy sa isang function pointer sa memorya na maaaring mabago, direkta o hindi direkta, gamit ang overflow. When such a pointer is used by the program to direct program execution through a jump or call instruction, the attacker-supplied instruction location will be used, thereby allowing the attacker to control the process.
+Ang layunin ng magsasalakay ay halos palaging makontrol ang pagpapatupad ng target na pag-proseso. Ito ay maisasagawa sa pamamagitan ng pagtukoy sa isang function pointer sa memorya na maaaring mabago, direkta o hindi direkta, gamit ang overflow. Kapag ang naturang pointer ay nagagamit ng programa upang maidirekta ang pagsasagawa ng programa sa pamamagitan ng pagtalon o pagtawag sa pagtuturo, gainagamit ang lokasyon ng pagtuturo na ibinigay ng pagsalakay, sa gayon ay pinahihintulutan ang magsasalakay na kontrolin ang proseso.
 
-In many cases, the function pointer is modified to reference a location where the attacker has placed assembled machine-specific instructions. Ang mga instruksyon na ito ay karaniwang tinatawag bilang shellcode, batay sa katotohanan na ang mga aatake ay kalimitang humihiling na i-spawn ang command-line na environment, o shell, sa konteksto ng tumatakbong proseso.
+Sa maraming mga kaso, ang tungkulin ng pointer ay binabago upang i-sanguni ang isang lokasyon kung saan ang magsasalakay ay nakalagay na nagsama ng mga tagubilin sa makina na natukoy. Ang mga instruksyon na ito ay karaniwang tinatawag bilang shellcode, batay sa katotohanan na ang mga aatake ay kalimitang humihiling na i-spawn ang command-line na environment, o shell, sa konteksto ng tumatakbong proseso.
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
 	<solution>Yugto: Mga Requirements
 Paggamit ng wika na hindi nag pahintulot sa gamitong mga kahinaan o nagbibigay ng constructs na gumagawa ng kahinaan na madaling itong maiwasan.
-For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Ibang mga lengguwahe, tulad ng Ada at c#, karaniwang nagbibigay ng proteksyon sa overflow, ngunit ang proteksyon ay maaaring hindi paganahin ng programmer.
+Halimbawa, maraming mga lengguwahe na nagsasagawa ng kanilang sariling pamamahala sa memorya, tulad ng Java at Perl, ay hindi napapasailalim sa overflows ng buffer. Ibang mga lengguwahe, tulad ng Ada at c#, karaniwang nagbibigay ng proteksyon sa overflow, ngunit ang proteksyon ay maaaring hindi paganahin ng programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
 Yugto: Arkitekture at Disenyo
 Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
-Phase: Build and Compilation
-Run or compile your software using features or extensions that automatically provide a protection mechanism that mitigates or eliminates buffer overflows.
-For example, certain compilers and extensions provide automatic buffer overflow detection mechanisms that are built into the compiled code. Examples include the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
+Ang yugto: Ang pag-tatag at pag-samasama
+Patakbuhin o tipunin ang iyong software gamit ang mga tampok o lawig na awtomatikong nagbibigay ng mekanismo ng proteksyon na nagpapagaan o nag-aalis ng overflow ng buffer.
+Ang halimbawa, ang ilang mga taga-tipun at mga lawig ay nagbibigay ng awtomatikong mekanismo ng pag-tuklas ng overflow ng buffer na itinatag sa naimbak na code. Ang kalakip sa mga halimbawa ang flag ng Microsoft Visual Studio /GS, Fedora/Red Hat FORATIFY SOURCE GCC flag, StackGuard, at ProPolice.
 
-Phase: Implementation
-Consider adhering to the following rules when allocating and managing an application's memory:
-      Double check that your buffer is as large as you specify.
+Ang Yugto: Pagpapatupad
+gunitain ang pagsunod sa mga sumusunod na alituntunin kapag naglalaan at namamahala ng memorya ng isang aplikasyon:
+     doublehin ang pag-suri kung ang buffer mo ay kasing dami ng iyong tinukoy.
       Kapag gumagamit ng mga function na tumatanggap ng isang bilang ng bytes para kopyahin, tulad ng strncpy(), magkaroon ng kamalayan na kung ang sukat ng destination buffer ay katumbas ng sukat ng source buffer, ito ay maaaring hindi mag NULL-terminate ng string.
       Check buffer boundaries if calling this function in a loop and make sure you are not in danger of writing past the allocated space.
       If necessary, truncate all input strings to a reasonable length before passing them to the copy and concatenation functions.
 
-Phase: Operation
-Use a feature like Address Space Layout Randomization (ASLR).
+Ang Yugto: Operasyon
+Ang pag-gamit ng isang tampok tulad ng Address Space Layout Randomization (ASLR).
 
-Phase: Operation
+Ang Yugto: Operasyon
 
-Use a CPU and operating system that offers Data Execution Protection (NX) or its equivalent.
+Ang pag-gamit ng CPU at operating system na nag-aalok ng Data Execution Protection (NX) o kahambing nito.
 
-Phase: Implementation
+Ang Yugto: Pagpapatupad
 
-Replace unbounded copy functions with analogous functions that support length arguments, such as strcpy with strncpy. Create these if they are not available.
+Ang pag-papalit ng mga limitasyon ng mga tungkulin ng kopya na may mga analog na tungkulin na suportado ng mga argumento ng haba, kagaya ng strcpy na may strncpy. Gawin ito kung, ito ay hindi pwedi.
 </solution>
 	<reference>http://projects.webappsec.org/Buffer-Overflow</reference>
 	<reference>http://cwe.mitre.org/data/definitions/119.html</reference>
@@ -298,8 +298,8 @@ This control includes a component for CSRF.
 
 Do not use the GET method for any request that triggers a state change.
 
-Phase: Implementation
-Check the HTTP Referer header to see if the request originated from an expected page. This could break legitimate functionality, because users or proxies may have disabled sending the Referer for privacy reasons.</solution>
+Ang Yugto: Pagpapatupad
+Suriin ang header ng HTTP Referer upang makita kung ang kahilingan ay nagmula sa isang inaasahang pahina. This could break legitimate functionality, because users or proxies may have disabled sending the Referer for privacy reasons.</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Request-Forgery</reference>
 	<reference>http://cwe.mitre.org/data/definitions/352.html</reference>
 </vuln_item_wasc_9>
@@ -389,10 +389,10 @@ In order to fill in the missing information the hacker can guess the missing inf
 <vuln_items>wasc_12</vuln_items>
 <vuln_item_wasc_12>
 	<alert>Content Spoofing</alert>
-	<desc>Content Spoofing is an attack technique that allows an attacker to inject a malicious payload that is later misrepresented as legitimate content of a web application.
+	<desc>Ang nilalaman ng Spoofing ay isang atake sa kakayahan na nagbibigay-daan sa isang magsasalakay upang mag-iniksyon ng isang hindi magandang kargamento na mamaya misrepresented bilang lehitimong nilalaman ng isang web aplikasyon.
  
-Text Only Content Spoofing
-A common approach to dynamically build pages involves passing the body or portions thereof into the page via a query string value. This approach is common on error pages, or sites providing story or news entries. The content specified in this parameter is later reflected into the page to provide the content for the page.
+Ang teksto na nilalaman lamang ng Spoofing
+Ang isang pangkaraniwang kakayahan sa mga pahina ng dynamic na pagtatag ay nagsasangkot ng pagpasa sa katawan o mga bahagi nito sa pahina sa pamamagitan ng tanong na halaga ng string. This approach is common on error pages, or sites providing story or news entries. The content specified in this parameter is later reflected into the page to provide the content for the page.
  
 Markup Reflected Content Spoofing
 Some web pages are served using dynamically built HTML content sources. For example, the source location of a frame <frame src="http://foo.example/file.html"/>) could be specified by a URL parameter value. (http://foo.example/page?frame_src=http://foo.example/file.html). An attacker may be able to replace the "frame_src" parameter value with "frame_src=http://attacker.example/spoof.html". Unlike redirectors, when the resulting web page is served the browser location bar visibly remains under the user expected domain (foo.example), but the foreign data (attacker.example) is shrouded by legitimate content.
@@ -477,12 +477,12 @@ Many web sites are designed to authenticate and track a user when communication 
 <vuln_items>wasc_19</vuln_items>
 <vuln_item_wasc_19>
 	<alert>SQL Injection</alert>
-	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
+	<desc>Ang SQL Injection ay isang kakayahan ng pag-atake na ginagamit upang abusohin ang mga aplikasyon na bumuo ng mga pahayag ng SQL mula sa input na ibinigay ng taga-gamit. Kung magiging matagumpay, ang pag-atake ay pwedi mong baguhin ang lohika ng SQL pahayag na isinasagawa kontra sa database.
 
-Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
+Ang Structured Query Language (SQL) ay isang espesyal na programang pang lengguwahe para sa pagpapadala ng mga tanong sa mga database. Ang SQL programang pang lengguwahe ay parehong isang ANSI at isang normal na ISO, bagamat maraming mga produkto ng database na suportado ang SQL gawin ito sa mga pagmamay-ari ng lawig sa karaniwang lengguwahe. Ang mga aplikasyon ay kadalasang gumagamit ng datos na ibinigay ng taga-gamit upang gumawa ng mga salaysay ng SQL. Kung ang isang aplikasyon ay nabigo upang maayos na bumuo ng mga SQL na salaysay posible para sa isang pagsalakay upang baguhin ang istraktura ng pahayag at ipatupad ang hindi na plano at potensyal na hahamon sa utos. Kapag ang mga utos na ito ay ipinapatupad, ginagawa nila ito sa ibaba ng konteksto ng taga-gamit na tinukoy ng aplikasyon na ipinapatupad ang salaysay. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
 	<solution>Yugto: Arkitekture at Disenyo
 Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
-For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
+Ang halimbawa, kosedirahin ang paggamit ng mga hanay ng pagtitiyaga tulad ng Hibernate o Enterprise Java Beans, na pweding magbigay ng makabuluhang seguridad kontra sa SQL injection kung gagamitin nang maayos.
 
 Kung may magagamit o may mapapakinabangan, gamitin ang structued na mekanismo na awtomatikong mag eenforce ng separado sa pagitan ng datos at code. Ang Mekanismong ito ay maaring mag provide o maghanda ng may kaugnayan sa quoting, pag eencode at sa awtomatikong balidasyon, sa halip na umasa ang mga nag develope ang gumawa ng kapasidad o kakayahan sa lahat ng pagkakataon kapag ang output ay nagenerate.
 
@@ -492,16 +492,16 @@ Run your code using the lowest privileges that are required to accomplish the ne
 
 Specifically, follow the principle of least privilege when creating user accounts to a SQL database. The database users should only have the minimum privileges necessary to use their account. If the requirements of the system indicate that a user can read and modify their own data, then limit their privileges so they cannot read/write others' data. Use the strictest permissions possible on all database objects, such as execute-only for stored procedures.
 
-Phase: Implementation
-If you need to use dynamically-generated query strings or commands in spite of the risk, properly quote arguments and escape any special characters within those arguments. The most conservative approach is to escape or filter all characters that do not pass an extremely strict whitelist (such as everything that is not alphanumeric or white space). If some special characters are still needed, such as white space, wrap each argument in quotes after the escaping/filtering step. Be careful of argument injection (CWE-88).
+Ang Yugto: Pagpapatupad
+Kung kinakailangan mong gumamit ng mga string ng tanong o direksiyon na dinamiko binuo sa kabila ng panganib, maayos na mag-tukoy
+ ng mga argumento at makawala sa anumang mga espesyal na character sa loob ng mga argumento. Ang pinaka-konserbatibong paraan ay upang makawala o mag-sala ng lahat ng mga character na hindi nakapasa sa isang lubos na mahigpit na whitelist (tulad ng lahat ng bagay na hindi alphanumeric o puting patlang). Kung kinakailangan ng mo ng ilang mga espesyal na character, tulad ng puting patlang, balutin ang bawat argumento sa mga panipi pagkatapos ng pagtakas/hakbang sa pagsala. Mag-ingat sa argumento ng injection (CWE-88).
 
-Instead of building your own implementation, such features may be available in the database or programming language. For example, the Oracle DBMS ASSERT package can check or enforce that parameters have certain properties that make them less vulnerable to SQL injection. For MySQL, the mysql real escape string() API function is available in both C and PHP.
+Sa halip na pagbuo ng iyong sariling pagsasagawa, ang mga tampok na ito ay pweding makakuha sa database o lengguwahe ng programa. Ang halimbawa, ang Oracle DBMS ASSERT na pakete ay pweding suriin o isagawa ang mga parameter ay may ilang mga pag-aari na nagpapahina sa kanila sa SQL injection. Para sa MySQL, ang mysql tunay na pag-takas na string() API 
+Ang tungkulin ay magagamit sa parehong C at PHP.
 
 Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
 
-Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
-
-When constructing SQL query strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. This will indirectly limit the scope of an attack, but this technique is less important than proper output encoding and escaping.
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa ng lohika sa tuntunin sa negosyo, ang "bangka" ay maaaring tama syntactically dahil naglalaman lamang ito ng mga alphanumeric na character, subalit hindi ito wasto kung umaasa ka sa mga kolor tulad ng "red" o "blue.". Ito ay hindi direktang nalilimitahan ang sakop ng isang pag-atake, subalit ang pamamaraan na ito ay mas mahalaga kaysa sa tamang pag-pasok ng output at pag-alis.
 
 Note that proper output encoding, escaping, and quoting is the most effective solution for preventing SQL injection, although input validation may provide some defense-in-depth. This is because it effectively limits what will appear in output. Input validation will not always prevent SQL injection, especially if you are required to support free-form text fields that could contain arbitrary characters. For example, the name "O'Reilly" would likely pass the validation step, since it is a common last name in the English language. However, it cannot be directly inserted into the database because it contains the "'" apostrophe character, which would need to be escaped or otherwise handled. In this case, stripping the apostrophe might reduce the risk of SQL injection, but it would produce incorrect behavior because the wrong name would be recorded.
 
@@ -513,9 +513,9 @@ When feasible, it may be safest to disallow meta-characters entirely, instead of
 <vuln_items>wasc_20</vuln_items>
 <vuln_item_wasc_20>
 	<alert>Improper Input Handling</alert>
-	<desc>Improper input handling is one of the most common weaknesses identified across applications today. Poorly handled input is a leading cause behind critical vulnerabilities that exist in systems and applications.
+	<desc>Ang hindi wastong paghawak sa pag-input ay isa sa mga pinakakaraniwang kahinaan na natunton sa buong mga aplikasyon ngayon. Ang hindi magandang pagdederekta sa pag-input ay isang pangunahing dahilan sa likuran ng mga kritikal na kahinaan na umiiral sa mga sistema at aplikasyon.
 	
-Generally, the term input handing is used to describe functions like validation, sanitization, filtering, encoding and/or decoding of input data. Applications receive input from various sources including human users, software agents (browsers), and network/peripheral devices to name a few. In the case of web applications, input can be transferred in various formats (name value pairs, JSON, SOAP, etc...) and obtained via URL query strings, POST data, HTTP headers, Cookies, etc... Non-web application input can be obtained via application variables, environment variables, the registry, configuration files, etc... Regardless of the data format or source/location of the input, all input should be considered untrusted and potentially malicious. Applications which process untrusted input may become vulnerable to attacks such as Buffer Overflows, SQL Injection, OS Commanding, Denial of Service just to name a few.
+Sa pangkalahatan, ang pangmatagalang pagpasok ng input ay ginagamit upang isalarawan ang mga tungkulin kagaya ng pagpapatunay, sanitization, pag-sasala, pag-papasok at/o pag-labas ng datos ng pag-input. Ang mga aplikasyon ay nakakakuha ng input mula sa iba't ibang mga mapagkukuhaan kasama ang mga taga-gamit ng tao, mga ahente ng software (mga browser), at mga network/peripheral na aparato upang makapagtala ng ilang pangalan. Sa kaso ng mga aplikasyon sa web, pweding mailipat ang input sa iba't ibang mga ayos (name value pairs, JSON, SOAP, etc...) at mkakuha sa pamamagitan ng mga string ng tanong sa URL, POST data, HTTP headers, Cookies, etc... Non-web application input can be obtained via application variables, environment variables, the registry, configuration files, etc... Regardless of the data format or source/location of the input, all input should be considered untrusted and potentially malicious. Applications which process untrusted input may become vulnerable to attacks such as Buffer Overflows, SQL Injection, OS Commanding, Denial of Service just to name a few.
 
 One of the key aspects of input handling is validating that the input satisfies a certain criteria. For proper validation, it is important to identify the form and type of data that is acceptable and expected by the application. Defining an expected format and usage of each instance of untrusted input is required to accurately define restrictions. 
 
@@ -751,7 +751,7 @@ Use a vetted library or framework that does not allow this weakness to occur or 
 
 For example, consider using the ESAPI Encoding control or a similar tool, library, or framework. These will help the programmer encode outputs in a manner less prone to error.
 
-If you need to use dynamically-generated query strings or commands in spite of the risk, properly quote arguments and escape any special characters within those arguments. The most conservative approach is to escape or filter all characters that do not pass an extremely strict whitelist (such as everything that is not alphanumeric or white space). If some special characters are still needed, such as white space, wrap each argument in quotes after the escaping/filtering step. Be careful of argument injection.
+If you need to use dynamically-generated query strings or commands in spite of the risk, properly quote arguments and escape any special characters within those arguments. Ang pinaka-konserbatibong paraan ay upang makawala o mag-sala ng lahat ng mga character na hindi nakapasa sa isang lubos na mahigpit na whitelist (tulad ng lahat ng bagay na hindi alphanumeric o puting patlang). Kung kinakailangan ng mo ng ilang mga espesyal na character, tulad ng puting patlang, balutin ang bawat argumento sa mga panipi pagkatapos ng pagtakas/hakbang sa pagsala. Be careful of argument injection.
 
 If the program to be executed allows arguments to be specified within an input file or from standard input, then consider using that mode to pass arguments instead of the command line.
 
@@ -763,7 +763,7 @@ Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahu
 
 Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-When constructing OS command strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. This will indirectly limit the scope of an attack, but this technique is less important than proper output encoding and escaping.
+When constructing OS command strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. Ito ay hindi direktang nalilimitahan ang sakop ng isang pag-atake, subalit ang pamamaraan na ito ay mas mahalaga kaysa sa tamang pag-pasok ng output at pag-alis.
 
 Note that proper output encoding, escaping, and quoting is the most effective solution for preventing OS command injection, although input validation may provide some defense-in-depth. This is because it effectively limits what will appear in output. Input validation will not always prevent OS command injection, especially if you are required to support free-form text fields that could contain arbitrary characters. For example, when invoking a mail program, you might need to allow the subject field to contain otherwise-dangerous inputs like ";" and ">" characters, which would need to be escaped or otherwise handled. In this case, stripping the character might reduce the risk of OS command injection, but it would produce incorrect behavior because the subject field would not be recorded as the user intended. This might seem to be a minor inconvenience, but it could be more important when the program relies on well-structured subject lines in order to pass messages to other components.
 
