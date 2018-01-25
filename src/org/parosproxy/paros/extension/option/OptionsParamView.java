@@ -36,6 +36,7 @@
 // ZAP: 2016/05/13 Add options to confirm removal of exclude from proxy, scanner and spider regexes
 // ZAP: 2017/05/29 Add option to use system's locale for formatting.
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
+// ZAP: 2018/01/25 Remove unused constant LOCALES.
 
 package org.parosproxy.paros.extension.option;
 
@@ -59,7 +60,6 @@ public class OptionsParamView extends AbstractParam {
 	private static final String SHOW_TEXT_ICONS = "view.showTabNames";
 	private static final String PROCESS_IMAGES = "view.processImages";
 	public static final String LOCALE = "view.locale";
-	public static final String LOCALES = "view.locales";
 	public static final String DISPLAY_OPTION = "view.displayOption";
 	private static final String RESPONSE_PANEL_POS_KEY = BASE_VIEW_KEY + ".messagePanelsPosition.lastSelectedPosition";
 	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
