@@ -51,6 +51,7 @@
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 // ZAP: 2017/07/09: Issue 3727: Add getName() function, returning the node name without HTTP method (verb)
+// ZAP: 2018/01/24 Clear highest alert when all deleted.
 
 package org.parosproxy.paros.model;
 
@@ -547,6 +548,8 @@ public class SiteNode extends DefaultMutableTreeNode {
 
         if (!alerts.isEmpty()) {
             alerts.clear();
+            highestAlert = null;
+            calculateHighestAlert = false;
         	if (this.siteMap != null) {
         		// Deleting alert might affect the nodes visibility in a filtered tree
         		siteMap.applyFilter(this);

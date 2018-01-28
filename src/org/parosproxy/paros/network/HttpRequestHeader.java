@@ -45,6 +45,7 @@
 // ZAP: 2017/04/24 Added more HTTP methods
 // ZAP: 2017/10/19 Skip parsing of empty Cookie headers.
 // ZAP: 2017/11/22 Address a NPE in isImage().
+// ZAP: 2018/01/10 Tweak how cookie header is reconstructed from HtmlParameter(s).
 
 package org.parosproxy.paros.network;
 
@@ -701,13 +702,16 @@ public class HttpRequestHeader extends HttpHeader {
                 continue;
             }
 
-            sbData.append(parameter.getName());
-            sbData.append('=');
+            String cookieName = parameter.getName();
+            if (!cookieName.isEmpty()) {
+                sbData.append(cookieName);
+                sbData.append('=');
+            }
             sbData.append(parameter.getValue());
             sbData.append("; ");
         }
 
-        if (sbData.length() <= 3) {
+        if (sbData.length() <= 2) {
             setHeader(HttpHeader.COOKIE, null);
             return;
         }

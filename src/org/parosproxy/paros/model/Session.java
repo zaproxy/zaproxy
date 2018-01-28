@@ -72,6 +72,7 @@
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 // ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
 // ZAP: 2017/10/11 Make contextsChangedListeners static.
+// ZAP: 2018/01/25 Do not save session file if not file based.
 
 package org.parosproxy.paros.model;
 
@@ -583,7 +584,9 @@ public class Session {
 			return;
 		}
 
-		configuration.save(new File(fileName));
+		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+			configuration.save(new File(fileName));
+		}
 		model.getDb().getTableSession().update(getSessionId(), getSessionName());
 	}
 	

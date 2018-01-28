@@ -1,0 +1,17 @@
+version: '3'
+services:
+  zap:
+    build: 
+      context: .
+      dockerfile: ${DOCKERFILE_NAME}
+    ports:
+      - 8090:8090
+    command: zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true -config database.recoverylog=false -config connection.timeoutInSecs=120 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+    #logging:
+    #  driver: "none"
+
+  test:
+    build: 
+      context: .
+      dockerfile: Dockerfile-zapcli
+    command:  zap-cli --zap-url http://zap --port 8090 status -t 60  

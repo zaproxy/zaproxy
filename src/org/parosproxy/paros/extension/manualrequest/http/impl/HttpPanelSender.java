@@ -88,6 +88,8 @@ public class HttpPanelSender implements MessageSender {
     @Override
     public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
+        // Reset the user before sending (e.g. Forced User mode sets the user, if needed).
+        httpMessage.setRequestingUser(null);
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
             boolean followRedirects = getButtonFollowRedirects().isSelected();
