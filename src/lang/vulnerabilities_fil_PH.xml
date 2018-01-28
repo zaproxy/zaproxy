@@ -182,7 +182,7 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
-	<alert>Buffer Overflow</alert>
+	<alert>Ang umaapaw na buffer</alert>
 	<desc>Ang Buffer Overflow ay isang lamat na nangyayari kapag mas maraming datos ang nakasulat sa isang bloke ng memorya, o buffer, kaysa sa buffer ay inilaan upang hawakan. Ang pagargabyado sa overflow ng buffer ay nagbibigay-daan sa isang magsasalakay na baguhin ang mga bahagi ng patlang na kinaroroonan ng target na pag-proseso. Ang kakayahan na ito ay pweding magamit para sa maraming layunin, kabilang ang mga sumusunod:
     * ang pag-kontrol sa pagpapatupad ng proseso
     * Sirain ang pag-proseso
@@ -231,8 +231,8 @@ Ang pag-papalit ng mga limitasyon ng mga tungkulin ng kopya na may mga analog na
 
 <vuln_items>wasc_8</vuln_items>
 <vuln_item_wasc_8>
-	<alert>Cross-site Scripting</alert>
-	<desc>Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
+	<alert>Ang cross-site na scripting</alert>
+	<desc>Ang Cross-site na scripting (XSS) ay isang atake na technique na bumabalot ng echoing ng attacker-supplied na code sa loob ng isang user browser na instance. Ang isang browser instance ay pwedeng isang standard web browser na client, o isang browser object embedded sa isang software produkto tulad ng browser sa loob ng WinAmp, isang RSS na reader, o isang email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
 When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.
 
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
