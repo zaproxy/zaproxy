@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.pscan;
 
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -42,6 +41,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
     private static final long serialVersionUID = 1L;
 
     private final JCheckBox scanOnlyInScopeCheckBox;
+    private final JCheckBox scanFuzzerMessagesCheckBox;
 
     public PassiveScannerOptionsPanel(I18N messages) {
         setName(messages.getString("pscan.options.main.name"));
@@ -52,17 +52,17 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
 
-        scanOnlyInScopeCheckBox = new JCheckBox();
-        JLabel scanOnlyInScopeLabel = new JLabel(messages.getString("pscan.options.main.label.scanOnlyInScope"));
-        scanOnlyInScopeLabel.setLabelFor(scanOnlyInScopeCheckBox);
+        scanOnlyInScopeCheckBox = new JCheckBox(messages.getString("pscan.options.main.label.scanOnlyInScope"));
+        scanFuzzerMessagesCheckBox = new JCheckBox(messages.getString("pscan.options.main.label.scanFuzzerMessages"));
 
         layout.setHorizontalGroup(
-                layout.createSequentialGroup().addComponent(scanOnlyInScopeLabel).addComponent(scanOnlyInScopeCheckBox));
-
+                layout.createParallelGroup()
+                    .addComponent(scanOnlyInScopeCheckBox)
+                    .addComponent(scanFuzzerMessagesCheckBox));
         layout.setVerticalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                        .addComponent(scanOnlyInScopeLabel)
-                        .addComponent(scanOnlyInScopeCheckBox));
+                layout.createSequentialGroup()
+                        .addComponent(scanOnlyInScopeCheckBox)
+                        .addComponent(scanFuzzerMessagesCheckBox));
     }
 
     @Override
@@ -71,6 +71,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         PassiveScanParam pscanOptions = optionsParam.getParamSet(PassiveScanParam.class);
 
         scanOnlyInScopeCheckBox.setSelected(pscanOptions.isScanOnlyInScope());
+        scanFuzzerMessagesCheckBox.setSelected(pscanOptions.isScanFuzzerMessages());
     }
 
     @Override
@@ -79,6 +80,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         PassiveScanParam pscanOptions = optionsParam.getParamSet(PassiveScanParam.class);
 
         pscanOptions.setScanOnlyInScope(scanOnlyInScopeCheckBox.isSelected());
+        pscanOptions.setScanFuzzerMessages(scanFuzzerMessagesCheckBox.isSelected());
     }
 
     @Override
