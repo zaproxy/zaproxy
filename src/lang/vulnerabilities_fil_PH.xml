@@ -306,12 +306,12 @@ Suriin ang header ng HTTP Referer upang makita kung ang kahilingan ay nagmula sa
 
 <vuln_items>wasc_10</vuln_items>
 <vuln_item_wasc_10>
-	<alert>Denial of Service</alert>
-	<desc>Denial of Service (DoS) is an attack technique with the intent of preventing a web site from serving normal user activity. DoS attacks, which are easily normally applied to the network layer, are also possible at the application layer. These malicious attacks can succeed by starving a system of critical resources, vulnerability exploit, or abuse of functionality.
+	<alert>Ang pagtanggi ng serbisyo</alert>
+	<desc>Ang pagtanggi ng serbisyo (DoS) ay isang pamamaraan sa pag-atake na ang layunin ay ang pagpigil sa web site mula sa paglilingkod ng normal na gumagamit sa kanyang gawain. Ang DoS na mga pag-atake, na kung saan ay madaling normal na inilipat na sa network na pagpatong, ay posible din sa pagpatong sa aplikasyon. Ang mga malisyosong mga pag-aatake na ito ay pwedeng magtagumpay sa pagbawas sa kritikal na mga pagkukunan, eksployt, o abuso sa kakayahan.
 
-Many times DoS attacks will attempt to consume all of a web site's available system resources such as: CPU, memory, disk space etc. When any one of these critical resources reach full utilization, the web site will normally be inaccessible.
+Maraming beses na ang mga pag-aatake ng DoS ay pagtatangka na ubusin ang lahat ng mapagkukunan ng magagamit ang website tulad ng: CPU, memory, disk space atbp. Nang sinuman sa mga kritikal na mapagkukunan ay lubos na nagamit, ang web site ay normal na hindi ma-access.
 
-As today's web application environments include a web server, database server and an authentication server, DoS at the application layer may target each of these independent components. Unlike DoS at the network layer, where a large number of connection attempts are required, DoS at the application layer is a much simpler task to perform.</desc>
+Sa ngayon ang web aplikasyon sa mga kapiligiran ay kinabibilangan ng isang web server, database server at isang pagpapatunay na server, DoS at ang aplikasyon na pagpatong ay maaring mag-target sa bawat isa na mga bahagi. Di tulad ng DoS sa patong na network, kung saan ang isang malaking bilang ng koneksyon na pagtatangka ay kinakailangan. Ang DoS sa patong na aplikasyon ay isang mas simpleng gawain na maisasagawa.</desc>
 	<solution>Phase: Architecture and Design
 
 Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold.
