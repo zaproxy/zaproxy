@@ -116,7 +116,7 @@ public class VulnerabilitiesLoader {
 		return resourceBuilder.toString();
 	}
 	
-	private List<Vulnerability> loadVulnerabilitiesFile(Path file) {
+	List<Vulnerability> loadVulnerabilitiesFile(Path file) {
 
 		ZapXmlConfiguration config;
         try {
@@ -169,7 +169,7 @@ public class VulnerabilitiesLoader {
 	 * @return the list of resources files contained in the {@code directory}
 	 * @see LocaleUtils#createResourceFilesPattern(String, String)
 	 */
-	private List<String> getListOfVulnerabilitiesFiles() {
+	List<String> getListOfVulnerabilitiesFiles() {
 		final Pattern filePattern = LocaleUtils.createResourceFilesPattern(fileName, fileExtension);
 		final List<String> fileNames = new ArrayList<>();
 		try {
