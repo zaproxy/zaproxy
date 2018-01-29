@@ -74,6 +74,7 @@
 // ZAP: 2017/06/12 Do not notify listeners when request is excluded.
 // ZAP: 2017/09/22 Check if first message received is a SSL/TLS handshake and tweak exception message.
 // ZAP: 2017/10/02 Improve error handling when checking if SSL/TLS handshake.
+// ZAP: 2018/01/29 Fix API issues with pconn connections
 
 package org.parosproxy.paros.core.proxy;
 
@@ -451,13 +452,19 @@ public class ProxyThread implements Runnable {
 		        	return;
 			    }
 			}
-
-			if (parentServer.isEnableApi() &&
-					API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader))) {
-				// It was an API request
-				return;
+			if (parentServer.isEnableApi()) {
+				msg = API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader));
+				if (msg != null) {
+					if (msg.getRequestHeader().isEmpty()) {
+						return;
+					}
+					ZapGetMethod method = new ZapGetMethod();
+					method.setUpgradedSocket(inSocket);
+					method.setUpgradedInputStream(httpIn);
+					keepSocketOpen = notifyPersistentConnectionListener(msg, inSocket, method);
+					return;
+				}
 			}
-
 			msg = new HttpMessage();
 			msg.setRequestHeader(requestHeader);
 			

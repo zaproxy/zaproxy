@@ -19,10 +19,11 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import java.net.Inet4Address;
@@ -79,13 +80,12 @@ public class APIUnitTest {
         api.setOptionsParamApi(createOptionsParamApi());
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        // When
-        boolean requestHandled = api.handleApiRequest(
+        HttpMessage requestHandled = api.handleApiRequest(
                 createApiRequest(new byte[] { 127, 0, 0, 1 }, "example.com", requestUri),
                 createMockedHttpInputStream(),
                 createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(equalTo(true)));
+        assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
@@ -98,13 +98,12 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        // When
-        boolean requestHandled = api.handleApiRequest(
+        HttpMessage requestHandled = api.handleApiRequest(
                 createApiRequest(new byte[] { 10, 0, 0, 2 }, "example.com", requestUri),
                 createMockedHttpInputStream(),
                 createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(equalTo(true)));
+        assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
@@ -117,13 +116,12 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        // When
-        boolean requestHandled = api.handleApiRequest(
+        HttpMessage requestHandled = api.handleApiRequest(
                 createApiRequest(new byte[] { 127, 0, 0, 1 }, "example.com", requestUri),
                 createMockedHttpInputStream(),
                 createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(equalTo(true)));
+        assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
@@ -136,13 +134,12 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        // When
-        boolean requestHandled = api.handleApiRequest(
+        HttpMessage requestHandled = api.handleApiRequest(
                 createApiRequest(new byte[] { 10, 0, 0, 8 }, "example.com", requestUri),
                 createMockedHttpInputStream(),
                 createMockedHttpOutputStream());
         // Then
-        assertThat(requestHandled, is(equalTo(true)));
+        assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
     }
 
@@ -438,13 +435,13 @@ public class APIUnitTest {
             TestApiImplementor apiImplementor = new TestApiImplementor();
             api.registerApiImplementor(apiImplementor);
             // When
-            boolean requestHandled = api.handleApiRequest(
+            HttpMessage requestHandled = api.handleApiRequest(
                     createApiRequest(new byte[] { 127, 0, 0, 1 }, hostHeader, baseUrl),
                     createMockedHttpInputStream(),
                     createMockedHttpOutputStream(),
                     true);
             // Then
-            assertThat(requestHandled, is(equalTo(true)));
+            assertThat(requestHandled, is(notNullValue()));
             assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
         } catch (Exception e) {
             throw new RuntimeException(e);
