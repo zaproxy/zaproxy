@@ -44,6 +44,7 @@
 // ZAP: 2017/05/12 Support table export.
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2017/10/20 Add action/shortcut to delete history entries (Issue 3626).
+// ZAP: 2018/01/29 Make getHistoryReferenceTable protected (Issue 4000).
 
 package org.parosproxy.paros.extension.history;
 
@@ -337,7 +338,7 @@ public class LogPanel extends AbstractPanel {
 		return null;
 	}
 
-	private HistoryReferencesTable getHistoryReferenceTable() {
+	protected HistoryReferencesTable getHistoryReferenceTable() {
 		if (historyReferencesTable == null) {
 			historyReferencesTable = new HistoryTable();
 			historyReferencesTable.addMouseListener(new java.awt.event.MouseAdapter() {
