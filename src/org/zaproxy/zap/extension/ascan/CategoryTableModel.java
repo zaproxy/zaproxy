@@ -27,12 +27,14 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 // ZAP: 2017/06/05 Return AlertThreshold.OFF if the plugin is disabled.
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
 
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.table.DefaultTableModel;
@@ -194,7 +196,7 @@ public class CategoryTableModel extends DefaultTableModel {
 
     private String strToI18n (String str) {
     	// I18n's threshold and strength enums
-    	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
+    	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase(Locale.ROOT));
     }
 
     private String i18nToStr (String str) {

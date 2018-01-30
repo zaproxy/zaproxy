@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.pscan;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.table.DefaultTableModel;
@@ -176,7 +177,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         
     private String strToI18n(String str) {
         // I18n's threshold and strength enums
-        return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
+        return Constant.messages.getString("ascan.policy.level." + str.toLowerCase(Locale.ROOT));
     }
 
     private String i18nToStr(String str) {

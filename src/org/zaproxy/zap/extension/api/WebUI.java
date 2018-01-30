@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
@@ -291,7 +292,7 @@ public class WebUI {
 						sb.append("\" value=\"");
 						if (this.isDevTestNonce && RequestType.other.equals(reqType)) {
 							sb.append(api.getOneTimeNonce("/" + 
-									reqType.name().toUpperCase() + "/" + 
+									reqType.name().toUpperCase(Locale.ROOT) + "/" + 
 									impl.getPrefix() + "/" + 
 									reqType.name() + "/" + 
 									element.getName() + "/"));

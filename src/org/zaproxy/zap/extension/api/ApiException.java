@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.io.StringWriter;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -105,7 +106,7 @@ public class ApiException extends Exception {
 	}
 
     public ApiException(Type type, String detail, Throwable cause) {
-        super(type.name().toLowerCase(), cause);
+        super(type.name().toLowerCase(Locale.ROOT), cause);
         this.type = type;
         this.detail = detail;
     }
