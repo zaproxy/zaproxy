@@ -133,7 +133,7 @@ public class API {
 	/**
 	 * Registers the given {@code ApiImplementor} to the ZAP API.
 	 * <p>
-	 * The implementor is not registed if the {@link ApiImplementor#getPrefix() API implementor prefix} is already in use.
+	 * The implementor is not registered if the {@link ApiImplementor#getPrefix() API implementor prefix} is already in use.
 	 * <p>
 	 * <strong>Note:</strong> The preferred method to add an {@code ApiImplementor} is through the method
 	 * {@link org.parosproxy.paros.extension.ExtensionHook#addApiImplementor(ApiImplementor)
