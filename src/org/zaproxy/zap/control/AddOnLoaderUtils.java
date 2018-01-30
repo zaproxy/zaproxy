@@ -111,7 +111,7 @@ final class AddOnLoaderUtils {
             Constructor<T> c = (Constructor<T>) cls.getConstructor();
             T instance = c.newInstance();
             return instance;
-        } catch (Exception e) {
+        } catch (ExceptionInInitializerError | Exception e) {
             LOGGER.error("Failed to initialise: " + classname, e);
         }
         return null;
