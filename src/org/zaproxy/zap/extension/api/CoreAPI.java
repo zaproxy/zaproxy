@@ -1285,7 +1285,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				final HarEntries entries = new HarEntries();
 				TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 				RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
-				entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+				addHarEntry(entries, recordHistory);
 
 				HarLog harLog = HarUtils.createZapHarLog();
 				harLog.setEntries(entries);
@@ -1316,20 +1316,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 					for (Integer id : getIds(params)) {
 						RecordHistory recordHistory = getRecordHistory(tableHistory, id);
-						entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+						addHarEntry(entries, recordHistory);
 					}
 				} else {
 					processHttpMessages(
 							this.getParam(params, PARAM_BASE_URL, (String) null),
 							this.getParam(params, PARAM_START, -1),
 							this.getParam(params, PARAM_COUNT, -1),
-							new Processor<RecordHistory>() {
-
-								@Override
-								public void process(RecordHistory recordHistory) {
-									entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
-								}
-							});
+							rh -> addHarEntry(entries, rh));
 				}
 
 				HarLog harLog = HarUtils.createZapHarLog();
@@ -1371,12 +1365,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
 					try {
 						final HarEntries entries = new HarEntries();
-						sendRequest(request, followRedirects, new Processor<HttpMessage>() {
-
-							@Override
-							public void process(HttpMessage msg) {
-								entries.addEntry(HarUtils.createHarEntry(msg));
-							}
+						sendRequest(request, followRedirects, httpMessage -> {
+							HistoryReference hRef = httpMessage.getHistoryRef();
+							entries.addEntry(HarUtils.createHarEntry(hRef.getHistoryId(), hRef.getHistoryType(), httpMessage));
 						});
 
 						HarLog harLog = HarUtils.createZapHarLog();
@@ -1433,6 +1424,21 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_IDS);
 		}
 		return listIds;
+	}
+
+	/**
+	 * Adds the given history record to the given {@code entries}.
+	 *
+	 * @param entries where to add the new {@code HarEntry}.
+	 * @param recordHistory the history record to add, after converting to {@code HarEntry}.
+	 * @see HarUtils#createHarEntry(int, int, HttpMessage)
+	 */
+	private static void addHarEntry(HarEntries entries, RecordHistory recordHistory) {
+		entries.addEntry(
+				HarUtils.createHarEntry(
+						recordHistory.getHistoryId(),
+						recordHistory.getHistoryType(),
+						recordHistory.getHttpMessage()));
 	}
 
 	private boolean incErrorDetails() {
