@@ -356,7 +356,7 @@ public class WebUI {
 				sb.append("<td>");
 				sb.append("<input id=\"button\" value=\"");
 				sb.append(element.getName());
-				sb.append("\" type=\"button\" zap-component=\"" + component + 
+				sb.append("\" type=\"submit\" zap-component=\"" + component + 
 						"\" zap-type=\"" + reqType + "\" zap-name=\"" + name + "\"/>\n");
 				sb.append("</td>");
 				sb.append("</tr>\n");
