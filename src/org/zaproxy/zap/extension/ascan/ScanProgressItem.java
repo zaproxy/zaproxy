@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.Date;
+import java.util.Locale;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -67,7 +69,7 @@ public class ScanProgressItem {
      * @return
      */
     public String getAttackStrenghtLabel() {
-        return Constant.messages.getString("ascan.policy.level." + plugin.getAttackStrength().name().toLowerCase());
+        return Constant.messages.getString("ascan.policy.level." + plugin.getAttackStrength().name().toLowerCase(Locale.ROOT));
     }
 
     /**

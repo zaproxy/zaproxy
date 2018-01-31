@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
@@ -175,7 +176,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
             
             JComboBox<String> jcb1 = new JComboBox<>();
             for (AlertThreshold level : AlertThreshold.values()) {
-                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
             
             tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
