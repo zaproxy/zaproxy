@@ -263,9 +263,7 @@ def main(argv):
                 params.append('-addoninstall')
                 params.append('pscanrulesAlpha')
 
-            if zap_options:
-                for zap_opt in zap_options.split(" "):
-                    params.append(zap_opt)
+            add_zap_options(params, zap_options)
 
             start_zap(port, params)
 
@@ -287,9 +285,7 @@ def main(argv):
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
 
-        if zap_options:
-            for zap_opt in zap_options.split(" "):
-                params.append(zap_opt)
+        add_zap_options(params, zap_options)
 
         try:
             cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)

@@ -23,6 +23,7 @@ import json
 import logging
 import os
 import re
+import shlex
 import socket
 import subprocess
 import sys
@@ -165,6 +166,12 @@ def cp_to_docker(cid, file, dir):
 
 def running_in_docker():
     return os.path.exists('/.dockerenv')
+
+
+def add_zap_options(params, zap_options):
+    if zap_options:
+        for zap_opt in shlex.split(zap_options):
+            params.append(zap_opt)
 
 
 def start_zap(port, extra_zap_params):
