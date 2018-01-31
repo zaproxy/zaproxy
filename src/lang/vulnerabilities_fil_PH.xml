@@ -415,19 +415,19 @@ Kabiguan sa pagkuskus sa HTML/Script na mga komento bago sa isang tulak patungon
 ANg software na bersyon ng mga numero at verbose na maling mga mensahe (tulad ng ASP.NET na mga numero ng bersyon) ay mga halimbawa sa maling server na mga kumpigurasyon. Ang impormasyon na ito ay kapaki-pakinabang sa isang umatake sa pamamagitan ng detalyadong kabatiran sa framework, mga wika, o pre-built na mga function na napapakinabangan ng isang aplikasyon sa web. Karamihan sa default na server na mga kumpigurasyon ay nagbibigay ng software bersyon ng mga numero at verbose na maling mga mensahe para sa pagde-debug at paglutas na mga layunin. Kumpigurasyon ay nagbabago ay maaaring gawin na hindi paganahin ang mga tampok na ito, upang mapigilan ang pagdispley sa impormasyon na ito.
 
 Mga pahina na nagbibigay ng iba't ibang mga tugon batay sa kabuluhan ng datos ay maaari ring humantong sa pagtagas ng impormasyon; lalo na kapag ang datos ay itinuturing na kumpidensyal ay inihayag bilang resulta ng disenyo ng aplikasyon ng web. Mga halimbawa sa sensitibong datos ay kabilang (ngunit hindi limitado sa): mga numero ng account, mga pagkakilanlan ng gumagamit (Numero ng lisensya ng drayber, numero ng passport, mga numero sa social security, atbp.) at gumagamit-partikular na impormasyon (mga password, mga sesyon, mga tirahan). Pagtagas ng impormasyon sa kontekstong ito ay tumatakay sa pagkalantad ng pangunahing gumagamit ng datos na itinuturing na kumpidensyal, o lihim, na dapat hindi nakalantad sa simpleng pananaw, maging ang gumagamit. Ang mga numero ng credit card at iba pang mabigat na regulated na impormasyon ay pangunahing halimbawa ng gumagamit ng datos na nangangailangan ng karagdagang maprotektahan mula sa exposure o pagtagas kahit na may wastong encrypsyon at pagpasok ng mga kontrol na nasa lugar na.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Huwag payagan ang mga sensitibong datos na mag punta sa labas ng pinagkaktiwalaang lugar o lalagyanan at kaialngang lagi ay maging maingat lalo na sa pag interface sa mga kasama sa labas ng ligtas na lalagyan o lugar.</solution>
+	<solution>Paghiwa-hiwalayin ang iyong sistema na magkaroon ng "ligtas" na lugar na kung saan ang mga hangganan ng tiwala ay hindi magagalaw o makukuha ng iba. Huwag payagan ang mga sensitibong datos na mag punta sa labas ng pinagkaktiwalaang lugar o lalagyanan at kaialngang lagi ay maging maingat lalo na sa pag interface sa mga kasama sa labas ng ligtas na lalagyan o lugar.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
 
 <vuln_items>wasc_14</vuln_items>
 <vuln_item_wasc_14>
-	<alert>Server Misconfiguration</alert>
-	<desc>Server Misconfiguration attacks exploit configuration weaknesses found in web servers and application servers. Many servers come with unnecessary default and sample files, including applications, configuration files, scripts, and web pages. They may also have unnecessary services enabled, such as content management and remote administration functionality. Debugging functions may be enabled or administrative functions may be accessible to anonymous users. These features may provide a means for a hacker to bypass authentication methods and gain access to sensitive information, perhaps with elevated privileges.
+	<alert>Hindi maayos na kumpigurasyon ng server</alert>
+	<desc>Hindi maayos na kumpigurasyon sa server na pag-atake ay pagsamantalahan ng mga kahinaan ng mga server sa web at mga server sa aplikasyon. Maraming mga server ay dumating sa di-kinakailangang default at sample na mga file, kabilang na ang mga aplikasyon, kumpigurasyon na mga file, mga script, at mga pahina ng web. Maaaring mayroon di silang hindi kinakailangang mga serbisyong pinagana, tulad ng pamamahala ng nilalaman at administrasyon ng remote na kakayahan. Pagde-debug na kakayahan ay maaaring mapagana o administrative na mga kakayahan ay maaaring mapasokan sa hindi kilalang mga gumagamit. Mga tampok na ito ay maaaring magbigay ng isang paraan para sa isang hacker na lampasan ang mga pamamaraan ng pagpapatunay at makakuha ng access sa sensitibong impormasyon, marahil may nakataas na mga pribilehiyo.
 
-Servers may include well-known default accounts and passwords. Failure to fully lock down or harden the server may leave improperly set file and directory permissions. Misconfigured SSL certificates and encryption settings, the use of default certificates, and improper authentication implementation with external systems may compromise the confidentiality of information.
+Mga server ay maaaring magsama ng kilalang default na mga account at mga password. Kabiguan na lubos na i-lock na pababa o patigasin ang server na maaaring iwanan ang pagtakda ng file at mga direktoryo na mga permiso. Hindi maayos na pagkumpigure sa SSL na sertipiko at pag-encryption na mga setting, ang ginagamit sa default na katibayan, at hindi maayos na pagpapatunay na implementasyon na may panlabas na mga sistema ay maaaring ikompromiso ang pagiging kumpidensyal na impormasyon.
 
-Verbose and informative error messages may result in data leakage, and the information revealed could be used to formulate the next level of attack. Incorrect configurations in the server software may permit directory indexing and path traversal attacks.</desc>
+Verbose at nakapagtuturo sa maling mga mensahe ay maaaring magresulta sa tulo ng datos, at ang impormasyon ay inihayag ay magagamit sa bumalangkas sa susunod na antas ng atake. Ang maling mga kumpigurasyon sa software ng server ay maaaring magpahintulot sa pag-iindex ng direktoryo at daan sa traversal na mga pag-aatake.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Server-Misconfiguration</reference>
 	<reference></reference>
@@ -435,8 +435,8 @@ Verbose and informative error messages may result in data leakage, and the infor
 
 <vuln_items>wasc_15</vuln_items>
 <vuln_item_wasc_15>
-	<alert>Application Misconfiguration</alert>
-	<desc>Application Misconfiguration attacks exploit configuration weaknesses found in web applications. Many applications come with unnecessary and unsafe features, such as debug and QA features, enabled by default. These features may provide a means for a hacker to bypass authentication methods and gain access to sensitive information, perhaps with elevated privileges.
+	<alert>Hindi maayos na kumpigurasyon sa aplikasyon</alert>
+	<desc>Ang hindi maayos na kumpigurasyon sa aplikasyon na pag-atake ay pagsamatalahan ng mga kahinaan na makikita sa mga aplikasyon sa web. Maraming mga aplikasyon ang dumating na may hindi kinakailangan at hindi ligtas na mga tampok, tulad ng debug at QA na mga tampok, pinagana sa pamamagitan ng default. Mga tampok na ito ay maaaring magbigay ng isang paraan para sa isang hacker na lampasan ang mga pamamaraan ng pagpapatunay at makakuha ng access sa sensitibong impormasyon, marahil may nakataas na mga pribilehiyo.
 
 Likewise, default installations may include well-known usernames and passwords, hard-coded backdoor accounts, special access mechanisms, and incorrect permissions set for files accessible through web servers. Default samples may be accessible in production environments. Application-based configuration files that are not properly locked down may reveal clear text connection strings to the database, and default settings in configuration files may not have been set with security in mind. All of these misconfigurations may lead to unauthorized access to sensitive information.</desc>
 	<solution>TBA</solution>
@@ -446,28 +446,28 @@ Likewise, default installations may include well-known usernames and passwords, 
 
 <vuln_items>wasc_16</vuln_items>
 <vuln_item_wasc_16>
-	<alert>Directory Indexing</alert>
-	<desc>Automatic directory listing/indexing is a web server function that lists all of the files within a requested directory if the normal base file (index.html/home.html/default.htm/default.asp/default.aspx/index.php) is not present. When a user requests the main page of a web site, they normally type in a URL such as: http://www.example.com/directory1/ - using the domain name and excluding a specific file. The web server processes this request and searches the document root directory for the default file name and sends this page to the client. If this page is not present, the web server will dynamically issue a directory listing and send the output to the client. Essentially, this is equivalent to issuing an "ls" (Unix) or "dir" (Windows) command within this directory and showing the results in HTML form. From an attack and countermeasure perspective, it is important to realize that unintended directory listings may be possible due to software vulnerabilities (discussed in the example section below) combined with a specific web request.</desc>
-	<solution>Recommendations include restricting access to important directories or files by adopting a need to know requirement for both the document and server root, and turning off features such as Automatic Directory Listings that could expose private files and provide information that could be utilized by an attacker when formulating or conducting an attack.</solution>
+	<alert>Mga pag-index sa direktoryo</alert>
+	<desc>Awtomatikong direktoryo na listahan/indexing ay isang server sa web na tampok na naglilista sa lahat ng mga file sa loob ng isang hiniling na direktoryo kung ang normal na basehan sa file (index.html/home.html/default.htm/default.asp/default.aspx/index.php) ay wala roon. Kapag ang isang gumagamit ay humihingi sa pangunahing pahina sa isang web site, sila ay normal na mag-type sa isang URL tulad ng: http://www.example.com/directory1/ - paggamit ng pangalan ng domain at hindi kasama ang isang partikular na file. Ang web server na mga proseso sa hiling na ito at mga paghahanap ng direktoryo sa dokumento ng root para sa default na panglan ng file at nagpapadala ito ng pahina sa kliyente. Kung ang pahinang ito ay hindi nakaharap, ang server ng web ay magbabago ng isyu sa isang listahan ng direktoryo at nagpapadala ng output sa kliyente. Sa esensya, ito ay katumbas sa pag-isyu ng isang "ls" (Unix) o "dir" (Windows) na utos sa loob ng direktoryo na ito at nagpapakita ng mga resulta sa HTML na form. Mula sa isang atake at countermeasure na perspektibo, ito ay importante na malaman na ang hindi nakaukol na mga listahan ng direktoryo ay maaaring posible ukol sa mga kahinaan sa software (pinag-usapan na seksyon ng halimbawa sa ibaba) pagsamahin na may isang tinutukoy na kahilingan sa web.</desc>
+	<solution>Mga rekomendasyon na sinama ang binabawal na pagpasok sa importanteng mga direktoryo at mga file sa pamamagitan ng isang nangangailangan na malaman ang mga kailangan para sa parehong dokumento at root ng server, at pagbaling off na mga tampok tulad ng Awtomatikong Direktoryo na mga listahan na ilandad ang pribadong mga file at nagbibigay ng impormasyon na maaaring magamit ng isang umatake kapag nagbuo o nagsasagawa ng isang pag-aatake.</solution>
 	<reference>http://projects.webappsec.org/Directory-Indexing</reference>
 	<reference>http://cwe.mitre.org/data/definitions/548.html</reference>
 </vuln_item_wasc_16>
 
 <vuln_items>wasc_17</vuln_items>
 <vuln_item_wasc_17>
-	<alert>Improper Filesystem Permissions</alert>
-	<desc>Improper filesystem permissions are a threat to the confidentiality, integrity and availability of a web application. The problem arises when incorrect filesystem permissions are set on files, folders, and symbolic links. When improper permissions are set, an attacker may be able to access restricted files or directories and modify or delete their contents. For example, if an anonymous user account has write permission to a file, then an attacker may be able to modify the contents of the file influencing the web application in undesirable ways. An attacker may also exploit improper symlinks to escalate their privileges and/or access unauthorized files; for example, a symlink that points to a directory outside of the web root.</desc>
-	<solution>Very carefully manage the setting, management and handling of permissions. Explicitly manage trust zones in the software.</solution>
+	<alert>Hindi wastong filesystem na mga permiso</alert>
+	<desc>Hindi wastong filesystem na mga permiso ay isang banta sa pagiging kumpidensyal, integridad, at magagamit sa isang aplikasyon sa web. Ang problema na lilitaw kapag ang maling filesystem na mga permiso ay nakatakda sa mga file, mga folder, at mga simbolikong link. Kapag hindi wasto ang mga permiso na nakatakda, ang isang umatake ay maaaring makapasok ng restriktong mga file o mga direktoryo at magbabago o magbura sa mga nilalaman. Halimbawa, kung ang isang hindi kilalang gumagamit ng account ay may pahintulot na sumulat sa isang file, pagkatapos ay ang umatake at maaari makagawa na baguhin ang mga nilalaman sa file ng pag-impluwensya sa aplikasyon ng web sa hindi kanais-nais na mga paraan. Ang isang umatake ay maaari ding magsamantala sa hindi wastong mga symlink na escalate ng kanilang mga pribilehiyo at/o pagpasok ng hindi awtorisadong mga file; para sa halimbawa, isang symlink na ang mga puntos sa isang direktoryo sa labas ng web root.</desc>
+	<solution>Mabuti na pamahalaan ang mga setting, pamamahala at pagsasagawa ng mga permiso. Pinagtitiwalaan na pagpamamahala ng tiwala na mga zona sa software.</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
 	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
 </vuln_item_wasc_17>
 
 <vuln_items>wasc_18</vuln_items>
 <vuln_item_wasc_18>
-	<alert>Credential and Session Prediction</alert>
-	<desc>Credential/Session Prediction is a method of hijacking or impersonating a web site user. Deducing or guessing the unique value that identifies a particular session or user accomplishes the attack. Also known as Session Hijacking, the consequences could allow attackers the ability to issue web site requests with the compromised user's privileges.
+	<alert>Ang Credential at Sesyon na hula</alert>
+	<desc>Ang Credential/Sesyon na hula ay isang pamamaraan sa hijacking o impersonating sa isang gumagamit ng web site. Pagbabawa o paghula ng natatanging halaga na tinukoy ang isang partikular na sesyon o naisasakatupad ang pag-aatake ng gumagamit. Kilala rin bilang Hijacking na sesyon, ang mga bunga ay magpapahintulot sa mga umaatake na kakayanin ang isyu ng mga kahilingan ng web site na may naka-kompromiso sa pribilehiyo ng gumagamit.
 
-Many web sites are designed to authenticate and track a user when communication is first established. To do this, users must prove their identity to the web site, typically by supplying a username/password (credentials) combination. Rather than passing these confidential credentials back and forth with each transaction, web sites will generate a unique "session ID" to identify the user session as authenticated. Subsequent communication between the user and the web site is tagged with the session ID as "proof" of the authenticated session. If an attacker is able predict or guess the session ID of another user, fraudulent activity is possible.</desc>
+Maraming mga web site ay dinisenyo upang mapatunayan at subaybayan ang isang gumagamit kapag ang kumunikasyon ay unang itinatatag. Upang gawin ito, ang mga gumagamit dapat nagpatunay sa kanilang pagkakakilanlan sa web site, karaniwan ay sa pamamagitan ng pagbibigay ng isang username/password (mga kredensyal) na kumbinasyon. Sa halip na pagpasa ng mga kompidensyal na mga kredensyal pabalik at paatras na may bawat transaksyon, ang mga web site ay bumubuo ng isang natatanging "ID ng sesyon" upang tukuyin ang gumagamit ng sesyon nang mapagtibay. Kasunod na komunikasyon sa pagitan ng gumagamit at sa web site ay naka-tag na may ID ng sesyon bilang "katibayan" sa pagpapatunay na sesyon. Kung ang isang umatake ay kayang mahulaan o hulaan ang ID ng sesyon sa isa pang gumagamit, pandaraya na aktibidad ay posible.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Credential-and-Session-Prediction</reference>
 	<reference></reference>
@@ -511,7 +511,7 @@ When feasible, it may be safest to disallow meta-characters entirely, instead of
 
 <vuln_items>wasc_20</vuln_items>
 <vuln_item_wasc_20>
-	<alert>Improper Input Handling</alert>
+	<alert>Hindi wastong pagpasok na paghawak</alert>
 	<desc>Ang hindi wastong paghawak sa pag-input ay isa sa mga pinakakaraniwang kahinaan na natunton sa buong mga aplikasyon ngayon. Ang hindi magandang pagdederekta sa pag-input ay isang pangunahing dahilan sa likuran ng mga kritikal na kahinaan na umiiral sa mga sistema at aplikasyon.
 	
 Sa pangkalahatan, ang pangmatagalang pagpasok ng input ay ginagamit upang isalarawan ang mga tungkulin kagaya ng pagpapatunay, sanitization, pag-sasala, pag-papasok at/o pag-labas ng datos ng pag-input. Ang mga aplikasyon ay nakakakuha ng input mula sa iba't ibang mga mapagkukuhaan kasama ang mga taga-gamit ng tao, mga ahente ng software (mga browser), at mga network/peripheral na aparato upang makapagtala ng ilang pangalan. Sa kaso ng mga aplikasyon sa web, pweding mailipat ang input sa iba't ibang mga ayos (name value pairs, JSON, SOAP, etc...) at mkakuha sa pamamagitan ng mga string ng tanong sa URL, POST data, HTTP headers, Cookies, etc... Non-web application input can be obtained via application variables, environment variables, the registry, configuration files, etc... Regardless of the data format or source/location of the input, all input should be considered untrusted and potentially malicious. Applications which process untrusted input may become vulnerable to attacks such as Buffer Overflows, SQL Injection, OS Commanding, Denial of Service just to name a few.
@@ -519,11 +519,9 @@ Sa pangkalahatan, ang pangmatagalang pagpasok ng input ay ginagamit upang isalar
 One of the key aspects of input handling is validating that the input satisfies a certain criteria. For proper validation, it is important to identify the form and type of data that is acceptable and expected by the application. Defining an expected format and usage of each instance of untrusted input is required to accurately define restrictions. 
 
 Validation can include checks for type safety and correct syntax. String input can be checked for length (min and max number of characters) and character set validation while numeric input types like integers and decimals can be validated against acceptable upper and lower bound of values. When combining input from multiple sources, validation should be performed during concatenation and not just against the individual data elements. This practice helps avoid situations where input validation may succeed when performed on individual data items but fails when done on a combined set from all the sources.</desc>
-	<solution>Phase: Architecture and Design
+	<solution>Yugto: Arkitektura at Disenyo.
 
-Use an input validation framework such as Struts or the OWASP ESAPI Validation API.
-
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
+Unawain na ang lahat ng potensyal na mga lugar kung saan ang hindi pinagkakatiwalaan na pwedeng magpasok na iyong software: mga parameter at mga argumento, mga cookie, sa anumang mababasa mula sa network, mga variable sa kapaligiran, baliktad na DNS na pagtanaw, mga resulta sa query, mga header ng hiling, mga komponent ng URL, e-mail, mga file, mga database, at anumang panlabas na mga sistema na nagbibigay ng datos sa aplikasyon. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
 
 For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side. Ang mga umaatake ay maaring bypass sa side ng kliyente suriin ang modipikasyon ng halaga bago pa matapos ang pagsusuri ay magawa, o sa pagbabago ng kliyente sa pagtanggal ng kabuoang pag susuri sa kliyente. Pagkatapos, ang modipikasyon ng halaga ay maaaring ipasa sa server.
 
@@ -554,8 +552,8 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_21</vuln_items>
 <vuln_item_wasc_21>
-	<alert>Insufficient Anti automation</alert>
-	<desc>Insufficient Anti-automation occurs when a web application permits an attacker to automate a process that was originally designed to be performed only in a manual fashion, i.e. by a human web user.
+	<alert>Hindi sapat na kontra sa awtomasyon</alert>
+	<desc>Hindi sapat na kontra-awtomasyon na nangyari kapag ang isang nagpapahintulot ng web aplikasyon ng isang umatake sa awtomatiko na proseso na sa orihinal ay naka disenyo na magsagawa lamang sa isang manwal na kaugalian, hal. sa pamamagitan ng isang taong gumagamit sa web.
 
 Web application functionality that is often a target for automation attacks may include:
     * Application login forms – attackers may automate brute force login requests in an attempt to guess user credentials
@@ -897,7 +895,7 @@ When the set of acceptable objects, such as filenames or URLs, is limited or kno
 
 For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Ang mga tampok kapareho ng ESAPI AccessReferenceMap ay naglalaan ng kakayahan na ito.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
+Unawain na ang lahat ng potensyal na mga lugar kung saan ang hindi pinagkakatiwalaan na pwedeng magpasok na iyong software: mga parameter at mga argumento, mga cookie, sa anumang mababasa mula sa network, mga variable sa kapaligiran, baliktad na DNS na pagtanaw, mga resulta sa query, mga header ng hiling, mga komponent ng URL, e-mail, mga file, mga database, at anumang panlabas na mga sistema na nagbibigay ng datos sa aplikasyon. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
 
 Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
