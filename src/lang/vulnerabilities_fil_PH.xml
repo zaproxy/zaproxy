@@ -533,19 +533,19 @@ When your application combines data from multiple sources, perform the validatio
 
 Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
 
-Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa sa negosyo sa panuntunan ng lohika, "bangka" ay may syntactically na balido sapagkat ito lamang ang naglalaman ng alphanumeric na karakter, pero ito ay hindi balido kung ang iyong inaasahang kulay ay "pula" at "asul."
 
-Phase: Implementation
+Yugto: Implementasyon
 
-Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. This could create an unexpected interaction between the language boundaries. Ensure that you are not violating any of the expectations of the language with which you are interfacing. For example, even though Java may not be susceptible to buffer overflows, providing a large argument in a call to native code might trigger an overflow.
+Pakasiguraduhin na ang pagbalido sa iyong ipinasok kapag ang iyong pinalangin na code na tumawid sa wikang mga hangganan, kagaya ng mula sa ipinaliwanag na wika sa likas na code. Ito ay lumilikha ng isang hindi inaasahang interaksyon sa pagitan ng mga linya ng wika. Tiyakin na ikaw ay hindi lumabag sa anumang mga inaasahan ng mga wika na kung saan ikaw ay nag-interfacing. Halimbawa, kahit na ang Java ay hindi maaaring madaling tablan ng buffer na umaapaw, sa pagbibigay ng isang malaking argumento sa isang tawag sa katutubong code na baka mag-trigger ng umaapaw.
 
-Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. After converting to the expected data type, ensure that the input's values fall within the expected range of allowable values and that multi-field consistencies are maintained.
+Direktang i-convert ang iyong input na uri sa inaasahang datos na uri, tulad ng paggamit ng mga ginagamit na isang pagkagawa ng katungkulan na nagsasalin ng isang string sa isang numero. Matapos ang pag-convert sa uri ng inaasahang uri ng datos, tiyakin na sakop ng mga pinahahalagahan na mga input na mga halaga sa hanay ng pinahihintulutang mga halaga at na ang multi-field ay nagpapanatili na pangalagaan.
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not inadvertently decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Siguraduhin na ang iyong aplikasyon ay hindi sinasadyang ma-decode ang parehong pagpasok ng dalawang beses. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat. Gamitin ang aklatan tulad ng sa OWASP ESAPI Canonicalization na control.
 
-Consider performing repeated canonicalization until your input does not change any more. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
+Isaalang-alang ang pagsasagawa ng mga paulit-ulit na canonicalization hanggang ang iyong pagpasok ay hindi magbabago kailan man. Ito ay maiwasan ang doble-pagdecode at katulad na mga sitwasyon, ngunit ito ay sinasadyang baguhin ang mga pagpasok na pinapayagan na maglaman ng wastong na-encode na mga panganib na nilalaman.
 
-When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.</solution>
+Kapag ang pagpapalit ng datos sa pagitan ng mga bahagi, masisiguro na ang mga komponent na ginagamit ng parehong karakter na encoding. Tiyakin na ang angkop na pag-encoding ay inilapat sa bawat interface. Pinagtitiwalaang itinakda na pag-encode na iyong ginagamit sa tuwing ang protokol ay nagbibigay-daan sa iyo na gamitin ito.</solution>
 	<reference>http://projects.webappsec.org/Improper-Input-Handling</reference>
 	<reference>http://cwe.mitre.org/data/definitions/89.html</reference>
 </vuln_item_wasc_20>
@@ -602,7 +602,7 @@ In some cases, input validation may be an important strategy when output encodin
 
 Use input validation as a defense-in-depth measure to reduce the likelihood of output encoding errors (see CWE-20).
 
-When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.</solution>
+Kapag ang pagpapalit ng datos sa pagitan ng mga bahagi, masisiguro na ang mga komponent na ginagamit ng parehong karakter na encoding. Tiyakin na ang angkop na pag-encoding ay inilapat sa bawat interface. Pinagtitiwalaang itinakda na pag-encode na iyong ginagamit sa tuwing ang protokol ay nagbibigay-daan sa iyo na gamitin ito.</solution>
 	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
 	<reference></reference>
 </vuln_item_wasc_22>
@@ -688,7 +688,7 @@ Use and specify a strong output encoding (such as ISO 8859-1 or UTF 8).
 
 Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many variants to encode a character; you're likely to miss some variants.
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked.</solution>
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Make sure that your application does not decode the same input twice. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat.</solution>
 	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
 </vuln_item_wasc_28>
@@ -716,13 +716,13 @@ Ipagpalagay ang lahat ng input ay malisyoso. Use an "accept known good" input va
 
 Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
 
-Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. After converting to the expected data type, ensure that the input's values fall within the expected range of allowable values and that multi-field consistencies are maintained.
+Direktang i-convert ang iyong input na uri sa inaasahang datos na uri, tulad ng paggamit ng mga ginagamit na isang pagkagawa ng katungkulan na nagsasalin ng isang string sa isang numero. Matapos ang pag-convert sa uri ng inaasahang uri ng datos, tiyakin na sakop ng mga pinahahalagahan na mga input na mga halaga sa hanay ng pinahihintulutang mga halaga at na ang multi-field ay nagpapanatili na pangalagaan.
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not inadvertently decode the same input twice . Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Make sure that your application does not inadvertently decode the same input twice . Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat. Gamitin ang aklatan tulad ng sa OWASP ESAPI Canonicalization na control.
 
-Consider performing repeated canonicalization until your input does not change any more. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
+Isaalang-alang ang pagsasagawa ng mga paulit-ulit na canonicalization hanggang ang iyong pagpasok ay hindi magbabago kailan man. Ito ay maiwasan ang doble-pagdecode at katulad na mga sitwasyon, ngunit ito ay sinasadyang baguhin ang mga pagpasok na pinapayagan na maglaman ng wastong na-encode na mga panganib na nilalaman.
 
-When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.
+Kapag ang pagpapalit ng datos sa pagitan ng mga bahagi, masisiguro na ang mga komponent na ginagamit ng parehong karakter na encoding. Tiyakin na ang angkop na pag-encoding ay inilapat sa bawat interface. Pinagtitiwalaang itinakda na pag-encode na iyong ginagamit sa tuwing ang protokol ay nagbibigay-daan sa iyo na gamitin ito.
 
 When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.</solution>
 	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
@@ -804,7 +804,7 @@ For filenames, use stringent whitelists that limit the character set to be used.
 
 Warning: if you attempt to cleanse your data, then do so that the end result is not in the form that can be dangerous. A sanitizing mechanism can remove characters such as '.' and ';' which may be required for some exploits. An attacker can try to fool the sanitizing mechanism into "cleaning" data into a dangerous form. Suppose the attacker injects a '.' inside a filename (e.g. "sensi.tiveFile") and the sanitizing mechanism removes the character resulting in the valid filename, "sensitiveFile". If the input data are now assumed to be safe, then the file may be compromised. 
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked.
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Make sure that your application does not decode the same input twice. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat.
 
 Use a built-in path canonicalization function (such as realpath() in C) that produces the canonical version of the pathname, which effectively removes ".." sequences and symbolic links.
 
