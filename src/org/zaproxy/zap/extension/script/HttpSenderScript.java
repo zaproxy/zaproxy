@@ -23,9 +23,39 @@ import javax.script.ScriptException;
 
 import org.parosproxy.paros.network.HttpMessage;
 
+/**
+ * A script that is executed for each {@link HttpMessage HTTP message} sent by/through ZAP.
+ * <p>
+ * The IDs of the initiators are defined in the {@link org.parosproxy.paros.network.HttpSender HttpSender} class (for example,
+ * {@link org.parosproxy.paros.network.HttpSender#SPIDER_INITIATOR SPIDER_INITIATOR}).
+ * <p>
+ * <strong>Note:</strong> In the presence of more than one script or, internally, a
+ * {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener} there are <i>no</i> guarantees that the (final)
+ * request/response is exactly the same as the one crafted by this script, as the following scripts/listeners may modify it.
+ *
+ * @since 2.4.1
+ */
 public interface HttpSenderScript {
 
+    /**
+     * Called before sending the request to the server.
+     * <p>
+     * Only the request should be modified.
+     *
+     * @param msg the HTTP message (request) being sent.
+     * @param initiator the ID of the initiator of the HTTP message being sent.
+     * @param helper the helper class that allows to send other HTTP messages.
+     * @throws ScriptException if an error occurred while executing the script.
+     */
     void sendingRequest(HttpMessage msg, int initiator, HttpSenderScriptHelper helper) throws ScriptException;
 
-    void responseReceived(HttpMessage msg, int initiator, HttpSenderScriptHelper helperr) throws ScriptException;
+    /**
+     * Called after receiving the response from the server (if any).
+     *
+     * @param msg the HTTP message (response) received.
+     * @param initiator the ID of the initiator of the HTTP message sent.
+     * @param helper the helper class that allows to send other HTTP messages.
+     * @throws ScriptException if an error occurred while executing the script.
+     */
+    void responseReceived(HttpMessage msg, int initiator, HttpSenderScriptHelper helper) throws ScriptException;
 }
