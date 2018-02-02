@@ -75,6 +75,26 @@ public class TechSet {
 			return this.includes(tech.getParent());
 		}
 	}
+
+	/**
+	 * Tells whether or not any of the given technologies is included.
+	 * 
+	 * @param techs the technologies that will be checked.
+	 * @return {@code true} if any of the technologies is included, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #includes(Tech)
+	 */
+	public boolean includesAny(Tech... techs) {
+		if (techs == null || techs.length == 0) {
+			return false;
+		}
+		for (Tech tech : techs) {
+			if (includes(tech)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public TreeSet<Tech> getIncludeTech() {
 		TreeSet<Tech> copy = new TreeSet<>();

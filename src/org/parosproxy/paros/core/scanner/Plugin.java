@@ -296,7 +296,7 @@ public interface Plugin extends Runnable {
     /**
      * Tells whether or not the given technology is enabled for the scan.
      * <p>
-     * Helper method to check if a technology is enabled before performing the scan.
+     * Helper method to check if a technology is enabled before performing a test/scan.
      *
      * @param tech the technology that will be checked
      * @return {@code true} if the technology is enabled for the scan, {@code false} otherwise
