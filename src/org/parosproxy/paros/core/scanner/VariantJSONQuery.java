@@ -179,7 +179,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     /**
      * 
-     * @param sr 
+     * @param fieldName
      */
     private void parseValue(String fieldName) {
         int chr = sr.read();

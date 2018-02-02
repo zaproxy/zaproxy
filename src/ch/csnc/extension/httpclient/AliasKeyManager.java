@@ -53,8 +53,8 @@ public class AliasKeyManager implements X509KeyManager {
     /**
      * Creates a new instance of AliasKeyManager
      * @param ks The KeyStore that contains the keypair to use
-     * @param password the password for the key (not the keystore)
      * @param alias the alias of the certificate to use
+     * @param keyPassword the password for the key (not the keystore)
      */
     public AliasKeyManager(KeyStore ks, String alias, String keyPassword) {
         _ks = ks;

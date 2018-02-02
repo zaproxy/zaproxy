@@ -175,7 +175,7 @@ public class HttpInputStream extends BufferedInputStream {
 	 * 
 	 * @param contentLength		Content length read to be read.  -1 = unlimited until connection close.
 	 * @param readBodyLength 	Body length read so far
-	 * @param data				Buffer storing the read bytes.
+	 * @param buffer			Buffer storing the read bytes.
 	 * @return					Number of bytes read in buffer
 	 * @throws IOException
 	 */

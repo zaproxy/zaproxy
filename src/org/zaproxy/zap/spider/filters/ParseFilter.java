@@ -62,7 +62,7 @@ public abstract class ParseFilter {
 	 *
 	 * @since 2.7.0
 	 * @see #NOT_FILTERED
-	 * @see #ParseFilter(String)
+	 * @see #FilterResult(String)
 	 */
 	public static final class FilterResult {
 

@@ -228,7 +228,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
 
     /**
      * 
-     * @param icon 
+     * @param actionIcon
      */
     public void setFocusedAction(ScanProgressActionIcon actionIcon) {
         focusedAction = actionIcon;

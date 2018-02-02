@@ -98,7 +98,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 
     /**
      * Flag that indicates whether or not the {@link #calculateHighestAlert() highest alert needs to be calculated}, when
-     * {@link #appendIcons(StringBuilder) building the string representation}.
+     * {@link #toString() building the string representation}.
      */
     private boolean calculateHighestAlert;
 

@@ -297,10 +297,10 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener {
 	 * Does a binary search for the given filter id. Used to determine where
 	 * (index) to insert the filter to the filter's list.
 	 * 
-	 * @param A
-	 * @param key
-	 * @param imin
-	 * @param imax
+	 * @param filters
+	 * @param targetId
+	 * @param min
+	 * @param max
 	 * @return
 	 */
 	// ZAP: Added the method.
