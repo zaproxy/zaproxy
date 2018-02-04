@@ -1090,7 +1090,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	/**
-	 * Invokes the given {@code script}, handling any {@code Exception} thrown during the invocation.
+	 * Invokes the given {@code script}, synchronously, handling any {@code Exception} thrown during the invocation.
 	 * <p>
 	 * The context class loader of caller thread is replaced with the class loader {@code AddOnLoader} to allow the script to
 	 * access classes of add-ons. If this behaviour is not desired call the method {@code invokeScriptWithOutAddOnLoader}
@@ -1188,7 +1188,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	/**
-	 * Invokes the given {@code script}, handling any {@code Exception} thrown during the invocation.
+	 * Invokes the given {@code script}, synchronously, handling any {@code Exception} thrown during the invocation.
 	 *
 	 * @param script the script that will be invoked/evaluated
 	 * @return an {@code Invocable} for the {@code script}, or {@code null} if none.
@@ -1249,6 +1249,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.setEnabled(script, false);
 	}
 	
+	/**
+	 * Invokes the given {@code script}, synchronously, as a {@link TargetedScript}, handling any {@code Exception} thrown
+	 * during the invocation.
+	 * <p>
+	 * The context class loader of caller thread is replaced with the class loader {@code AddOnLoader} to allow the script to
+	 * access classes of add-ons.
+	 *
+	 * @param script the script to invoke.
+	 * @param msg the HTTP message to process.
+	 * @since 2.2.0
+	 * @see #getInterface(ScriptWrapper, Class)
+	 */
     public void invokeTargetedScript(ScriptWrapper script, HttpMessage msg) {
 		validateScriptType(script, TYPE_TARGETED);
 
@@ -1327,6 +1339,20 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.setEnabled(script, false);
 	}
 
+	/**
+	 * Invokes the given {@code script}, synchronously, as a {@link ProxyScript}, handling any {@code Exception} thrown during
+	 * the invocation.
+	 * <p>
+	 * The context class loader of caller thread is replaced with the class loader {@code AddOnLoader} to allow the script to
+	 * access classes of add-ons.
+	 *
+	 * @param script the script to invoke.
+	 * @param msg the HTTP message being proxied.
+	 * @param request {@code true} if processing the request, {@code false} otherwise.
+	 * @return {@code true} if the request should be forward to the server, {@code false} otherwise.
+	 * @since 2.2.0
+	 * @see #getInterface(ScriptWrapper, Class)
+	 */
     public boolean invokeProxyScript(ScriptWrapper script, HttpMessage msg, boolean request) {
 		validateScriptType(script, TYPE_PROXY);
 
@@ -1353,6 +1379,21 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     	return true;
 	}
 
+    /**
+     * Invokes the given {@code script}, synchronously, as a {@link HttpSenderScript}, handling any {@code Exception} thrown
+     * during the invocation.
+     * <p>
+     * The context class loader of caller thread is replaced with the class loader {@code AddOnLoader} to allow the script to
+     * access classes of add-ons.
+     *
+     * @param script the script to invoke.
+     * @param msg the HTTP message being sent/received.
+     * @param initiator the initiator of the request.
+     * @param sender the sender of the given {@code HttpMessage}.
+     * @param request {@code true} if processing the request, {@code false} otherwise.
+     * @since 2.4.1
+     * @see #getInterface(ScriptWrapper, Class)
+     */
     public void invokeSenderScript(ScriptWrapper script, HttpMessage msg, int initiator, HttpSender sender, boolean request) {
         validateScriptType(script, TYPE_HTTP_SENDER);
 

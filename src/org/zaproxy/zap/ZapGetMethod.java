@@ -126,6 +126,22 @@ public class ZapGetMethod extends GetMethod {
 		}
     }
 
+	/**
+	 * Set the upgraded socket
+	 * @param upgradedSocket
+	 */
+    public void setUpgradedSocket(Socket upgradedSocket) {
+        this.upgradedSocket = upgradedSocket;
+    }
+
+    /**
+     * Set the upgraded input stream
+     * @param inputStream
+     */
+    public void setUpgradedInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
     /**
 	 * If this response included the header <em>Connection: Upgrade</em>, then
 	 * this method provides the corresponding connection.

@@ -133,7 +133,7 @@ public class API {
 	/**
 	 * Registers the given {@code ApiImplementor} to the ZAP API.
 	 * <p>
-	 * The implementor is not registed if the {@link ApiImplementor#getPrefix() API implementor prefix} is already in use.
+	 * The implementor is not registered if the {@link ApiImplementor#getPrefix() API implementor prefix} is already in use.
 	 * <p>
 	 * <strong>Note:</strong> The preferred method to add an {@code ApiImplementor} is through the method
 	 * {@link org.parosproxy.paros.extension.ExtensionHook#addApiImplementor(ApiImplementor)
@@ -215,7 +215,15 @@ public class API {
 		this.proxyParam = proxyParam;
 	}
 	
-	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
+    /**
+     * Handles an API request, if necessary.
+     * @param requestHeader the request header
+     * @param httpIn the HTTP input stream
+     * @param httpOut the HTTP output stream
+     * @return null if its not an API request, an empty message if it was silently dropped or the API response sent.
+     * @throws IOException
+     */
+	public HttpMessage handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
 	}
@@ -234,7 +242,16 @@ public class API {
 		return false;
 	}
 	
-	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
+	/**
+	 * Handles an API request, if necessary.
+	 * @param requestHeader the request header
+	 * @param httpIn the HTTP input stream
+	 * @param httpOut the HTTP output stream
+	 * @param force if set then always handle an an API request (will not return null)
+	 * @return null if its not an API request, an empty message if it was silently dropped or the API response sent.
+	 * @throws IOException
+	 */
+	public HttpMessage handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut, boolean force) throws IOException {
 		
 		String url = requestHeader.getURI().toString();
@@ -263,16 +280,16 @@ public class API {
 		}
 		
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
-			return false;
+			return null;
 		}
 		if (callbackImpl == null && ! isPermittedAddr(requestHeader)) {
 			// Callback by their very nature are on the target domain
-			return true;
+			return new HttpMessage();
 		}
 		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
 			// Insecure request with secure only set, always ignore
 			logger.debug("handleApiRequest rejecting insecure request");
-			return true;
+			return new HttpMessage();
 		}
 			
 		logger.debug("handleApiRequest " + url);
@@ -327,7 +344,7 @@ public class API {
 					httpOut.flush();
 					httpOut.close();
 					httpIn.close();
-					return true;
+					return msg;
 					
 				} else if (elements.length > 3) {
 					try {
@@ -523,7 +540,7 @@ public class API {
 							}
 						}
 						impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
-						return true;
+						return new HttpMessage();
 					}
 				} else {
 					// Handle default front page, unless if the API UI is disabled
@@ -543,7 +560,7 @@ public class API {
 					if (exception.getType().equals(ApiException.Type.DISABLED) ||
 							exception.getType().equals(ApiException.Type.BAD_API_KEY)) {
 						// Fail silently
-						return true;
+						return new HttpMessage();
 					}
 				}
 			}
@@ -551,7 +568,7 @@ public class API {
 			error = true;
 		}
 		
-		if (!error && ! format.equals(Format.OTHER) && shortcutImpl == null) {
+		if (!error && ! format.equals(Format.OTHER) && shortcutImpl == null && callbackImpl == null) {
 	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
 	    	msg.setResponseBody(response);
 	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
@@ -564,10 +581,12 @@ public class API {
     	httpOut.write(msg.getResponseHeader());
     	httpOut.write(msg.getResponseBody().getBytes());
 		httpOut.flush();
-		httpOut.close();
-		httpIn.close();
+		if (!msg.isWebSocketUpgrade()) {
+			httpOut.close();
+			httpIn.close();
+		}
 		
-		return true;
+		return msg;
 	}
 	
 	/**

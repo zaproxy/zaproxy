@@ -24,8 +24,19 @@ import javax.script.ScriptException;
 
 import org.parosproxy.paros.network.HttpMessage;
 
+/**
+ * A script that is executed on demand by the user for selected {@link HttpMessage HTTP message}(s).
+ *
+ * @since 2.2.0
+ */
 public interface TargetedScript {
 
+	/**
+	 * Called for each HTTP message selected by the user.
+	 * 
+	 * @param msg the HTTP message selected, never {@code null}.
+	 * @throws ScriptException if an error occurred while executing the script.
+	 */
 	void invokeWith(HttpMessage msg) throws ScriptException;
 
 }

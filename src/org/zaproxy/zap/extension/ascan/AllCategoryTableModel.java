@@ -25,9 +25,11 @@
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2016/07/25 Change constructor's parameter to PluginFactory
 // ZAP: 2017/06/05 Take into account the enabled state of the plugin when showing the AlertThreshold of the category.
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.table.DefaultTableModel;
@@ -114,7 +116,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
 
     private String strToI18n(String str) {
         // I18n's threshold and strength enums
-        return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
+        return Constant.messages.getString("ascan.policy.level." + str.toLowerCase(Locale.ROOT));
     }
 
     private String i18nToStr(String str) {

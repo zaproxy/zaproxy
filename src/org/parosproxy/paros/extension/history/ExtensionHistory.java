@@ -82,6 +82,7 @@
 // ZAP: 2017/11/06 Added (un)registerProxy (Issue 3983)
 // ZAP: 2017/11/16 Update the table on sessionChanged (Issue 3207).
 // ZAP: 2017/11/22 Delete just the history references selected (Issue 4065).
+// ZAP: 2018/01/29 Add getter to expose historyReferencesTable of History tab (Issue 4000).
 
 package org.parosproxy.paros.extension.history;
 
@@ -132,6 +133,7 @@ import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
+import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -890,6 +892,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public boolean supportsDb(String type) {
     	return true;
     }
+
+	/**
+	 * @since TODO add version
+	 */
+	public HistoryReferencesTable getHistoryReferencesTable() {
+		return logPanel.getHistoryReferenceTable();
+	}
 
     private class EventConsumerImpl implements EventConsumer {
 

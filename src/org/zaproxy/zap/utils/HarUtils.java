@@ -46,6 +46,7 @@ import edu.umass.cs.benchlab.har.HarContent;
 import edu.umass.cs.benchlab.har.HarCookie;
 import edu.umass.cs.benchlab.har.HarCookies;
 import edu.umass.cs.benchlab.har.HarCreator;
+import edu.umass.cs.benchlab.har.HarCustomFields;
 import edu.umass.cs.benchlab.har.HarEntry;
 import edu.umass.cs.benchlab.har.HarEntryTimings;
 import edu.umass.cs.benchlab.har.HarHeader;
@@ -71,6 +72,34 @@ import edu.umass.cs.benchlab.har.tools.HarFileWriter;
 public final class HarUtils {
 
     private static final Logger LOGGER = Logger.getLogger(HarUtils.class);
+
+    /**
+     * The prefix for custom HAR fields produced by ZAP.
+     * 
+     * @since TODO add version
+     */
+    public static final String CUSTOM_FIELD_PREFIX = "_zap";
+
+    /**
+     * The name of the custom field that contains the message ID.
+     * 
+     * @since TODO add version
+     */
+    public static final String MESSAGE_ID_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageId";
+
+    /**
+     * The name of the custom field that contains the message type.
+     * 
+     * @since TODO add version
+     */
+    public static final String MESSAGE_TYPE_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageType";
+
+    /**
+     * The name of the custom field that contains the message note.
+     * 
+     * @since TODO add version
+     */
+    public static final String MESSAGE_NOTE_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageNote";
 
     private HarUtils() {
     }
@@ -137,6 +166,14 @@ public final class HarUtils {
                 strBuilderReqBody.toString()));
     }
 
+    /**
+     * Creates a {@code HarEntry} from the given message.
+     *
+     * @param httpMessage the HTTP message.
+     * @return the {@code HarEntry}, never {@code null}.
+     * @see #createHarEntry(int, int, HttpMessage)
+     * @see #createMessageHarCustomFields(int, int, String)
+     */
     public static HarEntry createHarEntry(HttpMessage httpMessage) {
         HarEntryTimings timings = new HarEntryTimings(0, 0, httpMessage.getTimeElapsedMillis());
 
@@ -147,6 +184,40 @@ public final class HarUtils {
                 createHarResponse(httpMessage),
                 new HarCache(),
                 timings);
+    }
+
+    /**
+     * Creates a {@code HarEntry} from the given message with additional custom fields for the history ID/type and note.
+     * 
+     * @param historyId the history ID of the HTTP message.
+     * @param historyType the history type of the HTTP message.
+     * @param httpMessage the HTTP message.
+     * @return the {@code HarEntry}, never {@code null}.
+     * @since TODO add version
+     * @see #createMessageHarCustomFields(int, int, String)
+     */
+    public static HarEntry createHarEntry(int historyId, int historyType, HttpMessage httpMessage) {
+        HarEntry entry = createHarEntry(httpMessage);
+        entry.setCustomFields(createMessageHarCustomFields(historyId, historyType, httpMessage.getNote()));
+        return entry;
+    }
+
+    /**
+     * Creates custom fields for the given data.
+     *
+     * @param historyId the history ID of the HTTP message.
+     * @param historyType the history type of the HTTP message.
+     * @param messageNote the note of the HTTP message.
+     * @return the {@code HarCustomFields}, never {@code null}.
+     * @since TODO add version
+     * @see #createHarEntry(int, int, HttpMessage)
+     */
+    public static HarCustomFields createMessageHarCustomFields(int historyId, int historyType, String messageNote) {
+        HarCustomFields customFields = new HarCustomFields();
+        customFields.addCustomField(MESSAGE_ID_CUSTOM_FIELD, Integer.toString(historyId));
+        customFields.addCustomField(MESSAGE_TYPE_CUSTOM_FIELD, Integer.toString(historyType));
+        customFields.addCustomField(MESSAGE_NOTE_CUSTOM_FIELD, messageNote);
+        return customFields;
     }
 
     public static HarRequest createHarRequest(HttpMessage httpMessage) {

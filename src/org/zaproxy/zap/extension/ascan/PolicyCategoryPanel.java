@@ -22,6 +22,7 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
 
 package org.zaproxy.zap.extension.ascan;
 
@@ -29,6 +30,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -104,13 +106,13 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	        }
 	        JComboBox<String> jcb1 = new JComboBox<>();
             for (AlertThreshold level : AlertThreshold.values()) {
-                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
             tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
 
 	        JComboBox<String> jcb2 = new JComboBox<>();
             for (AttackStrength level : AttackStrength.values()) {
-                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
             tableTest.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(jcb2));
 

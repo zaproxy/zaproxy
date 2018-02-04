@@ -24,6 +24,7 @@
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 // ZAP: 2016/07/25 Use new AllCategoryTableModel's constructor
 // ZAP: 2017/06/22 Focus the component that contains validation errors.
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
@@ -36,6 +37,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
@@ -380,16 +382,16 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
     private void setThreshold(AlertThreshold threshold) {
         getComboThreshold().setSelectedItem(
-        		Constant.messages.getString("ascan.options.level." + threshold.name().toLowerCase()));
+        		Constant.messages.getString("ascan.options.level." + threshold.name().toLowerCase(Locale.ROOT)));
         getThresholdNotes().setText(
-        		Constant.messages.getString("ascan.options.level." + threshold.name().toLowerCase() + ".label"));
+        		Constant.messages.getString("ascan.options.level." + threshold.name().toLowerCase(Locale.ROOT) + ".label"));
     }
     
     private void setStrength(AttackStrength strength) {
         getComboStrength().setSelectedItem(
-        		Constant.messages.getString("ascan.options.strength." + strength.name().toLowerCase()));
+        		Constant.messages.getString("ascan.options.strength." + strength.name().toLowerCase(Locale.ROOT)));
         getStrengthNotes().setText(
-        		Constant.messages.getString("ascan.options.strength." + strength.name().toLowerCase() + ".label"));
+        		Constant.messages.getString("ascan.options.strength." + strength.name().toLowerCase(Locale.ROOT) + ".label"));
     }
     
     /**
@@ -418,7 +420,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             JComboBox<String> jcb1 = new JComboBox<>();
             jcb1.addItem("");	// Always show a blank one for where they are not all the same
             for (AlertThreshold level : AlertThreshold.values()) {
-                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
             
             tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
@@ -426,7 +428,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             JComboBox<String> jcb2 = new JComboBox<>();
             jcb2.addItem("");	// Always show a blank one for where they are not all the same
             for (AttackStrength level : AttackStrength.values()) {
-                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
             
             tableTest.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(jcb2));
