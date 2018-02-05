@@ -181,7 +181,7 @@ public class RecordAlert {
     }
     /**
      * @deprecated (2.4.0) Replaced by {@link #setConfidence(int)}.
-     * @param reliability The reliability to set.
+     * @param confidence The reliability to set.
      */
 	@Deprecated
     public void setReliability(int confidence) {

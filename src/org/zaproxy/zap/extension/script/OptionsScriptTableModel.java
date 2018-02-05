@@ -46,7 +46,7 @@ public class OptionsScriptTableModel extends AbstractMultipleOptionsBaseTableMod
     }
 
     /**
-     * @param tokens The tokens to set.
+     * @param files The files to set.
      */
     public void setTokens(List<File> files) {
 		this.tokens = new ArrayList<>(tokens.size());

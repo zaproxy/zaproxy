@@ -108,7 +108,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * Lazily initialised.
 	 * 
 	 * @see #getMessagesTableModel()
-	 * @see #readURI(HttpMessage)
+	 * @see #addMessageToMessagesTableModel(SpiderTaskResult)
 	 */
 	private SpiderMessagesTableModel messagesTableModel;
 

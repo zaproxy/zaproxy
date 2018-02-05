@@ -58,7 +58,7 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
 	
 	/**
 	 * Override this method if the menu is not relevant all of the time
-	 * @param context
+	 * @param contextId
 	 * @return
 	 */
 	public boolean isEnabledForContext(int contextId) {

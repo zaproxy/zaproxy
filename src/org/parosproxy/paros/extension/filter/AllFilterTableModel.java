@@ -50,7 +50,7 @@ public class AllFilterTableModel extends DefaultTableModel {
     private List<Filter> allFilters = null;
     
     /**
-     * @param allPlugins The allPlugins to set.
+     * @param allFilters The allFilters to set.
      */
     // ZAP: Added the type argument.
     private void setAllFilters(List<Filter> allFilters) {

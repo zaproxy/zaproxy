@@ -253,7 +253,7 @@ public class VariantODataIdQuery implements Variant {
         private String pathAfterParamter;
 
         /**
-         * @param parameterName
+         * @param resourceName
          * @param originalValue
          * @param pathBeforeParameter
          * @param pathAfterParameter
