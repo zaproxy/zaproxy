@@ -146,6 +146,9 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 			}
 		}
 		return null;
+		if(FIELD_STRING.contains("#")==true){
+			return Constant.messages.getString("brk.brkpoint.edit.title"); 
+		}
 	}
 	
 	@Override
