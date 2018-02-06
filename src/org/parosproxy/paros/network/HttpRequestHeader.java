@@ -46,6 +46,7 @@
 // ZAP: 2017/10/19 Skip parsing of empty Cookie headers.
 // ZAP: 2017/11/22 Address a NPE in isImage().
 // ZAP: 2018/01/10 Tweak how cookie header is reconstructed from HtmlParameter(s).
+// ZAP: 2018/02/06 Make the upper case changes locale independent (Issue 4327).
 
 package org.parosproxy.paros.network;
 
@@ -56,6 +57,7 @@ import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -166,7 +168,7 @@ public class HttpRequestHeader extends HttpHeader {
 
     public HttpRequestHeader(String method, URI uri, String version,
     		ConnectionParam params) throws HttpMalformedHeaderException {
-        this(method + " " + uri.toString() + " " + version.toUpperCase() + CRLF + CRLF);
+        this(method + " " + uri.toString() + " " + version.toUpperCase(Locale.ROOT) + CRLF + CRLF);
         
         try {
             setHeader(HOST, uri.getHost() + (uri.getPort() > 0 ? ":" + Integer.toString(uri.getPort()) : ""));
@@ -253,7 +255,7 @@ public class HttpRequestHeader extends HttpHeader {
      * @param method the new method, must not be {@code null}.
      */
     public void setMethod(String method) {
-        mMethod = method.toUpperCase();
+        mMethod = method.toUpperCase(Locale.ROOT);
     }
 
     /**
@@ -347,7 +349,7 @@ public class HttpRequestHeader extends HttpHeader {
      */
     @Override
     public void setVersion(String version) {
-        mVersion = version.toUpperCase();
+        mVersion = version.toUpperCase(Locale.ROOT);
     }
 
     /**
