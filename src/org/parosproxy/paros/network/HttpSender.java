@@ -68,6 +68,7 @@
 // ZAP: 2017/11/20 Add initiator constant for Token Generator requests.
 // ZAP: 2017/11/27 Use custom CookieSpec (ZapCookieSpec).
 // ZAP: 2017/12/20 Apply socket connect timeout (Issue 4171).
+// ZAP: 2018/02/06 Make the lower case changes locale independent (Issue 4327).
 
 package org.parosproxy.paros.network;
 
@@ -76,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -348,7 +350,7 @@ public class HttpSender {
 		if (connectionHeader == null) {
 			return false;
 		}
-		return connectionHeader.getValue().toLowerCase().contains("upgrade");
+		return connectionHeader.getValue().toLowerCase(Locale.ROOT).contains("upgrade");
 	}
 
 	public void shutdown() {
