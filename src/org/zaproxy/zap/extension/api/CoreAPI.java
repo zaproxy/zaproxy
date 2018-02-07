@@ -204,7 +204,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_FILE_PATH = "filePath";
 
 	/* Update the version whenever the script is changed (once per release) */
-	protected static final int API_SCRIPT_VERSION = 1;
+	protected static final int API_SCRIPT_VERSION = 2;
 	private static final String API_SCRIPT = 
 			"function submitScript() {\n" +
 			"  var button=document.getElementById('button');\n" +
@@ -221,9 +221,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			"  var url = '/' + format + '/' + component + '/' + type + '/' + name + '/'\n" +
 			"  var form=document.getElementById('zapform');\n" +
 			"  form.action = url;\n" +
-			"  if (form.elements[\"formMethod\"]) {\n" +
-			"    form.method = form.elements[\"formMethod\"].value;\n" +
-			"  }\n" +
+			"  form.method = document.getElementById('formMethod').value;\n" +
 			"  form.submit();\n" +
 			"}\n" +
 			"document.addEventListener('DOMContentLoaded', function () {\n" +

@@ -258,7 +258,7 @@ public class WebUI {
 					sb.append("<tr><td>");
 					sb.append(Constant.messages.getString("api.html.format"));
 					sb.append("</td><td>\n");
-					sb.append("<select id=\"zapapiformat\" name=\"zapapiformat\">\n");
+					sb.append("<select id=\"zapapiformat\">\n");
 					sb.append("<option value=\"JSON\">JSON</option>\n");
 					if (getOptionsParamApi().isEnableJSONP()) {
 						sb.append("<option value=\"JSONP\">JSONP</option>\n");
@@ -310,7 +310,7 @@ public class WebUI {
 					sb.append(Constant.messages.getString("api.html.formMethod"));
 					sb.append("</td>");
 					sb.append("<td>");
-					sb.append("<select name=\"formMethod\">\n");
+					sb.append("<select id=\"formMethod\">\n");
 					sb.append("<option value=\"GET\" selected>GET</option>\n");
 					sb.append("<option value=\"POST\">POST</option>\n");
 					sb.append("</select>\n");
