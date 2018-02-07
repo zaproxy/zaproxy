@@ -198,7 +198,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
     
     /**
-     * Inner methid to check if the current parameter should be excluded
+     * Inner method to check if the current parameter should be excluded
      * @param param the param object
      * @return true if it need to be excluded
      */
