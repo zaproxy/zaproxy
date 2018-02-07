@@ -55,6 +55,7 @@
 // ZAP: 2017/07/09: Issue 3727: Sorting of SiteMap should not include HTTP method (verb) in the node's name
 // ZAP: 2017/11/22 Expose method to create temporary nodes (Issue 4065).
 // ZAP: 2017/12/26 Remove redundant request header null checks.
+// ZAP: 2018/02/07 Set the HistoryReference into the temp node before adding it to the tree (Issue 4356).
 
 package org.parosproxy.paros.model;
 
@@ -464,10 +465,11 @@ public class SiteMap extends SortedTreeModel {
                     break;
                 }
             }
-            insertNodeInto(newNode, parent, pos);
 
             result = newNode;
-            result.setHistoryReference(createReference(result, baseRef, baseMsg));
+            result.setHistoryReference(createReference(createTreeNodePath(parent, newNode), baseRef, baseMsg));
+
+            insertNodeInto(newNode, parent, pos);
 
             // Check if its in or out of scope - has to be done after the node is entered into the tree
             newNode.setIncludedInScope(model.getSession().isIncludedInScope(newNode), true);
@@ -485,6 +487,14 @@ public class SiteMap extends SortedTreeModel {
         return result;
     }
     
+    private static TreeNode[] createTreeNodePath(SiteNode parent, SiteNode child) {
+        TreeNode[] parentPath = parent.getPath();
+        TreeNode[] path = new TreeNode[parentPath.length + 1];
+        System.arraycopy(parentPath, 0, path, 0, parentPath.length);
+        path[path.length - 1] = child;
+        return path;
+    }
+
     private SiteNode findChild(SiteNode parent, String nodeName) {
     	// ZAP: Added debug
     	log.debug("findChild " + parent.getNodeName() + " / " + nodeName);
@@ -634,7 +644,10 @@ public class SiteMap extends SortedTreeModel {
     }
     
     public HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, DatabaseException, URIException, NullPointerException {
-        TreeNode[] path = node.getPath();
+        return createReference(node.getPath(), baseRef, base);
+    }
+
+    private HistoryReference createReference(TreeNode[] path, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, DatabaseException, URIException, NullPointerException {
         StringBuilder sb = new StringBuilder();
         String nodeName;
         String uriPath = baseRef.getURI().getPath();
