@@ -838,7 +838,7 @@ Struts gibi MVC tabanlı çalışma alanlarını dikkate alın.</solution>
 
 <vuln_items>wasc_35</vuln_items>
 <vuln_item_wasc_35>
-	<alert>SOAP Array Abuse</alert>
+	<alert>SOAP dizisi suistimali</alert>
 	<desc>XML SOAP dizileri, kötü niyetli kullanım için genel bir hedeftir. SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from. SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. Bir dizi değeri, diziyi yansıtan bir dizi eleman olarak temsil edilir, üyeler artan sıra sıra içinde görünürler. Çok boyutlu diziler için sağ tarafın boyutu daha hızlı değişir. Her bir üye element, bağımsız üye gibi adlandırılır. Bir dizini bekleyen bir web servisi, SOAP sunucusunu makinenin belleğinde büyük bir dizin oluşturmak için zorlayarak bir XML DoS saldırısının hedefi olabilir, böylece bellek ön ayırması nedeniyle makineye bir DoS durumu verir.</desc>
 	<solution> Ayrılan bellek miktarını etkileyen herhangi bir değere karşı uygun bir girdi doğrulaması gerçekleştirin. Limiti aşan sorguları yönetmek için uygun bir strateji tanımlayın ve destekleyici bir yapılandırma seçeneğini göz önünde bulundurun böylelikle eğer gerekirse yönetici kullanılan bellek miktarını genişletebilir.
 
