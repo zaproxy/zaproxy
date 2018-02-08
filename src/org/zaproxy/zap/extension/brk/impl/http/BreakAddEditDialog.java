@@ -145,6 +145,9 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 				return Constant.messages.getString("brk.brkpoint.error.regex"); 
 			}
 		}
+		if( (this.getStringValue(FIELD_STRING)).contains("#") ){
+			return Constant.messages.getString("brk.brkpoint.warn.urlfragment");
+		}
 		return null;
 	}
 	
