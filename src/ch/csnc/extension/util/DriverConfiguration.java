@@ -34,10 +34,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Observable;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -46,7 +48,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
-public class DriverConfiguration extends Observable {
+public class DriverConfiguration {
 	private File file = null;
 
 	private Vector<String> names;
@@ -55,6 +57,9 @@ public class DriverConfiguration extends Observable {
 	private Vector<Integer> slotListIndexes;
 
 	private final Logger logger = Logger.getLogger(this.getClass());
+
+	private EventListenerList eventListeners = new EventListenerList();
+	private ChangeEvent changeEvent;
 
 	public DriverConfiguration(File file) {
 		this.file = file;
@@ -160,8 +165,20 @@ public class DriverConfiguration extends Observable {
 					JOptionPane.ERROR_MESSAGE);
 			logger.error(e.getMessage(), e);
 		}
-		setChanged();
-		notifyObservers();
+		
+		fireStateChanged();
+	}
+
+	private void fireStateChanged() {
+		Object[] listeners = eventListeners.getListenerList();
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == ChangeListener.class) {
+				if (changeEvent == null) {
+					changeEvent = new ChangeEvent(this);
+				}
+				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
+			}
+		}
 	}
 
 	public Vector<String> getNames() {
@@ -196,4 +213,11 @@ public class DriverConfiguration extends Observable {
 		this.slotListIndexes = slotListIndexes;
 	}
 
+	public void addChangeListener(ChangeListener listener) {
+		eventListeners.add(ChangeListener.class, listener);
+	}
+
+	public void removeChangeListener(ChangeListener listener) {
+		eventListeners.remove(ChangeListener.class, listener);
+	}
 }

@@ -28,15 +28,13 @@
 
 package ch.csnc.extension.ui;
 
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
 import ch.csnc.extension.util.DriverConfiguration;
 
-public class DriverTableModel extends AbstractTableModel implements Observer {
+public class DriverTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = -9114670362713975727L;
 
@@ -49,7 +47,7 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 
 	public DriverTableModel(DriverConfiguration driverConfig){
 		this.driverConfig = driverConfig;
-		driverConfig.addObserver(this);
+		this.driverConfig.addChangeListener(e -> fireTableDataChanged());
 
 		names = driverConfig.getNames();
 		paths = driverConfig.getPaths();
@@ -149,11 +147,6 @@ public class DriverTableModel extends AbstractTableModel implements Observer {
 		else {
 			throw new IllegalArgumentException("Invalid column number: " + columnNumber);
 		}
-	}
-
-	@Override
-	public void update(Observable arg0, Object arg1) {
-		fireTableDataChanged();
 	}
 
 }
