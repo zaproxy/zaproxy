@@ -395,6 +395,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				try {
 					sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
 				} catch (IOException e) {
+					logger.error("Failed to check if same session path:", e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			}
@@ -407,6 +408,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 		    	Control.getSingleton().saveSession(filename, this);
 			} catch (Exception e) {
+				logger.error("Failed to save the session:", e);
 				this.savingSession = false;
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 						e.getMessage());
@@ -445,6 +447,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 		    	Control.getSingleton().snapshotSession(fileName, this);
 			} catch (Exception e) {
+				logger.error("Failed to snapshot the session:", e);
 				this.savingSession = false;
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 						e.getMessage());
@@ -471,6 +474,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				Control.getSingleton().runCommandLineOpenSession(filename);
 			} catch (Exception e) {
+				logger.error("Failed to load the session:", e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 						e.getMessage());
 			}
@@ -488,6 +492,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				try {
 					Control.getSingleton().newSession();
 				} catch (Exception e) {
+					logger.error("Failed to create a new session:", e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 							e.getMessage());
 				}
@@ -504,6 +509,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				try {
 					Control.getSingleton().runCommandLineNewSession(filename);
 				} catch (Exception e) {
+					logger.error("Failed to create a new session:", e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			}
@@ -548,6 +554,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				try {
 					extDyn.createNewRootCa();
 				} catch (Exception e) {
+					logger.error("Failed to create the new Root CA cert:", e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			}
@@ -810,6 +817,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} catch (ApiException e) {
 			throw e;
 		} catch (Exception e) {
+			logger.warn("Failed to send the HTTP request:", e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 		}
 	}
@@ -941,6 +949,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
 			} catch (DatabaseException e) {
+				logger.error("Failed to read the alert from the session:", e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
 			if (recordAlert == null) {
@@ -1119,6 +1128,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		try {
 			recordHistory = tableHistory.read(id);
 		} catch (HttpMalformedHeaderException | DatabaseException e) {
+			logger.error("Failed to read the history record:", e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 		}
 		if (recordHistory == null) {
