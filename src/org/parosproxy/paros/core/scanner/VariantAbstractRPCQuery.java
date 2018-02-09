@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2018/01/16 Added the variantType variable and a new constructor that sets this variable.
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
