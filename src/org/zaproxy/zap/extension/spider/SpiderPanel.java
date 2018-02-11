@@ -228,7 +228,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 
 			tabbedPane = new JTabbedPane();
 			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.urls"), getUrlsTableScrollPane());
-			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.addednodes"), getAddedUrlsTableScrollPane());
+			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.addednodes"), getAddedNodesTableScrollPane());
 			tabbedPane.addTab(Constant.messages.getString("spider.panel.tab.messages"), getMessagesTableScrollPanel());
 			tabbedPane.setSelectedIndex(0);
 
@@ -246,7 +246,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		return urlsTableScrollPane;
 	}
 
-	private JScrollPane getAddedUrlsTableScrollPane() {
+	private JScrollPane getAddedNodesTableScrollPane() {
 		if (addedNodesTableScrollPane == null) {
 			addedNodesTableScrollPane = new JScrollPane();
 			addedNodesTableScrollPane.setName("SpiderAddedUrlsPane");

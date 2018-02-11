@@ -196,8 +196,7 @@ public class HistoryReferenceTableModel extends AbstractTableModel {
 	/**
 	 * Removes the scan result for a particular uri and method. Method is synchronized internally.
 	 * 
-	 * @param uri the uri
-	 * @param method the method
+	 * @param href the history reference
 	 */
 	public void remove(HistoryReference href) {
 		synchronized (hrefList) {

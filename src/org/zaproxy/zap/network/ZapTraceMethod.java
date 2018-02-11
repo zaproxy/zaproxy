@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.TraceMethod;
 
 /**
@@ -32,10 +33,15 @@ import org.apache.commons.httpclient.methods.TraceMethod;
  * 
  * @see TraceMethod
  */
-public class ZapTraceMethod extends TraceMethod {
+public class ZapTraceMethod extends EntityEnclosingMethod {
 
     public ZapTraceMethod(String uri) {
         super(uri);
+    }
+
+    @Override
+    public String getName() {
+        return "TRACE";
     }
 
     /**

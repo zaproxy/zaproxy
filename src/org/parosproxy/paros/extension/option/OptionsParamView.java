@@ -147,7 +147,6 @@ public class OptionsParamView extends AbstractParam {
 
     @Override
 	protected void parse() {
-	    // use temp variable to check.  Exception will be flagged if any error.
       	showTabNames = getBoolean(SHOW_TEXT_ICONS, true);
 	    processImages = getInt(PROCESS_IMAGES, 0);
 	    configLocale = getString(LOCALE, null);	// No default

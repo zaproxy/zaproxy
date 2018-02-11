@@ -69,7 +69,6 @@ public class DialogAddUser extends AbstractFormDialog {
 	 * 
 	 * @param owner the owner
 	 * @param extension the extension
-	 * @param context the context
 	 */
 	public DialogAddUser(Dialog owner, ExtensionUserManagement extension) {
 		super(owner, DIALOG_TITLE);
@@ -81,7 +80,6 @@ public class DialogAddUser extends AbstractFormDialog {
 	 * @param owner the owner
 	 * @param extension the extension
 	 * @param title the title
-	 * @param context the context
 	 */
 	public DialogAddUser(Dialog owner, ExtensionUserManagement extension, String title) {
 		super(owner, title);

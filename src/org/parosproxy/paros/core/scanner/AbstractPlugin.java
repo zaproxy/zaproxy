@@ -57,6 +57,7 @@
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 // ZAP: 2017/11/14 Notify completion in a finally block.
 // ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
+// ZAP: 2018/02/02 Add helper method to check if any of several techs is in scope.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -900,9 +901,31 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         this.delayInMs = delayInMs;
     }
 
+    /**
+     * @see #isAnyInScope(Tech...)
+     */
     @Override
     public boolean inScope(Tech tech) {
         return this.techSet.includes(tech);
+    }
+
+    /**
+     * Tells whether or not any of the given technologies is enabled for the scan.
+     * <p>
+     * Helper method to check if any of the related technologies is enabled before performing a test/scan. For example:
+     * <pre> {@code
+     * if (isAnyInScope(Tech.Linux, Tech.MacOS)) {
+     *     // Perform nix test...
+     * }}</pre>
+     * 
+     * @param techs the technologies that will be checked.
+     * @return {@code true} if any of the technologies is enabled for the scan, {@code false} otherwise.
+     * @since TODO add version
+     * @see #inScope(Tech)
+     * @see #targets(TechSet)
+     */
+    protected boolean isAnyInScope(Tech... techs) {
+        return this.techSet.includesAny(techs);
     }
 
     @Override

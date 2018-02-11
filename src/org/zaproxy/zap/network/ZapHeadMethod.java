@@ -24,15 +24,24 @@ import java.io.IOException;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.ProtocolException;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * An HTTP HEAD method implementation that ignores malformed HTTP response header lines.
  * 
  * @see HeadMethod
  */
-public class ZapHeadMethod extends HeadMethod {
+public class ZapHeadMethod extends EntityEnclosingMethod {
+
+    /** Log object for this class. */
+    private static final Log LOG = LogFactory.getLog(HeadMethod.class);
 
     public ZapHeadMethod() {
         super();
@@ -40,6 +49,69 @@ public class ZapHeadMethod extends HeadMethod {
 
     public ZapHeadMethod(String uri) {
         super(uri);
+    }
+
+    @Override
+    public String getName() {
+        return "HEAD";
+    }
+
+    /**
+     * Overrides {@link HttpMethodBase} method to <i>not</i> read a response
+     * body, despite the presence of a <tt>Content-Length</tt> or
+     * <tt>Transfer-Encoding</tt> header.
+     * 
+     * @param state the {@link HttpState state} information associated with this method
+     * @param conn the {@link HttpConnection connection} used to execute
+     *        this HTTP method
+     *
+     * @throws IOException if an I/O (transport) error occurs. Some transport exceptions
+     *                     can be recovered from.
+     * @throws HttpException  if a protocol exception occurs. Usually protocol exceptions 
+     *                    cannot be recovered from.
+     *
+     * @see #readResponse
+     * @see #processResponseBody
+     * 
+     * @since 2.0
+     */
+    // Implementation copied from HeadMethod.
+    @Override
+    protected void readResponseBody(HttpState state, HttpConnection conn)
+    throws HttpException, IOException {
+        LOG.trace(
+            "enter HeadMethod.readResponseBody(HttpState, HttpConnection)");
+        
+        int bodyCheckTimeout = 
+            getParams().getIntParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, -1);
+
+        if (bodyCheckTimeout < 0) {
+            responseBodyConsumed();
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Check for non-compliant response body. Timeout in " 
+                 + bodyCheckTimeout + " ms");    
+            }
+            boolean responseAvailable = false;
+            try {
+                responseAvailable = conn.isResponseAvailable(bodyCheckTimeout);
+            } catch (IOException e) {
+                LOG.debug("An IOException occurred while testing if a response was available,"
+                    + " we will assume one is not.", 
+                    e);
+                responseAvailable = false;
+            }
+            if (responseAvailable) {
+                if (getParams().isParameterTrue(HttpMethodParams.REJECT_HEAD_BODY)) {
+                    throw new ProtocolException(
+                        "Body content may not be sent in response to HTTP HEAD request");
+                } else {
+                    LOG.warn("Body content returned in response to HTTP HEAD");    
+                }
+                super.readResponseBody(state, conn);
+            }
+        }
+
     }
 
     /**

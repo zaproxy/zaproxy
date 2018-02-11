@@ -32,6 +32,7 @@
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 // ZAP: 2017/03/21 Add method to check if response type is json (isJson())
 // ZAP: 2017/11/10 Allow to set the status code and reason.
+// ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
 
 package org.parosproxy.paros.network;
 
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -101,7 +103,7 @@ public class HttpResponseHeader extends HttpHeader {
 	
     @Override
 	public void setVersion(String version) {
-		mVersion = version.toUpperCase();
+		mVersion = version.toUpperCase(Locale.ROOT);
 	}
 
     /**
@@ -206,84 +208,37 @@ public class HttpResponseHeader extends HttpHeader {
 
 	@Override
 	public boolean isImage() {
-		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
-
-		if (contentType != null) {
-			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_IMAGE) > -1) {
-				return true;
-			}
-		}
-		return false;
+		return hasContentType(_CONTENT_TYPE_IMAGE);
 	}
 
 	@Override
 	public boolean isText() {
-		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
-
-		if (contentType != null) {
-			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_TEXT) > -1) {
-				return true;
-			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
-				return true;
-			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JAVASCRIPT) > -1) {
-				return true;
-			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JSON) > -1) {
-				return true;
-			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_XML) > -1) { 
-				return true; 
-			}
-
-		}
-		return false;
+		return hasContentType(
+				_CONTENT_TYPE_TEXT,
+				_CONTENT_TYPE_HTML,
+				_CONTENT_TYPE_JAVASCRIPT,
+				_CONTENT_TYPE_JSON,
+				_CONTENT_TYPE_XML);
 	}
 	
 	public boolean isHtml() {
-		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
-
-		if (contentType != null) {
-			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
-				return true;
-			}
-		}
-		return false;
+		return hasContentType(_CONTENT_TYPE_HTML);
 		
 	}
 	
-	// ZAP: Added method
 	public boolean isXml() {
-		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
-
-		if (contentType != null) {
-			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_XML) > -1) {
-				return true;
-			}
-		}
-		return false;
+		return hasContentType(_CONTENT_TYPE_XML);
 		
 	}
 	
 	public boolean isJson() {
-		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
-
-		if (contentType != null) {
-			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JSON) > -1) {
-				return true;
-			}
-		}
-		return false;
+		return hasContentType(_CONTENT_TYPE_JSON);
 		
 	}
 
 	
 	public boolean isJavaScript() {
-		String contentType = getHeader(CONTENT_TYPE.toUpperCase());
-
-		if (contentType != null) {
-			if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JAVASCRIPT) > -1) {
-				return true;
-			}
-		}
-		return false;
+		return hasContentType(_CONTENT_TYPE_JAVASCRIPT);
 	}
 
 	public static boolean isStatusLine(String data) {

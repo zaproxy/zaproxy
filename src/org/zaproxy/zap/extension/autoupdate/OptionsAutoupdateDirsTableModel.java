@@ -48,7 +48,7 @@ public class OptionsAutoupdateDirsTableModel extends AbstractMultipleOptionsBase
     }
 
     /**
-     * @param tokens The tokens to set.
+     * @param files The files to set.
      */
     public void setFiles(List<File> files) {
 		this.tokens = new ArrayList<>(tokens.size());

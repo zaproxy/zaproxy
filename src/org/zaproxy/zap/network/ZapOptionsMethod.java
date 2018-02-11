@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.OptionsMethod;
 
 /**
@@ -32,7 +33,7 @@ import org.apache.commons.httpclient.methods.OptionsMethod;
  * 
  * @see OptionsMethod
  */
-public class ZapOptionsMethod extends OptionsMethod {
+public class ZapOptionsMethod extends EntityEnclosingMethod {
 
     public ZapOptionsMethod() {
         super();
@@ -40,6 +41,11 @@ public class ZapOptionsMethod extends OptionsMethod {
 
     public ZapOptionsMethod(String uri) {
         super(uri);
+    }
+
+    @Override
+    public String getName() {
+        return "OPTIONS";
     }
 
     /**
