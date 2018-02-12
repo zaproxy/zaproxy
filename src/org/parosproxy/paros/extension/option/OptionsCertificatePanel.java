@@ -44,8 +44,6 @@ import java.net.URI;
 import java.security.KeyStoreException;
 import java.security.ProviderException;
 import java.security.cert.Certificate;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
@@ -74,7 +72,7 @@ import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
 import ch.csnc.extension.util.DriverConfiguration;
 
-public class OptionsCertificatePanel extends AbstractParamPanel implements Observer{
+public class OptionsCertificatePanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 4350957038174673492L;
 	
@@ -152,7 +150,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 
 		driverConfig = new DriverConfiguration(new File(Constant.getZapInstall(), "xml/drivers.xml"));
 		updateDriverComboBox();
-		driverConfig.addObserver(this);
+		driverConfig.addChangeListener(e -> updateDriverComboBox());
 
 		Certificate cert =contextManager.getDefaultCertificate();
 		if(cert!=null) {
@@ -1002,12 +1000,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		certParam.setEnableCertificate(useClientCertificateCheckBox.isSelected());
 
 		certParam.setAllowUnsafeSslRenegotiation(enableUnsafeSSLRenegotiationCheckBox.isSelected());
-	}
-
-
-	@Override
-	public void update(Observable arg0, Object arg1) {
-		updateDriverComboBox();
 	}
 
 	@Override
