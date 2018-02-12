@@ -20,15 +20,19 @@ package org.zaproxy.zap.extension.api;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
@@ -64,6 +68,7 @@ public class ContextAPI extends ApiImplementor {
     private static final String VIEW_ALL_TECHS = "technologyList";
 	private static final String VIEW_INCLUDED_TECHS = "includedTechnologyList";
 	private static final String VIEW_EXCLUDED_TECHS = "excludedTechnologyList";
+    private static final String VIEW_URLS = "urls";
     private static final String REGEX_PARAM = "regex";
     private static final String CONTEXT_NAME = "contextName";
     private static final String IN_SCOPE = "booleanInScope";
@@ -102,6 +107,7 @@ public class ContextAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_ALL_TECHS));
 		this.addApiView(new ApiView(VIEW_INCLUDED_TECHS, contextNameOnlyParam));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_TECHS, contextNameOnlyParam));
+		this.addApiView(new ApiView(VIEW_URLS, contextNameOnlyParam));
     }
 
     @Override
@@ -293,6 +299,23 @@ public class ContextAPI extends ApiImplementor {
 			techSet = getContext(params).getTechSet();
 			for(Tech tech : techSet.getExcludeTech()) {
 				resultList.addItem(new ApiResponseElement(TECH_NAME, tech.toString()));
+			}
+			result = resultList;
+			break;
+		case VIEW_URLS:
+			resultList = new ApiResponseList(name);
+			Set<String> addedUrls = new HashSet<>();
+			for (SiteNode node : getContext(params).getNodesInContextFromSiteTree()) {
+				HistoryReference href = node.getHistoryReference();
+				if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
+					continue;
+				}
+
+				String uri = href.getURI().toString();
+				if (!addedUrls.contains(uri)) {
+					resultList.addItem(new ApiResponseElement("url", uri));
+					addedUrls.add(uri);
+				}
 			}
 			result = resultList;
 			break;
