@@ -248,7 +248,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION, PARAM_OVERWRITE_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_SAVE_SESSION, new String[] {PARAM_SESSION}, new String[] {PARAM_OVERWRITE_SESSION}));
-		this.addApiAction(new ApiAction(ACTION_SNAPSHOT_SESSION));
+		this.addApiAction(new ApiAction(ACTION_SNAPSHOT_SESSION, null, new String[] { PARAM_SESSION, PARAM_OVERWRITE_SESSION }));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
 		this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
@@ -435,13 +435,34 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				throw new ApiException(ApiException.Type.BAD_STATE, "Active actions prevent the session snapshot: " + actions);
 			}
 
-			String fileName = session.getFileName();
+			String fileName = ApiUtils.getOptionalStringParam(params, PARAM_SESSION);
 			
-			if (fileName.endsWith(".session")) {
-			    fileName = fileName.substring(0, fileName.length() - 8);
-			}
-			fileName += "-" + dateFormat.format(new Date()) + ".session";
+			if (fileName == null || fileName.isEmpty()) {
+				fileName = session.getFileName();
 
+				if (fileName.endsWith(".session")) {
+					fileName = fileName.substring(0, fileName.length() - 8);
+				}
+				fileName += "-" + dateFormat.format(new Date()) + ".session";
+			} else {
+				Path sessionPath = SessionUtils.getSessionPath(fileName);
+				fileName = sessionPath.toAbsolutePath().toString();
+
+				if (Files.exists(sessionPath)) {
+					final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
+					boolean sameSession = false;
+					try {
+						sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
+					} catch (IOException e) {
+						logger.error("Failed to check if same session path:", e);
+						throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+					}
+
+					if (!overwrite || sameSession) {
+						throw new ApiException(ApiException.Type.ALREADY_EXISTS, fileName);
+					}
+				}
+			}
 			
 			this.savingSession = true;
 			try {
