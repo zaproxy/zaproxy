@@ -3,11 +3,12 @@ package org.zaproxy.zap.view;
 import java.awt.Color;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EventListener;
+import java.util.EventObject;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import org.zaproxy.zap.extension.search.SearchMatch;
 
@@ -16,7 +17,7 @@ import org.zaproxy.zap.extension.search.SearchMatch;
  * Keeps them in a ordered list. Allows access via get/set.
  * Can inform interested partys when the list of Highlights changes.
  */
-public class HighlighterManager extends Observable {
+public class HighlighterManager {
 	static HighlighterManager hilighterManager = null;
 	
 	public static HighlighterManager getInstance() {
@@ -28,19 +29,18 @@ public class HighlighterManager extends Observable {
 	
 	private LinkedList<HighlightSearchEntry> highlights;
 	
-	private List<SoftObserver> observers;
+	private List<SoftReference<HighlighterManagerListener>> eventListeners;
 	
 	public HighlighterManager() {
 		highlights = new LinkedList<>();
-		observers =  new ArrayList<>();
+		eventListeners = Collections.synchronizedList(new ArrayList<>()); 
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void reinitHighlights(LinkedList<HighlightSearchEntry> list) {
 		this.highlights = (LinkedList<HighlightSearchEntry>) list.clone();
 		
-		setChanged();
-		notifyObservers(null);
+		fireHighlighterChanged(new HighlighterManagerEvent(this, HighlighterManagerEvent.Type.HIGHLIGHTS_SET));
 	}
 	
 	public void addHighlightEntry(String token, SearchMatch.Location type, boolean isActive) {
@@ -51,16 +51,15 @@ public class HighlighterManager extends Observable {
 	public void addHighlightEntry(HighlightSearchEntry entry) {
 		highlights.add(entry);
 		
-		setChanged();
-		notifyObservers(entry);
+		fireHighlighterChanged(new HighlighterManagerEvent(this, HighlighterManagerEvent.Type.HIGHLIGHT_ADDED, entry));
 	}
 	
 	public void removeHighlightEntry(int id) {
-		highlights.remove(id);
-		
-		// null means the observers call getHighlights() to rebuild all highlights
-		setChanged();
-		notifyObservers(null);
+		HighlightSearchEntry entry = highlights.remove(id);
+
+		if (entry != null) {
+			fireHighlighterChanged(new HighlighterManagerEvent(this, HighlighterManagerEvent.Type.HIGHLIGHT_REMOVED, entry));
+		}
 	}
 	
 	// TODO: sux
@@ -69,86 +68,72 @@ public class HighlighterManager extends Observable {
 		return (LinkedList<HighlightSearchEntry>) highlights.clone();
 	}
 
-	@Override
-	public synchronized void addObserver(Observer obs) {
-		if (obs == null) {
-			throw new NullPointerException();
-		}
-
-		boolean observerContained = false;
-		for (Iterator<SoftObserver> it = observers.iterator(); it.hasNext();) {
-			Observer other = it.next().get();
-			if (other == null) {
-				it.remove();
-			} else if (obs.equals(other)) {
-				observerContained = true;
-				break;
-			}
-		}
-		if (!observerContained) {
-			observers.add(new SoftObserver(obs));
-		}
+	public void addHighlighterManagerListener(HighlighterManagerListener listener) {
+		eventListeners.add(new SoftReference<>(listener));
 	}
 
-	@Override
-	public synchronized void deleteObserver(Observer obs) {
-		for (Iterator<SoftObserver> it = observers.iterator(); it.hasNext();) {
-			Observer other = it.next().get();
-			if (other == null) {
-				it.remove();
-			} else if (obs.equals(other)) {
-				it.remove();
-				break;
+	public void removeHighlighterManagerListener(HighlighterManagerListener listener) {
+		synchronized (eventListeners) {
+			for (Iterator<SoftReference<HighlighterManagerListener>> it = eventListeners.iterator(); it.hasNext();) {
+				HighlighterManagerListener currentListener = it.next().get();
+				if (currentListener == null) {
+					it.remove();
+				} else if (listener.equals(currentListener)) {
+					it.remove();
+					break;
+				}
 			}
 		}
 	}
 
-	private synchronized void deleteSoftObserver(SoftObserver obs) {
-		observers.remove(obs);
-	}
-
-	@Override
-	public void notifyObservers(Object arg) {
-		Observer[] arrLocal;
-
-		synchronized (this) {
-			if (!hasChanged()) {
-				return;
+	private void fireHighlighterChanged(HighlighterManagerEvent e) {
+		synchronized (eventListeners) {
+			for (Iterator<SoftReference<HighlighterManagerListener>> it = eventListeners.iterator(); it.hasNext();) {
+				HighlighterManagerListener listener = it.next().get();
+				if (listener == null) {
+					it.remove();
+				} else {
+					listener.highlighterChanged(e);
+				}
 			}
-			arrLocal = new Observer[observers.size()];
-			arrLocal = observers.toArray(arrLocal);
-			clearChanged();
-		}
-
-		for (int i = arrLocal.length - 1; i >= 0; i--) {
-			arrLocal[i].update(this, arg);
 		}
 	}
 
-	@Override
-	public synchronized void deleteObservers() {
-		observers.clear();
+	@FunctionalInterface
+	public static interface HighlighterManagerListener extends EventListener {
+
+		void highlighterChanged(HighlighterManagerEvent e);
 	}
 
-	@Override
-	public synchronized int countObservers() {
-		return observers.size();
-	}
+	public static final class HighlighterManagerEvent extends EventObject {
 
-	private class SoftObserver extends SoftReference<Observer> implements Observer {
+		private static final long serialVersionUID = 1L;
 
-		public SoftObserver(Observer referent) {
-			super(referent);
+		public enum Type {
+			HIGHLIGHTS_SET,
+			HIGHLIGHT_ADDED,
+			HIGHLIGHT_REMOVED
 		}
 
-		@Override
-		public void update(Observable o, Object arg) {
-			Observer observer = get();
-			if (observer != null) {
-				observer.update(o, arg);
-			} else {
-				deleteSoftObserver(this);
-			}
+		private Type type;
+		private HighlightSearchEntry highlight;
+
+		private HighlighterManagerEvent(HighlighterManager source, Type type) {
+			this(source, type, null);
+		}
+
+		private HighlighterManagerEvent(HighlighterManager source, Type type, HighlightSearchEntry highlight) {
+			super(source);
+			this.type = type;
+			this.highlight = highlight;
+		}
+
+		public Type getType() {
+			return type;
+		}
+
+		public HighlightSearchEntry getHighlight() {
+			return highlight;
 		}
 	}
 }

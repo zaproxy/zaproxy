@@ -22,8 +22,6 @@ import java.awt.Component;
 import java.awt.Font;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -55,7 +53,7 @@ import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.HighlightSearchEntry;
 import org.zaproxy.zap.view.HighlighterManager;
 
-public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea implements Observer {
+public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
 	private static final long serialVersionUID = -9082089105656842054L;
 
@@ -170,7 +168,19 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private void initHighlighter() {
 		HighlighterManager highlighter = HighlighterManager.getInstance();
 		
-		highlighter.addObserver(this);
+		highlighter.addHighlighterManagerListener(e -> {
+			switch (e.getType()) {
+			case HIGHLIGHTS_SET:
+			case HIGHLIGHT_REMOVED:
+				removeAllHighlights();
+				highlightAll();
+				break;
+			case HIGHLIGHT_ADDED:
+				highlightEntryParser(e.getHighlight());
+				break;
+			}
+			this.invalidate();
+		});
 		
 		if (message != null) {
 			highlightAll();
@@ -252,24 +262,6 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private void removeAllHighlights() {
 		Highlighter hilite = this.getHighlighter();
 		hilite.removeAllHighlights();
-	}
-
-	@Override
-	// HighlighterManager called us
-	// there is either
-	// - a new highlight
-	// - something other (added several, deleted, ...).
-	public void update(Observable arg0, Object arg1) {
-		if (arg1 == null) {
-			// Re-highlight everything
-			removeAllHighlights();
-			highlightAll();
-		} else {
-			// Add specific highlight
-			HighlightSearchEntry token = (HighlightSearchEntry) arg1;
-			highlightEntryParser(token);
-		}
-		this.invalidate();
 	}
 	
 	public void setMessage(Message aMessage) {
