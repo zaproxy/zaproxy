@@ -78,7 +78,7 @@ public class SearchResultsTable extends HistoryReferencesTable {
         for (int selectedRow : selectedRows) {
             HistoryReference historyReference = getHistoryReferenceAtViewRow(selectedRow);
             if (historyReference != null) {
-                Integer id = Integer.valueOf(historyReference.getHistoryId());
+                Integer id = historyReference.getHistoryId();
                 if (!historyReferenceIdsAdded.contains(id)) {
                     historyReferenceIdsAdded.add(id);
                     uniqueHistoryReferences.add(historyReference);

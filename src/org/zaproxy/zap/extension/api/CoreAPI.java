@@ -1584,7 +1584,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
 			for (int i = 0; i < v.size(); i++) {
-				int alertId = v.get(i).intValue();
+				int alertId = v.get(i);
 				RecordAlert recAlert = tableAlert.read(alertId);
 				Alert alert = new Alert(recAlert);
 
@@ -1625,7 +1625,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
 			for (Integer id : historyIds) {
-				RecordHistory recHistory = tableHistory.read(id.intValue());
+				RecordHistory recHistory = tableHistory.read(id);
 
 				HttpMessage msg = recHistory.getHttpMessage();
 

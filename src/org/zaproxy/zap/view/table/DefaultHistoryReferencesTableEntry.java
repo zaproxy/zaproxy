@@ -65,13 +65,13 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         Column[] sortedColumns = Arrays.copyOf(columns, columns.length);
         Arrays.sort(sortedColumns);
 
-        historyId = hasColumn(sortedColumns, Column.HREF_ID) ? Integer.valueOf(historyReference.getHistoryId()) : null;
-        historyType = hasColumn(sortedColumns, Column.HREF_TYPE) ? Integer.valueOf(historyReference.getHistoryType()) : null;
-        sessionId = hasColumn(sortedColumns, Column.SESSION_ID) ? Long.valueOf(historyReference.getSessionId()) : null;
+        historyId = hasColumn(sortedColumns, Column.HREF_ID) ? historyReference.getHistoryId() : null;
+        historyType = hasColumn(sortedColumns, Column.HREF_TYPE) ? historyReference.getHistoryType() : null;
+        sessionId = hasColumn(sortedColumns, Column.SESSION_ID) ? historyReference.getSessionId() : null;
         method = hasColumn(sortedColumns, Column.METHOD) ? historyReference.getMethod() : null;
-        statusCode = hasColumn(sortedColumns, Column.STATUS_CODE) ? Integer.valueOf(historyReference.getStatusCode()) : null;
+        statusCode = hasColumn(sortedColumns, Column.STATUS_CODE) ? historyReference.getStatusCode() : null;
         reason = hasColumn(sortedColumns, Column.STATUS_REASON) ? historyReference.getReason() : null;
-        rtt = hasColumn(sortedColumns, Column.RTT) ? Integer.valueOf(historyReference.getRtt()) : null;
+        rtt = hasColumn(sortedColumns, Column.RTT) ? historyReference.getRtt() : null;
 
         uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
         timeSentMillis = hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
@@ -80,16 +80,16 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         timeReceivedMillis = hasColumn(sortedColumns, Column.RESPONSE_TIMESTAMP) ? new Date(
                 historyReference.getTimeReceivedMillis()) : null;
         requestHeaderSize = hasColumn(sortedColumns, Column.SIZE_REQUEST_HEADER)
-                ? Integer.valueOf(historyReference.getRequestHeaderLength())
+                ? historyReference.getRequestHeaderLength()
                 : null;
         requestBodySize = hasColumn(sortedColumns, Column.SIZE_REQUEST_BODY)
-                ? Integer.valueOf(historyReference.getRequestBodyLength())
+                ? historyReference.getRequestBodyLength()
                 : null;
         responseHeaderSize = hasColumn(sortedColumns, Column.SIZE_RESPONSE_HEADER)
-                ? Integer.valueOf(historyReference.getResponseHeaderLength())
+                ? historyReference.getResponseHeaderLength()
                 : null;
         responseBodySize = hasColumn(sortedColumns, Column.SIZE_RESPONSE_BODY)
-                ? Integer.valueOf(historyReference.getResponseBodyLength())
+                ? historyReference.getResponseBodyLength()
                 : null;
         messageSize = extractMessageSize(historyReference, hasColumn(sortedColumns, Column.SIZE_MESSAGE));
 
@@ -104,10 +104,10 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     private Long extractMessageSize(HistoryReference historyReference, boolean required) {
         if (!required) {
-            return Long.valueOf(0);
+            return 0L;
         }
 
-        return Long.valueOf(historyReference.getRequestHeaderLength() + historyReference.getRequestBodyLength()
+        return (long) (historyReference.getRequestHeaderLength() + historyReference.getRequestBodyLength()
                 + historyReference.getResponseHeaderLength() + historyReference.getResponseBodyLength());
     }
 
@@ -218,7 +218,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
      */
     public void refreshCachedValues() {
         if (noteColumn) {
-            note = Boolean.valueOf(getHistoryReference().hasNote());
+            note = getHistoryReference().hasNote();
         }
         if (tagsColumn) {
             tags = listToCsv(getHistoryReference().getTags());

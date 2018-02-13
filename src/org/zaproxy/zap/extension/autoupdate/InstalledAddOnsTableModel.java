@@ -90,7 +90,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
         case COLUMN_ADD_ON_WRAPPER:
              return aow;
         case 0:
-            return Boolean.valueOf(aow.hasRunningIssues());
+            return aow.hasRunningIssues();
         case 1:
             return aow.getAddOn().getName();
         case 2:
@@ -129,7 +129,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
         if (aValue instanceof Boolean) {
             if (addOnWrapper.getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
-                addOnWrapper.setEnabled(((Boolean) aValue).booleanValue());
+                addOnWrapper.setEnabled((Boolean) aValue);
                 this.fireTableCellUpdated(rowIndex, columnIndex);
             }
         }

@@ -529,7 +529,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 
 		@Override
 		protected Icon getIcon(final Object cellItem) {
-			return getProcessedIcon(((Boolean) cellItem).booleanValue());
+			return getProcessedIcon((Boolean) cellItem);
 		}
 
 		private static Icon getProcessedIcon(final boolean processed) {

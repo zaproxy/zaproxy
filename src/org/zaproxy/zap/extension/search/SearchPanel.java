@@ -363,7 +363,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	}
 
 	private void setNumberOfMatches(int numberOfMatches) {
-		numberOfMatchesLabel.setText(numberOfMatchesFormat.format(new Object[] { Integer.valueOf(numberOfMatches) }));
+		numberOfMatchesLabel.setText(numberOfMatchesFormat.format(new Object[] {numberOfMatches}));
 	}
 
 	private TableExportButton<SearchResultsTable> getExportButton() {

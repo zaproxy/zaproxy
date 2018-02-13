@@ -23,6 +23,7 @@
 // ZAP: 2012/11/20 Issue 419: Restructure jar loading code
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.extension.filter;
 
@@ -61,7 +62,7 @@ public class FilterFactory {
                 filter.setEnabled(false);
                 log.info("loaded filter " + filter.getName());
                 // ZAP: Changed to use Integer.valueOf.
-                mapAllFilter.put(Integer.valueOf(filter.getId()), filter);
+                mapAllFilter.put(filter.getId(), filter);
                
             }
             // ZAP: Added the type argument.

@@ -67,9 +67,9 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:
-            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+            return getElement(rowIndex).isEnabled();
         case 1:
-            return Boolean.valueOf(getElement(rowIndex).isRegex());
+            return getElement(rowIndex).isRegex();
         case 2:
             return getElement(rowIndex).getValue();
         }
@@ -79,7 +79,7 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 0 && aValue instanceof Boolean) {
-            excludedDomains.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            excludedDomains.get(rowIndex).setEnabled((Boolean) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
         }
     }

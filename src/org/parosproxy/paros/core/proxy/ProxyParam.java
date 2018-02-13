@@ -35,6 +35,7 @@
 // ZAP: 2017/04/14 Validate that the SSL/TLS versions persisted can be set/used.
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2017/11/20 Use default value when reading "reverseProxy.ip".
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.core.proxy;
 
@@ -298,7 +299,7 @@ public class ProxyParam extends AbstractParam {
     public void setRemoveUnsupportedEncodings(boolean remove) {
         if (removeUnsupportedEncodings != remove) {
             this.removeUnsupportedEncodings = remove;
-            getConfig().setProperty(REMOVE_UNSUPPORTED_ENCODINGS, Boolean.valueOf(removeUnsupportedEncodings));
+            getConfig().setProperty(REMOVE_UNSUPPORTED_ENCODINGS, removeUnsupportedEncodings);
         }
     }
 
@@ -332,7 +333,7 @@ public class ProxyParam extends AbstractParam {
      */
 	public void setAlwaysDecodeGzip(boolean alwaysDecodeGzip) {
 		this.alwaysDecodeGzip = alwaysDecodeGzip;
-        getConfig().setProperty(ALWAYS_DECODE_GZIP, Boolean.valueOf(alwaysDecodeGzip));
+        getConfig().setProperty(ALWAYS_DECODE_GZIP, alwaysDecodeGzip);
 	}
     
     /**
@@ -445,6 +446,6 @@ public class ProxyParam extends AbstractParam {
      */
     public void setBehindNat(boolean behindNat) {
         this.behindNat = behindNat;
-        getConfig().setProperty(PROXY_BEHIND_NAT, Boolean.valueOf(behindNat));
+        getConfig().setProperty(PROXY_BEHIND_NAT, behindNat);
     }
 }

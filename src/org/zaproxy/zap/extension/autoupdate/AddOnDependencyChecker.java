@@ -991,7 +991,7 @@ class AddOnDependencyChecker {
         public List<AddOn> getSelectedAddOns() {
             List<AddOn> selectedAddOns = new ArrayList<>(selections.length);
             for (int i = 0; i < selections.length; i++) {
-                if (selections[i].booleanValue()) {
+                if (selections[i]) {
                     selectedAddOns.add(getAddOn(i));
                 }
             }

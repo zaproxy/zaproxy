@@ -74,6 +74,7 @@
 //                 Exit immediately if not able to create the home dir.
 // ZAP: 2018/01/04 Clear SNI Terminator options when updating from older ZAP versions.
 // ZAP: 2018/01/05 Prevent use of install dir as home dir.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros;
 
@@ -681,8 +682,8 @@ public final class Constant {
             data[1] = config.getString(baseKey + "directory", "");
             data[2] = config.getString(baseKey + "command");
             data[3] = config.getString(baseKey + "parameters");
-            data[4] = Boolean.valueOf(config.getBoolean(baseKey + "output", true));
-            data[5] = Boolean.valueOf(config.getBoolean(baseKey + "note", false));
+            data[4] = config.getBoolean(baseKey + "output", true);
+            data[5] = config.getBoolean(baseKey + "note", false);
             oldData.add(data);
         }
         config.clearTree("invoke.A");
@@ -746,7 +747,7 @@ public final class Constant {
             data[4] = config.getString(baseKey + "reqHeadRegex");
             data[5] = config.getString(baseKey + "resHeadRegex");
             data[6] = config.getString(baseKey + "resBodyRegex");
-            data[7] = Boolean.valueOf(config.getBoolean(baseKey + "enabled"));
+            data[7] = config.getBoolean(baseKey + "enabled");
             oldData.add(data);
         }
         config.clearTree("pscans.names");
@@ -1133,7 +1134,7 @@ public final class Constant {
     }
 
     public static boolean isLowMemoryOptionSet() {
-    	return lowMemoryOption != null && lowMemoryOption.booleanValue();
+    	return lowMemoryOption != null && lowMemoryOption;
     }
     
     /**

@@ -90,7 +90,7 @@ public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch(columnIndex) {
         case 0:
-            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+            return getElement(rowIndex).isEnabled();
         case 1:
             return getElement(rowIndex).getName();
         }
@@ -101,7 +101,7 @@ public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
             if (aValue instanceof Boolean) {
-                tokens.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                tokens.get(rowIndex).setEnabled((Boolean) aValue);
                 fireTableCellUpdated(rowIndex, columnIndex);
             }
         }

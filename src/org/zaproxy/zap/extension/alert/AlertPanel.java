@@ -463,8 +463,8 @@ public class AlertPanel extends AbstractPanel {
 							if (userObject instanceof Alert) {
 								HistoryReference historyReference = ((Alert) userObject).getHistoryRef();
 								if (historyReference != null && !historyReferenceIdsAdded
-										.contains(Integer.valueOf(historyReference.getHistoryId()))) {
-									historyReferenceIdsAdded.add(Integer.valueOf(historyReference.getHistoryId()));
+										.contains(historyReference.getHistoryId())) {
+									historyReferenceIdsAdded.add(historyReference.getHistoryId());
 									uniqueHistoryReferences.add(historyReference);
 								}
 							}

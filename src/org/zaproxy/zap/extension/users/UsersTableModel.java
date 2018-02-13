@@ -155,7 +155,7 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		if (columnIndex == 0) {
 			if (aValue instanceof Boolean) {
-				users.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+				users.get(rowIndex).setEnabled((Boolean) aValue);
 				fireTableCellUpdated(rowIndex, columnIndex);
 			}
 		}

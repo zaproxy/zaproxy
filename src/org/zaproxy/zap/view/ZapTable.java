@@ -149,7 +149,7 @@ public class ZapTable extends JXTable {
         this.autoScroll = autoScroll;
 
         if (autoScrollAction != null) {
-            autoScrollAction.putValue(Action.SELECTED_KEY, Boolean.valueOf(autoScroll));
+            autoScrollAction.putValue(Action.SELECTED_KEY, autoScroll);
         }
 
         if (this.autoScroll) {
