@@ -162,6 +162,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         this.removeAllFields();
         this.injectionPointModel.clear();
+        getRequestField().getHighlighter().removeAllHighlights();
         this.headerLength = -1;
         this.urlPathStart = -1;
 
