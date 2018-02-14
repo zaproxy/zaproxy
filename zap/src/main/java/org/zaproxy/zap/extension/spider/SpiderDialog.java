@@ -68,6 +68,8 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_PARSE_SVN = "spider.custom.label.parseSvn";
     private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit";
     private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata";
+    private static final String FIELD_IRRELEVANT_URL_PARAMETERS =
+            "spider.custom.label.irrelevantUrlParameters";
 
     private static Logger logger = LogManager.getLogger(SpiderDialog.class);
 
@@ -146,6 +148,10 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addCheckBoxField(1, FIELD_PARSE_GIT, getSpiderParam().isParseGit());
         this.addCheckBoxField(
                 1, FIELD_HANDLE_ODATA, getSpiderParam().isHandleODataParametersVisited());
+        this.addMultilineField(
+                1,
+                FIELD_IRRELEVANT_URL_PARAMETERS,
+                getSpiderParam().getIrrelevantUrlParametersAsString());
         this.addPadding(1);
 
         if (!getBoolValue(FIELD_PROCESS_FORMS)) {
@@ -339,6 +345,8 @@ public class SpiderDialog extends StandardFieldsDialog {
             spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
             spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
             spiderParam.setThreadCount(extension.getSpiderParam().getThreadCount());
+            spiderParam.setIrrelevantUrlParameters(
+                    this.getStringValue(FIELD_IRRELEVANT_URL_PARAMETERS));
 
             contextSpecificObjects.add(spiderParam);
         }

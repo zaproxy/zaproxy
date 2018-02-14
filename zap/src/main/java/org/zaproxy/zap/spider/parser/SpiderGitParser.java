@@ -37,9 +37,6 @@ import org.parosproxy.paros.network.HttpMessage;
 @Deprecated
 public class SpiderGitParser extends SpiderParser {
 
-    /** The Spider parameters. */
-    private org.zaproxy.zap.spider.SpiderParam params;
-
     /** a pattern to match the file name of the Git index file */
     private static final Pattern gitIndexFilenamePattern = Pattern.compile("/.git/index$");
 
@@ -52,10 +49,10 @@ public class SpiderGitParser extends SpiderParser {
      * Instantiates a new spider Git Index parser.
      *
      * @param params the params
+     * @throws NullPointerException if {@code params} is null.
      */
     public SpiderGitParser(org.zaproxy.zap.spider.SpiderParam params) {
-        super();
-        this.params = params;
+        super(params);
     }
 
     @SuppressWarnings("unused")
@@ -64,7 +61,7 @@ public class SpiderGitParser extends SpiderParser {
 
         // parse the Git index file, based on publicly available (but incomplete) documentation of
         // the file format, and some reverse-engineering.
-        if (message == null || !params.isParseGit()) {
+        if (message == null || !getSpiderParam().isParseGit()) {
             return false;
         }
         getLogger().debug("Parsing a Git resource...");

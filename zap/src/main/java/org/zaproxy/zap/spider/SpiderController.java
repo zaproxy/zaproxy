@@ -124,11 +124,11 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
         }
 
         // Redirect requests parser
-        parser = new org.zaproxy.zap.spider.parser.SpiderRedirectParser();
+        parser = new org.zaproxy.zap.spider.parser.SpiderRedirectParser(spider.getSpiderParam());
         parsers.add(parser);
 
         // HTTP Header parser
-        parser = new org.zaproxy.zap.spider.parser.SpiderHttpHeaderParser();
+        parser = new org.zaproxy.zap.spider.parser.SpiderHttpHeaderParser(spider.getSpiderParam());
         parsers.add(parser);
 
         // Simple HTML parser
@@ -143,11 +143,11 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
         Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
 
         // Prepare the parsers for OData ATOM files
-        parser = new org.zaproxy.zap.spider.parser.SpiderODataAtomParser();
+        parser = new org.zaproxy.zap.spider.parser.SpiderODataAtomParser(spider.getSpiderParam());
         this.parsers.add(parser);
 
         // Prepare the parsers for simple non-HTML files
-        parser = new org.zaproxy.zap.spider.parser.SpiderTextParser();
+        parser = new org.zaproxy.zap.spider.parser.SpiderTextParser(spider.getSpiderParam());
         this.parsers.add(parser);
 
         this.parsersUnmodifiableView = Collections.unmodifiableList(parsers);
@@ -270,7 +270,8 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
                         spider.getSpiderParam().getHandleParameters(),
-                        spider.getSpiderParam().isHandleODataParametersVisited());
+                        spider.getSpiderParam().isHandleODataParametersVisited(),
+                        spider.getSpiderParam()::isIrrelevantUrlParameter);
         identifierBuilder.append(resourceFound.getMethod());
         identifierBuilder.append(" ");
         identifierBuilder.append(visitedURI);
@@ -401,6 +402,7 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
 
     public void addSpiderParser(org.zaproxy.zap.spider.parser.SpiderParser parser) {
         log.debug("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
+        parser.setSpiderParam(spider.getSpiderParam());
         this.parsers.addFirst(parser);
     }
 }

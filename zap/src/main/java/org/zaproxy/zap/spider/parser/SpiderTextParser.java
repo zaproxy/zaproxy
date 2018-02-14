@@ -39,6 +39,14 @@ public class SpiderTextParser extends SpiderParser {
             Pattern.compile(
                     "\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+)", Pattern.CASE_INSENSITIVE);
 
+    public SpiderTextParser() {
+        this(null);
+    }
+
+    public SpiderTextParser(org.zaproxy.zap.spider.SpiderParam params) {
+        super(params);
+    }
+
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         getLogger().debug("Parsing a non-HTML text resource.");

@@ -84,21 +84,14 @@ public class SpiderHtmlParser extends SpiderParser {
 
     private boolean baseTagSet;
 
-    /** The params. */
-    private org.zaproxy.zap.spider.SpiderParam params;
-
     /**
      * Instantiates a new spider html parser.
      *
      * @param params the params
-     * @throws IllegalArgumentException if {@code params} is null.
+     * @throws NullPointerException if {@code params} is null.
      */
     public SpiderHtmlParser(org.zaproxy.zap.spider.SpiderParam params) {
-        super();
-        if (params == null) {
-            throw new IllegalArgumentException("Parameter params must not be null.");
-        }
-        this.params = params;
+        super(params);
     }
 
     /** @throws NullPointerException if {@code message} is null. */
@@ -121,7 +114,7 @@ public class SpiderHtmlParser extends SpiderParser {
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL = getCanonicalURL(href, baseURL);
                 baseTagSet = true;
             }
         }
@@ -130,7 +123,7 @@ public class SpiderHtmlParser extends SpiderParser {
         parseSource(message, source, depth, baseURL);
 
         // Parse the comments
-        if (params.isParseComments()) {
+        if (getSpiderParam().isParseComments()) {
             List<StartTag> comments = source.getAllStartTags(StartTagType.COMMENT);
             for (StartTag comment : comments) {
                 Source s = new Source(comment.getTagContent());

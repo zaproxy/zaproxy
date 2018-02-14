@@ -33,6 +33,10 @@ import org.parosproxy.paros.network.HttpMessage;
 @Deprecated
 public class SpiderHttpHeaderParser extends SpiderParser {
 
+    public SpiderHttpHeaderParser(org.zaproxy.zap.spider.SpiderParam params) {
+        super(params);
+    }
+
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         String baseURL = message.getRequestHeader().getURI().toString();

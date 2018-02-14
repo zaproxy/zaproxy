@@ -43,6 +43,14 @@ public class SpiderODataAtomParser extends SpiderParser {
     private static final Pattern patternBase =
             Pattern.compile("base=\"(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)\"");
 
+    public SpiderODataAtomParser() {
+        this(null);
+    }
+
+    public SpiderODataAtomParser(org.zaproxy.zap.spider.SpiderParam param) {
+        super(param);
+    }
+
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         getLogger().debug("Parsing an OData Atom resource.");
