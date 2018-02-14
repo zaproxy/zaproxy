@@ -30,7 +30,6 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
@@ -306,12 +305,7 @@ public class ContextAPI extends ApiImplementor {
 			resultList = new ApiResponseList(name);
 			Set<String> addedUrls = new HashSet<>();
 			for (SiteNode node : getContext(params).getNodesInContextFromSiteTree()) {
-				HistoryReference href = node.getHistoryReference();
-				if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
-					continue;
-				}
-
-				String uri = href.getURI().toString();
+				String uri = node.getHistoryReference().getURI().toString();
 				if (!addedUrls.contains(uri)) {
 					resultList.addItem(new ApiResponseElement("url", uri));
 					addedUrls.add(uri);
