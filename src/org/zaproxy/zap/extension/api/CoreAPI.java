@@ -390,19 +390,20 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
 			
-			boolean sameSession = false;
-			if (!session.isNewState()) {
-				try {
-					sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
-				} catch (IOException e) {
-					logger.error("Failed to check if same session path:", e);
-					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			if (Files.exists(sessionPath)) {
+				boolean sameSession = false;
+				if (overwrite && !session.isNewState()) {
+					try {
+						sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
+					} catch (IOException e) {
+						logger.error("Failed to check if same session path:", e);
+						throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+					}
 				}
-			}
-			
-			if (Files.exists(sessionPath) && (!overwrite || sameSession)) {
-				throw new ApiException(ApiException.Type.ALREADY_EXISTS,
-						filename);
+
+				if (!overwrite || sameSession) {
+					throw new ApiException(ApiException.Type.ALREADY_EXISTS, filename);
+				}
 			}
 			this.savingSession = true;
 			try {
