@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URIException;
@@ -68,6 +69,9 @@ public final class URLCanonicalizer {
         IRRELEVANT_PARAMETERS.add("aspsessionid");
     }
 
+    private static final Predicate<String> DEFAULT_IRRELEVANT_PARAMETERS =
+            name -> IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_");
+
     /**
      * OData support Extract the ID of a resource including the surrounding quote First group is the
      * resource_name Second group is the ID (quote will be taken as part of the value)
@@ -105,6 +109,20 @@ public final class URLCanonicalizer {
      * @return the canonical url
      */
     public static String getCanonicalURL(String url, String baseURL) {
+        return getCanonicalURL(url, baseURL, DEFAULT_IRRELEVANT_PARAMETERS);
+    }
+
+    /**
+     * Gets the canonical url, starting from a relative or absolute url found in a given context
+     * (baseURL).
+     *
+     * @param url the url string defining the reference
+     * @param baseURL the context in which this url was found
+     * @param irrelevantParameter a predicate to ignore parameters.
+     * @return the canonical url
+     */
+    public static String getCanonicalURL(
+            String url, String baseURL, Predicate<String> irrelevantParameter) {
         if ("javascript:".equals(url)) {
             return null;
         }
@@ -175,7 +193,7 @@ public final class URLCanonicalizer {
             final SortedSet<QueryParameter> params =
                     createSortedParameters(canonicalURI.getRawQuery());
             final String queryString;
-            String canonicalParams = canonicalize(params);
+            String canonicalParams = canonicalize(params, irrelevantParameter);
             queryString = (canonicalParams.isEmpty() ? "" : "?" + canonicalParams);
 
             /* Add starting slash if needed */
@@ -245,6 +263,33 @@ public final class URLCanonicalizer {
             SpiderParam.HandleParametersOption handleParameters,
             boolean handleODataParametersVisited)
             throws URIException {
+        return buildCleanedParametersURIRepresentation(
+                uri, handleParameters, handleODataParametersVisited, DEFAULT_IRRELEVANT_PARAMETERS);
+    }
+
+    /**
+     * Builds a String representation of the URI with cleaned parameters, that can be used when
+     * checking if an URI was already visited. The URI provided as a parameter should be already
+     * cleaned and canonicalized, so it should be build with a result from {@link
+     * #getCanonicalURL(String)}.
+     *
+     * <p>When building the URI representation, the same format should be used for all the cases, as
+     * it may affect the number of times the pages are visited and reported if the option
+     * HandleParametersOption is changed while the spider is running.
+     *
+     * @param uri the uri
+     * @param handleParameters the handle parameters option
+     * @param handleODataParametersVisited Should we handle specific OData parameters
+     * @param irrelevantParameter a predicate to ignore parameters.
+     * @return the string representation of the URI
+     * @throws URIException the URI exception
+     */
+    static String buildCleanedParametersURIRepresentation(
+            org.apache.commons.httpclient.URI uri,
+            SpiderParam.HandleParametersOption handleParameters,
+            boolean handleODataParametersVisited,
+            Predicate<String> irrelevantParameter)
+            throws URIException {
         // If the option is set to use all the information, just use the default string
         // representation
         if (handleParameters.equals(
@@ -269,7 +314,7 @@ public final class URLCanonicalizer {
                             createBaseUriWithCleanedPath(
                                     uri, handleParameters, handleODataParametersVisited));
 
-            String cleanedQuery = getCleanedQuery(uri.getEscapedQuery());
+            String cleanedQuery = getCleanedQuery(uri.getEscapedQuery(), irrelevantParameter);
 
             // Add the parameters' names to the uri representation.
             if (cleanedQuery.length() > 0) {
@@ -324,7 +369,8 @@ public final class URLCanonicalizer {
         return cleanedPath;
     }
 
-    private static String getCleanedQuery(String escapedQuery) {
+    private static String getCleanedQuery(
+            String escapedQuery, Predicate<String> irrelevantParameter) {
         // Get the parameters' names
         SortedSet<QueryParameter> params = createSortedParameters(escapedQuery);
         Set<String> parameterNames = new HashSet<>();
@@ -336,8 +382,7 @@ public final class URLCanonicalizer {
                     continue;
                 }
                 parameterNames.add(name);
-                // Ignore irrelevant parameters
-                if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
+                if (irrelevantParameter.test(name)) {
                     continue;
                 }
                 if (cleanedQueryBuilder.length() > 0) {
@@ -477,9 +522,12 @@ public final class URLCanonicalizer {
      * Canonicalize the query string.
      *
      * @param sortedParameters Parameter name-value pairs in lexicographical order.
+     * @param irrelevantParameter url parameters that are skipped
      * @return Canonical form of query string.
      */
-    private static String canonicalize(final SortedSet<QueryParameter> sortedParameters) {
+    private static String canonicalize(
+            final SortedSet<QueryParameter> sortedParameters,
+            Predicate<String> irrelevantParameter) {
         if (sortedParameters == null || sortedParameters.isEmpty()) {
             return "";
         }
@@ -487,8 +535,7 @@ public final class URLCanonicalizer {
         final StringBuilder sb = new StringBuilder(100);
         for (QueryParameter parameter : sortedParameters) {
             final String name = parameter.getName().toLowerCase();
-            // Ignore irrelevant parameters
-            if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
+            if (irrelevantParameter.test(name)) {
                 continue;
             }
             if (sb.length() > 0) {

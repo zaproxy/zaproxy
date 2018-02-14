@@ -154,6 +154,10 @@ class SpiderParserUnitTest extends SpiderParserTestUtils {
 
     private static class TestSpiderParser extends SpiderParser {
 
+        TestSpiderParser() {
+            super(mock(org.zaproxy.zap.spider.SpiderParam.class));
+        }
+
         @Override
         public boolean parseResource(HttpMessage message, Source source, int depth) {
             return true;

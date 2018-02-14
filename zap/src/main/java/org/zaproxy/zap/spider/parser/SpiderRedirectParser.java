@@ -32,6 +32,14 @@ import org.parosproxy.paros.network.HttpStatusCode;
 @Deprecated
 public class SpiderRedirectParser extends SpiderParser {
 
+    public SpiderRedirectParser() {
+        this(null);
+    }
+
+    public SpiderRedirectParser(org.zaproxy.zap.spider.SpiderParam param) {
+        super(param);
+    }
+
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         getLogger().debug("Parsing an HTTP redirection resource...");

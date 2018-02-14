@@ -21,6 +21,7 @@ package org.zaproxy.zap.spider.parser;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import net.htmlparser.jericho.Source;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,6 +51,23 @@ public abstract class SpiderParser {
             org.apache.log4j.Logger.getLogger(SpiderParser.class);
 
     private final Logger logger = LogManager.getLogger(getClass());
+
+    private org.zaproxy.zap.spider.SpiderParam spiderParam;
+
+    public SpiderParser() {}
+
+    public SpiderParser(org.zaproxy.zap.spider.SpiderParam spiderParam) {
+        this.spiderParam =
+                Objects.requireNonNull(spiderParam, "Parameter spiderParam must not be null.");
+    }
+
+    public void setSpiderParam(org.zaproxy.zap.spider.SpiderParam spiderParam) {
+        this.spiderParam = spiderParam;
+    }
+
+    protected org.zaproxy.zap.spider.SpiderParam getSpiderParam() {
+        return spiderParam;
+    }
 
     /**
      * Gets the logger.
@@ -142,7 +160,7 @@ public abstract class SpiderParser {
      */
     protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
         // Build the absolute canonical URL
-        String fullURL = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+        String fullURL = getCanonicalURL(localURL, baseURL);
         if (fullURL == null) {
             return;
         }
@@ -154,6 +172,11 @@ public abstract class SpiderParser {
                         .setDepth(depth + 1)
                         .setUri(fullURL)
                         .build());
+    }
+
+    protected String getCanonicalURL(String localURL, String baseURL) {
+        return org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(
+                localURL, baseURL, spiderParam::isIrrelevantUrlParameter);
     }
 
     /**

@@ -69,9 +69,6 @@ public class SpiderSVNEntriesParser extends SpiderParser {
     private static final Pattern svnRepoLocationPattern =
             Pattern.compile("^(http://|https://)", Pattern.CASE_INSENSITIVE);
 
-    /** The Spider parameters. */
-    private org.zaproxy.zap.spider.SpiderParam params;
-
     /** used to parse the XML based .svn/entries file format */
     private static DocumentBuilder dBuilder;
 
@@ -92,13 +89,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
      * @param params the params
      */
     public SpiderSVNEntriesParser(org.zaproxy.zap.spider.SpiderParam params) {
-        super();
-        this.params = params;
+        super(params);
     }
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
-        if (message == null || !params.isParseSVNEntries()) {
+        if (message == null || !getSpiderParam().isParseSVNEntries()) {
             return false;
         }
         getLogger().debug("Parsing an SVN resource...");
