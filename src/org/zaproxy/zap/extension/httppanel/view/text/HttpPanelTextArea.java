@@ -20,8 +20,6 @@ package org.zaproxy.zap.extension.httppanel.view.text;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
@@ -39,7 +37,7 @@ import org.zaproxy.zap.view.HighlighterManager;
 /* ZAP Text Area
  * Which enhanced functionality. Used to display HTTP Message request / response, or parts of it.
  */
-public abstract class HttpPanelTextArea extends ZapTextArea implements Observer {
+public abstract class HttpPanelTextArea extends ZapTextArea {
 
 	private static final long serialVersionUID = 1L;
 
@@ -56,7 +54,19 @@ public abstract class HttpPanelTextArea extends ZapTextArea implements Observer 
 	private void initHighlighter() {
 		HighlighterManager highlighter = HighlighterManager.getInstance();
 		
-		highlighter.addObserver(this);
+		highlighter.addHighlighterManagerListener(e -> {
+			switch (e.getType()) {
+			case HIGHLIGHTS_SET:
+			case HIGHLIGHT_REMOVED:
+				removeAllHighlights();
+				highlightAll();
+				break;
+			case HIGHLIGHT_ADDED:
+				highlightEntryParser(e.getHighlight());
+				break;
+			}
+			this.invalidate();
+		});
 		
 		if (message != null) {
 			highlightAll();
@@ -118,24 +128,6 @@ public abstract class HttpPanelTextArea extends ZapTextArea implements Observer 
 	private void removeAllHighlights() {
 		Highlighter hilite = this.getHighlighter();
 		hilite.removeAllHighlights();
-	}
-	
-	// HighlighterManager called us
-	// there is either
-	// - a new highlight
-	// - something other (added several, deleted, ...).
-	@Override
-	public void update(Observable arg0, Object arg1) {
-		if (arg1 == null) {
-			// Re-highlight everything
-			removeAllHighlights();
-			highlightAll();
-		} else {
-			// Add specific highlight
-			HighlightSearchEntry token = (HighlightSearchEntry) arg1;
-			highlightEntryParser(token);
-		}
-		this.invalidate();
 	}
 	
 	public abstract void search(Pattern p, List<SearchMatch> matches);
