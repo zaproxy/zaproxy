@@ -476,7 +476,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     private void startPassiveScanThread() {
         if (passiveScanEnabled && pst == null) {
-            // Will create a new thread if one doesnt exist
+            // Will create a new thread if one doesn't exist
             getPassiveScanThread();
         }
     }

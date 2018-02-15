@@ -54,7 +54,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
     private static final Logger log = Logger.getLogger(ProxyListenerLog.class);
 
     // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the HttpMessage 
-	// to the DB and must let other listeners change ase' and testthe HttpMessage before saving it.
+	// to the DB and must let other listeners change and test the HttpMessage before saving it.
     // Note: other listeners can be notified after this one but they shouldn't change the HttpMessage 
     // as that changes will not be saved to the DB.
     public static final int PROXY_LISTENER_ORDER = 5000;

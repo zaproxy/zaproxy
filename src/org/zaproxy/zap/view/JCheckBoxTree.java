@@ -167,7 +167,7 @@ public class JCheckBoxTree extends JTree {
 	            checkBox.setOpaque(cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected);
 	        	checkBox.setVisible(true);
 	        	checkBox.setEnabled(true);
-	        	/* Looks ok, but doesnt work correctly
+	        	/* Looks ok, but doesn't work correctly
 	            if (cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected) {
 	                checkBox.getModel().setPressed(true);
 	                checkBox.getModel().setArmed(true);

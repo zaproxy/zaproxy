@@ -197,7 +197,7 @@ public class AddOnCollection {
                                     add = false;
                                 }
 		            		} else {
-		            			// Same or older version, dont include
+		            			// Same or older version, don't include
 		                    	logger.debug("Addon " + ao.getId() + " version " + ao.getVersion() + 
 		                    			" not latest.");
 		            			add = false;

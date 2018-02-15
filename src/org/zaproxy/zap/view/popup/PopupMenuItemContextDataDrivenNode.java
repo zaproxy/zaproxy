@@ -74,7 +74,7 @@ public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeCon
         while (!parent.getParent().isRoot()) {
         	sb.insert(0, "/");
         	if (parent.isDataDriven()) {
-        		// Dont want these in their own regex group
+        		// Don't want these in their own regex group
         		sb.insert(0, ".+?");
         	} else {
         		sb.insert(0, parent.getCleanNodeName());

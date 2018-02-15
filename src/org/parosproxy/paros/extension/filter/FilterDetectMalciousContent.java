@@ -171,7 +171,7 @@ public class FilterDetectMalciousContent extends FilterAdaptor {
 			}
 		}
 		
-		// check malicous body 
+		// check malicious body
 		for (int i=0; i<patternBadBodyList.length; i++){
 			bad = patternBadBodyList[i];
 			matcher = bad.matcher(txtBody);

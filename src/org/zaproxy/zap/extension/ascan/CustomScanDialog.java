@@ -156,7 +156,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     public void init(Target target) {
         if (target != null) {
-            // If one isnt specified then leave the previously selected one
+            // If one isn't specified then leave the previously selected one
             this.target = target;
         }
         

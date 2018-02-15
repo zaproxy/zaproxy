@@ -5,7 +5,7 @@ import java.awt.Color;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 /*
- * A search entry, which allows to highlight all occurences of a 
+ * A search entry, which allows to highlight all occurrences of a
  * string in a textarea.
  * 
  * Consists of:

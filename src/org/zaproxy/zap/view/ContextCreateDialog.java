@@ -52,7 +52,7 @@ public class ContextCreateDialog extends StandardFieldsDialog {
 	public void siteNodeSelected(String field, SiteNode node) {
 		topNode = node;
 		if (node != null && this.isEmptyField(NAME_FIELD)) {
-			// They havnt chosen a context name yet, default to the name of the node they chose
+			// They haven't chosen a context name yet, default to the name of the node they chose
 			this.setFieldValue(NAME_FIELD, node.getNodeName());
 		}
 	}

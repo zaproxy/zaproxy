@@ -273,7 +273,7 @@ public class UsersAPI extends ApiImplementor {
 
 	/**
 	 * Gets the context id from the parameters or throws a Missing Parameter exception, if any
-	 * problems occured.
+	 * problems occurred.
 	 * 
 	 * @param params the params
 	 * @return the context id

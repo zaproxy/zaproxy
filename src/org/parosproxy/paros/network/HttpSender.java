@@ -711,7 +711,7 @@ public class HttpSender {
 	 * replaceAll("Transfer-Encoding: chunked\r\n", ""); msg.setResponseHeader(resHeader);
 	 * msg.getResponseBody().setCharset(resHeader.getCharset()); msg.getResponseBody().setLength(0);
 	 * 
-	 * // process response for each listner
+	 * // process response for each listener
 	 * 
 	 * pipe.write(msg.getResponseHeader()); pipe.flush();
 	 * 

@@ -33,7 +33,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 
 /**
- * This extension was introduced so that the session persist and snapshot menu iteam and buttons 
+ * This extension was introduced so that the session persist and snapshot menu item and buttons
  * can be enabled and disabled when appropriate.
  * It much easier doing this in an extension rather than the UI components. 
  * @author psiinon

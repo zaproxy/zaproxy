@@ -120,7 +120,7 @@ public class ScannerParamFilter implements Cloneable {
     /**
      * Check if the parameter should be excluded by the scanner
      * @param msg the message that is currently under scanning
-     * @param param the Value/Name param object thta is currently under scanning 
+     * @param param the Value/Name param object that is currently under scanning
      * @return true if the parameter should be excluded
      */
     public boolean isToExclude(HttpMessage msg, NameValuePair param) {

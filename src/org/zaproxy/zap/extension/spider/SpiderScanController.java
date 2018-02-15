@@ -80,7 +80,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 	
 	/**
 	 * An ordered list of all of the {@code SpiderScan}s created (and not yet removed). Used to get provide the 'last'
-	 * scan for client using the 'old' API that didnt support concurrent scans. 
+	 * scan for client using the 'old' API that didn't support concurrent scans.
 	 */
 	private List<SpiderScan> spiderScanList;
 
