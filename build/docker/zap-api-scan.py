@@ -247,14 +247,14 @@ def main(argv):
             try:
                 load_config(f, config_dict, config_msg, out_of_scope_dict)
             except ValueError as e:
-                logging.warning(e)
+                logging.warning("Failed to load config file " + base_dir + config_file + " " + str(e))
                 sys.exit(3)
     elif config_url:
         # load config file from url
         try:
-            load_config(urlopen(config_url), config_dict, config_msg, out_of_scope_dict)
+            load_config(urlopen(config_url).read().decode('UTF-8'), config_dict, config_msg, out_of_scope_dict)
         except ValueError as e:
-            logging.warning(e)
+            logging.warning("Failed to read configs from " + config_url + " " + str(e))
             sys.exit(3)
         except:
             logging.warning('Failed to read configs from ' + config_url)
