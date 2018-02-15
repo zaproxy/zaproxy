@@ -43,6 +43,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel2;
@@ -134,12 +135,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 		if (scanButton == null) {
 			scanButton = new JButton(Constant.messages.getString("ascan.toolbar.button.new"));
 			scanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png"))));
-			scanButton.addActionListener(new ActionListener () {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					extension.showCustomScanDialog(null);
-				}
-			});
+			scanButton.addActionListener(e -> extension.showCustomScanDialog((Target) null));
 		}
 		return scanButton;
 	}
