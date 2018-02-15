@@ -36,7 +36,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
@@ -99,11 +98,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
             if (node.isRoot()) {
                 continue;
             }
-            HistoryReference nodeHR = node.getHistoryReference();
-            if (nodeHR != null
-                    && !HistoryReference.getTemporaryTypes().contains(nodeHR.getHistoryType())) {
-                outputSet.add(nodeHR.getURI().toString());
-            }
+            outputSet.add(node.getHistoryReference().getURI().toString());
         }
         return outputSet;
     }

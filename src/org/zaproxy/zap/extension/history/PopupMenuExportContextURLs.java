@@ -27,7 +27,6 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
@@ -76,10 +75,7 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
 		SortedSet<String> outputSet = new TreeSet<String>();
 
 		for (SiteNode node : ctx.getNodesInContextFromSiteTree()) {
-			HistoryReference nodeHR = node.getHistoryReference();
-			if (nodeHR != null && !HistoryReference.getTemporaryTypes().contains(nodeHR.getHistoryType())) {
-				outputSet.add(nodeHR.getURI().toString());
-			}
+			outputSet.add(node.getHistoryReference().getURI().toString());
 		}
 		return outputSet;
 	}

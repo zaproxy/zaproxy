@@ -32,7 +32,6 @@ import javax.swing.tree.TreePath;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 
 public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
@@ -75,10 +74,7 @@ public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
 				if (node.isRoot()) {
 					continue;
 				}
-				HistoryReference nodeHR = node.getHistoryReference();
-				if (nodeHR != null && !HistoryReference.getTemporaryTypes().contains(nodeHR.getHistoryType())) {
-					outputSet.add(nodeHR.getURI().toString());
-				}
+				outputSet.add(node.getHistoryReference().getURI().toString());
 			}
 		}
 		return outputSet;
