@@ -862,14 +862,14 @@ Kung ang umaatake ay nag-submit sa isang server-side ay nagsasama ng pahayag, si
 	<alert>Ang Sesyon ng pagsasaayos</alert>
 	<desc>Ang sesyon ng pagsasaayos ay isang pamamaraan sa pag-aatake na puwersa sa isang gumagamit ng sesyon ID sa isang malinaw na halaga. Depende sa paggana ng target na web site, isang bilang ng mga pamamaraan ang maaaring magamit sa "pag-ayos" sa halaga ng ID ng sesyon. Ang mga pamamaraan na ito ay saklaw mula sa Cross-site Scripting exploits hanggang sa peppering ng web site sa dating ginawang mga kahilingan ng HTTP. Matapos na maayos ang ID ng sesyon ng gumagamit, ang taga-atake ay maghihintay sa gumagamit na iyon na mag-login. Sa sandaling ginagawa ito ng gumagamit, ang taga-atake ay gumagamit ng paunang natukoy na halaga ng ID ng sesyon upang ipalagay ang parehong pagkakakilanlan sa online.
 
-Sa pangkalahatan ay may dalawang uri ng mga sistema ng pamamahala ng sesyon pagdating sa mga halaga ng ID. The first type is "permissive" systems that allow web browsers to specify any ID. The second type is "strict" systems that only accept server-side-generated values. With permissive systems, arbitrary session IDs are maintained without contact with the web site. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
+Sa pangkalahatan ay may dalawang uri ng mga sistema ng pamamahala ng sesyon pagdating sa mga halaga ng ID. Ang unang uri ay "permisibo" na mga sistema na nagpapahintulot sa mga web browser na tukuyin ang anumang ID. Ang pangalawang uri ay "istrikto" na mga sistema na tumatanggap lamang ng mga halaga na nabuo sa panig ng server. Sa permisibong mga sistema, ang mga ID ng sesyon ng arbitrary ay pinananatili nang walang kontak sa web site. Ang mga istriktong sistema ay inaatasan ang taga-atake na panatilihin ang "bitag-na sesyon", na may periodic na kontak sa web site, na pumipigil sa mga oras ng hindi aktibo.
 
-Without active protection against Session Fixation, the attack can be mounted against any web site that uses sessions to identify authenticated users. Web sites using sessions IDs are normally cookie-based, but URLs and hidden form fields are used as well. Unfortunately, cookie-based sessions are the easiest to attack. Most of the currently identified attack methods are aimed toward the fixation of cookies.
+Kung wala ang aktibong proteksyon laban sa Session Fixation, ang pag-atake ay maaaring mai-mount laban sa anumang web site na gumagamit ng mga sesyon upang makilala ang napatunayang mga gumagamit. Ang mga web site na gumagamit ng mga ID ng sesyon ay normal na nakabase sa cookie, ngunit ginagamit rin ang mga URL at mga field ng nakatagong form. Sa kasamaang-palad, ang mga sesyon na nakabase sa cookie ay ang pinakamadaling atakihin. Karamihan sa mga kasalukuyang nakilalang mga pamamaraan ng pag-atake ay nakatuon sa pag-aayos ng mga cookie.
 
-In contrast to stealing a users' session IDs after they have logged into a web site, Session Fixation provides a much wider window of opportunity. The active part of the attack takes place before a user logs in.</desc>
-	<solution>Invalidate any existing session identifiers prior to authorizing a new user session
+Kabaligtaran sa pagnanakaw ng mga ID ng sesyon ng mga gumagamit pagkatapos nilang mag-login sa isang web site, ang Session Fixation ay nagbibigay ng isang mas malawak na window ng oportunidad. Ang aktibong bahagi ng pag-atake ay nagaganap bago mag-login ang isang gumagamit.</desc>
+	<solution>Pawalang-bisa ang anumang umiiral na mga tagatukoy ng sesyon bago ang pagpapahintulot sa isang bagong sesyon ng gumagamit.
 
-For platforms such as ASP that do not generate new values for sessionid cookies, utilize a secondary cookie. In this approach, set a secondary cookie on the user's browser to a random value and set a session variable to the same value. If the session variable and the cookie value ever don't match, invalidate the session, and force the user to log on again.</solution>
+Para sa mga platform tulad ng ASP na hindi bumubuo ng mga bagong halaga para sa mga cookie ng id ng sesyon, gumamit ng isang sekundaryong cookie. Sa paraang ito, magtakda ng isang sekundaryong cookie sa browser ng gumagamit sa isang random na halaga at magtakda ng isang baryabol ng sesyon sa parehong halaga. Kung ang baryabol ng sesyon at ang halaga ng cookie ay hindi magtugma kailanman, pawalang-bisa ang sesyon, at pilitin ang gumagamit na mag log on muli.</solution>
 	<reference>http://projects.webappsec.org/Session-Fixation</reference>
 	<reference>http://cwe.mitre.org/data/definitions/384.html</reference>
 </vuln_item_wasc_37>
@@ -888,11 +888,11 @@ Gamitin ang isang intermediate disclaimer na pahina na nagbibigay sa mga user na
 
 Kung ang set ng katanggap-tanggap na mga bagay, tulad ng mga filename o URL, ay limitado o kilala, lumikha ng mapping mula sa isang set ng mga halaga ng naka-fix na input (tulad ng mga numerong ID) sa aktuwal na mga filename o URL, at tanggihan ang lahat ng iba pang mga input.
 
-For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Ang mga tampok kapareho ng ESAPI AccessReferenceMap ay naglalaan ng kakayahan na ito.
+Halimbawa, ang ID 1 ay maaaring mag-map sa "/login.asp" at ang ID 2 ay maaaring mag-map sa "http://www.example.com/". Ang mga tampok kapareho ng ESAPI AccessReferenceMap ay naglalaan ng kakayahan na ito.
 
 Unawain na ang lahat ng potensyal na mga lugar kung saan ang hindi pinagkakatiwalaan na pwedeng magpasok na iyong software: mga parameter at mga argumento, mga cookie, sa anumang mababasa mula sa network, mga variable sa kapaligiran, baliktad na DNS na pagtanaw, mga resulta sa query, mga header ng hiling, mga komponent ng URL, e-mail, mga file, mga database, at anumang panlabas na mga sistema na nagbibigay ng datos sa aplikasyon. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
 
-Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
+Maraming bukas na redirect na mag problema ang nagaganap dahil ipinagpalagay ng programmer na ang ilang mga input ay hindi maaaring baguhin, tulad ng mga cookie at nakatagong mga filed ng form.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
 	<reference>http://cwe.mitre.org/data/definitions/601.html</reference>
 </vuln_item_wasc_38>
@@ -900,12 +900,12 @@ Many open redirect problems occur because the programmer assumed that certain in
 <vuln_items>wasc_39</vuln_items>
 <vuln_item_wasc_39>
 	<alert>Ang XPath Injection</alert>
-	<desc>Ang XPath Injection ay isang pamaraan sa pag-aatake na ginagamitan ng eksployt na mga aplikasyon na gumagawa ng XPath (XML Path na Wika) na mga query mula sa gumagamit-nagbibigay ng pagpasok sa query o naglalayag ng XML na mga dokumento. It can be used directly by an application to query an XML document, as part of a larger operation such as applying an XSLT transformation to an XML document, or applying an XQuery to an XML document. The syntax of XPath bears some resemblance to an SQL query, and indeed, it is possible to form SQL-like queries on an XML document using XPath.
+	<desc>Ang XPath Injection ay isang pamaraan sa pag-aatake na ginagamitan ng eksployt na mga aplikasyon na gumagawa ng XPath (XML Path na Wika) na mga query mula sa gumagamit-nagbibigay ng pagpasok sa query o naglalayag ng XML na mga dokumento. Maaari itong gamitin nang direkta sa pamamagitan ng isang aplikasyon upang i-query ang isang XML na dokumento, bilang bahagi ng isang mas malaking operasyon tulad ng pag-aaplay ng pagbabago ng XSLT sa isang dokumento na XML, o pag-aaplay ng isang XQuery sa isang XML na dokumento. Ang syntax ng XPath ay nagtataglay ng ilang pagkakahawig sa isang query ng SQL, at sa katunayan, posible na bumuo ng tulad ng SQL na mga query sa isang XML na dokumento gamit ang XPath.
 
-If an application uses run-time XPath query construction, embedding unsafe user input into the query, it may be possible for the attacker to inject data into the query such that the newly formed query will be parsed in a way differing from the programmer's intention.</desc>
+Kung ang isang aplikasyon ay gumagamit ng run-time XPath query na konstruksyon, na nag-embed ng hindi ligtas na input ng gumagamit sa query, maaaring posible para sa taga-atake na mag-inject ng datos sa query tulad nang ang bagong nabuong query ay ma-parse sa isang paraan na kakaiba sa intensyon ng programmer.</desc>
 	<solution>Gamitin ang isang parameterized XPath na mga query (hal. gamitin ang XQuery). Ito ay tumutulong na magpapasiguro sa paghihiwalay ng pagitan sa datos na plane at kontrol na plane.
 
-Maayos na-validate ang pagpasok ng gumagamit. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XPath queries is safe in that context.</solution>
+Maayos na-validate ang pagpasok ng gumagamit. Tanggihan ang datos kung saan naaangkop, Salain kung saan naaangkop at i-escape kung saan naaangkop. Siguraduhin na ang input na gagamitin sa mga query ng XPath ay ligtas sa kontekstong iyon.</solution>
 	<reference>http://projects.webappsec.org/XPath-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/643.html</reference>
 </vuln_item_wasc_39>
@@ -913,13 +913,13 @@ Maayos na-validate ang pagpasok ng gumagamit. Reject data where appropriate, fil
 <vuln_items>wasc_40</vuln_items>
 <vuln_item_wasc_40>
 	<alert>Ang kulang na proseso ng pagbabalido</alert>
-	<desc>Insufficient Process Validation occurs when a web application fails to prevent an attacker from circumventing the intended flow or business logic of the application. When seen in the real world, insufficient process validation has resulted in ineffective access controls and monetary loss.
+	<desc>Ang hindi sapat na Pagpapatunay ng Proseso ay nangyayari kapag ang isang aplikasyon ng web ay nabigong pigilan ang isang taga-atake mula sa pag-iwas sa inilaan na daloy o lohika sa negosyo ng aplikasyon. Kapag nakita sa totoong mundo, ang hindi sapat na pagpapatunay ng proseso ay nagresulta sa hindi epektibong mga kontrol ng access at pagkawala ng pera.
 
-There are two main types of processes that require validation: flow control and business logic.
+Mayroong dalawang pangunahing uri ng mga proseso na nangangailangan ng pagpapatunay: kontrol ng daloy at lohika ng negosyo.
 
-"Flow control" refers to multi-step processes that require each step to be performed in a specific order by the user. When an attacker performs the step incorrectly or out of order, the access controls may be bypassed and an application integrity error may occur. Examples of multi-step processes include wire transfer, password recovery, purchase checkout, and account sign-up.
+Ang "kontrol ng daloy" ay tumutukoy sa maraming-hakbang na mga proseso na kinakailangang ang bawat hakbang ay maisagawa sa isang partikular na pagkakasunud-sunod ng gumagamit. Kapag ang isang taga-atake ay nagsagawa ng hindi tamang hakbang o wala sa pagkasunod-sunod, ang mga kontrol ng access ay maaaring na-bypass at isang kamalian sa integridad ng aplikasyon ang maaaring mangyari. Mga halimbawa ng maramihang-hakbang na mga proseso ay kinabibilangan ng wire transfer, pagrekober ng password, checkout ng purchase, at pag-sign-up ng account.
 
-"Business logic" refers to the context in which a process will execute as governed by the business requirements. Exploiting a business logic weakness requires knowledge of the business; if no knowledge is needed to exploit it, then most likely it isn't a business logic flaw. Due to this, typical security measures such as scans and code review will not find this class of weakness. One approach to testing is offered by OWASP in their Testing Guide.</desc>
+"Lohika ng negosyo" ay tumutukoy sa konteksto kung saan ang isang proseso ay magsasagawa ayon sa pinamamahalaan ng mga kinakailangan sa negosyo. Ang pagsasamantala sa kahinaan ng lohika ng negosyo ay nangangailangan ng kaalaman sa negosyo; kung walang kinakailangang kaalaman para pagsamantalahan ito, malamang na hindi ito isang kapintasan ng lohika ng negosyo. Dahil dito, ang tipikal na mga hakbang ng seguridad tulad ng pag-scan at pagsusuri ng code ay hindi makikita ang ganitong klase ng kahinaan. Isang paraan sa pagsusuri ay inaalok ng OWASP sa kanilang Gabay sa Pagsusuri.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Process-Validation</reference>
 	<reference></reference>
@@ -928,12 +928,12 @@ There are two main types of processes that require validation: flow control and 
 <vuln_items>wasc_41</vuln_items>
 <vuln_item_wasc_41>
 	<alert>Ang XML Attribute Blowup</alert>
-	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. The attacker provides a malicious XML document, which vulnerable XML parsers process in a very inefficient manner, leading to excessive CPU load. The essence of the attack is to include many attributes in the same XML node. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
+	<desc>Ang Attribute Blowup ng XML ay isang pagtanggi sa atake sa serbisyo laban sa mag parser ng XML. Ang taga-atake ay nagbibigay ng isang malisyosong XML na dokumento, na i-proseso ng mahinang mga XML parser sa paraang lubhang hindi mahusay, humahantong sa labis na CPU load. Ang esensya ng atake ay upang isama ang maraming mga katangian sa parehong XML node. Ang mahihinang mga XML parser ay namamahala ng mga katangian sa isang hindi mahusay na paraan (hal. sa isang lalagyan ng datos kung saan ang pagpapasok ng isang bagong katangian ay may O(n) na runtime), na nagreresulta sa isang hindi-linear (sa halimbawang ito, kuwadratiko, hal. O(n2)) pangkalahatang runtime, na humahantong sa isang pagtanggi ng kondisyon ng serbisyo sa pamamagitan ng pagka-exhaust ng CPU.</desc>
 	<solution>Ang pag-disenyo ng mga mekanismo ng throttling sa arkitektura ng sistema. Ang pinakamainam na proteksyon ay limitahan ang halaga ng yaman na ang di-awtorisadong user ay maaring makadulot upang gastahin. Ang isang matibay na pagpapatunay at modelo ng access kontrol ay makakatulog na maiwasan ang gayong mga pag-atake mula sa nangyaring unang naganap. Ang login na aplikasyon ay dapat protektado laban sa pag-atake ng DoS hangga't maaari. Nilimitahan ang access sa database, marahil sa caching na nakalagay na resulta, makakatulong sa pagbawas ang pinagkukunan na ginasta. Para sa karagdagang limit ng potensyal para sa isang atake ng DoS, isaalang-alang ang taas ng halaga ng mga natatanggap na kahilingan mula sa mga gumagamit at bumabara ang mga hiling na lumagpas sa isang tinukoy na halaga ng limitasyon.
 
-Mitigation of resource exhaustion attacks requires that the target system either:
- * recognizes the attack and denies that user further access for a given amount of time, or
- * uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+Ang pagpapagaan ng mga pag-atake ng pag-exhaust ng mapagkukunan ay nangangailangan na ang sistema ng target ay alinman sa:
+ * kinikilala ang pag-atake at tanggihan ang gumagamit sa karagdagang access para sa isang naibigay na dami ng oras, o
+ * pantay na pagkontrol ng lahat ng mga kahilingan upang gawing mas mahirap na makunsumo ang mga mapagkukunan nang mas mabilis kaysa sa maaari silang muling maging libre. 
 
 Ang una sa mga solusyon ay isang isyu sa sarili bagaman, dahil maari itong payagan ang mga nag-aatake na maiwasan ang paggamit ng sistema sa pamamagitan ng isang balidong gumagamit. Kung ang umatake ay kinokopya ang balidong gumagamit, pwede nitong pigilan ang gumagamit mula sa pagpasok sa server sa pagtatanong.
 
@@ -941,7 +941,7 @@ Ang pangalawang solusyon ay mahirap lamang sa epektibong istitute -- at kahit na
 
 Tiyakin na ang mga protocol ay partikular ang mga limit ng scale na inilagay sa kanila.
 
-Ensure that all failures in resource allocation place the system into a safe posture.</solution>
+Tiyakin na ang lahat ng pagkabigo sa alokasyon ng mapagkukunan ay maglalagay sa sistema sa isang ligtas na ayos.</solution>
 	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
 	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
 </vuln_item_wasc_41>
@@ -949,8 +949,8 @@ Ensure that all failures in resource allocation place the system into a safe pos
 <vuln_items>wasc_42</vuln_items>
 <vuln_item_wasc_42>
 	<alert>Ang pag-aabuso ng kakayahan</alert>
-	<desc>Ang pag-aabuso ng kakayahan ay isang pamamaraan sa pag-aatake na gumagamit ng isang web site na merong sariling gamit at kakayahan na umatake sa sarili o sa iba. Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
-	<solution>Always utilize APIs in the specified manner.</solution>
+	<desc>Ang pag-aabuso ng kakayahan ay isang pamamaraan sa pag-aatake na gumagamit ng isang web site na merong sariling gamit at kakayahan na umatake sa sarili o sa iba. Ang pag-abuso sa Pag-andar ay maaaring ilarawan bilang ang pang-aabuso ng nilalayon na pag-andar ng isang aplikasyon upang maisagawa ang isang hindi kanais-nais na resulta. Ang mga pag-atakeng ito ay may iba't ibang mga resulta tulad ng pag-ubos ng mga mapagkukunan, paglaktaw sa mga kontrol ng access, o paglabas ng impormasyon. Ang potensyal at antas ng pang-aabuso ay magkakaiba mula sa web site sa web site at aplikasyon sa aplikasyon. Ang pang-aabuso sa mga pag-atake sa pag-andar ay madalas na isang kumbinasyon ng iba pang mga uri ng atake at/o gumagamit ng iba pang mga vector ng atake.</desc>
+	<solution>Laging gamitin ang mga API sa tinukoy na pamamaraan.</solution>
 	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
 	<reference>http://cwe.mitre.org/data/definitions/227.html</reference>
 </vuln_item_wasc_42>
@@ -958,7 +958,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 <vuln_items>wasc_43</vuln_items>
 <vuln_item_wasc_43>
 	<alert>Ang XML na panglabas na mga entity</alert>
-	<desc>Ito pamamaraan ay nagtatagal ng kalamangan ng isang feature sa XML para bumuo ng mga dokumento nang pabago bago sa oras ng pagproproseso. Ang isang XML na mensahe ay sinumang nagbibigay ng datos explicitly o sa pamamagitan ng pagtuturo sa isang URI na kung saan ang datos ay umiiral. In the attack technique, external entities may replace the entity value with malicious data, alternate referrals or may compromise the security of the data the server/XML application has access to.
+	<desc>Ito pamamaraan ay nagtatagal ng kalamangan ng isang feature sa XML para bumuo ng mga dokumento nang pabago bago sa oras ng pagproproseso. Ang isang XML na mensahe ay sinumang nagbibigay ng datos explicitly o sa pamamagitan ng pagtuturo sa isang URI na kung saan ang datos ay umiiral. Sa pamamaraan ng pag-atake, ang mga panlabas na entidad ay maaaring palitan ang halaga ng entidad na may malisyosong datos, alternatibong mga sanggunian o maaaring ikompromiso ang seguridad ng datos na may access ang server/XML na aplikasyon.
 	Maaaring gamitin din ng mga taga-atake ang Panlabas na mga Entidad upang i-download ng server ng mga web service ang malisyosong code o nilalaman sa server para magamit sa sekondarya o sundin ang mga pag-atake.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-External-Entities</reference>
@@ -970,8 +970,8 @@ Ensure that all failures in resource allocation place the system into a safe pos
 	<alert>Pagpapalawak ng Entitad ng XML</alert>
 	<desc>The XML Entity expansion attack, exploits a capability in XML DTDs that allows the creation of custom macros, called entities, that can be used throughout a document. By recursively defining a set of custom entities at the top of a document, an attacker can overwhelm parsers that attempt to completely resolve the entities by forcing them to iterate almost indefinitely on these recursive definitions.
 
-The malicious XML message is used to force recursive entity expansion (or other repeated processing) that completely uses up available server resources.</desc>
-	<solution>If possible, prohibit the use of DTDs or use an XML parser that limits the expansion of recursive DTD entities.
+Ang malisyosong XML na mensahe ay ginagamit para pilitin ang paulit-ilit na pagpapalawak ng entitad (o iba pang inulit na pag-proseso) na lubos na umuubos ng magagamit na mga mapagkukunan ng server.</desc>
+	<solution>Kung posible, ipagbawal ang paggamit ng mga DTD o gumamit ng isang XML parser na naglilimita sa pagpapalawak ng pauli-ulit na mga entidad ng DTD.
 
 Before parsing XML files with associated DTDs, scan for recursive entity declarations and do not continue parsing potentially explosive content.</solution>
 	<reference>http://projects.webappsec.org/XML-Entity-Expansion</reference>
@@ -981,7 +981,7 @@ Before parsing XML files with associated DTDs, scan for recursive entity declara
 <vuln_items>wasc_45</vuln_items>
 <vuln_item_wasc_45>
 	<alert>Fingerprinting</alert>
-	<desc>The most common methodology for attackers is to first footprint the target's web presence and enumerate as much information as possible. With this information, the attacker may develop an accurate attack scenario, which will effectively exploit a vulnerability in the software type/version being utilized by the target host.
+	<desc>The most common methodology for attackers is to first footprint the target's web presence and enumerate as much information as possible. Sa pamamagitan ng impormasyong ito, ang taga-atake ay maaaring bumuo ng isang tumpak na sitwasyon ng pag-atake, na epektibong magsasamantala ng isang kahinaan sa uri/bersyon ng software na ginagamit ng target na host.
 
 Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (with a scanner such as Nmap) except that it is focused on the Application Layer of the OSI model instead of the Transport Layer. The theory behind this fingerprinting is to create an accurate profile of the target's platform, web application software technology, backend database version, configurations and possibly even their network architecture/topology.</desc>
 	<solution>TBA</solution>
@@ -995,7 +995,7 @@ Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (
 	<desc>XQuery Injection is a variant of the classic SQL injection attack against the XML XQuery Language. XQuery Injection uses improperly validated data that is passed to XQuery commands. This inturn will execute commands on behalf of the attacker that the XQuery routines have access to. XQuery injection can be used to enumerate elements on the victim's environment, inject commands to the local host, or execute queries to remote files and data sources. Like SQL injection attacks, the attacker tunnels through the application entry point to target the resource access layer.</desc>
 	<solution>Use parameterized queries. Ito ay tumutulong na magpapasiguro sa paghihiwalay ng pagitan sa datos na plane at kontrol na plane.
 
-Maayos na-validate ang pagpasok ng gumagamit. Tanggihan ang datos kung saan naaangkop, Salain kung saan naaangkop at i-escape kung saan naaangkop. Make sure input that will be used in XQL queries is safe in that context.</solution>
+Maayos na-validate ang pagpasok ng gumagamit. Tanggihan ang datos kung saan naaangkop, Salain kung saan naaangkop at i-escape kung saan naaangkop. Siguraduhin na ang input na gagamitin sa mga query ng XQL ay ligtas sa kontekstong iyon.</solution>
 	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/652.html</reference>
 </vuln_item_wasc_46>
@@ -1007,7 +1007,7 @@ Maayos na-validate ang pagpasok ng gumagamit. Tanggihan ang datos kung saan naaa
 
 Since HTTP is a stateless protocol, Web sites commonly use cookies to store session IDs that uniquely identify a user from request to request. Consequently, each session ID's confidentiality must be maintained in order to prevent multiple users from accessing the same account. A stolen session ID can be used to view another user's account or perform a fraudulent transaction.
 
-Session expiration is comprised of two timeout types: inactivity and absolute. An absolute timeout is defined by the total amount of time a session can be valid without re-authentication and an inactivity timeout is the amount of idle time allowed before the session is invalidated. The lack of proper session expiration may increase the likelihood of success of certain attacks. A long expiration time increases an attacker's chance of successfully guessing a valid session ID. The longer the expiration time, the more concurrent open sessions will exist at any given time. The larger the pool of sessions, the more likely it will be for an attacker to guess one at random. Although a short session inactivity timeout does not help if a token is immediately used, the short timeout helps to insure that the token is harder to capture while it is still valid.
+Session expiration is comprised of two timeout types: inactivity and absolute. An absolute timeout is defined by the total amount of time a session can be valid without re-authentication and an inactivity timeout is the amount of idle time allowed before the session is invalidated. Ang kakulangan ng wastong pag-expire ng sesyon ay maaaring mapataas ang posibilidad ng tagumpay ng ilang mga pag-atake. A long expiration time increases an attacker's chance of successfully guessing a valid session ID. The longer the expiration time, the more concurrent open sessions will exist at any given time. The larger the pool of sessions, the more likely it will be for an attacker to guess one at random. Although a short session inactivity timeout does not help if a token is immediately used, the short timeout helps to insure that the token is harder to capture while it is still valid.
 
 A Web application should invalidate a session after a predefined idle time has passed (a timeout) and provide the user the means to invalidate their own session, i.e. logout; this helps to keep the lifespan of a session ID as short as possible and is necessary in a shared computing environment where more than one person has unrestricted physical access to a computer. The logout function should be prominently visible to the user, explicitly invalidate a user’s session and disallow reuse of the session token.</desc>
 	<solution>Magtakda ng mga sesyon/mga credential na expiration na petsa.</solution>
