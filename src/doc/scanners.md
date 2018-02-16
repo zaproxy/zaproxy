@@ -166,6 +166,7 @@ Scanners:
 
 90001   Insecure JSF ViewState
 90011   Charset Mismatch
+90017	XSLT Injection
 90018   SQL Injection SQLMap
 90019   Code Injection
 90020   Command Injection
