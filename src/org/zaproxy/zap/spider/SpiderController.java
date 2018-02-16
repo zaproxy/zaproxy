@@ -374,7 +374,7 @@ public class SpiderController implements SpiderParserListener {
 	 * not encoded.
 	 * 
 	 * @param uri the string of the uri
-	 * @return the URI, or null if an error occured and the URI could not be constructed.
+	 * @return the URI, or null if an error occurred and the URI could not be constructed.
 	 */
 	private URI createURI(String uri) {
 		URI uriV = null;
@@ -382,7 +382,7 @@ public class SpiderController implements SpiderParserListener {
 			// Try to see if we can create the URI, considering it's encoded.
 			uriV = new URI(uri, true);
 		} catch (URIException e) {
-			// An error occured, so try to create the URI considering it's not encoded.
+			// An error occurred, so try to create the URI considering it's not encoded.
 			try {
 				log.debug("Second try...");
 				uriV = new URI(uri, false);
@@ -390,7 +390,7 @@ public class SpiderController implements SpiderParserListener {
 				log.error("Error while converting to uri: " + uri, ex);
 				return null;
 			}
-			// A non URIException occured, so just ignore the URI
+			// A non URIException occurred, so just ignore the URI
 		} catch (Exception e) {
 			log.error("Error while converting to uri: " + uri, e);
 			return null;

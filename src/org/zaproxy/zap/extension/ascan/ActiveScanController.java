@@ -83,7 +83,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 	
 	/**
 	 * An ordered list of all of the {@code ActiveScan}s created (and not yet removed). Used to get provide the 'last'
-	 * scan for client using the 'old' API that didnt support concurrent scans. 
+	 * scan for client using the 'old' API that didn't support concurrent scans.
 	 */
 	private List<ActiveScan> activeScanList;
 

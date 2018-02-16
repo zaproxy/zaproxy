@@ -189,7 +189,7 @@ public abstract class HttpHeader implements java.io.Serializable {
 
     /**
      * Get the first header value using the name given. If there are multiple
-     * occurence, only the first one will be returned as String.
+     * occurrence, only the first one will be returned as String.
      *
      * @param name
      * @return the header value. null if not found.

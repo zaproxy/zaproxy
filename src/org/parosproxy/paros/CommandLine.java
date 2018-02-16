@@ -227,7 +227,7 @@ public class CommandLine {
 
         }
 
-        // check if the last keyword satified its no. of parameters.
+        // check if the last keyword satisfied its no. of parameters.
         if (lastArg != null && remainingValueCount > 0) {
             throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
         }

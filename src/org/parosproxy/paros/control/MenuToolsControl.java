@@ -53,7 +53,7 @@ public class MenuToolsControl {
 	}
 	
 	public MenuToolsControl(Model model, View view, Control control) {
-	    // best use explicit class contructor
+	    // best use explicit class constructor
 	    this.model = model;
 	    this.view = view;
 	    this.control = control;

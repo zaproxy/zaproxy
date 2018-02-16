@@ -181,7 +181,7 @@ public class AuthenticationAPI extends ApiImplementor {
 
 	/**
 	 * Gets the sets the method action implementor or throws a Missing Parameter exception, if any
-	 * problems occured.
+	 * problems occurred.
 	 * 
 	 * @param params the params
 	 * @return the sets the method action implementor

@@ -298,7 +298,7 @@ public class HttpResponseHeader extends HttpHeader {
 		} catch (IllegalArgumentException e) {
 			if (c.indexOf(',') >= 0) {
 				try {
-					// Some sites seem to use comma separators, which HttpCookie doesnt like, try replacing them
+					// Some sites seem to use comma separators, which HttpCookie doesn't like, try replacing them
 					List<HttpCookie> parsedCookies = HttpCookie.parse(c.replace(',', ';'));
 					if (defaultDomain != null) {
 						for (HttpCookie cookie : parsedCookies) {

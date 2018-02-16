@@ -52,7 +52,7 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
 
 	/**
 	 * The sub menus. Used only in the case it is not visible itself, to keep a reference to what
-	 * popup menus it has added in the parent, so it can dinamically update them before each show.
+	 * popup menus it has added in the parent, so it can dynamically update them before each show.
 	 */
 	private List<ExtensionPopupMenuItem> subMenuItems = null;
 

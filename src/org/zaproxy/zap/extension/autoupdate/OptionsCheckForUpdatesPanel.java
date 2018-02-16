@@ -306,7 +306,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 				downloadDir.addItem(f.getAbsolutePath());
 			}
 		}
-		// The selected item may no longer exist, but thats ok as it will correctly default to the first one
+		// The selected item may no longer exist, but that's ok as it will correctly default to the first one
 		getDownloadDirCombo().setSelectedItem(selectedItem);
 	}
 	

@@ -166,7 +166,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         extensionHook.addSessionListener(this);
 
         extensionHook.addOptionsParamSet(getScannerParam());
-        // TODO this isnt currently implemented
+        // TODO this isn't currently implemented
         //extensionHook.addCommandLine(getCommandLineArguments());
 
         ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);

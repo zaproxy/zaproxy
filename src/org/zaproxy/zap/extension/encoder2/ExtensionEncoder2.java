@@ -94,7 +94,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             encodeDecodeDialog = new EncodeDecodeDialog();
             encodeDecodeDialog.updateOptions(getParams());
             /*
-            // TODO doesnt work yet
+            // TODO doesn't work yet
             ExtensionHelp.enablePopupHelpKey(
             		encodeDecodeDialog, 
                     "ui.tabs.break");

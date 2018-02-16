@@ -236,7 +236,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
 	    connectionParam.setProxyChainRealm(txtProxyChainRealm.getText());
 	    connectionParam.setProxyChainUserName(txtProxyChainUserName.getText());
-	    // Make sure this isnt saved in the config file
+	    // Make sure this isn't saved in the config file
 	    connectionParam.setProxyChainPassword(
 	    		new String(txtProxyChainPassword.getPassword()), false);
 	}

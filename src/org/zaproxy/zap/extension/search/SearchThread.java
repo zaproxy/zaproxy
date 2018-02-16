@@ -146,7 +146,7 @@ public class SearchThread extends Thread {
 			        		continue;
 			        	}
 			        	if (this.baseUrl != null && ! message.getRequestHeader().getURI().toString().startsWith(baseUrl)) {
-			        		// doesnt start with the specified baseurl
+			        		// doesn't start with the specified baseurl
 			        		continue;
 			        	}
 				

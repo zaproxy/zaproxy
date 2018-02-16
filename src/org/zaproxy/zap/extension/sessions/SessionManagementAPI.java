@@ -142,7 +142,7 @@ public class SessionManagementAPI extends ApiImplementor {
 
 	/**
 	 * Gets the sets the method action implementor or throws a Missing Parameter exception, if any
-	 * problems occured.
+	 * problems occurred.
 	 * 
 	 * @param params the params
 	 * @return the sets the method action implementor
@@ -159,7 +159,7 @@ public class SessionManagementAPI extends ApiImplementor {
 
 	/**
 	 * Gets the context from the parameters or throws a Missing Parameter exception, if any problems
-	 * occured.
+	 * occurred.
 	 * 
 	 * @param params the params
 	 * @return the context
@@ -175,7 +175,7 @@ public class SessionManagementAPI extends ApiImplementor {
 
 	/**
 	 * Gets the context id from the parameters or throws a Missing Parameter exception, if any
-	 * problems occured.
+	 * problems occurred.
 	 * 
 	 * @param params the params
 	 * @return the context id

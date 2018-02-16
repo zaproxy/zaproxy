@@ -56,7 +56,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
             = Collections.synchronizedMap(new TreeMap<String, RegisteredCallback>());
 
     /**
-     * Default contructor
+     * Default constructor
      */
     public ChallengeCallbackAPI() {
          addApiShortcut(getPrefix());
