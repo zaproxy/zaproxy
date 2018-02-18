@@ -207,7 +207,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
         if (proxyParam.getPort() == 0) {
             getRandomPort().setSelected(true);
             getSpinnerPort().setEnabled(false);
-            getSpinnerPort().setValue(ext.getPort());   // As 0 isnt a valid port
+            getSpinnerPort().setValue(ext.getPort());   // As 0 isn't a valid port
         } else {
             getSpinnerPort().setEnabled(true);
             getSpinnerPort().setValue(proxyParam.getPort());

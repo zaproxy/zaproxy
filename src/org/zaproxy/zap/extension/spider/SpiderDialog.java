@@ -104,7 +104,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     public void init(Target target) {
         if (target != null) {
-        	// If one isnt specified then leave the previously selected one
+        	// If one isn't specified then leave the previously selected one
         	this.target = target;
         }
         logger.debug("init " + this.target);
@@ -335,7 +335,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 		}
         
         if (target == null || ! this.getStringValue(FIELD_START).equals(getTargetText(target))) {
-       		// Clear the target as it doesnt match the value entered manually
+       		// Clear the target as it doesn't match the value entered manually
 			target = new Target((StructuralNode)null);
         }
         

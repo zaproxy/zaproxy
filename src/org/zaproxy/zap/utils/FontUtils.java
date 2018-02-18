@@ -84,7 +84,7 @@ public class FontUtils {
 	
 	public static void setDefaultFont(String name, int size) {
 		// A blank font name works fine.
-		// For some reason getting the default font name doesnt work - it doesnt seem to get applied everywhere
+		// For some reason getting the default font name doesn't work - it doesn't seem to get applied everywhere
 		// No ideas why :/
 		if (size <= 5) {
 			size = getDefaultFont().getSize();
@@ -133,7 +133,7 @@ public class FontUtils {
 	}
 	
 	/**
-	 * Gets the default font with the specified sytle and size, correctly scaled
+	 * Gets the default font with the specified style and size, correctly scaled
 	 * @param style
 	 * @param size
 	 * @return
@@ -143,7 +143,7 @@ public class FontUtils {
 	}
 	
 	/**
-	 * Gets the specified font with the specified sytle and size, correctly scaled
+	 * Gets the specified font with the specified style and size, correctly scaled
 	 * @param style
 	 * @param size
 	 * @since 2.7.0

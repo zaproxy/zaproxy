@@ -870,7 +870,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		scrollPane.setViewportView(field);
 		field.setFillsViewportHeight(true);
 		
-		// Tables are a special case - they dont have labels and are accessed via the model
+		// Tables are a special case - they don't have labels and are accessed via the model
 		if (this.fieldList.contains(field)) {
 			throw new IllegalArgumentException("Field already added: " + field);
 		}
@@ -931,7 +931,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		scrollPane.setViewportView(field);
 		field.setFillsViewportHeight(true);
 		
-		// Tables are a special case - they dont have labels and are accessed via the model
+		// Tables are a special case - they don't have labels and are accessed via the model
 		if (this.fieldList.contains(field)) {
 			throw new IllegalArgumentException("Field already added: " + field);
 		}
@@ -1237,7 +1237,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		if (node != null && node.getHistoryReference() != null) {
 			String url = node.getHistoryReference().getURI().toString();
 			if (node.isLeaf() && url.endsWith("/")) {
-				// String off the slash so we dont match a non leaf
+				// String off the slash so we don't match a non leaf
 				// node with the same name
 				url = url.substring(0, url.length()-1);
 			} else if (! node.isLeaf() && ! url.endsWith("/")) {
@@ -1760,7 +1760,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	/**
 	 * Tells whether or not the given panel is scrollable.
 	 * <p>
-	 * <strong>Note:</strong> The scrollable state returned by this mehtod only applies to tabs that were set to be (or not)
+	 * <strong>Note:</strong> The scrollable state returned by this method only applies to tabs that were set to be (or not)
 	 * scrollable through the method {@link #setTabScrollable(String, boolean)}, not to "panels" added directly to a tab with
 	 * {@link #setCustomTabPanel(int, JComponent)}.
 	 *
@@ -1774,7 +1774,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	/**
 	 * Tells whether or not the tab with the given label is scrollable.
 	 * <p>
-	 * <strong>Note:</strong> The scrollable state returned by this mehtod only applies to tabs that were set to be (or not)
+	 * <strong>Note:</strong> The scrollable state returned by this method only applies to tabs that were set to be (or not)
 	 * scrollable through the method {@link #setTabScrollable(String, boolean)}, not to "panels" added directly to a tab with
 	 * {@link #setCustomTabPanel(int, JComponent)}.
 	 * 

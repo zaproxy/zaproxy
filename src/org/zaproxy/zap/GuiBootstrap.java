@@ -230,7 +230,7 @@ public class GuiBootstrap extends ZapBootstrap {
                     // ExtensionHelp.showHelp();
 
                 } else {
-                    // Dont auto check for updates the first time, no chance of any
+                    // Don't auto check for updates the first time, no chance of any
                     // proxy having been set
                     final ExtensionAutoUpdate eau = Control.getSingleton()
                             .getExtensionLoader().getExtension(ExtensionAutoUpdate.class);
@@ -400,7 +400,7 @@ public class GuiBootstrap extends ZapBootstrap {
         String locale = options.getViewParam().getConfigLocale();
         if (locale == null || locale.length() == 0) {
 
-            // Dont use a parent of the MainFrame - that will initialise it
+            // Don't use a parent of the MainFrame - that will initialise it
             // with English!
             final Locale userloc = determineUsersSystemLocale();
             if (userloc == null) {

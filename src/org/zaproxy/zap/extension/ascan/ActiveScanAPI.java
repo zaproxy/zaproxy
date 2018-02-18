@@ -246,9 +246,6 @@ public class ActiveScanAPI extends ApiImplementor {
 					throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 				}
 				context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-				if (!context.isIncluded(params.getString(PARAM_URL))) {
-					throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
-				}
 				user = usersExtension.getContextUserAuthManager(context.getIndex()).getUserById(userID);
 				if (user == null) {
 					throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);

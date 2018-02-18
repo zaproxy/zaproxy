@@ -142,7 +142,7 @@ public class LogPanel extends AbstractPanel {
 
 	@Override
 	public void tabSelected() {
-		// Give the history list focus so that the user can immediatelly use the arrow keys to navigate
+		// Give the history list focus so that the user can immediately use the arrow keys to navigate
 	    getHistoryReferenceTable().requestFocusInWindow();
 	}
 

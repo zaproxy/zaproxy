@@ -92,7 +92,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	            return this;
 	        }
 
-			setPreferredSize(null);	// clears the prefered size, making the node visible
+			setPreferredSize(null);	// clears the preferred size, making the node visible
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
 			// folder / file icons with scope 'target' if relevant

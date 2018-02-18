@@ -95,6 +95,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     private ZapMenuItem menuItemPolicy = null;
     private ZapMenuItem menuItemCustomScan = null;
+    private PopupMenuActiveScanCustomWithContext popupMenuActiveScanCustomWithContext;
     private OptionsScannerPanel optionsScannerPanel = null;
     private OptionsVariantPanel optionsVariantPanel = null;
     private ActiveScanPanel activeScanPanel = null;
@@ -149,6 +150,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
             extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
 
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustomWithContext());
+
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
@@ -163,7 +166,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         extensionHook.addSessionListener(this);
 
         extensionHook.addOptionsParamSet(getScannerParam());
-        // TODO this isnt currently implemented
+        // TODO this isn't currently implemented
         //extensionHook.addCommandLine(getCommandLineArguments());
 
         ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
@@ -354,16 +357,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
                     KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
-            menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                	showCustomScanDialog(null);
-                }
-            });
-
+            menuItemCustomScan.addActionListener(e -> showCustomScanDialog((Target) null));
         }
         
         return menuItemCustomScan;
+    }
+
+    private PopupMenuActiveScanCustomWithContext getPopupMenuActiveScanCustomWithContext() {
+        if (popupMenuActiveScanCustomWithContext == null) {
+            popupMenuActiveScanCustomWithContext = new PopupMenuActiveScanCustomWithContext(this);
+        }
+        return popupMenuActiveScanCustomWithContext;
     }
 
     @Override
@@ -566,6 +570,16 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	public void showCustomScanDialog(SiteNode node) {
+		showCustomScanDialog(node != null ? new Target(node) : null);
+	}
+
+	/**
+	 * Shows the active scan dialogue with the given target, if not already visible.
+	 *
+	 * @param target the target, might be {@code null}.
+	 * @since TODO add version.
+	 */
+	public void showCustomScanDialog(Target target) {
 		if (customScanDialog == null) {
 			// Work out the tabs 
 			String[] tabs = CustomScanDialog.STD_TAB_LABELS;
@@ -589,8 +603,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			customScanDialog.toFront();
 			return;
 		}
-		if (node != null) {
-			customScanDialog.init(new Target(node));
+		if (target != null) {
+			customScanDialog.init(target);
 		} else {
 			// Keep the previously selected target
 			customScanDialog.init(null);

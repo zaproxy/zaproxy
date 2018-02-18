@@ -226,7 +226,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							java.awt.Color.black));
 
 			if (latestInfo == null || this.latestInfo.getZapRelease() == null) {
-				// Havnt checked for updatees yet
+				// Haven't checked for updates yet
 				corePanel.add(new JLabel(this.currentVersion), LayoutHelper.getGBC(0, 0, 1, 0.0D));
 				corePanel.add(new JLabel(""), LayoutHelper.getGBC(1, 0, 1, 1.0D));
 				corePanel.add(this.getCheckForUpdatesButton(), LayoutHelper.getGBC(2, 0, 1, 0.0D));

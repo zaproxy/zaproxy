@@ -92,6 +92,7 @@ Scanners:
 10105   Weak Authentication Method
 10106   Http Only Site
 10107   Httpoxy - Proxy Header Misuse
+10108   Blank link target
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
@@ -165,6 +166,7 @@ Scanners:
 
 90001   Insecure JSF ViewState
 90011   Charset Mismatch
+90017	XSLT Injection
 90018   SQL Injection SQLMap
 90019   Code Injection
 90020   Command Injection

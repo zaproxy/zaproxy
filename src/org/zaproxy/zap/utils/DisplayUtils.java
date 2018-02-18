@@ -66,7 +66,7 @@ public class DisplayUtils {
 
 	public static ImageIcon getScaledIcon(ImageIcon icon) {
 		if (! isScaleImages() || icon == null || FontUtils.getScale() == 1 || icon.getIconHeight() > STD_HEIGHT) {
-			// dont need to scale
+			// don't need to scale
 			return icon;
 		}
 		return new ImageIcon((icon).getImage().getScaledInstance(
@@ -75,7 +75,7 @@ public class DisplayUtils {
 	
 	public static Icon getScaledIcon(Icon icon) {
 		if (! isScaleImages() || icon == null || FontUtils.getScale() == 1 || ! (icon instanceof ImageIcon)) {
-			// dont need to scale (or cant)
+			// don't need to scale (or can't)
 			return icon;
 		}
 		return getScaledIcon((ImageIcon)icon);
@@ -83,7 +83,7 @@ public class DisplayUtils {
 	
 	public static Dimension getScaledDimension(int width, int height) {
 		if (FontUtils.getScale() == 1) {
-			// dont need to scale
+			// don't need to scale
 			return new Dimension(width, height);
 		}
 		return new Dimension((int)(width * FontUtils.getScale()), (int)(height * FontUtils.getScale()));
@@ -169,7 +169,7 @@ public class DisplayUtils {
 	 */
 	public static Insets getScaledInsets(int top, int left, int bottom, int right) {
 		if (FontUtils.getScale() == 1) {
-			// dont need to scale
+			// don't need to scale
 			return new Insets(top, left, bottom, right);
 		}
 		return new Insets(

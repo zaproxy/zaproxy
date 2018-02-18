@@ -314,7 +314,7 @@ public class ReportGenerator {
 			return result;
 		}
 
-		// The escapeXml function doesnt cope with some 'special' chrs
+		// The escapeXml function doesn't cope with some 'special' chrs
 
 		return StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(result));
 	}

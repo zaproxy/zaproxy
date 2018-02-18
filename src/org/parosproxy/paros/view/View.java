@@ -434,7 +434,7 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * Close the curren splash screen and remove all resources
+     * Close the current splash screen and remove all resources
      */
     public void hideSplashScreen() {
         if (splashScreen != null) {
@@ -444,7 +444,7 @@ public class View implements ViewDelegate {
     }
     
     /**
-     * Set the curent loading completion
+     * Set the current loading completion
      * @param percentage the percentage of completion from 0 to 100
      */
     public void setSplashScreenLoadingCompletion(double percentage) {
@@ -454,7 +454,7 @@ public class View implements ViewDelegate {
     }
     
     /**
-     * Add the curent loading completion
+     * Add the current loading completion
      * @param percentage the percentage of completion from 0 to 100 that need to be added
      */
     public void addSplashScreenLoadingCompletion(double percentage) {

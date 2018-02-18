@@ -73,6 +73,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -122,6 +123,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private final JLabel customPanelStatus = new JLabel();
     private JCheckBox disableNonCustomVectors = null;
     private TechnologyTreePanel techTree;
+    private TechSet techTreeState;
     private String scanPolicyName;
     private ScanPolicy scanPolicy = null;
     private OptionsVariantPanel variantPanel = null;
@@ -154,7 +156,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     public void init(Target target) {
         if (target != null) {
-            // If one isnt specified then leave the previously selected one
+            // If one isn't specified then leave the previously selected one
             this.target = target;
         }
         
@@ -162,6 +164,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         this.removeAllFields();
         this.injectionPointModel.clear();
+        getRequestField().getHighlighter().removeAllHighlights();
         this.headerLength = -1;
         this.urlPathStart = -1;
 
@@ -230,6 +233,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         // Technology panel
         this.setCustomTabPanel(3, getTechPanel());
+
+        setTechSet(techTreeState);
 
         // Policy panel
         policyPanel.resetAndSetPolicy(scanPolicy.getName());
@@ -404,11 +409,16 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private void setTech() {
         Context context = this.getSelectedContext();
 
-        if (context != null) {
-            techTree.setTechSet(context.getTechSet());
+        setTechSet(context != null ? context.getTechSet() : null);
+    }
+
+    private void setTechSet(TechSet techSet) {
+        if (techSet != null) {
+            techTree.setTechSet(techSet);
         } else {
             techTree.reset();
         }
+        techTreeState = techSet;
     }
 
     private ZapTextArea getRequestField() {
@@ -689,6 +699,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private void reset(boolean refreshUi) {
         scannerParam = (ScannerParam) extension.getScannerParam().clone();
+        techTreeState = null;
 
         if (refreshUi) {
             init(target);
@@ -724,6 +735,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
     @Override
     public void save() {
         List<Object> contextSpecificObjects = new ArrayList<Object>();
+
+        techTreeState = getTechTree().getTechSet();
 
         if (!this.getBoolValue(FIELD_ADVANCED)) {
             contextSpecificObjects.add(scanPolicy);
@@ -780,7 +793,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
 
             contextSpecificObjects.add(scannerParam);
-            contextSpecificObjects.add(getTechTree().getTechSet());
+            contextSpecificObjects.add(techTreeState);
             
             if (this.customPanels != null) {
             	for (CustomScanPanel customPanel : this.customPanels) {

@@ -61,7 +61,7 @@ public class CallbackParam extends AbstractParam {
         for (String addr : addrs) {
             if (!addr.contains(":") && !addr.equals("localhost")
                     && !addr.equals("127.0.0.1")) {
-                // Return the first IPv4 one thats not localhost
+                // Return the first IPv4 one that's not localhost
                 return addr;
             }
         }

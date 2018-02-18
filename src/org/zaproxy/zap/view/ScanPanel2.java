@@ -54,7 +54,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 /*
- * This is a cleaner version of ScanPanel which doesnt mix functionality and the UI.
+ * This is a cleaner version of ScanPanel which doesn't mix functionality and the UI.
  * Implemented as a new set of classes for backwards compatibility with existing add-ons
  */
 public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanController<GS>> extends AbstractPanel {

@@ -87,7 +87,7 @@ public class Downloader extends Thread {
     	FileOutputStream out = null;
 	    try {
 	    	/*
-	    	 * The following code may be more efficient, but doesnt give us the option
+	    	 * The following code may be more efficient, but doesn't give us the option
 	    	 * of cancelling downloads.
 	    	 *
 			 * ReadableByteChannel rbc = Channels.newChannel(url.openStream());

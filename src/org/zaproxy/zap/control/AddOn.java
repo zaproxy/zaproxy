@@ -1269,7 +1269,7 @@ public class AddOn  {
 		}
 		
 		if (zrc.compare(notBeforeRelease, v2_4) < 0) {
-			// Dont load any add-ons that imply they are prior to 2.4.0 - they probably wont work
+			// Don't load any add-ons that imply they are prior to 2.4.0 - they probably wont work
 			return false;
 		}
 		if (this.notFromVersion != null && this.notFromVersion.length() > 0) {

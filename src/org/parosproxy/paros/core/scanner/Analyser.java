@@ -424,7 +424,7 @@ public class Analyser {
 	// check if any analysed result.
         if (sample == null) {
             if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
-                // no anlaysed result to confirm, assume file exist and return
+                // no analysed result to confirm, assume file exist and return
                 return true;
             } else {
                 return false;
