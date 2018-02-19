@@ -59,7 +59,7 @@ public class NameValuePair {
      */
     public static final int TYPE_MULTIPART_DATA_FILE_CONTENTTYPE = 36;
     /**
-     * The content-type portion of a application/json file parameter
+     * The application/json content-type of a web application
      * 
      * @since TODO add version
      */   
