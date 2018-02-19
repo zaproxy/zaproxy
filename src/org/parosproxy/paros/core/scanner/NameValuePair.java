@@ -23,6 +23,7 @@
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
 // ZAP: 2016/02/22 Add hashCode, equals and toString methods. Remove redundant instance variable initialisations.
 // ZAP: 2018/01/03 Added type constants for revised multipart/form-data handling
+// ZAP: 2018/02/19 Added type constants for application/json handling
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {
@@ -57,6 +58,13 @@ public class NameValuePair {
      * @since TODO add version
      */
     public static final int TYPE_MULTIPART_DATA_FILE_CONTENTTYPE = 36;
+    /**
+     * The application/json content-type of a web application
+     * 
+     * @since TODO add version
+     */   
+    public static final int TYPE_JSON = 37;
+    
     public static final int TYPE_UNDEFINED = -1;
     
     private final int targetType;
