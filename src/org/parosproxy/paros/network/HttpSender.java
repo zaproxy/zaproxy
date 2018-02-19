@@ -69,6 +69,7 @@
 // ZAP: 2017/11/27 Use custom CookieSpec (ZapCookieSpec).
 // ZAP: 2017/12/20 Apply socket connect timeout (Issue 4171).
 // ZAP: 2018/02/06 Make the lower case changes locale independent (Issue 4327).
+// ZAP: 2018/02/19 Added WEB_SOCKET_INITIATOR.
 
 package org.parosproxy.paros.network;
 
@@ -127,6 +128,7 @@ public class HttpSender {
 	public static final int AJAX_SPIDER_INITIATOR = 10;
 	public static final int FORCED_BROWSE_INITIATOR = 11;
 	public static final int TOKEN_GENERATOR_INITIATOR = 12;
+	public static final int WEB_SOCKET_INITIATOR = 13;
 
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
