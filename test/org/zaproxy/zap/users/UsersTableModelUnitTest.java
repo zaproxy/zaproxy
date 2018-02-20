@@ -184,8 +184,8 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         // Then
         assertTrue(usersTableModel.getColumnClass(1) == Integer.class);
-        assertThat(usersTableModel.getValueAt(0, 1), is(equalTo((Object) Integer.valueOf(user1Id))));
-        assertThat(usersTableModel.getValueAt(1, 1), is(equalTo((Object) Integer.valueOf(user2Id))));
+        assertThat(usersTableModel.getValueAt(0, 1), is(equalTo((Object) user1Id)));
+        assertThat(usersTableModel.getValueAt(1, 1), is(equalTo((Object) user2Id)));
     }
 
     @Test
@@ -244,7 +244,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
         usersTableModel.addTableModelListener(listener);
         // When
-        usersTableModel.setValueAt(Integer.valueOf(15), 0, 0);
+        usersTableModel.setValueAt(15, 0, 0);
         usersTableModel.setValueAt("Some Value", 1, 0);
         usersTableModel.setValueAt(true, 1, 1);
         // Then

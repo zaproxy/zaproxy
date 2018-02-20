@@ -64,7 +64,7 @@ public class ZapNumberSpinner extends JSpinner {
 	}
 
 	public void changeToDefaultValue() {
-		super.setValue(Integer.valueOf(defaultValue));
+		super.setValue(defaultValue);
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class ZapNumberSpinner extends JSpinner {
 			return;
 		}
 		
-		super.setValue(Integer.valueOf(value));
+		super.setValue(value);
 	}
 
 	@Override
@@ -105,8 +105,8 @@ public class ZapNumberSpinner extends JSpinner {
 			this.maxValue = maxValue;
 			setValueClass(Integer.class);
 
-			setMinimum(Integer.valueOf(minValue));
-			setMaximum(Integer.valueOf(maxValue));
+			setMinimum(minValue);
+			setMaximum(maxValue);
 			setAllowsInvalid(false);
 
 			setFormat(new ZapNumberFormat(minValue));
@@ -123,10 +123,10 @@ public class ZapNumberSpinner extends JSpinner {
 				if (e.getMessage().equals("Value not within min/max range")) {
 					final int value = ((Number)getFormat().parseObject(text)).intValue();
 					if (value < minValue) {
-						o = Integer.valueOf(minValue);
+						o = minValue;
 						throwException = false;
 					} else if (value > maxValue) {
-						o = Integer.valueOf(maxValue);
+						o = maxValue;
 						throwException = false;
 					}
 				}
@@ -167,7 +167,7 @@ public class ZapNumberSpinner extends JSpinner {
 		public Object parseObject(String source, ParsePosition pos) {
 			if (source.isEmpty()) {
 				pos.setIndex(1);
-				return Integer.valueOf(minValue);
+				return minValue;
 			}
 			
 			Object val = numberFormat.parseObject(source, pos);

@@ -82,7 +82,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
     private Map<Column, Integer> buildCacheColumnToColumnIdx(Column[] columns) {
         Map<Column, Integer> cache = new TreeMap<>();
         for (int i = 0; i < columns.length; i++) {
-            cache.put(columns[i], Integer.valueOf(i));
+            cache.put(columns[i], i);
         }
         return cache;
     }
@@ -121,7 +121,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
     public int getColumnIndex(Column column) {
         Integer idx = cacheColumnToColumnIdx.get(column);
         if (idx != null) {
-            return idx.intValue();
+            return idx;
         }
         return -1;
     }

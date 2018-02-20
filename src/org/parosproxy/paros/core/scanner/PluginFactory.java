@@ -50,6 +50,7 @@
 // ZAP: 2017/07/05 Log an error if the Plugin does not have a defined ID.
 // ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status comparison.
 // ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.core.scanner;
 
@@ -422,7 +423,7 @@ public class PluginFactory {
                     }
                     
                     // ZAP: Changed to use the method Integer.valueOf.
-                    mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+                    mapAllPlugin.put(plugin.getId(), plugin);
                     mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
                     
                 } catch (Exception e) {
@@ -448,7 +449,7 @@ public class PluginFactory {
     }
 
     private static boolean canAddPlugin(Map<Integer, Plugin> plugins, Plugin plugin) {
-        Plugin existingPlugin = plugins.get(Integer.valueOf(plugin.getId()));
+        Plugin existingPlugin = plugins.get(plugin.getId());
         if (existingPlugin == null) {
             return true;
         }
@@ -513,12 +514,12 @@ public class PluginFactory {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
         	Plugin plugin = (AbstractPlugin) c.getDeclaredConstructor().newInstance();
 
-            boolean duplicatedId = mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null;
+            boolean duplicatedId = mapAllPlugin.get(plugin.getId()) != null;
             if (this.addPlugin(plugin)) {
                 log.info("loaded plugin " + plugin.getName());
                 if (duplicatedId) {
                     log.error("Duplicate id " + plugin.getName() + " "
-                            + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+                            + mapAllPlugin.get(plugin.getId()).getName());
                 }
                 return true;
             }
@@ -552,7 +553,7 @@ public class PluginFactory {
             return false;
         }
         
-        mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+        mapAllPlugin.put(plugin.getId(), plugin);
         mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
 
         return true;
@@ -563,7 +564,7 @@ public class PluginFactory {
             Plugin plugin = listAllPlugin.get(i);
             if (plugin.getClass().getName().equals(className)) {
                 listAllPlugin.remove(plugin);
-                mapAllPlugin.remove(Integer.valueOf(plugin.getId()));
+                mapAllPlugin.remove(plugin.getId());
                 mapAllPluginOrderCodeName.remove(plugin.getCodeName());
                 return true;
             }
@@ -575,7 +576,7 @@ public class PluginFactory {
     public Plugin getPlugin(int id) {
         // ZAP: Removed unnecessary cast and changed to use the method
         // Integer.valueOf.
-        return mapAllPlugin.get(Integer.valueOf(id));
+        return mapAllPlugin.get(id);
     }
 
     public void setAllPluginEnabled(boolean enabled) {

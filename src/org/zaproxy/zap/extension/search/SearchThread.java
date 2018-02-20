@@ -135,7 +135,7 @@ public class SearchThread extends Thread {
 				if (stopSearch) {
 					break;
 				}
-			    int historyId = list.get(index).intValue();
+			    int historyId = list.get(index);
 			    try {
 			            currentRecordId = index;
 			        	// Create the href to ensure the msg is set up correctly

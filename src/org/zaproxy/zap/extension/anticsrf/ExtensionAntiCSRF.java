@@ -339,7 +339,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			
 			AntiCsrfDetectScanner antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
 			for (Integer i : list) {
-				HistoryReference hRef = historyReferenceFactory.createHistoryReference(i.intValue());
+				HistoryReference hRef = historyReferenceFactory.createHistoryReference(i);
 				if (filter.matches(hRef)) {
 					HttpMessage msg = hRef.getHttpMessage();
 					String response = msg.getResponseHeader().toString() + 

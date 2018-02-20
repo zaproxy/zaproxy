@@ -223,7 +223,7 @@ public class HttpSessionsSite {
 	private String generateUniqueSessionName() {
 		String name;
 		do {
-			name = Constant.messages.getString("httpsessions.session.defaultName", Integer.valueOf(lastGeneratedSessionID++));
+			name = Constant.messages.getString("httpsessions.session.defaultName", lastGeneratedSessionID++);
 		} while (!isSessionNameUnique(name));
 
 		return name;

@@ -112,7 +112,7 @@ public class PassiveScanParam extends AbstractParam {
             getConfig().setProperty(elementBaseKey + AUTO_TAG_SCANNER_REQ_HEAD_REGEX_KEY, scanner.getRequestHeaderRegex());
             getConfig().setProperty(elementBaseKey + AUTO_TAG_SCANNER_RES_HEAD_REGEX_KEY, scanner.getResponseHeaderRegex());
             getConfig().setProperty(elementBaseKey + AUTO_TAG_SCANNER_RES_BODY_REGEX_KEY, scanner.getResponseBodyRegex());
-            getConfig().setProperty(elementBaseKey + AUTO_TAG_SCANNER_ENABLED_KEY, Boolean.valueOf(scanner.isEnabled()));
+            getConfig().setProperty(elementBaseKey + AUTO_TAG_SCANNER_ENABLED_KEY, scanner.isEnabled());
         }
     }
     
@@ -128,7 +128,7 @@ public class PassiveScanParam extends AbstractParam {
     @ZapApiIgnore
     public void setConfirmRemoveAutoTagScanner(boolean confirmRemove) {
         this.confirmRemoveAutoTagScanner = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, Boolean.valueOf(confirmRemoveAutoTagScanner));
+        getConfig().setProperty(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, confirmRemoveAutoTagScanner);
     }
     
     /**
@@ -142,7 +142,7 @@ public class PassiveScanParam extends AbstractParam {
      */
     public void setScanOnlyInScope(boolean scanOnlyInScope) {
         this.scanOnlyInScope = scanOnlyInScope;
-        getConfig().setProperty(SCAN_ONLY_IN_SCOPE_KEY, Boolean.valueOf(scanOnlyInScope));
+        getConfig().setProperty(SCAN_ONLY_IN_SCOPE_KEY, scanOnlyInScope);
     }
 
     /**

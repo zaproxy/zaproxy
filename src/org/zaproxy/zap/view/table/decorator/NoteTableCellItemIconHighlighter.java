@@ -33,7 +33,7 @@ public class NoteTableCellItemIconHighlighter extends AbstractTableCellItemIconH
 
     @Override
     protected Icon getIcon(final Object cellItem) {
-        return getAlertIcon(((Boolean) cellItem).booleanValue());
+        return getAlertIcon((Boolean) cellItem);
     }
 
     private static Icon getAlertIcon(final boolean hasNote) {
@@ -45,6 +45,6 @@ public class NoteTableCellItemIconHighlighter extends AbstractTableCellItemIconH
 
     @Override
     protected boolean isHighlighted(final Object cellItem) {
-        return ((Boolean) cellItem).booleanValue();
+        return (Boolean) cellItem;
     }
 }

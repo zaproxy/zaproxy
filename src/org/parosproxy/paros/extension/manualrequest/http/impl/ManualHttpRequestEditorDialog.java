@@ -24,6 +24,7 @@
 // ZAP: 2014/12/12 Issue 1449: Added help button
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -438,10 +439,10 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 			default:
 			}
 			
-			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(verticalDividerLocation));
-			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(horizontalDividerLocation));
+			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + VERTICAL_DIVIDER_LOCATION_CONFIG_KEY, verticalDividerLocation);
+			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + HORIZONTAL_DIVIDER_LOCATION_CONFIG_KEY, horizontalDividerLocation);
 			
-			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + SELECTEDLAYOUT_CONFIG_KEY, Integer.valueOf(currentView));
+			Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + SELECTEDLAYOUT_CONFIG_KEY, currentView);
 			
 			requestPanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
 			responsePanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());

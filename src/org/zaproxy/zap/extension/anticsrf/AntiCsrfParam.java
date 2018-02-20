@@ -104,7 +104,7 @@ public class AntiCsrfParam extends AbstractParam {
             AntiCsrfParamToken token = tokens.get(i);
             
             getConfig().setProperty(elementBaseKey + TOKEN_NAME_KEY, token.getName());
-            getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, Boolean.valueOf(token.isEnabled()));
+            getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, token.isEnabled());
             
             if (token.isEnabled()) {
                 enabledTokens.add(token.getName());
@@ -176,7 +176,7 @@ public class AntiCsrfParam extends AbstractParam {
     @ZapApiIgnore
     public void setConfirmRemoveToken(boolean confirmRemove) {
         this.confirmRemoveToken = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, Boolean.valueOf(confirmRemoveToken));
+        getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, confirmRemoveToken);
     }
 
 }

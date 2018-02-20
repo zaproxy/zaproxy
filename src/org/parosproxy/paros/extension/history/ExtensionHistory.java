@@ -83,6 +83,7 @@
 // ZAP: 2017/11/16 Update the table on sessionChanged (Issue 3207).
 // ZAP: 2017/11/22 Delete just the history references selected (Issue 4065).
 // ZAP: 2018/01/29 Add getter to expose historyReferencesTable of History tab (Issue 4000).
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.extension.history;
 
@@ -303,7 +304,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public void removeFromHistoryList(final HistoryReference href) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             this.historyTableModel.removeEntry(href.getHistoryId());
-            historyIdToRef.remove(Integer.valueOf(href.getHistoryId()));
+            historyIdToRef.remove(href.getHistoryId());
         } else {
             EventQueue.invokeLater(new Runnable() {
 
@@ -478,7 +479,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        historyTableModel.clear();
 	        
 	        for (int i=0; i<dbList.size(); i++) {
-	            int historyId = (dbList.get(i)).intValue();
+	            int historyId = dbList.get(i);
 
 	            try {
 	            	SiteNode sn = getModel().getSession().getSiteTree().getSiteNode(historyId);

@@ -83,7 +83,7 @@ public class SearchParam extends AbstractParam {
         if (this.maximumSearchResultsGUI != maximumSearchResultsGUI) {
             this.maximumSearchResultsGUI = maximumSearchResultsGUI;
 
-            getConfig().setProperty(PARAM_MAXIMUM_RESULTS_GUI, Integer.valueOf(maximumSearchResultsGUI));
+            getConfig().setProperty(PARAM_MAXIMUM_RESULTS_GUI, maximumSearchResultsGUI);
         }
     }
 

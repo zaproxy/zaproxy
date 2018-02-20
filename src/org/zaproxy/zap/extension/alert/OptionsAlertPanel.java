@@ -160,7 +160,7 @@ public class OptionsAlertPanel extends AbstractParamPanel {
         final OptionsParam options = (OptionsParam) obj;
         final AlertParam param = options.getParamSet(AlertParam.class);
 
-        param.setMaximumInstances(getMaxInstances().getValue().intValue());
+        param.setMaximumInstances(getMaxInstances().getValue());
         param.setMergeRelatedIssues(getMergeRelatedIssues().isSelected());
         param.setOverridesFilename(getOverridesFilename().getText());
     }

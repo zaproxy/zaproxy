@@ -106,7 +106,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	private void updateOldOptions() {
 		try {
 			int oldValue = getConfig().getInt(CHECK_ON_START, 0);
-			getConfig().setProperty(CHECK_ON_START, Boolean.valueOf(oldValue != 0));
+			getConfig().setProperty(CHECK_ON_START, oldValue != 0);
 		} catch(ConversionException ignore) {
 			// Option already using boolean type.
 		}
@@ -119,7 +119,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	 */
 	public void setCheckOnStart(boolean checkOnStart) {
 		this.checkOnStart = checkOnStart;
-		getConfig().setProperty(CHECK_ON_START, Boolean.valueOf(checkOnStart));
+		getConfig().setProperty(CHECK_ON_START, checkOnStart);
 		if (dayLastChecked.length() == 0) {
 			dayLastChecked = "Never";
 			getConfig().setProperty(DAY_LAST_CHECKED, dayLastChecked);

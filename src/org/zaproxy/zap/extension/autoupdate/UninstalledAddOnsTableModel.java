@@ -81,7 +81,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
         case COLUMN_ADD_ON_WRAPPER:
             return getAddOnWrapper(rowIndex);
         case 0:
-            return Boolean.valueOf(getAddOnWrapper(rowIndex).hasRunningIssues());
+            return getAddOnWrapper(rowIndex).hasRunningIssues();
         case 1:
         	return View.getSingleton().getStatusUI(getAddOnWrapper(rowIndex).getAddOn().getStatus());
         case 2:
@@ -111,7 +111,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
         if (columnIndex == 5
                 && getAddOnWrapper(rowIndex).getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
             if (aValue instanceof Boolean) {
-                getAddOnWrapper(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                getAddOnWrapper(rowIndex).setEnabled((Boolean) aValue);
                 this.fireTableCellUpdated(rowIndex, columnIndex);
             }
         }

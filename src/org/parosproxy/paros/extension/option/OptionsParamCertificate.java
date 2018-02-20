@@ -24,6 +24,7 @@
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.extension.option;
 
@@ -168,7 +169,7 @@ public class OptionsParamCertificate extends AbstractParam {
             allowUnsafeSslRenegotiation = allow;
 
             setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
-            getConfig().setProperty(ALLOW_UNSAFE_SSL_RENEGOTIATION, Boolean.valueOf(allowUnsafeSslRenegotiation));
+            getConfig().setProperty(ALLOW_UNSAFE_SSL_RENEGOTIATION, allowUnsafeSslRenegotiation);
         }
     }
 

@@ -90,7 +90,7 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:
-            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+            return getElement(rowIndex).isEnabled();
         case 1:
             return getElement(rowIndex).getName();
         case 2:
@@ -105,7 +105,7 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
             if (aValue instanceof Boolean) {
-                getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                getElement(rowIndex).setEnabled((Boolean) aValue);
                 fireTableCellUpdated(rowIndex, columnIndex);
             }
         }

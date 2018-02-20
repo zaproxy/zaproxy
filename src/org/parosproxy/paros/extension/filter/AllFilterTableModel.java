@@ -27,6 +27,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.extension.filter;
 
@@ -106,7 +107,7 @@ public class AllFilterTableModel extends DefaultTableModel {
         Filter filter = allFilters.get(row);
         switch (col) {
         	case 0:	break;
-        	case 1: filter.setEnabled(((Boolean) value).booleanValue());
+        	case 1: filter.setEnabled((Boolean) value);
         			fireTableCellUpdated(row, col);
         			break;
         	case 2: break;
@@ -134,7 +135,7 @@ public class AllFilterTableModel extends DefaultTableModel {
         	case 0:	result = filter.getName();
         			break;
         	case 1: // ZAP: Changed to use the method Boolean.valueOf.
-        			result = Boolean.valueOf(filter.isEnabled());
+        			result = filter.isEnabled();
         			break;
         	case 2: if (filter.isPropertyExists()) {
         	    		result = "...";

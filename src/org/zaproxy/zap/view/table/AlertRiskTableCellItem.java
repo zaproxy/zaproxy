@@ -47,22 +47,22 @@ public class AlertRiskTableCellItem implements Comparable<AlertRiskTableCellItem
         AlertRiskTableCellItem alertCellItem = new AlertRiskTableCellItem(
                 Alert.RISK_INFO,
                 Constant.messages.getString("view.href.table.cell.alert.risk.label.info"));
-        temp.put(Integer.valueOf(alertCellItem.getRisk()), alertCellItem);
+        temp.put(alertCellItem.getRisk(), alertCellItem);
 
         alertCellItem = new AlertRiskTableCellItem(
                 Alert.RISK_LOW,
                 Constant.messages.getString("view.href.table.cell.alert.risk.label.low"));
-        temp.put(Integer.valueOf(alertCellItem.getRisk()), alertCellItem);
+        temp.put(alertCellItem.getRisk(), alertCellItem);
 
         alertCellItem = new AlertRiskTableCellItem(
                 Alert.RISK_MEDIUM,
                 Constant.messages.getString("view.href.table.cell.alert.risk.label.medium"));
-        temp.put(Integer.valueOf(alertCellItem.getRisk()), alertCellItem);
+        temp.put(alertCellItem.getRisk(), alertCellItem);
 
         alertCellItem = new AlertRiskTableCellItem(
                 Alert.RISK_HIGH,
                 Constant.messages.getString("view.href.table.cell.alert.risk.label.high"));
-        temp.put(Integer.valueOf(alertCellItem.getRisk()), alertCellItem);
+        temp.put(alertCellItem.getRisk(), alertCellItem);
 
         values = Collections.unmodifiableMap(temp);
     }
@@ -162,7 +162,7 @@ public class AlertRiskTableCellItem implements Comparable<AlertRiskTableCellItem
             return NO_RISK_CELL_ITEM;
         }
 
-        AlertRiskTableCellItem alertCelLItem = values.get(Integer.valueOf(risk));
+        AlertRiskTableCellItem alertCelLItem = values.get(risk);
         if (alertCelLItem == null) {
             return UNDEFINED_RISK_CELL_ITEM;
         }

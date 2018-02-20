@@ -67,9 +67,9 @@ public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableMo
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:
-            return Boolean.valueOf(getElement(rowIndex).isEnabled());
+            return getElement(rowIndex).isEnabled();
         case 1:
-            return Boolean.valueOf(getElement(rowIndex).isRegex());
+            return getElement(rowIndex).isRegex();
         case 2:
             return getElement(rowIndex).getValue();
         }
@@ -79,7 +79,7 @@ public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableMo
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 0 && aValue instanceof Boolean) {
-            addresses.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            addresses.get(rowIndex).setEnabled((Boolean) aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
         }
     }

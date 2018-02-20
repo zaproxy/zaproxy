@@ -122,7 +122,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     public void addEntry(final DefaultHistoryReferencesTableEntry historyReference) {
         hrefList.add(historyReference);
         RowIndex rowIndex = new RowIndex(hrefList.size() - 1);
-        historyIdToRow.put(Integer.valueOf(historyReference.getHistoryReference().getHistoryId()), rowIndex);
+        historyIdToRow.put(historyReference.getHistoryReference().getHistoryId(), rowIndex);
         rowIndexes.add(rowIndex);
         fireTableRowsInserted(rowIndex.getValue(), rowIndex.getValue());
     }
@@ -153,7 +153,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     @Override
     public void removeEntry(final int historyReferenceId) {
-        Integer key = Integer.valueOf(historyReferenceId);
+        Integer key = historyReferenceId;
         RowIndex rowIndex = historyIdToRow.get(key);
         if (rowIndex != null) {
             hrefList.remove(rowIndex.getValue());
@@ -207,7 +207,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     @Override
     public int getEntryRowIndex(final int historyReferenceId) {
-        final RowIndex rowIndex = historyIdToRow.get(Integer.valueOf(historyReferenceId));
+        final RowIndex rowIndex = historyIdToRow.get(historyReferenceId);
         if (rowIndex != null) {
             return rowIndex.getValue();
         }

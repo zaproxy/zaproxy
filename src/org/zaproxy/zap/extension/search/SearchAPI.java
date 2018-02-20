@@ -286,7 +286,7 @@ public class SearchAPI extends ApiImplementor {
 		TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 		for (Integer hRefId : searchListener.getHistoryReferencesIds()) {
 			try {
-				processor.processRecordHistory(tableHistory.read(hRefId.intValue()));
+				processor.processRecordHistory(tableHistory.read(hRefId));
 			} catch (DatabaseException | HttpMalformedHeaderException e) {
 				log.error(e.getMessage(), e);
 			}
@@ -312,7 +312,7 @@ public class SearchAPI extends ApiImplementor {
 
 		@Override
 		public void addSearchResult(SearchResult sr) {
-			historyReferencesIds.add(Integer.valueOf(sr.getMessage().getHistoryRef().getHistoryId()));
+			historyReferencesIds.add(sr.getMessage().getHistoryRef().getHistoryId());
 		}
 
 		@Override
