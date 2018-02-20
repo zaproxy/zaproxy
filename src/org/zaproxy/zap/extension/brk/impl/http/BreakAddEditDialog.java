@@ -145,10 +145,10 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 				return Constant.messages.getString("brk.brkpoint.error.regex"); 
 			}
 		}
-		if( (this.getStringValue(FIELD_STRING)).contains("#") && (Location.url.equals(this.strToLoc(this.getStringValue(FIELD_LOCATION)))) && (Match.contains.equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) ){
+		if (this.getStringValue(FIELD_STRING).contains("#") && Location.url.equals(this.strToLoc(this.getStringValue(FIELD_LOCATION))) && Match.contains.equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
 			return Constant.messages.getString("brk.brkpoint.warn.urlfragment");
 		}
-		return null;		
+		return null;
 	}
 	
 	@Override
