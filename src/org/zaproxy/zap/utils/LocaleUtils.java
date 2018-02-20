@@ -24,8 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -58,6 +63,205 @@ public final class LocaleUtils {
 	 * @since 2.4.0
 	 */
 	public static final String COUNTRY_LOCALE_REGEX = "[a-zA-Z]{2}|[0-9]{3}";
+
+	/**
+	 * Finds and returns a localised resource, using the given {@code function} to validate it.
+	 * <p>
+	 * The function is called for each resource until a non-{@code null} resource is returned or all resources are consumed. The
+	 * resource name is built using the parameters {@code fileName}, {@code fileExtension}, and the given {@code locale}. The
+	 * candidates and fallback locale are obtained from a {@link ZapResourceBundleControl}.
+	 * <p>
+	 * For example, with the following parameters:
+	 * <ul>
+	 * <li>{@code fileName} - {@code org.zaproxy.zap.file}</li>
+	 * <li>{@code fileExtension} - {@code ext}</li>
+	 * <li>{@code locale} - {@code es_ES}</li>
+	 * </ul>
+	 * and "en_GB" as fallback locale returned by the control, it would produce the following resource names:
+	 * 
+	 * <pre>
+	 * {@code 
+	 * org/zaproxy/zap/file_es_ES.ext
+	 * org/zaproxy/zap/file_es.ext
+	 * org/zaproxy/zap/file.ext
+	 * org/zaproxy/zap/file_en_GB.ext
+	 * org/zaproxy/zap/file_en.ext
+	 * }
+	 * </pre>
+	 * <p>
+	 * The {@code function} could be, for example, the instance method {@code ClassLoader::getResource}.
+	 *
+	 * @param <R> the type of the result.
+	 * @param fileName the base file name.
+	 * @param fileExtension the file extension.
+	 * @param locale the target locale.
+	 * @param function the function that validates and returns the resource.
+	 * @return the resource, or {@code null} if none found.
+	 * @since TODO add version
+	 */
+	public static <R> R findResource(String fileName, String fileExtension, Locale locale, Function<String, R> function) {
+		return findResource(fileName, fileExtension, "", locale, function);
+	}
+
+	/**
+	 * Finds and returns a localised resource, using the given {@code function} to validate it.
+	 * <p>
+	 * The function is called for each resource until a non-{@code null} resource is returned or all resources are consumed. The
+	 * resource name is built using the parameters {@code fileName}, {@code fileExtension}, and the given {@code locale}. The
+	 * candidates and fallback locale are obtained from the given resource bundle control.
+	 * <p>
+	 * For example, with the following parameters:
+	 * <ul>
+	 * <li>{@code control} - {@code new ZapResourceBundleControl()}</li>
+	 * <li>{@code fileName} - {@code org.zaproxy.zap.file}</li>
+	 * <li>{@code fileExtension} - {@code ext}</li>
+	 * <li>{@code locale} - {@code es_ES}</li>
+	 * </ul>
+	 * and "en_GB" as fallback locale returned by the {@code control}, it would produce the following resource names:
+	 * 
+	 * <pre>
+	 * {@code 
+	 * org/zaproxy/zap/file_es_ES.ext
+	 * org/zaproxy/zap/file_es.ext
+	 * org/zaproxy/zap/file.ext
+	 * org/zaproxy/zap/file_en_GB.ext
+	 * org/zaproxy/zap/file_en.ext
+	 * }
+	 * </pre>
+	 * <p>
+	 * The {@code function} could be, for example, the instance method {@code ClassLoader::getResource}.
+	 *
+	 * @param <R> the type of the result.
+	 * @param control the resource bundle control to obtain the candidate and fallback locales and build the resource names.
+	 * @param fileName the base file name.
+	 * @param fileExtension the file extension.
+	 * @param locale the target locale.
+	 * @param function the function that validates and returns the resource.
+	 * @return the resource, or {@code null} if none found.
+	 * @since TODO add version
+	 */
+	public static <R> R findResource(
+			ResourceBundle.Control control,
+			String fileName,
+			String fileExtension,
+			Locale locale,
+			Function<String, R> function) {
+		return findResource(control, fileName, fileExtension, "", locale, function);
+	}
+
+	/**
+	 * Finds and returns a localised resource, using the given {@code function} to validate it.
+	 * <p>
+	 * The function is called for each resource until a non-{@code null} resource is returned or all resources are consumed. The
+	 * resource name is built using the parameters {@code fileName}, {@code fileExtension}, and the given {@code locale}. The
+	 * {@code localeToken}, if non-{@ocde null} nor empty, is replaced in the {@code fileName} with the current candidate
+	 * locale. The candidates and fallback locale are obtained from a {@link ZapResourceBundleControl}.
+	 * <p>
+	 * For example, with the following parameters:
+	 * <ul>
+	 * <li>{@code fileName} - {@code org.zaproxy.zap.dir%LC%.file}</li>
+	 * <li>{@code fileExtension} - {@code ext}</li>
+	 * <li>{@code localeToken} - {@code %LC%}</li>
+	 * <li>{@code locale} - {@code es_ES}</li>
+	 * </ul>
+	 * and "en_GB" as fallback locale returned by the control, it would produce the following resource names:
+	 * 
+	 * <pre>
+	 * {@code 
+	 * org/zaproxy/zap/dir_es_ES/file_es_ES.ext
+	 * org/zaproxy/zap/dir_es/file_es.ext
+	 * org/zaproxy/zap/dir/file.ext
+	 * org/zaproxy/zap/dir_en_GB/file_en_GB.ext
+	 * org/zaproxy/zap/dir_en/file_en.ext
+	 * }
+	 * </pre>
+	 * <p>
+	 * The {@code function} could be, for example, the instance method {@code ClassLoader::getResource}.
+	 *
+	 * @param <R> the type of the result.
+	 * @param fileName the base file name.
+	 * @param fileExtension the file extension.
+	 * @param localeToken the token that represents the locale, to be replaced in the {@code fileName}. Might be {@code null}.
+	 * @param locale the target locale.
+	 * @param function the function that validates and returns the resource.
+	 * @return the resource, or {@code null} if none found.
+	 * @since TODO add version
+	 */
+	public static <R> R findResource(
+			String fileName,
+			String fileExtension,
+			String localeToken,
+			Locale locale,
+			Function<String, R> function) {
+		return findResource(new ZapResourceBundleControl(), fileName, fileExtension, localeToken, locale, function);
+	}
+
+	/**
+	 * Finds and returns a localised resource, using the given {@code function} to validate it.
+	 * <p>
+	 * The function is called for each resource until a non-{@code null} resource is returned or all resources are consumed. The
+	 * resource name is built using the parameters {@code fileName}, {@code fileExtension}, and the given {@code locale}. The
+	 * {@code localeToken}, if non-{@ocde null} nor empty, is replaced in the {@code fileName} with the current candidate
+	 * locale. The candidates and fallback locale are obtained from the given resource bundle control.
+	 * <p>
+	 * For example, with the following parameters:
+	 * <ul>
+	 * <li>{@code control} - {@code new ZapResourceBundleControl()}</li>
+	 * <li>{@code fileName} - {@code org.zaproxy.zap.dir%LC%.file}</li>
+	 * <li>{@code fileExtension} - {@code ext}</li>
+	 * <li>{@code localeToken} - {@code %LC%}</li>
+	 * <li>{@code locale} - {@code es_ES}</li>
+	 * </ul>
+	 * and "en_GB" as fallback locale returned by the {@code control}, it would produce the following resource names:
+	 * 
+	 * <pre>
+	 * {@code 
+	 * org/zaproxy/zap/dir_es_ES/file_es_ES.ext
+	 * org/zaproxy/zap/dir_es/file_es.ext
+	 * org/zaproxy/zap/dir/file.ext
+	 * org/zaproxy/zap/dir_en_GB/file_en_GB.ext
+	 * org/zaproxy/zap/dir_en/file_en.ext
+	 * }
+	 * </pre>
+	 * <p>
+	 * The {@code function} could be, for example, the instance method {@code ClassLoader::getResource}.
+	 *
+	 * @param <R> the type of the result.
+	 * @param control the resource bundle control to obtain the candidate and fallback locales and build the resource names.
+	 * @param fileName the base file name.
+	 * @param fileExtension the file extension.
+	 * @param localeToken the token that represents the locale, to be replaced in the {@code fileName}. Might be {@code null}.
+	 * @param locale the target locale.
+	 * @param function the function that validates and returns the resource.
+	 * @return the resource, or {@code null} if none found.
+	 * @since TODO add version
+	 */
+	public static <R> R findResource(
+			ResourceBundle.Control control,
+			String fileName,
+			String fileExtension,
+			String localeToken,
+			Locale locale,
+			Function<String, R> function) {
+		Set<Locale> candidateLocales = new LinkedHashSet<>();
+		candidateLocales.addAll(control.getCandidateLocales("", locale));
+		Locale fallbackLocale = control.getFallbackLocale("", locale);
+		if (fallbackLocale != null) {
+			candidateLocales.addAll(control.getCandidateLocales("", fallbackLocale));
+		}
+		for (Locale candidateLocale : candidateLocales) {
+			String strLocale = control.toBundleName("", candidateLocale);
+			String prefix = fileName;
+			if (localeToken != null && !localeToken.isEmpty()) {
+				prefix = prefix.replaceAll(Pattern.quote(localeToken), Matcher.quoteReplacement(strLocale));
+			}
+			R result = function.apply(control.toResourceName(prefix + strLocale, fileExtension));
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Convenience method that calls the method {@code #createResourceFilePattern(String, String)}, with parameters

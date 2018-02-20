@@ -19,13 +19,22 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -34,6 +43,11 @@ import org.junit.Test;
  * Unit test for {@link LocaleUtils}.
  */
 public class LocaleUtilsUnitTest {
+
+    private static final ResourceBundle.Control HELPER_CONTROL = ResourceBundle.Control
+            .getControl(ResourceBundle.Control.FORMAT_DEFAULT);
+
+    private static final Locale LOCALE_SPAIN = new Locale("es", "ES");
 
     private static final String FILE_NAME = "FileName";
     private static final String FILE_EXTENSION = ".extension";
@@ -183,5 +197,122 @@ public class LocaleUtilsUnitTest {
 
         // Then
         assertThat(firstAvailableLocale, is(equalTo("en_GB")));
+    }
+
+    @Test
+    public void shouldFindResourcesWithDefaultControl() {
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            // Given
+            Locale.setDefault(Locale.FRANCE);
+            List<String> resources = new ArrayList<>();
+            // When
+            LocaleUtils.findResource("org.example.file", "ext", LOCALE_SPAIN, r -> {
+                resources.add(r);
+                return null;
+            });
+            // Then
+            assertThat(
+                    resources,
+                    contains(
+                            "org/example/file_es_ES.ext",
+                            "org/example/file_es.ext",
+                            "org/example/file.ext",
+                            "org/example/file_fr_FR.ext",
+                            "org/example/file_fr.ext"));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
+
+    @Test
+    public void shouldFindResourcesWithDefaultControlAndLocaleTokenReplaced() {
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            // Given
+            Locale.setDefault(Locale.FRANCE);
+            List<String> resources = new ArrayList<>();
+            // When
+            LocaleUtils.findResource("org.example.dir%LC%.file", "ext", "%LC%", LOCALE_SPAIN, r -> {
+                resources.add(r);
+                return null;
+            });
+            // Then
+            assertThat(
+                    resources,
+                    contains(
+                            "org/example/dir_es_ES/file_es_ES.ext",
+                            "org/example/dir_es/file_es.ext",
+                            "org/example/dir/file.ext",
+                            "org/example/dir_fr_FR/file_fr_FR.ext",
+                            "org/example/dir_fr/file_fr.ext"));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
+
+    @Test
+    public void shouldFindResourcesWithGivenControlWithoutFallbackLocale() {
+        // Given
+        ResourceBundle.Control control = mockResourceBundleControl();
+        List<String> resources = new ArrayList<>();
+        // When
+        LocaleUtils.findResource(control, "org.example.file", "ext", LOCALE_SPAIN, r -> {
+            resources.add(r);
+            return null;
+        });
+        // Then
+        assertThat(resources, contains("org/example/file_es_ES.ext", "org/example/file_es.ext", "org/example/file.ext"));
+    }
+
+    @Test
+    public void shouldFindResourcesWithGivenControlAndFallbackLocale() {
+        // Given
+        ResourceBundle.Control control = mockResourceBundleControl();
+        given(control.getFallbackLocale(anyString(), anyObject())).willReturn(Locale.FRANCE);
+        List<String> resources = new ArrayList<>();
+        // When
+        LocaleUtils.findResource(control, "org.example.file", "ext", LOCALE_SPAIN, r -> {
+            resources.add(r);
+            return null;
+        });
+        // Then
+        assertThat(
+                resources,
+                contains(
+                        "org/example/file_es_ES.ext",
+                        "org/example/file_es.ext",
+                        "org/example/file.ext",
+                        "org/example/file_fr_FR.ext",
+                        "org/example/file_fr.ext"));
+    }
+
+    @Test
+    public void shouldFindResourcesWithGivenControlAndLocaleTokenReplaced() {
+        // Given
+        ResourceBundle.Control control = mockResourceBundleControl();
+        List<String> resources = new ArrayList<>();
+        // When
+        LocaleUtils.findResource(control, "org.example.dir%LC%.file", "ext", "%LC%", LOCALE_SPAIN, r -> {
+            resources.add(r);
+            return null;
+        });
+        // Then
+        assertThat(
+                resources,
+                contains("org/example/dir_es_ES/file_es_ES.ext", "org/example/dir_es/file_es.ext", "org/example/dir/file.ext"));
+    }
+
+    private static ResourceBundle.Control mockResourceBundleControl() {
+        ResourceBundle.Control control = mock(ResourceBundle.Control.class);
+        when(control.getCandidateLocales(anyString(), anyObject())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return HELPER_CONTROL.getCandidateLocales((String) args[0], (Locale) args[1]);
+        });
+        when(control.toBundleName(anyString(), anyObject())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return HELPER_CONTROL.toBundleName((String) args[0], (Locale) args[1]);
+        });
+        return control;
     }
 }
