@@ -88,37 +88,38 @@ Kiedy warstwa transportowa nie jest zaszyfrowana, cała komunikacja pomiędzy st
 Słabe Wsparcie Szyfru
 Dawniej wysokiej jakości kryptografia była ograniczona do eksportu poza Stany Zjednoczone. Z tego powodu, strony internetowe były skonfigurowane do obsługi słabych kryptograficznych opcji dla tych klientów którzy ograniczali się do używania tylko słabych szyfrów. Słabe szyfry są podatne na atak ze względu na względną łatwość ich złamania; mniej niż dwa tygodnie na typowym komputerze domowym i kilka sekund przy użyciu dedykowanego sprzętu.
 Dziś wszystkie nowoczesne przeglądarki i strony internetowe używają o wiele silniejszego szyfrowania, ale niektóre strony wciąż skonfigurowane są do obsługi przestarzałych słabych szyfrów. Z tego powodu atakujący może zmusić klienta do przejścia na słabszy szyfr podczas łączenia się ze stroną internetową, umożliwiając atakującemu złamanie słabego szyfrowania. Z tego powodu, serwer powinien być skonfigurowany do akceptowania tylko silnego szyfrowania i nie gwarantować żadnemu klientowi usługi która wymaga używania słabszego szyfrowania. Ponadto niektóre witryny internetowe są źle skonfigurowane do wyboru słabszego szyfru, nawet jeśli klient będzie obsługiwał znacznie silniejszy. OWASP oferuje przewodnik do testowania problemów związanych z SSL / TLS, w tym obsługę słabych szyfrów i błędną konfigurację, a także inne zasoby i narzędzia.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+	<solution>Faza: Wymagania
+Określ wyraźnie, które dane lub materiały są na tyle cenne, że powinny być chronione za pomocą szyfrowania. Wymagaj, aby jakakolwiek transmisja lub przechowywanie tych danych / zasobów korzystało z dobrze sprawdzonych algorytmów szyfrowania.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Faza: Architektura i Projektowanie
+Korzystając z modelowania zagrożeń lub innych technik, wyjdź z założenia, że Twoje dane mogą zostać naruszone przez osobną lukę lub słabe punkty i ustal, gdzie szyfrowanie będzie najbardziej skuteczne. Upewnij się, że dane które twoim zdaniem powinny być prywatne nie zostaną nieumyślnie eksponowane z powodu słabości takich jak 
+niezabezpieczone uprawnienia (CWE-732).
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
-      Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
+Faza: Architektura i Projektowanie
+Upewnij się, że szyfrowanie jest poprawnie zintegrowane z planem systemu, łącznie z tym, ale niekoniecznie ograniczone do:
+      Szyfrowania potrzebnego do przechowywania lub przesyłania prywatnych danych użytkowników systemu
+      Szyfrowania potrzebnego do ochrony samego systemu przed nieuprawnionym odsłonięciem lub naruszeniem
+Określ oddzielne potrzeby i konteksty szyfrowania:
+      Zachodzącego w jednym kierunku (tj. Tylko użytkownik lub odbiorca musi mieć klucz). Można to osiągnąć za pomocą kryptografii klucza publicznego lub innych technik, w których strona kodująca (tj. Oprogramowanie) nie musi mieć dostępu do prywatnego klucza.
+      Dwukierunkowe (tj. Szyfrowanie może być automatycznie wykonywane w imieniu użytkownika, ale klucz musi być dostępny, aby otwarty tekst mógł być automatycznie odzyskiwany przez tego użytkownika). Wymaga to przechowywania klucza prywatnego w formacie możliwym do odzyskania tylko przez użytkownika (lub przez system operacyjny) w sposób, który nie może być odzyskany inaczej.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. They will likely be exposed to attacks that are well-understood by cryptographers. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Faza: Architektura i Projektowanie
+Nie programuj twoich własnych kryptograficznych algorytmów. Prawdopodobnie będą narażone na ataki, które kryptografowie dobrze rozumieją. Techniki projektowania opartego na analizie konstrukcji są poddane procesowi dojrzewania. Jeśli Twój algorytm może zostać zagrożony i jeśli napastnik dowie się, jak to działa, jest on szczególnie słaby.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-For example, US government systems require FIPS 140-2 certification.
-As with all cryptographic mechanisms, the source code should be available for analysis.
-Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+Faza: Architektura i Projektowanie
+Wybierz dobrze sprawdzony algorytm, który jest obecnie uważany za mocny przez ekspertów w tej dziedzinie i wybierz dobrze przetestowane implementacje.
+Na przykład, systemu rządu USA wymagają poświadczenia FIPS 140-2.
+Tak jak ze wszystkimi kryptograficznymi mechanizmami, kod źródłowy powinien być dostępny dla analiz.
+Co jakiś czas upewnij się, że nie używasz przestarzałej kryptografii. Niektóre starsze algorytmy, o których sądzono kiedyś, że wymagają miliardów lat czasu obliczeniowego, mogą teraz zostać złamane w ciągu kilku dni lub godzin. Obejmuje to MD4, MD5, SHA1, DES i inne algorytmy, które były kiedyś uważane za silne.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Faza: Architektura i Projektowanie
+Podziel system na "bezpieczne" obszary, w których można jednoznacznie narysować granice zaufania. Nie pozwól poufnym danym wyjść poza granice zaufania i zawsze uważaj podczas kontaktowania się z przedziałem poza bezpiecznym obszarem.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Fazy: Implementacja; Architektura i Projektowanie
+Kiedy używasz technik zatwierdzonych przez branżę, musisz używać ich poprawnie. Nie tnij zakrętów, pomijając etapy wymagające dużej ilości zasobów (CWE-325). Te kroki są często niezbędne do zapobiegania typowym atakom.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
+Faza: Implementacja
+Użyj konwencji nazewnictwa i wyraźnych czcionek, aby łatwiej było wykryć, kiedy używane są poufne dane. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
 This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
@@ -419,7 +420,7 @@ Failure to scrub HTML/Script comments prior to a push to the production environm
 Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
 
 Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</solution>
+	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Nie pozwól poufnym danym wyjść poza granice zaufania i zawsze uważaj podczas kontaktowania się z przedziałem poza bezpiecznym obszarem.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
