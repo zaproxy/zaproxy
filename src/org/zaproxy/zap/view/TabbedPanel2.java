@@ -239,8 +239,21 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 
 	public void addTab(AbstractPanel panel) {
+	    addTab(panel, panel.getTabIndex());
+	}
+
+	/**
+	 * Adds a tab with the given panel at the given index.
+	 * <p>
+	 * This method effectively overrides the {@link AbstractPanel#getTabIndex() index of the panel}.
+	 * 
+	 * @param panel the panel for the added tab.
+	 * @param index the index at the tabbed pane.
+	 * @since TODO add version
+	 */
+	public void addTab(AbstractPanel panel, int index) {
 		boolean visible = ! panel.isHideable() || this.isTabPinned(panel);
-		this.addTab(panel.getName(), panel.getIcon(), panel, panel.isHideable(), visible, panel.getTabIndex());
+		this.addTab(panel.getName(), panel.getIcon(), panel, panel.isHideable(), visible, index);
 		
 	}
 
