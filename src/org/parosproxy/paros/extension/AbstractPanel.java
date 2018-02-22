@@ -25,6 +25,7 @@
 // ZAP: 2014/02/07 Issue 207: Added tabSelected method
 // ZAP: 2014/08/14 Issue 1301: AbstractPanel leak through TabbedPanel2
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2018/02/22 Focus the tab of ancestor AbstractPanel.
 
 package org.parosproxy.paros.extension;
 
@@ -34,6 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -86,7 +88,13 @@ public class AbstractPanel extends JPanel {
 	    if (c instanceof JTabbedPane) {
 		    JTabbedPane tab = (JTabbedPane) c;
 		    tab.setSelectedComponent(this);
-	    }    
+		} else {
+			// If this panel is added in an AbstractPanel request focus to that one too.
+			AbstractPanel ancestorPanel = (AbstractPanel) SwingUtilities.getAncestorOfClass(AbstractPanel.class, this);
+			if (ancestorPanel != null) {
+				ancestorPanel.setTabFocus();
+			}
+		}
 	}
 	
 	public boolean isTabVisible() {
