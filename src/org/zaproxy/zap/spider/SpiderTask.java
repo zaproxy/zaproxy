@@ -173,23 +173,29 @@ public class SpiderTask implements Runnable {
 
 	@Override
 	public void run() {
-		if (reference == null) {
-			log.warn("Null URI. Skipping crawling task: " + this);
+		try {
+			if (reference == null) {
+				log.warn("Null URI. Skipping crawling task: " + this);
+				return;
+			}
+
+			if (log.isDebugEnabled()) {
+				log.debug("Spider Task Started. Processing uri at depth " + depth
+						+ " using already constructed message: " + reference.getURI());
+			}
+
+			runImpl();
+		} finally {
 			parent.postTaskExecution();
-			return;
+			log.debug("Spider Task finished.");
 		}
-
-		// Log the task start
-		if (log.isDebugEnabled()) {
-			log.debug("Spider Task Started. Processing uri at depth " + depth
-					+ " using already constructed message:  " + reference.getURI());
-		}
-
+	}
+	
+	private void runImpl() {
 		// Check if the should stop
 		if (parent.isStopped()) {
 			log.debug("Spider process is stopped. Skipping crawling task...");
 			deleteHistoryReference();
-			parent.postTaskExecution();
 			return;
 		}
 
@@ -202,7 +208,6 @@ public class SpiderTask implements Runnable {
 			msg = prepareHttpMessage();
 		} catch (Exception e) {
 			log.error("Failed to prepare HTTP message: ", e);
-			parent.postTaskExecution();
 			return;
 		}
 
@@ -211,9 +216,6 @@ public class SpiderTask implements Runnable {
 		} catch (Exception e) {
 			setErrorResponse(msg, e);
 			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("ioerror")));
-
-			// The exception was already logged, in fetchResource, with the URL (which we dont have here)
-			parent.postTaskExecution();
 			return;
 		}
 
@@ -221,7 +223,6 @@ public class SpiderTask implements Runnable {
 		if (parent.isStopped()) {
 		    parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("stopped")));
 			log.debug("Spider process is stopped. Skipping crawling task...");
-			parent.postTaskExecution();
 			return;
 		}
 		// Check if the crawling process is paused
@@ -239,7 +240,6 @@ public class SpiderTask implements Runnable {
 				}
 
 				parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, filterResult.getReason()));
-				parent.postTaskExecution();
 				return;
 			}
 		}
@@ -248,7 +248,6 @@ public class SpiderTask implements Runnable {
 		if (parent.isStopped()) {
 			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("stopped")));
 			log.debug("Spider process is stopped. Skipping crawling task...");
-			parent.postTaskExecution();
 			return;
 		}
 		// Check if the crawling process is paused
@@ -261,10 +260,6 @@ public class SpiderTask implements Runnable {
 		} else {
 			parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg, getSkippedMessage("maxdepth")));
 		}
-
-		// Update the progress and check if the spidering process should stop
-		parent.postTaskExecution();
-		log.debug("Spider Task finished.");
 	}
 
 	private String getSkippedMessage(String key) {
