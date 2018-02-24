@@ -3,12 +3,12 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Kulang sa Pagpamatuod</alert>
-	<desc>Ang Kulang sa Pagpamatuod mahitabo samtang ang usa ka web site gatugot sa usa ka attacker na maka-access ug mga maliputung butang o mga kalihukan baskin walay maayong pamatuod. Ang mga web-based na aparato para sa pagdumala kay usa na maayong ehemplo sa mga web site nga gahatag ug access sa maliputong na kalihukan. Depende sa piho nga online nga kapanguhaan, kini nga mga web aplikasyon na dili direkta nga makasulod na walay kinahanglan sa tiggamit aron sutaon pag-ayo sa ila nga pagkatawo.
+	<alert>Dili igo nga pagpamatuod</alert>
+	<desc>Ang igo nga pagpamatuod nga mahitabo samtang ang usa ka web site gatugot sa usa ka attacker na maka-access ug mga maliputung butang o mga kalihukan baskin walay maayong pamatuod. Ang mga web-based na mga himan para sa pagdumala kay usa na maayong panag-ingnan sa mga web site nga gahatag ug access sa sensitibo na kalihukan. Depende sa espesipikong nga online nga kapanguhaan, kining nga mga web aplikasyon na dili direkta nga makasulod na walay kinahanglan sa tiggamit aron sutaon pag-ayo sa ila nga pagkatawo.
 
-Para makuha sa pag-establisar sa pagpamatuod, pipila ka mga kapanguhaan kay protektado pinaagi sa "nagtago" ang piho nga lokasyon ug dili ang sumpay na lokasyon ngadto sa nag-unang web site o uban na publikong mga lugar. Bisan pa niana, kini nga paagi kay wala nay lain kay sa "Kasiguraduhan Gikan sa Ngitngit". Kini kay importante nga sabton nga bisan pa ang wala mahibaw-an sa usa ka tig-atake, kini gihapon ang mapahimuslan ang direktang pinaagi sa usa sa piho nga URL. Ang piho nga URL mahimong modiskobrehan pinaagi sa Kabangis na pagsulay alang sa kasagaran nga file ug direktoryong mga dapit (/admin pananglitan), mga mensahe sa sayop, nagtudlo nga mga log, o dokumentasyon sama sa mga patabang na mga file. Kini nga mga kapanguhaan, kon kini kontento na gipalihok na mga gamit, kay kinahanglan nga igong mapanalipdan.</desc>
+Para paglibot sa pag-establisar sa pagpamatuod, pipila ka mga kapanguhaan kay protektado pinaagi sa "nagtago" ang piho nga lokasyon ug dili ang sumpay na lokasyon ngadto sa nag-unang web site o uban na publikong mga lugar. Bisan pa niana, kini nga paagi kay wala nay lain kay sa "Kasiguraduhan Gikan sa Ngitngit". Kini kay importante nga masabtan nga bisan ang usa ka tinubdan wala mahibal-an sa usa ka tig-atake, kini gihapon nga mapabilin nga diretso nga direktang pinaagi sa usa ka piho nga URL. Ang piho nga URL mahimong modiskobrehan pinaagi sa Kabangis na pagsulay alang sa kasagaran nga file ug direktoryo nga mga dapit (/ admin alang sa panig-ingnan), mga mensahe sa sayop, mga log sa nagtudlo, o mga dokumentasyon sama sa mga file sa pagtabang. Kini nga mga kapanguhaan, bisan kini nga sulod-sa-kaayohan nga gipalihok, kinahanglan nga igong mapanalipdan.</desc>
 	<solution>Phase: Arkitektura ug Disenyo
-Gamiton ang pagkatinuod sa framework o ang librarya sama sa OWASP ESAPI Pagmamatood na bahin niini.</solution>
+Gamiton ang pagmatood sa framework o ang librarya sama sa OWASP ESAPI Pagmamatood na bahin niini.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -16,27 +16,29 @@ Gamiton ang pagkatinuod sa framework o ang librarya sama sa OWASP ESAPI Pagmamat
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Kulang sa Pagmamatood</alert>
-	<desc>Kulang sa Pagmatood sa mga resulta na kanus ang aplikasyon na dili mo himo ug igo magpamatood na tan-awon para sigurohon na ang mogamit sa paghimo ug usa ka gamit o pagsulod sa datos sa usa ka paagi na makanunayon uban ang seguridad sa palisiya. Ang Pagmatood na mga pamaaging kinahanglan ipatuman ug unsa ang usa ka tiggamit, serbisyo o aplikasyon kay gitugutan nga buhaton. Sa dihang usa ka tiggamit kay nagpamatood ngadto sa usa ka web site, dili kini nagpasabot na ang tiggamit kay naay tanang makasulod sa tanang kontento ug katuyoan.
+	<alert>Dili igo ang pagmamatood</alert>
+	<desc>Dili igo ang agmatood sa mga resulta na kanus ang aplikasyon na dili mo himo ug igo magpamatood na tan-awon para sigurohon na ang mogamit sa paghimo ug usa ka gamit o pagsulod sa datos sa usa ka paagi na makanunayon uban ang seguridad sa palisiya. Ang pagmatood na mga pamaaging kinahanglan nga ipatuman kung unsa ang gitugot sa usa ka tiggamit, serbisyo o aplikasyon. Sa dihang usa ka tiggamit kay gipamatud-an sa usa ka web site, wala kini magpasabot nga ang tiggamit kinahanglan nga adunay bug-os nga pag-access sa tanan nga sulod ug gamit.
 
-Dili igo na Katungdanan na Pagmatood. Usa ka balita na lugar na motugot sa pagtan-aw sa mga balita na istorya, apan dili pagmantala sila. Usa ka accounting na sistema na adunay managlahi na pagtugot para sa usa ka Accounts Payable na klerk ug usa ka Accounts Receivable na klerk. Dili sakto na Katungdanan sa Pagmatood na mahitabo kung ang usa ka aplikasyon kay dili motugot sa mga tiggamit gikan sa pagsulod sa aplikasyon na katuyoan sa paglapas sa polisiya sa seguridad.
+Dili igo na Katungdanan na Pagmatood.
 
-Usa ka makita kaayo na pananglitan kay pagka 2005 nga na-hack sa Harvard Business School na aplikasyon na proseso. Usa ka pagpamatood na kapakyasan na nagtugot sa mga tiggamit para makita ang ilang kaugalingon nga datos kon kinahanglan nila na wala gitugutan na makasulod sa parte sa web site.
+Daghang mga aplikasyon naghatag og nagkalainlaing aplikasyon sa paggamit sa lain-laing mga tiggamit. Usa ka balita na lugar na magatugot sa mga tiggamit sa pagtan-aw sa mga istorya, apan dili pagmantala niini. Usa ka accounting na sistema adunay lain-laing mga pagtugot alang sa usa ka Clerk Accountable Payable ug Clerk Account Receivable. Dili sakto na katungdanan sa pagmatood na mahitabo sa diha nga ang usa ka aplikasyon dili makapugong sa mga tiggamit sa pag-access sa aplikasyon nga paglapas sa polisiya sa seguridad.
+
+Usa ka makita kaayo na pananglitan kay pagka 2005 nga pagpatik sa proseso sa aplikasyon sa Harvard Business School. Usa ka pagpamatood na kapakyasan na nagtugot sa mga tiggamit sa pagtan-aw sa ilang kaugalingong mga datos kung dili unta sila tugutan nga maka-access sa bahin sa web site.
  
-Dili igo na Datos sa Pagmamatuod
+Dili igo na datos sa pagmamatuod
 
-Daghang mga aplikasyon na gibutyag nagpahiping sa datos na mga tigpaila sa usa ka URL. Pananglitan, kon mosulod sa usa ka medikal nga rekord sa usa ka sistema na ang usa mahimong adunay usa ka URL sama sa:
+Daghang mga aplikasyon na gibutyag sa nagpahipi nga mga tigpaila sa datos sa usa ka URL. Pananglitan, kon mag-access sa medikal nga rekord sa usa ka sistema na ang usa mahimong adunany usa ka URL sama sa:
 
 http://example.com/RecordView?id=12345
 
-Kung ang aplikasyon kay dili motan-aw sa pagmamatuod sa ID sa tiggamit kay naay katungod sa pagbasa, unya kini makapakita sa datos sa tiggamit na ang tiggamit kay dili makakita.
+Kung ang aplikasyon kay dili motan-aw sa pagmamatuod sa ID sa tiggamit kay naay katungod sa pagbasa, unya kini mahimong magpakita sa datos ngadto sa tiggamit nga dili makita sa tiggamitay.
 
 Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
 	<solution>Mga hugna: Arkitektura ug Disenyo; Operasyon
-Tinuod na nga pagdumala ang kahimtang, pagdumala, ug paggunit sa mga pribilehiyo. Tin-aw nga pagdumala sa pagsalig nga mga dapit sa software.
+Mahimong pag-amping ug maayo sa pagdumala sa pagpahimtang, pagdumala, ug paggunit sa mga pribilehiyo. Tin-aw nga pagdumala sa mga trust zone sa software.
 
 Hugna: Arkitektura ug Disenyo
-Siguroha nga anay na compartmentalization kay gitukod sa sistema nga disenyo ug ang compartmentalization nag-alagad aron sa pagtugot alang ug dugang pagpalig-on sa pagpahigayon sa pribilehiyo nga pagbulag. Mga arkitekto ug mga tigdesinyo kay kinahanglan nga mosalig sa prinsipyo sa pinakaubos nga pribilehiyo sa pagdesisyon kon kini tukma nga gamiton ug aron ihulog ang mga pribilehiyo sa sistema.</solution>
+Siguroduha nga agnay na compartmentalization kay gitukod ngadto sa sistema sa disenyo ug nga ang compartmentalization nagsilbi nga tugotan ug dugang pagpalig-on sa pagpahigayon sa pribilehiyo nga pagbulag. Ang mga arkitekto ug mga tigdesinyo kay kinahanglan nga mosalig sa prinsipyo sa labing gamay nga pribilehiyo sa pagdesisyon kung kini tukma nga gamiton ug aron ihulog ang mga pribilehiyo sa sistema.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -44,36 +46,34 @@ Siguroha nga anay na compartmentalization kay gitukod sa sistema nga disenyo ug 
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Ang Integer nga Nag-awas</alert>
-	<desc>Ang Integer nga Nag-awas kay mao ang kondisyon nga mahitabo kon ang resulta sa usa ka aritmetik nga operasyon, sama sa pagpadaghan o pagdungag, molapas sa pinakadako nga gidak-on sa tipo nga integer nga gigamit sa pagtipig niini. Sa diha nga ang usa ka integer overflow ang nahitabo, ang giisturya na bili kay mogawas aron makabaton nga "Giputos" ang kinadak-ang bili ug nagsugod pag-usab sa kinagamyan nga bili, susama sa usa ka orasan nga nagrepresentar sa 13:00 pinaagi sa pagtudlo sa 1:00.
+	<alert>Ang Integer nga nag-awas</alert>
+	<desc>Ang Integer nga Nag-awas kay mao ang kondisyon nga mahitabo sa diha nga ang resulta sa usa ka operasyon sa aritmetika, sama sa pagpadaghan o pagdungag, molapas sa pinakadako nga gidak-on sa integer type nga gigamit sa pagtipig niini. Sa diha nga ang usa ka pag-awas sa integer ang nahitabo, ang gipasabot nga balor mopatim-aw nga "giputos" ang pinakataas nga bili ug nagsugod pag-usab sa pinakaubos nga bili, susama sa usa ka orasan nga nagrepresentar sa 13:00 pinaagi sa pagtudlo sa 1:00.
 
-Pananglitan, ang usa ka 8-bit nga gipirmahan nga integer sa labing komon nga kompyuter nga mga arkitektura kay naay usa ka taas nga bili sa 127 ug usa ka gamay na bili sa -128. Kon ang usa ka programmer nga mga tindahan na ang bili kay 127 sa ingon nga usa ka variable ug magadugang hinoon niini, ang resulta kinahanglan nga 128. Bisan pa niana, kini nga kantidad molabaw sa pinakataas para sa kini nga klase sa integer, mao ang kahulugan nga bili kay "mopalibut" ug mahimong -128.</desc>
+Pananglitan, ang usa ka 8-bit nga gipirmahan nga integer sa labing komon nga kompyuter nga mga arkitektura kay naay usa ka pinakataas nga bili sa 127 ug usa ka gamay na bili sa -128. Kon ang usa ka programmer nga mga tindahan na ang bili kay 127 sa ingon nga usa ka variable ug magadugang sa 1 niini, ang resulta kinahanglan nga 128. Apan, kini nga kantidad molabaw sa pinakataas para sa kini nga klase sa integer, busa ang gipasa nga bili "mag-wrap" ug mahimong -128.</desc>
 	<solution>Hugna: Mga kinahanglanon
-Siguroha nga ang tanan nga mga protocol kay hugot nga gihubit, sa ingon nga ang tanan nga out-of-bounds nga ang kinaiya mahimong mailhan lang, ug nagkinahanglan og higpit nga pag-uyon sa protocol.
+Siguroha nga ang tanan nga mga protocol kay hugot nga gihubit, sa ingon nga ang tanan nga out-of-bounds nga kinaiya mahimong mailhan nga yano, ug nagkinahanglan sa higpit nga pag-uyon sa protocol.
 
-Hugna: Mga Kinahanglan
-Paggamit og usa ka pinulongan nga dili motugot sa kahuyang na mogawas o naghatag og mga pagtukod nga naghimo niini nga kahuyang para mas sayon ​​nga likayan.
-Kung mahimo, pagpili og usa ka pinulongan o tig-compile nga mobuhat automatic nga mga utlanan nga nagsusi.
+Hugna: Mga Kinahanglanon
+Ang paggamit og usa ka pinulongan nga dili motugot sa kahuyang na mogawas o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
+Kung mahimo, pagpili og usa ka pinulongan o tig-compile nga maghimo sa pag-susi sa mga utlanan.
 
 Hugna: Arkitektura ug Disenyo
-Paggamit sa usa ka ibrarya nga na-vetted o pagbalangkas nga dili motugot kini nga kahuyang na mahitabo o naghatag nga nagtukod nga naghimo niini nga kahuyang mas sayon ​​paglikay.
-Paggamit sa mga librarya o mga framework nga naghimo niini nga mas sayon aron pagdumala sa kadaghanon 
+Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga mahitabo kini nga kahuyang o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
+Ang paggamit sa mga librarya o mga framework nga naghimo niini nga mas sayon aron pagdumala sa kadaghanon 
 nga walay wala damha nga mga sangputanan.
-Ang mga pananglitan naglakip sa luwas nga integer na naggunit sa mga pakete sama sa SafeInt (C++) o IntegerLib (C or C++).
+Mga pananglitan naglakip sa luwas nga integer na naggunit sa mga pakete sama sa SafeInt (C++) o IntegerLib (C or C++).
 
 Hugna: Implementasyon
 Magpatuman sa pag-sulod sa pagtan-aw sa bisan unsa nga numeric input para sa pinaagi sa pagtino niana 
-kini anaa sa gilauman nga gilay-on. Ipatuman nga ang gipasulod na makigtagbo sa kinagamyan ug kindak-an nga mga kinahanglanon alang sa gipaabot nga gilay-on.
-Paggamit sa wala naka pirma nga integer kung mahimo. Kini gihimong gipasayon na buhaton mga tseke sa katin-awan kay ang integer nag-awas. Kung ikaw kay kinahanglan mogamit sa wala'y pirma nga mga integer, siguroha nga ang imong gilay-on kay nagtan-aw naglakip sa pinakagamay na mga bili ingon man usab sa pinakataas nga mga bili.
+kini anaa sa gilauman nga gilay-on. Ipatuman nga ang gipasulod na makigtagbo sa kina-ubsan ug kinatas-an nga mga kinahanglanon alang sa gipaabot nga gilay-on.
+Ang paggamit sa wala naka pirma nga integer kung mahimo. Kini gihimong gipasayon na buhaton mga tseke sa katin-awan kay ang integer nag-awas. Kon ikaw kay kinahanglan mogamit sa wala'y pirma nga mga integer, siguraduha nga ang imong gilay-on kay nagtan-aw naglakip sa pinakagamay na mga bili ingon man usab sa pinakataas nga mga bili.
 
 Hugna: Pagpatuman
-Sabta ang imong programming language nagpahulagway nga representasyon ug kung giunsa kini makig-uban sa numeric calculation (CWE-681). Hatagig pagtagad sa byte nga kadaku nga mga kulangan, katukma, gipirmahan/wala gipirmahan nga mga kalainan, pagputol, pagkakabig ug pagpakita tali sa mga matang, "dili usa ka numero" nga pagkalkulo, ug
-unsa imong pinulongan sa pagdumala sa daghan numero na dako kaayo o sobra kagamay para sa iyahang 
-nagpahulagway nga representasyon.
+Sabta ang imong programming language nagpahulagway nga representasyon ug kung giunsa kini makig-uban sa numeric calculation (CWE-681). Hatagig pagtagad sa byte nga kadaku nga mga kulangan, katukma, gipirmahan/wala gipirmahan nga mga kalainan, pagputol, pagkakabig ug pagpakita tali sa mga matang, "dili usa ka numero" nga pagkalkulo, ug paghulma tali sa mga klase, "dili-usa ka numero" nga kalkulasyon, ug kung giunsa sa imong pinulongan ang mga numero nga dako o gamay ra kaayo alang sa nagpahulagway nga representasyon niini.
 Pag-amping usab sa pag-asoy para sa 32-bit, 64-bit, ug uban pang potensyal nga kalainan nga makaapekto sa numero na representasyon.
 
 Hugna: Pagpatuman
-Tan-awa ang compiler na mga pasidaan sa pag-ayo ug pagwagtang sa kalagmitan sa seguridad nga mga problema, sama sa gipirmahan / sa wala gipirmahan nga dili pareha. Bisan kon ang kahuyang panagsa ra nga mapahimuslan, ang usa ka kapakyasan mahimong modala para sa pagkompromiso sa tibuok nga sistema.</solution>
+Susiha ang compiler na mga pasidaan sa pag-ayo ug pagwagtang sa kalagmitan sa seguridad nga mga problema, sama sa gipirmahan / sa wala gipirmahan nga dili pareha. Bisan kon ang kahuyang panagsa ra nga mapahimuslan, ng usa ka kapakyasan mahimong modala ngadto sa pagkompromiso sa tibuok nga sistema.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
@@ -82,68 +82,68 @@ Tan-awa ang compiler na mga pasidaan sa pag-ayo ug pagwagtang sa kalagmitan sa s
 <vuln_item_wasc_4>
 	<alert>Dili igo nga Pagdala na Layer nga Panalipod</alert>
 	<desc>Dili igo nga Pagpadala na Layer nga Panalipod
-Dili igo nga pagpadala na layer nga panalipod kay nagtugot sa komunikasyon na aron maladlad sa dili tinuod nga mga ikatulo nga tawo, paghatag og usa ka vector nga pag-atake sa pagkompromiso sa web aplikasyon at/o mangawat sa sensitibo nga impormasyon. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+Dili igo nga pagpadala na layer nga panalipod kay nagtugot sa komunikasyon na aron maladlad sa dili tinuod nga mga ikatulo nga tawo, paghatag og usa ka vector nga pag-atake sa pagkompromiso sa web aplikasyon at/o mangawat sa sensitibo nga impormasyon. Ang mga website kay kasagaran mogamit sa Secure Sockets Layer / Transport Layer Security (SSL / TLS) aron sa paghatag og encryption sa layer sa transportasyon. Bisan pa niana, gawas kung ang website kay gihan-ay aron magamit ang SSL / TLS ug i-configure ang paggamit sa SSL / TLS sa tukmang paagi, ang website mahimong mahuyang sa interception sa trapiko ug pag-usab.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Kakuwangan sa Transport Layer Encryption
+Sa diha nga ang layer sa transportasyon wala ma-encrypt, ang tanang komunikasyon tali sa website ug kliyente gipadala sa tin-aw nga teksto nga nagbukas niini sa interception, injection ug redirection (nailhan usab nga usa ka tawo-sa-tunga-tunga / MITM nga pag-atake). Ang usa ka tig-atake mahimong paspas makapugong sa komunikasyon, nga naghatag kanila ug permiso sa bisag unsang sensitibo nga datos nga gipasa sama sa mga username ug mga password. Ang usa ka tig-atake kay aktibo usab na mo pag-inject/pagkuha sa kontento gikan sa komunikasyon, nga nagtugot sa tig-atake nga pagpugong ug pagpahawa sa impormasyon, pag-inject sa malisyosong pagscript, o maoy hinungdan sa kliyente nga makasulod sa layo nga dili kasaligan nga kontento. Ang tig-atake kay mahimo usab nga i-redirect ang komunikasyon sa ingon nga pamaagi nga ang website ug kliyente nga dili na makigsulti sa usag usa, apan kini baylo ang mga wala mahibaw-i nga pag-komunikasyon uban sa tig-atake sa konteksto sa gisaligang partido.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+Ang Weak Cipher Support
+Sa kasaysayan, ang taas nga grado sa kriptograrya kay gipugngan gikan sa pagbaligya ngadto sa gawas sa Estados Unidos. Tungod niini, ang mga website kay gi-configure aron sa pagsupporta sa mga huyang nga mga kapilian sa cryptographic alang sa mga kliyente nga gipugngan nga gamiton lamang ang mga huyang nga ciphers. Ang huyang nga mga ciphers kay dali nga ma-atake tungod sa relatibong kasayon ​​sa paglapas niini; wala pay duha ka semana sa usa ka tipikal nga kompyuter sa balay ug pipila ka mga segundo gamit ang gipahinungod nga hardware.
+Karon, ang tanan nga mga modernong mga browser ug mga website kay naggamit sa mas lig-on nga encrypt, apan ang uban ka mga website gi-configure gihapon aron sa pagsuporta sa dili na dugay na huyang nga mga ciphers. Tungod niini, ang usa ka tig-atake kay mahimong makapugos sa usa ka kliyente nga i-downgrade sa usa ka huyang na cipher kung mokonekta sa website, nga nagtugot sa tig-atake aron sa pagbungkag sa huyang na encryption. Para sa kini nga rason, ang server kay kinahanglan nga i-configure lamang sa pagdawat sa mga kusgan na cipher ug dili paghatag ug serbisyo sa bisag unsang kliyente nga naghangyo ug usa ka huyang na cipher. Dugang pa, sa uban nga mga website kay nahisalaag ang pag-configure sa pagpili sa usa ka mahuyang na cipher na bisan ang kliyente kay mosuporta sa usa ka mas kusgan. Ang OWASP nagtanyag ug giya sa pagsulay alang sa SSL/TLS nga mga isyu, lakip na ang huyang na cipher nga suporta ug dili saktong pag-configure, ug adunay uban pang mga kapanguhaan ug mga himan ug ingon man.</desc>
+	<solution>Bahin: Mga Kinahanglanon
+Tin-aw pagtino kung unsang datos o mga kapanguhaan kay bililhon kaayo na sila kay kinahanglan panalipdan pinaagi sa pag-encrypt. Kinahanglanon nga bisag unsang transmisyon o butanganan sa kining datos/mga kapaguhaan kay dapat gamiton nga maayong pagka-encrypt na mga algorithm.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Bagin: Arkitektura ug Desinyo
+Paggamit sa hulga mga pag-modelo o uban pang mga teknik, moabaga sa imong datos kay mahimong makompromiso pinaagi sa pagbuwag o kakulangon, ug pagtino kun diin ang pag-encrypt kay mahimong mas labing epektibo. Siguruha ang datos na imong gisaligan na dapat pribado nga wala kini matuyo na gibutyag sa paggamit sa mga kahuyang sama sa dili segurado na mga pagtugot (CWE-732).
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
-      Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
+Bahin: Arkitektura ug Desinyo
+Siguraduha na ang pag-encrypt kay maaayo pagsagol didto sa sistema sa pagdesinyo, kalabot pero dili kinahanglang limitado sa:
+      Pag-encrypt nga kinahanglan para matapigan o ipadalang naka pribadong datos sa mga mogamit sa sistema
+      Pag-encrypt na kinahanglan para mapanalipdan ang kaugalingong sistema gikan sa dili awtorisadong from unauthorized pagkabutyag o pag-usab
+Pag-ila sa pagbulang sa mga kinahanglan ug mga katibuk-ang kahulogan para sa pag-encrypt:
+       Usa ka pamaagi (pan., ang tiggamit lamang o gipadalgan ang kinahanglan nga naay yawe). Mahimo king makab-ot sa paggamit sa publikong yawe na kriptograpiya, o laing mga teknik nga diin ang pag-encrypt na partido (pan., ang software) dili kinahanglan nga adugay katungod sa pagsulod sa usa ka pribadong yawe.
+      Duha ka pamaagi (pan., ang pag-encrypt kay mahimong awtomatikong pagbuhat alang sa usa ka tiggamit, apan ang yawe kay dapat magamit para ang plaintext kay pwedeng awtomatik na makakuha balik sa maong tiggamit). Kini kay nagkinahanglang ug pagtipig sa pribadong yawe sa usa ka format nga makuha balik lamang sa tiggamit (o tingali pinaagi sa operating system) sa paagi nga dili na makuha ug balik sa uban.
 
 Hugna: Arkitektura ug Disenyo
-Dili paghimo sa imong kaugalingon na cryptographic na mga algorithm. Mahimo nga sila maladlad sa mga atake nga nasabtan pag-ayo pinaagi sa mga cryptographer. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Dili paghimo sa imong kaugalingon na cryptographic na mga algorithm. Ang paghimo nila sa pagladlad sa mga atake nga nasabtan pag-ayo pinaagi sa mga cryptographer. Pagbali nga enhinyero na mga teknik kay hamtong. Kung ang imong algorithm kay mahimong makumprimiso kung ang mga tig-atake kay mahibaw-an kung unsa ang pamaagi sa pagtrabaho, nan kini ilabi nga mahuyang.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-For example, US government systems require FIPS 140-2 certification.
-As with all cryptographic mechanisms, the source code should be available for analysis.
-Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+Bahin: Arkitektura ug Disenyo
+Pagpili usa ka maaayong pagka-vet na algorithm na kini karon giisip na usa ka kusgan pinaagi sa mga eksperto sa ilang trabaho, ug pagpili sa maayong pagsulay nga mga pagpatuman.
+Pananglitan, ang US nga gobyerno nga mga sistema kay nagkinahanglan ug FIPS 140-2 nga sertipikasyon.
+Sama sa tanang cryptographic nga mga mekanismo, ang source code kay dapat na magamit para sa pagtuki.
+Matag adlaw gisiguro na kini dili naggamit ug karaan nga cryptography. Laing mga daan nga mga algorithm, nga naghunahuna nga magkinahanglan ug bilyon nga mga tuig sa pag-compute sa oras, karon kay mahimo nang makuha sa pila lang ka adlaw o mga oras. Kini naglakip sa MD4, MD5, SHA1, DES, ug laing mga algorithm nga kaniadto giisip nga usa ka kusgan.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Bahin: Arkitektura ug Disenyo
+Pagpili sa imong sistema aron makabaton ug "luwas" nga mga lugar nga diin ang pagsalig na mga utlanan kay mahimong tin-aw nga paagi nga mapagawas. Ayaw tugota ang sensitibo nga datos sa paggawas sa pagsalig nga utlanan ug permanenteng mag-amping kung pag-interface gamit ang lawak sa gawas sa luwas nga lugar.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Mga Bahin: Implementasyon; Arkitektura ug Disenyo
+Kung imong gamiton ang industriya nga giaprobahang mga teknik, kinahanglan nimo nga gamiton sila nga sakto. Ayaw putla ang mga kilid sa pagsal-ang sa kapanguhaang hilabihan nga mga lakang (CWE-325). Kining mga lakang kay makadaghan na importante para sa paglikaw sa komon nga mga atake.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
-This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
+Bahin: Pagpatuman
+Gamita ang pagpangalan sa mga kombensiyon ug kusog sa mga matang sa pagbuhat ug sayon nga lugar kung sensitibo ang datos nga gigamit. Kung nagbuhat ng mga istraktura, mga butang, o uban pa nga komplikado nga mga butang, gibulag ang sensitibo ug dili sensitibo nga datos nga kutob sa mahimo.
+Kini nagpasayon sa lugar nga mga dapit sa code na diin ang datos kay gigamit sa dili pag-encrypt.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
 </vuln_item_wasc_4>
 
 <vuln_items>wasc_5</vuln_items>
 <vuln_item_wasc_5>
-	<alert>Remote File Inclusion</alert>
-	<desc>Remote File Include (RFI) is an attack technique used to exploit "dynamic file include" mechanisms in web applications. When web applications take user input (URL, parameter value, etc.) and pass them into file include commands, the web application might be tricked into including remote files with malicious code.
+	<alert>Remote File nga Gilakip</alert>
+	<desc>Ang Remote File Include (RFI) kay usa ka atake nga teknik na gigamit sa pagpahimulos sa "dynamic file include" nga mga mekanismo sa web nga mga aplikasyon. Kung kanus-a ang web nga mga aplikasyon sa pagkuha ug input sa tiggamit (URL, bili sa parameter, pan.) ug ipasa sila sa file nga naglakip ug mga sugo, ang web aplikasyon kay mahimong malimbongon sa paglakip ang hilit nga mga file nga anaay malisyoso code.
 
-Almost all web application frameworks support file inclusion. File inclusion is mainly used for packaging common code into separate files that are later referenced by main application modules. When a web application references an include file, the code in this file may be executed implicitly or explicitly by calling specific procedures. If the choice of module to load is based on elements from the HTTP request, the web application might be vulnerable to RFI.
-An attacker can use RFI for:
-    * Running malicious code on the server: any code in the included malicious files will be run by the server. If the file include is not executed using some wrapper, code in include files is executed in the context of the server user. This could lead to a complete system compromise.
-    * Running malicious code on clients: the attacker's malicious code can manipulate the content of the response sent to the client. The attacker can embed malicious code in the response that will be run by the client (for example, Javascript to steal the client session cookies).
+Hapit tanang web aplikasyon nga mga framework kay mosuporta sa file inclusion. Ang File Inclusion kay kasagaran gigamit para sa pagputos sa komon na code ngadto sa laing mga file nga sa ulahi kay gihisgutan sa pangunang aplikasyon na mga modyul. Kon ang usa ka web aplikasyon na mga reperensya kay naglakip sa file, ang code sa niining file nga mahimong paghimong hingpit o tin-aw sa pag tawag sa piho nga mga pamaagi. Kung ang napili nga modyul sa pag-load kay basi sa mga elemento gikan sa HTTP nga hangyo, ang web aplikasyon kay tingali mahuyang sa RFI.
+Ang usa ka tig-atake mahimong mogamit ug RFI para sa:
+    * Paggadan ug malisyoso na code sa server: ug bisag unsang code sa gilakip sa mga malisyoso nga file kay ipadagan sa server. Kung ang file naglakip kay walang gipadagan gamit ang pipila ka mga wrapper, code nga naa sa gilakip nga mga file kay gipadagan sa konteksto sa tiggamit sa server. Mahimo kining mag-una sa pag-kompleto sa sistema na pagkompromiso.
+    * Pagpadagan sa malisyoso nga code sa mga kliyente: ang malisyoso nga code sa tig-atake kay mahimong maimpluwensyahan ang sulod sa gitubag sa gipadala sa kliyente. Ang tig-atake kay mahimong makabutang ug malisyosong code sa tubag nga gipadagan sa kliyente (pananglitan, ang Javascript mahimong kuhaon sa sesyon sa kliyente nga mga cookie).
 
-PHP is particularly vulnerable to RFI attacks due to the extensive use of "file includes" in PHP programming and due to default server configurations that increase susceptibility to an RFI attack.</desc>
-	<solution>Phase: Architecture and Design
-When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
-For example, ID 1 could map to "inbox.txt" and ID 2 could map to "profile.txt". Features such as the ESAPI AccessReferenceMap provide this capability.
+Ang PHP kay labi nga huyang sa mga atake sa RFI tungod sa kaylap na gamit sa "gipanglakip sa file" sa PHP programming ug tungod sa mga configuration nga default sa server nga mopataas sa susceptibility sa usa ka RFI nga atake.</desc>
+	<solution>Bahin: Arkitektura ug Disenyo
+Sa dihang usa ka hugpong sa dawatonon nga mga butang, sama sa mga filename o mga URL, kay limitado o nailhan, paghimo ug pag-mapa gikan sa hugpong sa tinudlong input nga mga bili (sama sa numeric nga mga ID) sa mga aktwal nga mga filename o mga URL, ug gipangsalikway sa tanang ubang mga input.
+Pananglitan, ang ID 1 mahimong makamapa sa "inbox.txt" ug ang ID 2 makamapa sa "profile.txt". Mga butang sama sa ESAPI AccessReferenceMap kay naghatag niini nga kapasidad.
 
-Phases: Architecture and Design; Operation
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+Mga Bahin: Arkitektura ug Disenyo; Pagpadagan
+Pagdagan sa imong code sa "jail" o susama sa sandbox na palibot nga nagpatuman sa higpit na mga utlanan tali sa proseso ug sa operating system. Mahimo kini nga epektibong nga pugngan kung asa ang mga file kay mahimong makasulod sa usa ka ilabing direktoryo o ang mga gipangsugo kay pwedeng mapadagan sa imong software.
+Ang OS nga lebel nga mga pananglitan kay naglakip sa Unix chroot jail, AppArmor, ug SELinux. Sa kinatibuk-an, ang gipadumala nga code kay mahimong mohatag ug dugang proteksyon. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
 This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
 Be careful to avoid CWE-243 and other weaknesses related to jails.
 For PHP, the interpreter offers restrictions such as open basedir or safe mode which can make it more difficult for an attacker to escape out of the application. Also consider Suhosin, a hardened PHP extension, which includes various options that disable some of the more dangerous PHP features.
@@ -200,13 +200,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Hugna: Mga Kinahanglan
-Paggamit og usa ka pinulongan nga dili motugot sa kahuyang na mogawas o naghatag og mga pagtukod nga naghimo niini nga kahuyang para mas sayon ​​nga likayan.
+	<solution>Hugna: Mga Kinahanglanon
+Ang paggamit og usa ka pinulongan nga dili motugot sa kahuyang na mogawas o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
 Hugna: Arkitektura ug Disenyo
-Paggamit sa usa ka ibrarya nga na-vetted o pagbalangkas nga dili motugot kini nga kahuyang na mahitabo o naghatag nga nagtukod nga naghimo niini nga kahuyang mas sayon ​​paglikay.
+Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga mahitabo kini nga kahuyang o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -245,7 +245,7 @@ There are three types of Cross-site Scripting attacks: non-persistent, persisten
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
 	<solution>Hugna: Arkitektura ug Disenyo
-Paggamit sa usa ka ibrarya nga na-vetted o pagbalangkas nga dili motugot kini nga kahuyang na mahitabo o naghatag nga nagtukod nga naghimo niini nga kahuyang mas sayon ​​paglikay.
+Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga mahitabo kini nga kahuyang o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -285,7 +285,7 @@ CSRF attacks are effective in a number of situations, including:
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
 	<solution>Hugna: Arkitektura ug Disenyo
-Paggamit sa usa ka ibrarya nga na-vetted o pagbalangkas nga dili motugot kini nga kahuyang na mahitabo o naghatag nga nagtukod nga naghimo niini nga kahuyang mas sayon ​​paglikay.
+Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga mahitabo kini nga kahuyang o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -421,7 +421,7 @@ Failure to scrub HTML/Script comments prior to a push to the production environm
 Software version numbers and verbose error messages (such as ASP.NET version numbers) are examples of improper server configurations. This information is useful to an attacker by providing detailed insight as to the framework, languages, or pre-built functions being utilized by a web application. Most default server configurations provide software version numbers and verbose error messages for debugging and troubleshooting purposes. Configuration changes can be made to disable these features, preventing the display of this information.
 
 Pages that provide different responses based on the validity of the data can also lead to Information Leakage; specifically when data deemed confidential is being revealed as a result of the web application's design. Examples of sensitive data includes (but is not limited to): account numbers, user identifiers (Drivers license number, Passport number, Social Security Numbers, etc.) and user-specific information (passwords, sessions, addresses). Information Leakage in this context deals with exposure of key user data deemed confidential, or secret, that should not be exposed in plain view, even to the user. Credit card numbers and other heavily regulated information are prime examples of user data that needs to be further protected from exposure or leakage even with proper encryption and access controls already in place.</desc>
-	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</solution>
+	<solution>Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Ayaw tugota ang sensitibo nga datos sa paggawas sa pagsalig nga utlanan ug permanenteng mag-amping kung pag-interface gamit ang lawak sa gawas sa luwas nga lugar.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
@@ -486,7 +486,7 @@ Many web sites are designed to authenticate and track a user when communication 
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
 	<solution>Hugna: Arkitektura ug Disenyo
-Paggamit sa usa ka ibrarya nga na-vetted o pagbalangkas nga dili motugot kini nga kahuyang na mahitabo o naghatag nga nagtukod nga naghimo niini nga kahuyang mas sayon ​​paglikay.
+Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga mahitabo kini nga kahuyang o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.
@@ -745,9 +745,9 @@ When your application combines data from multiple sources, perform the validatio
 OS Commanding is the direct result of mixing trusted code and untrusted data. This attack is possible when an application accepts untrusted input to build operating system commands in an insecure manner involving improper data sanitization, and/or improper calling of external programs. In OS Commanding, executed commands by an attacker will run with the same privileges of the component that executed the command, (e.g. database server, web application server, web server, wrapper, application). Since the commands are executed under the privileges of the executing component an attacker can leverage this to gain access or damage parts that are otherwise unreachable (e.g. the operating system directories and files).</desc>
 	<solution>If at all possible, use library calls rather than external processes to recreate the desired functionality.
 
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
+Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Mahimo kini nga epektibong nga pugngan kung asa ang mga file kay mahimong makasulod sa usa ka ilabing direktoryo o ang mga gipangsugo kay pwedeng mapadagan sa imong software.
 
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+Ang OS nga lebel nga mga pananglitan kay naglakip sa Unix chroot jail, AppArmor, ug SELinux. Sa kinatibuk-an, ang gipadumala nga code kay mahimong mohatag ug dugang proteksyon. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
 This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
 
 For any data that will be used to generate a command to be executed, keep as much of that data out of external control as possible. For example, in web applications, this may require storing the command locally in the session's state instead of sending it out to the client in a hidden form field.
@@ -820,9 +820,9 @@ Run your code using the lowest privileges that are required to accomplish the ne
 
 When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
 
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
+Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Mahimo kini nga epektibong nga pugngan kung asa ang mga file kay mahimong makasulod sa usa ka ilabing direktoryo o ang mga gipangsugo kay pwedeng mapadagan sa imong software.
 
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+Ang OS nga lebel nga mga pananglitan kay naglakip sa Unix chroot jail, AppArmor, ug SELinux. Sa kinatibuk-an, ang gipadumala nga code kay mahimong mohatag ug dugang proteksyon. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
 
 This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
 </solution>
@@ -901,7 +901,7 @@ Use an intermediate disclaimer page that provides the user with a clear warning 
 
 When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
 
-For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Features such as the ESAPI AccessReferenceMap provide this capability.
+For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Mga butang sama sa ESAPI AccessReferenceMap kay naghatag niini nga kapasidad.
 
 Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
 
