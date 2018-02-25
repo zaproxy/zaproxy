@@ -153,33 +153,34 @@ Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystki
 Dla nazw plików używaj białe listy, które ograniczają zbiór znaków do użycia. Jeśli to możliwe, zezwól tylko na pojedynczy "." znak w nazwie pliku, aby uniknąć słabości, takich jak CWE-23, i wykluczyć separatory katalogów, takie jak "/", aby uniknąć CWE-36. Używaj białej listy dozwolonych rozszerzeń plików, które pomogą ominąć CWE-434.
 
 Fazy: Architektura i Projektowanie; Obsługa
-Jeśli to możliwe, przechowuj biblioteki, pliki dodatkowe i pliki użytkowe poza głównym katalogiem dokumentów internetowych. Otherwise, store them in a separate directory and use the web server's access control capabilities to prevent attackers from directly requesting them. One common practice is to define a fixed constant in each calling program, then check for the existence of the constant in the library/include file; if the constant does not exist, then the file was directly requested, and it can exit immediately.
-This significantly reduces the chance of an attacker being able to bypass any protection mechanisms that are in the base program but not in the include files. It will also reduce your attack surface.
+Jeśli to możliwe, przechowuj biblioteki, pliki dodatkowe i pliki użytkowe poza głównym katalogiem dokumentów internetowych. W przeciwnym razie przechowuj je w oddzielnym katalogu i użyj funkcji kontroli dostępu serwera internetowego, aby uniemożliwić atakującym bezpośrednie żądanie ich. Jedną z powszechnych praktyk jest zdefiniowanie zdeterminowanej stałej w każdym programie wywołującym, a następnie sprawdzenie istnienia stałej w bibliotece/objętym pliku; jeśli stała nie istnieje, to plik został zażądany bezpośrednio i może natychmiast wyjść.
+To znacznie redukuje szanse hakera, który może obejść każde mechanizmy obronne, które są w podstawie programu, ale nie w aktach. To także zredukuje twój powierzchniowy atak.
 
-Phases: Architecture and Design; Implementation
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
-Many file inclusion problems occur because the programmer assumed that certain inputs could not be modified, especially for cookies and URL components.</solution>
+Fazy: Architektura i Projektowanie; Implementacja
+Zrozum wszystkie potencjalne obszary gdzie niezaufane dane wejściowe wejdą w twoje oprogramowanie: parametry lub argumenty, ciasteczka, jakikolwiek odczyt z sieci, zmiennych środowiskowych, wyszukiwania wstecznego DNS, wyniki zapytania, nagłówki żądań, komponenty URL, e-mail, pliki, bazy danych i dowolne zewnętrzne
+systemy, które dostarczają dane do aplikacji. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
+Wiele problemów inkluzji plików pojawiają się, ponieważ programista zakłada, że niektóre dane wejściowe nie mogą być modyfikowane, a zwłaszcza dla ciasteczek i komponentów URL.</solution>
 	<reference>http://projects.webappsec.org/Remote-File-Inclusion</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
 </vuln_item_wasc_5>
 
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
-	<alert>Format String</alert>
-	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
+	<alert>Łańcuch formatujący</alert>
+	<desc>Ataki Łańcucha Formatującego zmieniają przepływ aplikacji, używając funkcji wyświetlania formatu biblioteki, aby uzyskać dostęp do innej przestrzeni pamięci. Wrażliwość występuje, gdy dane dostarczane przez użytkownika są używane bezpośrednio jako łańcucha formatującego dla niektórych funkcji C / C ++ (na przykład fprintf, printf, sprintf, setproctitle, syslog, ...).
 
-If an attacker passes a format string consisting of printf conversion characters (e.g. "%f", "%p", "%n", etc.) as a parameter value to the web application, they may:
-    * Execute arbitrary code on the server
-    * Read values off the stack
-    * Cause segmentation faults / software crashes
+Jeśli haker przejdzie przez łańcuch formatujący składający się ze znaków konwersji printf(n.p. "%f", "%p", "%n",  itd.) jako wartość parametru do aplikacji internetowej, może:
+    *Uruchomić dowolny kod na serwerze 
+    *Odczytać wartości ze sterty
+    *Spowodować segmentację defektu/zepsucia oprogramowania
 
-Format String attacks are related to other attacks in the Threat Classification: Buffer Overflows and Integer Overflows. All three are based in their ability to manipulate memory or its interpretation in a way that contributes to an attacker's goal.</desc>
-	<solution>Phase: Requirements
-Choose a language that is not subject to this flaw.
+Ataki łańcucha formatującego są zależne od innych ataków w Klasyfikacji Zagrożeń: Przepełnienia bufora i przepełnienia liczb całkowitych. Wszystkie trzy opierają się na zdolności manipulowania pamięcią lub jej interpretacji w sposób, który przyczynia się do osiągnięcia celu atakującego.</desc>
+	<solution>Faza: Wymagania
+Wybierz język, który nie jest podatny na tą usterkę.
 
-Phase: Implementation
-Ensure that all format string functions are passed a static string which cannot be controlled by the user and that the proper number of arguments are always sent to that function as well. If at all possible, use functions that do not support the %n operator in format strings.
-Build: Heed the warnings of compilers and linkers, since they may alert you to improper usage.
+Faza: Implementacja
+Upewnij się, że wszystkie funkcje łańcucha formatującego są przekazywane statycznym ciągiem, który nie może być kontrolowany przez użytkownika i że odpowiednia liczba argumentów jest zawsze wysyłana również do tej funkcji. Jeśli to możliwe, użyj funkcji, które nie obsługują operatora% n w łańcuchach formatujących.
+Budowa: Przestrzegaj ostrzeżeń kompilatorów i łączników, ponieważ mogą one ostrzegać o niewłaściwym użytkowaniu.
 </solution>
 	<reference>http://projects.webappsec.org/Format-String</reference>
 	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
@@ -187,40 +188,38 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
-	<alert>Buffer Overflow</alert>
-	<desc>A Buffer Overflow is a flaw that occurs when more data is written to a block of memory, or buffer, than the buffer is allocated to hold. Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
-    * Control the process execution
-    * Crash the process
-    * Modify internal variables
+	<alert>Przepełnienie bufora</alert>
+	<desc>Przepełnienie Bufora jest usterką, która pojawia się kiedy więcej danych jest wpisanych w blok pamięci lub bufor, wtedy bufor jest przeznaczony do ładowania. Wykorzystanie przepełnienia bufora pozwala intruzowi modyfikować fragmenty przestrzeni adresowej procesu docelowego. This ability can be used for a number of purposes, including the following:
+    *Kontrolowanie wykonywania procesu
+    *Przerwania procesu
+    *Modyfikowania wewnętrznych zmiennych. Osiąga się to poprzez identyfikację wskaźnika funkcji w pamięci, który można modyfikować, bezpośrednio lub pośrednio, za pomocą przepełnienia. Gdy taki wskaźnik jest używany przez program do kierowania wykonywaniem programu za pomocą instrukcji skoku lub wywołania, zostanie użyta lokalizacja instrukcji dostarczona przez napastnika, umożliwiając atakującemu kontrolę procesu.
 
-The attacker’s goal is almost always to control the target process’ execution. This is accomplished by identifying a function pointer in memory that can be modified, directly or indirectly, using the overflow. When such a pointer is used by the program to direct program execution through a jump or call instruction, the attacker-supplied instruction location will be used, thereby allowing the attacker to control the process.
+W wielu przypadkach, funkcja wskaźnika jest zmodyfikowana do referencji lokacji gdzie haker umieścił zgromadzone instrukcje określonego urządzenia. Instrukcje te są powszechnie nazywane kodami powłoki, w związku z faktem, że atakujący często chcą utworzyć środowisko wiersza polecenia lub powłokę w kontekście działającego procesu.
 
-In many cases, the function pointer is modified to reference a location where the attacker has placed assembled machine-specific instructions. These instructions are commonly referred to as shellcode, in reference to the fact that attackers often wish to spawn a command-line environment, or shell, in the context of the running process.
-
-Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
+Przepełnienie bufora jest najczęściej kojarzone z oprogramowaniem napisanym w językach programowania C i C ++ ze względu na ich szerokie zastosowanie i możliwość bezpośredniego manipulowania pamięcią przy użyciu powszechnych konstrukcji programistycznych. Jednakże podkreślmy, że przepełnienie bufora może występować w każdym środowisku programistycznym gdzie bezpośrednia manipulacja pamięcią jest dozwolona, czy to przez usterkę w kompilatorze, czasu trwania bibliotek lub funkcji samego języka.
 </desc>
 	<solution>Faza: Wymagania
 Używaj języka, który nie zezwala na wystąpienie tego osłabienia lub zapewnia konstrukcje, które ułatwiają uniknięcie tego osłabienia.
-For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
-Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
+Na przykład wiele języków wykonujących własne zarządzanie pamięcią, takich jak Java i Perl, nie podlega przepełnieniom bufora. Inne języki, takie jak Ada i C #, zwykle zapewniają ochronę przed przepełnieniem, ale programista może ją wyłączyć.
+Należy uważać, aby interfejs języka do macierzystego kodu nadal podlegał przepełnieniu, nawet jeśli sam język jest teoretycznie bezpieczny.
 
 Faza: Architektura i Projektowanie
 Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
-Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
+Przykłady obejmują bibliotekę Safe C String (SafeStr) firmy Messier i Viega oraz bibliotekę Strsafe.h firmy Microsoft. Te biblioteki zapewniają bezpieczniejsze wersje podatne na przepełnienia funkcji operacji na łańcuchach. To nie jest całkowite rozwiązanie, ponieważ wiele przepełnień bufora nie jest powiązanych z łańcuchami.
 
-Phase: Build and Compilation
-Run or compile your software using features or extensions that automatically provide a protection mechanism that mitigates or eliminates buffer overflows.
-For example, certain compilers and extensions provide automatic buffer overflow detection mechanisms that are built into the compiled code. Examples include the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
+Faza: Budowa i i Kompilacja
+Uruchamiaj lub kompiluj twoje oprogramowanie używając funkcji lub rozszerzeń, które automatycznie zapewniają ochronne mechanizmy, które zmniejszają lub eliminują przepełnienie bufora.
+Na przykład, niektóre kompilatory i rozszerzenia udostępniają automatyczne mechanizmy wykrywania przepełnienia bufora, które są wbudowane w skompilowany kod. Przykłady obejmują Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
 
-Phase: Implementation
-Consider adhering to the following rules when allocating and managing an application's memory:
-      Double check that your buffer is as large as you specify.
-      When using functions that accept a number of bytes to copy, such as strncpy(), be aware that if the destination buffer size is equal to the source buffer size, it may not NULL-terminate the string.
-      Check buffer boundaries if calling this function in a loop and make sure you are not in danger of writing past the allocated space.
-      If necessary, truncate all input strings to a reasonable length before passing them to the copy and concatenation functions.
+Faza: Implementacja
+Podczas alokowania pamięci aplikacji i zarządzania nią należy wziąć pod uwagę następujące zasady:
+      Sprawdź dwa razy, że twój bufor jest duży jak opisujesz.
+      Podczas korzystania z funkcji akceptujących liczbę bajtów do skopiowania, takich jak strncpy (), należy pamiętać, że jeśli rozmiar bufora docelowego jest równy rozmiarowi bufora źródłowego, może nie zakończyć się ciągiem NULL.
+      Sprawdź granice buforu jeśli używasz tej funkcji w pętli i upewnij się, że nie jesteś w niebezpieczeństwie zapisu poza przydzieloną przestrzenią.
+      Jeśli to konieczne, skróć wszystkie ciągi wejściowe do rozsądnej długości przed przekazaniem ich do funkcji kopiowania i konkatenacji.
 
-Phase: Operation
-Use a feature like Address Space Layout Randomization (ASLR).
+Faza: Obsługa
+Używaj funkcji takiej jak Address Space Layout Randomization (ASLR).
 
 Phase: Operation
 
@@ -528,7 +527,7 @@ Validation can include checks for type safety and correct syntax. String input c
 
 Use an input validation framework such as Struts or the OWASP ESAPI Validation API.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
+Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
 
 For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server.
 
@@ -902,7 +901,7 @@ When the set of acceptable objects, such as filenames or URLs, is limited or kno
 
 For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Funkcje takie jak ESAPI AccessReferenceMap dają taką możliwość.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Remember that such inputs may be obtained indirectly through API calls.
+Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
 
 Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
