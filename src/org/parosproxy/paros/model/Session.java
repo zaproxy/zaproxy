@@ -73,6 +73,7 @@
 // ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
 // ZAP: 2017/10/11 Make contextsChangedListeners static.
 // ZAP: 2018/01/25 Do not save session file if not file based.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.model;
 
@@ -327,7 +328,7 @@ public class Session {
 	    
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.
-			int historyId = list.get(i).intValue();
+			int historyId = list.get(i);
 
 			try {
 				historyRef = new HistoryReference(historyId);
@@ -371,7 +372,7 @@ public class Session {
 		
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.
-			int historyId = list.get(i).intValue();
+			int historyId = list.get(i);
 
 			try {
 				historyRef = new HistoryReference(historyId);

@@ -284,10 +284,8 @@ public class OptionsParamApi extends AbstractParam {
             DomainMatcher addr = addrs.get(i);
 
             getConfig().setProperty(elementBaseKey + ADDRESS_VALUE_KEY, addr.getValue());
-            getConfig().setProperty(elementBaseKey + ADDRESS_REGEX_KEY, Boolean.valueOf(addr.isRegex()));
-            getConfig().setProperty(
-                    elementBaseKey + ADDRESS_ENABLED_KEY,
-                    Boolean.valueOf(addr.isEnabled()));
+            getConfig().setProperty(elementBaseKey + ADDRESS_REGEX_KEY, addr.isRegex());
+            getConfig().setProperty(elementBaseKey + ADDRESS_ENABLED_KEY, addr.isEnabled());
 
             if (addr.isEnabled()) {
                 enabledAddrs.add(addr);
@@ -377,7 +375,7 @@ public class OptionsParamApi extends AbstractParam {
     @ZapApiIgnore
     public void setConfirmRemovePermittedAddress(boolean confirmRemove) {
         this.confirmRemovePermittedAddress = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_ADDRESS, Boolean.valueOf(confirmRemovePermittedAddress));
+        getConfig().setProperty(CONFIRM_REMOVE_ADDRESS, confirmRemovePermittedAddress);
     }
 
 }

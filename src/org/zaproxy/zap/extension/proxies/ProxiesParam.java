@@ -125,12 +125,12 @@ public class ProxiesParam extends AbstractParam {
 
             getConfig().setProperty(elementBaseKey + PROXY_ADDRESS_KEY, proxy.getAddress());
             getConfig().setProperty(elementBaseKey + PROXY_PORT_KEY, proxy.getPort());
-            getConfig().setProperty(elementBaseKey + PROXY_ENABLED_KEY, Boolean.valueOf(proxy.isEnabled()));
-            getConfig().setProperty(elementBaseKey + PROXY_ANY_LOCAL_KEY, Boolean.valueOf(proxy.isProxyIpAnyLocalAddress()));
+            getConfig().setProperty(elementBaseKey + PROXY_ENABLED_KEY, proxy.isEnabled());
+            getConfig().setProperty(elementBaseKey + PROXY_ANY_LOCAL_KEY, proxy.isProxyIpAnyLocalAddress());
             getConfig()
-                    .setProperty(elementBaseKey + PROXY_REM_UNSUPPORTED, Boolean.valueOf(proxy.isRemoveUnsupportedEncodings()));
-            getConfig().setProperty(elementBaseKey + PROXY_DECODE_KEY, Boolean.valueOf(proxy.isAlwaysDecodeGzip()));
-            getConfig().setProperty(elementBaseKey + PROXY_BEHIND_NAT_KEY, Boolean.valueOf(proxy.isBehindNat()));
+                    .setProperty(elementBaseKey + PROXY_REM_UNSUPPORTED, proxy.isRemoveUnsupportedEncodings());
+            getConfig().setProperty(elementBaseKey + PROXY_DECODE_KEY, proxy.isAlwaysDecodeGzip());
+            getConfig().setProperty(elementBaseKey + PROXY_BEHIND_NAT_KEY, proxy.isBehindNat());
         }
     }
 
@@ -162,7 +162,7 @@ public class ProxiesParam extends AbstractParam {
 
     public void setConfirmRemoveProxy(boolean confirmRemove) {
         this.confirmRemoveProxy = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_PROXY_KEY, Boolean.valueOf(confirmRemoveProxy));
+        getConfig().setProperty(CONFIRM_REMOVE_PROXY_KEY, confirmRemoveProxy);
     }
 
 }

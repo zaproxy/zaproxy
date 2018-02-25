@@ -84,7 +84,7 @@ public class HistoryFilter {
 				return false;
 			}
 			if (codeList.size() > 0 &&  
-					! codeList.contains(Integer.valueOf(historyRef.getStatusCode()))) {
+					! codeList.contains(historyRef.getStatusCode())) {
 				return false;
 			}
 			boolean foundTag = false;
@@ -228,7 +228,7 @@ public class HistoryFilter {
 				if (lastCode == null) {
 					// very first one
 					sb.append(code);
-				} else if (code.intValue() == lastCode.intValue() + 1) {
+				} else if (code == lastCode + 1) {
 					// next in sequence
 					inBlock = true;
 				} else if (inBlock){

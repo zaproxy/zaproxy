@@ -309,7 +309,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				getActiveScan(params).stopScan();
 				break;
 			case ACTION_REMOVE_SCAN:
-				GenericScanner2 activeScan = controller.removeScan(Integer.valueOf(params.getInt(PARAM_SCAN_ID)));
+				GenericScanner2 activeScan = controller.removeScan(params.getInt(PARAM_SCAN_ID));
 				if (activeScan == null) {
 					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 				}
@@ -644,7 +644,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		if (id == -1) {
 			activeScan = controller.getLastScan();
 		} else {
-			activeScan = controller.getScan(Integer.valueOf(id));
+			activeScan = controller.getScan(id);
 		}
 
 		if (activeScan == null) {
@@ -658,7 +658,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		if (ids.length > 0) {
 			for (String id : ids) {
 				try {
-					Plugin scanner = policy.getPluginFactory().getPlugin(Integer.valueOf(id.trim()).intValue());
+					Plugin scanner = policy.getPluginFactory().getPlugin(Integer.valueOf(id.trim()));
 					if (scanner != null) {
 						scanner.setEnabled(enabled);
 					}
@@ -674,7 +674,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		if (ids.length > 0) {
 			for (String id : ids) {
 				try {
-					int policyId = Integer.valueOf(id.trim()).intValue();
+					int policyId = Integer.valueOf(id.trim());
 					if (hasPolicyWithId(policyId)) {
 						for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 							if (scanner.getCategory() == policyId) {

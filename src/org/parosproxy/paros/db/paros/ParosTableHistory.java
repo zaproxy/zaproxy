@@ -37,6 +37,7 @@
 // ZAP: 2016/05/26 Delete temporary history types sequentially
 // ZAP: 2016/05/27 Change to use HistoryReference to obtain the temporary types
 // ZAP: 2016/08/30 Issue 2836: Change to delete temporary history types in batches to prevent out-of-memory-exception(s)
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.db.paros;
 
@@ -450,7 +451,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			    try (ResultSet rs = psReadSession.executeQuery()) {
 			        ArrayList<Integer> ids = new ArrayList<>();
 			        while (rs.next()) {
-			            ids.add(Integer.valueOf(rs.getInt(HISTORYID)));
+			            ids.add(rs.getInt(HISTORYID));
 			        }
 			        ids.trimToSize();
 
@@ -495,7 +496,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			    try (ResultSet rs = psReadSession.executeQuery()) {
 			        ArrayList<Integer> ids = new ArrayList<>();
 			        while (rs.next()) {
-			            ids.add(Integer.valueOf(rs.getInt(HISTORYID)));
+			            ids.add(rs.getInt(HISTORYID));
 			        }
 			        ids.trimToSize();
 
@@ -547,26 +548,26 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 				        matcher = pattern.matcher(rs.getString(REQHEADER));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				        matcher = pattern.matcher(rs.getString(REQBODY));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				    } else {
 				        matcher = pattern.matcher(rs.getString(RESHEADER));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				        matcher = pattern.matcher(rs.getString(RESBODY));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				    }
@@ -664,7 +665,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 
 			int count = 0;
 			for (Integer id : ids) {
-			    psDelete.setInt(1, id.intValue());
+			    psDelete.setInt(1, id);
 			    psDelete.addBatch();
 			    count++;
 

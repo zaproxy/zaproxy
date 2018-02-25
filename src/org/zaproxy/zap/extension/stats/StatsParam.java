@@ -70,7 +70,7 @@ public class StatsParam extends AbstractParam {
 
 	public void setInMemoryEnabled(boolean inMemory) {
 		this.inMemory = inMemory;
-        getConfig().setProperty(IN_MEMORY_STATS_KEY, Boolean.valueOf(inMemory));
+        getConfig().setProperty(IN_MEMORY_STATS_KEY, inMemory);
 	}
 
     public boolean isStatsdEnabled() {

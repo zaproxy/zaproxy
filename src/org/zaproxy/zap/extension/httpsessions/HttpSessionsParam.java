@@ -152,7 +152,7 @@ public class HttpSessionsParam extends AbstractParam {
 			HttpSessionToken token = tokens.get(i);
 			
 			getConfig().setProperty(elementBaseKey + TOKEN_NAME_KEY, token.getName());
-			getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, Boolean.valueOf(token.isEnabled()));
+			getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, token.isEnabled());
 			
 			if (token.isEnabled()) {
 				enabledTokens.add(token.getName());
@@ -179,7 +179,7 @@ public class HttpSessionsParam extends AbstractParam {
 	 */
 	public void setEnabledProxyOnly(boolean enabledProxyOnly) {
 		this.enabledProxyOnly = enabledProxyOnly;
-		getConfig().setProperty(PROXY_ONLY_KEY, Boolean.valueOf(enabledProxyOnly));
+		getConfig().setProperty(PROXY_ONLY_KEY, enabledProxyOnly);
 	}
 	
 	@ZapApiIgnore
@@ -190,6 +190,6 @@ public class HttpSessionsParam extends AbstractParam {
 	@ZapApiIgnore
 	public void setConfirmRemoveDefaultToken(boolean confirmRemove) {
 		this.confirmRemove = confirmRemove;
-		getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, Boolean.valueOf(confirmRemove));
+		getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, confirmRemove);
 	}
 }

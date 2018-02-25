@@ -85,7 +85,7 @@ public class BreakpointsTableModel extends AbstractTableModel {
 		Object obj = null;
 		BreakpointMessageInterface breakpoint = breakpoints.get(row);
 		if (column == 0) {
-            obj = Boolean.valueOf(breakpoint.isEnabled());
+            obj = breakpoint.isEnabled();
 		} else if (column == 1) {
             obj = breakpoint.getType();
 		} else {
@@ -103,7 +103,7 @@ public class BreakpointsTableModel extends AbstractTableModel {
 		this.fireTableRowsInserted(breakpoints.size()-1, breakpoints.size()-1);
 		
         rebuildMapBreakpointRow();
-        lastAffectedRow = mapBreakpointRow.get(breakpoint).intValue();
+        lastAffectedRow = mapBreakpointRow.get(breakpoint);
         
         if (breakpoint.isEnabled()) {
             synchronized (breakpointsEnabled) {
@@ -113,16 +113,16 @@ public class BreakpointsTableModel extends AbstractTableModel {
 	}
 	
 	public void editBreakpoint(BreakpointMessageInterface oldBreakpoint, BreakpointMessageInterface newBreakpoint) {
-		int row = mapBreakpointRow.remove(oldBreakpoint).intValue();
+		int row = mapBreakpointRow.remove(oldBreakpoint);
         breakpoints.remove(row);
         this.fireTableRowsDeleted(row, row);
         
-        mapBreakpointRow.put(newBreakpoint, Integer.valueOf(0));
+        mapBreakpointRow.put(newBreakpoint, 0);
         breakpoints.add(newBreakpoint);
         this.fireTableRowsInserted(breakpoints.size()-1, breakpoints.size()-1);
         
         rebuildMapBreakpointRow();
-        lastAffectedRow = mapBreakpointRow.get(newBreakpoint).intValue();
+        lastAffectedRow = mapBreakpointRow.get(newBreakpoint);
         
         synchronized (breakpointsEnabled) {
             if (oldBreakpoint.isEnabled()) {
@@ -165,7 +165,7 @@ public class BreakpointsTableModel extends AbstractTableModel {
 		if (column == 0) {
 			if (value instanceof Boolean) {
 			    boolean isEnabled = breakpoints.get(row).isEnabled();
-				breakpoints.get(row).setEnabled(((Boolean)value).booleanValue());
+				breakpoints.get(row).setEnabled((Boolean) value);
 				this.fireTableCellUpdated(row, column);
 				
 				if (isEnabled) {
@@ -193,7 +193,7 @@ public class BreakpointsTableModel extends AbstractTableModel {
 	    mapBreakpointRow.clear();
 	    int i = 0;
 	    for (Iterator<BreakpointMessageInterface> iterator = breakpoints.iterator(); iterator.hasNext(); ++i) {
-	        mapBreakpointRow.put(iterator.next(), Integer.valueOf(i));
+	        mapBreakpointRow.put(iterator.next(), i);
         }
 	}
 

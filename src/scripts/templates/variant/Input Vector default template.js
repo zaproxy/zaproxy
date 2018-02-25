@@ -42,13 +42,14 @@ function parseParameters(helper, msg) {
 function setParameter(helper, msg, param, value, escaped) {
     size = helper.getParamNumber();
     query = "";
+    var pos = helper.getCurrentParam().getPosition();
 
     for (var i = 0; i < size; i++) {
         pname = helper.getParamName(i);
         pvalue = helper.getParamValue(i);
 
         if (paramStates[i] === B64STATE) { //Handle values that were originally base64
-            if (pname == param) {
+            if (i == pos) {
                 //Encode the injected value
                 pvalue = encodeURIComponent(helper.encodeBase64(value));
             } else {
@@ -56,7 +57,7 @@ function setParameter(helper, msg, param, value, escaped) {
                 pvalue = encodeURIComponent(helper.encodeBase64(pvalue));
             }
         } else { //Handle regular values
-            if (pname == param) {
+            if (i == pos) {
                 if (escaped == false) {
                     value = encodeURIComponent(value);
                 }

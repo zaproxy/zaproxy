@@ -45,15 +45,15 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         PLACE_HOLDER_VALUES[Column.HREF_TYPE.ordinal()] = Integer.toString(0);
         PLACE_HOLDER_VALUES[Column.METHOD.ordinal()] = STRING_VALUE_NOT_LOADED;
         PLACE_HOLDER_VALUES[Column.URL.ordinal()] = STRING_VALUE_NOT_LOADED;
-        PLACE_HOLDER_VALUES[Column.STATUS_CODE.ordinal()] = Integer.valueOf(0);
+        PLACE_HOLDER_VALUES[Column.STATUS_CODE.ordinal()] = 0;
         PLACE_HOLDER_VALUES[Column.STATUS_REASON.ordinal()] = STRING_VALUE_NOT_LOADED;
-        PLACE_HOLDER_VALUES[Column.RTT.ordinal()] = Integer.valueOf(0);
-        PLACE_HOLDER_VALUES[Column.SIZE_MESSAGE.ordinal()] = Integer.valueOf(0);
-        PLACE_HOLDER_VALUES[Column.SIZE_REQUEST_HEADER.ordinal()] = Integer.valueOf(0);
-        PLACE_HOLDER_VALUES[Column.SIZE_REQUEST_BODY.ordinal()] = Integer.valueOf(0);
-        PLACE_HOLDER_VALUES[Column.SIZE_RESPONSE_HEADER.ordinal()] = Integer.valueOf(0);
-        PLACE_HOLDER_VALUES[Column.SIZE_RESPONSE_BODY.ordinal()] = Integer.valueOf(0);
-        PLACE_HOLDER_VALUES[Column.SESSION_ID.ordinal()] = Long.valueOf(0);
+        PLACE_HOLDER_VALUES[Column.RTT.ordinal()] = 0;
+        PLACE_HOLDER_VALUES[Column.SIZE_MESSAGE.ordinal()] = 0;
+        PLACE_HOLDER_VALUES[Column.SIZE_REQUEST_HEADER.ordinal()] = 0;
+        PLACE_HOLDER_VALUES[Column.SIZE_REQUEST_BODY.ordinal()] = 0;
+        PLACE_HOLDER_VALUES[Column.SIZE_RESPONSE_HEADER.ordinal()] = 0;
+        PLACE_HOLDER_VALUES[Column.SIZE_RESPONSE_BODY.ordinal()] = 0;
+        PLACE_HOLDER_VALUES[Column.SESSION_ID.ordinal()] = 0L;
         PLACE_HOLDER_VALUES[Column.HIGHEST_ALERT.ordinal()] = AlertRiskTableCellItem.NO_RISK_CELL_ITEM;
         PLACE_HOLDER_VALUES[Column.NOTE.ordinal()] = Boolean.FALSE;
         PLACE_HOLDER_VALUES[Column.TAGS.ordinal()] = EMPTY_STRING;
@@ -72,15 +72,15 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
     }
 
     public Integer getHistoryId() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public Integer getHistoryType() {
-        return Integer.valueOf(-1);
+        return -1;
     }
 
     public Long getSessionId() {
-        return Long.valueOf(0);
+        return 0L;
     }
 
     public String getMethod() {
@@ -92,7 +92,7 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
     }
 
     public Integer getStatusCode() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public String getReason() {
@@ -108,27 +108,27 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
     }
 
     public Integer getRtt() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public Long getMessageSize() {
-        return Long.valueOf(0);
+        return 0L;
     }
 
     public Integer getRequestHeaderSize() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public Integer getRequestBodySize() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public Integer getResponseHeaderSize() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public Integer getResponseBodySize() {
-        return Integer.valueOf(0);
+        return 0;
     }
 
     public AlertRiskTableCellItem getHighestAlert() {
@@ -192,7 +192,7 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
     public static Object getPrototypeValue(Column column) {
         switch (column) {
         case HREF_ID:
-            return Integer.valueOf(1000);
+            return 1000;
         case REQUEST_TIMESTAMP:
             return new Date(System.currentTimeMillis());
         case RESPONSE_TIMESTAMP:
@@ -204,19 +204,19 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         case URL:
             return "http://example.com/some/path?param=value";
         case STATUS_CODE:
-            return Integer.valueOf(200);
+            return 200;
         case STATUS_REASON:
             return "Not Found";
         case RTT:
-            return Integer.valueOf(1000);
+            return 1000;
         case SIZE_MESSAGE:
         case SIZE_REQUEST_HEADER:
         case SIZE_REQUEST_BODY:
         case SIZE_RESPONSE_HEADER:
         case SIZE_RESPONSE_BODY:
-            return Integer.valueOf(1000);
+            return 1000;
         case SESSION_ID:
-            return Long.valueOf(System.currentTimeMillis());
+            return System.currentTimeMillis();
         case HIGHEST_ALERT:
             return AlertRiskTableCellItem.getItemForRisk(Alert.RISK_MEDIUM);
         case NOTE:

@@ -352,7 +352,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 		    psGetAllHistoryIds.getPs().setLong(1, sessionId);
 		    try (ResultSet rs = psGetAllHistoryIds.getPs().executeQuery()) {
 		        while (rs.next()) {
-		            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+		            v.add(rs.getInt(HISTORYID));
 		        }
 		    }
 		    return v;
@@ -381,7 +381,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 		    DbSQL.setSetValues(psGetAllHistoryIdsIncTypes.getPs(), 2, histTypes);
 		    try (ResultSet rs = psGetAllHistoryIdsIncTypes.getPs().executeQuery()) {
 		        while (rs.next()) {
-		            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+		            v.add(rs.getInt(HISTORYID));
 		        }
 		    }
 		    return v;
@@ -410,7 +410,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 		    DbSQL.setSetValues(psGetAllHistoryIdsExcTypes.getPs(), 2, histTypes);
 		    try (ResultSet rs = psGetAllHistoryIdsExcTypes.getPs().executeQuery()) {
 		        while (rs.next()) {
-		            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+		            v.add(rs.getInt(HISTORYID));
 		        }
 		    }
 		    return v;
@@ -444,26 +444,26 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 				        matcher = pattern.matcher(rs.getString(REQHEADER));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				        matcher = pattern.matcher(rs.getString(REQBODY));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				    } else {
 				        matcher = pattern.matcher(rs.getString(RESHEADER));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				        matcher = pattern.matcher(rs.getString(RESBODY));
 				        if (matcher.find()) {
 				            // ZAP: Changed to use the method Integer.valueOf.
-				            v.add(Integer.valueOf(rs.getInt(HISTORYID)));
+				            v.add(rs.getInt(HISTORYID));
 				            continue;
 				        }
 				    }
@@ -565,7 +565,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 		    psDelete = DbSQL.getSingleton().getPreparedStatement( "history.ps.delete");
 			int count = 0;
 			for (Integer id : ids) {
-			    psDelete.getPs().setInt(1, id.intValue());
+			    psDelete.getPs().setInt(1, id);
 			    psDelete.getPs().addBatch();
 			    count++;
 

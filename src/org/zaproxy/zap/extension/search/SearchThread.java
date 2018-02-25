@@ -38,6 +38,7 @@ public class SearchThread extends Thread {
 	private static final String THREAD_NAME = "ZAP-SearchThread";
 
 	private String filter;
+	private Pattern pattern;
 	private Type reqType;
 	private SearchListenner searchListenner;
 	private boolean stopSearch = false;
@@ -72,6 +73,7 @@ public class SearchThread extends Thread {
             boolean searchJustInScope, String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences) {
 		super(THREAD_NAME);
 		this.filter = filter;
+		this.pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
 		this.reqType = reqType;
 		this.customSearcherName = customSearcherName;
 		this.searchListenner = searchListenner;
@@ -102,7 +104,6 @@ public class SearchThread extends Thread {
 
 	private void search() {
 	    Session session = Model.getSingleton().getSession();
-        Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
 		Matcher matcher = null;
 		
         try {
@@ -135,7 +136,7 @@ public class SearchThread extends Thread {
 				if (stopSearch) {
 					break;
 				}
-			    int historyId = list.get(index).intValue();
+			    int historyId = list.get(index);
 			    try {
 			            currentRecordId = index;
 			        	// Create the href to ensure the msg is set up correctly

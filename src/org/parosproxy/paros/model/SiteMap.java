@@ -56,6 +56,7 @@
 // ZAP: 2017/11/22 Expose method to create temporary nodes (Issue 4065).
 // ZAP: 2017/12/26 Remove redundant request header null checks.
 // ZAP: 2018/02/07 Set the HistoryReference into the temp node before adding it to the tree (Issue 4356).
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.model;
 
@@ -696,7 +697,7 @@ public class SiteMap extends SortedTreeModel {
     }
     
     public void removeHistoryReference(int historyId) {
-        hrefMap.remove(Integer.valueOf(historyId));
+        hrefMap.remove(historyId);
     }
 
     // returns a representation of the host name in the site map

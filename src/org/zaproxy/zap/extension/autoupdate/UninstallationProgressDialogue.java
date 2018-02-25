@@ -288,7 +288,7 @@ class UninstallationProgressDialogue extends AbstractDialog {
         } else {
             setCustomMessage(
                     Constant.messages
-                            .getString(keyBaseStatusMessage, Integer.valueOf(last.getValue()), Integer.valueOf(last.getMax())));
+                            .getString(keyBaseStatusMessage, last.getValue(), last.getMax()));
         }
     }
 

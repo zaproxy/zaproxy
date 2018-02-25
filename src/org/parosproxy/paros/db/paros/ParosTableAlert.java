@@ -33,6 +33,7 @@
 // right truncation while writing an alert to DB
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.db.paros;
 
@@ -278,7 +279,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 			    try (ResultSet rs = psReadScan.executeQuery()) {
 			        while (rs.next()) {
 			            // ZAP: Changed to use the method Integer.valueOf.
-			            v.add(Integer.valueOf(rs.getInt(ALERTID)));
+			            v.add(rs.getInt(ALERTID));
 			        }
 			    }
 			    return v;
@@ -299,7 +300,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 			        while (rs.next()) {
 			            int alertId = rs.getInt(ALERTID);
 			            // ZAP: Changed to use the method Integer.valueOf.
-			            v.add(Integer.valueOf(alertId));
+			            v.add(alertId);
 			        }
 			    }
 			    return v;
@@ -415,7 +416,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 			    Vector<Integer> v = new Vector<>();
 			    try (ResultSet rs = psReadScan.executeQuery()) {
 			        while (rs.next()) {
-			            v.add(Integer.valueOf(rs.getInt(ALERTID)));
+			            v.add(rs.getInt(ALERTID));
 			        }
 			    }
 			    return v;

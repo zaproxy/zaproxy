@@ -178,7 +178,7 @@ public class DatabaseParam extends AbstractParam {
      */
     public void setCompactDatabase(boolean compactDatabase) {
         this.compactDatabase = compactDatabase;
-        getConfig().setProperty(PARAM_COMPACT_DATABASE, Boolean.valueOf(compactDatabase));
+        getConfig().setProperty(PARAM_COMPACT_DATABASE, compactDatabase);
     }
 
     /**
@@ -197,7 +197,7 @@ public class DatabaseParam extends AbstractParam {
      */
     public void setRequestBodySize(int requestbodysize) {
         this.requestbodysize = requestbodysize;
-        getConfig().setProperty(PARAM_REQUEST_BODY_SIZE, Integer.valueOf(requestbodysize));
+        getConfig().setProperty(PARAM_REQUEST_BODY_SIZE, requestbodysize);
     }
 
     /**
@@ -216,7 +216,7 @@ public class DatabaseParam extends AbstractParam {
      */
     public void setResponseBodySize(int responsebodysize) {
         this.responsebodysize = responsebodysize;
-        getConfig().setProperty(PARAM_RESPONSE_BODY_SIZE, Integer.valueOf(responsebodysize));
+        getConfig().setProperty(PARAM_RESPONSE_BODY_SIZE, responsebodysize);
     }
 
     /**
@@ -273,7 +273,7 @@ public class DatabaseParam extends AbstractParam {
 	 */
 	public void setRecoveryLogEnabled(boolean enabled) {
 		this.recoveryLogEnabled = enabled;
-		getConfig().setProperty(PARAM_RECOVERY_LOG_ENABLED, Boolean.valueOf(recoveryLogEnabled));
+		getConfig().setProperty(PARAM_RECOVERY_LOG_ENABLED, recoveryLogEnabled);
 	}
 
 }

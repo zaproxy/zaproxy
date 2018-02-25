@@ -109,7 +109,7 @@ public class PassiveScanAPI extends ApiImplementor {
 			String paramId = params.getString(PARAM_ID);
 			int pluginId;
 			try {
-				pluginId = Integer.valueOf(paramId.trim()).intValue();
+				pluginId = Integer.valueOf(paramId.trim());
 			} catch (NumberFormatException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
 			}
@@ -132,7 +132,7 @@ public class PassiveScanAPI extends ApiImplementor {
 		if (ids.length > 0) {
 			for (String id : ids) {
 				try {
-					int pluginId = Integer.valueOf(id.trim()).intValue();
+					int pluginId = Integer.valueOf(id.trim());
 					if (pluginId > 0) {
 						extension.setPluginPassiveScannerEnabled(pluginId, enabled);
 					}

@@ -263,7 +263,7 @@ public class RequestSplitComponent<T extends Message> implements HttpPanelCompon
 
 	@Override
 	public void saveConfig(FileConfiguration fileConfiguration) {
-		Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + DIVIDER_LOCATION_CONFIG_KEY, Integer.valueOf(splitMain.getDividerLocation()));
+		Model.getSingleton().getOptionsParam().getConfig().setProperty(configurationKey + DIVIDER_LOCATION_CONFIG_KEY, splitMain.getDividerLocation());
 		
 		headerViews.saveConfig(fileConfiguration);
 		bodyViews.saveConfig(fileConfiguration);

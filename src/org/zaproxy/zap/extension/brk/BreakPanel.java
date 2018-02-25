@@ -253,7 +253,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 	@Override
 	public void breakpointDisplayed () {
 		final Boolean alwaysOnTopOption = breakpointsParams.getAlwaysOnTop();
-		if (alwaysOnTopOption == null || alwaysOnTopOption.booleanValue()) {
+		if (alwaysOnTopOption == null || alwaysOnTopOption) {
 		
 			java.awt.EventQueue.invokeLater(new Runnable() {
 				@Override
@@ -269,7 +269,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 						boolean keepOn = View.getSingleton().showConfirmDialog(
 								Constant.messages.getString("brk.alwaysOnTop.message")) ==
 									JOptionPane.OK_OPTION;
-						breakpointsParams.setAlwaysOnTop(Boolean.valueOf(keepOn));
+						breakpointsParams.setAlwaysOnTop(keepOn);
 						if (! keepOn) {
 							// Turn it off
 							View.getSingleton().getMainFrame().setAlwaysOnTop(false);

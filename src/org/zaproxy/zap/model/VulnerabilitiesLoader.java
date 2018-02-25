@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -67,8 +66,11 @@ public class VulnerabilitiesLoader {
 	public List<Vulnerability> load(Locale locale) {
 		List<String> filenames = getListOfVulnerabilitiesFiles();
 
-		for (Locale candidateLocale : getCandidateLocales(locale)) {
-			String candidateFilename = createFilename(candidateLocale);
+		String extension = fileExtension;
+		if (extension.startsWith(".")) {
+			extension = extension.substring(1);
+		}
+		List<Vulnerability> vulnerabilities = LocaleUtils.findResource(fileName, extension, locale, candidateFilename -> {
 			if (filenames.contains(candidateFilename)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("loading vulnerabilities from " + candidateFilename + " for locale " + locale + ".");
@@ -80,40 +82,13 @@ public class VulnerabilitiesLoader {
 				}
 				return Collections.unmodifiableList(list);
 			}
+			return null;
+		});
+
+		if (vulnerabilities == null) {
+			return Collections.emptyList();
 		}
-
-		return Collections.emptyList();
-	}
-
-	/**
-	 * Returns a {@code List} of candidate {@code Locale}s for {@code fileName} and given {@code locale}.
-	 *
-	 * @param locale the locale for which the candidate locales will be generated
-	 * @return a {@code List} of candidate {@code Locale}s for the given locale
-	 * @see java.util.ResourceBundle.Control#getCandidateLocales(String, Locale)
-	 */
-	private List<Locale> getCandidateLocales(Locale locale) {
-		return ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_DEFAULT).getCandidateLocales(fileName, locale);
-	}
-
-	/**
-	 * Returns the resource filename for the given {@code locale}.
-	 * <p>
-	 * The filename is composed by:<blockquote>{@code fileName} + "_" + {@code locale} + {@code fileExtension} </blockquote>
-	 * <p>
-	 * If the given {@code locale} is empty it's composed by: <blockquote>{@code fileName} + {@code fileExtension}</blockquote>
-	 *
-	 * @param locale the locale used to create the filename
-	 * @return the resource filename for the given {@code locale}
-	 */
-	private String createFilename(Locale locale) {
-		StringBuilder resourceBuilder = new StringBuilder(fileName);
-		String strLocale = locale.toString();
-		if (!strLocale.isEmpty()) {
-			resourceBuilder.append('_').append(locale);
-		}
-		resourceBuilder.append(fileExtension);
-		return resourceBuilder.toString();
+		return vulnerabilities;
 	}
 	
 	List<Vulnerability> loadVulnerabilitiesFile(Path file) {
