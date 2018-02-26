@@ -152,7 +152,8 @@ Scanners:
 40030   Backslash Powered Scanner
 40031   Cross Site Scripting - Detection by Callback
 40032   .htaccess Scanner
-40033	NoSQL Injection
+40033	NoSQL Injection MongoDB
+40034   NoSQL Injection Solr
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
