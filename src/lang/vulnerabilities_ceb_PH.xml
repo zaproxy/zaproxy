@@ -247,9 +247,9 @@ Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga ma
 Mga pananglitan sa mga library ug mga framework na makahimong makasayon sa pagmugnag husto nga pag-encode sa output nga naglakip sa Anti-XSS library ni Microsoft, ang OWASP ESAPI Encoding na modyul, ug ang Apache Wicket.
 
 Mga Bahin: Pagpatuman; Arkitektura ug Disenyo
-Sabta ang konteksto nga diin ang imong datos ay gamiton ug ang pag-encode kay gilauman. Kini kay ilabi ka importante kon magpadala ug datos nga tali sa nagkalainglaing mga komponent, o sa diha nga pagmugna sa mga output nga mahimong adunay sunod na daghang mga encoding na sa samang higayon, sama sa mga web page o o multi-part mail na mga mensahe. Study all expected communication protocols and data representations to determine the required encoding strategies.
-For any data that will be output to another web page, especially any data that was received from external inputs, use the appropriate encoding on all non-alphanumeric characters.
-Consult the XSS Prevention Cheat Sheet for more details on the types of encoding and escaping that are needed.
+Sabta ang konteksto nga diin ang imong datos ay gamiton ug ang pag-encode kay gilauman. Kini kay ilabi ka importante kon magpadala ug datos nga tali sa nagkalainglaing mga komponent, o sa diha nga pagmugna sa mga output nga mahimong adunay sunod na daghang mga encoding na sa samang higayon, sama sa mga web page o o multi-part mail na mga mensahe. Pagtuon sa tanan kay gilauman na mga protocol sa komunikasyon ug representasyon sa datos sa pagtino sa kinahanglan ang encoding na mga estratehiya.
+Alang sa bisan unsa nga datos kay ipagawas sa lain nga web page, ilabi na bisag unsa na datos nga nadawat gikan sa gawas nga mga gipangsulod, gamita ang angay nga pag-encode para sa tanan nga dili alphanumeric nga mga karakter.
+Konsulta ang XSS Prevention Cheat Sheet para sa daghan nga mga detalye sa mga tipo sa encoding ug pag-ikyas na sila kay kinahanglan.
 
 Bahin: Arkitektura ug Disenyo
 Alang sa bisag unsa nga pagtan-aw sa seguridad na gibuhat sa bahin sa kliyente, siguroha nga kini nagtan-aw sa balikbalik sa bahin sa server, aron malikayan ang CWE-602. Ang mga tig-atake kay mahimong maka-bypass sa bahin sa kliyente sa pag-usab sa mga bili paghuman sa pagtan-aw kung unsa na ang nabuhat, o pinaagi sa pagbag-o sa kliyente para matangtang ang bahin sa kliyente nga pangtan-aw sa kinatibuk-an. Dayon, kini nga mga gipangbag-o na mga bili, kay mahimong isumite sa server.
@@ -284,25 +284,25 @@ Ang CSRF nga mga atake kay epektibo sa daghang mga sitwasyon, na naglakip sa:
 Ang CSRF kay adunay una nga gigamit sa paghimo ug aksyon batok sa target site na gigamit nga mga pribilehiyo sa biktima, apan bag-o lang nga mga teknik kay nadiskobrehan aron magpadayag sa impormasyon na pinaagi sa pag-access sa tubag. Ang risgo sa impormasyon nga gibutyag kay mikusog ug maayo kon ang target site kay mahuyang sa XSS, tungod kay ang XSS kay mahimong gamiton isip plataporma para sa CSRF, nagtugot sa atake sa pag-operate na sulod sa utlanan na susama sa gigikanan nga palisiya.</desc>
 	<solution>Hugna: Arkitektura ug Disenyo
 Ang paggamit sa usa ka ibrarya nga na-vetted o balangkas nga dili motugot nga mahitabo kini nga kahuyang o maghatag og mga pagtukod nga makahimo niini nga kahuyang mas sayon ​​paglikay.
-For example, use anti-CSRF packages such as the OWASP CSRFGuard.
+Pananglitan, gamita ang anti-CSRF nga mga pakete na sama sa OWASP CSRFGuard.
 
-Phase: Implementation
-Ensure that your application is free of cross-site scripting issues, because most CSRF defenses can be bypassed using attacker-controlled script.
+Bahin: Pagpatuman
+ Siguroha nga ang imong aplikasyon kay libre sa cross-site scripting nga mga isyu, tungod kay kadaghanan sa CSRF nga mga depensa kay mahimong malabwan gamit ang kontrola sa tig-atake nga script.
 
-Phase: Architecture and Design
-Generate a unique nonce for each form, place the nonce into the form, and verify the nonce upon receipt of the form. Be sure that the nonce is not predictable (CWE-330).
-Note that this can be bypassed using XSS.
+Bahin: Arkitektura ug Disenyo
+Paghimo ug usa ka talagsaon nga nonce para sa matag usa nga form, ibutang ang nonce sulod sa form, ug susihon ang nonce gikan sa pagdawat sa form. Siguroha nga ang nonce kay dili mamatikdan (CWE-330).
+Timan-i nga kini kay mahimong malabwan gamit ang XSS.
 
-Identify especially dangerous operations. When the user performs a dangerous operation, send a separate confirmation request to ensure that the user intended to perform that operation.
-Note that this can be bypassed using XSS.
+Tan-awa ilabina ang kahadlokang mga operasyon. Sa diha ang tiggamit mohimo ug kahadlokang operasyon, magpadala ug bulag na pagkumpirma na mga hangyo para pagsiguro nga ang tiggamit nagtuyo sa pagbuhat sa maong operasyon.
+Timan-i nga kini kay mahimong malabwan gamit ang XSS.
 
-Use the ESAPI Session Management control.
-This control includes a component for CSRF.
+Gamita ang ESAPI Session Management na kontrol.
+Kini nga kontrol kay naglakip sa komponent para sa CSRF.
 
-Do not use the GET method for any request that triggers a state change.
+Ayaw gamita ang GET na pamaagi para sa bisag unsa hangyo nga nag-aghat sa pagbag-o sa estado.
 
-Phase: Implementation
-Check the HTTP Referer header to see if the request originated from an expected page. This could break legitimate functionality, because users or proxies may have disabled sending the Referer for privacy reasons.</solution>
+Bahin: Pagpatuman
+Tan-awa ang HTTP Referer nga header para matan-aw kung ang gihangko nga naggikan sa gilauman nga pahina. Kini kay mahimong makabungkag sa lehitimo nga katayuon, tungod kay ang mga tiggamit o mga proxy kay tinggali dili naka-disable sa pagpadala sa Referer para sa privacy nga mga rason.</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Request-Forgery</reference>
 	<reference>http://cwe.mitre.org/data/definitions/352.html</reference>
 </vuln_item_wasc_9>
@@ -312,35 +312,35 @@ Check the HTTP Referer header to see if the request originated from an expected 
 	<alert>Denial of Service</alert>
 	<desc>Ang Denial of Service (DoS) kay usa ka teknik sa pag-atake uban sa katuyoan sa pagpugong sa usa ka web site nga gikan sa pagserbisyo sa normal nga tiggamit nga aktibidad. Ang DoS nga mga atake, nga gikan sa sayon nga normal nga ipadapat sa network na layer, na mahimo usab nga posible sa aplikasyon layer. Kini nga mga malisyoso na mga pag-atake kay mahimong molampas pinaagi sa gigutom nga sistema sa kritikal na mga kapanguhaan, huyang nga pagpahimulos, o abusar sa katuyoan.
 
-Many times DoS attacks will attempt to consume all of a web site's available system resources such as: CPU, memory, disk space etc. When any one of these critical resources reach full utilization, the web site will normally be inaccessible.
+Daghan na higayon na ang mga atake sa DoS kay mosulay sa pagkaon tanan sa magamit na mga kapanguhaan sama sa: CPU, memory, disk space ug uban pa. Kung adunay usa ka kritikal na kapanguhaan nga makaabot sa hingpit na paggamit, ang web site kay normal na dili masudlan.
 
-As today's web application environments include a web server, database server and an authentication server, DoS at the application layer may target each of these independent components. Unlike DoS at the network layer, where a large number of connection attempts are required, DoS at the application layer is a much simpler task to perform.</desc>
-	<solution>Phase: Architecture and Design
+Sa sa web aplikasyon karon na mga palibot kay naglakip sa web server, database server ug usa ka authentication server, ang Dos na anaa sa aplikasyon na layer lay motarget sa matag independente nga mga komponent. Di pareha sa Dos nga anaa sa network na layer, na diin ang dako nga numero sa koneksyon kay nagsulay ug nagkinahanglan, ang DoS nga anaa sa aplikasyon na layer kay mas simple na buhat na buhatonon.</desc>
+	<solution>Bahin: Arkitektura ug Disenyo
 
-Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold.
+Desinyo sa paglihok sa mga mekanismo ngadto sa sistema sa arkitektura. Ang labing maayong proteksyon mao ang paglimit sa kantidad sa mga kapanguhaan nga ang dili awtorisado nga tiggamit kay makahimo ug gastohonon. Ang usa ka kusog nga pagkatinuod ug modelo sa access kontrol kay makatabang pagpugong sa mga pag-atake gikan sa pag-usab sa una nga dapit. Ang login na aplikasyon kay kinahanglan panalipdan batok sa mga atake sa DoS nga kutob sa iyang mahimo. Paglimitar sa database access, nga tingali pinaagi sa pag-cache nga resulta, kay makatabang na mapakunhod ang mga gipanggasto nga kapanguhaan. Sa dugang pa nga limit sa potensyal para sa atake nga DoS, hunahunaa ang pagsubay sa gidaghanon sa mga hangyo nga nadawat gikan sa mga tiggamit ug pagbabag sa mga hangyo nga labaw sa usa ka gihan-ay nga sukaranan nga rate.
 
-Mitigation of resource exhaustion attacks requires that the target system either:
-      recognizes the attack and denies that user further access for a given amount of time, or
-      uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+Pagtangtang sa kapanguhaan nga mga atake nagkinahanglan na ang target na sistema kay mahimo nga:
+      giila nga ang atake ug pagbalibad na ang tiggamit sa dugang nga pag-access para sa gihatag nga oras o
+      parehas nga mga hagit sa tanan nga mga hangyo aron mahimo kini nga mas lisod sa paggamit sa mga kahinguhaan na mas paspas kaysa ilang mga  gipangbuy-an. 
 
-The first of these solutions is an issue in itself though, since it may allow attackers to prevent the use of the system by a particular valid user. If the attacker impersonates the valid user, he may be able to prevent the user from accessing the server in question.
+Ang una sa mga solusyon niini kay ang isyu sa iyang kaugalingon nga bisan pa, tungod kay kini motugot sa mga tig-atake na mapugan ang paggamit sa sistema nga pinaagi sa partikular na balidong tggamit. Kung ang tig-atake kay nagapakaaron-ingnon na usa ka balido nga tiggamit, kay mahimo niya na mapugngan ang tiggamit sa pag-access sa server sa pangutana.
 
-The second solution is simply difficult to effectively institute -- and even when properly done, it does not provide a full solution. It simply makes the attack require more resources on the part of the attacker.
+Sa ikaduha nga solusyon kay yano nga pagkalisod aron sa epektibo nga institute -- ug bisan pa nga husto ang paghimo, kini wala maghatag ug usa ka bug-os nga solusyon. Kini yano gihimo sa tig-atake nga nagkinahanglan ug mga kapanguhaan sa bahin sa tig-atake.
 
-Ensure that protocols have specific limits of scale placed on them.
+Siguroha nga ang mga protocol kay adunay mga limitasyon sa gibutang ibabaw kanila.
 
-Phase: Implementation
-Ensure that all failures in resource allocation place the system into a safe posture.</solution>
+Bahin: Pagpatuman
+Siguroha nga tanan nga mga kapakyasan sa gigahin na kapanguhaan kay nagbutang sa sistema na luwas nga postura.</solution>
 	<reference>http://projects.webappsec.org/Denial-of-Service</reference>
 	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
 </vuln_item_wasc_10>
 
 <vuln_items>wasc_11a</vuln_items>
 <vuln_item_wasc_11a>
-	<alert>Brute Forcing Log-in Credentials</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
+	<alert>Brute Forcing Log-in na mga Kredensyal</alert>
+	<desc>Usa ka brute force na atake kay usa ka pamaagi sa pagtino sa wala mailhi na bili pinaagi sa paggamit sa awtomatiko na proseso aron sa pagsulay sa usa ka dako nga numero sa posible nga mga bili. Ang atake kay naghimulos sa kamatuoran nga ang entropy sa mga bili kay mas gamay kaysa nakit-an. Pananglitan, samtang usa ka 8 na karakter na alphanumeric password na mahimong 2.8 trilyon nga posible nga mga bili, daghan nga mga tawo na mopili sa ilang mga password gikan sa mas gamay na subset nga naglangkob sa komon nga mga pulong ug mga termino.
 
-The most common type of a brute force attack in web applications is an attack against log-in credentials. Since users need to remember passwords, they often select easy to memorize words or phrases as passwords, making a brute force attack using a dictionary useful. Such an attack attempting to log-in to a system using a large list of words and phrases as potential passwords is often called a "word list attack" or a "dictionary attack". Attempted passwords may also include variations of words common to passwords such as those generated by replacing "o" with "0" and "i" with "1" as well as personal information including family member names, birth dates and phone numbers.
+Ang labing komon na type sa usa ka brute force na atake sa web na mga aplikasyon kay ang atake batok sa log-in na mga kredensyal. Sukad ang mga tiggamit kay nagkinahanglan na hinumduman ang mga password, sila kanunay nga mopili ug sayon na pagsag-ulo sa mga pulong o mga phrase na ingon man ang mga password, nga naghimo sa usa ka brute force na atake na mogamit sa diksiyonaryo nga mapuslanon. Ang maong pag-atake nagsulay pag log-in sa sistema gamit ang dako nga listahan sa mga pulong ug mga hugpong na ingon sa potensyal na mga password sa kanunay nga gitawag ug usa ka "atake sa pulong nga listahan" o usa ka "atake sa diksiyonaryo". Pagsulay sa mga password kay naglakip usab sa mga pulong nga komon sa mga password, sama sa namugna nga pinaagi sa pag-ilis sa "o" sa "i" nga adunay "1" ug ingon man ang personal na impormasyon na naglakip sa mga pangalan sa membro sa pamilya, adaw natawhan ug mga numero sa telepono.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -349,10 +349,10 @@ The most common type of a brute force attack in web applications is an attack ag
 
 <vuln_items>wasc_11b</vuln_items>
 <vuln_item_wasc_11b>
-	<alert>Brute Forcing Session Identifiers</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
+	<alert>Brute Forcing na Sesyon na Tig-tanaw</alert>
+	<desc>Usa ka brute force na atake kay usa ka pamaagi sa pagtino sa wala mailhi na bili pinaagi sa paggamit sa awtomatiko na proseso aron sa pagsulay sa usa ka dako nga numero sa posible nga mga bili. Ang atake kay naghimulos sa kamatuoran nga ang entropy sa mga bili kay mas gamay kaysa nakit-an. Pananglitan, samtang usa ka 8 na karakter na alphanumeric password na mahimong 2.8 trilyon nga posible nga mga bili, daghan nga mga tawo na mopili sa ilang mga password gikan sa mas gamay na subset nga naglangkob sa komon nga mga pulong ug mga termino.
 
-Since HTTP is a stateless protocol, in order to maintain state web applications need to ensure that a session identifier is sent by the browser with each request. The session identifier is most commonly stored in an HTTP cookie or URL. Using a brute force attack, an attacker can guess the session identifier of another user. This can lead to the attacker impersonating the user, retrieving personal information and performing actions on behalf of the user.
+Sukad na ang HTTP kay usa ka stateless na protocol, aron pagmintinar ang estado na web na mga aplikasyon kay nagkinahanglan na siguruhon na ang sesyon na tig-tanaw kay nagpadala sa browser sa matag hangyo. Ang sesyon nga tig-tanaw kay pinaka komon na gitipigan sa HTTP cookie o URL. Gamit ang brute force na atake, ang tig-atake kay makatagna sa sesyon na tig-tanaw sa uban nga tiggamit. Mahimo kini nga ang tig-atake pagpakaaron-ingnon an ang tiggamit, pagkuha sa personal na impormasyon ug pagbuhat sa mga aksyon alang sa tiggamit.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -361,12 +361,12 @@ Since HTTP is a stateless protocol, in order to maintain state web applications 
 
 <vuln_items>wasc_11c</vuln_items>
 <vuln_item_wasc_11c>
-	<alert>Brute Forcing Directories and Files</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
+	<alert>Brute Forcing sa mga Direktoryo ug mga File</alert>
+	<desc>Usa ka brute force na atake kay usa ka pamaagi sa pagtino sa wala mailhi na bili pinaagi sa paggamit sa awtomatiko na proseso aron sa pagsulay sa usa ka dako nga numero sa posible nga mga bili. Ang atake kay naghimulos sa kamatuoran nga ang entropy sa mga bili kay mas gamay kaysa nakit-an. Pananglitan, samtang usa ka 8 na karakter na alphanumeric password na mahimong 2.8 trilyon nga posible nga mga bili, daghan nga mga tawo na mopili sa ilang mga password gikan sa mas gamay na subset nga naglangkob sa komon nga mga pulong ug mga termino.
 
-When files reside in directories that are served by the web server but are not linked anywhere, accessing those files requires knowing their file name. In some cases those files have been left by mistake: for example a backup file automatically created when editing a file or leftovers from an older version of the web application. In other cases files are intentionally left unlinked as a "security by obscurity" mechanism allowing only people who know the file names to access them.
+Kung ang mga file naa sa sulod sa mga direktoryo ug nagserbisyo sa web server pero dili kini nagsumpay sa bisag asa, pag-access sa maong mga file kay nagkinahanglan ug pagkaila sa pangalan sa file. Sa pipila ka mga kaso nga katong mga file na nahibin sa sayop: pananglitan ang usa ka backup file kay awtomatiko na gibuhat kung nag-edit ka ug usa ka file o mga nahibilin gikan sa daan nga bersyon sa web aplikasyon. Sa ubang mga kaso nga mga file kay tinuyo nga gibilin na dili nakasumpay nga ingon sa usa ka "seguridad sa pagkalubong" na mekanismo na nagtugot lamang sa mga tawo nga nakahibalo sa mga pangalan sa file aron ma-access kini.
 
-A brute force attack tries to locate the unlinked file by trying to access a large number of files. The list of attempted file names might be taken from a list of known potential files or based on variants of the visible files on the web site. More information on brute forcing directories and files can be found in the associated vulnerability, predictable resource location.
+Usa ka brute force na atake kay naningkamot nga makit-an ang wala nakasumpay sa file pinaagi sa pag-access sa usa ka dako nga numero sa mga file. Ang listahan sa gipugos na mga pangalan sa file kay mahimong makuha gikan sa listahan sa nailhan na potensyal na mga file o base sa mga laing mga makita na mga file sa web site. Daghan na impormasyon sa brute forcing na mga direktoryo ug mga file kay makita sa nahilakip na kahuyang, nahibal-an na kapanguhaan nga dapit.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -375,10 +375,10 @@ A brute force attack tries to locate the unlinked file by trying to access a lar
 
 <vuln_items>wasc_11d</vuln_items>
 <vuln_item_wasc_11d>
-	<alert>Brute Forcing Credit Card Information</alert>
-	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
+	<alert>Brute Forcing sa Impormasyon sa Credit Card</alert>
+	<desc>Usa ka brute force na atake kay usa ka pamaagi sa pagtino sa wala mailhi na bili pinaagi sa paggamit sa awtomatiko na proseso aron sa pagsulay sa usa ka dako nga numero sa posible nga mga bili. Ang atake kay naghimulos sa kamatuoran nga ang entropy sa mga bili kay mas gamay kaysa nakit-an. Pananglitan, samtang usa ka 8 na karakter na alphanumeric password na mahimong 2.8 trilyon nga posible nga mga bili, daghan nga mga tawo na mopili sa ilang mga password gikan sa mas gamay na subset nga naglangkob sa komon nga mga pulong ug mga termino.
 
-Shopping online with stolen credit cards usually requires information in addition to the credit card number, most often the CVV/SCS and/or expiration date. A fraudster may hold a stolen credit card number without the additional information. For example the CVV/CSC is not imprinted on the card or stored on the magnetic stripe so it cannot be collected by mechanical or magnetic credit card swiping devices.
+Ang Shopping online kay anaay gikawat na mga credit card na kasagaran nagkinahanglan ug impormasyon dugang pa sa credit card na numero, na labing kasagaran kay ang CVV/SCS ug/o petsa sa expiration. Usa ka mangingilad kay mahimo adunay kinawat na credit card na numeron na walay dugang pa nga impormasyon. Pananglitan ang CVV/CSC kay wala naka imprinta sa card o gitago sa magnetic stripe para dili koni makolekta pamaagi sa mekanikal o magnetic credit card swiping na mga device.
 
 In order to fill in the missing information the hacker can guess the missing information using a brute force technique, trying all possible values.
     * Guessing CVV/CSC requires only 1000 or 10000 attempts as the number is only 3 or 4 digits, depending on the card type.
@@ -392,7 +392,7 @@ In order to fill in the missing information the hacker can guess the missing inf
 <vuln_items>wasc_12</vuln_items>
 <vuln_item_wasc_12>
 	<alert>Content Spoofing</alert>
-	<desc>Content Spoofing is an attack technique that allows an attacker to inject a malicious payload that is later misrepresented as legitimate content of a web application.
+	<desc>Ang Content Spoofing kay usa ka atake na teknik na nagtugot sa tig-atake sa pag-inject sa usa ka malisyoso na payload nga sa ulahi kay sayop na paghulagway sa lehitimo nga sulod sa usa ka web aplikasyon.
  
 Text Only Content Spoofing
 A common approach to dynamically build pages involves passing the body or portions thereof into the page via a query string value. This approach is common on error pages, or sites providing story or news entries. The content specified in this parameter is later reflected into the page to provide the content for the page.
@@ -411,7 +411,7 @@ This attack exploits the trust relationship established between the user and the
 
 <vuln_items>wasc_13</vuln_items>
 <vuln_item_wasc_13>
-	<alert>Information Leakage</alert>
+	<alert>Leakage sa Impormasyon</alert>
 	<desc>Information Leakage is an application weakness where an application reveals sensitive data, such as technical details of the web application, environment, or user-specific data. Sensitive data may be used by an attacker to exploit the target web application, its hosting network, or its users. Therefore, leakage of sensitive data should be limited or prevented whenever possible. Information Leakage, in its most common form, is the result of one or more of the following conditions: A failure to scrub out HTML/Script comments containing sensitive information, improper application or server configurations, or differences in page responses for valid versus invalid data.
 
 Failure to scrub HTML/Script comments prior to a push to the production environment can result in the leak of sensitive, contextual, information such as server directory structure, SQL query structure, and internal network information. Often a developer will leave comments within the HTML and/or script code to help facilitate the debugging or integration process during the pre-production phase. Although there is no harm in allowing developers to include inline comments within the content they develop, these comments should all be removed prior to the content's public release.
@@ -602,7 +602,7 @@ Kon anaa, gamiton ang structured na mga mekanismo para awtomatiko na mopatuman s
 
 For example, stored procedures can enforce database query structure and reduce the likelihood of SQL injection.
 
-Understand the context in which your data will be used and the encoding that will be expected. Kini kay ilabi ka importante kon magpadala ug datos nga tali sa nagkalainglaing mga komponent, o sa diha nga pagmugna sa mga output nga mahimong adunay sunod na daghang mga encoding na sa samang higayon, sama sa mga web page o o multi-part mail na mga mensahe. Study all expected communication protocols and data representations to determine the required encoding strategies.
+Understand the context in which your data will be used and the encoding that will be expected. Kini kay ilabi ka importante kon magpadala ug datos nga tali sa nagkalainglaing mga komponent, o sa diha nga pagmugna sa mga output nga mahimong adunay sunod na daghang mga encoding na sa samang higayon, sama sa mga web page o o multi-part mail na mga mensahe. Pagtuon sa tanan kay gilauman na mga protocol sa komunikasyon ug representasyon sa datos sa pagtino sa kinahanglan ang encoding na mga estratehiya.
 
 In some cases, input validation may be an important strategy when output encoding is not a complete solution. For example, you may be providing the same output that will be processed by multiple consumers that use different encodings or representations. In other cases, you may be required to allow user-supplied input to contain control information, such as limited HTML tags that support formatting in a wiki or bulletin board. When this type of requirement must be met, use an extremely strict whitelist to limit which control sequences can be used. Verify that the resulting syntactic structure is what you expect. Use your normal encoding methods for the remainder of the input.
 
@@ -940,17 +940,17 @@ There are two main types of processes that require validation: flow control and 
 <vuln_item_wasc_41>
 	<alert>XML Attribute Blowup</alert>
 	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. The attacker provides a malicious XML document, which vulnerable XML parsers process in a very inefficient manner, leading to excessive CPU load. The essence of the attack is to include many attributes in the same XML node. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
-	<solution>Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold.
+	<solution>Design throttling mechanisms into the system architecture. Ang labing maayong proteksyon mao ang paglimit sa kantidad sa mga kapanguhaan nga ang dili awtorisado nga tiggamit kay makahimo ug gastohonon. Ang usa ka kusog nga pagkatinuod ug modelo sa access kontrol kay makatabang pagpugong sa mga pag-atake gikan sa pag-usab sa una nga dapit. Ang login na aplikasyon kay kinahanglan panalipdan batok sa mga atake sa DoS nga kutob sa iyang mahimo. Paglimitar sa database access, nga tingali pinaagi sa pag-cache nga resulta, kay makatabang na mapakunhod ang mga gipanggasto nga kapanguhaan. Sa dugang pa nga limit sa potensyal para sa atake nga DoS, hunahunaa ang pagsubay sa gidaghanon sa mga hangyo nga nadawat gikan sa mga tiggamit ug pagbabag sa mga hangyo nga labaw sa usa ka gihan-ay nga sukaranan nga rate.
 
 Mitigation of resource exhaustion attacks requires that the target system either:
  * recognizes the attack and denies that user further access for a given amount of time, or
  * uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
 
-The first of these solutions is an issue in itself though, since it may allow attackers to prevent the use of the system by a particular valid user. If the attacker impersonates the valid user, he may be able to prevent the user from accessing the server in question.
+Ang una sa mga solusyon niini kay ang isyu sa iyang kaugalingon nga bisan pa, tungod kay kini motugot sa mga tig-atake na mapugan ang paggamit sa sistema nga pinaagi sa partikular na balidong tggamit. Kung ang tig-atake kay nagapakaaron-ingnon na usa ka balido nga tiggamit, kay mahimo niya na mapugngan ang tiggamit sa pag-access sa server sa pangutana.
 
-The second solution is simply difficult to effectively institute -- and even when properly done, it does not provide a full solution. It simply makes the attack require more resources on the part of the attacker.
+Sa ikaduha nga solusyon kay yano nga pagkalisod aron sa epektibo nga institute -- ug bisan pa nga husto ang paghimo, kini wala maghatag ug usa ka bug-os nga solusyon. Kini yano gihimo sa tig-atake nga nagkinahanglan ug mga kapanguhaan sa bahin sa tig-atake.
 
-Ensure that protocols have specific limits of scale placed on them.
+Siguroha nga ang mga protocol kay adunay mga limitasyon sa gibutang ibabaw kanila.
 
 Ensure that all failures in resource allocation place the system into a safe posture.</solution>
 	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>

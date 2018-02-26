@@ -186,7 +186,7 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
-	<alert>Buffer Overflow</alert>
+	<alert>Pufferüberlauf</alert>
 	<desc>A Buffer Overflow is a flaw that occurs when more data is written to a block of memory, or buffer, than the buffer is allocated to hold. Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
     * Control the process execution
     * Crash the process
@@ -411,7 +411,7 @@ This attack exploits the trust relationship established between the user and the
 
 <vuln_items>wasc_13</vuln_items>
 <vuln_item_wasc_13>
-	<alert>Information Leakage</alert>
+	<alert>Informationsleck</alert>
 	<desc>Information Leakage is an application weakness where an application reveals sensitive data, such as technical details of the web application, environment, or user-specific data. Sensitive data may be used by an attacker to exploit the target web application, its hosting network, or its users. Therefore, leakage of sensitive data should be limited or prevented whenever possible. Information Leakage, in its most common form, is the result of one or more of the following conditions: A failure to scrub out HTML/Script comments containing sensitive information, improper application or server configurations, or differences in page responses for valid versus invalid data.
 
 Failure to scrub HTML/Script comments prior to a push to the production environment can result in the leak of sensitive, contextual, information such as server directory structure, SQL query structure, and internal network information. Often a developer will leave comments within the HTML and/or script code to help facilitate the debugging or integration process during the pre-production phase. Although there is no harm in allowing developers to include inline comments within the content they develop, these comments should all be removed prior to the content's public release.
