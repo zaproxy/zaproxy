@@ -221,13 +221,13 @@ Podczas alokowania pamięci aplikacji i zarządzania nią należy wziąć pod uw
 Faza: Obsługa
 Używaj funkcji takiej jak Address Space Layout Randomization (ASLR).
 
-Phase: Operation
+Faza: Obsługa
 
-Use a CPU and operating system that offers Data Execution Protection (NX) or its equivalent.
+Używaj procesora i systemu operacyjnego, który ofiaruje Uruchamiania Ochrony Danych (NX) lub jest to równoważne.
 
-Phase: Implementation
+Faza: Implementacja
 
-Replace unbounded copy functions with analogous functions that support length arguments, such as strcpy with strncpy. Create these if they are not available.
+Zamień nieograniczone kopie funkcji z analogicznymi funkcjami, które wspierają długość argumentów takich jak strcpy z strncpy. Jeśli nie są dostępne, stwórz je.
 </solution>
 	<reference>http://projects.webappsec.org/Buffer-Overflow</reference>
 	<reference>http://cwe.mitre.org/data/definitions/119.html</reference>
@@ -236,12 +236,12 @@ Replace unbounded copy functions with analogous functions that support length ar
 <vuln_items>wasc_8</vuln_items>
 <vuln_item_wasc_8>
 	<alert>Cross-site Scripting</alert>
-	<desc>Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
-When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.
+	<desc>Cross-site Scripting (XSS) to technika ataku, która polega na odbiorze kodu dostarczonego przez osobę atakującą do instancji przeglądarki użytkownika. Przykładem przeglądarki może być standardowy klient przeglądarki internetowej lub wbudowany w oprogramowaniu obiekt wyszukiwarki taki jak przeglądarka w WinAmpie, czytniku RSS lub klient e-maila. Sam kod jest zwykle napisany w HTML/JavaScripcie, ale też rozszerzony o VBScript, ActiveX, Jave, Flasha lub jakąkolwiek inną technologię obsługującą przeglądarki.
+Jeśli haker zdobędzie przeglądarkę użytkownika do wykonywania jego/jej kodu, to kod zostanie uruchomiony w kontekście(lub strefie) bezpieczeństwa hostującej strony internetowej. Z takim poziomem przywileju, kod ma możliwość czytania, modyfikowania i transmitowania jakichkolwiek dostępnych danych poprzez przeglądarkę. Użytkownik używający skryptów krzyżowych może zostać przejęty przez swoje konto (kradzież plików cookie), przeglądarka zostanie przekierowana do innej lokalizacji lub może zostać dostarczona fałszywa zawartość przez odwiedzaną witrynę internetową. Ataki typu "cross-site scripting" zasadniczo naruszają kredyt zaufania między użytkownikiem a witryną internetową. Aplikacje wykorzystujące instancje obiektów przeglądarki, które ładują zawartość z systemu plików, mogą wykonywać kod zgodnie zlokalną strefą maszyny, co pozwala na naruszenie systemu.
 
-There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
-Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
-Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
+Są trzy typy ataków Cross-site Scripting: nieustępliwy, ustępliwy i oparty na DOM.
+Ustępliwe ataki i ataki oparte na domenie DOM wymagają od użytkownika odwiedzenia specjalnie zrobionego ręcznie linku ze złośliwym kodem lub odwiedzenia złośliwej strony internetowej zawierającej formularz internetowy, który po opublikowaniu w narażonej witrynie spowoduje atak. Używanie złośliwej formy często ma miejsce, gdy narażony na atak zasób akceptuje tylko żądania HTTP POST. W takim wypadku, forma może być podporządkowany automatycznie, bez wiedzy ofiary(n.p poprzez użycie JavaScriptu). Po kliknięciu szkodliwego linku lub przesłaniu złośliwego formularza, ładunek XSS zostanie wysłany z powrotem i zostanie zinterpretowany przez przeglądarkę użytkownika i wykonany. Inną techniką do wysyłania niemal bezwzględnych żądań(DOSTAĆ i WYSŁAĆ) jest poprzez użycie wbudowany klient, taki jak Adobe Flash.
+Trwałe ataki pojawiają się kiedy złośliwy kod jest wysyłany do witryny gdzie jest przechowywany przez jakiś okres czasu. Przykłady ulubionych celów hakerów obejmują posty wiadomości na tablicy, maile i oprogramowanie czatu witryny. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
 	<solution>Faza: Architektura i Projektowanie
 Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
