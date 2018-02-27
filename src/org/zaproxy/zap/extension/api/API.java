@@ -433,19 +433,8 @@ public class API {
 						validateFormatForViewAction(format);
 
 						ApiAction action = impl.getApiAction(name);
+						validateMandatoryParams(params, action);
 
-						if (action != null) {
-							// Checking for null to handle option actions
-							List<String> mandatoryParams = action.getMandatoryParamNames();
-							if (mandatoryParams != null) {
-								for (String param : mandatoryParams) {
-									if (!params.has(param) || params.getString(param).length() == 0) {
-										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
-									}
-								}
-							}
-						}
-						
 						res = impl.handleApiOptionAction(name, params);	
 						if (res == null) {
 							res = impl.handleApiAction(name, params);
@@ -462,17 +451,8 @@ public class API {
 						validateFormatForViewAction(format);
 
 						ApiView view = impl.getApiView(name);
-						if (view != null) {
-							// Checking for null to handle option actions
-							List<String> mandatoryParams = view.getMandatoryParamNames();
-							if (mandatoryParams != null) {
-								for (String param : mandatoryParams) {
-									if (!params.has(param) || params.getString(param).length() == 0) {
-										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
-									}
-								}
-							}
-						}
+						validateMandatoryParams(params, view);
+
 						res = impl.handleApiOptionView(name, params);	
 						if (res == null) {
 							res = impl.handleApiView(name, params);
@@ -492,14 +472,7 @@ public class API {
 									throw new ApiException(ApiException.Type.BAD_API_KEY);
 								}
 							}
-							List<String> mandatoryParams = other.getMandatoryParamNames();
-							if (mandatoryParams != null) {
-								for (String param : mandatoryParams) {
-									if (!params.has(param) || params.getString(param).length() == 0) {
-										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
-									}
-								}
-							}
+							validateMandatoryParams(params, other);
 						}
 						msg = impl.handleApiOther(msg, name, params);
 						break;
@@ -511,14 +484,7 @@ public class API {
 									throw new ApiException(ApiException.Type.BAD_API_KEY);
 								}
 							}
-							List<String> mandatoryParams = pconn.getMandatoryParamNames();
-							if (mandatoryParams != null) {
-								for (String param : mandatoryParams) {
-									if (!params.has(param) || params.getString(param).length() == 0) {
-										throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
-									}
-								}
-							}
+							validateMandatoryParams(params, pconn);
 						}
 						impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
 						return new HttpMessage();
@@ -568,6 +534,29 @@ public class API {
 		}
 		
 		return msg;
+	}
+
+	/**
+	 * Validates that the mandatory parameters of the given {@code ApiElement} are present, throwing an {@code ApiException} if
+	 * not.
+	 *
+	 * @param params the parameters of the API request.
+	 * @param element the API element to validate.
+	 * @throws ApiException if any of the mandatory parameters is missing.
+	 */
+	private void validateMandatoryParams(JSONObject params, ApiElement element) throws ApiException {
+		if (element == null) {
+			return;
+		}
+
+		List<String> mandatoryParams = element.getMandatoryParamNames();
+		if (mandatoryParams != null) {
+			for (String param : mandatoryParams) {
+				if (!params.has(param) || params.getString(param).length() == 0) {
+					throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
+				}
+			}
+		}
 	}
 	
 	/**
