@@ -350,8 +350,6 @@ public class API {
 					try {
 						format = Format.valueOf(elements[3].toUpperCase());
 						switch (format) {
-						case JSON: 	contentType = "application/json; charset=UTF-8";
-									break;
 						case JSONP: contentType = "application/javascript; charset=UTF-8";
 									break;
 						case XML:	contentType = "text/xml; charset=UTF-8";
@@ -360,8 +358,10 @@ public class API {
 									break;
 						case UI:	contentType = "text/html; charset=UTF-8";
 									break;
+						case JSON:
 						default:
-									break;
+							contentType = "application/json; charset=UTF-8";
+							break;
 						}
 					} catch (IllegalArgumentException e) {
 						format = Format.HTML;
@@ -430,6 +430,7 @@ public class API {
 								throw new ApiException(ApiException.Type.BAD_API_KEY);
 							}
 						}
+						validateFormatForViewAction(format);
 
 						ApiAction action = impl.getApiAction(name);
 
@@ -449,18 +450,7 @@ public class API {
 						if (res == null) {
 							res = impl.handleApiAction(name, params);
 						}
-						switch (format) {
-						case JSON: 	response = res.toJSON().toString();
-									break;
-						case JSONP: response = this.getJsonpWrapper(res.toJSON().toString()); 
-									break;
-						case XML:	response = responseToXml(name, res);
-									break;
-						case HTML:	response = responseToHtml(res);
-									break;
-						default:
-									break;
-						}
+						response = convertViewActionApiResponse(format, name, res);
 							
 						break;
 					case view:		
@@ -469,6 +459,8 @@ public class API {
 								throw new ApiException(ApiException.Type.BAD_API_KEY);
 							}
 						}
+						validateFormatForViewAction(format);
+
 						ApiView view = impl.getApiView(name);
 						if (view != null) {
 							// Checking for null to handle option actions
@@ -485,18 +477,7 @@ public class API {
 						if (res == null) {
 							res = impl.handleApiView(name, params);
 						}
-						switch (format) {
-						case JSON: 	response = res.toJSON().toString();
-									break;
-						case JSONP: response = this.getJsonpWrapper(res.toJSON().toString()); 
-									break;
-						case XML:	response = responseToXml(name, res);
-									break;
-						case HTML:	response = responseToHtml(res);
-									break;
-						default:
-									break;
-						}
+						response = convertViewActionApiResponse(format, name, res);
 
 						break;
 					case other:
@@ -564,7 +545,7 @@ public class API {
 					}
 				}
 			}
-			handleException(msg, format, contentType, e);
+			handleException(msg, reqType, format, contentType, e);
 			error = true;
 		}
 		
@@ -589,6 +570,54 @@ public class API {
 		return msg;
 	}
 	
+	/**
+	 * Converts the given {@code ApiResponse} to {@code String} representation.
+	 * <p>
+	 * This is expected to be used just for views and actions.
+	 * 
+	 * @param format the format to convert to.
+	 * @param name the name of the view or action.
+	 * @param res the {@code ApiResponse} to convert.
+	 * @return the string representation of the {@code ApiResponse}.
+	 * @throws ApiException if an error occurred while converting the response or if the format was not handled.
+	 * @see #validateFormatForViewAction(Format)
+	 */
+	private static String convertViewActionApiResponse(Format format, String name, ApiResponse res) throws ApiException {
+		switch (format) {
+		case JSON:
+			return res.toJSON().toString();
+		case JSONP:
+			return getJsonpWrapper(res.toJSON().toString());
+		case XML:
+			return responseToXml(name, res);
+		case HTML:
+			return responseToHtml(res);
+		default:
+			// Should not happen, format validation should prevent this case...
+			logger.error("Unhandled format: " + format);
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+		}
+	}
+
+	/**
+	 * Validates that the given format is supported for views and actions.
+	 *
+	 * @param format the format to validate.
+	 * @throws ApiException if the format is not valid.
+	 * @see #convertViewActionApiResponse(Format, String, ApiResponse)
+	 */
+	private static void validateFormatForViewAction(Format format) throws ApiException {
+		switch (format) {
+		case JSON:
+		case JSONP:
+		case XML:
+		case HTML:
+			return;
+		default:
+			throw new ApiException(ApiException.Type.BAD_FORMAT, "The format OTHER should not be used with views and actions.");
+		}
+	}
+
 	/**
 	 * Returns a URI for the specified parameters.
 	 * <p>
@@ -729,7 +758,7 @@ public class API {
 		return jp;
 	}
 	
-	private String getJsonpWrapper(String json) {
+	private static String getJsonpWrapper(String json) {
 		return "zapJsonpResult (" + json + " )";
 	}
 
@@ -925,9 +954,9 @@ public class API {
         return sb.toString();
     }
 
-    private void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
+    private void handleException(HttpMessage msg, RequestType reqType, Format format, String contentType, Exception cause) {
         String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
-        if (format == Format.OTHER) {
+        if (reqType == RequestType.other) {
             boolean logError = true;
             if (cause instanceof ApiException) {
                 switch (((ApiException) cause).getType()) {
@@ -962,7 +991,8 @@ public class API {
                 exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
                 logger.error("Exception while handling API request:", cause);
             }
-            String response = exception.toString(format, getOptionsParamApi().isIncErrorDetails());
+            String response = exception
+                    .toString(format != Format.OTHER ? format : Format.JSON, getOptionsParamApi().isIncErrorDetails());
 
             msg.getResponseBody().setCharset(getCharset(contentType));
             msg.getResponseBody().setBody(response);
