@@ -515,11 +515,11 @@ Kung mahimo, kini mahimo nga labing luwas sa pagdili pagtugot sa meta-mga karakt
 	<alert>Dili sakto nga pag-input na Pagkupot</alert>
 	<desc>Ang dili sakto nga pag-input sa pagkupot sa usa sa pinaka komon na mga mahuyang gituohan nga tabok sa mga aplikasyon karon. Pobre nga pagkupot sa input kay mao ang nag-unang hinungdan sa likod sa kritikal na mga kahuyangan na anaaa sa mga sistema ug mga aplikasyon.
 	
-Sa kinatibuk-an, ang pulong na pag-input sa pagdumala kay gigamit para paghulagway sa mga gimbuhaton pareha sa pagbalido, pag-filter, pag-encode ug/o pag-decode sa input na datos. Mga aplikasyon kay nagdawat ug input gikan sa lainlain nga mga tinubdan lakip na ang tawo nga mga tiggamit, software na mga ahente (mga browser), ug network/peripheral na mga device para mopangalan sa pipila lang. In the case of web applications, input can be transferred in various formats (name value pairs, JSON, SOAP, etc...) and obtained via URL query strings, POST data, HTTP headers, Cookies, etc... Non-web application input can be obtained via application variables, environment variables, the registry, configuration files, etc... Regardless of the data format or source/location of the input, all input should be considered untrusted and potentially malicious. Applications which process untrusted input may become vulnerable to attacks such as Buffer Overflows, SQL Injection, OS Commanding, Denial of Service just to name a few.
+Sa kinatibuk-an, ang pulong na pag-input sa pagdumala kay gigamit para paghulagway sa mga gimbuhaton pareha sa pagbalido, pag-filter, pag-encode ug/o pag-decode sa input na datos. Mga aplikasyon kay nagdawat ug input gikan sa lainlain nga mga tinubdan lakip na ang tawo nga mga tiggamit, software na mga ahente (mga browser), ug network/peripheral na mga device para mopangalan sa pipila lang. Sa kaso sa web na mga aplikasyon, ang gipasulod kay pwede nga mapadala sa lainlain na mga format (mga pares sa pangalan na bili, JSON, SOAP, ug uban pa) ug ang nakuha gamit ang URL query na mga string, POST na datos, HTTP na mga header, mga Cookie, ug uban pa... Ang dili web aplikasyon na gipangsulod kay pwede makakuha gamit ang mga variable sa aplikasyon, mga environment na mga variable, ang registry, mga file sa configuration, ug uban pa... Dili igsapayan sa datos na format o tinubdan/dapit sa gipasulod, tanan nga gipasulod kay dapat moisip sa dili kasaligan ug kalagmitan na mga malisyoso. Ang mga aplikasyon nga nagproseso nga dili matuohan na gipangsulod kay mahimong mahuyang sa mga atake sama sa Buffer na mga Overflow, SQL Injection, OS na Pagsugo, Pagbalibad sa Serbisyo para lang mapanganlan ang uban.
 
-One of the key aspects of input handling is validating that the input satisfies a certain criteria. For proper validation, it is important to identify the form and type of data that is acceptable and expected by the application. Defining an expected format and usage of each instance of untrusted input is required to accurately define restrictions. 
+Usa sa dako nga aspeto sa paggunit sa gipangsulod kay ang pagbalido na ang gipangsulod kay makatagbaw sa pipila ka criteria. Para sa sakto nga balidasyon, kini kay importante nga mailhan ang porma ug tipo sa usa ka datos na kana dalawaton ug gilauman sa usa ka aplikasyon. Pagdetalye sa gipaabut nga pormat ug paggamit sa matag instance sa dili kasaligan nga gipasulod ay nagkinahanglan sa pagtukma nga nagpaila sa mga pagdili. 
 
-Validation can include checks for type safety and correct syntax. String input can be checked for length (min and max number of characters) and character set validation while numeric input types like integers and decimals can be validated against acceptable upper and lower bound of values. When combining input from multiple sources, validation should be performed during concatenation and not just against the individual data elements. This practice helps avoid situations where input validation may succeed when performed on individual data items but fails when done on a combined set from all the sources.</desc>
+Ang balidasyon kay pwede nga makaapil ug tan-aw para sa tipo nga maayo ug sakto nga syntax. Ang String na gipasulod kay motan-aw para sa gitasyon (min ug max na numero sa mga karakter) ug karakter na nagtakda ug balidasyon samtang ang numeric na gipasulod na tipo kay pareha sa mga integer ug mga desimal kay mahimong balido batok sa gidawat na taas ug ubos na utlanan sa mga bili. Sa pagkombinar sa gipangsulod gikan sa daghan nga mga tinubdan, ang balidasyon kay dapat na mobuhat atol sa paghugpong ug dili lamang batok sa indibidwal nga datos na mga elemento. Kini nga mga pagbansay kay makatabang sa paglikay sa mga sitwasyon diin ang pag-validate sa gipangsulod kay mahimo nga magmalampuson kon himoon sa indibidwal na datos na mga item apan napakyas sa paghimo sa pag kombinar sa gitakda gikan sa taman nga mga tinubdan.</desc>
 	<solution>Bahin: Arkitektura ug Disenyo
 
 Gamita ang input input validation nga framework sama sa mga Strut o ang OWASP ESAPI Validation API.
@@ -528,21 +528,21 @@ Understand all the potential areas where untrusted inputs can enter your softwar
 
 For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side. Ang mga tig-atake kay mahimong maka-bypass sa bahin sa kliyente sa pag-usab sa mga bili paghuman sa pagtan-aw kung unsa na ang nabuhat, o pinaagi sa pagbag-o sa kliyente para matangtang ang bahin sa kliyente nga pangtan-aw sa kinatibuk-an. Dayon, kini nga mga gipangbag-o na mga bili, kay mahimong isumite sa server.
 
-Even though client-side checks provide minimal benefits with respect to server-side security, they are still useful. First, they can support intrusion detection. If the server receives input that should have been rejected by the client, then it may be an indication of an attack. Second, client-side error-checking can provide helpful feedback to the user about the expectations for valid input. Third, there may be a reduction in server-side processing time for accidental input errors, although this is typically a small savings.
+Bisan pa ang kliyente nga bahin kay nagatan-aw sa paghatag sa gamay nga mga benepisyo na adunay pagtahod sa server na bahin na seguridad, sila kay magamit pa. Una, sila kay nagasuporta sa pagkakita sa mosulod. Kung ang server kay nakadawat ug gipasulod na dapat kay wala dawat sa usa ka kliyente, nan kini mahimo usa ka indikasyon sa usa ka atake. Ikaduha, ang kliyente-server na bahin kay nagtan-aw ug mga sayop kay makatabang nga makatabang sa feedback sa usa ka tiggamit mahitungod sa mga gilauman para sa balido nga gipasulod. Ikatulo, mahimong adunay usa ka pagkunhod sa server nabahin sa pagproseso sa oras para sa wala tuyoa nga gipasulod nga mga sayop, nga bisan kini kasagaran usa ka gamay nga mga tinipigan.
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
+Ayaw pagsalig sa lamang sa blacklist nga balidasyon para makita ang mga malisyoso nga gipangsulod o para sa gi-encode nga pagawas. Aduna sad nga daghan nga pamaagi sa pag-encode sa pareho nga karakter, nga busa mahimo nimo na mawala ang pipila ka mga variant.
 
-When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.
+Kung ang imong aplikasyon kay nakighiusa sa datos gikan sa daghan nga mga tinubdan, para lang makabuhat sa balidasyon paghuman sa mga tinubdan na gihiusa. Ang indibidwal nga datos nga mga elemento kay makapasar sa balidasyon na lakang apan naglapas sa gituyo na mga pagdili ug human na sila adunay gihiusa.
 
 Hunahunaa nga ang tanan nga input kay malisyoso. Mogamit ug "dawata ang maayo nga nahibal-an" sa pagsulod sa pagbalido na estratehiya i.e., gamita ang usa ka whitelist sa mga madawat nga mga input nga estrikto nga subay sa mga paghingalan. Isalikway ang bisan unsang pagsulod nga dili hugot subay sa mga paghingalan, o na nag-usab kini sa bisag unsa nga gibuhat. Ayaw pagsalig lamang sa pagpangita sa mga malisyoso o sayop nga mga pagpasulod (pan., ayaw pagsalig sa blacklist). Bisan pa niini, ang mga blacklist kay mahimong mapuslanon para sa pagmatikod sa potensyal na mga atake o pagtino sa mga gipangsulod kay perteng pagkasayopa na sila nagkinahanglan nga isalikway dayon.
 
-Sa paghimo sa pagpasulod na pagbalido, hunahunaa ang tanan nga kalabutan sa mga kabtangan, naglakip na sa gitas-on, tipo sa pagpasulod, ang bug-os nga lugway sa gipangdawat nga mga bili, nawala o sobra nga mga pagsulod, syntax, pagkamakanunayon sa tibuuk nga mga natad, ug pagpahiuyon sa mga lagda sa negosyo. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Sa paghimo sa pagpasulod na pagbalido, hunahunaa ang tanan nga kalabutan sa mga kabtangan, naglakip na sa gitas-on, tipo sa pagpasulod, ang bug-os nga lugway sa gipangdawat nga mga bili, nawala o sobra nga mga pagsulod, syntax, pagkamakanunayon sa tibuuk nga mga natad, ug pagpahiuyon sa mga lagda sa negosyo. Ingon sa pananglitan na negosyo na lohika sa pagmando "barko" kay mahimo nga syntactically na balido tungod kini naglangkob sa alphanumeric na mga karakter, apan dili kini usa ka balido kung ikaw nagpaabot ug mga kolor na sama sa "pula" o "asul."
 
-Phase: Implementation
+Bahin: Pagpatuman
 
-Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. This could create an unexpected interaction between the language boundaries. Ensure that you are not violating any of the expectations of the language with which you are interfacing. For example, even though Java may not be susceptible to buffer overflows, providing a large argument in a call to native code might trigger an overflow.
+Pagbaton gayud ug pag-amping sa pagbalido sa imong gipangsulod kung ikaw nangayo ug code na mo labang sa pinulungan na mga utlanan, sama sa gikan sa gihubad na pinulungan ngadto sa lumad na code. Kmakahimo kini nga makabuhat ug wala damha nga interaksiyon tali sa pinulongan nga mga utlanan. Siguroha nga ikaw wala nakalapas ug bisag unsa nga mga gilauman sa mga pinulungan nga ikaw nag-interfacing. Pananglitan, bisan pa ang Java mahimo na dili madala sa pag-buffer overflows, naghatag ug dako nga argumento para sa usa ka tawag na lumad nga code nga mahimong usa ka hinungdan sa usa ka overflow.
 
-Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. Pagkatapos sa pagkakabig sa gipaabot nga tipo sa datos, siguroha nga ang gi-input na mga bili mahulog sulod sa gipaabot nga gidak-on sa gitugot na mga bili ug kana nga multi-field na mga pagkaporma kay gipadayon.
+Direkta nga pagkausab sa imong gipangsulod na tipo ngadto sa gipaabot nga matang sa datos, sama sa imong gigamit na pagkakabig nga function na nagahubad sa usa ka string ngadto sa usa ka numero. Pagkatapos sa pagkakabig sa gipaabot nga tipo sa datos, siguroha nga ang gi-input na mga bili mahulog sulod sa gipaabot nga gidak-on sa gitugot na mga bili ug kana nga multi-field na mga pagkaporma kay gipadayon.
 
 Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not inadvertently decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.
 
@@ -556,17 +556,17 @@ When exchanging data between components, ensure that both components are using t
 <vuln_items>wasc_21</vuln_items>
 <vuln_item_wasc_21>
 	<alert>Dili igo nga Anti awtomasyon</alert>
-	<desc>Insufficient Anti-automation occurs when a web application permits an attacker to automate a process that was originally designed to be performed only in a manual fashion, i.e. by a human web user.
+	<desc>Ang dili sakto nga Anti-awtomatikasyon kay mahitabo kung ang usa ka web aplikasyon kay nagatugot sa tig-atake sa pag awtomatiko sa proseso na diin orihinal nga gibuhat para mohimo lamang sa mano-mano nga uso. pan. pinaagi sa tawhanong web na tiggamitan.
 
-Web application functionality that is often a target for automation attacks may include:
-    * Application login forms – attackers may automate brute force login requests in an attempt to guess user credentials
-    * Service registration forms – attackers may automatically create thousands of new accounts
-    * Email forms – attackers may exploit email forms as spam relays or for flooding a certain user’s mailbox
-    * Account maintenance – attackers may perform mass DoS against an application, by flooding it with numerous requests to disable or delete user accounts
-    * Account information forms – attackers may perform mass attempts to harvest user personal information from a web application
-    * Comment forms / Content Submission forms – these may be used for spamming blogs, web forums and web bulletin boards by automatically submitting contents such as spam or even web-based malware
-    * Forms tied to SQL database queries - these may be exploited in order to perform a denial of service attack against the application. The attack is performed by sending numerous heavy SQL queries in a short period of time, hence denying real users from service.
-    * eShopping / eCommerce - eShopping and eCommerce applications that do not enforce human-only buyers, can be exploited in order to buy preferred items in large amounts, such as sporting events tickets. These are later sold by scalpers for higher prices.
+Ang web aplikasyon na functionality nga mao ang kanunay nga usa ka target para sa awtomatiko na mga atake na mahimong maglakip:
+    * Aplikasyon na login na mga form – ang mga tig-atake kay mo awtomatiko ug brute force login na mga hangyo sa usa ka piagsulay sa pagtagna sa mga kredensyal
+    * Serbisyo na pagrehistro sa mga porma – ang mga tig-atake kay awtomatiko nga mobuhat ug usa ka libo nga bag-o nga mga account
+    * Email na mga porma – ang mga tig-atake kay mahimong pahimuslan ang email na mga porma ingon nga spam relays o para pagbaha sa usa ka piho na mailbox sa tiggamitan
+    * Pagmintinar sa Account – ang tig-atake kay mahimo nga buhaton ang masa nga DoS batok sa aplikasyon, sa pagbuhat sa pagbaha niini gamit ang grabe kadaghan nga mga hangyo para i-disable o tangtangon ang mga account sa tiggamitan
+    * Mga porma sa Account na impormasyon – ang mga tig-atake kay mahimong mopahigayon sa mga paningkamot sa masa ug panguha ug mga personal na impormasyon sa tiggamitan gikan sa usa ka web aplikasyon
+    * Komento sa mga porma / Mga porma sa sulod nga gipangsumite – kini mahimong gamiton para sa pag-spam sa mga blog, mga forum sa web ug mga bulletin board sa web na pinaagi sa awtomatikong pagpadalaby ug mga sulod sama sa spam o  bisan ang web-based malware
+    * Mga porma nga gigapos sa mga query sa SQL database - kini mahimong mapahimuslan para makabuhat ug pagbalibad sa serbisyo na atake batok sa aplikasyon. Ang atake kay nakabuhat pinaagi sa daghan nga pagpadala ug grabe kadaghan na SQL na mga query sa usa ka mubo nga panahon, busa nagbalidad sa tinood nga tiggamitan ngadto sa serbisyo.
+    * eShopping / eCommerce - ang eShopping ug eCommerce na mga apliasyon nga dili nagpatuman sa tawo lamang nga mga mamalit, kini mahimong mapahimuslan ang pag-order sa paliton nga gusto na mga item sa dako ng bili, sama sa mga dula na mga panghitabo ug mga ticket. Mao kini ang gibaligya sa ulahi sa mga scalper sa dako nga mga presyo.
     * Online polls - polls and other types of online voting systems can be automatically subverted in favor of a certain choice.
     * Web-based SMS message sending - attackers may exploit SMS message sending systems in order to spam mobile phone users
 	</desc>
@@ -621,11 +621,11 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
-	<alert>HTTP Request Splitting</alert>
-	<desc>HTTP Request Splitting is an attack that enables forcing the browser to send arbitrary HTTP requests, inflicting XSS and poisoning the browser's cache. The essence of the attack is the ability of the attacker, once the victim (browser) is forced to load the attacker's malicious HTML page, to manipulate one of the browser's functions to send 2 HTTP requests instead of one HTTP request. Two such mechanisms have been exploited to date: the XmlHttpRequest object (XHR for short) and the HTTP digest authentication mechanism. For this attack to work, the browser must use a forward HTTP proxy (not all of them "support" this attack), or the attack must be carried out against a host located on the same IP (from the browser's perspective) with the attacker's machine.</desc>
-	<solution>Avoid using CRLF as a special sequence.
+	<alert>HTTP na Hanyo sa Pag-split</alert>
+	<desc>HTTP Request Splitting is an attack that enables forcing the browser to send arbitrary HTTP requests, inflicting XSS and poisoning the browser's cache. The essence of the attack is the ability of the attacker, once the victim (browser) is forced to load the attacker's malicious HTML page, to manipulate one of the browser's functions to send 2 HTTP requests instead of one HTTP request. Two such mechanisms have been exploited to date: the XmlHttpRequest object (XHR for short) and the HTTP digest authentication mechanism. Para sa kini nga atake para mogana, ang browser kay dapat na mogamit ug usa ka abante nga HTTP proxy (dili tanan kanial "suporta" sa kini nga atake), o ang atake kay kinahanglang ipatuman sa usa ka host na makit-an sa pareho na IP (gikan sa panglantawsa browser) nga adunay mga tig-atake na makina.</desc>
+	<solution>Likayi ang paggamit sa CRLF na ingon nga usa ka espesyal nga han-ay.
 
-Appropriately filter or quote CRLF sequences in user-controlled input.</solution>
+Nahiangay na filter o nag- quote ig CRLF mga pagkasunodsunod sa gipangsulod sa kontrolado sa tiggamitan.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
 </vuln_item_wasc_24>
@@ -650,13 +650,13 @@ HTTP Response Splitting attacks take place where the server script embeds user d
 <vuln_item_wasc_26>
 	<alert>HTTP Request Smuggling</alert>
 	<desc>HTTP Request Smuggling is an attack technique that abuses the discrepancy in parsing of non RFC compliant HTTP requests between two HTTP devices (typically a front-end proxy or HTTP-enabled firewall and a back-end web server) to smuggle a request to the second device "through" the first device. This technique enables the attacker to send one set of requests to the second device while the first device sees a different set of requests. In turn, this facilitates several possible exploitations, such as partial cache poisoning, bypassing firewall protection and XSS.</desc>
-	<solution>Use a web server that employs a strict HTTP parsing procedure, such as Apache (See paper in reference).
+	<solution>Gamita ang usa ka web server nga gigamit sa usa ka estrikto na HTTP na pag-parse na pamaagi, sama sa Apache (Tan-awa ang papel sa reperensya).
 
-Use only SSL communication.
+Gamita lamang ang SSL na komunikasyon.
 
-Terminate the client session after each request.
+Pag-undang sa sesyon sa kliyente human sa matag usa ka hangyo.
 
-Turn all pages to non-cacheable.</solution>
+Baliha ang tanang panid ngadto sa dili makacache.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Smuggling</reference>
 	<reference>http://cwe.mitre.org/data/definitions/444.html</reference>
 </vuln_item_wasc_26>
@@ -689,7 +689,7 @@ Hunahunaa nga ang tanan nga input kay malisyoso. Use a standard input validation
 
 Use and specify a strong output encoding (such as ISO 8859-1 or UTF 8).
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many variants to encode a character; you're likely to miss some variants.
+Ayaw pagsalig sa lamang sa blacklist nga balidasyon para makita ang mga malisyoso nga gipangsulod o para sa gi-encode nga pagawas. There are too many variants to encode a character; you're likely to miss some variants.
 
 Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked.</solution>
 	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
@@ -717,9 +717,9 @@ When a web application fails to properly sanitize user-supplied input, it is pos
 
 Hunahunaa nga ang tanan nga input kay malisyoso. Use an "accept known good" input validation strategy (i.e., use a whitelist). Isalikway ang bisan unsang pagsulod nga dili hugot subay sa mga paghingalan, o na nag-usab kini sa bisag unsa nga gibuhat. Use a blacklist to reject any unexpected inputs and detect potential attacks.
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
+Ayaw pagsalig sa lamang sa blacklist nga balidasyon para makita ang mga malisyoso nga gipangsulod o para sa gi-encode nga pagawas. Aduna sad nga daghan nga pamaagi sa pag-encode sa pareho nga karakter, nga busa mahimo nimo na mawala ang pipila ka mga variant.
 
-Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. Pagkatapos sa pagkakabig sa gipaabot nga tipo sa datos, siguroha nga ang gi-input na mga bili mahulog sulod sa gipaabot nga gidak-on sa gitugot na mga bili ug kana nga multi-field na mga pagkaporma kay gipadayon.
+Direkta nga pagkausab sa imong gipangsulod na tipo ngadto sa gipaabot nga matang sa datos, sama sa imong gigamit na pagkakabig nga function na nagahubad sa usa ka string ngadto sa usa ka numero. Pagkatapos sa pagkakabig sa gipaabot nga tipo sa datos, siguroha nga ang gi-input na mga bili mahulog sulod sa gipaabot nga gidak-on sa gitugot na mga bili ug kana nga multi-field na mga pagkaporma kay gipadayon.
 
 Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not inadvertently decode the same input twice . Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.
 
@@ -727,17 +727,17 @@ Consider performing repeated canonicalization until your input does not change a
 
 When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.
 
-When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.</solution>
+Kung ang imong aplikasyon kay nakighiusa sa datos gikan sa daghan nga mga tinubdan, para lang makabuhat sa balidasyon paghuman sa mga tinubdan na gihiusa. Ang indibidwal nga datos nga mga elemento kay makapasar sa balidasyon na lakang apan naglapas sa gituyo na mga pagdili ug human na sila adunay gihiusa.</solution>
 	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/88.html</reference>
 </vuln_item_wasc_30>
 
 <vuln_items>wasc_31</vuln_items>
 <vuln_item_wasc_31>
-	<alert>OS Commanding</alert>
-	<desc>OS Commanding is an attack technique used for unauthorized execution of operating system commands.
+	<alert>Pagmando sa OS</alert>
+	<desc>Pagmando sa OS kay usa ka pag-atake nga teknik na naggamit para sa dili awtorisado na pagbuhat sa mga sugo sa operating system.
 
-OS Commanding is the direct result of mixing trusted code and untrusted data. This attack is possible when an application accepts untrusted input to build operating system commands in an insecure manner involving improper data sanitization, and/or improper calling of external programs. In OS Commanding, executed commands by an attacker will run with the same privileges of the component that executed the command, (e.g. database server, web application server, web server, wrapper, application). Since the commands are executed under the privileges of the executing component an attacker can leverage this to gain access or damage parts that are otherwise unreachable (e.g. the operating system directories and files).</desc>
+Ang pagmando sa OS kay usa ka direkta nga resulta sa pagsagol sa gisaligan na code ug sa wala gisaligan na datos. Kini nga atake kay posible kung ang usa ka aplikasyon kay nagdawat ug dili gisaligan nga pasulod sa paghimo sa operating system na mga sugo sa dili luwas nga paagi nga naglambigit sa dili sakto na pag-sanitize sa datos, ug/o dili sakto nga pagtawag sa gawas na mga programa. Ang pagmando sa OS, kay gipatuman nga mga sugo pinaagi sa usa ka tig-atake na modagan sa pareho nga mga pribilehiyo sa komponent nga mobuhat sa mando, (pan. database server, web server, wrapper, aplikasyon). Since the commands are executed under the privileges of the executing component an attacker can leverage this to gain access or damage parts that are otherwise unreachable (e.g. the operating system directories and files).</desc>
 	<solution>If at all possible, use library calls rather than external processes to recreate the desired functionality.
 
 Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Mahimo kini nga epektibong nga pugngan kung asa ang mga file kay mahimong makasulod sa usa ka ilabing direktoryo o ang mga gipangsugo kay pwedeng mapadagan sa imong software.
@@ -801,9 +801,9 @@ The most basic Path Traversal attack uses the "../" special-character sequence t
 Even if the web server properly restricts Path Traversal attempts in the URL path, a web application itself may still be vulnerable due to improper handling of user-supplied input. This is a common problem of web applications that use template mechanisms or load static text from files. In variations of the attack, the original URL parameter value is substituted with the file name of one of the web application's dynamic scripts. Consequently, the results can reveal source code because the file is interpreted as text instead of an executable script. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
 	<solution>Hunahunaa nga ang tanan nga input kay malisyoso. Mogamit ug "dawata ang maayo nga nahibal-an" sa pagsulod sa pagbalido na estratehiya i.e., gamita ang usa ka whitelist sa mga madawat nga mga input nga estrikto nga subay sa mga paghingalan. Isalikway ang bisan unsang pagsulod nga dili hugot subay sa mga paghingalan, o na nag-usab kini sa bisag unsa nga gibuhat. Ayaw pagsalig lamang sa pagpangita sa mga malisyoso o sayop nga mga pagpasulod (pan., ayaw pagsalig sa blacklist). Bisan pa niini, ang mga blacklist kay mahimong mapuslanon para sa pagmatikod sa potensyal na mga atake o pagtino sa mga gipangsulod kay perteng pagkasayopa na sila nagkinahanglan nga isalikway dayon.
 
-Sa paghimo sa pagpasulod na pagbalido, hunahunaa ang tanan nga kalabutan sa mga kabtangan, naglakip na sa gitas-on, tipo sa pagpasulod, ang bug-os nga lugway sa gipangdawat nga mga bili, nawala o sobra nga mga pagsulod, syntax, pagkamakanunayon sa tibuuk nga mga natad, ug pagpahiuyon sa mga lagda sa negosyo. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Sa paghimo sa pagpasulod na pagbalido, hunahunaa ang tanan nga kalabutan sa mga kabtangan, naglakip na sa gitas-on, tipo sa pagpasulod, ang bug-os nga lugway sa gipangdawat nga mga bili, nawala o sobra nga mga pagsulod, syntax, pagkamakanunayon sa tibuuk nga mga natad, ug pagpahiuyon sa mga lagda sa negosyo. Ingon sa pananglitan sa negosyo na lohika sa pagmando, "barko" kay mahimo nga syntactically na balido tungod kay kini naglangkob lamang sa alphanumeric na mga karakter, apan dili kini usa ka balido kung ikaw nagpaabot nga ang kolor kay "pula" o "asul."
 
-For filenames, use stringent whitelists that limit the character set to be used. If feasible, only allow a single "." character in the filename to avoid weaknesses, and exclude directory separators such as "/". Use a whitelist of allowable file extensions.
+Para sa mga filename, gamit sa stringent na mga whitelist na naglimitar sa karater na motakda nga gamiton. If feasible, only allow a single "." character in the filename to avoid weaknesses, and exclude directory separators such as "/". Use a whitelist of allowable file extensions.
 
 Warning: if you attempt to cleanse your data, then do so that the end result is not in the form that can be dangerous. A sanitizing mechanism can remove characters such as '.' and ';' which may be required for some exploits. An attacker can try to fool the sanitizing mechanism into "cleaning" data into a dangerous form. Suppose the attacker injects a '.' inside a filename (e.g. "sensi.tiveFile") and the sanitizing mechanism removes the character resulting in the valid filename, "sensitiveFile". If the input data are now assumed to be safe, then the file may be compromised. 
 
