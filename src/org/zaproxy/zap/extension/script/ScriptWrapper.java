@@ -20,9 +20,13 @@
 
 package org.zaproxy.zap.extension.script;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 import javax.script.ScriptException;
 
@@ -52,9 +56,11 @@ public class ScriptWrapper {
 	private boolean error = false;
 	private boolean loadOnStart = false;
 	private File file;
+	private long lastModified;
 	private String lastErrorDetails = "";
 	private Exception lastException = null;
 	private Writer writer = null;
+	private Charset charset = ExtensionScript.DEFAULT_CHARSET;
 	
 	public ScriptWrapper() {
 	}
@@ -77,7 +83,7 @@ public class ScriptWrapper {
 		this.engineName = engineName;
 		this.type = type;
 		this.enabled = enabled;
-		this.file = file;
+		this.setFile(file);
 	}
 	
 	public ScriptWrapper(String name, String description,
@@ -91,7 +97,7 @@ public class ScriptWrapper {
 		}
 		this.type = type;
 		this.enabled = enabled;
-		this.file = file;
+		this.setFile(file);
 	}
 
 	protected ScriptWrapper(String name, String description, String engineName, String typeName, boolean enabled, File file) {
@@ -101,7 +107,7 @@ public class ScriptWrapper {
 		this.engineName = engineName;
 		this.typeName = typeName;
 		this.enabled = enabled;
-		this.file = file;
+		this.setFile(file);
 	}
 
 	public String getName() {
@@ -242,6 +248,9 @@ public class ScriptWrapper {
 
 	public void setFile(File file) {
 		this.file = file;
+		if (file != null) {
+			this.lastModified = file.lastModified();
+		}
 	}
 	
 	public <T> T getInterface(Class<T> class1) throws ScriptException, IOException {
@@ -291,5 +300,58 @@ public class ScriptWrapper {
 	 */
 	boolean isPreviouslyEnabled() {
 		return previouslyEnabled;
+	}
+
+	/**
+	 * Reloads the script. It should only be called if the script has already been loaded via {@link #loadScript(Charset)}
+	 * @throws IOException
+	 * @since TODO add version
+	 */
+	public void reloadScript() throws IOException {
+		this.loadScript(charset);
+	}
+
+	/**
+	 * Loads the script from the configured file.
+	 * @param charset
+	 * @throws IOException
+	 * @since TODO add version
+	 */
+	void loadScript(Charset charset) throws IOException {
+		this.charset = charset;
+		StringBuilder sb = new StringBuilder();
+		try (BufferedReader br = Files.newBufferedReader(file.toPath(), charset)) {
+			int len;
+			char[] buf = new char[1024];
+			while ((len = br.read(buf)) != -1) {
+				sb.append(buf, 0, len);
+			}
+		}
+		setContents(sb.toString());
+		setChanged(false);
+		this.lastModified = file.lastModified();
+	}
+	
+	/**
+	 * Saves the latest contents into the configured file
+	 * @throws IOException
+	 * @since TODO add version
+	 */
+	void saveScript() throws IOException {
+		// We'll always try to read it in with the default next time its loaded
+		this.charset = ExtensionScript.DEFAULT_CHARSET;
+		try ( BufferedWriter bw = Files.newBufferedWriter(file.toPath(), charset)) {
+			bw.append(getContents());
+		}
+		this.lastModified = file.lastModified();
+	}
+	
+	/**
+	 * Returns true if the script has changed on disk since it was loaded into this class
+	 * @return true if the script has changed on disk since it was loaded into this class
+	 * @since TODO add version
+	 */
+	public boolean hasChangedOnDisk () {
+		return this.file != null && file.lastModified() > this.lastModified;
 	}
 }
