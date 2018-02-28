@@ -82,14 +82,13 @@ public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Ord
         E entry = getElement(row);
 
         int firstRow = row - 1;
-        int lastRow = row;
         getElements().add(firstRow, entry);
         getElements().remove(row + 1);
 
         entry.setOrder(row);
-        getElements().get(lastRow).setOrder(row + 1);
+        getElements().get(row).setOrder(row + 1);
 
-        fireTableRowsUpdated(firstRow, lastRow);
+        fireTableRowsUpdated(firstRow, row);
     }
 
     /**

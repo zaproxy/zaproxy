@@ -66,8 +66,7 @@ public class SqlTableContext extends SqlAbstractTable implements TableContext {
 			psRead.getPs().setLong(1, dataId);
 			
 			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				RecordContext result = build(rs);
-				return result;
+				return build(rs);
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);

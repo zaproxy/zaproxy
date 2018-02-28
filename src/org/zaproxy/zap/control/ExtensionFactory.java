@@ -373,8 +373,7 @@ public class ExtensionFactory {
     }
 
     public static Extension getExtension(String name) {
-        Extension test = mapAllExtension.get(name);
-        return test;
+        return mapAllExtension.get(name);
     }
 
     static void removeAddOnExtension(Extension extension) {

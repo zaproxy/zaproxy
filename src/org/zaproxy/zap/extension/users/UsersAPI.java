@@ -238,8 +238,7 @@ public class UsersAPI extends ApiImplementor {
 		fields.put("enabled", Boolean.toString(u.isEnabled()));
 		fields.put("credentials", u.getAuthenticationCredentials().getApiResponseRepresentation().toJSON()
 				.toString());
-		ApiResponseSet<String> response = new ApiResponseSet<String>("user", fields);
-		return response;
+		return new ApiResponseSet<>("user", fields);
 	}
 
 	/**
