@@ -4,10 +4,10 @@
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
 	<alert>Tidak memadai otentikasi</alert>
-	<desc>Tidak memadai otentikasi terjadi bila situs web memungkinkan seorang penyerang untuk mengakses konten yang sensitif atau fungsi tanpa harus mengotentikasi dengan benar. Administrasi berbasis web alat adalah contoh yang baik dari situs web yang menyediakan akses ke fungsionalitas sensitif. Tergantung pada sumber online tertentu, aplikasi web ini tidak boleh langsung dapat diakses tanpa memerlukan pengguna untuk benar memverifikasi identitas mereka.
+	<desc>Cukup otentikasi terjadi ketika sebuah situs web yang memungkinkan seorang menyerang untuk mengakses konten sensitif atau fungsi tanpa harus benar mengotentikasi. Administrasi alat berbasis web ini adalah sebuah contoh yang baik dari situs web yang menyediakan akses ke fungsi sensitif. Tergantung pada sumber online, aplikasi web ini tidak dapat diakses secara langsung tanpa memerlukan pengguna untuk benar memverifikasi identitas mereka.
 
-Untuk menyiapkan otentikasi, beberapa sumber daya yang dilindungi oleh "bersembunyi" lokasi tertentu dan tidak menghubungkan lokasi ke situs web utama atau tempat umum lainnya. Namun, pendekatan ini adalah tidak lebih daripada "Keamanan melalui ketidakjelasan". Hal ini penting untuk memahami bahwa meskipun sumber daya yang tidak diketahui oleh seorang penyerang, itu masih dapat diakses langsung melalui URL tertentu. URL tertentu dapat ditemukan melalui kekerasan menyelidik untuk file Umum dan lokasi direktori (/ admin misalnya), pesan kesalahan, log Referer atau dokumentasi seperti file bantuan. Sumber ini, apakah mereka adalah konten - atau fungsi-driven, harus cukup dilindungi.</desc>
-	<solution>Tahap: Arsitektur dan desain menggunakan kerangka otentikasi atau perpustakaan seperti fitur OWASP ESAPI otentikasi.</solution>
+Untuk menyiasati pengaturan otentikasi, beberapa sumber daya yang dilindungi oleh "bersembunyi" di lokasi tertentu dan tidak menghubungkan satu lokasi ke situs web utama atau tempat umum lainnya. Namun, pendekatan ini tidak lebih dari "Keamanan Melalui Ketidakjelasan". Hal ini penting untuk memahami bahwa meskipun sumber daya yang tidak diketahui oleh penyerang, itu masih tetap dapat diakses secara langsung melalui URL tertentu. Spesifik URL dapat ditemukan melalui kekerasan menyelidik file untuk umum dan direktori lokasi (/admin misalnya), pesan kesalahan, pengarah log, atau dokumentasi seperti file bantuan. Sumber daya ini, apakah mereka puas atau fungsi yang digerakkan, harus dilindungi secara memadai.</desc>
+	<solution>Tahap: Arsitektur dan desain menggunakan kerangka kerja otentikasi atau perpustakaan seperti fitur OWASP ESAPI otentikasi.</solution>
 	<reference>http://projects.webappsec.org/insufficient-transport-layer-protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
@@ -16,7 +16,7 @@ Untuk menyiapkan otentikasi, beberapa sumber daya yang dilindungi oleh "bersembu
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
 	<alert>Tidak cukup otorisasi</alert>
-	<desc>Cukup otorisasi hasil ketika sebuah aplikasi tidak melakukan otorisasi memadai cek untuk memastikan bahwa pengguna melakukan fungsi atau mengakses data sesuai dengan kebijakan keamanan. Otorisasi prosedur harus menegakkan apa pengguna, Layanan atau aplikasi diizinkan untuk melakukan. Ketika pengguna diotentikasi ke situs web, itu tidak berarti bahwa pengguna harus memiliki akses penuh ke semua isi dan fungsi.
+	<desc>Cukup otorisasi hasil ketika aplikasi yang tidak melakukan otorisasi memadai cek untuk memastikan bahwa pengguna adalah melakukan fungsi atau mengakses data dengan cara yang konsisten dalam kebijakan keamanan. Otorisasi prosedur harus menegakkan apa pengguna, Layanan atau aplikasi diizinkan untuk melakukan. Ketika pengguna diotentikasi ke situs web, itu tidak berarti bahwa pengguna harus memiliki akses penuh ke semua isi dan fungsi.
 
 Kurangnya fungsi banyak otorisasi aplikasi memberikan fungsionalitas aplikasi yang berbeda untuk pengguna yang berbeda. Situs berita akan memungkinkan pengguna untuk melihat berita, namun tidak mempublikasikan mereka. Sistem akuntansi akan memiliki hak akses yang berbeda untuk petugas pengeluaran kas dan piutang petugas. Kurangnya fungsi otorisasi terjadi ketika sebuah aplikasi tidak mencegah pengguna dari mengakses fungsi aplikasi melanggar kebijakan keamanan.
 
@@ -41,27 +41,26 @@ Pastikan kompartementalisasi yang sesuai dibangun ke dalam perancangan sistem da
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
 	<alert>Integer Overflows</alert>
-	<desc>Integer Overflow adalah kondisi yang terjadi ketika hasil dari operasi aritmetika, seperti perkalian atau penambahan, melebihi ukuran maksimum tipe integer yang digunakan untuk menyimpannya. Ketika terjadi suatu overflow integer, nilai ditafsirkan akan muncul untuk memiliki "dibungkus di sekitar" nilai maksimum dan mulai lagi di nilai minimum, mirip dengan sebuah jam yang mewakili 13:00 dengan menunjuk pada 1:00.
+	<desc>Integer Overflow adalah kondisi yang terjadi ketika hasil dari operasi aritmatika seperti perkalian atau penambahan, melebihi ukuran maksimum dari tipe integer digunakan untuk menyimpan. Ketika integer overflow terjadi, ditafsirkan akan muncul nilai untuk memiliki "melilit" nilai maksimum dan mulai lagi pada nilai minimum, yang mirip dengan sebuah jam yang mewakili 13:00 dengan menunjuk pada 1:00.
 
-Sebagai contoh, 8-bit integer ditandatangani pada arsitektur komputer yang paling umum memiliki nilai maksimum 127 dan nilai minimal-128. Jika seorang programmer menyimpan nilai 127 di sebuah variabel dan menambah 1 itu, hasilnya harus menjadi 128. Namun, nilai ini melebihi maksimum untuk tipe integer, sehingga nilai ditafsirkan akan "membungkus" dan menjadi-128.</desc>
-	<solution>Tahap: Persyaratan pastikan bahwa semua protokol yang ketat didefinisikan, sehingga semua out-of-bounds perilaku dapat diidentifikasi hanya, dan memerlukan ketat kesesuaian protokol.
+Sebagai contoh, sebuah 8-sedikit tertanda bilangan bulat pada komputer yang paling umum arsitektur memiliki nilai maksimum 127 dan nilai minimum dari -128. Jika seorang programmer menyimpan nilai 127 dalam variabel tersebut dan menambahkan 1 untuk itu, hasilnya harus 128. Namun, ini melebihi nilai maksimum untuk tipe bilangan bulat, sehingga ditafsirkan nilai akan "membungkus" dan menjadi -128.</desc>
+	<solution>Tahap: Memastikan persyaratan bahwa semua protokol yang didefinisikan secara ketat, seperti bahwa semua dari-luar-batas perilaku yang dapat diidentifikasi sederhana, dan memerlukan kesesuaian ketat dengan protokol.
 
-Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
-Jika mungkin, memilih bahasa atau compiler yang melakukan otomatis batas memeriksa.
+Tahap: Menggunakan persyaratan bahasa yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
+Jika memungkinkan, pilih bahasa atau penyusun yang melakukan otomatis memeriksa batas.
 
-Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
-Gunakan perpustakaan atau kerangka kerja yang memudahkan menangani angka tanpa konsekuensi tak terduga.
+Tahap: Arsitektur dan Desain 
+Diperiksa menggunakan perpustakaan atau kerangka yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
+Menggunakan perpustakaan atau kerangka yang membuatnya lebih mudah untuk menangani angka tanpa konsekuensi yang tak terduga.
 Contohnya termasuk paket penanganan bilangan bulat yang aman seperti SafeInt (C++) atau IntegerLib (C atau C++).
 
-Tahap: Implementasi melakukan validasi input pada angka setiap input dengan memastikan bahwa itu adalah dalam kisaran diharapkan. Menegakkan bahwa input memenuhi kedua persyaratan minimum dan maksimum untuk kisaran diharapkan.
-Gunakan unsigned integer mana mungkin. Hal ini membuat lebih mudah untuk melakukan kewarasan cek untuk integer meluap. Jika Anda harus menggunakan bilangan bulat ditandatangani, pastikan bahwa cek jangkauan Anda termasuk nilai-nilai minimum serta nilai maksimum.
+Tahap: Melakukan pelaksanaan masukan validasi pada setiap masukan numerik dengan memastikan bahwa itu adalah dalam kisaran yang diharapkan. Menegakkan masukan yang memenuhi minimum dan maksimum persyaratan untuk kisaran yang diharapkan.
+Gunakan unsigned integer mana mungkin. Hal ini membuat lebih mudah untuk melakukan kewarasan cek untuk integer meluap. Jika kamu harus menggunakan bilangan bulat ditandatangani, pastikan bahwa kamu berbagai pemeriksaan termasuk nilai-nilai minimum serta nilai-nilai maksimum.
 
-Tahap: Implementasi memahami bahasa pemrograman Anda mendasari representasi dan bagaimana berinteraksi dengan perhitungan numerik (CWE-681). Perhatikan perbedaan ukuran byte, presisi, perbedaan ditandatangani/unsigned, pemotongan, konversi dan pengecoran antara jenis, "tidak-a-nomor" perhitungan dan bagaimana bahasa Anda menangani angka-angka yang terlalu besar atau terlalu kecil untuk yang mendasari representasi.
+Tahap: Memahami pelaksanaan bahasa pemrograman yang mendasari representasi dan bagaimana berinteraksi dengan perhitungan numerik (CWE-681). Memperhatikan perbedaan ukuran byte, presisi, tertanda/ditandatangani perbedaan, pemotongan, konversi dan casting antara tipe, "bukan-nomor" perhitungan, dan bagaimana bahasa kamu menangani angka-angka yang terlalu besar atau terlalu kecil untuk mendasari representasi.
 Juga berhati-hati untuk memperhitungkan perbedaan potensi 32-bit, 64-bit dan lainnya yang dapat mempengaruhi representasi numerik.
 
-Tahap: Memeriksa implementasi kompilator peringatan erat dan menghilangkan berpotensi masalah keamanan kritis, seperti ditandatangani / unsigned ketidakcocokan. Bahkan jika kelemahan jarang exploitasi, kegagalan tunggal dapat menyebabkan kompromi seluruh sistem.</solution>
+Tahap: Memeriksa implementasi kompilator peringatan erat dan menghilangkan berpotensi masalah keamanan kritis, seperti ditandatangani / unsigned ketidakcocokan. Bahkan jika kelemahan ini jarang dieksploitasi, satu kegagalan dapat menyebabkan kompromi dari seluruh sistem.</solution>
 	<reference>http://projects.webappsec.org/Buffer-Overflow</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
 </vuln_item_wasc_3>
@@ -69,27 +68,27 @@ Tahap: Memeriksa implementasi kompilator peringatan erat dan menghilangkan berpo
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
 	<alert>Perlindungan Lapisan Transport yang tidak mencukupi</alert>
-	<desc>Perlindungan Lapisan Transport yang tidak mencukupi
-Proteksi lapisan transport yang tidak memadai memungkinkan komunikasi terpapar pihak ketiga yang tidak dipercaya, memberikan vektor serangan untuk mengkompromikan aplikasi web dan / atau mencuri informasi sensitif. Situs web biasanya menggunakan Secure Sockets Layer / Transport Layer Security (SSL/TLS) untuk menyediakan enkripsi pada lapisan transport. Namun, kecuali jika situs web dikonfigurasi untuk menggunakan SSL/TLS dan dikonfigurasi untuk menggunakan SSL/TLS dengan benar, situs web mungkin rentan terhadap intersepsi lalu lintas dan modifikasi.
+	<desc>Cukup perlindungan lapisan angkutan
+Cukup perlindungan lapisan angkutan yang memungkinkan komunikasi untuk dipercaya kena pihak ketiga, menyediakan sebuah serangan vektor untuk berkompromi aplikasi web dan/atau mencuri informasi sensitif. Situs web biasanya menggunakan Secure Sockets Layer / Transport Layer Security (SSL/TLS) untuk menyediakan enkripsi pada lapisan transport. Namun, kecuali situs web dikonfigurasi untuk menggunakan SSL/TLS dan dikonfigurasi untuk menggunakan SSL/TLS dengan baik, situs web dapat menjadi rentan terhadap intersepsi lalu lintas dan modifikasi.
  
-Kurangnya Transport Layer Encryption
-Bila lapisan transport tidak dienkripsi, semua komunikasi antara situs web dan klien dikirim dalam bentuk teks. yang jelas yang membiarkannya terbuka untuk intersepsi, injeksi dan pengalihan (juga dikenal sebagai serangan man-in-the-middle/MITM). Penyerang dapat secara pasif mencegat komunikasi, memberi mereka akses ke data sensitif yang dikirimkan seperti nama pengguna dan kata sandi. Seorang penyerang juga dapat secara aktif menyuntikkan/menghapus konten dari komunikasi, yang memungkinkan penyerang untuk menempa dan menghilangkan informasi, menyuntikkan script berbahaya, atau menyebabkan klien mengakses konten yang tidak terpercaya. Penyerang juga dapat mengalihkan komunikasi sedemikian rupa sehingga situs web dan klien tidak lagi berkomunikasi satu sama lain, namun secara tidak sadar berkomunikasi dengan penyerang dalam konteks pihak tepercaya lainnya.
+Kurangnya enkripsi lapisan transportasi
+Bila lapisan transportasi tidak dienkripsi, semua komunikasi antara situs web dan klien dikirim dalam bentuk teks. yang jelas yang membiarkannya terbuka untuk intersepsi, injeksi dan pengalihan (juga dikenal sebagai serangan man-in-the-middle/MITM). Penyerang pasif dapat mencegat komunikasi, memberikan mereka akses ke data sensitif yang ditransmisikan seperti Penyerang pasif dapat mencegat komunikasi, memberikan mereka akses ke data sensitif yang ditransmisikan seperti nama pengguna dan kata sandi. Penyerang juga dapat secara aktif menyuntikkan/menghapus konten dari komunikasi, yang memungkinkan penyerang untuk menempa dan menghilangkan informasi, menyuntikkan scripting berbahaya, atau menyebabkan klien untuk mengakses konten terpencil yang tidak dapat dipercaya. Penyerang juga dapat mengarahkan komunikasi sedemikian rupa, sehingga situs web dan klien tidak lagi berkomunikasi dengan satu sama lain, tapi bukannya sadar berkomunikasi dengan penyerang dalam konteks lain pihak terpercaya.
 
-Dukungan Cipher Lemah
-Secara historis, kriptografi kelas tinggi dibatasi dari ekspor ke luar Amerika Serikat. Karena itu, situs web dikonfigurasi untuk mendukung opsi kriptografi yang lemah untuk klien yang dibatasi hanya menggunakan ciphers lemah. Ciphers lemah rentan diserang karena relatif mudahnya membobolnya; kurang dari dua minggu di komputer rumah khas dan beberapa detik menggunakan perangkat keras khusus.
-Ciphers lemah rentan diserang karena relatif mudahnya membobolnya; kurang dari dua minggu di komputer rumah khas dan beberapa detik menggunakan perangkat keras khusus. Karena ini, penyerang mungkin dapat memaksa klien untuk menurunkan versi ke cipher yang lebih lemah saat menghubungkan ke situs web, yang memungkinkan penyerang untuk memecahkan enkripsi yang lemah. Untuk alasan ini, server harus dikonfigurasi untuk hanya menerima ciphers yang kuat dan tidak memberikan layanan kepada klien yang meminta penggunaan cipher yang lebih lemah. Selain itu, beberapa situs web salah dikonfigurasi untuk memilih cipher yang lebih lemah meskipun klien akan mendukung yang lebih kuat. OWASP menawarkan panduan untuk menguji masalah SSL / TLS, termasuk dukungan cipher lemah dan kesalahan konfigurasi, dan ada sumber dan alat lain juga.</desc>
+Dukungan cipher lemah
+Secara historis, kelas tinggi kriptografi dibatasi dari ekspor ke luar Amerika Serikat. Karena ini, situs web yang dikonfigurasi untuk mendukung pilihan kriptografi yang lemah untuk klien-klien yang dibatasi untuk hanya menggunakan cipher lemah. Cipher lemah rentan terhadap serangan karena relatif mudah merekan melanggar; kurang dari dua minggu di sebuah rumah khas komputer dan beberapa detik menggunakan perangkat keras khusus.
+Hari ini, semua browser modern dan situs web yang menggunakan enkripsi yang lebih kuat, tetapi beberapa situs yang masih usang dikonfigurasi untuk mendukung cipher lemah. Karena ini, penyerang mungkin dapat memaksa klien untuk menurunkan ke cipher lemah saat menghubungkan ke situs web, yang memungkinkan penyerang untuk memecahkan enkripsi lemah. Untuk alasan ini, server harus dikonfigurasi untuk hanya menerima cipher yang kuat dan tidak memberikan pelayanan kepada setiap klien yang meminta menggunakan cipher lemah. Selain itu, beberapa situs yang terkonfigurasi untuk memilih cipher lemah bahkan ketika klien akan mendukung salah satu lebih kuat. OWASP menawarkan panduan untuk pengujian untuk isu SSL/TLS, termasuk dukungan cipher lemah dan kesalahan konfigurasi, dan ada sumber daya lainnya dan alat-alat juga.</desc>
 	<solution>Tahap: Persyaratan
-Jelas tentukan data atau sumber daya mana yang cukup berharga sehingga harus dilindungi oleh enkripsi. Perlu agar transmisi atau penyimpanan data / sumber daya ini harus menggunakan algoritme enkripsi yang teruji dengan baik.
+Jelas menentukan mana data atau sumber daya yang cukup berharga bahwa mereka harus dilindungi oleh enkripsi. Memerlukan bahwa setiap transmisi atau penyimpanan data/sumber daya harus diperiksa menggunakan algoritma enkripsi.
 
 Tahap: Arsitektur dan Desain
-Dengan menggunakan pemodelan ancaman atau teknik lainnya, asumsikan bahwa data Anda dapat dikompromikan melalui kerentanan atau kelemahan yang terpisah, dan menentukan di mana enkripsi akan paling efektif. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Menggunakan ancaman pemodelan atau teknik lain, asumsikan bahwa data kamu dapat terpisah dikompromikan melalui kerentanan atau kelemahan, dan menentukan di mana enkripsi akan menjadi yang paling efektif. Memastikan bahwa data yang kamu percaya harus menjadi pribadi yang tidak sengaja terkena menggunakan kelemahan-kelemahan seperti izin tidak aman (CWE-732).
 
 Tahap: Arsitektur dan Desain
-Pastikan enkripsi benar-benar terintegrasi ke dalam perancangan sistem, termasuk namun tidak terbatas pada:
-      Enkripsi yang dibutuhkan untuk menyimpan atau mentransmisikan data pribadi pengguna sistem
-      Enkripsi yang diperlukan untuk melindungi sistem itu sendiri dari pengungkapan atau gangguan yang tidak sah
-Identifikasi kebutuhan dan konteks yang terpisah untuk enkripsi:
-      Satu arah (yaitu, hanya pengguna atau penerima yang perlu memiliki kunci). Hal ini dapat dicapai dengan menggunakan kriptografi kunci publik, atau teknik lain di mana pihak yang mengenkripsi (yaitu, perangkat lunak) tidak perlu memiliki akses ke kunci privat.
+Memastikan bahwa enkripsi adalah benar terintegrasi ke dalam sistem desain, termasuk tetapi tidak terbatas pada:
+      Enkripsi yang diperlukan untuk menyimpan atau mengirimkan data pribadi dari pengguna sistem
+      Enkripsi yang diperlukan untuk melindungi sistem itu sendiri dari pengungkapan yang tidak sah atau gangguan 
+Mengidentifikasi kebutuhan terpisah dan konteks untuk enkripsi:
+      Satu-arah (yaitu, hanya pengguna atau penerima harus memiliki kunci). Hal ini dapat dicapai dengan menggunakan kriptografi kunci publik, atau teknik lain di mana pihak yang mengenkripsi (yaitu, perangkat lunak) tidak perlu memiliki akses ke kunci privat.
       Dua arah (yaitu, enkripsi dapat dilakukan secara otomatis atas nama pengguna, namun kuncinya harus tersedia sehingga plainteks dapat dipulihkan secara otomatis oleh pengguna tersebut). Ini memerlukan penyimpanan kunci pribadi dalam format yang dapat dipulihkan hanya oleh pengguna (atau mungkin oleh sistem operasi) dengan cara yang tidak dapat dipulihkan oleh orang lain.
 
 Tahap: Arsitektur dan Desain
@@ -184,13 +183,12 @@ Dalam banyak kasus, pointer fungsi dimodifikasi untuk merujuk lokasi dimana peny
 
 Buffer overflows paling sering dikaitkan dengan perangkat lunak yang ditulis dalam bahasa pemrograman C dan C++ karena penggunaan dan kemampuan mereka yang meluas untuk melakukan manipulasi memori langsung dengan pemrograman umum. Perlu ditekankan, bagaimanapun, bahwa buffer overflows dapat ada di lingkungan pemrograman manapun dimana manipulasi memori langsung diperbolehkan, baik melalui kekurangan pada compiler, perpustakaan runtime, atau fitur bahasa itu sendiri.
 </desc>
-	<solution>Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
+	<solution>Tahap: Menggunakan persyaratan bahasa yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
 Misalnya, banyak bahasa yang menjalankan manajemen memori mereka sendiri, seperti Java dan Perl, tidak tunduk pada buffer overflows. Bahasa lain, seperti Ada dan C#, biasanya memberikan perlindungan melimpah, namun proteksi dapat dinonaktifkan oleh pemrogram.
 Berhati-hatilah bahwa antarmuka bahasa ke kode asli mungkin masih mengalami overflow, bahkan jika bahasa itu sendiri secara teoritis aman.
 
-Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
+Tahap: Arsitektur dan Desain 
+Diperiksa menggunakan perpustakaan atau kerangka yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
 Contohnya termasuk Safe C String Library (SafeStr) oleh Messier dan Viega, dan perpustakaan Strsafe.h dari Microsoft. Perpustakaan ini menyediakan versi yang lebih aman dari fungsi penanganan string overflow rawan. Ini bukan solusi lengkap, karena banyak buffer overflow tidak terkait dengan string.
 
 Tahap: Membangun dan Kompilasi Jalankan atau kompilasi perangkat lunak Anda menggunakan fitur atau ekstensi yang secara otomatis menyediakan mekanisme perlindungan yang mengurangi atau menghilangkan buffer overflows.
@@ -224,8 +222,8 @@ Ketika penyerang mendapatkan browser pengguna untuk mengeksekusi kode nya, koden
 Ada tiga jenis serangan Scripting Cross-site: tidak gigih, gigih dan berbasis DOM.
 Serangan non-persisten dan serangan berbasis DOM mengharuskan pengguna untuk mengunjungi tautan khusus yang dibuat dengan kode berbahaya, atau mengunjungi laman web berbahaya yang berisi formulir web, yang saat diposkan ke situs yang rentan, akan memasang serangan tersebut. Menggunakan formulir berbahaya seringkali terjadi saat sumber daya yang rentan hanya menerima permintaan HTTP POST. Dalam kasus seperti itu, formulir dapat dikirim secara otomatis, tanpa sepengetahuan korban (misalnya dengan menggunakan JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Teknik lain untuk mengirim permintaan yang hampir sewenang-wenang (GET dan POST) adalah dengan menggunakan klien tersemat, seperti Adobe Flash.
 Serangan yang terus-menerus terjadi saat kode berbahaya dikirimkan ke situs web tempat penyimpanannya disimpan untuk jangka waktu tertentu. Contoh target favorit penyerang sering menyertakan papan pesan, pesan email web, dan perangkat lunak obrolan web. Pengguna yang tidak curiga tidak diharuskan untuk berinteraksi dengan situs / tautan tambahan (misalnya situs penyerang atau tautan jahat yang dikirim melalui email), cukup lihat halaman web yang berisi kode tersebut.</desc>
-	<solution>Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
+	<solution>Tahap: Arsitektur dan Desain 
+Diperiksa menggunakan perpustakaan atau kerangka yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
 Contoh perpustakaan dan kerangka kerja yang memudahkan menghasilkan keluaran yang dikodekan dengan benar termasuk perpustakaan Anti-XSS Microsoft, modul Encoding OWASP ESAPI, dan Apache Wicket.
 
 Tahapan: Implementasi; Arsitektur dan Desain Memahami konteks dimana data Anda akan digunakan dan pengkodean yang akan diharapkan. Hal ini sangat penting saat mentransmisikan data antar komponen yang berbeda, atau saat menghasilkan keluaran yang dapat berisi beberapa pengkodean sekaligus, seperti halaman web atau pesan email multi-bagian. Pelajari semua protokol komunikasi yang diharapkan dan representasi data untuk menentukan strategi pengkodean yang dibutuhkan.
@@ -259,8 +257,8 @@ Serangan CSRF efektif dalam sejumlah situasi, termasuk:
     * Korban berada di jaringan lokal yang sama dengan lokasi sasaran.
 
 CSRF terutama digunakan untuk melakukan tindakan terhadap situs target dengan menggunakan hak istimewa korban, namun teknik terbaru telah ditemukan untuk mengungkapkan informasi dengan mendapatkan akses terhadap tanggapan tersebut. Risiko pengungkapan informasi meningkat secara dramatis ketika situs target rentan terhadap XSS, karena XSS dapat digunakan sebagai tanda untuk CSRF, yang memungkinkan serangan beroperasi dalam batas-batas kebijakan asal yang sama.</desc>
-	<solution>Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
+	<solution>Tahap: Arsitektur dan Desain 
+Diperiksa menggunakan perpustakaan atau kerangka yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
 Misalnya, gunakan paket anti-CSRF seperti CSRFGuard OWASP.
 
 Tahap: Implementasi Pastikan aplikasi Anda bebas dari masalah penulisan lintas situs, karena kebanyakan pertahanan CSRF dapat dilewati menggunakan skrip yang dikendalikan oleh penyerang.
@@ -453,8 +451,8 @@ Banyak situs web dirancang untuk mengotentikasi dan melacak pengguna saat komuni
 	<desc>SQL Injection adalah teknik serangan yang digunakan untuk mengeksploitasi aplikasi yang membuat pernyataan SQL dari masukan yang diberikan pengguna. Bila berhasil, penyerang mampu mengubah logika pernyataan SQL yang dijalankan terhadap database.
 
 Structured Query Language (SQL) adalah bahasa pemrograman khusus untuk mengirimkan query ke database. Bahasa pemrograman SQL adalah standar ANSI dan ISO, walaupun banyak produk database yang mendukung SQL melakukannya dengan ekstensi proprietary ke bahasa standar. Aplikasi sering menggunakan data yang disediakan pengguna untuk membuat pernyataan SQL. Jika sebuah aplikasi gagal untuk benar membangun pernyataan SQL adalah mungkin bagi penyerang untuk mengubah struktur pernyataan dan mengeksekusi perintah yang tidak terencana dan berpotensi bermusuhan. Ketika perintah tersebut dijalankan, mereka melakukannya di bawah konteks pengguna yang ditentukan oleh aplikasi yang menjalankan pernyataan tersebut. Kemampuan ini memungkinkan penyerang untuk menguasai semua sumber database yang dapat diakses oleh pengguna tersebut, sampai dan termasuk kemampuan untuk menjalankan perintah pada sistem hosting.</desc>
-	<solution>Tahap: Arsitektur dan Desain
-Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
+	<solution>Tahap: Arsitektur dan Desain 
+Diperiksa menggunakan perpustakaan atau kerangka yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini mudah untuk menghindari.
 Misalnya, pertimbangkan untuk menggunakan lapisan ketekunan seperti Hibernate atau Enterprise Java Beans, yang dapat memberikan perlindungan signifikan terhadap injeksi SQL jika digunakan dengan benar.
 
 Jika tersedia, gunakan mekanisme terstruktur yang secara otomatis memberlakukan pemisahan antara data dan kode. Mekanisme ini mungkin dapat memberikan kutipan, pengkodean, dan validasi yang relevan secara otomatis, alih-alih mengandalkan pengembang untuk menyediakan kemampuan ini di setiap titik di mana output dihasilkan.
