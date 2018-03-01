@@ -285,53 +285,53 @@ Ataki CSRF są skuteczne w wielu sytuacjach, w tym:
 CSRF został użyty przede wszystkim do wykonania akcji przeciwko witrynie docelowej z wykorzystaniem przywilejów ofiary, ale odkryto najnowsze techniki udostępniania informacji poprzez uzyskanie dostępu do odpowiedzi. Ryzyko udostępnienia informacji dramatycznie wzrasta kiedy strona celu jest podatna na XSS, ponieważ XSS może być użyty jako platforma dla CSRF, włączając w to atak obsługiwany w granicach polityki tego samego pochodzenia.</desc>
 	<solution>Faza: Architektura i Projektowanie
 Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
-For example, use anti-CSRF packages such as the OWASP CSRFGuard.
+Na przykład, używaj pakietów anty-CSRF takich jak OWASP CSRFGuard.
 
-Phase: Implementation
-Ensure that your application is free of cross-site scripting issues, because most CSRF defenses can be bypassed using attacker-controlled script.
+Faza: Implementacja
+Upewnij się, że twoja aplikacja jest wolna od kwestii cross-site scripting, ponieważ większość obron CSRF mogą być ominięte przez kontrolowany przez atakującego skrypt.
 
-Phase: Architecture and Design
-Generate a unique nonce for each form, place the nonce into the form, and verify the nonce upon receipt of the form. Be sure that the nonce is not predictable (CWE-330).
-Note that this can be bypassed using XSS.
+Fazy: Architektura i Projektowanie
+Wygeneruj unikalny numer dla każdego formularza, umieść go w formularzu i zweryfikuj wartość jednorazową po otrzymaniu formularza. Upewnij się, że liczba nie będzie przewidywalna (CWE-330).
+Zwróć uwagę na to, że może to być ominięte używając XSS.
 
-Identify especially dangerous operations. When the user performs a dangerous operation, send a separate confirmation request to ensure that the user intended to perform that operation.
-Note that this can be bypassed using XSS.
+Identyfikuj zwłaszcza niebezpieczne działania. Kiedy użytkownik przeprowadza niebezpieczną operację, wyślij odrębne żądanie potwierdzenia by upewnić się, że użytkownik jest przeznaczony do przeprowadzenia tego działania.
+Zwróć uwagę na to, że może to być ominięte używając XSS.
 
-Use the ESAPI Session Management control.
-This control includes a component for CSRF.
+Używaj regulacji Zarządzania Sesją ESAPI.
+Ta kontrola obejmuje komponent dla CSRF.
 
-Do not use the GET method for any request that triggers a state change.
+Nie używaj metody GET dla żadnego żądania, która uruchamia zmianę stanu.
 
-Phase: Implementation
-Check the HTTP Referer header to see if the request originated from an expected page. This could break legitimate functionality, because users or proxies may have disabled sending the Referer for privacy reasons.</solution>
+Faza: Implementacja
+Sprawdź nagłówek HTTP Referer, aby sprawdzić, czy żądanie pochodzi z oczekiwanej strony. To mogłoby przerwać prawowitą funkcjonalność, ponieważ użytkownicy lub proxy mogłyby zostać wyłączone wysyłając dla Referer prywatnych powodów.</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Request-Forgery</reference>
 	<reference>http://cwe.mitre.org/data/definitions/352.html</reference>
 </vuln_item_wasc_9>
 
 <vuln_items>wasc_10</vuln_items>
 <vuln_item_wasc_10>
-	<alert>Denial of Service</alert>
-	<desc>Denial of Service (DoS) is an attack technique with the intent of preventing a web site from serving normal user activity. DoS attacks, which are easily normally applied to the network layer, are also possible at the application layer. These malicious attacks can succeed by starving a system of critical resources, vulnerability exploit, or abuse of functionality.
+	<alert>Odmowa Usługi</alert>
+	<desc>Odmowa Usługi(ang. DoS) jest techniką ataku z zamiarem uniemożliwienia stronie internetowej obsługi normalnej aktywności użytkownika. Ataki DoS, które łatwo można zastosować w warstwie sieciowej, są również możliwe w warstwie aplikacji. Te złośliwe ataki mogą zakończyć się powodzeniem zagrażając systemowi krytycznych zasobów, wykorzystując luki w zabezpieczeniach lub nadużywając funkcjonalność.
 
-Many times DoS attacks will attempt to consume all of a web site's available system resources such as: CPU, memory, disk space etc. When any one of these critical resources reach full utilization, the web site will normally be inaccessible.
+Wiele razy ataki DoS będą usiłować zużyć wszystkie dostępne materiały systemowe strony internetowej takie jak: Procesor, pamięć, miejsce na dysku itd. Kiedy którykolwiek z tych krytycznych zasobów osiągnie pełną eksploatację, strona internetowa będzie zazwyczaj niedostępna.
 
-As today's web application environments include a web server, database server and an authentication server, DoS at the application layer may target each of these independent components. Unlike DoS at the network layer, where a large number of connection attempts are required, DoS at the application layer is a much simpler task to perform.</desc>
-	<solution>Phase: Architecture and Design
+Ponieważ dzisiejsze środowiska aplikacji internetowych obejmują serwer Www, serwer bazy danych i serwer uwierzytelniania, DoS w warstwie aplikacji może być kierowany na każdy z tych niezależnych składników. W przeciwieństwie do DoS w warstwie sieci, gdzie wymagana jest duża liczba prób połączenia, DoS w warstwie aplikacji jest znacznie prostszym zadaniem do wykonania.</desc>
+	<solution>Faza: Architektura i Projektowanie
 
-Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold.
+Zaprojektuj mechanizmy tłumienia w architekturze systemu. Najlepszą ochroną jest ograniczenie liczby materiałów, które nieupoważniony użytkownik może zużyć. Silny wzorzec uwierzytelniania i kontroli dostępu zapobiegnie takim atakom w pierwszej kolejności. Aplikacja logowania powinna być chroniona przed atakami DoS tak bardzo, jak to możliwe. Ograniczenie dostępu do bazy danych, być może poprzez buforowanie zestawów wyników, może pomóc zminimalizować eksploatowanie zasobów. Aby jeszcze bardziej ograniczyć możliwość ataku DoS, należy rozważyć śledzenie liczby żądań otrzymanych od użytkowników i blokowanie żądań przekraczających zdefiniowany próg częstotliwości.
 
-Mitigation of resource exhaustion attacks requires that the target system either:
-      recognizes the attack and denies that user further access for a given amount of time, or
-      uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+Ograniczanie ataków polegających na wyczerpaniu zasobów wymaga, aby system docelowy:
+      rozpoznaje atak i odmawia temu użytkownikowi dalszego dostępu przez określony czas, lub
+      jednolicie ogranicza wszystkie żądania, aby utrudnić eksploatację zasobów szybciej niż można je ponownie uwolnić. 
 
-The first of these solutions is an issue in itself though, since it may allow attackers to prevent the use of the system by a particular valid user. If the attacker impersonates the valid user, he may be able to prevent the user from accessing the server in question.
+Pierwsze z tych rozwiązań jest jednak problemem samym w sobie, ponieważ może pozwolić atakującym na uniemożliwienie korzystania z systemu przez określonego, ważnego użytkownika. Jeśli atakujący podszywa się pod prawomocnego użytkownika, może uniemożliwić mu dostęp do danego serwera.
 
-The second solution is simply difficult to effectively institute -- and even when properly done, it does not provide a full solution. It simply makes the attack require more resources on the part of the attacker.
+Drugie rozwiązanie jest po prostu trudne do efektywnego wdrożenia - a nawet jeśli jest właściwie wykonane, nie zapewnia pełnego rozwiązania. Zwyczajnie sprawia, że ​​atak wymaga więcej środków ze strony atakującego.
 
-Ensure that protocols have specific limits of scale placed on them.
+Upewnij się, że protokoły mają określone ograniczenia w skali plasowanej na nich.
 
-Phase: Implementation
-Ensure that all failures in resource allocation place the system into a safe posture.</solution>
+Faza: Implementacja
+Upewnij się, że wszystkie awarie alokacji zasobów umieszczają system w bezpiecznej pozycji.</solution>
 	<reference>http://projects.webappsec.org/Denial-of-Service</reference>
 	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
 </vuln_item_wasc_10>
@@ -941,17 +941,17 @@ There are two main types of processes that require validation: flow control and 
 <vuln_item_wasc_41>
 	<alert>XML Attribute Blowup</alert>
 	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. The attacker provides a malicious XML document, which vulnerable XML parsers process in a very inefficient manner, leading to excessive CPU load. The essence of the attack is to include many attributes in the same XML node. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
-	<solution>Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold.
+	<solution>Design throttling mechanisms into the system architecture. Najlepszą ochroną jest ograniczenie liczby materiałów, które nieupoważniony użytkownik może zużyć. Silny wzorzec uwierzytelniania i kontroli dostępu zapobiegnie takim atakom w pierwszej kolejności. Aplikacja logowania powinna być chroniona przed atakami DoS tak bardzo, jak to możliwe. Ograniczenie dostępu do bazy danych, być może poprzez buforowanie zestawów wyników, może pomóc zminimalizować eksploatowanie zasobów. Aby jeszcze bardziej ograniczyć możliwość ataku DoS, należy rozważyć śledzenie liczby żądań otrzymanych od użytkowników i blokowanie żądań przekraczających zdefiniowany próg częstotliwości.
 
 Mitigation of resource exhaustion attacks requires that the target system either:
  * recognizes the attack and denies that user further access for a given amount of time, or
  * uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
 
-The first of these solutions is an issue in itself though, since it may allow attackers to prevent the use of the system by a particular valid user. If the attacker impersonates the valid user, he may be able to prevent the user from accessing the server in question.
+Pierwsze z tych rozwiązań jest jednak problemem samym w sobie, ponieważ może pozwolić atakującym na uniemożliwienie korzystania z systemu przez określonego, ważnego użytkownika. Jeśli atakujący podszywa się pod prawomocnego użytkownika, może uniemożliwić mu dostęp do danego serwera.
 
-The second solution is simply difficult to effectively institute -- and even when properly done, it does not provide a full solution. It simply makes the attack require more resources on the part of the attacker.
+Drugie rozwiązanie jest po prostu trudne do efektywnego wdrożenia - a nawet jeśli jest właściwie wykonane, nie zapewnia pełnego rozwiązania. Zwyczajnie sprawia, że ​​atak wymaga więcej środków ze strony atakującego.
 
-Ensure that protocols have specific limits of scale placed on them.
+Upewnij się, że protokoły mają określone ograniczenia w skali plasowanej na nich.
 
 Ensure that all failures in resource allocation place the system into a safe posture.</solution>
 	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
