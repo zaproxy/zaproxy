@@ -115,8 +115,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 		    psRead = DbSQL.getSingleton().getPreparedStatement("alert.ps.read");
 			psRead.getPs().setInt(1, alertId);
 			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				RecordAlert ra = build(rs);
-				return ra;
+				return build(rs);
 			}
 		} catch (Exception e) {
 			throw new DatabaseException(e);

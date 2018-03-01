@@ -507,8 +507,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	}
 
 	public Collection<SiteParameters> getAllSiteParameters() {
-		Collection<SiteParameters> values = this.siteParamsMap.values();
-		return values;
+		return this.siteParamsMap.values();
 	}
 
 	/**

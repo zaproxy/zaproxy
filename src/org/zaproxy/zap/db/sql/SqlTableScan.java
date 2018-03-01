@@ -50,8 +50,7 @@ public class SqlTableScan extends SqlAbstractTable implements TableScan {
         try {
         	psGetLatestScan = DbSQL.getSingleton().getPreparedStatement("scan.ps.getlatestscan");
 			try (ResultSet rs = psGetLatestScan.getPs().executeQuery()) {
-				RecordScan result = build(rs);
-				return result;
+				return build(rs);
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -71,8 +70,7 @@ public class SqlTableScan extends SqlAbstractTable implements TableScan {
 			psRead.getPs().setInt(1, scanId);
 			
 			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				RecordScan result = build(rs);
-				return result;
+				return build(rs);
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);

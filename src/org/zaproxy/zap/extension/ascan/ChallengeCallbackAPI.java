@@ -102,19 +102,11 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
      * @return a ZAP API URL to access the the challenge endpoint 
      */
     public String getCallbackUrl(String challenge) {
-        String callbackUrl = "http://" 
-                + Model.getSingleton().getOptionsParam().getProxyParam().getProxyIp() + ":" 
-                + Model.getSingleton().getOptionsParam().getProxyParam().getProxyPort() + "/" 
-                + getPrefix() + "/" 
+        return "http://"
+                + Model.getSingleton().getOptionsParam().getProxyParam().getProxyIp() + ":"
+                + Model.getSingleton().getOptionsParam().getProxyParam().getProxyPort() + "/"
+                + getPrefix() + "/"
                 + challenge;
-        
-        /* Key is not currently used for shorcuts... very interesting
-        String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
-        if (key != null && key.length() > 0) {
-        callbackUrl += "?" + API.API_KEY_PARAM + "=" + key;
-        }
-         */
-        return callbackUrl;
     }
 
     /**
