@@ -28,6 +28,7 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2018/02/14 Add option for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
 // ZAP: 2018/03/01 Remove the name from a panel and use BorderLayout.
 
 package org.parosproxy.paros.extension.option;
@@ -377,6 +378,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					new ResponsePanelPositionUI(
 							Constant.messages.getString("view.options.label.responsepanelpos.tabs"),
 							WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE));
+			responsePanelPositionComboBox.addItem(
+					new ResponsePanelPositionUI(
+							Constant.messages.getString("view.options.label.responsepanelpos.tabSideBySide"),
+							WorkbenchPanel.ResponsePanelPosition.TAB_SIDE_BY_SIDE));
 			responsePanelPositionComboBox.addItem(
 					new ResponsePanelPositionUI(
 							Constant.messages.getString("view.options.label.responsepanelpos.sideBySide"),
