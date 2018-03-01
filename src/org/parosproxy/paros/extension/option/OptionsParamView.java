@@ -38,6 +38,7 @@
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/01/25 Remove unused constant LOCALES.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/02/27 Added support for selecting the look and feel.
 
 package org.parosproxy.paros.extension.option;
 
@@ -92,8 +93,8 @@ public class OptionsParamView extends AbstractParam {
 	public static final String FONT_SIZE = "view.fontSize";
 	public static final String SCALE_IMAGES = "view.scaleImages";
 	public static final String SHOW_DEV_WARNING = "view.showDevWarning";
-
-    private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
+	public static final String LOOK_AND_FEEL = "view.lookAndFeel";
+	private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
     private static final String CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY = "view.confirmRemoveScannerExcludeRegex";
     private static final String CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY = "view.confirmRemoveSpiderExcludeRegex";
 
@@ -129,7 +130,8 @@ public class OptionsParamView extends AbstractParam {
     private String fontName = "";
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
-
+    private String lookAndFeel = "";
+	
     private boolean confirmRemoveProxyExcludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
     private boolean confirmRemoveSpiderExcludeRegex;
@@ -174,7 +176,7 @@ public class OptionsParamView extends AbstractParam {
 	    fontName = getString(FONT_NAME, "");
 	    scaleImages = getBoolean(SCALE_IMAGES, true);
 	    showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
-	    
+	    lookAndFeel = getString(LOOK_AND_FEEL,"");
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
 	    LargeResponseUtil.setMinContentLength(largeResponseSize);
@@ -466,7 +468,16 @@ public class OptionsParamView extends AbstractParam {
 		this.fontName = fontName;
 		getConfig().setProperty(FONT_NAME, fontName);
 	}
-
+	
+	public String getLookAndFeel() {
+		return this.lookAndFeel;
+	}
+	
+	public void setLookAndFeel(String lookAndFeel) {
+		this.lookAndFeel = lookAndFeel;
+		getConfig().setProperty(LOOK_AND_FEEL, lookAndFeel);
+	}
+	
 	public boolean isScaleImages() {
 		return scaleImages;
 	}
