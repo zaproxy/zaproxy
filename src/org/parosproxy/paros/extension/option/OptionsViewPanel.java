@@ -29,7 +29,7 @@
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/01/09 Remove method no longer needed.
 // ZAP: 2018/02/14 Add option for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
-// ZAP: 2018/02/27 Add option for Look And Feel and Scrollbar.
+// ZAP: 2018/02/27 Add option for Look And Feel and a scrollbar.
 // ZAP: 2018/03/01 Remove the name from a panel and use BorderLayout.
 
 package org.parosproxy.paros.extension.option;
@@ -133,10 +133,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new BorderLayout());
         this.setName(Constant.messages.getString("view.options.title"));
-        this.add(getmainScrollPane());
+        this.add(getMainScrollPane());
 	}
 	
-	private JScrollPane getmainScrollPane() {
+	private JScrollPane getMainScrollPane() {
 		if (mainScrollPane == null) {
 			mainScrollPane = new JScrollPane();
 			mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -180,7 +180,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getDisplaySelect(), 
 					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
-			
+
 			row++;
 			JLabel responsePanelPositionLabel = new JLabel(Constant.messages.getString("view.options.label.responsepanelpos"));
 			panelMisc.add(responsePanelPositionLabel, 
@@ -571,7 +571,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			lookAndFeel = new JComboBox<String>();
 			lookAndFeel.setMaximumRowCount(5);
 			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
-			lookAndFeel.addItem(" ");	// Default look 
+			lookAndFeel.addItem("");	// Default look 
 			for (UIManager.LookAndFeelInfo look : looks){
 				lookAndFeel.addItem(look.getName());
 			}

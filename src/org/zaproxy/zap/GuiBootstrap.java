@@ -35,7 +35,6 @@ import java.util.Locale;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -345,61 +344,32 @@ public class GuiBootstrap extends ZapBootstrap {
      */
     private void setupLookAndFeel() {
     	if(lookAndFeelSet) {
-    		
     		return;
     	}
-    	
-    	String lookAndFeelClassnameFromCommandline = System.getProperty("swing.defaultlaf");
     	    	
-    	if( lookAndFeelClassnameFromCommandline!= null) {
-        	try{
-        			UIManager.setLookAndFeel(lookAndFeelClassnameFromCommandline);
-        			lookAndFeelSet = true;
-        			return;
-        	} catch (final UnsupportedLookAndFeelException
-        			| ClassNotFoundException
-        			| ClassCastException
-        			| InstantiationException
-        			| IllegalAccessException e) {
-        		logger.warn("Failed to set the specified look and feel:" + e.getMessage());
-        	}
-        }else { 
-        		OptionsParam options = Model.getSingleton().getOptionsParam();
-        		String lookAndFeelnameFromOptions = options.getViewParam().getLookAndFeel();
-        		String lookAndFeelClassnameFromOptions = getLookAndFeelClassname(lookAndFeelnameFromOptions);
-        		
-        		if(lookAndFeelClassnameFromOptions != "" && lookAndFeelClassnameFromOptions != null) {
-        			try{
-        					UIManager.setLookAndFeel(lookAndFeelClassnameFromOptions);
-        					lookAndFeelSet = true;
-        					return;
-        			}catch (final UnsupportedLookAndFeelException
-        					| ClassNotFoundException
-        					| ClassCastException
-        					| InstantiationException
-        					| IllegalAccessException e) {
-        				logger.warn("Failed to set the specified look and feel: " + e.getMessage());
-        			}
-        		}else {
-        				if (Constant.isMacOsX()) {
-        					OsXGui.setup();
-        				}else {
-        						try {
-        							// Set Nimbus LaF if available
-        								UIManager.setLookAndFeel(getLookAndFeelClassname("Nimbus"));
-        								lookAndFeelSet = true;
-        								return;
-        						}catch (final UnsupportedLookAndFeelException
-        								| ClassNotFoundException
-        								| InstantiationException
-        								| IllegalAccessException e) {
-        						logger.warn("Failed to set the \"default\" look and feel: " + e.getMessage());
-        					} 
-        				}
-        			}    
-        	}
-    }
-    
+    	if(setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
+        	return;
+        }
+    	
+    	OptionsParam options = Model.getSingleton().getOptionsParam();
+        	
+        if(setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))) {
+        	return;
+        }
+        
+        if (Constant.isMacOsX()) {
+        	OsXGui.setup();
+        }
+        
+        if(setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
+        	return;
+        }else {
+        		setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+           		return;
+        }
+        
+	}
+        
     private String getLookAndFeelClassname(String lookAndFeelName) {
     	UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
     	String  lookAndFeelClassname = "";
@@ -410,6 +380,21 @@ public class GuiBootstrap extends ZapBootstrap {
     		}
     	}
 		return lookAndFeelClassname;
+    }
+    
+    private boolean setLookAndFeel(String lookAndFeelClassname) {
+    	if(lookAndFeelClassname != "" && lookAndFeelClassname != null) {
+    		try {
+    			UIManager.setLookAndFeel(lookAndFeelClassname);
+    			lookAndFeelSet = true;
+    		}catch (final UnsupportedLookAndFeelException
+    				| ClassNotFoundException
+    				| InstantiationException
+    				| IllegalAccessException e) {
+    			logger.warn("Failed to set the look and feel: " + e.getMessage());
+				}
+    	}
+    	return lookAndFeelSet;
     }
     /**
      * Setups ZAP's and GUI {@code Locale}, if not previously defined. Otherwise it's determined automatically or, if not
