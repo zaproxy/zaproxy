@@ -572,8 +572,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			lookAndFeel.setMaximumRowCount(5);
 			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
 			lookAndFeel.addItem("");	// Default look 
-			for (UIManager.LookAndFeelInfo look : looks){
-				lookAndFeel.addItem(look.getName());
+			for(UIManager.LookAndFeelInfo look : looks){
+			    lookAndFeel.addItem(look.getName());
 			}
 		}
 		return lookAndFeel;
