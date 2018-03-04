@@ -33,6 +33,7 @@
 // ZAP: 2015/12/14 Disable request/response tab buttons location when in full layout
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/08/30 Add tool tip to response tab.
+// ZAP: 2018/02/14 Add new layout ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
 
 package org.parosproxy.paros.view;
 
@@ -51,11 +52,14 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
@@ -167,13 +171,24 @@ public class WorkbenchPanel extends JPanel {
 
 		/**
 		 * Request panel is shown above the response panel, in different tabbed panels.
+		 * <p>
+		 * Not supported in {@link Layout#FULL FULL layout}.
 		 */
 		PANEL_ABOVE,
 
 		/**
 		 * Request and response panels are shown, side-by-side, in different tabbed panels.
+		 * <p>
+		 * Not supported in {@link Layout#FULL FULL layout}.
 		 */
-		PANELS_SIDE_BY_SIDE
+		PANELS_SIDE_BY_SIDE,
+
+		/**
+		 * Request and response panels are shown, side-by-side, in the same tab.
+		 * 
+		 * @since TODO add version
+		 */
+		TAB_SIDE_BY_SIDE
 	}
 
 	/**
@@ -229,11 +244,31 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * A tabbed panel to show the response panel, when it is shown separately from other panels.
 	 * <p>
-	 * Main purpose is to show the request and response panels at the same time.
+	 * Main purpose is to show the request and response panels at the same time (in different tabs).
 	 * 
 	 * @see #setResponsePanelPosition(ResponsePanelPosition)
 	 */
 	private final TabbedPanel2 responseTabbedPanel;
+
+	/**
+	 * A {@code JSplitPane} to show the request and response in the same tab.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see ResponsePanelPosition#TAB_SIDE_BY_SIDE
+	 * @see #splitResponsePanelWithRequestPanel(int, TabbedPanel2)
+	 */
+	private JSplitPane splitRequestAndResponse;
+
+	/**
+	 * The panel that shows the request and response in the same tab.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see ResponsePanelPosition#TAB_SIDE_BY_SIDE
+	 * @see #splitResponsePanelWithRequestPanel(int, TabbedPanel2)
+	 */
+	private AbstractPanel splitRequestAndResponsePanel;
 
 	/**
 	 * The object to maximise the components when in some layouts.
@@ -450,6 +485,7 @@ public class WorkbenchPanel extends JPanel {
 			visiblePanels.addAll(getTabbedWork().getVisiblePanels());
 			visiblePanels.addAll(getTabbedSelect().getVisiblePanels());
 			getTabbedFull().setVisiblePanels(visiblePanels);
+			updateFullLayout();
 			this.add(getFullLayoutPanel());
 			break;
 		case EXPAND_SELECT:
@@ -1097,6 +1133,7 @@ public class WorkbenchPanel extends JPanel {
 
 		responsePanelPosition = position;
 		if (layout == Layout.FULL) {
+			updateFullLayout();
 			return;
 		}
 
@@ -1105,6 +1142,8 @@ public class WorkbenchPanel extends JPanel {
 			componentMaximiser.unmaximiseComponent();
 		}
 
+		boolean selectRequest = removeSplitRequestAndResponsePanel(tabbedWork);
+
 		switch (position) {
 		case PANEL_ABOVE:
 			splitResponsePanelWithWorkTabbedPanel(JSplitPane.VERTICAL_SPLIT);
@@ -1112,22 +1151,30 @@ public class WorkbenchPanel extends JPanel {
 		case PANELS_SIDE_BY_SIDE:
 			splitResponsePanelWithWorkTabbedPanel(JSplitPane.HORIZONTAL_SPLIT);
 			break;
+		case TAB_SIDE_BY_SIDE:
+			splitResponsePanelWithRequestPanel(JSplitPane.HORIZONTAL_SPLIT, tabbedWork);
+
+			getPaneWork().removeAll();
+			getPaneWork().add(getTabbedWork());
+			getPaneWork().validate();
+			break;
 		case TABS_SIDE_BY_SIDE:
 		default:
 			if (currentTabbedPanel == responseTabbedPanel) {
 				currentTabbedPanel = tabbedWork;
 			}
-			String tabName = showTabNames ? responsePanel.getName() : "";
-			tabbedWork.insertTab(
-					tabName,
-					DisplayUtils.getScaledIcon(responsePanel.getIcon()),
-					responsePanel,
-					tabName,
-					tabbedWork.indexOfComponent(requestPanel) + 1);
+			insertTab(tabbedWork, responsePanel, tabbedWork.indexOfComponent(requestPanel) + 1);
 
 			getPaneWork().removeAll();
 			getPaneWork().add(getTabbedWork());
 			getPaneWork().validate();
+		}
+
+		if (selectRequest || getTabbedWork().getSelectedComponent() == null) {
+			getTabbedWork().setSelectedComponent(
+					responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE
+							? splitRequestAndResponsePanel
+							: requestPanel);
 		}
 
 		if (currentTabbedPanel != null) {
@@ -1135,26 +1182,114 @@ public class WorkbenchPanel extends JPanel {
 		}
 	}
 
+	private void updateFullLayout() {
+		if (responsePanelPosition == ResponsePanelPosition.PANEL_ABOVE
+				|| responsePanelPosition == ResponsePanelPosition.PANELS_SIDE_BY_SIDE) {
+			removeSplitRequestAndResponsePanel(tabbedFull);
+			if (tabbedFull.indexOfComponent(responsePanel) == -1) {
+				insertTab(tabbedFull, responsePanel, tabbedFull.indexOfComponent(requestPanel) + 1);
+			}
+			getFullLayoutPanel().validate();
+			return;
+		}
+
+		boolean selectRequest = removeSplitRequestAndResponsePanel(tabbedFull);
+
+		if (responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE) {
+			splitResponsePanelWithRequestPanel(JSplitPane.HORIZONTAL_SPLIT, tabbedFull);
+			getFullLayoutPanel().validate();
+		} else if (responsePanelPosition == ResponsePanelPosition.TABS_SIDE_BY_SIDE) {
+			insertTab(tabbedFull, responsePanel, tabbedFull.indexOfComponent(requestPanel) + 1);
+			getFullLayoutPanel().validate();
+		}
+
+		if (selectRequest || getTabbedFull().getSelectedComponent() == null) {
+			tabbedFull.setSelectedComponent(
+					responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE
+							? splitRequestAndResponsePanel
+							: requestPanel);
+		}
+	}
+
+	private void insertTab(TabbedPanel2 tabbedPanel, AbstractPanel panel, int position) {
+		String tabName = getNormalisedTabName(panel);
+		insertTab(tabbedPanel, panel, position, tabName, DisplayUtils.getScaledIcon(panel.getIcon()));
+	}
+
+	private void insertTab(TabbedPanel2 tabbedPanel, Component panel, int position, String tabName, Icon icon) {
+		tabbedPanel.insertTab(tabName, icon, panel, tabName, position);
+	}
+
+	private String getNormalisedTabName(AbstractPanel panel) {
+		return getNormalisedTabName(panel.getName());
+	}
+
+	private String getNormalisedTabName(String panelName) {
+		return showTabNames ? panelName : "";
+	}
+
 	private void splitResponsePanelWithWorkTabbedPanel(int orientation) {
 		responseTabbedPanel.removeAll();
 
-		String name = showTabNames ? responsePanel.getName() : "";
-		responseTabbedPanel.addTab(name, DisplayUtils.getScaledIcon(responsePanel.getIcon()), responsePanel);
+		responseTabbedPanel.addTab(getNormalisedTabName(responsePanel), responsePanel.getIcon(), responsePanel);
 
 		getPaneWork().removeAll();
 
-		JSplitPane split = new JSplitPane(orientation);
-		split.setDividerSize(3);
-		split.setResizeWeight(0.5D);
-		split.setContinuousLayout(false);
-		split.setDoubleBuffered(true);
-		split.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		JSplitPane split = createSplitPane(orientation);
 
 		split.setRightComponent(responseTabbedPanel);
 		split.setLeftComponent(getTabbedWork());
 
 		getPaneWork().add(split);
 		getPaneWork().validate();
+	}
+
+	private static JSplitPane createSplitPane(int orientation) {
+		JSplitPane splitPane = new JSplitPane(orientation);
+		splitPane.setDividerSize(3);
+		splitPane.setResizeWeight(0.5D);
+		splitPane.setContinuousLayout(false);
+		splitPane.setDoubleBuffered(true);
+		splitPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		return splitPane;
+	}
+
+	private void splitResponsePanelWithRequestPanel(int orientation, TabbedPanel2 tabbedPanel) {
+		if (splitRequestAndResponsePanel == null) {
+			splitRequestAndResponsePanel = new AbstractPanel();
+			splitRequestAndResponsePanel.setLayout(new BorderLayout());
+			splitRequestAndResponsePanel.setName(Constant.messages.getString("http.panel.requestAndResponse.title"));
+			splitRequestAndResponsePanel.setIcon(new ImageIcon(WorkbenchPanel.class.getResource("/resource/icon/16/handshake.png")));
+			splitRequestAndResponsePanel.setHideable(false);
+
+			splitRequestAndResponse = createSplitPane(orientation);
+			splitRequestAndResponsePanel.add(splitRequestAndResponse);
+		}
+
+		Component selectedComponent = tabbedPanel.getSelectedComponent();
+		int requestPanelIndex = tabbedPanel.indexOfComponent(requestPanel);
+
+		splitRequestAndResponse.setLeftComponent(requestPanel);
+		tabbedPanel.removeTab(requestPanel);
+		splitRequestAndResponse.setRightComponent(responsePanel);
+		tabbedPanel.removeTab(responsePanel);
+
+		tabbedPanel.addTab(splitRequestAndResponsePanel, requestPanelIndex);
+
+		if (selectedComponent == requestPanel || selectedComponent == responsePanel) {
+			tabbedPanel.setSelectedComponent(splitRequestAndResponsePanel);
+		}
+	}
+
+	private boolean removeSplitRequestAndResponsePanel(TabbedPanel2 tabbedPanel) {
+		boolean selectRequest = false;
+		int pos = tabbedPanel.indexOfComponent(splitRequestAndResponsePanel);
+		if (pos != -1) {
+			selectRequest = tabbedPanel.getSelectedComponent() == splitRequestAndResponsePanel;
+			tabbedPanel.removeTab(splitRequestAndResponsePanel);
+			tabbedPanel.addTab(requestPanel, pos);
+		}
+		return selectRequest;
 	}
 	
 	/**

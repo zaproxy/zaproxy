@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Form Attributes - Spider HTML Form Parser</title>
+</head>
+<body>
+
+<input form="form1" type="text" name="field1" value="Field1" />
+<input form="form1" type="submit" name="submit" value="Submit1" />
+
+<input form="" type="text" name="field1-EF" value="Field1 -empty-form" />
+
+<input form="missing-form" type="text" name="field1-MF" value="Field1 -missing-form" />
+
+<form id="form1" action="http://example.org/" method="%%METHOD%%">
+<input type="text" name="field2" value="Field2" />
+<input form="" type="text" name="field2-EF" value="Field2 -empty-form-inlined" />
+<input form="form1" type="text" name="field3" value="Field3" />
+<input type="submit" name="submit" value="Submit2" />
+<input form="missing-form" type="text" name="field2-MF" value="Field2 -missing-form-inlined" />
+</form>
+
+<input form="form1" type="text" name="field4" value="Field4" />
+<input form="form1" type="submit" name="submit" value="Submit3" />
+
+<input form="missing-form" type="submit" name="submit-MF" value="Submit -missing-form" />
+
+</body>
+</html>

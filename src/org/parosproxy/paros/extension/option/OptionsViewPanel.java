@@ -28,10 +28,12 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2018/02/14 Add option for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
+// ZAP: 2018/03/01 Remove the name from a panel and use BorderLayout.
 
 package org.parosproxy.paros.extension.option;
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -123,9 +125,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
+        this.setLayout(new BorderLayout());
         this.setName(Constant.messages.getString("view.options.title"));
-        this.add(getPanelMisc(), getPanelMisc().getName());
+        this.add(getPanelMisc());
 
 	}
 	
@@ -142,7 +144,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 		    	panelMisc.setSize(114, 132);
 		    }
-			panelMisc.setName(Constant.messages.getString("view.options.misc.title"));
 
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
 			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
@@ -377,6 +378,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					new ResponsePanelPositionUI(
 							Constant.messages.getString("view.options.label.responsepanelpos.tabs"),
 							WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE));
+			responsePanelPositionComboBox.addItem(
+					new ResponsePanelPositionUI(
+							Constant.messages.getString("view.options.label.responsepanelpos.tabSideBySide"),
+							WorkbenchPanel.ResponsePanelPosition.TAB_SIDE_BY_SIDE));
 			responsePanelPositionComboBox.addItem(
 					new ResponsePanelPositionUI(
 							Constant.messages.getString("view.options.label.responsepanelpos.sideBySide"),

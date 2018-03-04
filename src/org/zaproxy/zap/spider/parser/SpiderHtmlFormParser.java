@@ -26,17 +26,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.htmlparser.jericho.Attribute;
 import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.FormControl;
 import net.htmlparser.jericho.FormField;
 import net.htmlparser.jericho.FormFields;
 import net.htmlparser.jericho.HTMLElementName;
+import net.htmlparser.jericho.Segment;
 import net.htmlparser.jericho.Source;
 
 import org.apache.commons.httpclient.URI;
-import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ValueGenerator;
@@ -154,7 +157,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			}
 
 			url = URLCanonicalizer.getCanonicalURL(action, baseURL);
-			FormData formData = prepareFormDataSet(form.getFormFields());
+			FormData formData = prepareFormDataSet(source, form);
 
 			// Process the case of a POST method
 			if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
@@ -171,18 +174,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				 */
 				// String encoding = form.getAttributeValue("enctype");
 				// if (encoding != null && encoding.equals("multipart/form-data"))
-				String baseRequestBody = buildEncodedUrlQuery(formData.getFields());
-				if (formData.getSubmitFields().isEmpty()) {
-					notifyPostResourceFound(message, depth, fullURL, baseRequestBody);
-					continue;
-				}
 
-				for (HtmlParameter submitField : formData.getSubmitFields()) {
-					notifyPostResourceFound(
-							message,
-							depth,
-							fullURL,
-							appendEncodedUrlQueryParameter(baseRequestBody, submitField));
+				for (String submitData : formData) {
+					notifyPostResourceFound(message, depth, fullURL, submitData);
 				}
 
 			} // Process anything else as a GET method
@@ -218,16 +212,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * @see #processURL(HttpMessage, int, String, String)
 	 */
 	private void processGetForm(HttpMessage message, int depth, String action, String baseURL, FormData formData) {
-		String baseQuery = buildEncodedUrlQuery(formData.getFields());
-		if (formData.getSubmitFields().isEmpty()) {
-			log.debug("Submiting form with GET method and query with form parameters: " + baseQuery);
-			processURL(message, depth, action + baseQuery, baseURL);
-		} else {
-			for (HtmlParameter submitField : formData.getSubmitFields()) {
-				String query = appendEncodedUrlQueryParameter(baseQuery, submitField);
-				log.debug("Submiting form with GET method and query with form parameters: " + query);
-				processURL(message, depth, action + query, baseURL);
-			}
+		for (String submitData : formData) {
+			log.debug("Submiting form with GET method and query with form parameters: " + submitData);
+			processURL(message, depth, action + submitData, baseURL);
 		}
 	}
 
@@ -239,31 +226,61 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 *      Processing form data</a>
 	 * @see <a href="https://html.spec.whatwg.org/multipage/forms.html#association-of-controls-and-forms">HTML 5 - 4.10.18.3
 	 *      Association of controls and forms</a>
+	 * @param source the source where the form is (to obtain further input elements)
 	 * @param form the form
 	 * @return the list
 	 */
-	private FormData prepareFormDataSet(FormFields form) {
-		List<HtmlParameter> formDataSet = new LinkedList<>();
-		List<HtmlParameter> submitFields = new ArrayList<>();
+	private FormData prepareFormDataSet(Source source, Element form) {
+		List<FormDataField> formDataFields = new LinkedList<>();
 
 		// Process each form field
-		Iterator<FormField> it = form.iterator();
+		Iterator<FormField> it = getFormFields(source, form).iterator();
 		while (it.hasNext()) {
 			FormField field = it.next();
 			if (log.isDebugEnabled()) {
 				log.debug("New form field: " + field.getDebugInfo());
 			}
-
-			List<HtmlParameter> currentList = formDataSet;
-			if (field.getFormControl().getFormControlType().isSubmit()) {
-				currentList = submitFields;
-			}
 			for (String value : getDefaultTextValue(field)) {
-				currentList.add(new HtmlParameter(Type.form, field.getName(), value));
+				formDataFields
+						.add(new FormDataField(field.getName(), value, field.getFormControl().getFormControlType().isSubmit()));
+			}
+		}
+		return new FormData(formDataFields);
+	}
+
+	private static FormFields getFormFields(Source source, Element form) {
+		SortedSet<FormControl> formControls = new TreeSet<>();
+		addAll(formControls, form, HTMLElementName.INPUT);
+		addAll(formControls, form, HTMLElementName.TEXTAREA);
+		addAll(formControls, form, HTMLElementName.SELECT);
+		addAll(formControls, form, HTMLElementName.BUTTON);
+
+		String formId = form.getAttributeValue("id");
+		if (formId != null && !formId.isEmpty()) {
+			addAll(formControls, source.getAllElements("form", formId, true));
+		}
+		for (Iterator<FormControl> it = formControls.iterator(); it.hasNext();) {
+			FormControl formControl = it.next();
+			String targetForm = formControl.getAttributesMap().get("form");
+			if (targetForm != null && !targetForm.equals(formId)) {
+				it.remove();
 			}
 		}
 
-		return new FormData(formDataSet, submitFields);
+		return new FormFields(formControls);
+	}
+
+	private static void addAll(SortedSet<FormControl> formControls, Segment segment, String tagName) {
+		addAll(formControls, segment.getAllElements(tagName));
+	}
+
+	private static void addAll(SortedSet<FormControl> formControls, List<Element> elements) {
+		for (Element element : elements) {
+			FormControl formControl = element.getFormControl();
+			if (formControl != null) {
+				formControls.add(formControl);
+			}
+		}
 	}
 
 	/**
@@ -363,60 +380,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		notifyListenersPostResourceFound(message, depth + 1, url, requestBody);
 	}
 
-	/**
-	 * Builds the query, encoded with "application/x-www-form-urlencoded".
-	 * 
-	 * @see <a href="https://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type">HTML 4.01 Specification - 17.13.4
-	 *      Form content types</a>
-	 * @param formDataSet the form data set
-	 * @return the query
-	 */
-	private String buildEncodedUrlQuery(List<HtmlParameter> formDataSet) {
-		StringBuilder request = new StringBuilder();
-		// Build the query
-		for (HtmlParameter p : formDataSet) {
-			String v;
-			try {
-				v = URLEncoder.encode(p.getName(), ENCODING_TYPE);
-				request.append(v);
-				request.append("=");
-				v = URLEncoder.encode(p.getValue(), ENCODING_TYPE);
-				request.append(v);
-			} catch (UnsupportedEncodingException e) {
-				log.warn("Error while encoding query for form.", e);
-			}
-			request.append("&");
-		}
-		// Delete the last ampersand
-		if (request.length() > 0) {
-			request.deleteCharAt(request.length() - 1);
-		}
-
-		return request.toString();
-	}
-
-	/**
-	 * Appends the given {@code parameter} into the given {@code query}.
-	 *
-	 * @param query the query
-	 * @param parameter the parameter to append
-	 * @return the query with the parameter appended
-	 */
-	private static String appendEncodedUrlQueryParameter(String query, HtmlParameter parameter) {
-		StringBuilder strBuilder = new StringBuilder(query);
-		if (strBuilder.length() != 0) {
-			strBuilder.append('&');
-		}
-		try {
-			strBuilder.append(URLEncoder.encode(parameter.getName(), ENCODING_TYPE))
-					.append('=')
-					.append(URLEncoder.encode(parameter.getValue(), ENCODING_TYPE));
-		} catch (UnsupportedEncodingException e) {
-			log.warn("Error while encoding query for form.", e);
-		}
-		return strBuilder.toString();
-	}
-
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
 		// Fallback parser - if it's a HTML message which has not already been processed		
@@ -426,24 +389,104 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	/**
 	 * The fields (and its values) of a HTML form.
 	 * <p>
-	 * Normal fields and submit fields are kept apart.
+	 * Builds the form data encoded with "application/x-www-form-urlencoded".
+	 * 
+	 * @see <a href="https://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type">HTML 4.01 Specification - 17.13.4
+	 *	  Form content types</a>
 	 */
-	private static class FormData {
+	private static class FormData implements Iterable<String> {
 
-		private final List<HtmlParameter> fields;
-		private final List<HtmlParameter> submitFields;
+		private final List<FormDataField> fields;
+		private final List<FormDataField> submitFields;
 
-		public FormData(List<HtmlParameter> fields, List<HtmlParameter> submitFields) {
+		private FormData(List<FormDataField> fields) {
 			this.fields = fields;
-			this.submitFields = submitFields;
+			this.submitFields = new ArrayList<>();
+			this.fields.forEach(f -> {
+				if (f.isSubmit()) {
+					submitFields.add(f);
+				}
+			});
 		}
 
-		public List<HtmlParameter> getFields() {
-			return fields;
+		@Override
+		public Iterator<String> iterator() {
+			return new IteratorImpl();
 		}
 
-		public List<HtmlParameter> getSubmitFields() {
-			return submitFields;
+		private class IteratorImpl implements Iterator<String> {
+
+			private boolean started;
+			private List<FormDataField> consumedSubmitFields = new ArrayList<>();
+
+			@Override
+			public boolean hasNext() {
+				return !started || consumedSubmitFields.size() < submitFields.size();
+			}
+
+			@Override
+			public String next() {
+				if (!started) {
+					started = true;
+				} else if (consumedSubmitFields.size() >= submitFields.size()) {
+					throw new NoSuchElementException("No more form data to generate.");
+				}
+
+				boolean submitted = false;
+				StringBuilder formData = new StringBuilder(100);
+				for (FormDataField field : fields) {
+					if (field.isSubmit()) {
+						if (submitted || consumedSubmitFields.contains(field)) {
+							continue;
+						}
+						submitted = true;
+						consumedSubmitFields.add(field);
+					}
+
+					if (formData.length() > 0) {
+						formData.append('&');
+					}
+
+					formData.append(field.getName());
+					formData.append('=');
+					formData.append(field.getValue());
+				}
+
+				return formData.toString();
+			}
 		}
+	}
+
+	/**
+	 * A field of a {@link FormData}.
+	 */
+	private static class FormDataField {
+
+		private String name;
+		private String value;
+		private boolean submit;
+
+		public FormDataField(String name, String value, boolean submit) {
+			try {
+				this.name = URLEncoder.encode(name, ENCODING_TYPE);
+				this.value = URLEncoder.encode(value, ENCODING_TYPE);
+				this.submit = submit;
+			} catch (UnsupportedEncodingException ignore) {
+				// UTF-8 is one of the standard charsets of the JVM.
+			}
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public boolean isSubmit() {
+			return submit;
+		}
+
 	}
 }

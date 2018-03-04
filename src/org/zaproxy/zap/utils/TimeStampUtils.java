@@ -51,12 +51,10 @@ public final class TimeStampUtils {
 	public static String currentDefaultFormattedTimeStamp() {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_TIME_STAMP_FORMAT);
-			final String formattedTimeStamp = sdf.format(new Date());
-			return formattedTimeStamp;
+			return sdf.format(new Date());
 		} catch (IllegalArgumentException e) {
 			SimpleDateFormat sdf = new SimpleDateFormat(SAFE_TIME_STAMP_FORMAT);
-			final String formattedTimeStamp = sdf.format(new Date());
-			return formattedTimeStamp;
+			return sdf.format(new Date());
 		}
 	}
 	
@@ -72,8 +70,7 @@ public final class TimeStampUtils {
 	public static String currentFormattedTimeStamp(String format) {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
-			final String formattedTimeStamp = sdf.format(new Date());
-			return formattedTimeStamp; 
+			return sdf.format(new Date());
 		} catch (IllegalArgumentException | NullPointerException e) {
 			return(TimeStampUtils.currentDefaultFormattedTimeStamp());  
 		} 

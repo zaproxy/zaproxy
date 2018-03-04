@@ -43,9 +43,14 @@ RUN mkdir /home/zap/.vnc
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget -nv --content-disposition -i - -O - | tar zxv && \
 	cp -R ZAP*/* . &&  \
 	rm -R ZAP* && \
-	curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.3-distribution.zip > webswing.zip && \
-	unzip *.zip && \
-	rm *.zip && \
+	# Setup Webswing
+	curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.5-distribution.zip > webswing.zip && \
+	unzip webswing.zip && \
+	rm webswing.zip && \
+	mv webswing-* webswing && \
+	# Remove Webswing demos
+	rm -R webswing/demo/ && \
+	# Accept ZAP license
 	touch AcceptedLicense
 
 
@@ -58,7 +63,7 @@ ENV ZAP_PORT 8080
 ENV HOME /home/zap/
 
 COPY zap* /zap/
-COPY webswing.config /zap/webswing-2.3/
+COPY webswing.config /zap/webswing/
 COPY policies /home/zap/.ZAP/policies/
 COPY .xinitrc /home/zap/
 
@@ -68,7 +73,7 @@ USER root
 RUN chown zap:zap /zap/zap-x.sh && \
 	chown zap:zap /zap/zap-baseline.py && \
 	chown zap:zap /zap/zap-webswing.sh && \
-	chown zap:zap /zap/webswing-2.3/webswing.config && \
+	chown zap:zap /zap/webswing/webswing.config && \
 	chown zap:zap -R /home/zap/.ZAP/ && \
 	chown zap:zap /home/zap/.xinitrc && \
 	chmod a+x /home/zap/.xinitrc

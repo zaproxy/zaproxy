@@ -62,8 +62,7 @@ public class ZapTocView extends TOCView {
         URL url;
 
         if (params == null || !params.containsKey("data")) {
-            DefaultMutableTreeNode node = new DefaultMutableTreeNode();
-            return node;
+            return new DefaultMutableTreeNode();
         }
 
         try {
