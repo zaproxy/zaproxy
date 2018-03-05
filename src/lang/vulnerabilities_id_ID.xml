@@ -153,7 +153,7 @@ Banyak masalah inklusi file terjadi karena pemrogram menganggap bahwa input tert
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
 	<alert>Format String</alert>
-	<desc>Format String Attacks mengubah alur aplikasi dengan menggunakan fitur pemformatan string string untuk mengakses ruang memori lainnya. Kerentanan terjadi ketika data yang dipasok pengguna digunakan secara langsung sebagai input string format untuk fungsi C/C++ tertentu (misalnya fprintf, printf, sprintf, setproctitle, syslog, ...).
+	<desc>Format Serangan String mengubah aliran aplikasi dengan menggunakan format string fitur lainnya seperti perpustakaan ruang memori. Kerentanan terjadi ketika pengguna-data yang diberikan digunakan secara langsung sebagai format masukan string tertentu C/C++ fungsi (misalnya fprintf, printf, sprintf, setproctitle, syslog, ...).
 
 Jika seorang penyerang melewati format string yang terdiri dari printf konversi karakter (misalnya "%f", "%p", "%n", dll.) sebagai parameter nilai untuk aplikasi web, mereka dapat:
       * Mengeksekusi kode sewenang-wenang di server
@@ -165,8 +165,8 @@ Format string serangan yang terkait dengan serangan lain dalam ancaman klasifika
 Pilih bahasa yang tidak terkena cacat ini.
 
 Tahap: Pelaksanaan
-Memastikan bahwa semua format fungsi string yang berlalu statis string tidak dapat dikendalikan oleh pengguna, dan bahwa jumlah yang tepat dari argumen yang selalu dikirim ke fungsi itu juga. Jika memungkinkan, gunakan fungsi yang tidak mendukung operator %n dalam format string.
-Membangun: Mengindahkan peringatan kompiler dan penghubung, karena mungkin mengingatkan Anda akan penggunaan yang tidak semestinya.
+Memastikan bahwa semua format fungsi string yang berlalu statis string tidak dapat dikendalikan oleh pengguna, dan bahwa jumlah yang tepat dari argumen yang selalu dikirim ke fungsi itu juga. Jika mungkin, gunakan fungsi-fungsi yang tidak mendukung operator %n dalam format string.
+Membangun: Mengindahkan peringatan kompiler dan penghubung, karena mungkin mengingatkan kamu akan penggunaan yang tidak semestinya.
 </solution>
 	<reference>http://projects.webappsec.org/Format-String</reference>
 	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
@@ -291,25 +291,25 @@ Tahap: Implementasi Periksa header Referral HTTP untuk melihat apakah permintaan
 <vuln_items>wasc_10</vuln_items>
 <vuln_item_wasc_10>
 	<alert>Penyangkalan dari Layanan</alert>
-	<desc>Penyangkalan dari Layanan (DoS) adalah teknik serangan dengan maksud mencegah situs web melayani aktivitas pengguna normal. Serangan DoS, yang mudah diterapkan pada lapisan jaringan, juga dimungkinkan di lapisan aplikasi. Serangan berbahaya ini bisa berhasil dengan kelaparan dengan sistem sumber daya kritis, kerentanan mengeksploitasi, atau penyalahgunaan fungsi.
+	<desc>Denial of Service (DoS) adalah sebuah teknik serangan dengan maksud mencegah situs web dari porsi normal aktivitas pengguna. Serangan DoS, yang mudah biasanya diterapkan pada lapisan jaringan, juga dapat terjadi pada lapisan aplikasi. Serangan ini berbahaya dapat berhasil dengan kritis kelaparan sistem sumber daya, mengeksploitasi kerentanan, atau penyalahgunaan fungsi.
 
-Seringkali serangan DoS akan mencoba untuk mengkonsumsi semua sumber daya sistem yang tersedia di situs web seperti: CPU, memori, ruang penyimpanan, dll. Bila salah satu dari sumber daya kritis ini mencapai pemanfaatan penuh, situs web biasanya tidak dapat diakses.
+Berkali-kali serangan DoS akan mencoba untuk mengkonsumsi semua situs web sistem sumber daya yang tersedia seperti: CPU, memori, ruang disk dll. Ketika salah satu dari sumber daya kritis mencapai pemanfaatan penuh, situs web biasanya akan menjadi tidak dapat diakses.
 
-Seperti lingkungan aplikasi web saat ini termasuk server web, server database dan server otentikasi, DoS di lapisan aplikasi dapat menargetkan masing-masing komponen independen ini. Tidak seperti DoS di lapisan jaringan, di mana sejumlah besar upaya koneksi diperlukan, DoS pada lapisan aplikasi adalah tugas yang lebih sederhana untuk dilakukan.</desc>
-	<solution>Tahap: Arsitektur dan Desain Mendesain mekanisme ruang sempit ke dalam arsitektur sistem. Perlindungan terbaik adalah membatasi jumlah sumber daya yang mungkin menyebabkan pengguna yang tidak sah dikeluarkan. Model otentikasi dan kontrol akses yang kuat akan membantu mencegah serangan semacam itu terjadi. Aplikasi masuk harus dilindungi terhadap serangan DoS sebanyak mungkin. Membatasi akses database, mungkin dengan hasil set menyembunyikan, dapat membantu meminimalkan sumber daya yang dikeluarkan. Untuk lebih membatasi potensi serangan DoS, pertimbangkan untuk melacak tingkat permintaan yang diterima dari pengguna dan memblokir permintaan yang melebihi ambang batas tingkat yang ditetapkan.
+Karena saat ini lingkungan aplikasi web seperti server web, server database dan server otentikasi, pada lapisan DoS aplikasi dapat menargetkan masing-masing komponen independen. Tidak seperti DoS pada lapisan jaringan, di mana sejumlah upaya besar koneksi yang diperlukan, pada lapisan DoS aplikasi adalah tugas yang jauh lebih sederhana untuk melakukan.</desc>
+	<solution>Tahap: Arsitektur dan Desain Mendesain mekanisme ruang sempit ke dalam arsitektur sistem. Perlindungan terbaik adalah untuk membatasi jumlah sumber daya yang menyebabkan pengguna yang tidak sah dapat dikeluarkan. Otentikasi yang kuat dan model kontrol akses akan membantu mencegah terjadi serangan tersebut di tempat pertama. Masuk aplikasi harus dilindungi terhadap serangan DoS sebanyak mungkin. Membatasi akses database, mungkin dengan hasil set menyembunyikan, dapat membantu meminimalkan sumber daya yang dikeluarkan. Untuk lebih membatasi potensi untuk serangan DoS, mempertimbangkan pelacakan tingkat permintaan yang diterima dari pengguna dan memblokir permintaan yang melebihi didefinisikan tingkat ambang batas.
 
-Mitigasi serangan kelelahan sumber daya mengharuskan sistem target:
-       mengenali serangan tersebut dan menolak akses pengguna lebih jauh untuk jangka waktu tertentu, atau
-       Secara seragam mencekal semua permintaan agar lebih sulit untuk mengkonsumsi sumber daya lebih cepat daripada yang bisa mereka bebaskan lagi. 
+Mitigasi kelelahan dari serangan sumber daya mensyaratkan bahwa sasaran sistem yang baik:
+        mengakui serangan itu dan menyangkal bahwa pengguna akses lebih lanjut untuk jumlah waktu tertentu, atau
+        semua permintaan seragam throttle dalam rangka untuk membuatnya lebih sulit untuk mengkonsumsi sumber daya mereka yang lebih cepat kembali dari pada yang dapat dibebaskan. 
 
-Solusi pertama adalah masalah tersendiri, karena memungkinkan penyerang untuk mencegah penggunaan sistem oleh pengguna tertentu yang sah. Jika penyerang meniru identitas pengguna yang valid, dia mungkin bisa mencegah pengguna mengakses server yang bersangkutan.
+Yang pertama dari solusi ini adalah sebuah masalah dalam dirinya sendiri, karena itu dapat memungkinkan penyerang untuk mencegah penggunaan sistem oleh pengguna yang sah. Jika penyerang mengetahui pengguna yang sah, ia dapat mencegah pengguna dari mengakses server tersebut.
 
-Solusi kedua hanya sulit untuk dilembagakan secara efektif -- dan bahkan jika dilakukan dengan benar, solusi ini tidak memberikan solusi penuh. Itu hanya membuat serangan membutuhkan lebih banyak sumber daya dari pihak penyerang.
+Solusi kedua adalah cukup sulit untuk lembaga secara efektif -- dan bahkan ketika dilakukan dengan benar, itu tidak memberikan solusi lengkap. Itu hanya membuat serangan memerlukan lebih banyak sumber daya pada bagian penyerang.
 
-Pastikan bahwa protokol memiliki batas skala tertentu yang ditempatkan pada mereka.
+Memastikan bahwa protokol memiliki batas tertentu dari skala ditempatkan pada mereka.
 
-Tahap: Implementasi
-Pastikan semua kegagalan dalam alokasi sumber daya menempatkan sistem ke dalam postur tubuh yang aman.</solution>
+Tahap: Pelaksanaan
+Memastikan bahwa semua kegagalan dalam alokasi sumber daya yang menempatkan sistem aman ke postur tubuh.</solution>
 	<reference>http://projects.webappsec.org/Denial-of-Service</reference>
 	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
 </vuln_item_wasc_10>
@@ -317,9 +317,9 @@ Pastikan semua kegagalan dalam alokasi sumber daya menempatkan sistem ke dalam p
 <vuln_items>wasc_11a</vuln_items>
 <vuln_item_wasc_11a>
 	<alert>Brute Forcing Log-in Kredensial</alert>
-	<desc>Serangan brute force adalah metode untuk menentukan nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan tersebut memanfaatkan kenyataan bahwa entropi nilai lebih kecil dari yang dirasakan. Misalnya, sementara kata sandi alfanumerik 8 karakter dapat menghasilkan 2,8 triliun nilai yang mungkin, banyak orang akan memilih kata sandinya dari subset yang jauh lebih kecil yang terdiri dari kata dan istilah umum.
+	<desc>Serangan brute force adalah metode untuk menentukan suatu nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan ini mengambil keuntungan dari fakta bahwa entropi dari nilai-nilai yang lebih kecil dari yang dirasakan. Sebagai contoh, sementara 8 karakter kata sandi alfanumerik yang mungkin dapat memiliki 2,8 triliun nilai, banyak orang akan memilih kata sandi mereka dari jauh lebih kecil subset yang terdiri dari kata-kata umum dan istilah.
 
-Jenis serangan brute force yang paling umum dalam aplikasi web adalah serangan terhadap kredensial log-in. Karena pengguna perlu mengingat kata kunci, mereka sering memilih untuk mudah mengingat kata atau frasa sebagai kata kunci, membuat serangan kasar menggunakan kamus yang berguna. Serangan seperti itu mencoba masuk ke sistem menggunakan daftar kata dan frase yang besar karena kata kunci potensial sering disebut "serangan daftar kata" atau "serangan kamus". Kata kunci yang dicoba juga mencakup variasi kata-kata yang umum untuk kata sandi seperti yang dihasilkan dengan mengganti "o" dengan "0" dan "i" dengan "1" serta informasi pribadi termasuk nama anggota keluarga, tanggal lahir dan telepon mati rasa.
+Jenis yang paling umum dari serangan brute force pada aplikasi web adalah sebuah serangan terhadap masukan kredensial. Karena pengguna tidak perlu mengingat kata sandi, mereka sering memilih mudah untuk menghafal kata-kata atau frasa seperti kata sandi, membuat serangan brute force yang berguna menggunakan sebuah kamus. Serangan tersebut mencoba untuk masuk ke sistem dengan menggunakan daftar besar kata-kata dan frase sebagai potensi kata sandi yang sering disebut "serangan daftar kata" atau "serangan kamus". Kata sandi juga berusaha dapat mencakup variasi dari kata-kata umum untuk kata sandi seperti yang dihasilkan dengan mengganti "o" dengan "0" dan "i" dengan "1" serta informasi pribadi termasuk nama anggota keluarga, tanggal lahir dan nomor telepon.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
@@ -329,7 +329,7 @@ Jenis serangan brute force yang paling umum dalam aplikasi web adalah serangan t
 <vuln_items>wasc_11b</vuln_items>
 <vuln_item_wasc_11b>
 	<alert>Brute Memaksa Session Identifiers</alert>
-	<desc>Serangan brute force adalah metode untuk menentukan nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan tersebut memanfaatkan kenyataan bahwa entropi nilai lebih kecil dari yang dirasakan. Misalnya, sementara kata sandi alfanumerik 8 karakter dapat menghasilkan 2,8 triliun nilai yang mungkin, banyak orang akan memilih kata sandinya dari subset yang jauh lebih kecil yang terdiri dari kata dan istilah umum.
+	<desc>Serangan brute force adalah metode untuk menentukan suatu nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan ini mengambil keuntungan dari fakta bahwa entropi dari nilai-nilai yang lebih kecil dari yang dirasakan. Sebagai contoh, sementara 8 karakter kata sandi alfanumerik yang mungkin dapat memiliki 2,8 triliun nilai, banyak orang akan memilih kata sandi mereka dari jauh lebih kecil subset yang terdiri dari kata-kata umum dan istilah.
 
 Karena HTTP adalah protokol tanpa kewarganegaraan, untuk mempertahankan aplikasi web negara perlu memastikan bahwa pengenal sesi dikirim oleh peramban dengan setiap permintaan. Pengenal sesi paling sering disimpan dalam cookie HTTP atau URL. Dengan menggunakan serangan brute force, penyerang bisa menebak pengenal sesi pengguna lain. Hal ini dapat menyebabkan penyerang meniru identitas pengguna, mengambil informasi pribadi dan melakukan tindakan atas nama pengguna.
 	</desc>
@@ -341,7 +341,7 @@ Karena HTTP adalah protokol tanpa kewarganegaraan, untuk mempertahankan aplikasi
 <vuln_items>wasc_11c</vuln_items>
 <vuln_item_wasc_11c>
 	<alert>Brute Memaksa Direktori dan File</alert>
-	<desc>Serangan brute force adalah metode untuk menentukan nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan tersebut memanfaatkan kenyataan bahwa entropi nilai lebih kecil dari yang dirasakan. Misalnya, sementara kata sandi alfanumerik 8 karakter dapat menghasilkan 2,8 triliun nilai yang mungkin, banyak orang akan memilih kata sandinya dari subset yang jauh lebih kecil yang terdiri dari kata dan istilah umum.
+	<desc>Serangan brute force adalah metode untuk menentukan suatu nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan ini mengambil keuntungan dari fakta bahwa entropi dari nilai-nilai yang lebih kecil dari yang dirasakan. Sebagai contoh, sementara 8 karakter kata sandi alfanumerik yang mungkin dapat memiliki 2,8 triliun nilai, banyak orang akan memilih kata sandi mereka dari jauh lebih kecil subset yang terdiri dari kata-kata umum dan istilah.
 
 Ketika file berada di direktori yang dilayani oleh server web namun tidak terhubung di manapun, mengakses file tersebut memerlukan mengetahui nama file mereka. Dalam beberapa kasus, file-file tersebut telah ditinggalkan karena kesalahan: misalnya file cadangan yang dibuat secara otomatis saat mengedit file atau sisa dari versi lama aplikasi web. Dalam kasus lain, file sengaja dibatalkan karena mekanisme "keamanan oleh ketidakjelasan" yang memungkinkan hanya orang-orang yang mengetahui nama file untuk mengaksesnya.
 
@@ -355,7 +355,7 @@ Serangan brute force mencoba menemukan file yang tidak terhubung dengan mencoba 
 <vuln_items>wasc_11d</vuln_items>
 <vuln_item_wasc_11d>
 	<alert>Informasi Kartu Kredit Brute Forcing</alert>
-	<desc>Serangan brute force adalah metode untuk menentukan nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan tersebut memanfaatkan kenyataan bahwa entropi nilai lebih kecil dari yang dirasakan. Misalnya, sementara kata sandi alfanumerik 8 karakter dapat menghasilkan 2,8 triliun nilai yang mungkin, banyak orang akan memilih kata sandinya dari subset yang jauh lebih kecil yang terdiri dari kata dan istilah umum.
+	<desc>Serangan brute force adalah metode untuk menentukan suatu nilai yang tidak diketahui dengan menggunakan proses otomatis untuk mencoba sejumlah besar nilai yang mungkin terjadi. Serangan ini mengambil keuntungan dari fakta bahwa entropi dari nilai-nilai yang lebih kecil dari yang dirasakan. Sebagai contoh, sementara 8 karakter kata sandi alfanumerik yang mungkin dapat memiliki 2,8 triliun nilai, banyak orang akan memilih kata sandi mereka dari jauh lebih kecil subset yang terdiri dari kata-kata umum dan istilah.
 
 Belanja online dengan kartu kredit curian biasanya memerlukan informasi selain nomor kartu kredit, paling sering CVV/SCS dan/atau tanggal kedaluwarsa. Penipu dapat memegang nomor kartu kredit curian tanpa informasi tambahan. Misalnya CVV/CSC tidak tercetak pada kartu atau disimpan pada garis magnetik sehingga tidak dapat dikumpulkan dengan kartu sweeping kartu memori mekanis atau magnetik.
 
@@ -371,15 +371,16 @@ Untuk mengisi informasi yang hilang, si hacker bisa menebak informasi yang hilan
 <vuln_items>wasc_12</vuln_items>
 <vuln_item_wasc_12>
 	<alert>Konten Spoofing</alert>
-	<desc>Content Spoofing adalah teknik serangan yang memungkinkan penyerang untuk menyuntikkan muatan berbahaya yang kemudian disalahartikan sebagai konten sah dari aplikasi web.
+	<desc>Konten Spoofing adalah serangan teknik yang memungkinkan seorang penyerang untuk menyuntik muatan berbahaya yang nanti disalah pahami sebagai konten yang sah dari aplikasi web.
  
-Text Only Content Spoofing Pendekatan umum untuk membangun halaman secara dinamis melibatkan pelepasan tubuh atau bagiannya ke halaman melalui nilai string kueri. Pendekatan ini biasa terjadi pada halaman kesalahan, atau situs yang menyediakan berita atau berita. Konten yang ditentukan dalam parameter ini kemudian tercermin ke dalam halaman untuk menyediakan konten halaman.
+Harga Teks Konten Spoofing
+Pendekatan umum untuk secara dinamis membangun halaman melibatkan melewati tubuh atau bagian-bagiannya ke halaman melalui nilai string kueri. Pendekatan ini lebih umum pada kesalahan halaman, atau situs yang menyediakan cerita atau berita entri. Kandungan yang ditentukan dalam parameter ini kemudian tercermin dalam halaman untuk menyediakan konten untuk halaman.
  
-Spoofing Spektrofotometri Markup Beberapa halaman web disajikan menggunakan sumber konten HTML yang dibuat secara dinamis. Misalnya, lokasi sumber dari bingkai <frame src="http://foo.example/file.html"/>) dapat ditentukan oleh nilai parameter URL. (http://foo.example/page? frame_src=http://foo.example/file.html). Seorang penyerang mungkin bisa mengganti nilai parameter "frame_src" dengan "frame_src = http: //attacker.example/spoof.html". Tidak seperti redirectors, ketika halaman web yang dihasilkan disajikan, bar lokasi browser terlihat berada di bawah domain yang diharapkan pengguna (foo.example), namun data asing (penyerang.example) diselimuti oleh konten yang sah.
+Spoofing Spektrofotometri Markup Beberapa halaman web disajikan menggunakan sumber konten HTML yang dibuat secara dinamis. Misalnya, lokasi sumber dari bingkai <frame src="http://foo.example/file.html"/>) dapat ditentukan oleh nilai parameter URL. (http://foo.example/page? frame_src=http://foo.example/file.html). Seorang penyerang dapat mengganti "frame_src" nilai parameter dengan "frame_src=http://attacker.example/spoof.html". Tidak seperti pengalih, ketika halaman web yang dihasilkan disajikan browser bar lokasi terlihat masih di bawah yang diharapkan oleh pengguna domain (foo.contoh), tetapi data asing (penyerang.contoh) diselimuti oleh konten yang sah.
 
-Tautan khusus yang dibuat dapat dikirim ke pengguna melalui e-mail, pesan instan, tertinggal di papan buletin, atau dipaksa oleh pengguna oleh serangan Scripting Cross-site. Jika penyerang mendapatkan pengguna untuk mengunjungi halaman web yang ditunjuk oleh URL jahat mereka, pengguna akan yakin bahwa dia melihat konten asli dari satu lokasi jika tidak. Pengguna secara implisit akan mempercayai konten palsu tersebut karena bilah lokasi browser menampilkan http: //foo.example, padahal sebenarnya kerangka HTML yang mendasari merujuk http: //attacker.example.
+Link khusus dibuat dapat dikirim ke pengguna melalui e-mail, pesan instan, yang tersisa di papan posting buletin, atau dipaksakan oleh serangan pengguna Cross-site Scripting. Jika seorang penyerang mendapatkan pengguna untuk mengunjungi halaman web yang ditunjuk oleh URL mereka yang berbahaya, pengguna akan percaya dia melihat isi otentik dari satu lokasi jika tidak. Pengguna akan secara implisit mempercayai konten palsu karena lokasi browser bar menampilkan http://foo.example padahal, yang mendasari HTML bingkai referensi http://attacker.example.
 
-Serangan ini mengeksploitasi hubungan kepercayaan yang terjalin antara pengguna dan situs web. Teknik ini telah digunakan untuk membuat halaman web palsu termasuk form login, defacements, false press release, etc.
+Serangan ini mengeksploitasi kepercayaan hubungan yang terjalin antara pengguna dan situs web. Teknik ini telah digunakan untuk membuat halaman web palsu seperti formulir masuk, perusakan, siaran pers palsu, dll.
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Content-Spoofing</reference>
@@ -389,11 +390,11 @@ Serangan ini mengeksploitasi hubungan kepercayaan yang terjalin antara pengguna 
 <vuln_items>wasc_13</vuln_items>
 <vuln_item_wasc_13>
 	<alert>Kebocoran Informasi</alert>
-	<desc>Informasi Kebocoran adalah kelemahan aplikasi dimana sebuah aplikasi mengungkapkan data sensitif, seperti rincian teknis aplikasi web, lingkungan, atau data khusus pengguna. Data sensitif dapat digunakan oleh penyerang untuk mengeksploitasi aplikasi web target, jaringan hosting, atau penggunanya. Oleh karena itu, kebocoran data sensitif harus dibatasi atau dicegah bila memungkinkan. Kebocoran informasi, dalam bentuknya yang paling umum, adalah hasil dari satu atau lebih dari kondisi berikut: Kegagalan untuk menggandakan komentar HTML/Script yang berisi informasi sensitif, konfigurasi aplikasi atau server yang tidak semestinya, atau perbedaan dalam tanggapan halaman untuk data yang valid dan tidak valid.
+	<desc>Kebocoran informasi adalah sebuah aplikasi kelemahan di mana sebuah aplikasi yang mengungkapkan data sensitif, seperti rincian teknis dari aplikasi web, lingkungan, atau data pengguna tertentu. Data sensitif dapat digunakan oleh penyerang untuk mengeksploitasi target aplikasi web, hosting jaringan, atau penggunanya. Oleh karena itu, kebocoran data sensitif harus dibatasi atau dicegah bila memungkinkan. Kebocoran informasi, dalam bentuk yang paling umum, adalah hasil dari satu atau lebih dari kondisi berikut: kegagalan untuk menggosok HTML/Script komentar yang berisi informasi sensitif, aplikasi yang tidak benar atau konfigurasi server, atau perbedaan di halaman tanggapan untuk berlaku terhadap data yang tidak sah.
 
-Kegagalan untuk menggosok komentar HTML / Script sebelum melakukan push ke lingkungan produksi dapat mengakibatkan kebocoran informasi sensitif, kontekstual, seperti struktur direktori server, struktur query SQL, dan informasi jaringan internal. Seringkali pengembang akan meninggalkan komentar dalam HTML dan / atau kode skrip untuk membantu memudahkan proses debugging atau integrasi selama fase pra-produksi. Meskipun tidak ada salahnya membiarkan pengembang menyertakan komentar sebaris di dalam konten yang mereka kembangkan, komentar ini semua harus dihapus sebelum rilis publik konten.
+Kegagalan untuk menggosok HTML/Script komentar sebelum mendorong ke lingkungan produksi yang dapat mengakibatkan kebocoran sensitif, kontekstual, informasi seperti struktur direktori server, SQL query struktur, internal dan jaringan informasi. Seringkali pengembang akan tinggalkan komentar dalam HTML dan/atau kode script untuk membantu mempermudah debugging atau proses integrasi selama tahap pra-produksi. Meskipun tidak ada salahnya memungkinkan pengembang untuk menyertakan komentar di barisan dalam mengembangkan konten mereka, komentar-komentar ini semua harus dihapus sebelum konten publik di rilis.
 
-Nomor versi perangkat lunak dan pesan kesalahan verbose (seperti nomor versi ASP.NET) adalah contoh konfigurasi server yang tidak semestinya. Informasi ini berguna bagi penyerang dengan memberikan wawasan rinci mengenai kerangka kerja, bahasa, atau fungsi pra-bangun yang digunakan oleh aplikasi web. Sebagian besar konfigurasi server default menyediakan nomor versi perangkat lunak dan pesan kesalahan verbose untuk tujuan debug dan pemecahan masalah. Perubahan konfigurasi dapat dilakukan untuk menonaktifkan fitur ini, mencegah tampilan informasi ini.
+Nomor versi perangkat lunak dan pesan kesalahan verbose (seperti nomor versi ASP.NET) adalah contoh konfigurasi server yang tidak semestinya. Informasi ini berguna untuk seorang penyerang dengan memberikan wawasan rinci untuk kerangka kerja, bahasa, atau pre-built fungsi yang digunakan oleh aplikasi web. Konfigurasi server paling default yang menyediakan perangkat lunak dan nomor versi verbose kesalahan pesan untuk debugging dan tujuan pemecahan masalah. Perubahan konfigurasi dapat dibuat untuk menonaktifkan fitur ini, mencegah tampilan dari informasi ini.
 
 Laman yang memberikan tanggapan berbeda berdasarkan validitas data juga dapat menyebabkan Kebocoran Informasi; khususnya ketika data dianggap rahasia sedang diungkapkan sebagai hasil dari desain aplikasi web. Contoh data sensitif termasuk (namun tidak terbatas pada): nomor rekening, pengenal pengguna (nomor lisensi Driver, nomor Paspor, Nomor Jaminan Sosial, dll.) Dan informasi khusus pengguna (kata sandi, sesi, alamat). Informasi Kebocoran dalam konteks ini berkaitan dengan pemaparan data pengguna kunci yang dianggap rahasia, atau rahasia, yang seharusnya tidak terpapar secara polos, bahkan untuk pengguna. Nomor kartu kredit dan informasi lain yang sangat diatur adalah contoh utama data pengguna yang perlu dilindungi lebih jauh dari paparan atau kebocoran bahkan dengan enkripsi dan kontrol akses yang benar.</desc>
 	<solution>Kompartemen sistem Anda untuk memiliki area "aman" dimana batas kepercayaan dapat ditarik dengan jelas. Jangan biarkan data sensitif keluar dari batas kepercayaan dan selalu berhati-hati saat berinteraksi dengan kompartemen di luar area aman.</solution>
@@ -917,17 +918,17 @@ Ada dua jenis proses utama yang memerlukan validasi: flow control dan logika bis
 <vuln_item_wasc_41>
 	<alert>XML Attribute Blowup</alert>
 	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. Penyerang menyediakan dokumen XML yang berbahaya, yang merupakan proses parser XML yang rentan dengan cara yang sangat tidak efisien, yang menyebabkan beban CPU berlebihan. Inti dari serangan tersebut adalah memasukkan banyak atribut dalam simpul XML yang sama. Parser XML yang Rentan mengelola atribut dengan cara yang tidak efisien (misalnya dalam wadah data dimana penyisipan atribut baru memiliki O (n) runtime), menghasilkan non-linear (dalam contoh ini, kuadrat, yaitu O (n2)) runtime secara keseluruhan, yang menyebabkan terjadinya penyangkalan terhadap kondisi layanan melalui kelelahan CPU.</desc>
-	<solution>Merancang mekanisme throttling ke dalam arsitektur sistem. Perlindungan terbaik adalah membatasi jumlah sumber daya yang mungkin menyebabkan pengguna yang tidak sah dikeluarkan. Model otentikasi dan kontrol akses yang kuat akan membantu mencegah serangan semacam itu terjadi. Aplikasi masuk harus dilindungi terhadap serangan DoS sebanyak mungkin. Membatasi akses database, mungkin dengan hasil set menyembunyikan, dapat membantu meminimalkan sumber daya yang dikeluarkan. Untuk lebih membatasi potensi serangan DoS, pertimbangkan untuk melacak tingkat permintaan yang diterima dari pengguna dan memblokir permintaan yang melebihi ambang batas tingkat yang ditetapkan.
+	<solution>Merancang mekanisme throttling ke dalam arsitektur sistem. Perlindungan terbaik adalah untuk membatasi jumlah sumber daya yang menyebabkan pengguna yang tidak sah dapat dikeluarkan. Otentikasi yang kuat dan model kontrol akses akan membantu mencegah terjadi serangan tersebut di tempat pertama. Masuk aplikasi harus dilindungi terhadap serangan DoS sebanyak mungkin. Membatasi akses database, mungkin dengan hasil set menyembunyikan, dapat membantu meminimalkan sumber daya yang dikeluarkan. Untuk lebih membatasi potensi untuk serangan DoS, mempertimbangkan pelacakan tingkat permintaan yang diterima dari pengguna dan memblokir permintaan yang melebihi didefinisikan tingkat ambang batas.
 
 Mitigasi serangan kelelahan sumber daya mengharuskan sistem target:
   * Mengetahui serangan tersebut dan menolak akses pengguna lebih jauh untuk jangka waktu tertentu, atau
   * Mencoreng semua permintaan secara merata agar lebih sulit untuk mengkonsumsi sumber daya lebih cepat daripada yang bisa mereka bebaskan lagi. 
 
-Solusi pertama adalah masalah tersendiri, karena memungkinkan penyerang untuk mencegah penggunaan sistem oleh pengguna tertentu yang sah. Jika penyerang meniru identitas pengguna yang valid, dia mungkin bisa mencegah pengguna mengakses server yang bersangkutan.
+Yang pertama dari solusi ini adalah sebuah masalah dalam dirinya sendiri, karena itu dapat memungkinkan penyerang untuk mencegah penggunaan sistem oleh pengguna yang sah. Jika penyerang mengetahui pengguna yang sah, ia dapat mencegah pengguna dari mengakses server tersebut.
 
-Solusi kedua hanya sulit untuk dilembagakan secara efektif -- dan bahkan jika dilakukan dengan benar, solusi ini tidak memberikan solusi penuh. Itu hanya membuat serangan membutuhkan lebih banyak sumber daya dari pihak penyerang.
+Solusi kedua adalah cukup sulit untuk lembaga secara efektif -- dan bahkan ketika dilakukan dengan benar, itu tidak memberikan solusi lengkap. Itu hanya membuat serangan memerlukan lebih banyak sumber daya pada bagian penyerang.
 
-Pastikan bahwa protokol memiliki batas skala tertentu yang ditempatkan pada mereka.
+Memastikan bahwa protokol memiliki batas tertentu dari skala ditempatkan pada mereka.
 
 Pastikan semua kegagalan dalam alokasi sumber daya menempatkan sistem ke dalam postur tubuh yang aman.</solution>
 	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
