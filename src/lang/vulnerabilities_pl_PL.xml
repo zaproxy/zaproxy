@@ -523,34 +523,36 @@ Generalnie, termin obsługa danych wejściowych jest używany do opisania funkcj
 
 Jednych z kluczowych aspektów obsługiwania danych wejściowych jest weryfikacja czy dane spełniają określone kryteria. Do odpowiedniej weryfikacji, jest ważne aby zidentyfikować postać oraz typ danych, które są akceptowane i oczekiwane przez aplikację. Definiowanie oczekiwanego formatu i użytkowania każdej instancji niezaufanego wkładu jest wymagane do precyzyjnego zdefiniowania restrykcji. 
 
-Weryfikacja może obejmować sprawdzenie typu rodzaju bezpieczeństwa i poprawnej składni. Wprowadzony ciąg może być sprawdzony pod względem długości(minimalna i maksymalna liczba znaków) i zestawu weryfikacji znaków podczas gdy typy danych liczbowych takie jak liczby całkowite i niecałkowite mogą być potwierdzone przeciwko potwierdzonych większych i mniejszych granic wartości. When combining input from multiple sources, validation should be performed during concatenation and not just against the individual data elements. This practice helps avoid situations where input validation may succeed when performed on individual data items but fails when done on a combined set from all the sources.</desc>
-	<solution>Phase: Architecture and Design
+Weryfikacja może obejmować sprawdzenie typu rodzaju bezpieczeństwa i poprawnej składni. Wprowadzony ciąg może być sprawdzony pod względem długości(minimalna i maksymalna liczba znaków) i zestawu weryfikacji znaków podczas gdy typy danych liczbowych takie jak liczby całkowite i niecałkowite mogą być potwierdzone przeciwko potwierdzonych większych i mniejszych granic wartości. Kiedy łączysz dane wejściowe z kilku różnych źródeł, weryfikacja powinna być przeprowadzona podczas powiązania i nie tylko przeciwko indywidualnym elementom danych. Praktyka pomoże ominąć sytuacje gdzie weryfikacja danych wejściowych może się udać kiedy przeprowadzona na indywidualnych elementach danych nie powiodła się, kiedy jest zakończona kombinacja zestawu ze wszystkich źródeł.</desc>
+	<solution>Faza: Architektura i Projektowanie
 
-Use an input validation framework such as Struts or the OWASP ESAPI Validation API.
+Używaj weryfikacji szkieletu danych wejściowych tak jak Struts lub OWASP ESAPI weryfikacja API.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
+Fazy: Architektura i Projektowanie; Implementacja
+Zrozum wszystkie potencjalne obszary gdzie niezaufane dane wejściowe wejdą w twoje oprogramowanie: parametry lub argumenty, ciasteczka, jakikolwiek odczyt z sieci, zmiennych środowiskowych, wyszukiwania wstecznego DNS, wyniki zapytania, nagłówki żądań, komponenty URL, e-mail, pliki, bazy danych i dowolne zewnętrzne
+systemy, które dostarczają dane do aplikacji. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
 
-For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side. Hakerzy mogą obejść kontrole po stronie klienta, modyfikując wartości po przeprowadzeniu kontroli lub zmieniając klienta, aby całkowicie usunąć kontrole po stronie klienta. Następnie te zmodyfikowane wartości zostaną przesłane do serwera.
+Dla kontroli bezpieczeństwa, która jest przeprowadzona po stronie klienta, upewnij się, że te kontrole są powielone po stronie serwera. Hakerzy mogą obejść kontrole po stronie klienta, modyfikując wartości po przeprowadzeniu kontroli lub zmieniając klienta, aby całkowicie usunąć kontrole po stronie klienta. Następnie te zmodyfikowane wartości zostaną przesłane do serwera.
 
-Even though client-side checks provide minimal benefits with respect to server-side security, they are still useful. First, they can support intrusion detection. If the server receives input that should have been rejected by the client, then it may be an indication of an attack. Second, client-side error-checking can provide helpful feedback to the user about the expectations for valid input. Third, there may be a reduction in server-side processing time for accidental input errors, although this is typically a small savings.
+Nawet jeśli kontrole po stronie klienta zapewniają minimalne korzyści z szacunkiem do zabezpieczeń po stronie serwera, są nadal przydatne. Po pierwsze, mogą wspierać detekcję intruzji. Jeśli serwer dostaje dane wejściowe, które powinny być odrzucone przez klienta, wtedy może to oznaczać wskazywanie ataku. Po drugie, błąd kontrolny po stronie klienta może zapewnić pomocne informacje zwrotne dla użytkownika, odnośnie oczekiwań dla prawidłowych danych wejściowych. Po trzecie, może zaistnieć redukcja przetwarzania czasu po stronie serwera dla przypadkowych błędów wejściowych jakkolwiek jest to typowe dla małych zapisów.
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
+Nie polegaj tylko i wyłącznie na weryfikacji czarnej listy do wykrywania złośliwych danych wejściowe lub kodowania zewnętrznego. Istnieje za dużo sposobów do kodowania tego samego typu, więc prawdopodobnie ominiesz kilka wariantów.
 
-When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.
+Kiedy twoja aplikacja łączy dane z kilku źródeł, przeprowadź weryfikację po połączeniu tych źródeł. Indywidualne elementy danych mogą przejść część weryfikacyjną, ale mogą naruszyć zamierzone restrykcje po tym jak zostały połączone.
 
 Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
 
-Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. Jako przykład logiki reguł transakcji, "łódka" może być składniowo prawidłowa, ponieważ zawiera tylko alfanumeryczne znaki, ale nie będzie poprawna jeśli oczekujesz kolorów takich jak "czerwony" lub "niebieski".
 
-Phase: Implementation
+Faza: Implementacja
 
-Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. This could create an unexpected interaction between the language boundaries. Ensure that you are not violating any of the expectations of the language with which you are interfacing. For example, even though Java may not be susceptible to buffer overflows, providing a large argument in a call to native code might trigger an overflow.
+Bądź szczególnie uważny w weryfikowaniu twoich danych wejściowych kiedy wywołujesz kod, który przekracza granice języka, taki jak z interpretowanego języka do macierzystego kodu. To może stworzyć nie przewidywalne interakcje pomiędzy granicami języka. Upewnij się, że nie naruszasz żadnych z zamierzeń języka, z którym współdziałasz. Na przykład, nawet jeśli Java może nie być podatna na przepełnienie bufora, podanie dużego argumentu w wywołaniu kodu natywnego może spowodować przepełnienie.
 
-Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. After converting to the expected data type, ensure that the input's values fall within the expected range of allowable values and that multi-field consistencies are maintained.
+Bezpośrednio konwertuj twój typ danych wejściowych w przewidywany typ danych, tak jak używanie funkcji konwersji, która tłumaczy ciąg w liczbę. Po przekonwertowaniu na oczekiwany typ danych, upewnij się, że wartości danych wejściowych mieszczą się w podanym zakresie dostępnych wartości, oraz że wspólne wielo-dziedziny są utrzymywane.
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not inadvertently decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Upewnij się, że twoja aplikacja nie zdekoduje nieumyślnie tych samych danych wejściowych dwa razy. Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone. Używaj bibliotek takich jak kanoniczna kontrola OWASP ESAPI.
 
-Consider performing repeated canonicalization until your input does not change any more. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
+Rozważ przeprowadzenie powtarzanej kanonizacji dopóki twoje dane wejściowe już się nie zmienią. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
 
 When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.</solution>
 	<reference>http://projects.webappsec.org/Improper-Input-Handling</reference>
@@ -559,20 +561,20 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_21</vuln_items>
 <vuln_item_wasc_21>
-	<alert>Insufficient Anti automation</alert>
-	<desc>Insufficient Anti-automation occurs when a web application permits an attacker to automate a process that was originally designed to be performed only in a manual fashion, i.e. by a human web user.
+	<alert>Niewystarczająca Przeciw automatyzacja</alert>
+	<desc>Niewystarczająca Przeciw automatyzacja pojawia się kiedy aplikacja webowa zezwala hakerowi zautomatyzować proces, który wpierw był zaprojektowany do przeprowadzenia tylko w sposób ręczny, n.p przez ludzkiego użytkownika strony.
 
-Web application functionality that is often a target for automation attacks may include:
-    * Application login forms – attackers may automate brute force login requests in an attempt to guess user credentials
-    * Service registration forms – attackers may automatically create thousands of new accounts
-    * Email forms – attackers may exploit email forms as spam relays or for flooding a certain user’s mailbox
-    * Account maintenance – attackers may perform mass DoS against an application, by flooding it with numerous requests to disable or delete user accounts
-    * Account information forms – attackers may perform mass attempts to harvest user personal information from a web application
-    * Comment forms / Content Submission forms – these may be used for spamming blogs, web forums and web bulletin boards by automatically submitting contents such as spam or even web-based malware
-    * Forms tied to SQL database queries - these may be exploited in order to perform a denial of service attack against the application. The attack is performed by sending numerous heavy SQL queries in a short period of time, hence denying real users from service.
-    * eShopping / eCommerce - eShopping and eCommerce applications that do not enforce human-only buyers, can be exploited in order to buy preferred items in large amounts, such as sporting events tickets. These are later sold by scalpers for higher prices.
-    * Online polls - polls and other types of online voting systems can be automatically subverted in favor of a certain choice.
-    * Web-based SMS message sending - attackers may exploit SMS message sending systems in order to spam mobile phone users
+Funkcjonalność aplikacji webowej, która jest często celem ataków automatyzacji, może obejmować:
+    *Formularze loginów aplikacji-hakerzy mogą zautomatyzować metodą brutalnej siły żądania loginów usiłując zgadnąć dane logowania użytkownika
+    *Formularze rejestracji serwisu-atakujący mogą automatycznie stworzyć tysiące nowych kont
+    * Formularze e-mail - atakujący mogą wykorzystywać formularze e-mailowe jako przekaźniki spamu lub do zalewania skrzynek pocztowych niektórych użytkowników.
+ *Utrzymanie konta- hakerzy mogą przeprowadzić zmasowany atak DoS przeciwko aplikacji poprzez zalanie jej licznymi żądaniami do wyłączenia lub usunięcia kont użytkowników
+ *Formularze informacyjne konta- atakujący mogą przeprowadzić zmasowane próby zebrania personalnych danych użytkowników z aplikacji webowej
+ *Formularze komentarzy/Składanie formularzy zawartości- może to być użyte do spamowania blogów, internetowych forach i internetowych tablic ogłoszeń poprzez automatyczne wnoszenie zawartości takiej jak spam lub nawet złośliwe oprogramowanie sieciowe
+ *Formularze przywiązane do zapytań bazy danych SQL- mogą być one udostępnione w celu przeprowadzenia ataku odmowy serwisu przeciwko aplikacji. Atak jest przeprowadzany przez wysyłanie licznych ciężkich zapytań SQL w krótkim oddziale czasowym, stąd odrzucanie użytkowników przez serwis.
+    *Zakupy internetowe/Handel elektroniczny- Aplikacje stron sklepów i handlu elektronicznego, które nie zmuszają tylko ludzkich klientów, mogą być wykorzystane w celu kupna preferowanych przedmiotów w ogromnych ilościach, takich jak bilety na wydarzenia sportowe. Później są one sprzedawane przez koniki za wyższe ceny.
+    *Sondaże online- sondaże i inne typy systemów internetowego głosowania mogą być automatycznie skorumpowane na korzyść określonego wyboru.
+    *Wysyłanie Wiadomości SMS oparte na sieci- atakujący mogą wykorzystać systemy wysyłające wiadomości SMS w celu spamowania telefonów użytkowników
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insufficient+Anti-automation</reference>
@@ -581,16 +583,16 @@ Web application functionality that is often a target for automation attacks may 
 
 <vuln_items>wasc_22</vuln_items>
 <vuln_item_wasc_22>
-	<alert>Improper Output Handling</alert>
-	<desc>Output handling refers to how an application generates outgoing data.  If an application has improper output handling, the output data may be consumed leading to vulnerabilities and actions never intended by the application developer.  In many cases, this unintended interpretation is classified as one or more forms of critical application vulnerabilities.
+	<alert>Niepoprawna Obsługa Danych Wyjściowych</alert>
+	<desc>Obsługa danych wyjściowych nawiązuje do tego jak aplikacja generuje dane wychodzące.  Jeśli aplikacja posiada niepoprawną obsługę danych wyjściowych, dane te mogą być zużyte co prowadzi do zagrożenia bezpieczeństwa i nigdy nie zamierzonych akcji przez programistę aplikacji.  W wielu przypadkach, ta niezamierzona interpretacja jest klasyfikowana jako jedna z jednych form krytycznego zagrożenia bezpieczeństwa aplikacji.
 
-Any location where data leaves an application boundary may be subject to improper output handling.  Application boundaries exist where data leaves one context and enters another.  This includes applications passing data to other applications via web services, sockets, command line, environmental variables, etc...  It also includes passing data between tiers within an application architecture, such as a database, directory server, HTML/JavaScript interpreter (browser), or operating system.  More detail on where improper output handling can occur can be found in the section below titled "Common Data Output Locations”.
+Każda lokacja gdzie dane opuszczają granicę aplikacji mogą być zaliczane do niepoprawnej obsługi danych wyjściowych.  Granice aplikacji istnieją gdzie dane opuszczają jeden kontekst i przystępuje do innego.  Obejmuje to przechodzenie danych do innej aplikacji poprzez serwisy webowe, kontakty, linie komend, zmienne środowiskowe, itd...  Obejmuje to również przechodzenie danych pomiędzy warstwami w architekturze aplikacji, takich jak bazy danych, serwery katalogów, interpretery(przeglądarki) HTML/JavaScript, lub systemy operacyjne.  Więcej szczegółów na temat tego gdzie może się pojawić niepoprawna obsługa danych wyjściowych możesz znaleźć w sekcji poniżej zatytułowanej "Lokacje Powszechnych Danych Wyjściowych".
 
-Improper output handling may take various forms within an application.  These forms can be categorized into: protocol errors, application errors and data consumer related errors.  Protocol errors include missing or improper output encoding or escaping and outputting of invalid data.  Application errors include logic errors such as outputting incorrect data or passing on malicious content unfiltered.  If the application does not properly distinguish legitimate content from illegitimate, or does not work around known vulnerabilities in the data consumer, it may result in data-consumer abuse caused from improper output handling.
+Niepoprawna obsługa danych wyjściowych może przyjmować różne formy w aplikacji.  Formy te mogą być kategoryzowane jako: błędy protokołu, błędy aplikacji i błędy zużycia zależnych danych.  Błędy protokołu obejmuję brakujące lub niepoprawne kodowanie wyjściowe lub pomijanie i przekazywanie złych danych.  Błędy aplikacji obejmują błędy logiczne takie jak przekazywane niepoprawnych danych lub przekazywanie szkodliwej zawartości niefiltrowanej.  Jeśli aplikacja nie odróżni poprawnie autentycznej zawartości od nieuprawnionej lub nie obejdzie znanych luk w zabezpieczeniach danych, może to spowodować nadużycie w korzystaniu z danych spowodowane niewłaściwą obsługą danych wyjściowych.
 
-An application that does not provide data in the correct context may allow an attacker to abuse the data consumer.  This can lead to specific threats referenced within the WASC Threat Classification, including Content Spoofing, Cross-Site Scripting, HTTP Response Splitting, HTTP Response Smuggling, LDAP Injection, OS Commanding, Routing Detour, Soap Array Abuse, URL Redirector, XML Injection, XQuery Injection, XPath Injection, Mail Command Injection, Null Injection and SQL Injection.
+Aplikacja, która nie dostarcza danych we właściwym kontekście, może umożliwić osobie atakującej na nadużycie konsumenta danych.  This can lead to specific threats referenced within the WASC Threat Classification, including Content Spoofing, Cross-Site Scripting, HTTP Response Splitting, HTTP Response Smuggling, LDAP Injection, OS Commanding, Routing Detour, Soap Array Abuse, URL Redirector, XML Injection, XQuery Injection, XPath Injection, Mail Command Injection, Null Injection and SQL Injection.
 
-Proper output handling prevents the unexpected or unintended interpretation of data by the consumer.  To achieve this objective, developers must understand the application's data model, how the data will be consumed by other portions of the application, and how it will ultimately be presented to the user.  Techniques for ensuring the proper handling of output include but are not limited to the filtering and sanitization of data (more detail on output sanitization and filtering can be found in appropriately titled sections below).  However, inconsistent use of selected output handling techniques may actually increase the risk of improper output handling if output data is overlooked or left untreated.  To ensure "defense in depth" developers must assume that all data within an application is untrusted when choosing appropriate output handling strategies.
+Właściwa obsługa danych wyjściowych zapobiega nieoczekiwanej lub niezamierzonej interpretacji danych przez konsumenta.  To achieve this objective, developers must understand the application's data model, how the data will be consumed by other portions of the application, and how it will ultimately be presented to the user.  Techniques for ensuring the proper handling of output include but are not limited to the filtering and sanitization of data (more detail on output sanitization and filtering can be found in appropriately titled sections below).  However, inconsistent use of selected output handling techniques may actually increase the risk of improper output handling if output data is overlooked or left untreated.  To ensure "defense in depth" developers must assume that all data within an application is untrusted when choosing appropriate output handling strategies.
 
 While proper output handling may take many different forms, an application cannot be secure unless it protects against unintended interpretations by the data consumer. This core requirement is essential for an application to securely handle output operations.</desc>
 	<solution>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
@@ -693,9 +695,9 @@ Zakładaj, że wszystkie dane wejściowe są szkodliwe. Use a standard input val
 
 Use and specify a strong output encoding (such as ISO 8859-1 or UTF 8).
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many variants to encode a character; you're likely to miss some variants.
+Nie polegaj tylko i wyłącznie na weryfikacji czarnej listy do wykrywania złośliwych danych wejściowe lub kodowania zewnętrznego. There are too many variants to encode a character; you're likely to miss some variants.
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked.</solution>
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Make sure that your application does not decode the same input twice. Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone.</solution>
 	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
 </vuln_item_wasc_28>
@@ -721,17 +723,17 @@ When a web application fails to properly sanitize user-supplied input, it is pos
 
 Zakładaj, że wszystkie dane wejściowe są szkodliwe. Use an "accept known good" input validation strategy (i.e., use a whitelist). Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Use a blacklist to reject any unexpected inputs and detect potential attacks.
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
+Nie polegaj tylko i wyłącznie na weryfikacji czarnej listy do wykrywania złośliwych danych wejściowe lub kodowania zewnętrznego. Istnieje za dużo sposobów do kodowania tego samego typu, więc prawdopodobnie ominiesz kilka wariantów.
 
-Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. After converting to the expected data type, ensure that the input's values fall within the expected range of allowable values and that multi-field consistencies are maintained.
+Bezpośrednio konwertuj twój typ danych wejściowych w przewidywany typ danych, tak jak używanie funkcji konwersji, która tłumaczy ciąg w liczbę. Po przekonwertowaniu na oczekiwany typ danych, upewnij się, że wartości danych wejściowych mieszczą się w podanym zakresie dostępnych wartości, oraz że wspólne wielo-dziedziny są utrzymywane.
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not inadvertently decode the same input twice . Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Make sure that your application does not inadvertently decode the same input twice . Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone. Używaj bibliotek takich jak kanoniczna kontrola OWASP ESAPI.
 
-Consider performing repeated canonicalization until your input does not change any more. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
+Rozważ przeprowadzenie powtarzanej kanonizacji dopóki twoje dane wejściowe już się nie zmienią. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
 
 When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.
 
-When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.</solution>
+Kiedy twoja aplikacja łączy dane z kilku źródeł, przeprowadź weryfikację po połączeniu tych źródeł. Indywidualne elementy danych mogą przejść część weryfikacyjną, ale mogą naruszyć zamierzone restrykcje po tym jak zostały połączone.</solution>
 	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/88.html</reference>
 </vuln_item_wasc_30>
@@ -811,7 +813,7 @@ For filenames, use stringent whitelists that limit the character set to be used.
 
 Warning: if you attempt to cleanse your data, then do so that the end result is not in the form that can be dangerous. A sanitizing mechanism can remove characters such as '.' and ';' which may be required for some exploits. An attacker can try to fool the sanitizing mechanism into "cleaning" data into a dangerous form. Suppose the attacker injects a '.' inside a filename (e.g. "sensi.tiveFile") and the sanitizing mechanism removes the character resulting in the valid filename, "sensitiveFile". If the input data are now assumed to be safe, then the file may be compromised. 
 
-Inputs should be decoded and canonicalized to the application's current internal representation before being validated. Make sure that your application does not decode the same input twice. Such errors could be used to bypass whitelist schemes by introducing dangerous inputs after they have been checked.
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Make sure that your application does not decode the same input twice. Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone.
 
 Use a built-in path canonicalization function (such as realpath() in C) that produces the canonical version of the pathname, which effectively removes ".." sequences and symbolic links.
 
@@ -902,7 +904,9 @@ When the set of acceptable objects, such as filenames or URLs, is limited or kno
 
 For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Funkcje takie jak ESAPI AccessReferenceMap dają taką możliwość.
 
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
+Fazy: Architektura i Projektowanie; Implementacja
+Zrozum wszystkie potencjalne obszary gdzie niezaufane dane wejściowe wejdą w twoje oprogramowanie: parametry lub argumenty, ciasteczka, jakikolwiek odczyt z sieci, zmiennych środowiskowych, wyszukiwania wstecznego DNS, wyniki zapytania, nagłówki żądań, komponenty URL, e-mail, pliki, bazy danych i dowolne zewnętrzne
+systemy, które dostarczają dane do aplikacji. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
 
 Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
