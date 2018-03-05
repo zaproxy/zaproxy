@@ -51,12 +51,12 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class HistoryFilterPlusDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
-	private static final String MSG = Constant.messages.getString("history.filter.label.desc"); 
 
 	private JPanel jPanel = null;
 	private JButton btnApply = null;
@@ -152,40 +152,22 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
-			javax.swing.JLabel jLabel1 = new JLabel();
-
 			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
 
-			//java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-			//javax.swing.JLabel jLabel = new JLabel();
-
+			ZapLabel descLabel = new ZapLabel();
+			descLabel.setLineWrap(true);
+			descLabel.setWrapStyleWord(true);
+			descLabel.setText(Constant.messages.getString("history.filter.label.desc"));
+			
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			//jLabel.setText("Pattern:");
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 1;
-			gridBagConstraints1.insets = new java.awt.Insets(5,10,5,10);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints5.weightx = 1.0;
-//			gridBagConstraints5.ipady = 1;
-//			gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
-//			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-//			gridBagConstraints5.gridx = 1;
-//			gridBagConstraints5.gridy = 1;
-//			gridBagConstraints5.insets = new java.awt.Insets(2,2,2,10);
-//			gridBagConstraints5.ipadx = 100;
-//			gridBagConstraints5.gridwidth = 2;
+
 			gridBagConstraints6.gridwidth = 3;
 			gridBagConstraints6.gridx = 0;
 			gridBagConstraints6.gridy = 3;
 			gridBagConstraints6.insets = new java.awt.Insets(5,2,5,2);
 			gridBagConstraints6.ipadx = 3;
 			gridBagConstraints6.ipady = 3;
-			jLabel1.setText(MSG);
-			jLabel1.setPreferredSize(new java.awt.Dimension(350,50));
 			gridBagConstraints11.gridx = 0;
 			gridBagConstraints11.gridy = 0;
 			gridBagConstraints11.insets = new java.awt.Insets(5,10,5,10);
@@ -203,8 +185,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			gridBagConstraints12.insets = new java.awt.Insets(2,10,2,10);
 			gridBagConstraints12.ipadx = 0;
 			gridBagConstraints12.ipady = 1;
-			jPanel.add(jLabel1, gridBagConstraints11);
-			//jPanel.add(jLabel, gridBagConstraints1);
+			jPanel.add(descLabel, gridBagConstraints11);
 			jPanel.add(getJPanel2(), gridBagConstraints12);
 			jPanel.add(getJPanel1(), gridBagConstraints6);
 		}
