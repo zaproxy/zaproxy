@@ -41,6 +41,7 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/06/06 Clear dialogues in EDT.
+// ZAP: 2018/02/23 Issue 1161: Fix Session Tracking button sync
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -65,6 +66,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public class ExtensionManualRequestEditor extends ExtensionAdaptor implements SessionChangedListener {
 	
 	private Map<Class<? extends Message>, ManualRequestEditorDialog> dialogues = new HashMap<>();
+	private ManualHttpRequestEditorDialog httpSendEditorDialog;
 	
 	/**
 	 * Name of this extension.
@@ -87,7 +89,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
         super.initView(view);
 
         // add default manual request editor
-        ManualRequestEditorDialog httpSendEditorDialog = new ManualHttpRequestEditorDialog(true, "manual", "ui.dialogs.manreq");
+        httpSendEditorDialog = new ManualHttpRequestEditorDialog(true, "manual", "ui.dialogs.manreq");
         httpSendEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));
         
         addManualSendEditor(httpSendEditorDialog);
@@ -139,6 +141,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 			}
 			
 			extensionHook.addSessionListener(this);
+			extensionHook.addOptionsChangedListener(httpSendEditorDialog);
 		}
 	}
 
