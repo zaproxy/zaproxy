@@ -363,9 +363,10 @@ public class GuiBootstrap extends ZapBootstrap {
         	OsXGui.setup();
         }else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
                return;
-        }else {
-                setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
+
+        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+   
 	}
 
     private static String getLookAndFeelClassname(String lookAndFeelName) {
