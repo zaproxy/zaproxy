@@ -95,7 +95,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String SHOW_DEV_WARNING = "view.showDevWarning";
 	public static final String LOOK_AND_FEEL = "view.lookAndFeel";
 
-	private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
+    private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
     private static final String CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY = "view.confirmRemoveScannerExcludeRegex";
     private static final String CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY = "view.confirmRemoveSpiderExcludeRegex";
 
@@ -178,7 +178,7 @@ public class OptionsParamView extends AbstractParam {
 	    scaleImages = getBoolean(SCALE_IMAGES, true);
 	    showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
 	    lookAndFeel = getString(LOOK_AND_FEEL,"");
-
+	    
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
 	    LargeResponseUtil.setMinContentLength(largeResponseSize);

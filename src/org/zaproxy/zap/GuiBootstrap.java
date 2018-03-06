@@ -72,10 +72,10 @@ public class GuiBootstrap extends ZapBootstrap {
     private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
 
     /**
-    -     * Flag that indicates whether or not the look and feel was already set.
-    -	  *
-    -     * @see #setupLookAndFeel()
-    -     */
+     * Flag that indicates whether or not the look and feel was already set.
+     * 
+     * @see #setupLookAndFeel()
+     */
     private boolean lookAndFeelSet;
 
     public GuiBootstrap(CommandLine cmdLineArgs) {
@@ -345,55 +345,55 @@ public class GuiBootstrap extends ZapBootstrap {
      * {@link java.net.InetAddress InetAddress}) preventing some ZAP options from being correctly applied.
      */
     private void setupLookAndFeel() {
-    	if (lookAndFeelSet) {
-    	   return;
-    	}
-    	lookAndFeelSet = true;    	
-    	if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
-           return;
+        if (lookAndFeelSet) {
+            return;
+        }
+        lookAndFeelSet = true;
+
+        if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
+            return;
         }
 
-    	OptionsParam options = Model.getSingleton().getOptionsParam();
+        OptionsParam options = Model.getSingleton().getOptionsParam();
 
         if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))) {
-           return;
+            return;
         }
 
         if (Constant.isMacOsX()) {
-        	OsXGui.setup();
-        }else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
-               return;
+            OsXGui.setup();
+        } else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
+            return;
         }
 
         setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-   
-	}
+    }
 
     private static String getLookAndFeelClassname(String lookAndFeelName) {
-    	UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
-    	String  lookAndFeelClassname = "";
-    	for (UIManager.LookAndFeelInfo look : looks) {
-    		 if (look.getName().equals(lookAndFeelName)) {
-    		 	 lookAndFeelClassname = look.getClassName();
-    			 break;
-    		}
-    	}
-		return lookAndFeelClassname;
+        UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
+        String lookAndFeelClassname = "";
+        for (UIManager.LookAndFeelInfo look : looks) {
+            if (look.getName().equals(lookAndFeelName)) {
+                lookAndFeelClassname = look.getClassName();
+                break;
+            }
+        }
+        return lookAndFeelClassname;
     }
 
     private static boolean setLookAndFeel(String lookAndFeelClassname) {
-       if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
-    	   try {
-    			 UIManager.setLookAndFeel(lookAndFeelClassname);
-    			 return true;
-    	    } catch (final UnsupportedLookAndFeelException
-    				| ClassNotFoundException
-    				| InstantiationException
-    				| IllegalAccessException e) {
-    			logger.warn("Failed to set the look and feel: " + e.getMessage());
-				}
-    	}
-    	return false;
+        if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
+            try {
+                UIManager.setLookAndFeel(lookAndFeelClassname);
+                return true;
+            } catch (final UnsupportedLookAndFeelException
+                           | ClassNotFoundException
+                           | InstantiationException
+                           | IllegalAccessException e) {
+                logger.warn("Failed to set the look and feel: " + e.getMessage());
+            }
+        }
+        return false;
     }
 
     /**
