@@ -68,7 +68,7 @@ import org.zaproxy.zap.view.ProxyDialog;
  * @since 2.4.2
  */
 public class GuiBootstrap extends ZapBootstrap {
-	
+
     private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
 
     /**

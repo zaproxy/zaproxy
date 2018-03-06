@@ -449,8 +449,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 		return chkOutputTabTimeStamping;
 	}
-
-
+	
+	
 	private JComboBox<String> getTimeStampsFormatSelect() {
 		if (timeStampsFormatSelect == null) {
 			String[] timeStampFormatStrings = {TIME_STAMP_FORMAT_DATETIME, TIME_STAMP_FORMAT_ISO8601, TIME_STAMP_FORMAT_TIMEONLY};
