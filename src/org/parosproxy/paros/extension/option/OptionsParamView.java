@@ -178,6 +178,7 @@ public class OptionsParamView extends AbstractParam {
 	    scaleImages = getBoolean(SCALE_IMAGES, true);
 	    showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
 	    lookAndFeel = getString(LOOK_AND_FEEL,"");
+
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
 	    LargeResponseUtil.setMinContentLength(largeResponseSize);

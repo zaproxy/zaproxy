@@ -71,12 +71,13 @@ public class GuiBootstrap extends ZapBootstrap {
 	
     private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
 
-    /**	
+    /**
     -     * Flag that indicates whether or not the look and feel was already set.
     -	  *
     -     * @see #setupLookAndFeel()
     -     */
     private boolean lookAndFeelSet;
+
     public GuiBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
     }
@@ -180,7 +181,7 @@ public class GuiBootstrap extends ZapBootstrap {
         OptionsParamView viewParam = options.getViewParam();
 
         FontUtils.setDefaultFont(viewParam.getFontName(), viewParam.getFontSize());
-        
+
         setupLocale(options);
 
         if (viewParam.isUseSystemsLocaleForFormat()) {
