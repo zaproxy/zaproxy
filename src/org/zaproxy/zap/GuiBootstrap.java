@@ -70,14 +70,13 @@ import org.zaproxy.zap.view.ProxyDialog;
 public class GuiBootstrap extends ZapBootstrap {
 	
     private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
-    
+
     /**	
-    -     * Flag that indicates whether or not the look and feel was already set.	
-    -     * 	
-    -     * @see #setupLookAndFeel()	
-    -     */	
+    -     * Flag that indicates whether or not the look and feel was already set.
+    -	  *
+    -     * @see #setupLookAndFeel()
+    -     */
     private boolean lookAndFeelSet;
-    private static boolean isLookAndFeelSet;
     public GuiBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
     }
@@ -352,24 +351,22 @@ public class GuiBootstrap extends ZapBootstrap {
     	if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
            return;
         }
-    	
+
     	OptionsParam options = Model.getSingleton().getOptionsParam();
-        	
+
         if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))) {
            return;
         }
-        
+
         if (Constant.isMacOsX()) {
         	OsXGui.setup();
-        }else {
-               setLookAndFeel(getLookAndFeelClassname("Nimbus"));
+        }else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
                return;
+        }else {
+                setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
-        
-        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        
 	}
-        
+
     private static String getLookAndFeelClassname(String lookAndFeelName) {
     	UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
     	String  lookAndFeelClassname = "";
@@ -381,13 +378,13 @@ public class GuiBootstrap extends ZapBootstrap {
     	}
 		return lookAndFeelClassname;
     }
-    
+
     private static boolean setLookAndFeel(String lookAndFeelClassname) {
+       boolean isLookAndFeelSet = false;
     	if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
     	   try {
     			 UIManager.setLookAndFeel(lookAndFeelClassname);
     			 isLookAndFeelSet = true;
-    			 
     	    } catch (final UnsupportedLookAndFeelException
     				| ClassNotFoundException
     				| InstantiationException
@@ -397,7 +394,7 @@ public class GuiBootstrap extends ZapBootstrap {
     	}
     	return isLookAndFeelSet;
     }
-    
+
     /**
      * Setups ZAP's and GUI {@code Locale}, if not previously defined. Otherwise it's determined automatically or, if not
      * possible, by asking the user to choose one of the supported locales.

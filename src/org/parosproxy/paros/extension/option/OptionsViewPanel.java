@@ -121,7 +121,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel largeResponseLabel = null;
 	private JLabel fontExampleLabel = null;
 	private JLabel lookAndFeelLabel = null;
-		
+
     public OptionsViewPanel() {
         super();
  		initialize();
@@ -156,7 +156,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 
 			panelMisc.setLayout(new GridBagLayout());
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-		    	panelMisc.setSize(114, 132); 
+		    	panelMisc.setSize(114, 132);
 		    }
 
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
@@ -208,6 +208,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getLargeResponseSize(), 
 					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+
 			
 			row++;
 			advancedViewLabel.setLabelFor(getChkAdvancedView());
@@ -321,7 +322,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			
 			row++;
 			panelMisc.add(new JLabel(""),   
-					LayoutHelper.getGBC(0, row, 1, 1.0D, 1.0D));								
+					LayoutHelper.getGBC(0, row, 1, 1.0D, 1.0D));
+
 		}
 		return panelMisc;
 	}
@@ -389,7 +391,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 		return displaySelect;
 	}
-	
+
 	private JComboBox<ResponsePanelPositionUI> getResponsePanelPositionComboBox() {
 		if (responsePanelPositionComboBox == null) {
 			responsePanelPositionComboBox = new JComboBox<>();
@@ -447,6 +449,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 		return chkOutputTabTimeStamping;
 	}
+
 	
 	private JComboBox<String> getTimeStampsFormatSelect() {
 		if (timeStampsFormatSelect == null) {
@@ -565,7 +568,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 		return scaleImages;
 	}
-		
+
 	private JComboBox<String> getlookAndFeelSelect() {
 		if (lookAndFeel == null) {
 			lookAndFeel = new JComboBox<String>();
@@ -578,7 +581,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 		return lookAndFeel;
 	}
-		
+
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
