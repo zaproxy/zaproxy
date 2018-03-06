@@ -381,11 +381,10 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     private static boolean setLookAndFeel(String lookAndFeelClassname) {
-       boolean isLookAndFeelSet = false;
-    	if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
+       if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
     	   try {
     			 UIManager.setLookAndFeel(lookAndFeelClassname);
-    			 isLookAndFeelSet = true;
+    			 return true;
     	    } catch (final UnsupportedLookAndFeelException
     				| ClassNotFoundException
     				| InstantiationException
@@ -393,7 +392,7 @@ public class GuiBootstrap extends ZapBootstrap {
     			logger.warn("Failed to set the look and feel: " + e.getMessage());
 				}
     	}
-    	return isLookAndFeelSet;
+    	return false;
     }
 
     /**
