@@ -121,7 +121,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel largeResponseLabel = null;
 	private JLabel fontExampleLabel = null;
 	private JLabel lookAndFeelLabel = null;
-
+	
     public OptionsViewPanel() {
         super();
  		initialize();
@@ -312,12 +312,12 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getScaleImages(),   
 					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
-		
+			
 			row++;
-			lookAndFeelLabel.setLabelFor(getlookAndFeelSelect());
+			lookAndFeelLabel.setLabelFor(getLookAndFeelSelect());
 			panelMisc.add(lookAndFeelLabel,
 					LayoutHelper.getGBC(0, row, 1,1.0D, new java.awt.Insets(2,2,2,2)));
-			panelMisc.add(getlookAndFeelSelect(),
+			panelMisc.add(getLookAndFeelSelect(),
 					LayoutHelper.getGBC(1, row, 1, 1.0D,new java.awt.Insets(2,2,2,2)));
 			
 			row++;
@@ -568,15 +568,15 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		}
 		return scaleImages;
 	}
-
-	private JComboBox<String> getlookAndFeelSelect() {
+	
+	private JComboBox<String> getLookAndFeelSelect() {
 		if (lookAndFeel == null) {
 			lookAndFeel = new JComboBox<String>();
 			lookAndFeel.setMaximumRowCount(5);
 			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
-			lookAndFeel.addItem("");	// Default look 
-			for(UIManager.LookAndFeelInfo look : looks){
-			    lookAndFeel.addItem(look.getName());
+			lookAndFeel.addItem("");	// Default look
+			for (UIManager.LookAndFeelInfo look : looks) {
+				lookAndFeel.addItem(look.getName());
 			}
 		}
 		return lookAndFeel;
@@ -603,7 +603,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    getFontSize().setValue(options.getViewParam().getFontSize());
 	    getFontName().setSelectedItem(options.getViewParam().getFontName());
 	    getScaleImages().setSelected(options.getViewParam().isScaleImages());
-	    getlookAndFeelSelect().setSelectedItem(options.getViewParam().getLookAndFeel());
+	    getLookAndFeelSelect().setSelectedItem(options.getViewParam().getLookAndFeel());
 	}
 	
 	private void selectResponstPanelPosition(String positionName) {
@@ -642,7 +642,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setFontSize(getFontSize().getValue());
 	    options.getViewParam().setFontName((String)getFontName().getSelectedItem());
 	    options.getViewParam().setScaleImages(getScaleImages().isSelected());
-	    options.getViewParam().setLookAndFeel((String)getlookAndFeelSelect().getSelectedItem()); 
+	    options.getViewParam().setLookAndFeel((String)getLookAndFeelSelect().getSelectedItem()); 
 	}
 
 	@Override
