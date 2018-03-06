@@ -38,6 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
@@ -68,7 +69,7 @@ import org.zaproxy.zap.view.ProxyDialog;
  */
 public class GuiBootstrap extends ZapBootstrap {
 	
-    private final Logger logger = Logger.getLogger(GuiBootstrap.class);
+    private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
     
     /**	
     -     * Flag that indicates whether or not the look and feel was already set.	
@@ -76,6 +77,7 @@ public class GuiBootstrap extends ZapBootstrap {
     -     * @see #setupLookAndFeel()	
     -     */	
     private boolean lookAndFeelSet;
+    private static boolean isLookAndFeelSet;
     public GuiBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
     }
@@ -346,7 +348,7 @@ public class GuiBootstrap extends ZapBootstrap {
     	if (lookAndFeelSet) {
     	   return;
     	}
-    	    	
+    	lookAndFeelSet = true;    	
     	if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
            return;
         }
@@ -359,18 +361,16 @@ public class GuiBootstrap extends ZapBootstrap {
         
         if (Constant.isMacOsX()) {
         	OsXGui.setup();
+        }else {
+               setLookAndFeel(getLookAndFeelClassname("Nimbus"));
+               return;
         }
         
-        if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
-           return;
-        } else {
-        	   setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-           	   return;
-        }
+        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         
 	}
         
-    private String getLookAndFeelClassname(String lookAndFeelName) {
+    private static String getLookAndFeelClassname(String lookAndFeelName) {
     	UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
     	String  lookAndFeelClassname = "";
     	for (UIManager.LookAndFeelInfo look : looks) {
@@ -382,11 +382,12 @@ public class GuiBootstrap extends ZapBootstrap {
 		return lookAndFeelClassname;
     }
     
-    private boolean setLookAndFeel(String lookAndFeelClassname) {
-    	if (lookAndFeelClassname != "" && lookAndFeelClassname != null) {
+    private static boolean setLookAndFeel(String lookAndFeelClassname) {
+    	if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
     	   try {
     			 UIManager.setLookAndFeel(lookAndFeelClassname);
-    			 lookAndFeelSet = true;
+    			 isLookAndFeelSet = true;
+    			 
     	    } catch (final UnsupportedLookAndFeelException
     				| ClassNotFoundException
     				| InstantiationException
@@ -394,7 +395,7 @@ public class GuiBootstrap extends ZapBootstrap {
     			logger.warn("Failed to set the look and feel: " + e.getMessage());
 				}
     	}
-    	return lookAndFeelSet;
+    	return isLookAndFeelSet;
     }
     
     /**
