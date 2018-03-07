@@ -54,6 +54,7 @@ import org.apache.commons.httpclient.util.EncodingUtil;
  *  - Add missing override and deprecated annotations;
  *  - Fix unchecked/rawtypes warnings (required by lint checks).
  *  - Allow to use underscores in hostnames.
+ *  - Use neutral Locale when converting to lower case.
  */
 /**
  * The interface for the URI(Uniform Resource Identifiers) version of RFC 2396.
@@ -280,7 +281,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
         if (scheme == null) {
            throw new URIException(URIException.PARSING, "scheme required");
         }
-        char[] s = scheme.toLowerCase().toCharArray();
+        char[] s = scheme.toLowerCase(Locale.ROOT).toCharArray();
         if (validate(s, URI.scheme)) {
             _scheme = s; // is_absoluteURI
         } else {
@@ -1964,7 +1965,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
          * </pre></blockquote><p>
          */
         if (at > 0 && at < length && tmp.charAt(at) == ':') {
-            char[] target = tmp.substring(0, at).toLowerCase().toCharArray();
+            char[] target = tmp.substring(0, at).toLowerCase(Locale.ROOT).toCharArray();
             if (validate(target, scheme)) {
                 _scheme = target;
             } else {
