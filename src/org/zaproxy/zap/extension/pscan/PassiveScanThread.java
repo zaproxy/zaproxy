@@ -139,8 +139,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					try {
 						// Parse the record
 						HttpMessage msg = href.getHttpMessage();
-						String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
-						Source src = new Source(response);
+						Source src = new Source(msg.getResponseBody().toString());
 						
 						for (PassiveScanner scanner : scannerList.list()) {
 							try {
