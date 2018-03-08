@@ -516,19 +516,19 @@ Pada saat aplikasi anda mengkombinasikan data dari berbagai sumber, lakukan vali
 
 Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contok dari logika aturan bisnis, "perahu" mungkin sintakstical valid karena itu hanya berisi karakter alfanumerik, tapi itu tidak valid jika kamu mengharapkan warna seperti "merah" atau "biru."
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh bisnis aturan logika, "perahu" mungkin sintaksis sah karena hanya berisi karakter alfanumerik, tapi hal ini tidak berlaku jika kamu mengharapkan warna seperti "merah" atau "biru."
 
-Tahap: Implementasi
+Tahap: Pelaksanaan
 
-Jadi berhati-hati untuk memvalidasi masukan anda pada saat kamu meminta kode yang melewati batas bahasa, seperti dari bahasa yang diartikan ke kode asli. Hal ini bisa menciptakan interaksi tak terduga antara batas bahasa. Pastikan bahwa Anda tidak melanggar salah satu ekspektasi bahasa yang Anda gunakan untuk berinteraksi. Sebagai contoh, meskipun Java mungkin tidak menjadi rentan terhadap penyangga melimpah, memberikan sebuah argumen besar dalam sebuah panggilan ke kode asli dapat memicu luapan.
+Berhati-hatilah untuk kamu memvalidasi masukan ketika kamu meminta kode yang melintasi batas-batas bahasa, seperti dari bahasa ditafsirkan kode asli. Hal ini bisa menciptakan interaksi tak terduga antara batas bahasa. Memastikan bahwa kamu tidak melanggar salah satu harapan dari bahasa yang kamu berinteraksi. Sebagai contoh, meskipun Java mungkin tidak menjadi rentan terhadap penyangga melimpah, memberikan sebuah argumen besar dalam sebuah panggilan ke kode asli dapat memicu luapan.
 
-Langsung ubah jenis masukan Anda ke tipe data yang diharapkan, seperti menggunakan fungsi konversi yang menerjemahkan string menjadi angka. Setelah beralih ke tipe data yang diharapkan, pastikan nilai masukan masuk dalam kisaran nilai yang diijinkan yang diharapkan dan konsistensi multi bidang dipertahankan.
+Langsung mengkonversi masukan jenis ke jenis data yang diharapkan, seperti menggunakan fungsi konversi yang menerjemahkan sebuah string menjadi sebuah nomor. Setelah konversi ke jenis data yang diharapkan, memastikan bahwa masukan nilai jatuh dalam kisaran yang diharapkan dari nilai-nilai yang diijinkan dan yang multi-bidang konsistensi yang tetap terjaga.
 
-Masukan harus diterjemahkan dan disinronkan ke representasi internal aplikasi saat ini sebelum divalidasi. Pastikan aplikasi Anda tidak sengaja memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa. Gunakan perpustakaan seperti OWASP ESAPI Canonicalization control.
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan bahwa aplikasi kamu tidak sengaja memecahkan kode masukan yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa. Menggunakan perpustakaan seperti OWASP ESAPI kanonikalisasi kontrol.
 
-Pertimbangkan untuk melakukan kanonisasi berulang sampai masukan Anda tidak berubah lagi. Ini akan menghindari decoding ganda dan skenario serupa, namun mungkin secara tidak sengaja memodifikasi masukan yang diizinkan mengandung konten berbahaya yang dikodekan dengan benar.
+Pertimbangkan untuk melakukan kanonikalisasi sampai masukan kamu diulang tidak berubah lagi. Ini akan menghindari decoding-ganda dan skenario yang sama, tapi mungkin secara tidak sengaja memodifikasi masukan yang diperbolehkan untuk mengandung mengandung konten dengan benar-dikodekan.
 
-Saat bertukar data antar komponen, pastikan kedua komponen tersebut menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit tetapkan pengkodean yang Anda gunakan kapan pun protokol memungkinkan Anda melakukannya.</solution>
+Ketika bertukar data antara komponen-komponen, memastikan bahwa kedua komponen yang menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit mengatur pengkodean yang kamu gunakan kapan pun protokol ini memungkinkan kamu untuk melakukannya.</solution>
 	<reference>http://projects.webappsec.org/Improper-Input-Handling</reference>
 	<reference>http://cwe.mitre.org/data/definitions/89.html</reference>
 </vuln_item_wasc_20>
@@ -538,14 +538,14 @@ Saat bertukar data antar komponen, pastikan kedua komponen tersebut menggunakan 
 	<alert>Anti otomatisasi yang tidak mencukupi</alert>
 	<desc>Tidak cukup anti-otomatis terjadi pada saat aplikasi web mengizinkan seorang penyerang untuk mengotomatiskan sebuah proses yang semula dirancang untuk dilakukan hanya dengan cara manual, yaitu oleh seorang manusia pengguna web.
 
-Fungsi aplikasi web yang sering menjadi sasaran serangan otomasi bisa meliputi:
-    * Formulir login aplikasi - penyerang dapat mengotomatiskan permintaan masuk paksa dalam upaya menebak kredensial pengguna
-    * Formulir pendaftaran layanan - penyerang dapat secara otomatis membuat ribuan akun baru
-    * Formulir email - penyerang dapat memanfaatkan formulir email sebagai spam relay atau untuk membanjiri kotak pesan pengguna tertentu
-    * Pemeliharaan akun - Penyerang dapat melakukan DoS massa terhadap sebuah aplikasi, dengan membanjiri dengan banyak permintaan untuk menonaktifkan atau menghapus akun pengguna
-    * Formulir informasi akun - penyerang dapat melakukan upaya massal untuk mengumpulkan informasi pribadi pengguna dari aplikasi web
-    * Formulir komentar / formulir pengajuan konten- ini bisa digunakan untuk blog spamming, forum web dan papan buletin web dengan mengirimkan konten secara otomatis seperti spam atau bahkan malware berbasis web.
-    * Formulir yang terkait dengan query database SQL - ini dapat dieksploitasi untuk melakukan penolakan serangan layanan terhadap aplikasi. Serangan dilakukan dengan mengirimkan banyak query SQL berat dalam waktu singkat, sehingga menyangkal pengguna nyata dari layanan.
+Fungsi aplikasi web yang sering menjadi target otomatis untuk serangan yang mungkin meliputi:
+    * Masuk aplikasi formulir – penyerang dapat mengotomatisasi memaksa masuk permintaan dalam upaya untuk menebak kredensial pengguna
+    * Layanan formulir pendaftaran – penyerang dapat secara otomatis membuat ribuan akun baru
+    * Bentuk Email – penyerang bisa mengeksploitasi bentuk email sebagai spam atau menyampaikan untuk membanbanjiri kotak pesan pengguna tertentu
+    * Pemeliharaan akun – penyerang dapat melakukan massal DoS terhadap suatu aplikasi, dengan membanjiri itu dengan banyak permintaan untuk menonaktifkan atau menghapus akun pengguna
+    * Informasi bentuk akun – penyerang dapat melakukan upaya massa untuk panen informasi pribadi dari aplikasi web pengguna
+    * Komentar formulir / konten pengajuan formulir ini dapat digunakan untuk spamming blog, forum web dan papan buletin web dengan secara otomatis mengirimkan isi seperti spam atau bahkan web berbasis malware
+    * Formulir yang terikat dengan SQL query database - ini dapat dimanfaatkan dalam rangka untuk melakukan penolakan layanan serangan terhadap aplikasi. Serangan ini dilakukan dengan banyak mengirimkan berat SQL query dalam periode waktu yang singkat, oleh karena itu menyangkal pengguna nyata dari layanan.
     Aplikasi eShopping / eCommerce - eShopping dan eCommerce yang tidak memberlakukan pembeli manusia saja, dapat dimanfaatkan untuk membeli barang pilihan dalam jumlah banyak, seperti tiket acara olahraga. Ini kemudian dijual oleh calo untuk harga yang lebih tinggi.
     * Jajak pendapat online - jajak pendapat dan jenis sistem pemungutan suara online lainnya dapat ditumbangkan secara otomatis dengan pilihan tertentu.
     * Pengiriman pesan SMS berbasis web dapat memanfaatkan sistem pengiriman pesan SMS untuk pengguna ponsel spam
@@ -558,22 +558,22 @@ Fungsi aplikasi web yang sering menjadi sasaran serangan otomasi bisa meliputi:
 <vuln_items>wasc_22</vuln_items>
 <vuln_item_wasc_22>
 	<alert>Penanganan Output yang Tidak Tepat</alert>
-	<desc>Penanganan output mengacu pada bagaimana sebuah aplikasi menghasilkan data keluar.  Jika sebuah aplikasi memiliki penanganan output yang tidak tepat, data output dapat dikonsumsi yang mengarah ke kerentanan dan tindakan yang tidak pernah dimaksudkan oleh pengembang aplikasi.  Dalam banyak kasus, interpretasi yang tidak disengaja ini diklasifikasikan sebagai satu atau lebih bentuk kerentanan aplikasi kritis.
+	<desc>Penanganan mengacu pada keluaran bagaimana sebuah aplikasi menghasilkan data keluar.  Jika sebuah aplikasi memiliki penanganan keluaran yang tidak tepat, keluaran data dapat dikonsumsi yang menyebabkan kerentanan dan tindakan-tindakan yang tidak pernah dimaksudkan oleh pengembang aplikasi.  Dalam banyak kasus, interpretasi yang tidak disengaja ini diklasifikasikan sebagai satu atau lebih bentuk kerentanan aplikasi kritis.
 
-Setiap lokasi dimana data meninggalkan batas aplikasi mungkin tunduk pada penanganan output yang tidak benar.  Batas aplikasi ada dimana data meninggalkan satu konteks dan memasuki area yang lain.  Ini termasuk aplikasi yang mengirimkan data ke aplikasi lain melalui layanan web, soket, command line, variabel lingkungan, dll.  Ini juga mencakup data yang lewat antara tingkatan dalam arsitektur aplikasi, seperti database, server direktori, juru bahasa HTML / JavaScript (browser), atau sistem operasi.  Detail lebih lanjut tentang penanganan penanganan yang tidak tepat dapat terjadi dapat ditemukan pada bagian di bawah berjudul "Lokasi Output Data Umum".
+Setiap lokasi di mana data meninggalkan batas aplikasi dapat menjadi keluaran subjek penanganan yang tidak tepat.  Aplikasi ada batas di mana data menyisakan satu konteks dan memasuki yang lain.  Ini termasuk aplikasi data lewat ke aplikasi lain melalui layanan web, soket, baris perintah, variabel lingkungan, dll...  Ini juga mencakup data yang lewat antara tingkatan dalam arsitektur aplikasi, seperti database, server direktori, juru bahasa HTML / JavaScript (browser), atau sistem operasi.  Detail lebih lanjut tentang penanganan penanganan yang tidak tepat dapat terjadi dapat ditemukan pada bagian di bawah berjudul "Lokasi Output Data Umum".
 
-Penanganan keluaran yang tidak tepat dapat mengambil berbagai bentuk dalam aplikasi.  Bentuk-bentuk ini dapat dikategorikan menjadi: kesalahan protokol, kesalahan aplikasi dan data kesalahan terkait konsumen.  Kesalahan protokol mencakup pengkodean keluaran yang hilang atau tidak semestinya atau keluar dan keluar dari data yang tidak valid.  Kesalahan aplikasi mencakup kesalahan logika seperti mengeluarkan data yang salah atau menyebarkan konten berbahaya tanpa filter.  Jika aplikasi tidak benar membedakan konten yang sah dari yang tidak sah, atau tidak mengatasi kerentanan yang diketahui di konsumen data, jika aplikasi tersebut menyebabkan penyalahgunaan data konsumen disebabkan oleh penanganan keluaran yang tidak benar.
+Penanganan keluaran yang tidak tepat dapat mengambil berbagai bentuk dalam aplikasi.  Bentuk-bentuk ini dapat dikategorikan menjadi: kesalahan protokol, kesalahan aplikasi dan data kesalahan terkait konsumen.  Kesalahan protokol mencakup pengkodean keluaran yang hilang atau tidak semestinya atau keluar dan keluar dari data yang tidak valid.  Kesalahan aplikasi termasuk kesalahan logika seperti keluaran data yang tidak benar atau menyampaikan konten berbahaya tanpa filter.  Jika aplikasi tidak benar membedakan konten yang sah dari yang tidak sah, atau tidak mengatasi kerentanan diketahui dalam data konsumen, hal ini dapat mengakibatkan penyalahgunaan data-konsumen yang disebabkan penanganan dari keluaran yang tidak tepat.
 
-Aplikasi yang tidak menyediakan data dalam konteks yang benar memungkinkan penyerang untuk menyalahgunakan data konsumen.  Hal ini dapat menyebabkan ancaman spesifik yang dirujuk dalam Klasifikasi Ancaman WASC, termasuk Spoofing Konten, Skrip Lintas Situs, Pemisahan Respons HTTP, Penyelesaian Respons HTTP, Injeksi LDAP, Pemberian Perintah, Detay Routing, Pelemahan Array Sabun, Redirector URL, Injeksi XML, XQuery Injection, XPath Injection, Mail Command Injection, Null Injection dan SQL Injection.
+Sebuah aplikasi yang tidak memberikan data dalam konteks yang benar dapat memungkinkan seorang penyerang untuk menyalahgunakan data-data konsumen.  Hal ini dapat menyebabkan ancaman tertentu yang dirujuk dalam klasifikasi ancaman WASC, termasuk Konten Spoofing, Menyebrang-Situs Krip, Membelah Respon HTTP, Penyelundupan Respon HTTP, LDAP Injeksi, OS yang sangat bagus, Memutar Rute, Penyalahgunaan Sabun Hotel, Pengarah URL, XML Injeksi, XQuery Injeksi, XPath Injeksi, Surat Perintah Injeksi, Null Injeksi dan SQL Injeksi.
 
-Penanganan keluaran yang tepat mencegah interpretasi data yang tidak diharapkan atau tidak disengaja oleh konsumen.  Untuk mencapai tujuan ini, pengembang harus memahami model data aplikasi, bagaimana data akan dikonsumsi oleh bagian aplikasi lainnya, dan bagaimana akhirnya dipresentasikan kepada pengguna.  Teknik untuk memastikan penanganan output yang tepat termasuk namun tidak terbatas pada penyaringan dan sanitasi data (lebih rinci tentang sanitasi dan penyaringan keluaran dapat ditemukan di bagian yang berjudul dengan tepat di bawah ini).  Namun, penggunaan teknik penanganan keluaran yang tidak konsisten dapat benar-benar meningkatkan risiko penanganan keluaran yang tidak tepat jika data keluaran diabaikan atau tidak diobati.  Untuk memastikan pengembang "pertahanan secara mendalam" harus mengasumsikan bahwa semua data dalam aplikasi tidak dipercaya saat memilih strategi penanganan keluaran yang sesuai.
+Penanganan keluaran yang tepat mencegah hal yang tak terduga atau tidak diinginkan interpretasi data oleh konsumen.  Untuk mencapai tujuan ini, pengembang harus memahami model data aplikasi, bagaimana data akan dikonsumsi oleh bagian aplikasi lainnya, dan bagaimana akhirnya dipresentasikan kepada pengguna.  Memastikan penanganan untuk teknik yang tepat termasuk dari keluaran tetapi tidak terbatas untuk penyaringan dan sanitasi data (lebih detail pada keluaran sanitasi dan penyaringan dapat ditemukan di tepat berjudul bagian di bawah ini).  Namun, tidak konsisten penggunaan keluaran yang dipilih teknik penanganan yang benar-benar dapat meningkatkan risiko yang tidak tepat penanganan keluaran jika keluaran data yang diabaikan atau tidak diobati.  Untuk memastikan "pertahanan di kedalaman" pengembang harus berasumsi bahwa semua data dalam aplikasi tidak terpercaya ketika memilih keluaran sesuai strategi penanganan.
 
-Meskipun penanganan keluaran yang tepat mungkin memerlukan banyak bentuk, aplikasi tidak dapat diamankan kecuali jika proteksi terhadap interpretasi yang tidak diinginkan oleh konsumen data. Persyaratan inti ini sangat penting untuk sebuah aplikasi untuk menangani operasi keluaran dengan aman.</desc>
+Sedangkan penanganan keluaran yang tepat dapat mengambil banyak bentuk yang berbeda, aplikasi tidak akan aman kecuali melindungi terhadap interpretasi yang tidak diinginkan oleh data konsumen. Inti ini adalah persyaratan penting untuk aplikasi yang aman untuk menangani keluaran operasi.</desc>
 	<solution>Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan kelemahan ini terjadi atau menyediakan konstruksi yang membuat kelemahan ini lebih mudah dihindari.
 
 Misalnya, pertimbangkan untuk menggunakan kontrol Encode ESAPI atau alat, perpustakaan, atau kerangka kerja serupa. Ini akan membantu programmer menyandikan output dengan cara yang kurang rentan terhadap kesalahan.
 
-Sebagai alternatif, gunakan fungsi built-in, namun pertimbangkan untuk menggunakan pembungkus jika fungsi tersebut ditemukan memiliki kerentanan.
+Secara bergantian, menggunakan fungsi built-in, tetapi pertimbangkan untuk menggunakan pembungkus dalam hal fungsi-fungsi yang ditemukan memiliki kerentanan.
 
 Jika tersedia, gunakan terstruktur mekanisme yang secara otomatis memberlakukan pemisahan antara data dan kode. Mekanisme ini mungkin dapat memberikan kutipan yang relevan, encoding, dan validasi secara otomatis, bukan mengandalkan pengembang untuk menyediakan kemampuan ini di setiap titik di mana keluaran yang dihasilkan.
 
@@ -581,11 +581,11 @@ Sebagai contoh, prosedur yang tersimpan dapat menerapkan struktur query database
 
 Pahami konteks dimana data Anda akan digunakan dan pengkodean yang akan diharapkan. Hal ini terutama penting ketika transmisi data antara komponen yang berbeda, atau ketika menghasilkan keluaran yang dapat berisi beberapa pengkodean pada saat yang sama, seperti halaman web atau multi-bagian surat. Mempelajari semua protokol komunikasi dan diharapkam representasi data untuk diperlukan menentukan strategi pengkodean.
 
-Dalam beberapa kasus, validasi masukan mungkin merupakan strategi penting saat pengkodean keluaran bukan merupakan solusi yang lengkap. Misalnya, Anda mungkin menyediakan output yang sama yang akan diproses oleh banyak konsumen yang menggunakan pengkodean atau representasi yang berbeda. Dalam kasus lain, Anda mungkin diminta untuk mengizinkan masukan yang diberikan pengguna untuk berisi informasi kontrol, seperti tag HTML terbatas yang mendukung pemformatan di wiki atau papan buletin. Bila persyaratan jenis ini harus dipenuhi, gunakan daftar putih yang sangat ketat untuk membatasi rangkaian kontrol yang dapat digunakan. Verifikasi bahwa struktur sintaksis yang dihasilkan adalah apa yang Anda harapkan. Gunakan metode pengkodean normal Anda untuk sisa masukan.
+Dalam beberapa kasus, validasi masukan mungkin merupakan strategi penting saat pengkodean keluaran bukan merupakan solusi yang lengkap. Misalnya, kamu dapat memberikan keluaran yang sama yang akan diproses oleh beberapa konsumen yang menggunakan pernyataan atau pengkodean yang berbeda. Dalam kasus lain, mungkin kamu akan diminta untuk memungkinkan pengguna disediakan masukan berisi kontrol informasi, seperti tag HTML yang terbatas yang mendukung format di wiki atau papan buletin. Bila persyaratan jenis ini harus dipenuhi, gunakan daftar putih yang sangat ketat untuk membatasi rangkaian kontrol yang dapat digunakan. Verifikasi bahwa struktur sintaksis yang dihasilkan adalah apa yang Anda harapkan. Gunakan metode pengkodean normal Anda untuk sisa masukan.
 
 Gunakan validasi masukan sebagai ukuran pertahanan-dalam-mendalam untuk mengurangi kemungkinan kesalahan penyandian keluaran (lihat CWE-20).
 
-Saat bertukar data antar komponen, pastikan kedua komponen tersebut menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit tetapkan pengkodean yang Anda gunakan kapan pun protokol memungkinkan Anda melakukannya.</solution>
+Ketika bertukar data antara komponen-komponen, memastikan bahwa kedua komponen yang menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit mengatur pengkodean yang kamu gunakan kapan pun protokol ini memungkinkan kamu untuk melakukannya.</solution>
 	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
 	<reference></reference>
 </vuln_item_wasc_22>
@@ -593,7 +593,7 @@ Saat bertukar data antar komponen, pastikan kedua komponen tersebut menggunakan 
 <vuln_items>wasc_23</vuln_items>
 <vuln_item_wasc_23>
 	<alert>Injeksi XML</alert>
-	<desc>XML Injection adalah teknik serangan yang digunakan untuk memanipulasi atau mengkompromikan logika aplikasi atau layanan XML. Penyuntikan konten dan / atau struktur XML yang tidak diinginkan ke dalam pesan XML dapat mengubah logika niat aplikasi. Selanjutnya, injeksi XML dapat menyebabkan penyisipan konten berbahaya ke dalam pesan / dokumen yang dihasilkan.</desc>
+	<desc>XML Injection adalah teknik serangan yang digunakan untuk memanipulasi atau mengkompromikan logika aplikasi atau layanan XML. Penyuntikan konten dan / atau struktur XML yang tidak diinginkan ke dalam pesan XML dapat mengubah logika niat aplikasi. Lebih lanjut, XML injeksi dapat menyebabkan penyisipan konten berbahaya ke pesan/dokumen yang dihasilkan.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-Injection</reference>
 	<reference></reference>
@@ -602,7 +602,7 @@ Saat bertukar data antar komponen, pastikan kedua komponen tersebut menggunakan 
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
 	<alert>Permintaan HTTP Memisahkan</alert>
-	<desc>HTTP Request Splitting adalah serangan yang memungkinkan pemaksaan mengirim permintaan HTTP yang sewenang-wenang, menimbulkan XSS dan meracuni cache browser. Inti dari serangan tersebut adalah kemampuan penyerang, begitu korban (browser) dipaksa memuat halaman HTML berbahaya penyerang, untuk memanipulasi salah satu fungsi browser untuk mengirim 2 permintaan HTTP alih-alih satu permintaan HTTP. Dua mekanisme seperti itu telah dieksploitasi sampai saat ini: objek XmlHttpRequest (XHR untuk jangka pendek) dan mekanisme otentikasi penggabungan HTTP. Agar serangan ini berhasil, browser harus menggunakan proxy HTTP depan (tidak semuanya mendukung "serangan ini), atau serangan harus dilakukan terhadap host yang berada pada IP yang sama (dari perspektif browser) dengan penyerang mesin.</desc>
+	<desc>Permintaan membelah HTTP adalah serangan yang memungkinkan memaksa browser untuk mengirim permintaan HTTP sewenang-wenang, menimbulkan XSS dan meracuni cache browser. Inti dari serangan ini adalah kemampuan dari penyerang, setelah korban (browser) dipaksa untuk memuat penyerang halaman HTML berbahaya, memanipulasi salah satu browser ini berfungsi untuk mengirim 2 permintaan HTTP, bukan satu permintaan HTTP. Dua mekanisme seperti itu telah dieksploitasi sampai saat ini: objek XmlHttpRequest (XHR untuk jangka pendek) dan mekanisme otentikasi penggabungan HTTP. Untuk serangan ini bekerja, browser harus menggunakan meneruskan proxy HTTP (tidak semua dari mereka "mendukung" serangan ini), atau serangan harus dilakukan terhadap sejumlah terletak pada IP yang sama (dari browser perspektif) dengan mesin penyerang.</desc>
 	<solution>Hindari penggunaan CRLF sebagai urutan khusus.
 
 Saring dengan tepat atau kutipan urutan CRLF pada input yang dikendalikan pengguna.</solution>
@@ -613,12 +613,14 @@ Saring dengan tepat atau kutipan urutan CRLF pada input yang dikendalikan penggu
 <vuln_items>wasc_25</vuln_items>
 <vuln_item_wasc_25>
 	<alert>Respon HTTP Memisahkan</alert>
-	<desc>Dalam serangan HTTP Response Splitting, selalu ada 3 pihak (setidaknya) yang terlibat:
-     * Web server, yang memiliki lubang keamanan yang memungkinkan HTTP Response Memisahkan
-     * Target - entitas yang berinteraksi dengan server web mungkin atas nama penyerang. Biasanya ini adalah server cache forward / reverse proxy), atau browser (mungkin dengan cache browser).
-    Penyerang - memulai serangan Inti dari Respon HTTP Memisahkan kemampuan penyerang untuk mengirim permintaan HTTP tunggal yang memaksa server web membentuk arus keluaran, yang kemudian ditafsirkan oleh target sebagai dua tanggapan HTTP, bukan satu tanggapan, dalam kasus normal Respons pertama mungkin sebagian dikendalikan oleh penyerang, tapi ini kurang penting. Apa materi adalah bahwa penyerang benar-benar mengendalikan bentuk respons kedua dari baris status HTTP ke byte terakhir dari badan respons HTTP. Setelah ini mungkin, penyerang menyadari serangan tersebut dengan mengirimkan dua permintaan melalui target. Yang pertama memanggil dua tanggapan dari server web, dan permintaan kedua biasanya ditujukan pada beberapa sumber daya "innocent" di server web. Namun, permintaan kedua akan disesuaikan, sesuai target, dengan respons HTTP kedua, yang sepenuhnya dikendalikan oleh penyerang. Penyerang, oleh karena itu, menebak sasaran agar percaya bahwa sumber daya tertentu pada server web (yang ditunjuk oleh permintaan kedua) adalah respons HTTP server (konten server), padahal sebenarnya ada beberapa data, yang dipalsukan oleh penyerang melalui web server - ini adalah respon kedua.
+	<desc>Membelah respon serangan HTTP, selalu ada 3 pihak (setidaknya) yang terlibat:
+    * Server web, yang memiliki lubang keamanan yang memungkinkan membelah respon HTTP
+    * Target - entitas yang berinteraksi dengan server web mungkin atas nama penyerang. Biasanya ini adalah server cache forward / reverse proxy), atau browser (mungkin dengan cache browser).
+    * Penyerang - memulai serangan
 
-Respon HTTP Serangan pemisah terjadi di mana skrip server menyematkan data pengguna di header tanggapan HTTP. Ini biasanya terjadi saat skrip menyematkan data pengguna di URL pengalihan respons pengalihan (kode status HTTP 3xx), atau saat skrip menyematkan data pengguna dalam nilai atau nama kuki saat respons tersebut menetapkan kuki.</desc>
+Inti dari membelah respon penyerang HTTP kemampuan untuk mengirim satu permintaan HTTP yang memaksa server web ke bentuk arus keluaran, yang kemudian ditafsirkan oleh dua respon target HTTP, bukan satu respon, dalam kasus normal. Respons pertama mungkin sebagian dikendalikan oleh penyerang, tapi ini kurang penting. Apa materi adalah bahwa penyerang benar-benar mengendalikan bentuk respons kedua dari baris status HTTP ke byte terakhir dari badan respons HTTP. Setelah ini mungkin, penyerang menyadari serangan tersebut dengan mengirimkan dua permintaan melalui target. Yang pertama memanggil dua tanggapan dari server web, dan permintaan kedua biasanya ditujukan pada beberapa sumber daya "innocent" di server web. Namun, permintaan kedua akan dicocokkan dengan target, untuk kedua respon HTTP, yang sepenuhnya dikendalikan oleh penyerang. Penyerang, oleh karena itu, menebak target menjadi percaya bahwa sumber daya tertentu pada server web (yang ditunjuk oleh permintaan kedua) adalah respon server HTTP (konten server), sementara itu pada kenyataannya beberapa data, yang ditempa oleh penyerang melalui server web - ini adalah respon kedua.
+
+Respon HTTP Serangan pemisah terjadi di mana skrip server menyematkan data pengguna di header tanggapan HTTP. Hal ini biasanya terjadi ketika naskah komprehensif pengguna data di pengalihan respon URL pengalihan (kode status HTTP 3xx), atau ketika naskah komprehensif pengguna data di cookie nilai atau nama ketika respon menetapkan cookie.</desc>
 	<solution>Buatlah header HTTP dengan sangat hati-hati, hindari penggunaan data masukan yang tidak divalidasi.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Response-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/113.html</reference>
@@ -671,7 +673,7 @@ Gunakan dan tentukan pengkodean keluaran yang kuat (seperti ISO 8859-1 atau UTF 
 
 Jangan bergantung secara khusus pada validasi daftar hitam untuk mendeteksi masukan berbahaya atau untuk mengkodekan hasil. Ada terlalu banyak varian untuk mengkodekan karakter; Anda cenderung melewatkan beberapa varian.
 
-Masukan harus diterjemahkan dan disinronkan ke representasi internal aplikasi saat ini sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa.</solution>
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa.</solution>
 	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
 </vuln_item_wasc_28>
@@ -701,13 +703,13 @@ Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "menerim
 
 Jangan bergantung secara khusus pada validasi daftar hitam untuk mendeteksi masukan berbahaya atau untuk mengkodekan hasil. Ada terlalu banyak hal untuk mengkodekan karakter yang sama, jadi kamu cenderung melewatkan beberapa varian.
 
-Langsung ubah jenis masukan Anda ke tipe data yang diharapkan, seperti menggunakan fungsi konversi yang menerjemahkan string menjadi angka. Setelah beralih ke tipe data yang diharapkan, pastikan nilai masukan masuk dalam kisaran nilai yang diijinkan yang diharapkan dan konsistensi multi bidang dipertahankan.
+Langsung mengkonversi masukan jenis ke jenis data yang diharapkan, seperti menggunakan fungsi konversi yang menerjemahkan sebuah string menjadi sebuah nomor. Setelah konversi ke jenis data yang diharapkan, memastikan bahwa masukan nilai jatuh dalam kisaran yang diharapkan dari nilai-nilai yang diijinkan dan yang multi-bidang konsistensi yang tetap terjaga.
 
-Masukan harus diterjemahkan dan disinronkan ke representasi internal aplikasi saat ini sebelum divalidasi. Pastikan aplikasi Anda tidak sengaja memecahkan kode input yang sama dua kali . Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa. Gunakan perpustakaan seperti OWASP ESAPI Canonicalization control.
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak sengaja memecahkan kode input yang sama dua kali . Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa. Menggunakan perpustakaan seperti OWASP ESAPI kanonikalisasi kontrol.
 
-Pertimbangkan untuk melakukan kanonisasi berulang sampai masukan Anda tidak berubah lagi. Ini akan menghindari decoding ganda dan skenario serupa, namun mungkin secara tidak sengaja memodifikasi masukan yang diizinkan mengandung konten berbahaya yang dikodekan dengan benar.
+Pertimbangkan untuk melakukan kanonikalisasi sampai masukan kamu diulang tidak berubah lagi. Ini akan menghindari decoding-ganda dan skenario yang sama, tapi mungkin secara tidak sengaja memodifikasi masukan yang diperbolehkan untuk mengandung mengandung konten dengan benar-dikodekan.
 
-Saat bertukar data antar komponen, pastikan kedua komponen tersebut menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit tetapkan pengkodean yang Anda gunakan kapan pun protokol memungkinkan Anda melakukannya.
+Ketika bertukar data antara komponen-komponen, memastikan bahwa kedua komponen yang menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit mengatur pengkodean yang kamu gunakan kapan pun protokol ini memungkinkan kamu untuk melakukannya.
 
 Pada saat aplikasi anda mengkombinasikan data dari berbagai sumber, lakukan validasi setelah sumbernya dikombinasikan. Elemen data individual mungkin melewati tahap validasi tapi melanggar pembatasan yang dimaksudkan setelah dikombinasikan.</solution>
 	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
@@ -789,7 +791,7 @@ Untuk nama file, gunakan whitelist ketat yang membatasi karakter yang akan digun
 
 Peringatan: Jika Anda mencoba untuk membersihkan data Anda, maka lakukanlah agar hasil akhirnya tidak dalam bentuk yang bisa berbahaya. Mekanisme sanitasi dapat menghapus karakter seperti '.' dan ';' yang mungkin diperlukan untuk beberapa eksploitasi. Penyerang bisa mencoba mengelabui mekanisme sanitasi menjadi "membersihkan" data menjadi bentuk yang berbahaya. Misalkan penyerang menyuntikkan '.' di dalam nama file (misalnya "sensi.tiveFile") dan mekanisme sanitasi menghapus karakter yang menghasilkan nama file yang valid, "sensitiveFile". Jika data masukan sekarang diasumsikan aman, maka file tersebut dapat dikompromikan. 
 
-Masukan harus diterjemahkan dan disinronkan ke representasi internal aplikasi saat ini sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa.
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa.
 
 Gunakan fungsi kanonisasi jalur intern (seperti realpath() di C) yang menghasilkan versi kanonik dari nama jalan, yang secara efektif menghilangkan urutan ".." dan tautan simbolis.
 

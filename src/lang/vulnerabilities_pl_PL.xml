@@ -590,36 +590,36 @@ Każda lokacja gdzie dane opuszczają granicę aplikacji mogą być zaliczane do
 
 Niepoprawna obsługa danych wyjściowych może przyjmować różne formy w aplikacji.  Formy te mogą być kategoryzowane jako: błędy protokołu, błędy aplikacji i błędy zużycia zależnych danych.  Błędy protokołu obejmuję brakujące lub niepoprawne kodowanie wyjściowe lub pomijanie i przekazywanie złych danych.  Błędy aplikacji obejmują błędy logiczne takie jak przekazywane niepoprawnych danych lub przekazywanie szkodliwej zawartości niefiltrowanej.  Jeśli aplikacja nie odróżni poprawnie autentycznej zawartości od nieuprawnionej lub nie obejdzie znanych luk w zabezpieczeniach danych, może to spowodować nadużycie w korzystaniu z danych spowodowane niewłaściwą obsługą danych wyjściowych.
 
-Aplikacja, która nie dostarcza danych we właściwym kontekście, może umożliwić osobie atakującej na nadużycie konsumenta danych.  This can lead to specific threats referenced within the WASC Threat Classification, including Content Spoofing, Cross-Site Scripting, HTTP Response Splitting, HTTP Response Smuggling, LDAP Injection, OS Commanding, Routing Detour, Soap Array Abuse, URL Redirector, XML Injection, XQuery Injection, XPath Injection, Mail Command Injection, Null Injection and SQL Injection.
+Aplikacja, która nie dostarcza danych we właściwym kontekście, może umożliwić osobie atakującej na nadużycie konsumenta danych.  Może to prowadzić do określonych zagrożeń wymienionych w Klasyfikacji zagrożeń WASC, takich jak fałszowanie zawartości, Cross-Site Scripting, dzielenie odpowiedzi HTTP, HTTP Response Smuggling, Wstrzyknięcie LDAP, polecenia OS, objazd Routingu, nadużywanie Soap Array, przekierowanie adresu URL, wstrzyknięcie XML, Wstrzyknięcie XQuery, Wstrzyknięcie XPath, Mail Command Injection, Null Injection i SQL Injection.
 
-Właściwa obsługa danych wyjściowych zapobiega nieoczekiwanej lub niezamierzonej interpretacji danych przez konsumenta.  To achieve this objective, developers must understand the application's data model, how the data will be consumed by other portions of the application, and how it will ultimately be presented to the user.  Techniques for ensuring the proper handling of output include but are not limited to the filtering and sanitization of data (more detail on output sanitization and filtering can be found in appropriately titled sections below).  However, inconsistent use of selected output handling techniques may actually increase the risk of improper output handling if output data is overlooked or left untreated.  To ensure "defense in depth" developers must assume that all data within an application is untrusted when choosing appropriate output handling strategies.
+Właściwa obsługa danych wyjściowych zapobiega nieoczekiwanej lub niezamierzonej interpretacji danych przez konsumenta.  Do osiągniecie tego celu, deweloperzy muszą zrozumieć model danych aplikacji, jak dane będą konsumowane przez inne partie aplikacji i jak to będzie ostatecznie prezentowane użytkownikowi.  Techniki zapewnienia właściwej obsługi danych wyjściowych obejmują między innymi filtrowanie i sanityzacja danych (więcej szczegółów na temat sanityzacji i filtrowania danych wyjściowych można znaleźć w odpowiednio zatytułowanych sekcjach poniżej).  Natomiast, niekonsekwentne używanie wybranych technik obsługi danych wyjściowych mogą w rzeczywistości podnieść ryzyko niewłaściwej obsługi danych jeśli dane wejściowe są pominięte lub zostawione nieoczyszczone.  To zapewnienia "dogłębnej ochrony" deweloperzy muszą zakładać przy wyborze odpowiednich strategii obsługi wyjścia, że wszystkie dane w aplikacji są niezaufane.
 
-While proper output handling may take many different forms, an application cannot be secure unless it protects against unintended interpretations by the data consumer. This core requirement is essential for an application to securely handle output operations.</desc>
-	<solution>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Chociaż właściwa obsługa wyjścia może przybierać różne formy,, aplikacja nie może być bezpieczna dopóki nie ochrania przeciwko niezamierzonym interpretacjom przez konsumenta danych. Te kluczowe wymagania są niezbędne dla aplikacji do bezpiecznych operacji na danych wyjściowych.</desc>
+	<solution>Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
 
-For example, consider using the ESAPI Encoding control or a similar tool, library, or framework. These will help the programmer encode outputs in a manner less prone to error.
+Na przykład weź pod uwagę używanie kodowania kontrolnego ESAPI lub podobnych narzędzi, bibliotek lub struktur. Pomogą one programiście kodować wyjścia w sposób mniej podatny na błędy.
 
-Alternately, use built-in functions, but consider using wrappers in case those functions are discovered to have a vulnerability.
+Alternatywnie, używaj wbudowanych funkcji, ale weź pod uwagę używanie wrapperów na wypadek, gdyby odkryto, że te funkcje są podatne.
 
 Jeśli możliwe, używaj wymodelowane mechanizmy automatycznie wymuszające oddzielenie danych i kodu. Te mechanizmy mogą być w stanie zapewnić odpowiednie cytowanie, kodowanie i sprawdzanie poprawności automatycznie, zamiast polegać na programistach, aby zapewnić tę możliwość w każdym punkcie, w którym generowane są dane wyjściowe.
 
-For example, stored procedures can enforce database query structure and reduce the likelihood of SQL injection.
+Na przykład przechowywane procedury mogą wymuszać strukturę zapytań bazy danych i zmniejszać prawdopodobieństwo iniekcji SQL.
 
-Understand the context in which your data will be used and the encoding that will be expected. Jest to zwłaszcza ważne kiedy dane są transmitowane pomiędzy różnymi komponentami lub kiedy generowane są dane wyjściowe, które zawierają wielokrotne szyfrowanie w tym samym czasie, tak jak strony internetowe albo kilkuczęściowe wiadomości e-mail. Zbadaj wszystkie przewidywane protokoły komunikacyjne i reprezentacje danych, aby określić wymagane strategie kodowania.
+Zapoznaj się z kontekstem, w którym będą używane twoje dane i kodowaniem, jakiego się spodziewasz. Jest to zwłaszcza ważne kiedy dane są transmitowane pomiędzy różnymi komponentami lub kiedy generowane są dane wyjściowe, które zawierają wielokrotne szyfrowanie w tym samym czasie, tak jak strony internetowe albo kilkuczęściowe wiadomości e-mail. Zbadaj wszystkie przewidywane protokoły komunikacyjne i reprezentacje danych, aby określić wymagane strategie kodowania.
 
-In some cases, input validation may be an important strategy when output encoding is not a complete solution. For example, you may be providing the same output that will be processed by multiple consumers that use different encodings or representations. In other cases, you may be required to allow user-supplied input to contain control information, such as limited HTML tags that support formatting in a wiki or bulletin board. When this type of requirement must be met, use an extremely strict whitelist to limit which control sequences can be used. Verify that the resulting syntactic structure is what you expect. Use your normal encoding methods for the remainder of the input.
+W niektórych przypadkach, sprawdzanie poprawności danych wejściowych może być ważną strategią, gdy kodowanie wyjściowe nie jest zupełnym rozwiązaniem. Na przykład możesz dostarczyć te same dane wyjściowe, które będą przetwarzane przez wielu klientów używających różnych kodowań lub reprezentacji. W innych przypadkach może być wymagane zezwolenie, aby dane wejściowe dostarczone przez użytkownika zawierały informacje kontrolne, takie jak ograniczone znaczniki HTML, które obsługują formatowanie na wiki lub tablicy biuletynu. Gdy taki typ wymagania musi być spełniony, używaj ekstremalnie rygorystycznej białej listy do ograniczenia sekwencji kontrolnych, które mogą być użyte. Zweryfikuj czy skutkujące syntaktyczne struktury są takie jakie oczekujesz. Użyj standardowych metod kodowania dla pozostałej części danych wejściowych.
 
-Use input validation as a defense-in-depth measure to reduce the likelihood of output encoding errors (see CWE-20).
+Użyj weryfikacji danych wejściowych jako środek dogłębnej obrony do redukowania prawdopodobieństwa błędów kodowania danych wyjściowych (zobacz CWE-20).
 
-When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.</solution>
+Podczas wymiany danych między komponentami upewnij się, że oba komponenty używają tego samego kodowania znaków. Upewnij się, że jest zastosowane jest poprawne kodowanie w każdym interfejsie. Jawnie ustaw kodowanie, którego używasz, gdy tylko pozwala na to protokół.</solution>
 	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
 	<reference></reference>
 </vuln_item_wasc_22>
 
 <vuln_items>wasc_23</vuln_items>
 <vuln_item_wasc_23>
-	<alert>XML Injection</alert>
-	<desc>XML Injection is an attack technique used to manipulate or compromise the logic of an XML application or service. The injection of unintended XML content and/or structures into an XML message can alter the intend logic of the application. Further, XML injection can cause the insertion of malicious content into the resulting message/document.</desc>
+	<alert>Iniekcja XML</alert>
+	<desc>Iniekcja XML jest techniką ataku używaną do manipulowania lub naruszenia logiki aplikacji lub usługi XML. Wstrzyknięcie niezamierzonej treści XML i / lub struktur do komunikatu XML może zmienić zamierzoną logikę aplikacji. Ponadto, iniekcja XML może spowodować wstawienie złośliwej treści do powstałej wiadomości / dokumentu.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-Injection</reference>
 	<reference></reference>
@@ -627,11 +627,12 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
-	<alert>HTTP Request Splitting</alert>
-	<desc>HTTP Request Splitting is an attack that enables forcing the browser to send arbitrary HTTP requests, inflicting XSS and poisoning the browser's cache. The essence of the attack is the ability of the attacker, once the victim (browser) is forced to load the attacker's malicious HTML page, to manipulate one of the browser's functions to send 2 HTTP requests instead of one HTTP request. Two such mechanisms have been exploited to date: the XmlHttpRequest object (XHR for short) and the HTTP digest authentication mechanism. For this attack to work, the browser must use a forward HTTP proxy (not all of them "support" this attack), or the attack must be carried out against a host located on the same IP (from the browser's perspective) with the attacker's machine.</desc>
-	<solution>Avoid using CRLF as a special sequence.
+	<alert>Rozdzielenie Żądania HTTP</alert>
+	<desc>Rozdzielenie Żądania HTTP jest atakiem, który umożliwia zmuszenie przeglądarki do wysyłania dowolnych żądań HTTP, zadania XSS i zatruwania pamięci podręcznej przeglądarki. Istotą ataku jest zdolność atakującego, kiedy ofiara (przeglądarka) jest zmuszona załadować złośliwą stronę atakującego, aby manipulować jedną z funkcji przeglądarki w celu wysłania 2 żądań HTTP zamiast jednego żądania HTTP. Dwa takie mechanizmy były wykorzystywane do tej pory: obiekt XmlHttpRequest (skrót XHR) i skrót mechanizmu uwierzytelnienia HTTP. Aby ten atak zadziałał, przeglądarka musi używać serwera proxy HTTP (nie wszystkie z nich "obsługuje" ten atak) lub atak musi zostać przeprowadzony na hoście znajdującym się w tym samym IP (z punktu widzenia przeglądarki) co komputer hakera.</desc>
+	<solution>Unikaj używania CRLF jako specjalnej sekwencji.
 
-Appropriately filter or quote CRLF sequences in user-controlled input.</solution>
+
+Odpowiednio filtruj lub cytuj sekwencje CRLF w danych wprowadzanych przez użytkownika.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
 </vuln_item_wasc_24>
@@ -639,12 +640,12 @@ Appropriately filter or quote CRLF sequences in user-controlled input.</solution
 <vuln_items>wasc_25</vuln_items>
 <vuln_item_wasc_25>
 	<alert>HTTP Response Splitting</alert>
-	<desc>In the HTTP Response Splitting attack, there are always 3 parties (at least) involved:
-    * Web server, which has a security hole enabling HTTP Response Splitting
-    * Target - an entity that interacts with the web server perhaps on behalf of the attacker. Typically this is a cache server forward/reverse proxy), or a browser (possibly with a browser cache).
-    * Attacker - initiates the attack
+	<desc>W ataku Podzielonego Żądania HTTP są zawsze zaangażowane 3 partie(przynajmniej):
+    *Serwer sieci Web, który ma lukę bezpieczeństwa umożliwiającą Podzielenie Żądania HTTP.
+    *Cel - jednostka, która wchodzi w interakcję z serwerem sieciowym w imieniu atakującego. Zwykle jest to bufor serwera z przednim/odwróconym proxy), lub przeglądarka (ewentualnie z pamięcią podręczną przeglądarki).
+    * Atakujący - rozpoczyna atak
 
-The essence of HTTP Response Splitting is the attacker's ability to send a single HTTP request that forces the web server to form an output stream, which is then interpreted by the target as two HTTP responses instead of one response, in the normal case. The first response may be partially controlled by the attacker, but this is less important. What is material is that the attacker completely controls the form of the second response from the HTTP status line to the last byte of the HTTP response body. Once this is possible, the attacker realizes the attack by sending two requests through the target. The first one invokes two responses from the web server, and the second request would typically be to some "innocent" resource on the web server. However, the second request would be matched, by the target, to the second HTTP response, which is fully controlled by the attacker. The attacker, therefore, tricks the target into believing that a particular resource on the web server (designated by the second request) is the server's HTTP response (server content), while it is in fact some data, which is forged by the attacker through the web server - this is the second response.
+Istotą Podzielonego Żądania HTTP jest zdolność atakującego do wysłania pojedynczego żądania HTTP, które zmusza serwer WWW do utworzenia strumienia wyjściowego, który jest w normalnym przypadku interpretowany przez cel jako dwie odpowiedzi HTTP zamiast jednej. Pierwsza reakcja może być częściowo kontrolowana przez atakującego, ale jest to mniej ważne. Istotne jest to, że atakujący całkowicie kontroluje formę drugiej odpowiedzi z linii statusu HTTP do ostatniego bajtu treści odpowiedzi HTTP. Gdy jest to możliwe, atakujący realizuje atak wysyłając dwie prośby poprzez cel. The first one invokes two responses from the web server, and the second request would typically be to some "innocent" resource on the web server. However, the second request would be matched, by the target, to the second HTTP response, which is fully controlled by the attacker. The attacker, therefore, tricks the target into believing that a particular resource on the web server (designated by the second request) is the server's HTTP response (server content), while it is in fact some data, which is forged by the attacker through the web server - this is the second response.
 
 HTTP Response Splitting attacks take place where the server script embeds user data in HTTP response headers. This typically happens when the script embeds user data in the redirection URL of a redirection response (HTTP status code 3xx), or when the script embeds user data in a cookie value or name when the response sets a cookie.</desc>
 	<solution>Construct HTTP headers very carefully, avoiding the use of non-validated input data.</solution>
@@ -753,9 +754,9 @@ To może nie być wykonalne rozwiązanie i ogranicza wpływ tylko na system oper
 
 For any data that will be used to generate a command to be executed, keep as much of that data out of external control as possible. For example, in web applications, this may require storing the command locally in the session's state instead of sending it out to the client in a hidden form field.
 
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
 
-For example, consider using the ESAPI Encoding control or a similar tool, library, or framework. These will help the programmer encode outputs in a manner less prone to error.
+Na przykład weź pod uwagę używanie kodowania kontrolnego ESAPI lub podobnych narzędzi, bibliotek lub struktur. Pomogą one programiście kodować wyjścia w sposób mniej podatny na błędy.
 
 If you need to use dynamically-generated query strings or commands in spite of the risk, properly quote arguments and escape any special characters within those arguments. Najbardziej konserwatywnym sposobem na uniknięcie lub filtrowanie wszystkich znaków, które nie przejdą ekstremalnie rygorystycznej białej listy(takich jak wszystkich, które nie są alfanumeryczne lub nie są znakami kontrolnymi). Jeśli kilka specjalnych znaków jest potrzebnych, takie jak znak kontrolny, opakuj każdy argumenty w cytat zaraz po kroku unikania/filtrowania. Be careful of argument injection.
 
