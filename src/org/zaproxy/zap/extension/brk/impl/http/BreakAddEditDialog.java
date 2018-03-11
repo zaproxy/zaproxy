@@ -156,4 +156,8 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 		dispose();
 	}
 	
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.addbreak";
+	}
 }

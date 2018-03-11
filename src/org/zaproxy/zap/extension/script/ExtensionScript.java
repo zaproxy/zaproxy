@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.script;
 
 import java.awt.EventQueue;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -574,9 +572,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void saveScript(ScriptWrapper script) throws IOException {
 		refreshScript(script);
-        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), DEFAULT_CHARSET)) {
-            bw.append(script.getContents());
-        }
+		script.saveScript();
         this.setChanged(script, false);
         // The removal is required for script that use wrappers, like Zest
 		this.getScriptParam().removeScript(script);
@@ -1024,16 +1020,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		if (charset == null) {
 			throw new IllegalArgumentException("Parameter charset must not be null.");
 		}
-	    StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), charset)) {
-			int len;
-			char[] buf = new char[1024];
-			while ((len = br.read(buf)) != -1) {
-			    sb.append(buf, 0, len);
-			}
-		}
-        script.setContents(sb.toString());
-        script.setChanged(false);
+		script.loadScript(charset);
         
         if (script.getType() == null) {
         	// This happens when scripts are loaded from the configs as the types 
@@ -1168,6 +1155,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	    // Set the script name as a context attribute - this is used for script level variables 
 	    se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
+	    
+	    if (script.hasChangedOnDisk() && ! script.isChanged()) {
+	        try {
+                logger.debug("Reloading script as its been changed on disk " + script.getFile().getAbsolutePath());
+                script.reloadScript();
+            } catch (IOException e) {
+                logger.error("Failed to reload script " + script.getFile().getAbsolutePath(), e);
+            }
+	    }
 
 	    try {
 	    	se.eval(script.getContents());

@@ -54,7 +54,7 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest {
     }
 
     @Test
-    public void shouldThrownExceptionIfDirectoryIsNull() {
+    public void shouldLoadAllVulnerabilitiesFilesAvailable() {
         // Given
         Map<String, Vulnerability> mainVulns = loadFile(SOURCE_FILE);
         List<String> translations = loader.getListOfVulnerabilitiesFiles();
@@ -76,8 +76,11 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest {
     }
 
     private Map<String, Vulnerability> loadFile(String fileName) {
+        List<Vulnerability> vulnerabilities = loader.loadVulnerabilitiesFile(DIRECTORY.resolve(fileName));
+        assertThat("File " + fileName + " is not wellformed.", vulnerabilities, is(notNullValue()));
+
         Map<String, Vulnerability> map = new HashMap<>();
-        for (Vulnerability vulnerability : loader.loadVulnerabilitiesFile(DIRECTORY.resolve(fileName))) {
+        for (Vulnerability vulnerability : vulnerabilities) {
             map.put(vulnerability.getId(), vulnerability);
         }
         return map;

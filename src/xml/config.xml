@@ -228,6 +228,11 @@
 				<enabled>true</enabled>
 				<name>anoncsrf</name>
 			</token>
+			<token>
+				<!-- https://docs.djangoproject.com/en/2.0/ref/templates/builtins/#std:templatetag-csrf_token -->
+				<enabled>true</enabled>
+				<name>csrf_token</name>
+			</token>
 		</tokens>
 	</anticsrf>
 

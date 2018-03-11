@@ -3,8 +3,10 @@ package org.zaproxy.zap.eventBus;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -127,6 +129,34 @@ public class SimpleEventBus implements EventBus {
 	}
 
 	@Override
+	public void unregisterConsumer(EventConsumer consumer) {
+		if (consumer == null) {
+			throw new InvalidParameterException("Consumer must not be null");
+		}
+
+		regMgmtLock.lock();
+		try {
+			log.debug("unregisterConsumer " + consumer.getClass().getCanonicalName());
+			for (Entry<String, RegisteredPublisher> entry : nameToPublisher.entrySet()) {
+				entry.getValue().removeComsumer(consumer);
+			}
+			// Check to see if its cached waiting for a publisher
+			removeDanglingConsumer(consumer);
+		} finally {
+			regMgmtLock.unlock();
+		}
+	}
+	
+	private void removeDanglingConsumer(EventConsumer consumer) {
+		Iterator<RegisteredConsumer> iter = this.danglingConsumers.iterator();
+		while (iter.hasNext()) {
+			if (iter.next().getConsumer().equals(consumer)) {
+				iter.remove();
+			}
+		}
+	}
+
+	@Override
 	public void unregisterConsumer(EventConsumer consumer, String publisherName) {
 		if (consumer == null) {
 			throw new InvalidParameterException("Consumer must not be null");
@@ -140,18 +170,12 @@ public class SimpleEventBus implements EventBus {
 				publisher.removeComsumer(consumer);
 			} else {
 				// Check to see if its cached waiting for the publisher
-				for (RegisteredConsumer regCon : this.danglingConsumers) {
-					if (regCon.getConsumer().equals(consumer)) {
-						this.danglingConsumers.remove(regCon);
-						break;
-					}
-				}
+				removeDanglingConsumer(consumer);
 			}
 		} finally {
 			regMgmtLock.unlock();
 		}
 	}
-
 
 	@Override
 	public void publishSyncEvent(EventPublisher publisher, Event event) {

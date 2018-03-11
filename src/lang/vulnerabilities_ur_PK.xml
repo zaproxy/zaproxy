@@ -3,12 +3,12 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
-	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+	<alert>ناکافی توثیق</alert>
+	<desc>ناکافی توثیق اس وقت ہوتی ہے جب مناسب طریقے سے تصدیق کرنے کے لۓ کوئی ویب سائٹ حساس مواد یا فعالیت تک رسائی حاصل کرنے کے لئے حملہ آور کی اجازت دیتا ہے. ویب پر مبنی انتظامی اوزار حساس فعالیت تک رسائی فراہم کرنے والے ویب سائٹس کا ایک اچھا مثال ہیں. مخصوص آن لائن وسائل پر منحصر ہے، یہ ویب ایپلی کیشنز کو براہ راست ان کی شناخت کو درست کرنے کے لئے صارف کی ضرورت ہوتی ہے بغیر براہ راست قابل رسائی نہیں ہونا چاہئے.
 
-To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+تصدیق کی ترتیب کے ارد گرد حاصل کرنے کے لئے، کچھ وسائل مخصوص جگہ "چھپی ہوئی" کی طرف سے محفوظ اور مرکزی ویب سائٹ یا دیگر عوامی جگہوں میں مقام کو منسلک نہیں کر رہے ہیں. تاہم، یہ نقطہ نظر "غیر معمولی ذریعے سیکورٹی" سے زیادہ کچھ نہیں ہے. سمجھنے کے لئے ضروری ہے کہ اگرچہ ایک وسائل حملہ آور کو نامعلوم نہیں ہے، یہ ابھی تک براہ راست مخصوص یو آر ایل کے ذریعہ قابل رسائی رہتا ہے. مخصوص یو آر ایل کو عام فائل اور ڈائرکٹری کے مقامات (مثال کے طور پر منتظم)، خرابی کے پیغامات، ریفریر لاگ ان، یا دستاویزات جیسے فائلوں کی مدد کے بارے میں تلاش کرنے والے ایکٹ یوٹ کے ذریعہ تلاش کیا جاسکتا ہے. یہ وسائل، چاہے وہ مواد یا فعالیت پر مبنی ہیں، مناسب طور پر محفوظ ہونا چاہئے.</desc>
+	<solution>مرحلہ: فن تعمیر اور ڈیزائن
+ایک مستند کاری فریم ورک یا لائبریری کا استعمال کریں جیسے OWASP ESAPI توثیقی خصوصیت.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -16,29 +16,29 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<alert>ناکافی اختیار</alert>
+	<desc>ناکافی اختیار کے نتائج جب اطلاق مناسب اجازت کے چیکز کو انجام نہیں دیتا تو یہ یقینی بنانے کے لئے کہ صارف کسی فنکشن کو انجام دینے یا ڈیٹا تک رسائی حاصل کرسکتا ہے جسے سیکورٹی کی پالیسی کے ساتھ مطابقت رکھتا ہے. اجازت دینے کے طریقہ کار کو لاگو کرنا چاہئے کہ صارف، سروس یا ایپلی کیشن کو کیا کرنے کی اجازت ہے. جب صارف کسی ویب سائٹ پر توثیق کی جاتی ہے، تو اس کا مطلب یہ نہیں ہوتا کہ صارف کو تمام مواد اور فعالیت کی مکمل رسائی حاصل ہوگی.
 
-Insufficient Function Authorization
+ناکافی فنکشن اختیار
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
+بہت سے ایپلی کیشنز مختلف صارفین کو مختلف درخواست کی فعالیت فراہم کرتی ہیں. ایک خبر سائٹ صارفین کو نیوز کہانیوں کو دیکھنے کی اجازت دیتا ہے، لیکن انہیں شائع نہیں کرے گا. ایک اکاؤنٹنگ سسٹم اکاؤنٹس قابل پبلک کلرک اور ایک اکاؤنٹس وصول کرنے والے کلرک کے لئے مختلف اجازت ہوگی. ناکافی فنکشن کا اختیار ہوتا ہے جب صارف کو سیکورٹی پالیسی کی خلاف ورزی میں درخواست کی فعالیت تک رسائی حاصل کرنے سے روکنے کی اجازت نہیں دیتا ہے.
 
-A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
+ہارورڈ بزنس اسکول کی درخواست کے عمل کے ایک بہت ہی مثال کے طور پر 2005 ہیک تھا. اجازت کی ناکامی نے صارف کو ان کے اپنے ڈیٹا کو دیکھنے کی اجازت دی ہے جب انہیں ویب سائٹ کے اس حصے تک رسائی حاصل کرنے کی اجازت نہیں دی جاسکتی ہے.
  
-Insufficient Data Authorization
+ناکافی ڈیٹا اختیار
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+بہت سے ایپلی کیشنز ایک یو آر ایل میں بنیادی اعداد و شمار کے شناخت سے متعلق ہیں. مثال کے طور پر، جب کسی نظام پر طبی ریکارڈ تک رسائی حاصل ہو تو اس میں ایک ایسا URL ہو سکتا ہے جیسے:
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+اگر درخواست کی جانچ پڑتال نہیں کی جاتی ہے توثیق شدہ صارف کی شناخت نے حقوق کو پڑھا ہے، تو وہ اس صارف کو ڈیٹا دکھا سکتا ہے جو صارف کو نہیں دیکھنا چاہئے.
 
-Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software.
+ناکافی ڈیٹا اختیار غیر موثر فنکشن اختیار سے زیادہ عام ہے کیونکہ پروگرامرز عموما درخواست کی فعالیت کا مکمل علم رکھتے ہیں، لیکن ہمیشہ ان تمام اعداد و شمار کے مکمل میپنگ نہیں ہیں جو درخواست تک رسائی حاصل کریں گے. پروگرامرز اکثر فعالیت اختیار میکانیزم پر سخت کنٹرول رکھتا ہے، لیکن ڈیٹا بیسز کے طور پر ڈیٹا بیسز کو دوسرے نظاموں پر انحصار کرتی ہے.</desc>
+	<solution>مرحلے: فن تعمیر اور ڈیزائن؛ آپریشن
+بہت احتیاط سے ترتیب، انتظام، اور استحصال کو سنبھالنے کا انتظام. واضح طور پر سافٹ ویئر میں اعتماد زونز کا انتظام کریں.
 
-Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
+مرحلہ: فن تعمیر اور ڈیزائن
+یقینی بنائیں کہ مناسب ڈمپبلائزیشن کو نظام کے ڈیزائن میں بنایا جاسکتا ہے اور یہ کہ ڈسلبیلائزیشن کو استحکام علیحدگی کی فعالیت کو فروغ دینا اور مزید کو مستحکم کرنے کی ضرورت ہے. آرکیٹیکٹس اور ڈیزائنرز کو کم از کم استحکام کے اصول پر بھروسہ کرنا چاہئے جب اسے مناسب طریقے سے استعمال کرنا اور نظام استحقاق کو چھوڑنا ہے.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -46,24 +46,24 @@ Ensure that appropriate compartmentalization is built into the system design and
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<alert>بہاؤ بہاؤ سے زیادہ</alert>
+	<desc>ایک انٹگر اوور فلو ایسی شرط ہے جو اس وقت ہوتی ہے جب ریاضی کی کارروائی، جیسے ضرب یا اضافی طور پر، اس کو ذخیرہ کرنے کے لئے استعمال کیا جاتا انوگر قسم کے زیادہ سے زیادہ سائز سے زیادہ ہے. جب ایک اندرونی بہاؤ بہاؤ ہوتا ہے تو، تشخیص کی قیمت زیادہ سے زیادہ قیمت "کے ارد گرد لپیٹ" ہو گا اور کم سے کم قیمت پر دوبارہ شروع ہوتا ہے، جس میں ایک بجے جیسے 13:00 کی نمائندگی کرتا ہے جو 1:00 بجے کی طرف اشارہ کرتا ہے.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+مثال کے طور پر، سب سے زیادہ عام کمپیوٹر آرکیٹیکچرز کے ایک 8 بٹ سائن ان انوگر 127 کی زیادہ سے زیادہ قیمت اور 128 کی کم سے کم قیمت ہے. اگر کوئی پروگرامر قیمت 127 اس طرح کے متغیر میں ذخیرہ کرتا ہے اور اس سے 1 جوڑتا ہے، تو نتیجہ 128 ہونا چاہئے. تاہم، یہ قیمت اس عدد قسم کے لئے زیادہ سے زیادہ ہے، لہذا تشخیص شدہ قیمت "کے ارد گرد لپیٹ" اور ہو جائے گا -128.</desc>
+	<solution>مرحلہ: ضروریات
+یقینی بنائیں کہ تمام پروٹوکول کو سختی سے بیان کیا جاتا ہے، اس طرح کہ سب سے زیادہ حد کے رویے کو آسانی سے شناخت کیا جاسکتا ہے، اور پروٹوکول کو سخت اطمینان کی ضرورت ہوتی ہے.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-If possible, choose a language or compiler that performs automatic bounds checking.
+مرحلہ: ضروریات
+ایک ایسی زبان کا استعمال کریں جو اس کی کمزوریت کی وجہ سے نہ ہونے کی اجازت دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے سے بچنے میں آسان ہے.
+اگر ممکن ہو تو، ایک زبان یا کمپائلر کا انتخاب کریں جو خود کار طریقے سے پابند جانچ پڑتا ہے.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+مرحلہ: فن تعمیر اور ڈیزائن
+ایک ایسی لائبریری یا فریم ورک کا استعمال کریں جو اس ضعیف کی وجہ سے ہونے کی اجازت نہیں دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے کے لئے آسان ہے.
+لائبریریوں یا فریم ورک کا استعمال کریں جو غیر متوقع نتائج کے بغیر نمبروں کو ہینڈل کرنے میں آسان بنائے.
+مثال میں محفوظ انٹیگر ہینڈلنگ پیکیجز جیسے SafeInt (C ++) یا IntegerLib (C یا C ++) شامل ہیں.
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
+مرحلہ: عمل
+کسی بھی عددی ان پٹ پر ان پٹ کی توثیق کو یقینی بنائیں کہ یہ متوقع رینج میں ہے. Enforce that the input meets both the minimum and maximum requirements for the expected range.
 Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
 
 Phase: Implementation
@@ -198,13 +198,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>مرحلہ: ضروریات
+ایک ایسی زبان کا استعمال کریں جو اس کی کمزوریت کی وجہ سے نہ ہونے کی اجازت دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے سے بچنے میں آسان ہے.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+مرحلہ: فن تعمیر اور ڈیزائن
+ایک ایسی لائبریری یا فریم ورک کا استعمال کریں جو اس ضعیف کی وجہ سے ہونے کی اجازت نہیں دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے کے لئے آسان ہے.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -242,8 +242,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>مرحلہ: فن تعمیر اور ڈیزائن
+ایک ایسی لائبریری یا فریم ورک کا استعمال کریں جو اس ضعیف کی وجہ سے ہونے کی اجازت نہیں دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے کے لئے آسان ہے.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -282,8 +282,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>مرحلہ: فن تعمیر اور ڈیزائن
+ایک ایسی لائبریری یا فریم ورک کا استعمال کریں جو اس ضعیف کی وجہ سے ہونے کی اجازت نہیں دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے کے لئے آسان ہے.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -483,8 +483,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>مرحلہ: فن تعمیر اور ڈیزائن
+ایک ایسی لائبریری یا فریم ورک کا استعمال کریں جو اس ضعیف کی وجہ سے ہونے کی اجازت نہیں دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے کے لئے آسان ہے.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.

@@ -56,7 +56,14 @@ public interface EventBus {
 	void registerConsumer (EventConsumer consumer, String publisherName, String[] eventTypes);
 	
 	/**
-	 * Unregister the consumer
+	 * Unregister the consumer from all publishers
+	 * @param consumer the consumer of events
+	 * @since TODO add version
+	 */
+	void unregisterConsumer(EventConsumer consumer);
+	
+	/**
+	 * Unregister the consumer from the specified publisher
 	 * @param consumer the consumer of events
 	 * @param publisherName the name of the publisher
 	 */
