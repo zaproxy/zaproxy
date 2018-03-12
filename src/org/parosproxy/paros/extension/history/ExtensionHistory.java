@@ -84,6 +84,7 @@
 // ZAP: 2017/11/22 Delete just the history references selected (Issue 4065).
 // ZAP: 2018/01/29 Add getter to expose historyReferencesTable of History tab (Issue 4000).
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/03/12 Use the same help page in request editors.
 
 package org.parosproxy.paros.extension.history;
 
@@ -565,7 +566,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	public ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
-			resendDialog = new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.resend");
+			resendDialog = new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
 			resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));	// ZAP: i18n
 		}
 		return resendDialog;
