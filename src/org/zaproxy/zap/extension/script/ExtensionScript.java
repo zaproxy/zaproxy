@@ -540,9 +540,21 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 	}
 	
+	private void reloadIfChangedOnDisk(ScriptWrapper script) {
+		if (script.hasChangedOnDisk() && ! script.isChanged()) {
+			try {
+				logger.debug("Reloading script as its been changed on disk " + script.getFile().getAbsolutePath());
+				script.reloadScript();
+			} catch (IOException e) {
+				logger.error("Failed to reload script " + script.getFile().getAbsolutePath(), e);
+			}
+		}
+	}
+	
 	public ScriptWrapper getScript(String name) {
 		ScriptWrapper script =  this.getTreeModel().getScript(name);
 		refreshScript(script);
+		reloadIfChangedOnDisk(script);
 		return script;
 	}
 	
@@ -1155,15 +1167,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	    // Set the script name as a context attribute - this is used for script level variables 
 	    se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
-	    
-	    if (script.hasChangedOnDisk() && ! script.isChanged()) {
-	        try {
-                logger.debug("Reloading script as its been changed on disk " + script.getFile().getAbsolutePath());
-                script.reloadScript();
-            } catch (IOException e) {
-                logger.error("Failed to reload script " + script.getFile().getAbsolutePath(), e);
-            }
-	    }
+	    reloadIfChangedOnDisk(script);
 
 	    try {
 	    	se.eval(script.getContents());
