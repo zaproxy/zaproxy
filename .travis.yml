@@ -1,6 +1,15 @@
 language: java
+
+before_install:
+  - mkdir -p $HOME/bin
+  - curl -fsSL https://testspace-client.s3.amazonaws.com/testspace-linux.tgz | tar -zxvf- -C $HOME/bin
+  - testspace config url $TS_ORG.testspace.com
+  
 script: ant -buildfile build/build.xml test
 
+after_script:
+  -  testspace [${TRAVIS_JDK_VERSION}]build/results/TEST-*.xml{test};
+ 
 jdk:
   - oraclejdk8
   - openjdk8
