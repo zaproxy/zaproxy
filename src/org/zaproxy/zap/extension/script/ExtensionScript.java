@@ -150,7 +150,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         
         ScriptEngine se = mgr.getEngineByName("ECMAScript");
         if (se != null) {
-        	this.registerScriptEngineWrapper(new JavascriptEngineWrapper(se));
+        	this.registerScriptEngineWrapper(new JavascriptEngineWrapper(se.getFactory()));
         } else {
         	logger.error("No Javascript/ECMAScript engine found");
         }
@@ -426,7 +426,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			}
 		}
 		if (engine != null) {
-			DefaultEngineWrapper dew = new DefaultEngineWrapper(engine);
+			DefaultEngineWrapper dew = new DefaultEngineWrapper(engine.getFactory());
 			this.registerScriptEngineWrapper(dew);
 			return dew;
 		}
