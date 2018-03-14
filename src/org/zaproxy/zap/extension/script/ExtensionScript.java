@@ -552,10 +552,25 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 	
 	public ScriptWrapper getScript(String name) {
-		ScriptWrapper script =  this.getTreeModel().getScript(name);
-		refreshScript(script);
-		reloadIfChangedOnDisk(script);
+		ScriptWrapper script = getScriptImpl(name);
+		if (script != null) {
+			refreshScript(script);
+			reloadIfChangedOnDisk(script);
+		}
 		return script;
+	}
+
+	/**
+	 * Gets the script with the given name.
+	 * <p>
+	 * Internal method that does not perform any actions on the returned script.
+	 *
+	 * @param name the name of the script.
+	 * @return the script, or {@code null} if it doesn't exist.
+	 * @see #getScript(String)
+	 */
+	private ScriptWrapper getScriptImpl(String name) {
+		return this.getTreeModel().getScript(name);
 	}
 	
 	public ScriptNode addScript(ScriptWrapper script) {
@@ -876,7 +891,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * Returns a unique name for the given script name
 	 */
 	private String getUniqueScriptName(String name, String ext) {
-		if (this.getScript(name) == null) {
+		if (this.getScriptImpl(name) == null) {
 			// Its unique
 			return name;
 		}
@@ -887,7 +902,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			index++;
 			name = stub + "(" + index + ")." + ext;
 		}
-		while (this.getScript(name) != null);
+		while (this.getScriptImpl(name) != null);
 		
 		return name;
 	}
