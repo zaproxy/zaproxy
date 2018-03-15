@@ -21,6 +21,7 @@
 package org.zaproxy.zap.extension.script;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.swing.ImageIcon;
 
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -37,8 +38,26 @@ public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 	 */
 	private static ImageIcon icon;
 
+	/**
+	 * Constructs a {@code JavascriptEngineWrapper} with the given engine (to obtain a factory).
+	 *
+	 * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
+	 * @deprecated (TODO add version) Use {@link #JavascriptEngineWrapper(ScriptEngineFactory)} instead.
+	 */
+	@Deprecated
 	public JavascriptEngineWrapper(ScriptEngine engine) {
 		super(engine);
+	}
+
+	/**
+	 * Constructs a {@code JavascriptEngineWrapper} with the given engine factory.
+	 *
+	 * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for example, engine name, language).
+	 * @since TODO add version
+	 * @see #getEngine()
+	 */
+	public JavascriptEngineWrapper(ScriptEngineFactory factory) {
+		super(factory);
 	}
 
 	@Override
