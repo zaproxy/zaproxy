@@ -47,10 +47,12 @@
 // ZAP: 2016/05/31 Implement hashCode()
 // ZAP: 2017/02/01 Set whether or not the charset should be determined when setting a (String) response.
 // ZAP: 2017/08/23 queryEquals correct comparison and add JavaDoc. equalType update JavaDoc.
+// ZAP: 2018/03/13 Added toEventData()
 
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,6 +69,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpRequestBody;
@@ -79,6 +82,14 @@ import org.zaproxy.zap.users.User;
  * 
  */
 public class HttpMessage implements Message {
+
+    public static final String EVENT_DATA_URI = "uri";
+    public static final String EVENT_DATA_REQUEST_HEADER = "requestHeader";
+    public static final String EVENT_DATA_REQUEST_BODY = "requestBody";
+    public static final String EVENT_DATA_RESPONSE_HEADER = "responseHeader";
+    public static final String EVENT_DATA_RESPONSE_BODY = "responseBody";
+    
+    public static final String MESSAGE_TYPE = "HTTP";
 
 	private HttpRequestHeader mReqHeader = new HttpRequestHeader();
 	private HttpRequestBody mReqBody = new HttpRequestBody();
@@ -957,5 +968,30 @@ public class HttpMessage implements Message {
      */
     public void setResponseFromTargetHost(final boolean responseFromTargetHost) {
         this.responseFromTargetHost = responseFromTargetHost;
+    }
+    
+    /**
+     * Returns a map of data suitable for including in an {@link Event}
+     * @since TODO add version
+     */
+    @Override
+    public Map<String, String> toEventData() { 
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(EVENT_DATA_URI, getRequestHeader().getURI().toString());
+        map.put(EVENT_DATA_REQUEST_HEADER, getRequestHeader().toString());
+        map.put(EVENT_DATA_REQUEST_BODY, getRequestBody().toString());
+        if (! getResponseHeader().isEmpty()) {
+            map.put(EVENT_DATA_RESPONSE_HEADER, getResponseHeader().toString());
+            map.put(EVENT_DATA_RESPONSE_BODY, getResponseBody().toString());
+        }
+        return map;
+    }
+    
+    /**
+     * Returns "HTTP"
+     * @since TODO add version
+     */
+    public String getType() {
+        return MESSAGE_TYPE;
     }
 }

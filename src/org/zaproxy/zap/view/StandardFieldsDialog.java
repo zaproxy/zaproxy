@@ -192,6 +192,9 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 */
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels, boolean modal) {
 		super(owner, modal);
+		if (modal) {
+			setModalityType(ModalityType.DOCUMENT_MODAL);
+		}
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setTitle(Constant.messages.getString(titleLabel));
 		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..

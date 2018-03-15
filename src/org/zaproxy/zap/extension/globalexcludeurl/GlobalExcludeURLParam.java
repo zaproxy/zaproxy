@@ -219,7 +219,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
             
             getConfig().setProperty(elementBaseKey + TOKEN_REGEX_KEY, token.getRegex());
             getConfig().setProperty(elementBaseKey + TOKEN_DESCRIPTION_KEY, token.getDescription());
-            getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, Boolean.valueOf(token.isEnabled()));
+            getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, token.isEnabled());
             
             if (token.isEnabled()) {
                 enabledTokens.add(token.getRegex());
@@ -257,7 +257,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
     @ZapApiIgnore
     public void setConfirmRemoveToken(boolean confirmRemove) {
         this.confirmRemoveToken = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, Boolean.valueOf(confirmRemoveToken));
+        getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, confirmRemoveToken);
     }
 
 }

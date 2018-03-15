@@ -1161,6 +1161,60 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                                 attribute("att2", "value2"))))));
     }
 
+    @Test
+    public void shouldParseGetFormAndIncludeRelatedInputsWithFormAttribute() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "FormAndInputsWithFormAttributes.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.org/?field1=Field1&field2=Field2&field3=Field3&field4=Field4&submit=Submit1",
+                        "http://example.org/?field1=Field1&field2=Field2&field3=Field3&field4=Field4&submit=Submit2",
+                        "http://example.org/?field1=Field1&field2=Field2&field3=Field3&field4=Field4&submit=Submit3"));
+    }
+
+    @Test
+    public void shouldParsePostFormAndIncludeRelatedInputsWithFormAttribute() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("POST", "FormAndInputsWithFormAttributes.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Field1&submit=Submit1&field2=Field2&field3=Field3&field4=Field4"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Field1&submit=Submit2&field2=Field2&field3=Field3&field4=Field4"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Field1&submit=Submit3&field2=Field2&field3=Field3&field4=Field4")));
+    }
+
     private static String formattedDate(String format, Date date) {
         return new SimpleDateFormat(format).format(date);
     }

@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.script;
 
 import java.awt.EventQueue;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -152,7 +150,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         
         ScriptEngine se = mgr.getEngineByName("ECMAScript");
         if (se != null) {
-        	this.registerScriptEngineWrapper(new JavascriptEngineWrapper(se));
+        	this.registerScriptEngineWrapper(new JavascriptEngineWrapper(se.getFactory()));
         } else {
         	logger.error("No Javascript/ECMAScript engine found");
         }
@@ -428,7 +426,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			}
 		}
 		if (engine != null) {
-			DefaultEngineWrapper dew = new DefaultEngineWrapper(engine);
+			DefaultEngineWrapper dew = new DefaultEngineWrapper(engine.getFactory());
 			this.registerScriptEngineWrapper(dew);
 			return dew;
 		}
@@ -542,10 +540,37 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 	}
 	
+	private void reloadIfChangedOnDisk(ScriptWrapper script) {
+		if (script.hasChangedOnDisk() && ! script.isChanged()) {
+			try {
+				logger.debug("Reloading script as its been changed on disk " + script.getFile().getAbsolutePath());
+				script.reloadScript();
+			} catch (IOException e) {
+				logger.error("Failed to reload script " + script.getFile().getAbsolutePath(), e);
+			}
+		}
+	}
+	
 	public ScriptWrapper getScript(String name) {
-		ScriptWrapper script =  this.getTreeModel().getScript(name);
-		refreshScript(script);
+		ScriptWrapper script = getScriptImpl(name);
+		if (script != null) {
+			refreshScript(script);
+			reloadIfChangedOnDisk(script);
+		}
 		return script;
+	}
+
+	/**
+	 * Gets the script with the given name.
+	 * <p>
+	 * Internal method that does not perform any actions on the returned script.
+	 *
+	 * @param name the name of the script.
+	 * @return the script, or {@code null} if it doesn't exist.
+	 * @see #getScript(String)
+	 */
+	private ScriptWrapper getScriptImpl(String name) {
+		return this.getTreeModel().getScript(name);
 	}
 	
 	public ScriptNode addScript(ScriptWrapper script) {
@@ -574,9 +599,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void saveScript(ScriptWrapper script) throws IOException {
 		refreshScript(script);
-        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), DEFAULT_CHARSET)) {
-            bw.append(script.getContents());
-        }
+		script.saveScript();
         this.setChanged(script, false);
         // The removal is required for script that use wrappers, like Zest
 		this.getScriptParam().removeScript(script);
@@ -868,7 +891,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * Returns a unique name for the given script name
 	 */
 	private String getUniqueScriptName(String name, String ext) {
-		if (this.getScript(name) == null) {
+		if (this.getScriptImpl(name) == null) {
 			// Its unique
 			return name;
 		}
@@ -879,7 +902,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			index++;
 			name = stub + "(" + index + ")." + ext;
 		}
-		while (this.getScript(name) != null);
+		while (this.getScriptImpl(name) != null);
 		
 		return name;
 	}
@@ -1024,16 +1047,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		if (charset == null) {
 			throw new IllegalArgumentException("Parameter charset must not be null.");
 		}
-	    StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), charset)) {
-			int len;
-			char[] buf = new char[1024];
-			while ((len = br.read(buf)) != -1) {
-			    sb.append(buf, 0, len);
-			}
-		}
-        script.setContents(sb.toString());
-        script.setChanged(false);
+		script.loadScript(charset);
         
         if (script.getType() == null) {
         	// This happens when scripts are loaded from the configs as the types 
@@ -1168,6 +1182,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	    // Set the script name as a context attribute - this is used for script level variables 
 	    se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
+	    reloadIfChangedOnDisk(script);
 
 	    try {
 	    	se.eval(script.getContents());

@@ -241,8 +241,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	public String getTokenValue(HttpMessage tokenMsg, String tokenName) {
-		String response = tokenMsg.getResponseHeader().toString() + tokenMsg.getResponseBody().toString();
-		Source source = new Source(response);
+		Source source = new Source(tokenMsg.getResponseBody().toString());
 		List<Element> formElements = source.getAllElements(HTMLElementName.FORM);
 		
 		if (formElements != null && formElements.size() > 0) {
@@ -339,12 +338,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			
 			AntiCsrfDetectScanner antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
 			for (Integer i : list) {
-				HistoryReference hRef = historyReferenceFactory.createHistoryReference(i.intValue());
+				HistoryReference hRef = historyReferenceFactory.createHistoryReference(i);
 				if (filter.matches(hRef)) {
 					HttpMessage msg = hRef.getHttpMessage();
-					String response = msg.getResponseHeader().toString() + 
-						msg.getResponseBody().toString();
-					Source src = new Source(response);
+					Source src = new Source(msg.getResponseBody().toString());
 
 					if (msg.isResponseFromTargetHost()) {
 					    antiCsrfDetectScanner.scanHttpResponseReceive(msg, hRef.getHistoryId(), src);

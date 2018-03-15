@@ -70,8 +70,7 @@ public class SqlTableParam extends SqlAbstractTable implements TableParam {
 			psRead.getPs().setLong(1, urlId);
 			
 			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				RecordParam result = build(rs);
-				return result;
+				return build(rs);
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);

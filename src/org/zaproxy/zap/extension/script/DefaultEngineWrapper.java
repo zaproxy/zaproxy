@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
@@ -37,8 +38,26 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 
     private static Logger logger = Logger.getLogger(DefaultEngineWrapper.class);
 
+	/**
+	 * Constructs a {@code DefaultEngineWrapper} with the given engine (to obtain a factory).
+	 *
+	 * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
+	 * @deprecated (TODO add version) Use {@link #DefaultEngineWrapper(ScriptEngineFactory)} instead.
+	 */
+	@Deprecated
 	public DefaultEngineWrapper(ScriptEngine engine) {
 		super(engine);
+	}
+
+	/**
+	 * Constructs a {@code DefaultEngineWrapper} with the given engine factory.
+	 *
+	 * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for example, engine name, language).
+	 * @since TODO add version
+	 * @see #getEngine()
+	 */
+	public DefaultEngineWrapper(ScriptEngineFactory factory) {
+		super(factory);
 	}
 
 	@Override

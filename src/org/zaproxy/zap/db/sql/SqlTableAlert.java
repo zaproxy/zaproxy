@@ -115,8 +115,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 		    psRead = DbSQL.getSingleton().getPreparedStatement("alert.ps.read");
 			psRead.getPs().setInt(1, alertId);
 			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				RecordAlert ra = build(rs);
-				return ra;
+				return build(rs);
 			}
 		} catch (Exception e) {
 			throw new DatabaseException(e);
@@ -329,7 +328,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 		    try (ResultSet rs = psGetAlertsForSession.getPs().executeQuery()) {
 		        while (rs.next()) {
 		            int alertId = rs.getInt(ALERTID);
-		            v.add(Integer.valueOf(alertId));
+		            v.add(alertId);
 		        }
 		    }
 		    return v;
@@ -348,7 +347,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 		    Vector<Integer> v = new Vector<>();
 		    try (ResultSet rs = psGetAllAlertIds.getPs().executeQuery()) {
 		        while (rs.next()) {
-		            v.add(Integer.valueOf(rs.getInt(ALERTID)));
+		            v.add(rs.getInt(ALERTID));
 		        }
 		    }
 		    return v;

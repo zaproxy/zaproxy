@@ -913,7 +913,7 @@ public class Base64
 
         if( off + len > source.length  ){
             throw new IllegalArgumentException(
-            String.format( "Cannot have offset of %d and length of %d with array of length %d", Integer.valueOf(off), Integer.valueOf(len), Integer.valueOf(source.length)));
+            String.format( "Cannot have offset of %d and length of %d with array of length %d", off, len, source.length));
         }   // end if: off < 0
 
 
@@ -1052,11 +1052,11 @@ public class Base64
         }   // end if
         if( srcOffset < 0 || srcOffset + 3 >= source.length ){
             throw new IllegalArgumentException( String.format(
-            "Source array with length %d cannot have offset of %d and still process four bytes.", Integer.valueOf(source.length), Integer.valueOf(srcOffset) ) );
+            "Source array with length %d cannot have offset of %d and still process four bytes.", source.length, srcOffset) );
         }   // end if
         if( destOffset < 0 || destOffset +2 >= destination.length ){
             throw new IllegalArgumentException( String.format(
-            "Destination array with length %d cannot have offset of %d and still store three bytes.", Integer.valueOf(destination.length), Integer.valueOf(destOffset) ) );
+            "Destination array with length %d cannot have offset of %d and still store three bytes.", destination.length, destOffset) );
         }   // end if
         
         
@@ -1166,15 +1166,14 @@ public class Base64
         }   // end if
         if( off < 0 || off + len > source.length ){
             throw new IllegalArgumentException( String.format(
-            "Source array with length %d cannot have offset of %d and process %d bytes.", Integer.valueOf(source.length), Integer.valueOf(off), Integer.valueOf(len) ) );
+            "Source array with length %d cannot have offset of %d and process %d bytes.", source.length, off, len) );
         }   // end if
         
         if( len == 0 ){
             return new byte[0];
         }else if( len < 4 ){
             throw new IllegalArgumentException(
-        			Constant.messages.getString("enc2.base64.decode.error.invalidlenght",
-        			Integer.valueOf(len) ));
+        			Constant.messages.getString("enc2.base64.decode.error.invalidlenght", len));
         }   // end if
         
         byte[] DECODABET = getDecodabet( options );
@@ -1212,8 +1211,7 @@ public class Base64
             else {
                 // There's a bad input character in the Base64 stream.
                 throw new java.io.IOException(
-            			Constant.messages.getString("enc2.base64.decode.error.badinput",
-            			Integer.valueOf(source[i] &0xFF), Integer.valueOf(i)));
+            			Constant.messages.getString("enc2.base64.decode.error.badinput", source[i] & 0xFF, i));
             }   // end else: 
         }   // each input character
                                    

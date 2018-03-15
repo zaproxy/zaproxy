@@ -5,6 +5,10 @@ import net.htmlparser.jericho.MicrosoftTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
 import net.htmlparser.jericho.Source;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -27,6 +31,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
 	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
+	
+	private static Set<Integer> optedInHistoryTypes = new HashSet<Integer>();
 	
 	@SuppressWarnings("unused")
 	private OptionsPassiveScan options = null;
@@ -133,15 +139,16 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					try {
 						// Parse the record
 						HttpMessage msg = href.getHttpMessage();
-						String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
-						Source src = new Source(response);
+						Source src = new Source(msg.getResponseBody().toString());
 						
 						for (PassiveScanner scanner : scannerList.list()) {
 							try {
 								if (shutDown) {
 									return;
 								}
-								if (scanner.isEnabled() && scanner.appliesToHistoryType(href.getHistoryType())) {
+								int hrefHistoryType = href.getHistoryType();
+								if (scanner.isEnabled() && (scanner.appliesToHistoryType(hrefHistoryType)
+										|| optedInHistoryTypes.contains(hrefHistoryType))) {
 									scanner.setParent(this);
 									scanner.scanHttpRequestSend(msg, href.getHistoryId());
 									if (msg.isResponseFromTargetHost()) {
@@ -277,5 +284,59 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
+	}
+	
+	/**
+	 * Add the History Type ({@code int}) to the set of applicable history
+	 * types.
+	 * 
+	 * @param type
+	 *            the type to be added to the set of applicable history types
+	 * @since TODO add version
+	 */
+	public static void addApplicableHistoryType(int type) {
+		optedInHistoryTypes.add(type);
+	}
+	
+	/**
+	 * Remove the History Type ({@code int}) from the set of applicable history
+	 * types.
+	 * 
+	 * @param type
+	 *            the type to be removed from the set of applicable history
+	 *            types
+	 * @since TODO add version
+	 */
+	public static void removeApplicableHistoryType(int type) {
+		optedInHistoryTypes.remove(type);
+	}
+
+	/**
+	 * Returns the set of History Types which have "opted-in" to be applicable
+	 * for passive scanning.
+	 * 
+	 * @return a set of {@code Integer} representing all of the History Types
+	 *         which have "opted-in" for passive scanning.
+	 * @since TODO add version
+	 */
+	public static Set<Integer> getOptedInHistoryTypes() {
+		return Collections.unmodifiableSet(optedInHistoryTypes);
+	}
+	
+	/**
+	 * Returns the full set (both default and "opted-in") which are to be
+	 * applicable for passive scanning.
+	 * 
+	 * @return a set of {@code Integer} representing all of the History Types
+	 *         which are applicable for passive scanning.
+	 * @since TODO add version
+	 */
+	public static Set<Integer> getApplicableHistoryTypes() {
+		Set<Integer> allApplicableTypes = new HashSet<Integer>();
+		allApplicableTypes.addAll(PluginPassiveScanner.getDefaultHistoryTypes());
+		if (!optedInHistoryTypes.isEmpty()) {
+			allApplicableTypes.addAll(optedInHistoryTypes);
+		}
+		return allApplicableTypes;
 	}
 }

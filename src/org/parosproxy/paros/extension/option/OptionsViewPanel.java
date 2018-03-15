@@ -28,10 +28,13 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/01/09 Remove method no longer needed.
+// ZAP: 2018/02/14 Add option for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
+// ZAP: 2018/02/27 Add option for Look And Feel and a scrollbar.
+// ZAP: 2018/03/01 Remove the name from a panel and use BorderLayout.
 
 package org.parosproxy.paros.extension.option;
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -49,6 +52,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
@@ -77,6 +82,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private static final String TIME_STAMP_FORMAT_TIMEONLY =  Constant.messages.getString("timestamp.format.timeonly");
 	
 	private JPanel panelMisc = null;
+	private JScrollPane mainScrollPane;
 	
 	private JCheckBox chkShowTabNames = null;
 	private JCheckBox chkProcessImages = null;
@@ -94,6 +100,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JComboBox<ResponsePanelPositionUI> responsePanelPositionComboBox;
 	private JComboBox<String> timeStampsFormatSelect = null; 
 	private JComboBox<String> fontName = null;
+	private JComboBox<String> lookAndFeel = null;
 	
 	private ZapNumberSpinner largeRequestSize = null;
 	private ZapNumberSpinner largeResponseSize = null;
@@ -113,6 +120,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel largeRequestLabel = null;
 	private JLabel largeResponseLabel = null;
 	private JLabel fontExampleLabel = null;
+	private JLabel lookAndFeelLabel = null;
 	
     public OptionsViewPanel() {
         super();
@@ -123,10 +131,18 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
+        this.setLayout(new BorderLayout());
         this.setName(Constant.messages.getString("view.options.title"));
-        this.add(getPanelMisc(), getPanelMisc().getName());
-
+        this.add(getMainScrollPane());
+	}
+	
+	private JScrollPane getMainScrollPane() {
+		if (mainScrollPane == null) {
+			mainScrollPane = new JScrollPane();
+			mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
+			mainScrollPane.setViewportView(getPanelMisc());
+		}
+		return mainScrollPane;
 	}
 	
 	/**
@@ -142,7 +158,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 		    	panelMisc.setSize(114, 132);
 		    }
-			panelMisc.setName(Constant.messages.getString("view.options.misc.title"));
 
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
 			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
@@ -155,7 +170,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			outputTabTimeStampLabel = new JLabel(Constant.messages.getString("options.display.timestamp.format.outputtabtimestamps.label"));
 			largeRequestLabel = new JLabel(Constant.messages.getString("view.options.label.largeRequestSize"));
 			largeResponseLabel = new JLabel(Constant.messages.getString("view.options.label.largeResponseSize"));
-					
+			lookAndFeelLabel = new JLabel(Constant.messages.getString("view.options.label.lookandfeel"));
 			outputTabTimeStampExampleLabel = new JLabel(TimeStampUtils.currentDefaultFormattedTimeStamp());
 			showSplashScreenLabel = new JLabel(Constant.messages.getString("view.options.label.showSplashScreen"));
 			
@@ -299,6 +314,13 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			row++;
+			lookAndFeelLabel.setLabelFor(getLookAndFeelSelect());
+			panelMisc.add(lookAndFeelLabel,
+					LayoutHelper.getGBC(0, row, 1,1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getLookAndFeelSelect(),
+					LayoutHelper.getGBC(1, row, 1, 1.0D,new java.awt.Insets(2,2,2,2)));
+			
+			row++;
 			panelMisc.add(new JLabel(""),   
 					LayoutHelper.getGBC(0, row, 1, 1.0D, 1.0D));
 
@@ -377,6 +399,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					new ResponsePanelPositionUI(
 							Constant.messages.getString("view.options.label.responsepanelpos.tabs"),
 							WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE));
+			responsePanelPositionComboBox.addItem(
+					new ResponsePanelPositionUI(
+							Constant.messages.getString("view.options.label.responsepanelpos.tabSideBySide"),
+							WorkbenchPanel.ResponsePanelPosition.TAB_SIDE_BY_SIDE));
 			responsePanelPositionComboBox.addItem(
 					new ResponsePanelPositionUI(
 							Constant.messages.getString("view.options.label.responsepanelpos.sideBySide"),
@@ -543,6 +569,19 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return scaleImages;
 	}
 	
+	private JComboBox<String> getLookAndFeelSelect() {
+		if (lookAndFeel == null) {
+			lookAndFeel = new JComboBox<String>();
+			lookAndFeel.setMaximumRowCount(5);
+			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
+			lookAndFeel.addItem("");	// Default look
+			for (UIManager.LookAndFeelInfo look : looks) {
+				lookAndFeel.addItem(look.getName());
+			}
+		}
+		return lookAndFeel;
+	}
+
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
@@ -564,6 +603,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    getFontSize().setValue(options.getViewParam().getFontSize());
 	    getFontName().setSelectedItem(options.getViewParam().getFontName());
 	    getScaleImages().setSelected(options.getViewParam().isScaleImages());
+	    getLookAndFeelSelect().setSelectedItem(options.getViewParam().getLookAndFeel());
 	}
 	
 	private void selectResponstPanelPosition(String positionName) {
@@ -602,6 +642,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setFontSize(getFontSize().getValue());
 	    options.getViewParam().setFontName((String)getFontName().getSelectedItem());
 	    options.getViewParam().setScaleImages(getScaleImages().isSelected());
+	    options.getViewParam().setLookAndFeel((String)getLookAndFeelSelect().getSelectedItem()); 
 	}
 
 	@Override

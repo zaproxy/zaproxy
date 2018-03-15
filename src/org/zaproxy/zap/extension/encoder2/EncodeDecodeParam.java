@@ -54,7 +54,7 @@ class EncodeDecodeParam extends AbstractParam {
 
 	public void setBase64DoBreakLines(boolean base64OuputBreak) {
 		this.base64DoBreakLines = base64OuputBreak;
-		getConfig().setProperty(PARAM_BASE64_DO_BREAK_LINES, Boolean.valueOf(base64OuputBreak));
+		getConfig().setProperty(PARAM_BASE64_DO_BREAK_LINES, base64OuputBreak);
 	}
 
 }

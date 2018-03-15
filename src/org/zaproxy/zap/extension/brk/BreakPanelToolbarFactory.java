@@ -541,7 +541,7 @@ public class BreakPanelToolbarFactory {
          * @param selected {@code true} if the action should be selected, {@code false} otherwise
          */
         public void setSelected(boolean selected) {
-            putValue(Action.SELECTED_KEY, Boolean.valueOf(selected));
+            putValue(Action.SELECTED_KEY, selected);
         }
     }
 

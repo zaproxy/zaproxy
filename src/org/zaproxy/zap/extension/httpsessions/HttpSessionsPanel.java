@@ -529,7 +529,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 
 		@Override
 		protected boolean isHighlighted(final Object cellItem) {
-			return ((Boolean) cellItem).booleanValue();
+			return (Boolean) cellItem;
 		}
 	}
 }

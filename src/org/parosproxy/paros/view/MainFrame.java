@@ -28,6 +28,7 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
+// ZAP: 2018/02/14 Add button for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
 
 package org.parosproxy.paros.view;
 
@@ -64,7 +65,7 @@ public class MainFrame extends AbstractFrame {
 	private static final Logger LOGGER = Logger.getLogger(MainFrame.class);
 
 	private static final String TABS_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.tabs");
-	private static final String DISABLED_TABS_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.tabs.disabled");
+	private static final String TAB_SIDE_BY_SIDE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.tabSideBySide");
 	private static final String ABOVE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.above");
 	private static final String DISABLED_ABOVE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.above.disabled");
 	private static final String SIDE_BY_SIDE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.sideBySide");
@@ -160,6 +161,16 @@ public class MainFrame extends AbstractFrame {
 	 * @see #getTabsResponsePanelPositionButton()
 	 */
 	private ZapToggleButton tabsResponsePanelPositionButton;
+
+	/**
+	 * The {@code ZapToggleButton} that sets the response panel position
+	 * {@link WorkbenchPanel.ResponsePanelPosition#TAB_SIDE_BY_SIDE}.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getTabSideBySideResponsePanelPositionButton()
+	 */
+	private ZapToggleButton tabSideBySideResponsePanelPositionButton;
 
 	/**
 	 * The {@code ZapToggleButton} that sets the response panel position
@@ -329,6 +340,8 @@ public class MainFrame extends AbstractFrame {
 			ButtonGroup responsePanelPositionsButtonGroup = new ButtonGroup();
 			mainToolbarPanel.addButton(getTabsResponsePanelPositionButton());
 			responsePanelPositionsButtonGroup.add(getTabsResponsePanelPositionButton());
+			mainToolbarPanel.addButton(getTabSideBySideResponsePanelPositionButton());
+			responsePanelPositionsButtonGroup.add(getTabSideBySideResponsePanelPositionButton());
 			mainToolbarPanel.addButton(getPanelsResponsePanelPositionButton());
 			responsePanelPositionsButtonGroup.add(getPanelsResponsePanelPositionButton());
 			mainToolbarPanel.addButton(getAboveResponsePanelPositionButton());
@@ -443,9 +456,19 @@ public class MainFrame extends AbstractFrame {
 							WorkbenchPanel.class.getResource("/resource/icon/layout_tabbed.png"),
 							WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE));
 			tabsResponsePanelPositionButton.setToolTipText(TABS_VIEW_TOOL_TIP);
-			tabsResponsePanelPositionButton.setDisabledToolTipText(DISABLED_TABS_VIEW_TOOL_TIP);
 		}
 		return tabsResponsePanelPositionButton;
+	}
+
+	private ZapToggleButton getTabSideBySideResponsePanelPositionButton() {
+		if (tabSideBySideResponsePanelPositionButton == null) {
+			tabSideBySideResponsePanelPositionButton = new ZapToggleButton(
+					new SetResponsePanelPositionAction(
+							WorkbenchPanel.class.getResource("/resource/icon/layout_tabbed_split.png"),
+							WorkbenchPanel.ResponsePanelPosition.TAB_SIDE_BY_SIDE));
+			tabSideBySideResponsePanelPositionButton.setToolTipText(TAB_SIDE_BY_SIDE_VIEW_TOOL_TIP);
+		}
+		return tabSideBySideResponsePanelPositionButton;
 	}
 
 	private ZapToggleButton getPanelsResponsePanelPositionButton() {
@@ -567,7 +590,6 @@ public class MainFrame extends AbstractFrame {
 	 * @param enabled {@code true} if the buttons should be enabled, {@code false} otherwise.
 	 */
 	private void setResponsePanelPositionButtonsEnabled(boolean enabled) {
-		tabsResponsePanelPositionButton.setEnabled(enabled);
 		panelsResponsePanelPositionButton.setEnabled(enabled);
 		aboveResponsePanelPositionButton.setEnabled(enabled);
 	}
@@ -612,6 +634,9 @@ public class MainFrame extends AbstractFrame {
 			break;
 		case PANELS_SIDE_BY_SIDE:
 			panelsResponsePanelPositionButton.setSelected(true);
+			break;
+		case TAB_SIDE_BY_SIDE:
+			tabSideBySideResponsePanelPositionButton.setSelected(true);
 			break;
 		case TABS_SIDE_BY_SIDE:
 		default:

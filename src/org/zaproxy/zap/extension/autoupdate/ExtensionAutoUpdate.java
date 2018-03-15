@@ -805,7 +805,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         		Model.getSingleton().getOptionsParam().getConnectionParam());
         getHttpSender().sendAndReceive(msg,true);
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-            throw new IOException();
+            throw new IOException(
+                    "Expected '200 OK' but got '" + msg.getResponseHeader().getStatusCode() + " "
+                            + msg.getResponseHeader().getReasonPhrase() + "'");
         }
         if (! msg.getRequestHeader().isSecure()) {
         	// Only access the cfu page over https

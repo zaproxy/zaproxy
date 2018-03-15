@@ -33,6 +33,7 @@
 // ZAP: 2017/08/17 Reduce code duplication when showing cert/keystore errors
 // ZAP: 2017/12/12 Use first alias by default (Issue 3879).
 // ZAP: 2017/12/13 Do not allow to edit the name/key of active cert.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.extension.option;
 
@@ -598,12 +599,12 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 				return;
 			}
 			
-			int slot = driverConfig.getSlots().get(indexSelectedDriver).intValue();
+			int slot = driverConfig.getSlots().get(indexSelectedDriver);
 			if (slot < 0) {
 				return;
 			}
 			
-			int slotListIndex = driverConfig.getSlotIndexes().get(indexSelectedDriver).intValue();
+			int slotListIndex = driverConfig.getSlotIndexes().get(indexSelectedDriver);
 			if (slotListIndex < 0) {
 				return;
 			}

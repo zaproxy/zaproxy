@@ -29,6 +29,7 @@
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/09/07 Issue 1872: EDT accessed in daemon mode
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2018/03/14 Publish event when href added
 
 package org.parosproxy.paros.extension.history;
  
@@ -144,6 +145,8 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         extension.addHistory(historyRef);
 
         addToSiteMap(historyRef, msg);
+        
+        ProxyListenerLogEventPublisher.getPublisher().publishHrefAddedEvent(historyRef);
     }
 
     private HistoryReference createHistoryReference(HttpMessage message, int type) {

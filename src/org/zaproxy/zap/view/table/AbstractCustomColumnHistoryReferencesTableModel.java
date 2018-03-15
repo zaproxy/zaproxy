@@ -53,7 +53,7 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
         int countCustomColumns = 0;
         for (int columnIndex = 0; columnIndex < columns.length; ++columnIndex) {
             if (isCustomColumn(columns, columnIndex)) {
-                tempCustomColumnIndexesMap.put(Integer.valueOf(columnIndex), Integer.valueOf(countCustomColumns));
+                tempCustomColumnIndexesMap.put(columnIndex, countCustomColumns);
                 ++countCustomColumns;
             }
         }
@@ -194,9 +194,9 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
      * @return the custom column index as if no default columns existed or -1 if not a custom column.
      */
     protected int getCustomColumnIndex(int columnIndex) {
-        Integer customColumnIndex = cacheColumnIdxToIdxCustomColumnsOnly.get(Integer.valueOf(columnIndex));
+        Integer customColumnIndex = cacheColumnIdxToIdxCustomColumnsOnly.get(columnIndex);
         if (customColumnIndex != null) {
-            return customColumnIndex.intValue();
+            return customColumnIndex;
         }
         return -1;
     }

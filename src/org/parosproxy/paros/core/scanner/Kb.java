@@ -23,6 +23,7 @@
 // ZAP: 2012/05/04 Catch CloneNotSupportedException whenever an Uri is cloned,
 //              as introduced with version 3.1 of HttpClient
 // ZAP: 2016/09/20 JavaDoc tweaks
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.core.scanner;
 
@@ -104,7 +105,7 @@ public class Kb {
 	public boolean getBoolean(String key) {
 	    Object obj = get(key);
 	    if (obj != null && obj instanceof Boolean) {
-	        return ((Boolean) obj).booleanValue();
+	        return (Boolean) obj;
 	        
 	    }
 	    return false;
@@ -188,7 +189,7 @@ public class Kb {
 	public boolean getBoolean(URI uri, String key) {
 	    Object obj = get(uri, key);
 	    if (obj != null && obj instanceof Boolean) {
-	        return ((Boolean) obj).booleanValue();
+	        return (Boolean) obj;
 	    }
 	    return false;
 	    

@@ -75,7 +75,7 @@ public class AlertParam extends AbstractParam {
         if (this.maximumInstances != newValue) {
             this.maximumInstances = newValue;
 
-            getConfig().setProperty(PARAM_MAXIMUM_INSTANCES, Integer.valueOf(this.maximumInstances));
+            getConfig().setProperty(PARAM_MAXIMUM_INSTANCES, this.maximumInstances);
         }
     }
 
@@ -94,7 +94,7 @@ public class AlertParam extends AbstractParam {
 	public void setMergeRelatedIssues(boolean mergeRelatedIssues) {
 		if (this.mergeRelatedIssues != mergeRelatedIssues) {
 			this.mergeRelatedIssues = mergeRelatedIssues;
-            getConfig().setProperty(PARAM_MERGE_RELATED_ISSUES, Boolean.valueOf(mergeRelatedIssues));
+            getConfig().setProperty(PARAM_MERGE_RELATED_ISSUES, mergeRelatedIssues);
 		}
 	}
 

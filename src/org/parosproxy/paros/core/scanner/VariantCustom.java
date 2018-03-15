@@ -39,6 +39,7 @@ public class VariantCustom implements Variant {
     private ScriptWrapper wrapper = null;
     private VariantScript script = null; 
     private final List<NameValuePair> params = new ArrayList<>();
+    private NameValuePair currentParam;
 
     // base64 strings are similar, except they can contain + and /, and end 
     // with 0 - 2 '=' signs. They are also a multiple of 4 bytes. 
@@ -121,6 +122,16 @@ public class VariantCustom implements Variant {
     public int getParamNumber() {
         return params.size();
     }
+
+    /**
+     * Gets the current parameter being tested.
+     * 
+     * @return the parameter being tested, or {@code null} if none.
+     * @since TODO add version
+     */
+    public NameValuePair getCurrentParam() {
+        return currentParam;
+    }
     
     /**
      * Support method to add a new param to this custom variant
@@ -189,25 +200,27 @@ public class VariantCustom implements Variant {
     
     @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-        return setParameter(msg, param, value, false);
+        return setParameter(msg, originalPair, param, value, false);
     }
 
     @Override
     public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-        return setParameter(msg, param, value, true);
+        return setParameter(msg, originalPair, param, value, true);
     }    
 
     /**
      * Inner method for correct scripting
      * @param msg the message that need to be modified
+     * @param originalPair the original {@code NameValuePair} being tested.
      * @param paramName the name of the parameter
      * @param value the value thta should be set for this parameter
      * @param escaped true if the parameter has been already escaped
      * @return the value set as parameter
      */
-    private String setParameter(HttpMessage msg, String paramName, String value, boolean escaped) {
+    private String setParameter(HttpMessage msg, NameValuePair originalPair, String paramName, String value, boolean escaped) {
 	try {
             if (script != null) {
+                currentParam = originalPair;
                 script.setParameter(this, msg, paramName, value, escaped);
             }
                         
@@ -215,6 +228,8 @@ public class VariantCustom implements Variant {
             // Catch Exception instead of ScriptException because script engine implementations might
             // throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
             extension.handleScriptException(wrapper, e);
+        } finally {
+            currentParam = null;
         }
         
         return value;

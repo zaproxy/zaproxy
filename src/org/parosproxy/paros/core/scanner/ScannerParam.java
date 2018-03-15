@@ -44,6 +44,7 @@
 // ZAP: 2016/10/24 Issue 2951:  Support active scan rule and scan max duration
 // ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API 
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
+// ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 
 package org.parosproxy.paros.core.scanner;
 
@@ -577,7 +578,7 @@ public class ScannerParam extends AbstractParam {
         }
 
         this.scanHeadersAllRequests = scanAllRequests;
-        getConfig().setProperty(SCAN_HEADERS_ALL_REQUESTS, Boolean.valueOf(this.scanHeadersAllRequests));
+        getConfig().setProperty(SCAN_HEADERS_ALL_REQUESTS, this.scanHeadersAllRequests);
     }
 
 }

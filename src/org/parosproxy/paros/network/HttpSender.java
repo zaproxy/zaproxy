@@ -70,6 +70,8 @@
 // ZAP: 2017/12/20 Apply socket connect timeout (Issue 4171).
 // ZAP: 2018/02/06 Make the lower case changes locale independent (Issue 4327).
 // ZAP: 2018/02/19 Added WEB_SOCKET_INITIATOR.
+// ZAP: 2018/02/23 Issue 1161: Allow to override the global session tracking setting
+//                 Fix Session Tracking button sync
 
 package org.parosproxy.paros.network;
 
@@ -213,11 +215,8 @@ public class HttpSender {
 		client.getParams().setParameter(HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS, defaultUserAgent);
 		clientViaProxy.getParams().setParameter(HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS, defaultUserAgent);
 
-		if (useGlobalState) {
-			checkState();
-		} else {
-			setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		}
+		setUseGlobalState(useGlobalState);
+
 	}
 
 	private void setClientsCookiePolicy(String policy) {
@@ -236,6 +235,16 @@ public class HttpSender {
 			setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		} else {
 			setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		}
+	}
+
+	public void setUseGlobalState(boolean enableGlobalState) {
+		if (enableGlobalState) {
+			checkState();
+		} else {
+			client.setState(new HttpState());
+			clientViaProxy.setState(new HttpState());
+			setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		}
 	}
 

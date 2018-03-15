@@ -240,7 +240,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
                     int progress = extension.getDownloadProgressPercent(url);
                     if (progress > 0) {
                         aow.setProgress(progress);
-                        rows.add(Integer.valueOf(idx));
+                        rows.add(idx);
                     }
                 } catch (Exception e) {
                     if (logger.isDebugEnabled()) {
@@ -269,7 +269,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
                     @Override
                     public void run() {
                         for (Integer row : rows) {
-                            fireTableCellUpdated(row.intValue(), progressColumn);
+                            fireTableCellUpdated(row, progressColumn);
                         }
                     }
                 });

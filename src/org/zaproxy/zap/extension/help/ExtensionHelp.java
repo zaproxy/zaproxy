@@ -49,6 +49,7 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
@@ -66,7 +67,22 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 */
 	private static final String HELP_ID_PROPERTY = "HelpID";
 
-	private static final String HELP_SET_FILE_NAME = "helpset";
+	/**
+	 * The (default) file name of a HelpSet.
+	 * 
+	 * @see HelpSet
+	 * @since TODO add version
+	 */
+	public static final String HELP_SET_FILE_NAME = "helpset";
+
+	/**
+	 * The (default) file extension of a HelpSet.
+	 * 
+	 * @see HelpSet
+	 * @since TODO add version
+	 */
+	public static final String HELP_SET_FILE_EXTENSION = "hs";
+ 
 	/**
 	 * @deprecated (2.7.0) Use {@link #getHelpIcon()} instead.
 	 */
@@ -259,7 +275,11 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * @see HelpSet
 	 */
 	private static URL findHelpSetUrl() {
-		return HelpSet.findHelpSet(ExtensionFactory.getAddOnLoader(), HELP_SET_FILE_NAME, Constant.getLocale());
+		return LocaleUtils.findResource(
+				HELP_SET_FILE_NAME,
+				HELP_SET_FILE_EXTENSION,
+				Constant.getLocale(),
+				r -> ExtensionFactory.getAddOnLoader().getResource(r));
 	}
 	
 	/**

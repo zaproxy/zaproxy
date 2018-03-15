@@ -96,8 +96,9 @@ Scanners:
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
-
 10202   Absence of Anti-CSRF Tokens
+10203   Freak (via HTTPS Info Extension)
+10204   Robot (via HTTPS Info Extension)
 
 20000   Cold Fusion default file [Deprecated]
 20001   Lotus Domino default files [Deprecated]

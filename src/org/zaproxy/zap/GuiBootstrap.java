@@ -35,10 +35,10 @@ import java.util.Locale;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
@@ -69,7 +69,7 @@ import org.zaproxy.zap.view.ProxyDialog;
  */
 public class GuiBootstrap extends ZapBootstrap {
 
-    private final Logger logger = Logger.getLogger(GuiBootstrap.class);
+    private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
 
     /**
      * Flag that indicates whether or not the look and feel was already set.
@@ -350,41 +350,50 @@ public class GuiBootstrap extends ZapBootstrap {
         }
         lookAndFeelSet = true;
 
-        String lookAndFeelClassname = System.getProperty("swing.defaultlaf");
-        if (lookAndFeelClassname != null) {
+        if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
+            return;
+        }
+
+        OptionsParam options = Model.getSingleton().getOptionsParam();
+
+        if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))) {
+            return;
+        }
+
+        if (Constant.isMacOsX()) {
+            OsXGui.setup();
+        } else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
+            return;
+        }
+
+        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+
+    private static String getLookAndFeelClassname(String lookAndFeelName) {
+        UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
+        String lookAndFeelClassname = "";
+        for (UIManager.LookAndFeelInfo look : looks) {
+            if (look.getName().equals(lookAndFeelName)) {
+                lookAndFeelClassname = look.getClassName();
+                break;
+            }
+        }
+        return lookAndFeelClassname;
+    }
+
+    private static boolean setLookAndFeel(String lookAndFeelClassname) {
+        if (StringUtils.isNotEmpty(lookAndFeelClassname)) {
             try {
                 UIManager.setLookAndFeel(lookAndFeelClassname);
-                return;
+                return true;
             } catch (final UnsupportedLookAndFeelException
-                     | ClassNotFoundException
-                     | ClassCastException
-                     | InstantiationException
-                     | IllegalAccessException e) {
-                logger.warn("Failed to set the specified look and feel: " + e.getMessage());
+                           | ClassNotFoundException
+                           | InstantiationException
+                           | IllegalAccessException e) {
+                logger.warn("Failed to set the look and feel: " + e.getMessage());
             }
         }
-
-        try {
-            // Set the systems Look and Feel
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-            if (Constant.isMacOsX()) {
-                OsXGui.setup();
-            } else {
-                // Set Nimbus LaF if available
-                for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                    if ("Nimbus".equals(info.getName())) {
-                        UIManager.setLookAndFeel(info.getClassName());
-                        break;
-                    }
-                }
-            }
-        } catch (final UnsupportedLookAndFeelException
-                 | ClassNotFoundException
-                 | InstantiationException
-                 | IllegalAccessException e) {
-            logger.warn("Failed to set the \"default\" look and feel: " + e.getMessage());
-        }
+        return false;
     }
 
     /**

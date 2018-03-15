@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,6 +71,7 @@ import org.apache.commons.logging.LogFactory;
  *  - Added constant PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS;
  *  - Added the public modifier to the class.
  *  - Establish a tunnel if the request has a connection upgrade.
+ *  - Use neutral Locale when converting to lower case.
  */
 /**
  * Handles the process of executing a method including authentication, redirection and retries.
@@ -535,7 +537,7 @@ public class HttpMethodDirector {
         if (connectionHeader == null) {
             return false;
         }
-        return connectionHeader.getValue().toLowerCase().contains("upgrade");
+        return connectionHeader.getValue().toLowerCase(Locale.ROOT).contains("upgrade");
     }
 
     /**

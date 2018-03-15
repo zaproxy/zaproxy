@@ -40,6 +40,7 @@ public class SiteParameters {
 	private Map<String, HtmlParameterStats> urlParams = new HashMap<>();
 	private Map<String, HtmlParameterStats> formParams = new HashMap<>();
 	private Map<String, HtmlParameterStats> headerParams = new HashMap<>();
+	private Map<String, HtmlParameterStats> multipartParams = new HashMap<>();
 
 	public SiteParameters(ExtensionParams extension, String site) {
 		this.extension = extension;
@@ -63,7 +64,7 @@ public class SiteParameters {
 	 * @since 2.5.0
 	 */
 	public boolean hasParams() {
-		return !cookieParams.isEmpty() || !urlParams.isEmpty() || !formParams.isEmpty() || !headerParams.isEmpty();
+		return !cookieParams.isEmpty() || !urlParams.isEmpty() || !formParams.isEmpty() || !headerParams.isEmpty() || !multipartParams.isEmpty();
 	}
 
 	public HtmlParameterStats getParam(HtmlParameter.Type type, String name) {
@@ -76,6 +77,8 @@ public class SiteParameters {
 			return formParams.get(name);
 		case header:
 			return headerParams.get(name);
+		case multipart:
+			return multipartParams.get(name);
 		}
 		return null;
 	}
@@ -95,6 +98,9 @@ public class SiteParameters {
 		case header:
 			params.addAll(this.headerParams.values());
 			break;
+		case multipart:
+			params.addAll(this.multipartParams.values());
+			break;
 		}
 		return params;
 	}
@@ -105,6 +111,7 @@ public class SiteParameters {
 		params.addAll(this.urlParams.values());
 		params.addAll(this.formParams.values());
 		params.addAll(this.headerParams.values());
+		params.addAll(this.multipartParams.values());
 		return params;
 	}
 
@@ -124,6 +131,9 @@ public class SiteParameters {
 			break;
 		case header:
 			params = headerParams;
+			break;
+		case multipart:
+			params = multipartParams;
 			break;
 		}
 
@@ -185,6 +195,9 @@ public class SiteParameters {
 			break;
 		case header:
 			params = headerParams;
+			break;
+		case multipart:
+			params = multipartParams;
 			break;
 		}
 		// These should all be new

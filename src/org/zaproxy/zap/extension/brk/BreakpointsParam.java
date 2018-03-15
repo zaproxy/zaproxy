@@ -95,7 +95,7 @@ public class BreakpointsParam extends AbstractParam {
     public void setConfirmDropMessage(boolean confirmDrop) {
         if (confirmDropMessage != confirmDrop) {
             this.confirmDropMessage = confirmDrop;
-            getConfig().setProperty(PARAM_CONFIRM_DROP_MESSAGE_KEY, Boolean.valueOf(confirmDrop));
+            getConfig().setProperty(PARAM_CONFIRM_DROP_MESSAGE_KEY, confirmDrop);
         }
     }
 

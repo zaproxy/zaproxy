@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.option;
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -51,9 +51,9 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 	 * This method initializes this
 	 */
     private void initialize() {
-        this.setLayout(new CardLayout());
+        this.setLayout(new BorderLayout());
         this.setName(Constant.messages.getString("view.options.title"));
-        this.add(getPanelMisc(), getPanelMisc().getName());
+        this.add(getPanelMisc());
 
 	}
 	/**
@@ -67,7 +67,6 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 
 			panelMisc.setLayout(new GridBagLayout());
 			panelMisc.setSize(114, 132);
-			panelMisc.setName(Constant.messages.getString("view.options.misc.title"));
 
 			GridBagConstraints gbc0 = new GridBagConstraints();
 			GridBagConstraints gbc1_0 = new GridBagConstraints();

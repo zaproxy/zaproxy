@@ -211,7 +211,7 @@ public abstract class VersionedAbstractParam extends AbstractParam {
 
         updateConfigsImpl(fileVersion);
 
-        getConfig().setProperty(getConfigVersionKey(), Integer.valueOf(getCurrentVersion()));
+        getConfig().setProperty(getConfigVersionKey(), getCurrentVersion());
     }
 
     /**

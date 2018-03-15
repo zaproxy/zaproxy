@@ -185,8 +185,12 @@ def start_zap(port, extra_zap_params):
         '-config', 'api.addrs.addr.name=.*',
         '-config', 'api.addrs.addr.regex=true']
 
+    params.extend(extra_zap_params)
+
+    logging.info('Params: ' + str(params))
+
     with open('zap.out', "w") as outfile:
-        subprocess.Popen(params + extra_zap_params, stdout=outfile)
+        subprocess.Popen(params, stdout=outfile)
 
 
 def wait_for_zap_start(zap, timeout_in_secs = 600):

@@ -634,7 +634,7 @@ public class SpiderAPI extends ApiImplementor {
 			String url;
 			for (Integer id : ids) {
 				try {
-					RecordHistory rh = tableHistory.read(id.intValue());
+					RecordHistory rh = tableHistory.read(id);
 					if (rh != null) {
 						url = rh.getHttpMessage().getRequestHeader().getURI().toString();
 						if (urlSet.add(url)) {
