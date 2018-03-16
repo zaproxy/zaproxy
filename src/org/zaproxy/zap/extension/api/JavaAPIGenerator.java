@@ -149,9 +149,9 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 				} else {
 					out.write(", ");
 				}
-				if (param.toLowerCase().equals("boolean")) {
+				if (param.equalsIgnoreCase("boolean")) {
 					out.write("boolean bool");
-				} else if (param.toLowerCase().equals("integer")) {
+				} else if (param.equalsIgnoreCase("integer")) {
 					out.write("int i");
 				} else {
 					out.write("String ");
@@ -166,9 +166,9 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 				} else {
 					out.write(", ");
 				}
-				if (param.toLowerCase().equals("boolean")) {
+				if (param.equalsIgnoreCase("boolean")) {
 					out.write("boolean bool");
-				} else if (param.toLowerCase().equals("integer")) {
+				} else if (param.equalsIgnoreCase("integer")) {
 					out.write("int i");
 				} else {
 					out.write("String ");
@@ -184,9 +184,9 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 			if (element.getMandatoryParamNames() != null) {
 				for (String param : element.getMandatoryParamNames()) {
 					out.write("\t\tmap.put(\"" + param + "\", ");
-					if (param.toLowerCase().equals("boolean")) {
+					if (param.equalsIgnoreCase("boolean")) {
 						out.write("Boolean.toString(bool)");
-					} else if (param.toLowerCase().equals("integer")) {
+					} else if (param.equalsIgnoreCase("integer")) {
 						out.write("Integer.toString(i)");
 					} else {
 						out.write(param.toLowerCase());
@@ -200,9 +200,9 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 					out.write(param.toLowerCase());
 					out.write(" != null) {\n");
 					out.write("\t\t\tmap.put(\"" + param + "\", ");
-					if (param.toLowerCase().equals("boolean")) {
+					if (param.equalsIgnoreCase("boolean")) {
 						out.write("Boolean.toString(bool)");
-					} else if (param.toLowerCase().equals("integer")) {
+					} else if (param.equalsIgnoreCase("integer")) {
 						out.write("Integer.toString(i)");
 					} else {
 						out.write(param.toLowerCase());

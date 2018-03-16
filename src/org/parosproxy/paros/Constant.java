@@ -75,6 +75,7 @@
 // ZAP: 2018/01/04 Clear SNI Terminator options when updating from older ZAP versions.
 // ZAP: 2018/01/05 Prevent use of install dir as home dir.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/03/16 Use equalsIgnoreCase (Issue 4327).
 
 package org.parosproxy.paros;
 
@@ -1155,7 +1156,7 @@ public final class Constant {
 		    		if (osLikeValue != null) { 
 			    		String [] oSLikes = osLikeValue.split(" ");
 			    		for (String osLike: oSLikes) {
-			    			if (osLike.toLowerCase().equals("kali")) {    				
+			    			if (osLike.equalsIgnoreCase("kali")) {
 			    				onKali = Boolean.TRUE;
 			    				break;
 			    			}

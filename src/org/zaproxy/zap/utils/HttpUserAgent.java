@@ -51,7 +51,7 @@ public final class HttpUserAgent {
 					browserVersion = line.substring(2, line.length()-1);
 					continue;
 				}
-				if (line.toLowerCase().equals(userAgent)) {
+				if (line.equalsIgnoreCase(userAgent)) {
 					return browserVersion;
 				}
 			}
