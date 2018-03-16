@@ -371,6 +371,22 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	public void removeTab(AbstractPanel panel) {
 		this.remove(panel);
+	}
+
+	@Override
+	public void removeTabAt(int index) {
+		if (index < 0 || index >= getTabCount()) {
+			throw new IndexOutOfBoundsException("Index: " + index + ", Tab count: " + getTabCount());
+		}
+
+		Component component = getComponentAt(index);
+		super.removeTabAt(index);
+
+		if (!(component instanceof AbstractPanel)) {
+			return;
+		}
+
+		AbstractPanel panel = (AbstractPanel) component;
 		this.fullTabList.remove(panel);
 		if (this.removedTabList.remove(panel)) {
 			handleHiddenTabListTab();
