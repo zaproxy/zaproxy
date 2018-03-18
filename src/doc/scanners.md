@@ -96,8 +96,9 @@ Scanners:
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
-
 10202   Absence of Anti-CSRF Tokens
+10203   Freak (via HTTPS Info Extension)
+10204   Robot (via HTTPS Info Extension)
 
 20000   Cold Fusion default file [Deprecated]
 20001   Lotus Domino default files [Deprecated]
@@ -152,7 +153,7 @@ Scanners:
 40030   Backslash Powered Scanner
 40031   Cross Site Scripting - Detection by Callback
 40032   .htaccess Scanner
-40033	NoSQL Injection
+40033	NoSQL Injection MongoDB
 
 50000   Active Scan scripts
 50001   Passive Scan scripts

@@ -70,6 +70,7 @@ public class BreakpointMessageHandler2 {
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
         // but be reset when the next break point is hit
         breakMgmt.breakpointHit();
+        BreakEventPublisher.getPublisher().publishActiveEvent(aMessage);
 
         synchronized(SEMAPHORE) {
             if (breakMgmt.isHoldMessage(aMessage)) {
@@ -78,6 +79,7 @@ public class BreakpointMessageHandler2 {
             }
         }
         breakMgmt.clearAndDisableRequest();
+        BreakEventPublisher.getPublisher().publishInactiveEvent(aMessage);
         return ! breakMgmt.isToBeDropped();
     }
     
@@ -96,6 +98,7 @@ public class BreakpointMessageHandler2 {
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
         // but be reset when the next break point is hit
         breakMgmt.breakpointHit();
+        BreakEventPublisher.getPublisher().publishActiveEvent(aMessage);
 
         synchronized(SEMAPHORE) {
             if (breakMgmt.isHoldMessage(aMessage)) {
@@ -104,6 +107,7 @@ public class BreakpointMessageHandler2 {
             }
         }
         breakMgmt.clearAndDisableResponse();
+        BreakEventPublisher.getPublisher().publishInactiveEvent(aMessage);
         return ! breakMgmt.isToBeDropped();
     }
     
