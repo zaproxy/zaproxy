@@ -198,13 +198,13 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 		if (elements != null && elements.size() > 0) {
 			ArrayList<String> args = new ArrayList<String>();
 			for (String param : elements) {
-				if (param.toLowerCase().equals("boolean")) {
+				if (param.equalsIgnoreCase("boolean")) {
 					args.add("boolean bool");
-				} else if (param.toLowerCase().equals("integer")) {
+				} else if (param.equalsIgnoreCase("integer")) {
 					args.add("i int");
-				} else if (param.toLowerCase().equals("string")) {
+				} else if (param.equalsIgnoreCase("string")) {
 					args.add("str string");
-				} else if (param.toLowerCase().equals("type")) {
+				} else if (param.equalsIgnoreCase("type")) {
 					args.add("t string");
 				} else {
 					args.add(param.toLowerCase() + " string");
@@ -219,15 +219,15 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 		if (elements != null && elements.size() > 0) {
 			for (String param : elements) {
 				out.write("\n\t\t\"" + param + "\": ");
-				if (param.toLowerCase().equals("boolean")) {
+				if (param.equalsIgnoreCase("boolean")) {
 					addImports = true;
 					out.write("strconv.FormatBool(boolean)");
-				} else if (param.toLowerCase().equals("integer")) {
+				} else if (param.equalsIgnoreCase("integer")) {
 					addImports = true;
 					out.write("strconv.Itoa(i)");
-				} else if (param.toLowerCase().equals("string")) {
+				} else if (param.equalsIgnoreCase("string")) {
 					out.write("str");
-				} else if (param.toLowerCase().equals("type")) {
+				} else if (param.equalsIgnoreCase("type")) {
 					out.write("t");
 				} else {
 					out.write(param.toLowerCase());

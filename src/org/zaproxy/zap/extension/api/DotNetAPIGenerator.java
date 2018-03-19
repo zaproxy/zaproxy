@@ -157,9 +157,9 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 				} else {
 					out.write(", ");
 				}
-				if (param.toLowerCase().equals("boolean")) {
+				if (param.equalsIgnoreCase("boolean")) {
 					out.write("bool boolean");
-				} else if (param.toLowerCase().equals("integer")) {
+				} else if (param.equalsIgnoreCase("integer")) {
 					out.write("int i");
 				} else {
 					out.write("string ");
@@ -174,9 +174,9 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 				} else {
 					out.write(", ");
 				}
-				if (param.toLowerCase().equals("boolean")) {
+				if (param.equalsIgnoreCase("boolean")) {
 					out.write("bool boolean");
-				} else if (param.toLowerCase().equals("integer")) {
+				} else if (param.equalsIgnoreCase("integer")) {
 					out.write("int i");
 				} else {
 					out.write("string ");
@@ -195,9 +195,9 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 			if (element.getMandatoryParamNames() != null) {
 				for (String param : element.getMandatoryParamNames()) {
 					out.write("\t\t\tparameters.Add(\"" + param + "\", ");
-					if (param.toLowerCase().equals("boolean")) {
+					if (param.equalsIgnoreCase("boolean")) {
 						out.write("Convert.ToString(boolean)");
-					} else if (param.toLowerCase().equals("integer")) {
+					} else if (param.equalsIgnoreCase("integer")) {
 						out.write("Convert.ToString(i)");
 					} else {
 						out.write(createParameterName(param.toLowerCase()));
@@ -208,9 +208,9 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 			if (element.getOptionalParamNames() != null) {
 				for (String param : element.getOptionalParamNames()) {
 					out.write("\t\t\tparameters.Add(\"" + param + "\", ");
-					if (param.toLowerCase().equals("boolean")) {
+					if (param.equalsIgnoreCase("boolean")) {
 						out.write("Convert.ToString(boolean)");
-					} else if (param.toLowerCase().equals("integer")) {
+					} else if (param.equalsIgnoreCase("integer")) {
 						out.write("Convert.ToString(i)");
 					} else {
 						out.write(createParameterName(param.toLowerCase()));
