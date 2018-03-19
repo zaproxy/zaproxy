@@ -1,0 +1,155 @@
+swagger: "2.0"
+info:
+  description: "REST API for Zaproxy. The API let you control all the functionality of Zaproxy, and ease the process of integrating Zaproxy into CI."
+  version: "1.0.0"
+  title: "OWASP Zaproxy REST API"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "apiteam@swagger.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/JSON"
+tags:
+- name: "pscan"
+  description: "Passive Scan related functionality"
+  externalDocs:
+    description: "Find out more on the wiki"
+    url: "https://github.com/zaproxy/zap-core-help/wiki/HelpStartConceptsPscan"
+- name: "core"
+  description: "Core related functionality"
+schemes:
+- "http"
+paths:
+  /core/view/version/:
+    get:
+      tags:
+      - "core"
+      summary: "Get the current version of Zap"
+      description: ""
+      operationId: "getVersion"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "object"
+            properties:
+              version:
+                type: string
+                description: The version
+      security:
+        - api_key: []
+  /pscan/view/recordsToScan/:
+    get:
+      tags:
+      - "pscan"
+      summary: "Get the numbers of records left to scan"
+      description: ""
+      operationId: "getPScanRecordsToScan"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "zapapiformat"
+        description: "The output format"
+        required: true
+        type: "string"
+        default: "JSON"
+      - in: "query"
+        name: "formMethod"
+        description: "The HTTP method"
+        required: true
+        type: "string"
+        default: "GET"
+      responses:
+        200:
+          description: "Number of records left to scan"
+          schema:
+            type: "object"
+            properties:
+              recordsToScan:
+                type: string
+                description: The number of records left to scan
+      security:
+        - api_key: []
+  /core/view/alerts/:
+    get:
+      tags:
+      - "core"
+      summary: "Get all the alerts found in passive scan"
+      description: ""
+      operationId: "getAlerts"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: "baseurl"
+        description: "The base url of the app to test"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Alerts response"
+          schema:
+            $ref: "#/definitions/AlertsRespons"
+      security:
+        - api_key: []
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "apikey"
+    in: "query"
+definitions:
+  Alert:
+    type: "object"
+    properties:
+      sourceid:
+        type: "string"
+      other:
+        type: "string"
+      method:
+        type: "string"
+      evidence:
+        type: "string"
+      pluginId:
+        type: "string"
+      cweid:
+        type: "string"
+      confidence:
+        type: "string"
+      wascid:
+        type: "string"
+      description:
+        type: "string"
+      messageId:
+        type: "string"
+      url:
+        type: "string"
+      reference:
+        type: "string"
+      solution:
+        type: "string"
+      alert:
+        type: "string"
+      param:
+        type: "string"
+      attack:
+        type: "string"
+      name:
+        type: "string"
+      risk:
+        type: "string"
+      id:
+        type: "string"
+  AlertsRespons:
+    type: "object"
+    properties:
+      alerts:
+        type: array
+        items:
+          $ref: '#/definitions/Alert'
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
