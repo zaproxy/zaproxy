@@ -216,6 +216,15 @@ public class AddOnClassLoader extends URLClassLoader {
         childClassLoaders.remove(child);
     }
 
+    /**
+     * Gets the child class loaders.
+     *
+     * @return an unmodifiable list with the child class loaders.
+     */
+    List<AddOnClassLoader> getChildClassLoaders() {
+        return Collections.unmodifiableList(childClassLoaders);
+    }
+
     @Override
     public void close() throws IOException {
         for (AddOnClassLoader childClassLoader : childClassLoaders) {

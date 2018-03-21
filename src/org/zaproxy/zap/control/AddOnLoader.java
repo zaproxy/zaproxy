@@ -329,6 +329,13 @@ public class AddOnLoader extends URLClassLoader {
         		} catch (ClassNotFoundException e) {
         			// Continue for now
         		}
+                for (AddOnClassLoader childLoader : loader.getChildClassLoaders()) {
+                    try {
+                        return childLoader.loadClass(name);
+                    } catch (ClassNotFoundException e) {
+                        // Continue for now
+                    }
+                }
             }
             throw new ClassNotFoundException(name);
         }
