@@ -28,7 +28,7 @@ package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {
 
-    // ZAP: Parameter type constants
+    // NOTE: After adding a new type update ScannerParamFilter.
     public static final int TYPE_URL_PATH = ScannerParam.TARGET_URLPATH;
     public static final int TYPE_QUERY_STRING = ScannerParam.TARGET_QUERYSTRING;
     public static final int TYPE_COOKIE = ScannerParam.TARGET_COOKIE;
