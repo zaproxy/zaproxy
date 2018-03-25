@@ -127,7 +127,7 @@ public class BreakAPI extends ApiImplementor {
 			}
 			
 		} else if (ACTION_BREAK_ON_ID.equals(name)) {
-			extension.setBreakOnId(params.getString(PARAM_KEY), params.getString(PARAM_STATE).toLowerCase().equals("on"));
+			extension.setBreakOnId(params.getString(PARAM_KEY), params.getString(PARAM_STATE).equalsIgnoreCase("on"));
 
 		} else if (ACTION_CONTINUE.equals(name)) {
 			extension.getBreakpointManagementInterface().cont();

@@ -76,8 +76,10 @@ public class ContextUserAuthManager {
 	 * Sets a new list of users for this context. An internal copy of the provided list is stored.
 	 * 
 	 * @param users the users
+	 * @throws IllegalArgumentException (since TODO add version) if any of the given users is {@code null}.
 	 */
 	public void setUsers(List<User> users) {
+		users.forEach(u -> validateNonNull(u));
 		this.users = new ArrayList<>(users);
 	}
 
@@ -85,17 +87,33 @@ public class ContextUserAuthManager {
 	 * Adds an user.
 	 * 
 	 * @param user the user
+	 * @throws IllegalArgumentException (since TODO add version) if the given user is {@code null}.
 	 */
 	public void addUser(User user) {
+		validateNonNull(user);
 		users.add(user);
+	}
+
+	/**
+	 * Validates that the given {@code user} is non-{@code null}.
+	 *
+	 * @param user the user to validate.
+	 * @throws IllegalArgumentException if the given user is {@code null}.
+	 */
+	private static void validateNonNull(User user) {
+		if (user == null) {
+			throw new IllegalArgumentException("The parameter user must not be null.");
+		}
 	}
 
 	/**
 	 * Removes an user.
 	 * 
 	 * @param user the user
+	 * @throws IllegalArgumentException (since TODO add version) if the given user is {@code null}.
 	 */
 	public void removeUser(User user) {
+		validateNonNull(user);
 		users.remove(user);
 	}
 
