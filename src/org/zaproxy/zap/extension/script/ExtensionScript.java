@@ -851,13 +851,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				// Loop through all of the known scripts and templates 
 				// removing any from this directory
 				for (ScriptWrapper sw : this.getScripts(type)) {
-					if (sw.getFile().getParentFile().equals(locDir)) {
+					if (isSavedInDir(sw, locDir)) {
 						this.removeScript(sw);
 						removedScripts++;
 					}
 				}
 				for (ScriptWrapper sw : this.getTemplates(type)) {
-					if (sw.getFile().getParentFile().equals(locDir)) {
+					if (isSavedInDir(sw, locDir)) {
 						this.removeTemplate(sw);
 						removedScripts++;
 					}
@@ -867,6 +867,20 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		return removedScripts;
 	}
 	
+	/**
+	 * Tells whether or not the given script is saved in the given directory.
+	 *
+	 * @param scriptWrapper the script to check.
+	 * @param directory the directory where to check.
+	 * @return {@code true} if the script is saved in the given directory, {@code false} otherwise.
+	 */
+	private static boolean isSavedInDir(ScriptWrapper scriptWrapper, File directory) {
+		File file = scriptWrapper.getFile();
+		if (file == null) {
+			return false;
+		}
+		return file.getParentFile().equals(directory);
+	}
 
 	public int getScriptCount(File dir) {
 		int scripts = 0;
