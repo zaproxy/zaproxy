@@ -44,6 +44,7 @@
 // ZAP: 2017/11/16 Hide filtered nodes in macOS L&F.
 // ZAP: 2017/11/29 Delete site nodes with keyboard shortcut.
 // ZAP: 2017/12/22 Select context on row click.
+// ZAP: 2018/03/26 Expand node of selected context.
 
 package org.parosproxy.paros.view;
 
@@ -488,8 +489,9 @@ public class SiteMapPanel extends AbstractPanel {
 					    SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();
 					    if (node != null && node.getUserObject() != null) {
 					    	Target target = (Target)node.getUserObject();
-					    	getView().showSessionDialog(Model.getSingleton().getSession(), 
-					    			ContextGeneralPanel.getPanelName(target.getContext()));
+					    	String panelName = ContextGeneralPanel.getPanelName(target.getContext());
+					    	getView().getSessionDialog().expandParamPanelNode(panelName);
+					    	getView().showSessionDialog(Model.getSingleton().getSession(), panelName);
 					    }
 				    }
 				}
