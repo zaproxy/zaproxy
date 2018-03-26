@@ -21,7 +21,7 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -44,7 +44,7 @@ public class ScannerParamFilter implements Cloneable {
     private Pattern paramNamePattern;
     private Pattern urlPattern;
     
-    private static final Map<Integer, String> typeMap = new HashMap<>();
+    private static final Map<Integer, String> typeMap = new LinkedHashMap<>();
     static {
         typeMap.put(NameValuePair.TYPE_UNDEFINED, Constant.messages.getString("variant.param.type.all"));
         typeMap.put(NameValuePair.TYPE_QUERY_STRING, Constant.messages.getString("variant.param.type.query"));
@@ -52,6 +52,11 @@ public class ScannerParamFilter implements Cloneable {
         typeMap.put(NameValuePair.TYPE_URL_PATH, Constant.messages.getString("variant.param.type.path"));
         typeMap.put(NameValuePair.TYPE_HEADER, Constant.messages.getString("variant.param.type.header"));
         typeMap.put(NameValuePair.TYPE_COOKIE, Constant.messages.getString("variant.param.type.cookie"));
+        typeMap.put(NameValuePair.TYPE_JSON, Constant.messages.getString("variant.param.type.json"));
+        typeMap.put(NameValuePair.TYPE_MULTIPART_DATA_PARAM, Constant.messages.getString("variant.param.type.multipart.dataparam"));
+        typeMap.put(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME, Constant.messages.getString("variant.param.type.multipart.filename"));
+        typeMap.put(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, Constant.messages.getString("variant.param.type.multipart.fileparam"));
+        typeMap.put(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE, Constant.messages.getString("variant.param.type.multipart.contenttype"));
     }
     
 
