@@ -365,7 +365,7 @@ public class API {
 						}
 					} catch (IllegalArgumentException e) {
 						format = Format.HTML;
-						throw new ApiException(ApiException.Type.BAD_FORMAT);
+						throw new ApiException(ApiException.Type.BAD_FORMAT, e);
 					}
 				}
 				if (elements.length > 4) {
@@ -379,7 +379,7 @@ public class API {
 					try {
 						reqType = RequestType.valueOf(elements[5]);
 					} catch (IllegalArgumentException e) {
-						throw new ApiException(ApiException.Type.BAD_TYPE);
+						throw new ApiException(ApiException.Type.BAD_TYPE, e);
 					}
 				}
 				if (elements.length > 6) {
