@@ -25,13 +25,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -820,23 +820,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
         // Save version file so we can report new addons next time
 		File f = new File(Constant.FOLDER_LOCAL_PLUGIN, VERSION_FILE_NAME);
-    	FileWriter out = null;
-	    try {
-	    	out = new FileWriter(f);
-	    	out.write(msg.getResponseBody().toString());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-	    } finally {
-	    	try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException e) {
-				// Ignore
-			}
-		}
+        try{
+            Files.write(f.toPath(), msg.getResponseBody().getBytes());
+        }catch(IOException ioe){
+            logger.error(ioe.getMessage(), ioe);
+        }
 
-    	
     	return config;
     }
 
