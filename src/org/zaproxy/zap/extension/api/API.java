@@ -927,7 +927,7 @@ public class API {
         sb.append("HTTP/1.1 ").append(responseStatus).append("\r\n");
         if (! canCache) {
         	sb.append("Pragma: no-cache\r\n");
-        	sb.append("Cache-Control: no-cache\r\n");
+        	sb.append("Cache-Control: no-cache, no-store, must-revalidate\r\n");
         }
         sb.append("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self'\r\n");
         sb.append("Referrer-Policy: no-referrer\r\n");
