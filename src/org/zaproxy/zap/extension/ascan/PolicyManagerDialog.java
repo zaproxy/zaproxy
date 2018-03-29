@@ -36,7 +36,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -166,22 +166,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                 public void actionPerformed(ActionEvent e) {
                     // Default to ZAP home dir - we dont want to import/export to the policy dir
                     JFileChooser chooser = new JFileChooser(Constant.getZapHome());
-                    chooser.setFileFilter(new FileFilter() {
-                        @Override
-                        public boolean accept(File file) {
-                            if (file.isDirectory()) {
-                                return true;
-                            } else if (file.isFile() && file.getName().endsWith(".policy")) {
-                                return true;
-                            }
-                            return false;
-                        }
-
-                        @Override
-                        public String getDescription() {
-                            return Constant.messages.getString("file.format.zap.policy");
-                        }
-                    });
+                    chooser.setFileFilter(new FileNameExtensionFilter(Constant.messages.getString("file.format.zap.policy"), "policy"));
                     File file = null;
                     int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
                     if (rc == JFileChooser.APPROVE_OPTION) {
@@ -216,22 +201,8 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                         File file = new File(Constant.getZapHome(), name + PolicyManager.POLICY_EXTENSION);
                         chooser.setSelectedFile(file);
 
-                        chooser.setFileFilter(new FileFilter() {
-                            @Override
-                            public boolean accept(File file) {
-                                if (file.isDirectory()) {
-                                    return true;
-                                } else if (file.isFile() && file.getName().endsWith(".policy")) {
-                                    return true;
-                                }
-                                return false;
-                            }
-
-                            @Override
-                            public String getDescription() {
-                                return Constant.messages.getString("file.format.zap.policy");
-                            }
-                        });
+                        chooser.setFileFilter(
+                                new FileNameExtensionFilter(Constant.messages.getString("file.format.zap.policy"), "policy"));
                         int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
                         if (rc == JFileChooser.APPROVE_OPTION) {
                             file = chooser.getSelectedFile();

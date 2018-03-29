@@ -32,6 +32,7 @@ import java.util.TreeSet;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
@@ -313,25 +314,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     private File getOutputFile() {
 
 	    JFileChooser chooser = new JFileChooser(getModel().getOptionsParam().getUserDirectory());
-	    chooser.setFileFilter(new FileFilter() {
-	           @Override
-	           public boolean accept(File file) {
-	                if (file.isDirectory()) {
-	                    return true;
-	                } else if (file.isFile() && 
-	                		file.getName().toLowerCase().endsWith(".htm")) {
-	                    return true;
-	                } else if (file.isFile() && 
-	                		file.getName().toLowerCase().endsWith(".html")) {
-	                    return true;
-	                }
-	                return false;
-	            }
-	           @Override
-	           public String getDescription() {
-	               return Constant.messages.getString("file.format.html");
-	           }
-	    });
+	    chooser.setFileFilter(new FileNameExtensionFilter(Constant.messages.getString("file.format.html"), "htm", "html"));
 	    
 		File file = null;
 	    int rc = chooser.showSaveDialog(getView().getMainFrame());
