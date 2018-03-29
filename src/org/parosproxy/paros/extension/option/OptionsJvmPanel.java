@@ -18,6 +18,7 @@
 
 package org.parosproxy.paros.extension.option;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -63,6 +64,7 @@ public class OptionsJvmPanel extends AbstractParamPanel {
     public OptionsJvmPanel() {
         super();
         setName(NAME);
+        setLayout(new BorderLayout());
         
         JPanel panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
@@ -71,9 +73,9 @@ public class OptionsJvmPanel extends AbstractParamPanel {
 		jvmOptionsLabel.setLabelFor(getJvmOptionsField());
 		
 		panel.add(jvmOptionsLabel, 
-				LayoutHelper.getGBC(0, 0, 1, 1.0));
+				LayoutHelper.getGBC(0, 0, 1, 2.0));
 		panel.add(getJvmOptionsField(), 
-				LayoutHelper.getGBC(1, 0, 1, 1.0));
+				LayoutHelper.getGBC(1, 0, 1, 8.0));
 
 		panel.add(new JLabel(Constant.messages.getString("jvm.options.warning.restart")), 
 				LayoutHelper.getGBC(0, 1, 2, 1.0));
