@@ -155,10 +155,9 @@ public class WebUI {
 				// This is the default, but it can be overriden by the getDescriptionTag method if required
 				descTag = component + ".api." + type + "." + element.getName();
 			}
-			try {
+			if (Constant.messages.containsKey(descTag)) {
 				sb.append(Constant.messages.getString(descTag));
-			} catch (Exception e) {
-				// Might not be set, so ignore failures
+			} else {
 				// Uncomment to see what tags are missing via the UI
 				// sb.append(descTag);
 			}
@@ -246,10 +245,8 @@ public class WebUI {
 					// This is the default, but it can be overriden by the getDescriptionTag method if required
 					descTag = component + ".api." + reqType.name() + "." + name;
 				}
-				try {
+				if (Constant.messages.containsKey(descTag)) {
 					sb.append(Constant.messages.getString(descTag));
-				} catch (Exception e) {
-					// Might not be set, so ignore failures
 				}
 				
 				sb.append("\n<form id=\"zapform\" name=\"zapform\" action=\"override\">");
