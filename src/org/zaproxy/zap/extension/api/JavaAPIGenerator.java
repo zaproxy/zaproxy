@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class JavaAPIGenerator extends AbstractAPIGenerator {
 
@@ -80,6 +81,10 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 
     public JavaAPIGenerator(String path, boolean optional) {
     	super(path, optional);
+    }
+
+    public JavaAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
+        super(path, optional, resourceBundle);
     }
 
     /**

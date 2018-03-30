@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
 
@@ -44,6 +45,10 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
 
     public WikiAPIGenerator(String path, boolean optional) {
     	super(path, optional);
+    }
+
+    public WikiAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
+        super(path, optional, resourceBundle);
     }
 
 	private void generateWikiIndex() throws IOException {

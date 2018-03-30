@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class DotNetAPIGenerator extends AbstractAPIGenerator {
 	
@@ -77,6 +78,10 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 
     public DotNetAPIGenerator(String path, boolean optional) {
     	super(path, optional);
+    }
+
+    public DotNetAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
+        super(path, optional, resourceBundle);
     }
 
     /**
