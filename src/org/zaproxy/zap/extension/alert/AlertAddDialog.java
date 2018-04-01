@@ -27,7 +27,6 @@ import java.awt.HeadlessException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -81,7 +80,6 @@ public class AlertAddDialog extends AbstractDialog {
      */
     private HttpMessage httpMessage;
 	
-	private JScrollPane jScrollPane = null;
 	private AlertViewPanel alertViewPanel = null;
 	
     /**
@@ -170,7 +168,7 @@ public class AlertAddDialog extends AbstractDialog {
 			gridBagConstraints15.ipadx = 0;
 			gridBagConstraints15.ipady = 10;
 
-			jPanel.add(getJScrollPane(), gridBagConstraints15);
+			jPanel.add(getAlertViewPanel(), gridBagConstraints15);
 			jPanel.add(jLabel2, gridBagConstraints13);
 			jPanel.add(getBtnCancel(), gridBagConstraints2);
 			jPanel.add(getBtnOk(), gridBagConstraints3);
@@ -261,21 +259,6 @@ public class AlertAddDialog extends AbstractDialog {
 		}
 		// Change the title as we're editing an existing alert
         this.setTitle(Constant.messages.getString("alert.edit.title"));
-	}
-	
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			jScrollPane.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			jScrollPane.setViewportView(getAlertViewPanel());
-		}
-		return jScrollPane;
 	}
 
 	public HistoryReference getHistoryRef() {

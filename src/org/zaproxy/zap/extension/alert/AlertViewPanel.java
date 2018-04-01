@@ -46,6 +46,8 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.ScrollableSizeHint;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -77,7 +79,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private JScrollPane defaultPane = null;
 	private JScrollPane alertPane = null;
 	private ZapTextArea defaultOutput = null;
-	private JPanel alertDisplay = null;
+	private JXPanel alertDisplay = null;
 	private CardLayout cardLayout = null;
 	
 	private ZapLabel alertUrl = null;
@@ -188,8 +190,9 @@ public class AlertViewPanel extends AbstractPanel {
 	
 	private JPanel getAlertDisplay() {
 		if (alertDisplay == null) {
-			alertDisplay = new JPanel();
+			alertDisplay = new JXPanel();
 			alertDisplay.setLayout(new GridBagLayout());
+			alertDisplay.setScrollableHeightHint(ScrollableSizeHint.NONE);
 			alertDisplay.setName("alertDisplay");
 			
 			// Create the labels
@@ -276,7 +279,6 @@ public class AlertViewPanel extends AbstractPanel {
 			alertUrl.setLineWrap(true);
 			
 			alertDescription = createZapTextArea();
-			alertDescription.setLineWrap(true);
 			JScrollPane descSp = createJScrollPane(Constant.messages.getString("alert.label.desc"));
 			descSp.setViewportView(alertDescription);
 			alertDescription.addKeyListener(new KeyAdapter() {
@@ -290,7 +292,6 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertOtherInfo = createZapTextArea();
-			alertOtherInfo.setLineWrap(true);
 			JScrollPane otherSp = createJScrollPane(Constant.messages.getString("alert.label.other"));
 			otherSp.setViewportView(alertOtherInfo);
 			alertOtherInfo.addKeyListener(new KeyAdapter() {
@@ -304,7 +305,6 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertSolution = createZapTextArea();
-			alertSolution.setLineWrap(true);
 			JScrollPane solutionSp = createJScrollPane(Constant.messages.getString("alert.label.solution"));
 			solutionSp.setViewportView(alertSolution);
 			alertSolution.addKeyListener(new KeyAdapter() {
@@ -318,7 +318,6 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertReference = createZapTextArea();
-			alertReference.setLineWrap(true);
 			JScrollPane referenceSp = createJScrollPane(Constant.messages.getString("alert.label.ref"));
 			referenceSp.setViewportView(alertReference);
 			alertReference.addKeyListener(new KeyAdapter() {
