@@ -30,6 +30,7 @@
 // ZAP: 2015/09/07 Issue 1872: EDT accessed in daemon mode
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2018/03/14 Publish event when href added
+// ZAP: 2018/04/02 Log copy of the message to avoid following listeners to change it before persisting it.
 
 package org.parosproxy.paros.extension.history;
  
@@ -116,10 +117,11 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             }
 		}
 		final int finalType = type;
+		final HttpMessage clonedMessage = msg.cloneAll();
 		Thread t = new Thread(new Runnable() {
 		    @Override
 		    public void run() {
-		        createAndAddMessage(msg, finalType);
+		        createAndAddMessage(clonedMessage, finalType);
 		    }
 		});
 		t.start();
