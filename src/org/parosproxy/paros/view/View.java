@@ -76,6 +76,7 @@
 // ZAP: 2017/10/20 Implement method to expose default delete keyboard shortcut (Issue 3626).
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 // ZAP: 2018/01/08 Expand first context added.
+// ZAP: 2018/03/30 Check if resource message exists (for changes in I18N).
 
 package org.parosproxy.paros.view;
 
@@ -90,7 +91,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -277,19 +277,12 @@ public class View implements ViewDelegate {
         
         String statusString;
         for(Status status : AddOn.Status.values()) {     	
-        	//Try/catch in case AddOn.Status gets out of sync with cfu.status i18n entries
-        	try {
-        		statusString = Constant.messages.getString("cfu.status." + status.toString());
-        	} catch (MissingResourceException mre) {
+        	// Handle the case AddOn.Status gets out of sync with cfu.status i18n entries
+        	String i18nKey = "cfu.status." + status.toString();
+        	if (Constant.messages.containsKey(i18nKey)) {
+        		statusString = Constant.messages.getString(i18nKey);
+        	} else {
         		statusString = status.toString();
-        		
-        		String errString="Caught " + mre.getClass().getName() + " " + mre.getMessage() + 
-						" when looking for i18n string: cfu.status." + statusString;
-        		if (Constant.isDevBuild()) {
-        			logger.error(errString);
-        		} else {
-        			logger.warn(errString);
-        		}
         	}
         	statusMap.put(status, new StatusUI(status, statusString));
         }
