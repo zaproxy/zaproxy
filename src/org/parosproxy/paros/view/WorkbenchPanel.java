@@ -34,6 +34,7 @@
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/08/30 Add tool tip to response tab.
 // ZAP: 2018/02/14 Add new layout ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
+// ZAP: 2018/04/03 Update for behavioural changes in TabbedPanel2.
 
 package org.parosproxy.paros.view;
 
@@ -52,7 +53,6 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -251,6 +251,13 @@ public class WorkbenchPanel extends JPanel {
 	private final TabbedPanel2 responseTabbedPanel;
 
 	/**
+	 * The index of the {@link #requestPanel} in the tabbed pane of the current {@link #layout}.
+	 * 
+	 * @see #getCurrentRequestTabIndex()
+	 */
+	private int requestTabIndex;
+
+	/**
 	 * A {@code JSplitPane} to show the request and response in the same tab.
 	 * <p>
 	 * Lazily initialised.
@@ -420,6 +427,7 @@ public class WorkbenchPanel extends JPanel {
 
 		this.preferences = Preferences.userNodeForPackage(getClass());
 
+		requestTabIndex = -1;
 		setResponsePanelPosition(ResponsePanelPosition.TABS_SIDE_BY_SIDE);
 		setWorkbenchLayout(Layout.EXPAND_STATUS);
 	}
@@ -472,6 +480,8 @@ public class WorkbenchPanel extends JPanel {
 			return;
 		}
 
+		requestTabIndex = getCurrentRequestTabIndex();
+
 		Layout previousLayout = this.layout;
 		this.layout = layout;
 
@@ -482,8 +492,11 @@ public class WorkbenchPanel extends JPanel {
 		switch (layout) {
 		case FULL:
 			visiblePanels = getTabbedStatus().getVisiblePanels();
+			getTabbedStatus().hideAllTabs();
 			visiblePanels.addAll(getTabbedWork().getVisiblePanels());
+			getTabbedWork().hideAllTabs();
 			visiblePanels.addAll(getTabbedSelect().getVisiblePanels());
+			getTabbedSelect().hideAllTabs();
 			getTabbedFull().setVisiblePanels(visiblePanels);
 			updateFullLayout();
 			this.add(getFullLayoutPanel());
@@ -495,6 +508,7 @@ public class WorkbenchPanel extends JPanel {
 
 			if (previousLayout == Layout.FULL) {
 				visiblePanels = getTabbedFull().getVisiblePanels();
+				getTabbedFull().hideAllTabs();
 				getTabbedStatus().setVisiblePanels(visiblePanels);
 				getTabbedWork().setVisiblePanels(visiblePanels);
 				getTabbedSelect().setVisiblePanels(visiblePanels);
@@ -506,6 +520,36 @@ public class WorkbenchPanel extends JPanel {
 
 		this.validate();
 		this.repaint();
+	}
+
+	/**
+	 * Gets index of the {@link #requestPanel} in the tabbed pane of the current {@link #layout}.
+	 * <p>
+	 * <strong>Note:</strong> This should be called prior changing the layout or position of the response panel, as it affects
+	 * the actual position of request panel.
+	 *
+	 * @return the index of the request panel.
+	 */
+	private int getCurrentRequestTabIndex() {
+		if (layout == Layout.FULL) {
+			if (responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE) {
+				return getTabbedFull().indexOfComponent(splitRequestAndResponsePanel);
+			}
+			return getTabbedFull().indexOfComponent(requestPanel);
+		}
+
+		if (responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE) {
+			int idx = getTabbedWork().indexOfComponent(splitRequestAndResponsePanel);
+			if (idx != -1) {
+				return idx;
+			}
+		}
+		int idx = getTabbedWork().indexOfComponent(requestPanel);
+		if (idx != -1) {
+			return idx;
+		}
+		// Panel not shown yet, return "old" index.
+		return requestTabIndex;
 	}
 
 	/**
@@ -801,41 +845,39 @@ public class WorkbenchPanel extends JPanel {
 		validateNotNull(panels, "panels");
 		validateNotNull(panelType, "panelType");
 
-		addPanels(getTabbedFull(), panels);
+		boolean fullLayout = layout == Layout.FULL;
+
+		addPanels(getTabbedFull(), panels, fullLayout);
 
 		switch (panelType) {
 		case SELECT:
-			addPanels(getTabbedSelect(), panels);
+			addPanels(getTabbedSelect(), panels, !fullLayout);
 			break;
 		case STATUS:
-			addPanels(getTabbedStatus(), panels);
+			addPanels(getTabbedStatus(), panels, !fullLayout);
 			break;
 		case WORK:
-			addPanels(getTabbedWork(), panels);
+			addPanels(getTabbedWork(), panels, !fullLayout);
 			break;
 		default:
 			break;
 		}
-
-		if (layout == Layout.FULL) {
-			// Force the panels to be visible, adding to other tabbed panels removes the UI components from full tabbed panel
-			getTabbedFull().setVisiblePanels(getTabbedFull().getVisiblePanels());
-		}
 	}
 
 	/**
-	 * Adds the given {@code panels} to the given {@code tabbedPanel}.
+	 * Adds the given {@code panels} to the given {@code tabbedPanel} and whether they should be visible.
 	 * <p>
 	 * After adding all the panels the tabbed panel is revalidated.
 	 *
 	 * @param tabbedPanel the tabbed panel to add the panels
 	 * @param panels the panels to add
-	 * @see #addPanel(TabbedPanel2, AbstractPanel)
+	 * @param visible {@code true} if the panel should be visible, {@code false} otherwise.
+	 * @see #addPanel(TabbedPanel2, AbstractPanel, boolean)
 	 * @see javax.swing.JComponent#revalidate()
 	 */
-	private static void addPanels(TabbedPanel2 tabbedPanel, List<AbstractPanel> panels) {
+	private static void addPanels(TabbedPanel2 tabbedPanel, List<AbstractPanel> panels, boolean visible) {
 		for (AbstractPanel panel : panels) {
-			addPanel(tabbedPanel, panel);
+			addPanel(tabbedPanel, panel, visible);
 		}
 		tabbedPanel.revalidate();
 	}
@@ -845,10 +887,15 @@ public class WorkbenchPanel extends JPanel {
 	 *
 	 * @param tabbedPanel the tabbed panel to add the panel
 	 * @param panel the panel to add
-	 * @see #addPanels(TabbedPanel2, List)
+	 * @param visible {@code true} if the panel should be visible, {@code false} otherwise.
+	 * @see #addPanels(TabbedPanel2, List, boolean)
 	 */
-	private static void addPanel(TabbedPanel2 tabbedPanel, AbstractPanel panel) {
-		tabbedPanel.addTab(panel);
+	private static void addPanel(TabbedPanel2 tabbedPanel, AbstractPanel panel, boolean visible) {
+		if (visible) {
+			tabbedPanel.addTab(panel);
+		} else {
+			tabbedPanel.addTabHidden(panel);
+		}
 	}
 
 	/**
@@ -865,28 +912,25 @@ public class WorkbenchPanel extends JPanel {
 		validateNotNull(panel, "panel");
 		validateNotNull(panelType, "panelType");
 
-		addPanel(getTabbedFull(), panel);
+		boolean fullLayout = layout == Layout.FULL;
+
+		addPanel(getTabbedFull(), panel, fullLayout);
 
 		switch (panelType) {
 		case SELECT:
-			addPanel(getTabbedSelect(), panel);
+			addPanel(getTabbedSelect(), panel, !fullLayout);
 			getTabbedSelect().revalidate();
 			break;
 		case STATUS:
-			addPanel(getTabbedStatus(), panel);
+			addPanel(getTabbedStatus(), panel, !fullLayout);
 			getTabbedStatus().revalidate();
 			break;
 		case WORK:
-			addPanel(getTabbedWork(), panel);
+			addPanel(getTabbedWork(), panel, !fullLayout);
 			getTabbedWork().revalidate();
 			break;
 		default:
 			break;
-		}
-
-		if (layout == Layout.FULL) {
-			// Force the panels to be visible, adding to other tabbed panels removes the UI components from full tabbed panel
-			getTabbedFull().setVisiblePanels(getTabbedFull().getVisiblePanels());
 		}
 	}
 
@@ -928,7 +972,7 @@ public class WorkbenchPanel extends JPanel {
 	 *
 	 * @param tabbedPanel the tabbed panel to remove the panels
 	 * @param panels the panels to remove
-	 * @see #addPanel(TabbedPanel2, AbstractPanel)
+	 * @see #addPanel(TabbedPanel2, AbstractPanel, boolean)
 	 * @see javax.swing.JComponent#revalidate()
 	 */
 	private static void removePanels(TabbedPanel2 tabbedPanel, List<AbstractPanel> panels) {
@@ -1131,6 +1175,8 @@ public class WorkbenchPanel extends JPanel {
 	void setResponsePanelPosition(ResponsePanelPosition position) {
 		validateNotNull(position, "position");
 
+		requestTabIndex = getCurrentRequestTabIndex();
+
 		responsePanelPosition = position;
 		if (layout == Layout.FULL) {
 			updateFullLayout();
@@ -1163,7 +1209,7 @@ public class WorkbenchPanel extends JPanel {
 			if (currentTabbedPanel == responseTabbedPanel) {
 				currentTabbedPanel = tabbedWork;
 			}
-			insertTab(tabbedWork, responsePanel, tabbedWork.indexOfComponent(requestPanel) + 1);
+			insertResponseTab(tabbedWork);
 
 			getPaneWork().removeAll();
 			getPaneWork().add(getTabbedWork());
@@ -1183,25 +1229,14 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	private void updateFullLayout() {
-		if (responsePanelPosition == ResponsePanelPosition.PANEL_ABOVE
-				|| responsePanelPosition == ResponsePanelPosition.PANELS_SIDE_BY_SIDE) {
-			removeSplitRequestAndResponsePanel(tabbedFull);
-			if (tabbedFull.indexOfComponent(responsePanel) == -1) {
-				insertTab(tabbedFull, responsePanel, tabbedFull.indexOfComponent(requestPanel) + 1);
-			}
-			getFullLayoutPanel().validate();
-			return;
-		}
-
 		boolean selectRequest = removeSplitRequestAndResponsePanel(tabbedFull);
 
 		if (responsePanelPosition == ResponsePanelPosition.TAB_SIDE_BY_SIDE) {
 			splitResponsePanelWithRequestPanel(JSplitPane.HORIZONTAL_SPLIT, tabbedFull);
-			getFullLayoutPanel().validate();
-		} else if (responsePanelPosition == ResponsePanelPosition.TABS_SIDE_BY_SIDE) {
-			insertTab(tabbedFull, responsePanel, tabbedFull.indexOfComponent(requestPanel) + 1);
-			getFullLayoutPanel().validate();
+		} else {
+			addRequestResponseTabs(tabbedFull);
 		}
+		getFullLayoutPanel().validate();
 
 		if (selectRequest || getTabbedFull().getSelectedComponent() == null) {
 			tabbedFull.setSelectedComponent(
@@ -1211,25 +1246,27 @@ public class WorkbenchPanel extends JPanel {
 		}
 	}
 
-	private void insertTab(TabbedPanel2 tabbedPanel, AbstractPanel panel, int position) {
-		String tabName = getNormalisedTabName(panel);
-		insertTab(tabbedPanel, panel, position, tabName, DisplayUtils.getScaledIcon(panel.getIcon()));
+	private void addRequestResponseTabs(TabbedPanel2 tabbedPanel) {
+		tabbedPanel.addTab(requestPanel, requestTabIndex);
+		insertResponseTab(tabbedPanel);
 	}
 
-	private void insertTab(TabbedPanel2 tabbedPanel, Component panel, int position, String tabName, Icon icon) {
-		tabbedPanel.insertTab(tabName, icon, panel, tabName, position);
+	private void insertResponseTab(TabbedPanel2 tabbedPanel) {
+		String tabName = getNormalisedTabName(responsePanel);
+		tabbedPanel.insertTab(
+				tabName,
+				DisplayUtils.getScaledIcon(responsePanel.getIcon()),
+				responsePanel,
+				tabName,
+				tabbedPanel.indexOfComponent(requestPanel) + 1);
 	}
 
 	private String getNormalisedTabName(AbstractPanel panel) {
-		return getNormalisedTabName(panel.getName());
-	}
-
-	private String getNormalisedTabName(String panelName) {
-		return showTabNames ? panelName : "";
+		return showTabNames ? panel.getName() : "";
 	}
 
 	private void splitResponsePanelWithWorkTabbedPanel(int orientation) {
-		responseTabbedPanel.removeAll();
+		responseTabbedPanel.hideAllTabs();
 
 		responseTabbedPanel.addTab(getNormalisedTabName(responsePanel), responsePanel.getIcon(), responsePanel);
 
@@ -1267,14 +1304,13 @@ public class WorkbenchPanel extends JPanel {
 		}
 
 		Component selectedComponent = tabbedPanel.getSelectedComponent();
-		int requestPanelIndex = tabbedPanel.indexOfComponent(requestPanel);
 
 		splitRequestAndResponse.setLeftComponent(requestPanel);
 		tabbedPanel.removeTab(requestPanel);
 		splitRequestAndResponse.setRightComponent(responsePanel);
 		tabbedPanel.removeTab(responsePanel);
 
-		tabbedPanel.addTab(splitRequestAndResponsePanel, requestPanelIndex);
+		tabbedPanel.addTab(splitRequestAndResponsePanel, requestTabIndex);
 
 		if (selectedComponent == requestPanel || selectedComponent == responsePanel) {
 			tabbedPanel.setSelectedComponent(splitRequestAndResponsePanel);
@@ -1287,7 +1323,7 @@ public class WorkbenchPanel extends JPanel {
 		if (pos != -1) {
 			selectRequest = tabbedPanel.getSelectedComponent() == splitRequestAndResponsePanel;
 			tabbedPanel.removeTab(splitRequestAndResponsePanel);
-			tabbedPanel.addTab(requestPanel, pos);
+			addRequestResponseTabs(tabbedPanel);
 		}
 		return selectRequest;
 	}

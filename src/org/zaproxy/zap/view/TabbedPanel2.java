@@ -244,14 +244,33 @@ public class TabbedPanel2 extends TabbedPanel {
 					this.addTab(c.getName(), null, c, true, true, index);
 				}
 				this.hiddenTabs.remove(c);
+				handleHiddenTabListTab();
 			}
-			
-		} else {
-			if (! this.hiddenTabs.contains(c)) {
-				remove(c);
-				this.hiddenTabs.add(c);
-			}
+			return;
 		}
+
+		hideTab(c);
+	}
+
+	/**
+	 * Hides the tab of the given component.
+	 * <p>
+	 * <strong>Note:</strong> Non-{@link AbstractPanel#isHideable() hideable} and {@link AbstractPanel#isPinned() pinned} panels
+	 * are hidden as well.
+	 *
+	 * @param component the component to hide.
+	 */
+	private void hideTab(Component component) {
+		if (hiddenTabs.contains(component)) {
+			return;
+		}
+		hiddenTabs.add(component);
+
+		int index = indexOfComponent(component);
+		if (index != -1) {
+			super.removeTabAt(index);
+		}
+		
 		handleHiddenTabListTab();
 	}
 
@@ -275,6 +294,21 @@ public class TabbedPanel2 extends TabbedPanel {
 	 */
 	public void addTab(AbstractPanel panel) {
 	    addTab(panel, panel.getTabIndex());
+	}
+
+	/**
+	 * Adds the given panel, whose tab will be hidden.
+	 * <p>
+	 * This method effectively overrides the {@link AbstractPanel#isHideable() hideable} and {@link AbstractPanel#isPinned()
+	 * pinned} state of the panel.
+	 *
+	 * @param panel the panel to add.
+	 * @since TODO add version
+	 * @see #addTab(AbstractPanel)
+	 * @see #setVisible(Component, boolean)
+	 */
+	public void addTabHidden(AbstractPanel panel) {
+		this.addTab(panel.getName(), panel.getIcon(), panel, panel.isHideable(), false, panel.getTabIndex());
 	}
 
 	/**
@@ -306,11 +340,22 @@ public class TabbedPanel2 extends TabbedPanel {
 	 * @param index the index of the tab.
 	 */
 	public void addTab(String title, Icon icon, final Component c, boolean hideable, boolean visible, int index) {
+		if (!this.fullTabList.contains(c)) {
+			this.fullTabList.add(c);
+		}
+
 		if (c instanceof AbstractPanel) {
 			((AbstractPanel)c).setParent(this);
 			((AbstractPanel)c).setTabIndex(index);
 			((AbstractPanel)c).setHideable(hideable);
 		}
+
+		if (!visible) {
+			hideTab(c);
+			return;
+		}
+
+		this.hiddenTabs.remove(c);
 
 		if (index == -1 || index > this.getTabCount()) {
 			index = this.getTabCount();
@@ -321,20 +366,10 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		super.insertTab(title, icon, c, c.getName(), index);
 
-		if ( ! this.fullTabList.contains(c)) {
-			this.fullTabList.add(c);
-		}
-		
 		int pos = this.indexOfComponent(c);
 		// Now assign the component for the tab
 		
 		this.setTabComponentAt(pos, new TabbedPanelTab(this, title, icon, c, hideable, this.isTabPinned(c)));
-
-		if (! visible) {
-			setVisible(c, false);
-		} else {
-			this.hiddenTabs.remove(c);
-		}
 
 		handleHiddenTabListTab();
 
@@ -421,6 +456,8 @@ public class TabbedPanel2 extends TabbedPanel {
 	 */
 	public void removeTab(AbstractPanel panel) {
 		this.remove(panel);
+		// Ensure its removed from internal state (for when the tab is not visible).
+		removeFromInternalState(panel);
 	}
 
 	/**
@@ -439,21 +476,62 @@ public class TabbedPanel2 extends TabbedPanel {
 			return;
 		}
 
-		AbstractPanel panel = (AbstractPanel) component;
+		removeFromInternalState(component);
+	}
+
+	/**
+	 * Removes the given panel/component from the internal state, that is, from {@link #fullTabList} and {@link #hiddenTabs}.
+	 *
+	 * @param panel the panel/component to remove.
+	 */
+	private void removeFromInternalState(Component panel) {
 		this.fullTabList.remove(panel);
 		if (this.hiddenTabs.remove(panel)) {
 			handleHiddenTabListTab();
 		}
 	}
 
+	/**
+	 * Removes all tabs and corresponding panels.
+	 * 
+	 * @see #hideAllTabs()
+	 */
 	@Override
 	public void removeAll() {
-		super.removeAll();
+		fullTabList.clear();
+		hiddenTabs.clear();
 
+		removeAllTabs();
+	}
+
+	/**
+	 * Internal method that removes all tabs from the UI component.
+	 */
+	private void removeAllTabs() {
+		setSelectedIndex(-1);
+		int tabCount = getTabCount();
+		while (tabCount-- > 0) {
+			super.removeTabAt(tabCount);
+		}
+
+		handleHiddenTabListTab();
+	}
+
+	/**
+	 * Hides all tabs.
+	 * <p>
+	 * <strong>Note:</strong> Non-{@link AbstractPanel#isHideable() hideable} and {@link AbstractPanel#isPinned() pinned} panels
+	 * are hidden as well.
+	 *
+	 * @see #setPanelsVisible(boolean)
+	 * @see #setVisiblePanels(List)
+	 * @since TODO add version
+	 */
+	public void hideAllTabs() {
 		hiddenTabs.clear();
 		hiddenTabs.addAll(fullTabList);
 
-		handleHiddenTabListTab();
+		removeAllTabs();
 	}
 
   /**
@@ -541,9 +619,10 @@ public class TabbedPanel2 extends TabbedPanel {
      * @param panels the panels that should be visible
      * @since 2.5.0
      * @see #getVisiblePanels()
+     * @see #hideAllTabs()
      */
     public void setVisiblePanels(List<AbstractPanel> panels) {
-        removeAll();
+        hideAllTabs();
 
         for (Component component : fullTabList) {
             if (panels.contains(component)) {
@@ -570,6 +649,7 @@ public class TabbedPanel2 extends TabbedPanel {
      * @param visible {@code true} if all panels should be visible, {@code false} otherwise.
      * @since 2.5.0
      * @see #getVisiblePanels()
+     * @see #hideAllTabs()
      */
     public void setPanelsVisible(boolean visible) {
         for (Component component : fullTabList) {
