@@ -356,6 +356,7 @@ def main(argv):
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
+                    logging.debug('Using target from imported file: {0}'.format(target))
                 else:
                     logging.error('Failed to import any URLs')
         else:
@@ -370,6 +371,7 @@ def main(argv):
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
+                    logging.debug('Using target from imported file: {0}'.format(target))
                 else:
                     logging.error('Failed to import any URLs')
 
@@ -377,8 +379,10 @@ def main(argv):
         logging.debug('Import warnings: ' + str(res))
 
         if target.count('/') > 2:
+            old_target = target
             # The url can include a valid path, but always reset to scan the host
             target = target[0:target.index('/', 8)+1]
+            logging.debug('Normalised target from {0} to {1}'.format(old_target, target))
 
         # Wait for a delay if specified with -D option
         if (delay):
