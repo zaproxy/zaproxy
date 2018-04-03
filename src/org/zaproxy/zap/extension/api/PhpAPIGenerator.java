@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 public class PhpAPIGenerator extends AbstractAPIGenerator {
 
@@ -71,6 +72,10 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
 
     public PhpAPIGenerator(String path, boolean optional) {
     	super(path, optional);
+    }
+
+    public PhpAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
+        super(path, optional, resourceBundle);
     }
 
     /**
