@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
+import java.util.Locale;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -286,8 +287,8 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			}
 			@Override
 			public boolean accept(File f) {
-				return f.getName().toLowerCase().endsWith(CONFIGURATION_FILENAME) ||
-						f.getName().toLowerCase().endsWith("pem") || f.isDirectory();
+				String lcFileName = f.getName().toLowerCase(Locale.ROOT);
+				return lcFileName.endsWith(CONFIGURATION_FILENAME) || lcFileName.endsWith("pem") || f.isDirectory();
 			}
 		});
 		final int result = fc.showOpenDialog(this);

@@ -29,6 +29,7 @@
 // ZAP: 2014/03/23 Changed to a JMenuItem.
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
+// ZAP: 2018/03/29 Use FileNameExtensionFilter.
 
 package org.parosproxy.paros.extension.history;
 
@@ -37,11 +38,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -160,21 +162,7 @@ public class PopupMenuExportMessage extends JMenuItem {
     private File getOutputFile() {
 
 	    JFileChooser chooser = new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
-	    chooser.setFileFilter(new FileFilter() {
-	           @Override
-	           public boolean accept(File file) {
-	                if (file.isDirectory()) {
-	                    return true;
-	                } else if (file.isFile() && file.getName().endsWith(".txt")) {
-	                    return true;
-	                }
-	                return false;
-	            }
-	           @Override
-	           public String getDescription() {
-	               return Constant.messages.getString("file.format.ascii");
-	           }
-	    });
+	    chooser.setFileFilter(new FileNameExtensionFilter(Constant.messages.getString("file.format.ascii"), "txt"));
 		File file = null;
 	    int rc = chooser.showSaveDialog(extension.getView().getMainFrame());
 	    if(rc == JFileChooser.APPROVE_OPTION) {
@@ -184,7 +172,7 @@ public class PopupMenuExportMessage extends JMenuItem {
     		}
             extension.getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
     		String fileName = file.getAbsolutePath();
-    		if (!fileName.endsWith(".txt")) {
+    		if (!fileName.toLowerCase(Locale.ROOT).endsWith(".txt")) {
     		    fileName += ".txt";
     		    file = new File(fileName);
     		}

@@ -34,7 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
@@ -213,17 +213,8 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	
 	private void browseButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new FileFilter() {
-			@Override
-			public String getDescription() {
-				return Constant.messages.getString("options.lang.file.chooser.description");
-			}
-
-			@Override
-			public boolean accept(java.io.File f) {
-				return f.isDirectory() || f.getName().toLowerCase().endsWith(".zaplang");
-			}
-		});
+		fc.setFileFilter(
+				new FileNameExtensionFilter(Constant.messages.getString("options.lang.file.chooser.description"), "zaplang"));
 
 		final int state = fc.showOpenDialog(null);
 
