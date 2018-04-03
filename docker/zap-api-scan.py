@@ -61,6 +61,10 @@ from zapv2 import ZAPv2
 from zap_common import *
 
 
+class NoUrlsException(Exception):
+    pass
+
+
 config_dict = {}
 config_msg = {}
 out_of_scope_dict = {}
@@ -357,8 +361,6 @@ def main(argv):
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
-                else:
-                    logging.error('Failed to import any URLs')
         else:
             if target_url:
                 logging.debug('Import SOAP URL ' + target_url)
@@ -372,11 +374,14 @@ def main(argv):
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
-                else:
-                    logging.error('Failed to import any URLs')
 
         logging.info('Number of Imported URLs: ' + str(len(urls)))
         logging.debug('Import warnings: ' + str(res))
+
+        if len(urls) == 0:
+            logging.warning('Failed to import any URLs')
+            # No point continue, there's nothing to scan.
+            raise NoUrlsException()
 
         if target.count('/') > 2:
             old_target = target
@@ -519,6 +524,9 @@ def main(argv):
         else:
             print("ERROR %s" % e)
             logging.warning('I/O error: ' + str(e))
+        dump_log_file(cid)
+
+    except NoUrlsException:
         dump_log_file(cid)
 
     except:
