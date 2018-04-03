@@ -1,3 +1,22 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ *
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Copyright 2013 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
@@ -28,13 +47,16 @@ import org.zaproxy.zap.utils.DisplayUtils;
 
 /**
  * A tabbed panel that adds the option to hide individual tabs via a cross button on the tab.
+ * 
+ * @since 2.2.0
  */
 public class TabbedPanel2 extends TabbedPanel {
 
 	private static final long serialVersionUID = 1L;
+	private static final Comparator<Component> NAME_COMPARATOR = (c1, c2) -> c1.getName().compareTo(c2.getName());
 	
 	private List<Component> fullTabList = new ArrayList<>();
-	private List<Component> removedTabList = new ArrayList<>();
+	private List<Component> hiddenTabs = new ArrayList<>();
 
 	private static final Icon PLUS_ICON = DisplayUtils.getScaledIcon(new ImageIcon(
 			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png")));
@@ -79,14 +101,9 @@ public class TabbedPanel2 extends TabbedPanel {
 			// Startup
 			return;
 		}
-		// Sort the list so the tabs are always in alphabetic order
-		Collections.sort(this.removedTabList, new Comparator<Component>(){
-			@Override
-			public int compare(Component o1, Component o2) {
-				return o1.getName().compareTo(o2.getName());
-			}});
+		Collections.sort(this.hiddenTabs, NAME_COMPARATOR);
 		
-		for (Component c : this.removedTabList) {
+		for (Component c : this.hiddenTabs) {
 			if (c instanceof AbstractPanel) {
 				final AbstractPanel ap = (AbstractPanel)c;
 				JMenuItem mi = new JMenuItem(ap.getName());
@@ -114,7 +131,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
 		TabbedPanel2 t = new TabbedPanel2();
 		t.fullTabList = new ArrayList<>(tabbedPanel.fullTabList);
-		t.removedTabList = new ArrayList<>(tabbedPanel.removedTabList);
+		t.hiddenTabs = new ArrayList<>(tabbedPanel.hiddenTabs);
 		return t;
 	}
 	
@@ -193,12 +210,21 @@ public class TabbedPanel2 extends TabbedPanel {
 			// Not a known tab
 			return false;
 		}
-		return ! this.removedTabList.contains(c);
+		return ! this.hiddenTabs.contains(c);
 	}
 
+	/**
+	 * Sets whether or not the given component (and corresponding tab) is visible.
+	 * <p>
+	 * <strong>Note:</strong> Non-{@link AbstractPanel#isHideable() hideable} and {@link AbstractPanel#isPinned() pinned} panels
+	 * are hidden as well.
+	 *
+	 * @param c the component to show or hide.
+	 * @param visible {@code true} if the tab of the component should be visible, {@code false} otherwise.
+	 */
 	public void setVisible(Component c, boolean visible) {
 		if (visible) {
-			if (this.removedTabList.contains(c)) {
+			if (this.hiddenTabs.contains(c)) {
 				
 				if (c instanceof AbstractPanel) {
 					// Don't use the addTab(AbstractPanel) methods as we need to force visibility
@@ -208,7 +234,7 @@ public class TabbedPanel2 extends TabbedPanel {
 					// Work out the index to add it back in
 					int index = this.fullTabList.indexOf(c);
 					while (index >= 0) {
-						if (index > 0 && ! this.removedTabList.contains(this.fullTabList.get(index -1))) {
+						if (index > 0 && ! this.hiddenTabs.contains(this.fullTabList.get(index -1))) {
 							// Found the first preceding tab that isn't hidden
 							break;
 						}
@@ -217,13 +243,13 @@ public class TabbedPanel2 extends TabbedPanel {
 					
 					this.addTab(c.getName(), null, c, true, true, index);
 				}
-				this.removedTabList.remove(c);
+				this.hiddenTabs.remove(c);
 			}
 			
 		} else {
-			if (! this.removedTabList.contains(c)) {
+			if (! this.hiddenTabs.contains(c)) {
 				remove(c);
-				this.removedTabList.add(c);
+				this.hiddenTabs.add(c);
 			}
 		}
 		handleHiddenTabListTab();
@@ -238,6 +264,15 @@ public class TabbedPanel2 extends TabbedPanel {
 		}
 	}
 
+	/**
+	 * Adds a tab with the given panel.
+	 * <p>
+	 * If the panel is {@link AbstractPanel#isHideable() hideable} and not-{@link AbstractPanel#isPinned() pinned} the
+	 * corresponding tab will be hidden, until the user (or programmatically) makes it visible.
+	 *
+	 * @param panel the panel to add.
+	 * @see #addTabHidden(AbstractPanel)
+	 */
 	public void addTab(AbstractPanel panel) {
 	    addTab(panel, panel.getTabIndex());
 	}
@@ -246,6 +281,9 @@ public class TabbedPanel2 extends TabbedPanel {
 	 * Adds a tab with the given panel at the given index.
 	 * <p>
 	 * This method effectively overrides the {@link AbstractPanel#getTabIndex() index of the panel}.
+	 * <p>
+	 * If the panel is {@link AbstractPanel#isHideable() hideable} and not-{@link AbstractPanel#isPinned() pinned} the
+	 * corresponding tab will be hidden, until the user (or programmatically) makes it visible.
 	 * 
 	 * @param panel the panel for the added tab.
 	 * @param index the index at the tabbed pane.
@@ -257,6 +295,16 @@ public class TabbedPanel2 extends TabbedPanel {
 		
 	}
 
+	/**
+	 * Adds a tab with the given component.
+	 *
+	 * @param title the title of the tab.
+	 * @param icon the icon of the tab.
+	 * @param c the component of the tab.
+	 * @param hideable {@code true} if the tab can be hidden, {@code false} otherwise.
+	 * @param visible {@code true} if the tab should be visible, {@code false} otherwise.
+	 * @param index the index of the tab.
+	 */
 	public void addTab(String title, Icon icon, final Component c, boolean hideable, boolean visible, int index) {
 		if (c instanceof AbstractPanel) {
 			((AbstractPanel)c).setParent(this);
@@ -285,7 +333,7 @@ public class TabbedPanel2 extends TabbedPanel {
 		if (! visible) {
 			setVisible(c, false);
 		} else {
-			this.removedTabList.remove(c);
+			this.hiddenTabs.remove(c);
 		}
 
 		handleHiddenTabListTab();
@@ -301,7 +349,7 @@ public class TabbedPanel2 extends TabbedPanel {
 			// Tab is showing, remove it - it might not be needed or may no longer be at the end
 			super.remove(hiddenComponent);
 		}
-		if (this.removedTabList.size() > 0) {
+		if (this.hiddenTabs.size() > 0) {
 			// Only re-add tab if there are hidden ones
 			super.addTab("", PLUS_ICON, hiddenComponent);
 		}
@@ -361,18 +409,23 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	public List<Component> getSortedTabList() {
 		List<Component> copy = new ArrayList<Component>(this.fullTabList); 
-		Collections.sort(copy, new Comparator<Component>(){
-			@Override
-			public int compare(Component o1, Component o2) {
-				return o1.getName().compareTo(o2.getName());
-			}});
+		Collections.sort(copy, NAME_COMPARATOR);
 		return copy;
 	}
 
+	/**
+	 * Removes the given panel and corresponding tab.
+	 *
+	 * @param panel the panel to remove.
+	 * @see #setVisible(Component, boolean)
+	 */
 	public void removeTab(AbstractPanel panel) {
 		this.remove(panel);
 	}
 
+	/**
+	 * Removes the tab at the given index and the corresponding panel.
+	 */
 	@Override
 	public void removeTabAt(int index) {
 		if (index < 0 || index >= getTabCount()) {
@@ -388,7 +441,7 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		AbstractPanel panel = (AbstractPanel) component;
 		this.fullTabList.remove(panel);
-		if (this.removedTabList.remove(panel)) {
+		if (this.hiddenTabs.remove(panel)) {
 			handleHiddenTabListTab();
 		}
 	}
@@ -397,8 +450,8 @@ public class TabbedPanel2 extends TabbedPanel {
 	public void removeAll() {
 		super.removeAll();
 
-		removedTabList.clear();
-		removedTabList.addAll(fullTabList);
+		hiddenTabs.clear();
+		hiddenTabs.addAll(fullTabList);
 
 		handleHiddenTabListTab();
 	}
@@ -471,7 +524,7 @@ public class TabbedPanel2 extends TabbedPanel {
     public List<AbstractPanel> getVisiblePanels() {
         List<AbstractPanel> panels = getPanels();
         for (Iterator<AbstractPanel> it = panels.iterator(); it.hasNext();) {
-            if (removedTabList.contains(it.next())) {
+            if (hiddenTabs.contains(it.next())) {
                 it.remove();
             }
         }
