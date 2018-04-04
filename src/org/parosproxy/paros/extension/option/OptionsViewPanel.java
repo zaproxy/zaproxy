@@ -77,9 +77,11 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String TIME_STAMP_FORMAT_COMBOBOX_TOOL_TIP = Constant.messages.getString("options.display.timestamp.format.combobox.tooltip");
+	// Translatable formats
 	private static final String TIME_STAMP_FORMAT_DATETIME =  Constant.messages.getString("timestamp.format.datetime");
-	private static final String TIME_STAMP_FORMAT_ISO8601 =  Constant.messages.getString("timestamp.format.iso8601");
 	private static final String TIME_STAMP_FORMAT_TIMEONLY =  Constant.messages.getString("timestamp.format.timeonly");
+	// ISO Standards compliant format
+	private static final String TIME_STAMP_FORMAT_ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
 	private JPanel panelMisc = null;
 	private JScrollPane mainScrollPane;

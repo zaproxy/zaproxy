@@ -32,7 +32,7 @@ import org.parosproxy.paros.Constant;
 
 public final class TimeStampUtils {
      
-	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.default");
+	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.datetime");
 	private static final String TIME_STAMP_DELIMITER =  Constant.messages.getString("timestamp.format.delimiter");
 	private static final String SAFE_TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss"; // Just in-case something goes wrong in translation
     
