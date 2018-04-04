@@ -117,7 +117,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             }
 		}
 		final int finalType = type;
-		final HttpMessage clonedMessage = msg.cloneAll();
+		final HttpMessage clonedMessage = new HttpMessage(msg);
 		Thread t = new Thread(new Runnable() {
 		    @Override
 		    public void run() {
