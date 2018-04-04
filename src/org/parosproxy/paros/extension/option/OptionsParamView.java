@@ -55,7 +55,7 @@ import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 
 public class OptionsParamView extends AbstractParam {
 	
-	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.default");
+	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.datetime");
 	
 	public static final String BASE_VIEW_KEY = "view";
 
