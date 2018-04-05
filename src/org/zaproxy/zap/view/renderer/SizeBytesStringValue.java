@@ -57,6 +57,10 @@ public class SizeBytesStringValue implements StringValue {
     
     public SizeBytesStringValue() {
     }
+    
+    public SizeBytesStringValue(boolean shouldUseJustBytesUnit) {
+        setUseJustBytesUnit(shouldUseJustBytesUnit);
+    }
 
     /**
      * Tells whether or not the conversion to {@code String} should use just bytes, that is, it should not use bigger units
