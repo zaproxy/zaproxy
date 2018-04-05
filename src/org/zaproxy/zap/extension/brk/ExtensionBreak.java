@@ -51,7 +51,6 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointManagementDaemonImpl;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
@@ -140,7 +139,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         extensionHook.addSessionListener(this);
         extensionHook.addOptionsChangedListener(this);
 
-        API.getInstance().registerApiImplementor(api);
+        extensionHook.addApiImplementor(api);
 	    
 	    if (getView() != null) {
 	        breakPanel = new BreakPanel(this, getOptionsParam());
