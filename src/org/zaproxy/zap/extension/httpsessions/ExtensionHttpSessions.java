@@ -652,7 +652,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR
 				|| initiator == HttpSender.AJAX_SPIDER_INITIATOR || initiator == HttpSender.FORCED_BROWSE_INITIATOR
 				|| initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR || initiator == HttpSender.FUZZER_INITIATOR
-				|| initiator == HttpSender.AUTHENTICATION_INITIATOR) {
+				|| initiator == HttpSender.AUTHENTICATION_INITIATOR || initiator == HttpSender.TOKEN_GENERATOR_INITIATOR) {
 			// Not a session we care about
 			return;
 		}
