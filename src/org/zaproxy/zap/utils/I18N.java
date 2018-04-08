@@ -63,14 +63,30 @@ public class I18N {
      * <p>
      * The message will be obtained either from the core {@link ResourceBundle} or a {@code ResourceBundle} of an add-on
      * (depending on the prefix of the key).
+     * <p>
+     * <strong>Note:</strong> Since TODO add version this method no longer throws a {@code MissingResourceException} if the key
+     * does not exist, instead it logs an error and returns the key itself. This avoids breaking ZAP when a resource message is
+     * accidentally missing. Use {@link #containsKey(String)} instead to know if a message exists or not.
      *
      * @param key the key.
      * @return the message.
-     * @throws MissingResourceException if the given key was not found.
      * @see #getString(String, Object...)
      * @see #getMessageBundle(String)
      */
     public String getString(String key) {
+        try {
+            return this.getStringImpl(key);
+        } catch (MissingResourceException e) {
+            return handleMissingResourceException(e);
+        }
+    }
+
+    private static String handleMissingResourceException(MissingResourceException e) {
+        logger.error("Failed to load a message:", e);
+        return '!' + e.getKey() + '!';
+    }
+
+    private String getStringImpl(String key) {
     	if (key.indexOf(".") > 0) {
     		String prefix = key.substring(0, key.indexOf("."));
     		ResourceBundle bundle = this.addonMessages.get(prefix);
@@ -87,7 +103,7 @@ public class I18N {
      * @return the string read wrapped in HTML and paragraph tags
      */
 	public String getHtmlWrappedString(String key) {
-		String values = getString(key);
+		String values = getStringImpl(key);
 		if (values == null)
 			return null;
 		return "<html><p>" + values + "</p></html>";
@@ -101,7 +117,7 @@ public class I18N {
      */
     public char getChar(String key) {
     	try {
-			String str = this.getString(key);
+			String str = this.getStringImpl(key);
 			if (str.length() > 0) {
 				return str.charAt(0);
 			}
@@ -149,6 +165,10 @@ public class I18N {
      * <p>
      * The message will be obtained either from the core {@link ResourceBundle} or a {@code ResourceBundle} of an add-on
      * (depending on the prefix of the key) and then {@link MessageFormat#format(String, Object...) formatted}.
+     * <p>
+     * <strong>Note:</strong> This method does not throw a {@code MissingResourceException} if the key does not exist, instead
+     * it logs an error and returns the key itself. This avoids breaking ZAP when a resource message is accidentally missing.
+     * Use {@link #containsKey(String)} instead to know if a message exists or not.
      *
      * @param key the key.
      * @param params the parameters to format the message.
@@ -157,9 +177,9 @@ public class I18N {
      */
     public String getString(String key, Object... params  ) {
         try {
-            return MessageFormat.format(this.getString(key), params);
+            return MessageFormat.format(this.getStringImpl(key), params);
         } catch (MissingResourceException e) {
-            return '!' + key + '!';
+            return handleMissingResourceException(e);
         }
     }
 }

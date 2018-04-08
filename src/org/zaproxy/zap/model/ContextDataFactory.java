@@ -32,31 +32,31 @@ public interface ContextDataFactory {
 	/**
 	 * Loads the Context data from the given session.
 	 * 
-	 * @param session the session to load from
-	 * @param context the context to load into
+	 * @param session the session to load from, not {@code null}.
+	 * @param context the context to load into, not {@code null}.
 	 */
 	void loadContextData(Session session, Context context);
 
 	/**
 	 * Save the Context data into the given session.
 	 * 
-	 * @param session the session to persist into
-	 * @param context the context to persist from
+	 * @param session the session to persist into, not {@code null}.
+	 * @param context the context to persist from, not {@code null}.
 	 */
 	void persistContextData(Session session, Context context);
 
 	/**
 	 * Export the Context data into the given configuration
-	 * @param ctx the context to export
-	 * @param config the {@code Configuration} where to export the context data
+	 * @param ctx the context to export, not {@code null}.
+	 * @param config the {@code Configuration} where to export the context data, not {@code null}.
 	 */
 	void exportContextData(Context ctx, Configuration config);
 
 	/**
 	 * Import the Context data from the given configuration
 	 * @param ctx the context to import the context data to
-	 * @param config the {@code Configuration} containing the context data
-	 * @throws ConfigurationException if an error occurred while reading the context data from the {@code Configuration}
+	 * @param config the {@code Configuration} containing the context data, not {@code null}.
+	 * @throws ConfigurationException if an error occurred while reading the context data from the {@code Configuration}, not {@code null}.
 	 */
 	void importContextData(Context ctx, Configuration config) throws ConfigurationException;
 }

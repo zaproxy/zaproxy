@@ -62,13 +62,27 @@ abstract class AbstractAPIGenerator {
      * @param optional {@code true} if the API client files are optional, {@code false} otherwise
      */
     protected AbstractAPIGenerator(String directory, boolean optional) {
+        this(directory, optional, null);
+    }
+
+    /**
+     * Constructs an {@code AbstractAPIGenerator} with the given directory, optional state, and {@code ResourceBundle}.
+     *
+     * @param directory the directory where the API client files should be generated
+     * @param optional {@code true} if the API client files are optional, {@code false} otherwise
+     * @param resourceBundle the {@code ResourceBundle} used for doc of the generated classes.
+     * @since TODO add version
+     */
+    protected AbstractAPIGenerator(String directory, boolean optional, ResourceBundle resourceBundle) {
         this.directory = Paths.get(directory);
         this.optional = optional;
 
-        messages = ResourceBundle.getBundle(
-                "lang." + Constant.MESSAGES_PREFIX,
-                Locale.ENGLISH,
-                ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
+        messages = resourceBundle != null
+                ? resourceBundle
+                : ResourceBundle.getBundle(
+                        "lang." + Constant.MESSAGES_PREFIX,
+                        Locale.ENGLISH,
+                        ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
     }
 
     /**

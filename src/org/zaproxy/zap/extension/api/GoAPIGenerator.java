@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -51,6 +52,10 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 
 	public GoAPIGenerator(String path, boolean optional) {
 		super(path, optional);
+	}
+
+	public GoAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
+		super(path, optional, resourceBundle);
 	}
 
 	/**

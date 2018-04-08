@@ -40,7 +40,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -318,19 +318,8 @@ public class DriversView extends AbstractFrame {
 
 	private void browseButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new FileFilter() {
-			@Override
-			public String getDescription() {
-				return "DLL/dylib";
-			}
-
-			//FIXME: Support so and dynlib files as well
-
-			@Override
-			public boolean accept(java.io.File f) {
-				return f.isDirectory() || f.getName().toLowerCase().endsWith(".dll") || f.getName().toLowerCase().endsWith(".dylib");
-			}
-		});
+		// TODO Support so and dynlib files as well
+		fc.setFileFilter(new FileNameExtensionFilter("DLL/dylib", "dll", "dylib"));
 
 		final int state = fc.showOpenDialog(null);
 

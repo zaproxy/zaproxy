@@ -61,6 +61,10 @@ from zapv2 import ZAPv2
 from zap_common import *
 
 
+class NoUrlsException(Exception):
+    pass
+
+
 config_dict = {}
 config_msg = {}
 out_of_scope_dict = {}
@@ -356,8 +360,7 @@ def main(argv):
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
-                else:
-                    logging.error('Failed to import any URLs')
+                    logging.debug('Using target from imported file: {0}'.format(target))
         else:
             if target_url:
                 logging.debug('Import SOAP URL ' + target_url)
@@ -370,15 +373,21 @@ def main(argv):
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
-                else:
-                    logging.error('Failed to import any URLs')
+                    logging.debug('Using target from imported file: {0}'.format(target))
 
         logging.info('Number of Imported URLs: ' + str(len(urls)))
         logging.debug('Import warnings: ' + str(res))
 
+        if len(urls) == 0:
+            logging.warning('Failed to import any URLs')
+            # No point continue, there's nothing to scan.
+            raise NoUrlsException()
+
         if target.count('/') > 2:
+            old_target = target
             # The url can include a valid path, but always reset to scan the host
             target = target[0:target.index('/', 8)+1]
+            logging.debug('Normalised target from {0} to {1}'.format(old_target, target))
 
         # Wait for a delay if specified with -D option
         if (delay):
@@ -515,6 +524,9 @@ def main(argv):
         else:
             print("ERROR %s" % e)
             logging.warning('I/O error: ' + str(e))
+        dump_log_file(cid)
+
+    except NoUrlsException:
         dump_log_file(cid)
 
     except:

@@ -48,6 +48,7 @@
 // ZAP: 2017/02/01 Set whether or not the charset should be determined when setting a (String) response.
 // ZAP: 2017/08/23 queryEquals correct comparison and add JavaDoc. equalType update JavaDoc.
 // ZAP: 2018/03/13 Added toEventData()
+// ZAP: 2018/04/04 Add a copy constructor.
 
 package org.parosproxy.paros.network;
 
@@ -206,6 +207,39 @@ public class HttpMessage implements Message {
 		    setResponseHeader(resHeader);
 		    setResponseBody(resBody);
 		}
+	}
+
+	/**
+	 * Constructs a {@code HttpMessage} from the given message.
+	 * <p>
+	 * All the {@code HttpMessage} state is copied, except for the following which are the same:
+	 * <ul>
+	 * <li>{@link #getUserObject()}</li>
+	 * <li>{@link #getHistoryRef()}</li>
+	 * <li>{@link #getHttpSession()}</li>
+	 * <li>{@link #getRequestingUser()}</li>
+	 * </ul>
+	 *
+	 * @param message the message to copy.
+	 * @since TODO add version
+	 */
+	public HttpMessage(HttpMessage message) {
+		if (message == null) {
+			throw new IllegalArgumentException("The parameter message must not be null.");
+		}
+
+		message.copyRequestInto(this);
+		message.copyResponseInto(this);
+
+		setUserObject(message.getUserObject());
+		setTimeSentMillis(message.getTimeSentMillis());
+		setTimeElapsedMillis(message.getTimeElapsedMillis());
+		setNote(message.getNote());
+		setHistoryRef(message.getHistoryRef());
+		setHttpSession(message.getHttpSession());
+		setRequestingUser(message.getRequestingUser());
+		setForceIntercept(message.isForceIntercept());
+		setResponseFromTargetHost(message.isResponseFromTargetHost());
 	}
 
 	/**
@@ -684,9 +718,21 @@ public class HttpMessage implements Message {
         this.userObject = userObject;
     }
     
+    /**
+     * Clones this message.
+     * <p>
+     * It returns a new {@code HttpMessage} with a copy of the request/response headers and bodies, no other state is copied.
+     *
+     * @return a new {@code HttpMessage} with the same (contents) request/response headers and bodies as this one.
+     * @see #HttpMessage(HttpMessage)
+     */
     public HttpMessage cloneAll() {
         HttpMessage newMsg = cloneRequest();
-        
+        copyResponseInto(newMsg);
+        return newMsg;
+    }
+
+    private void copyResponseInto(HttpMessage newMsg) {
         if (!this.getResponseHeader().isEmpty()) {
             try {
                 newMsg.getResponseHeader().setMessage(this.getResponseHeader().toString());
@@ -694,12 +740,23 @@ public class HttpMessage implements Message {
             }
             newMsg.setResponseBody(this.getResponseBody().getBytes());
         }
-
-        return newMsg;
     }
     
+    /**
+     * Clones the request of this message.
+     * <p>
+     * It returns a new {@code HttpMessage} with a copy of the request header and body, no other state is copied.
+     *
+     * @return a new {@code HttpMessage} with the same (contents) request header and body as this one.
+     * @see #HttpMessage(HttpMessage)
+     */
     public HttpMessage cloneRequest() {
         HttpMessage newMsg = new HttpMessage();
+        copyRequestInto(newMsg);
+        return newMsg;
+    }
+
+    private void copyRequestInto(HttpMessage newMsg) {
         if (!this.getRequestHeader().isEmpty()) {
             try {
                 newMsg.getRequestHeader().setMessage(this.getRequestHeader().toString());
@@ -708,7 +765,6 @@ public class HttpMessage implements Message {
             }
             newMsg.setRequestBody(this.getRequestBody().getBytes());
         }
-        return newMsg;
     }
     /**
      * @return Get the elapsed time (time difference) between the request is sent and all response is received.  In millis.

@@ -41,6 +41,7 @@
 // ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
 // ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
+// ZAP: 2018/03/27 Validate that context and configurations for ContextDataFactory are not null.
 
 package org.parosproxy.paros.model;
 
@@ -494,13 +495,45 @@ public class Model {
 		contextDataFactories.remove(contextDataFactory);
 	}
 
+	/**
+	 * Loads the given context, by calling all the {@link ContextDataFactory}ies.
+	 *
+	 * @param ctx the context to load.
+	 * @throws IllegalArgumentException (since TODO add version) if the given context is {@code null}.
+	 * @see ContextDataFactory#loadContextData(Session, Context)
+	 * @since 2.0.0
+	 */
 	public void loadContext(Context ctx) {
+		validateContextNotNull(ctx);
+
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.loadContextData(getSession(), ctx);
 		}
 	}
 
+	/**
+	 * Validates that the given context is not {@code null}, throwing an {@code IllegalArgumentException} if it is.
+	 *
+	 * @param context the context to be validated.
+	 * @throws IllegalArgumentException if the context is {@code null}.
+	 */
+	private static void validateContextNotNull(Context context) {
+		if (context == null) {
+			throw new IllegalArgumentException("The context must not be null.");
+		}
+	}
+
+	/**
+	 * Saves the given context, by calling all the {@link ContextDataFactory}ies.
+	 *
+	 * @param ctx the context to save.
+	 * @throws IllegalArgumentException (since TODO add version) if the given context is {@code null}.
+	 * @since 2.0.0
+	 * @see ContextDataFactory#persistContextData(Session, Context)
+	 */
 	public void saveContext(Context ctx) {
+		validateContextNotNull(ctx);
+
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.persistContextData(getSession(), ctx);
 		}
@@ -508,22 +541,46 @@ public class Model {
 
 	/**
 	 * Import a context from the given configuration
-	 * @param ctx
-	 * @param config
-	 * @throws ConfigurationException
+	 * 
+	 * @param ctx the context to import the context data to.
+	 * @param config the {@code Configuration} containing the context data.
+	 * @throws ConfigurationException if an error occurred while reading the context data from the {@code Configuration}.
+	 * @throws IllegalArgumentException (since TODO add version) if the given context or configuration is {@code null}.
+	 * @since 2.4.0
 	 */
 	public void importContext(Context ctx, Configuration config) throws ConfigurationException {
+		validateContextNotNull(ctx);
+		validateConfigNotNull(config);
+
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.importContextData(ctx, config);
 		}
 	}
 
 	/**
+	 * Validates that the given configuration is not {@code null}, throwing an {@code IllegalArgumentException} if it is.
+	 *
+	 * @param config the config to be validated.
+	 * @throws IllegalArgumentException if the config is {@code null}.
+	 */
+	private static void validateConfigNotNull(Configuration config) {
+		if (config == null) {
+			throw new IllegalArgumentException("The configuration must not be null.");
+		}
+	}
+
+	/**
 	 * Export a context into the given configuration
-	 * @param ctx
-	 * @param config
+	 * 
+	 * @param ctx the context to export.
+	 * @param config the {@code Configuration} where to export the context data.
+	 * @throws IllegalArgumentException (since TODO add version) if the given context is {@code null}.
+	 * @since 2.4.0
 	 */
 	public void exportContext(Context ctx, Configuration config) {
+		validateContextNotNull(ctx);
+		validateConfigNotNull(config);
+
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.exportContextData(ctx, config);
 		}

@@ -34,6 +34,7 @@
 // ZAP: 2017/12/12 Use first alias by default (Issue 3879).
 // ZAP: 2017/12/13 Do not allow to edit the name/key of active cert.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/03/29 Use FileNameExtensionFilter.
 
 package org.parosproxy.paros.extension.option;
 
@@ -55,7 +56,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
@@ -813,20 +814,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 
 	private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter( new FileFilter()
-		{
-			@Override
-			public String getDescription()
-			{
-				return Constant.messages.getString("options.cert.label.client.cert") + " (*.p12, *.pfx)";
-			}
-			@Override
-			public boolean accept(File f) {
-				return f.isDirectory() ||
-				f.getName().toLowerCase().endsWith( ".p12" ) || 
-				f.getName().toLowerCase().endsWith( ".pfx" );
-			}
-		} );
+		fc.setFileFilter(
+				new FileNameExtensionFilter(
+						Constant.messages.getString("options.cert.label.client.cert") + " (*.p12, *.pfx)",
+						"p12",
+						"pfx"));
 
 		int state = fc.showOpenDialog( null );
 

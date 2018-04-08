@@ -18,6 +18,7 @@
 
 package org.parosproxy.paros.extension.option;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -28,12 +29,16 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.renderer.SizeBytesStringValue;
 
 /**
  * The JVM options panel.
@@ -54,30 +59,44 @@ public class OptionsJvmPanel extends AbstractParamPanel {
      */
     private static final String NAME = Constant.messages.getString("jvm.options.title");
     
+    private static final SizeBytesStringValue sbsv = new SizeBytesStringValue(false);
     
 	/**
 	 * The text field for the JVM options.
 	 */
 	private ZapTextField jvmOptionsField = null; 
 	
+	private ZapLabel sizeMemoryLabel = null;
+	private ZapLabel usedMemoryLabel = null;
+	private ZapLabel maxMemoryLabel = null;
+	
     public OptionsJvmPanel() {
         super();
         setName(NAME);
+        setLayout(new BorderLayout());
         
         JPanel panel = new JPanel();
 		panel.setLayout(new GridBagLayout());
 		
+		int row=0;
 		JLabel jvmOptionsLabel = new JLabel(Constant.messages.getString("jvm.options.label.jvmoptions"));
 		jvmOptionsLabel.setLabelFor(getJvmOptionsField());
 		
 		panel.add(jvmOptionsLabel, 
-				LayoutHelper.getGBC(0, 0, 1, 1.0));
+				LayoutHelper.getGBC(0, row, 1, 2.0));
 		panel.add(getJvmOptionsField(), 
-				LayoutHelper.getGBC(1, 0, 1, 1.0));
+				LayoutHelper.getGBC(1, row, 1, 8.0));
 
 		panel.add(new JLabel(Constant.messages.getString("jvm.options.warning.restart")), 
-				LayoutHelper.getGBC(0, 1, 2, 1.0));
+				LayoutHelper.getGBC(0, ++row, 2, 1.0));
 
+		panel.add(new JSeparator(SwingConstants.HORIZONTAL), 
+				LayoutHelper.getGBC(0, ++row, 2, 0.0D, 0.0D));
+
+		panel.add(getSizeMemoryLabel(), LayoutHelper.getGBC(0, ++row, 2, 1.0));
+		panel.add(getUsedMemoryLabel(), LayoutHelper.getGBC(0, ++row, 2, 1.0));
+		panel.add(getMaxMemoryLabel(), LayoutHelper.getGBC(0, ++row, 2, 1.0));
+		
 		panel.add(new JLabel(), 
 				LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 		
@@ -91,8 +110,38 @@ public class OptionsJvmPanel extends AbstractParamPanel {
 		return jvmOptionsField;
 	}
 	
+	private ZapLabel getSizeMemoryLabel() {
+		if (sizeMemoryLabel == null) {
+			sizeMemoryLabel = new ZapLabel();
+		}
+		return sizeMemoryLabel;
+	}
+	
+	private ZapLabel getUsedMemoryLabel() {
+		if (usedMemoryLabel == null) {
+			usedMemoryLabel = new ZapLabel();
+		}
+		return usedMemoryLabel;
+	}
+	
+	private ZapLabel getMaxMemoryLabel() {
+		if (maxMemoryLabel == null) {
+			maxMemoryLabel = new ZapLabel();
+		}
+		return maxMemoryLabel;
+	}
+	
+	private void updateMemoryLabel(ZapLabel labelToUpdate, String key, long value) {
+		labelToUpdate.setText(Constant.messages.getString(key, sbsv.getString(value)));
+	}
+	
     @Override
     public void initParam(Object obj) {
+    	long size = Runtime.getRuntime().totalMemory();
+    	// initParam happens before display of the panel so the values are appropriately set when viewed
+		updateMemoryLabel(getSizeMemoryLabel(), "jvm.options.memory.size", size);
+		updateMemoryLabel(getUsedMemoryLabel(), "jvm.options.memory.used", size - Runtime.getRuntime().freeMemory());
+		updateMemoryLabel(getMaxMemoryLabel(), "jvm.options.memory.max", Runtime.getRuntime().maxMemory());
 		try {
 			/* JVM properties are unusual in that they are held
 			 * in a separate file from the other options.
