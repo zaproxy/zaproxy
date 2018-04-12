@@ -81,7 +81,7 @@ public class UsersAPI extends ApiImplementor {
 		this.extension = extension;
 
 		this.addApiView(new ApiView(VIEW_USERS_LIST, null, new String[] { PARAM_CONTEXT_ID }));
-		this.addApiView(new ApiView(VIEW_GET_USER_BY_ID, null,
+		this.addApiView(new ApiView(VIEW_GET_USER_BY_ID,
 				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
 		this.addApiView(new ApiView(VIEW_GET_AUTH_CREDENTIALS_CONFIG_PARAMETERS,
 				new String[] { PARAM_CONTEXT_ID }));
