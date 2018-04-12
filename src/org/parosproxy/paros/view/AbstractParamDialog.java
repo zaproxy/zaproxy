@@ -31,6 +31,7 @@
 // ZAP: 2014/12/10 Issue 1427: Standardize on [Cancel] [OK] button order
 // ZAP: 2016/11/17 Issue 2701 Added support for additional buttons to support Factory Reset
 // ZAP: 2018/01/08 Allow to expand the node of a param panel.
+// ZAP: 2018/04/12 Allow to check if a param panel is selected.
 
 package org.parosproxy.paros.view;
 
@@ -365,6 +366,30 @@ public class AbstractParamDialog extends AbstractDialog {
      */
     protected void expandParamPanelNode(String panelName) {
         getJSplitPane().expandParamPanelNode(panelName);
+    }
+
+    /**
+     * Tells whether or not the given param panel is selected.
+     *
+     * @param panelName the name of the panel to check if it is selected, should not be {@code null}.
+     * @return {@code true} if the panel is selected, {@code false} otherwise.
+     * @since TODO add version
+     * @see #isParamPanelOrChildSelected(String)
+     */
+    protected boolean isParamPanelSelected(String panelName) {
+        return getJSplitPane().isParamPanelSelected(panelName);
+    }
+
+    /**
+     * Tells whether or not the given param panel, or one of its child panels, is selected.
+     *
+     * @param panelName the name of the panel to check, should not be {@code null}.
+     * @return {@code true} if the panel or one of its child panels is selected, {@code false} otherwise.
+     * @since TODO add version
+     * @see #isParamPanelSelected(String)
+     */
+    protected boolean isParamPanelOrChildSelected(String panelName) {
+        return getJSplitPane().isParamPanelOrChildSelected(panelName);
     }
 
     public int showDialog(boolean showRoot) {
