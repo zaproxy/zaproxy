@@ -107,6 +107,12 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 		}
 
 		String[] pieces = encodedCredentials.split(FIELD_SEPARATOR);
+		if (pieces.length == 0) {
+			this.username = "";
+			this.password = "";
+			return;
+		}
+
 		this.username = new String(Base64.decodeBase64(pieces[0]));
 		if (pieces.length > 1)
 			this.password = new String(Base64.decodeBase64(pieces[1]));
