@@ -90,6 +90,15 @@ public class ZapGetMethod extends EntityEnclosingMethod {
 		return followRedirects;
 	}
 
+	@Override
+	protected void addContentLengthRequestHeader(HttpState state, HttpConnection conn) throws IOException, HttpException {
+		if (getRequestContentLength() == 0) {
+			// Don't add the header with 0 length, not everything accepts it.
+			return;
+		}
+		super.addContentLengthRequestHeader(state, conn);
+	}
+
 	/**
 	 * Allow response code 101, that is Switching Protocols.
 	 * 
