@@ -76,6 +76,7 @@
 // ZAP: 2018/01/05 Prevent use of install dir as home dir.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/03/16 Use equalsIgnoreCase (Issue 4327).
+// ZAP: 2018/04/16 Keep backup of malformed config file.
 
 package org.parosproxy.paros;
 
@@ -562,12 +563,7 @@ public final class Constant {
             	}
 
 	        } catch (ConfigurationException | ConversionException | NoSuchElementException e) {
-	            //  if there is any error in config file (eg config file not exist, corrupted),
-	            //  overwrite previous configuration file 
-	            // ZAP: changed to use the correct file
-	            LOG.error("Config file does not exist or is corrupted, will overwrite it: " + e.getMessage(), e);	        	
-	            copier.copy(getPathDefaultConfigFile().toFile(), new File(FILE_CONFIG));
-	            
+	            handleMalformedConfigFile(e);
 	        }
         } catch (Exception e) {
             System.err.println("Unable to upgrade config file " + FILE_CONFIG + " " + e.getMessage());
@@ -602,6 +598,31 @@ public final class Constant {
         messages = new I18N(locale);
     }
     
+    private void handleMalformedConfigFile(Exception e) throws IOException {
+        logAndPrintError("Failed to load/upgrade config file:", e);
+        try {
+            Path backupPath = Paths.get(zapHome, "config-" + Math.random() + ".xml.bak");
+            logAndPrintInfo("Creating back up for user inspection: " + backupPath);
+            Files.copy(Paths.get(FILE_CONFIG), backupPath);
+            logAndPrintInfo("Back up successfully created.");
+        } catch (IOException ioe) {
+            logAndPrintError("Failed to backup file:", ioe);
+        }
+        logAndPrintInfo("Using default config file...");
+        new FileCopier().copy(getPathDefaultConfigFile().toFile(), new File(FILE_CONFIG));
+    }
+
+    private static void logAndPrintError(String message, Exception e) {
+        LOG.error(message, e);
+        System.err.println(message);
+        e.printStackTrace();
+    }
+
+    private static void logAndPrintInfo(String message) {
+        LOG.info(message);
+        System.out.println(message);
+    }
+
     private void copyProperty(XMLConfiguration fromConfig, XMLConfiguration toConfig, String key) {
     	toConfig.setProperty(key, fromConfig.getProperty(key));
     }
