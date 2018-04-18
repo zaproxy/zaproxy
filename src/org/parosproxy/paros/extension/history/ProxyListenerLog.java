@@ -30,7 +30,7 @@
 // ZAP: 2015/09/07 Issue 1872: EDT accessed in daemon mode
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2018/03/14 Publish event when href added
-// ZAP: 2018/04/02 Log copy of the message to avoid following listeners to change it before persisting it.
+// ZAP: 2018/04/11 Log the message synchronously to avoid following listeners to change it before being persisted.
 
 package org.parosproxy.paros.extension.history;
  
@@ -40,10 +40,12 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
@@ -117,11 +119,11 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             }
 		}
 		final int finalType = type;
-		final HttpMessage clonedMessage = new HttpMessage(msg);
+		final HistoryReference href = createHistoryReference(msg, type);
 		Thread t = new Thread(new Runnable() {
 		    @Override
 		    public void run() {
-		        createAndAddMessage(clonedMessage, finalType);
+		        createAndAddMessage(href, finalType);
 		    }
 		});
 		t.start();
@@ -138,15 +140,18 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
 				
 	}
     
-    private void createAndAddMessage(HttpMessage msg, int type) {
-        HistoryReference historyRef = createHistoryReference(msg, type);
+    private void createAndAddMessage(HistoryReference historyRef, int type) {
         if (historyRef == null || (type != HistoryReference.TYPE_PROXIED && type != HistoryReference.TYPE_HIDDEN)) {
             return;
         }
 
         extension.addHistory(historyRef);
 
-        addToSiteMap(historyRef, msg);
+        try {
+            addToSiteMap(historyRef, historyRef.getHttpMessage());
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            log.warn("Failed to add the message to Sites tree:", e);
+        }
         
         ProxyListenerLogEventPublisher.getPublisher().publishHrefAddedEvent(historyRef);
     }
