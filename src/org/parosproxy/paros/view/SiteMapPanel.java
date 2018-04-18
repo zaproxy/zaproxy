@@ -45,6 +45,7 @@
 // ZAP: 2017/11/29 Delete site nodes with keyboard shortcut.
 // ZAP: 2017/12/22 Select context on row click.
 // ZAP: 2018/03/26 Expand node of selected context.
+// ZAP: 2018/04/12 Keep panel of selected context selected.
 
 package org.parosproxy.paros.view;
 
@@ -491,6 +492,9 @@ public class SiteMapPanel extends AbstractPanel {
 					    	Target target = (Target)node.getUserObject();
 					    	String panelName = ContextGeneralPanel.getPanelName(target.getContext());
 					    	getView().getSessionDialog().expandParamPanelNode(panelName);
+					    	if (getView().getSessionDialog().isParamPanelOrChildSelected(panelName)) {
+					    		panelName = null;
+					    	}
 					    	getView().showSessionDialog(Model.getSingleton().getSession(), panelName);
 					    }
 				    }
