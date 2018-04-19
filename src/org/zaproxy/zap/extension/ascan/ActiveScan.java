@@ -215,6 +215,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			tot += process.getPercentageComplete();
 		}
 		this.progress = tot / this.getHostProcesses().size();
+		ActiveScanEventPublisher.publishScanProgressEvent(this.getId(), this.progress);
 	}
 	
 	/**

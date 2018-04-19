@@ -40,6 +40,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanEventPublisher;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.model.Target;
@@ -71,7 +72,9 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	private final Lock lock;
 
 	private int scanId;
-	
+	private Target target;
+	private User user;
+
 	private String displayName = "";
 
 	/**
@@ -144,6 +147,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId, String name) {
 		lock = new ReentrantLock();
 		this.scanId = scanId;
+		this.target = target;
+		this.user = scanUser;
 		setDisplayName(name);
 
 		numberOfURIsFound = new AtomicInteger();
@@ -211,6 +216,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 				spiderThread.addSpiderListener(this);
 				spiderThread.start();
 				state = State.RUNNING;
+				SpiderEventPublisher.publishScanEvent(
+						ScanEventPublisher.SCAN_STARTED_EVENT, this.scanId, this.target, user);
 			}
 		} finally {
 			lock.unlock();
@@ -230,6 +237,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 			if (State.RUNNING.equals(state)) {
 				spiderThread.pauseScan();
 				state = State.PAUSED;
+				SpiderEventPublisher.publishScanEvent(
+						ScanEventPublisher.SCAN_PAUSED_EVENT, this.scanId);
 			}
 		} finally {
 			lock.unlock();
@@ -249,6 +258,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 			if (State.PAUSED.equals(state)) {
 				spiderThread.resumeScan();
 				state = State.RUNNING;
+				SpiderEventPublisher.publishScanEvent(
+						ScanEventPublisher.SCAN_RESUMED_EVENT, this.scanId);
 			}
 		} finally {
 			lock.unlock();
@@ -268,6 +279,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 			if (!State.NOT_STARTED.equals(state) && !State.FINISHED.equals(state)) {
 				spiderThread.stopScan();
 				state = State.FINISHED;
+				SpiderEventPublisher.publishScanEvent(
+						ScanEventPublisher.SCAN_STOPPED_EVENT, this.scanId);
 			}
 		} finally {
 			lock.unlock();
@@ -385,6 +398,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		lock.lock();
 		try {
 			state = State.FINISHED;
+			SpiderEventPublisher.publishScanEvent(
+					ScanEventPublisher.SCAN_COMPLETED_EVENT, this.scanId);
 		} finally {
 			lock.unlock();
 		}
@@ -396,6 +411,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	@Override
 	public void spiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl) {
 		this.progress = percentageComplete;
+		SpiderEventPublisher.publishScanProgressEvent(scanId, percentageComplete);
+
 		if (listener != null) {
 			listener.scanProgress(this.getScanId(), this.getDisplayName(), percentageComplete, 100);
 		}
