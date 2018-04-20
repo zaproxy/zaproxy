@@ -167,7 +167,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			return;
 		}
 
-		log.info("Creating new panel for configuring: " + newMethodType.getName());
+		if (log.isDebugEnabled()) {
+			log.debug("Creating new panel for configuring: " + newMethodType.getName());
+		}
 		this.getConfigContainerPanel().removeAll();
 
 		// show the panel according to whether the authentication type needs configuration
