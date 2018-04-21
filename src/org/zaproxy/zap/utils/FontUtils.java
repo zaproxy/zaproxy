@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
+import java.util.EnumMap;
 
 import javax.swing.JLabel;
 import javax.swing.UIManager;
@@ -30,9 +31,11 @@ import javax.swing.UIManager;
 public class FontUtils {
 
 	public static enum Size {smallest, much_smaller, smaller, standard, larger, much_larger, huge};	
+	public static enum FontType {general, workPanels};
 	private static float scale = -1;
-	private static Font defaultFont;
-	private static boolean defaultFontSet;
+	private static EnumMap<FontType, Font> defaultFonts = new EnumMap<>(FontType.class);
+	private static EnumMap<FontType, Boolean> defaultFontSets = new EnumMap<>(FontType.class);
+
 	private static Font systemDefaultFont;
 	private static Font quicksandBoldFont;
 	
@@ -62,7 +65,7 @@ public class FontUtils {
 				// Ensure its scaled properly - only need to do this when its first loaded
 				quicksandBoldFont = quicksandBoldFont.deriveFont((float)getDefaultFont().getSize()); 
 			} catch (IOException|FontFormatException e) {
-				quicksandBoldFont = defaultFont;
+				quicksandBoldFont = defaultFonts.get(FontType.general);
 			}
 		}
 		return quicksandBoldFont;
@@ -72,17 +75,18 @@ public class FontUtils {
 		return UIManager.getLookAndFeelDefaults().get("defaultFont") != null;
 	}
 	
-	public static void setDefaultFont(Font font) {
+	public static void setDefaultFont(FontType fontType, Font font) {
 		if (canChangeSize()) {
 			getSystemDefaultFont();	// Make sure the system default font is saved first
-			defaultFont = font;
+			defaultFonts.put(fontType, font);
 			scale = -1;	// force it to be recalculated
-			
-			UIManager.getLookAndFeelDefaults().put("defaultFont", font);
+			if (fontType == FontType.general) {
+                UIManager.getLookAndFeelDefaults().put("defaultFont", font);
+			}
 		}
 	}
 	
-	public static void setDefaultFont(String name, int size) {
+	public static void setDefaultFont(FontType fontType, String name, int size) {
 		// A blank font name works fine.
 		// For some reason getting the default font name doesn't work - it doesn't seem to get applied everywhere
 		// No ideas why :/
@@ -90,18 +94,22 @@ public class FontUtils {
 			size = getDefaultFont().getSize();
 		}
 
-		defaultFontSet = name != null && !name.isEmpty();
-		setDefaultFont(new Font(name, Font.PLAIN, size));
+		defaultFontSets.put(fontType, (name != null && !name.isEmpty()));
+		setDefaultFont(fontType, new Font(name, Font.PLAIN, size));
 	}
 
 	private static Font getDefaultFont() {
-		if (defaultFont == null) {
-			defaultFont = Font.getFont("defaultFont");
-			if (defaultFont == null) {
-				defaultFont = new JLabel("").getFont();
+        return getDefaultFont(FontType.general);
+	}
+	
+	private static Font getDefaultFont(FontType fontType) {
+		if (defaultFonts.get(fontType) == null) {
+			defaultFonts.put(fontType, Font.getFont("defaultFont"));
+			if (defaultFonts.get(fontType) == null) {
+				defaultFonts.put(fontType, new JLabel("").getFont());
 			}
 		}
-		return defaultFont;
+		return defaultFonts.get(fontType);
 	}
 	
 	/**
@@ -120,6 +128,36 @@ public class FontUtils {
 	 */
 	public static Font getFont (int style) {
 		return getDefaultFont().deriveFont(style);
+	}
+
+	/**
+	 * Gets the font for the give {@link FontType}
+	 * 
+	 * @param fontType
+	 *            the {@code FontType} for which the font should be returned
+	 * @return font
+	 */
+	public static Font getFont(FontType fontType) {
+		return getDefaultFont(fontType);
+	}
+
+	/**
+	 * Gets font for the given {@link FontType} or the fallback font with the given
+	 * name if no font is set for the given {@code FontType}
+	 * 
+	 * @param fontType
+	 *            the {@code FontType} for which the font should be returned
+	 * @param fallbackFontName
+	 *            the name ({@code String}) of the font which will be returned of no
+	 *            font is set for the given {@code FontType}
+	 * @return work panels font or fallback font
+	 */
+	public static Font getFontWithFallback(FontType fontType, String fallbackFontName) {
+		if (isDefaultFontSet(fontType)) {
+			return getFont(fontType);
+		} else {
+			return getFont(fallbackFontName);
+		}
 	}
 	
 	/**
@@ -201,6 +239,19 @@ public class FontUtils {
 	 * @see #getSystemDefaultFont()
 	 */
 	public static boolean isDefaultFontSet() {
-		return defaultFontSet;
+		return defaultFontSets.get(FontType.general);
 	}
+
+	/**
+	 * Tells whether or not a custom default font was set for the given
+	 * {@link FontType}.
+	 *
+	 * @return {@code true} if a custom font was set, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #getSystemDefaultFont()
+	 */
+	public static boolean isDefaultFontSet(FontType fontType) {
+		return defaultFontSets.get(fontType);
+	}
+
 }

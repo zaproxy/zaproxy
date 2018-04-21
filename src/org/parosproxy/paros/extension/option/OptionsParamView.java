@@ -39,10 +39,13 @@
 // ZAP: 2018/01/25 Remove unused constant LOCALES.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/02/27 Added support for selecting the look and feel.
+// ZAP: 2018/06/11 Added options for Work Panels Font.
 
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;
+import java.util.EnumMap;
+import java.util.Map;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
@@ -50,6 +53,8 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
+import org.zaproxy.zap.utils.FontUtils;
+
 
 // ZAP: Added support for selecting the locale
 
@@ -98,6 +103,8 @@ public class OptionsParamView extends AbstractParam {
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
     private static final String CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY = "view.confirmRemoveScannerExcludeRegex";
     private static final String CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY = "view.confirmRemoveSpiderExcludeRegex";
+    private static final String FONT_NAME_POSTFIX = "Name";
+    private static final String FONT_SIZE_POSTFIX = "Size";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -112,8 +119,11 @@ public class OptionsParamView extends AbstractParam {
 	private boolean warnOnTabDoubleClick = false;
     private boolean showTabNames = true;
 	private String mode = Mode.standard.name();
-	private boolean outputTabTimeStampingEnabled = false; 
-	private String outputTabTimeStampFormat = DEFAULT_TIME_STAMP_FORMAT; 
+	private boolean outputTabTimeStampingEnabled = false;
+	private String outputTabTimeStampFormat = DEFAULT_TIME_STAMP_FORMAT;
+	private Map<FontUtils.FontType, String> fontTypePrefixes = new EnumMap<>(FontUtils.FontType.class);
+	private Map<FontUtils.FontType, Integer> fontSizes = new EnumMap<>(FontUtils.FontType.class);
+	private Map<FontUtils.FontType, String> fontNames = new EnumMap<>(FontUtils.FontType.class);
 
 	/**
 	 * Flag that indicates if the HTTP CONNECT requests received by the local proxy should be (persisted and) shown in the UI.
@@ -127,8 +137,6 @@ public class OptionsParamView extends AbstractParam {
     private boolean showSplashScreen = true;
     private int largeRequestSize = LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
-    private int fontSize = -1;
-    private String fontName = "";
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
     private String lookAndFeel = "";
@@ -147,6 +155,13 @@ public class OptionsParamView extends AbstractParam {
     private boolean useSystemsLocaleForFormat;
 	
     public OptionsParamView() {
+        fontTypePrefixes.put(FontUtils.FontType.general, "font");
+        fontTypePrefixes.put(FontUtils.FontType.workPanels, "workPanelsFont");
+
+        for (FontUtils.FontType fontType: FontUtils.FontType.values()) {
+            fontNames.put(fontType, "");
+            fontSizes.put(fontType, -1);
+        }
     }
 
     @Override
@@ -173,8 +188,12 @@ public class OptionsParamView extends AbstractParam {
 	    showSplashScreen = getBoolean(SPLASHSCREEN_OPTION, true);
 	    largeRequestSize = getInt(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
 	    largeResponseSize = getInt(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
-	    fontSize = getInt(FONT_SIZE, -1);
-	    fontName = getString(FONT_NAME, "");
+    
+	    for (FontUtils.FontType fontType: FontUtils.FontType.values()) {
+		    fontNames.put(fontType, getString(getFontNameConfKey(fontType), ""));
+		    fontSizes.put(fontType, getInt(getFontSizeConfKey(fontType), -1));
+	    }
+
 	    scaleImages = getBoolean(SCALE_IMAGES, true);
 	    showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
 	    lookAndFeel = getString(LOOK_AND_FEEL,"");
@@ -453,24 +472,56 @@ public class OptionsParamView extends AbstractParam {
 		getConfig().setProperty(LARGE_RESPONSE_SIZE, largeResponseSize);
 	}
 
+	/**
+	 * @deprecated (TODO add version) Replaced by {@link #getFontSize(org.zaproxy.zap.utils.FontUtils.FontType)}.
+	 */
+	@Deprecated
 	public int getFontSize() {
-		return fontSize;
+		return getFontSize(FontUtils.FontType.general);
 	}
 
+	public int getFontSize(FontUtils.FontType fontType) {
+		return fontSizes.get(fontType);
+	}
+
+	/**
+	 * @deprecated (TODO add version) Replaced by {@link #setFontSize(org.zaproxy.zap.utils.FontUtils.FontType, int)}.
+	 */
+	@Deprecated
 	public void setFontSize(int fontSize) {
-		this.fontSize = fontSize;
-		getConfig().setProperty(FONT_SIZE, fontSize);
+		setFontSize(FontUtils.FontType.general, fontSize);
 	}
 
+	public void setFontSize(FontUtils.FontType fontType, int fontSize) {
+		fontSizes.put(fontType, fontSize);
+		getConfig().setProperty(getFontSizeConfKey(fontType), fontSize);
+	}
+
+	/**
+	 * @deprecated (TODO add version) Replaced by {@link #getFontName(org.zaproxy.zap.utils.FontUtils.FontType)}.
+	 */
+	@Deprecated
 	public String getFontName() {
-		return this.fontName;
+		return getFontName(FontUtils.FontType.general);
+	}
+
+	public String getFontName(FontUtils.FontType fontType) {
+		return fontNames.get(fontType);
+	}
+
+	/**
+	 * @deprecated (TODO add version) Replaced by {@link #setFontName(org.zaproxy.zap.utils.FontUtils.FontType, String)}.
+	 */
+	@Deprecated
+	public void setFontName(String fontName) {
+		setFontName(FontUtils.FontType.general, fontName);
+	}
+
+	public void setFontName(FontUtils.FontType fontType, String fontName) {
+		fontNames.put(fontType, fontName);
+		getConfig().setProperty(getFontNameConfKey(fontType), fontName);
 	}
 	
-	public void setFontName(String fontName) {
-		this.fontName = fontName;
-		getConfig().setProperty(FONT_NAME, fontName);
-	}
-
 	public String getLookAndFeel() {
 		return this.lookAndFeel;
 	}
@@ -551,4 +602,21 @@ public class OptionsParamView extends AbstractParam {
     public boolean isUseSystemsLocaleForFormat() {
         return useSystemsLocaleForFormat;
     }
+
+    private String getFontConfKey(FontUtils.FontType fontType, String postfix) {
+        StringBuilder result = new StringBuilder();
+        result.append("view.");
+        result.append(fontTypePrefixes.get(fontType));
+        result.append(postfix);
+        return result.toString();
+    }
+
+    private String getFontNameConfKey(FontUtils.FontType fontType) {
+        return getFontConfKey(fontType, FONT_NAME_POSTFIX);
+    }
+
+    private String getFontSizeConfKey(FontUtils.FontType fontType) {
+        return getFontConfKey(fontType, FONT_SIZE_POSTFIX);
+    }
+
 }
