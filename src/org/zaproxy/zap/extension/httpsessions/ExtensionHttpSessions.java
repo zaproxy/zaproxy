@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -39,6 +40,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
@@ -108,6 +110,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	private PopupMenuFactoryAddUserFromSession popupMenuAddUserFromSession;
 
 	private PopupMenuItemCopySessionToken popupMenuItemCopySessionToken;
+	private PopupMenuSessionSearch popupMenuItemFindRelatedMessages;
 
 	/**
 	 * Instantiates a new extension http sessions.
@@ -182,6 +185,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddUserFromSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemCopySessionToken());
+			if (Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.class) != null) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemFindRelatedMessages());
+			}
 		}
 
 		// Register as an API implementor
@@ -256,6 +262,13 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			popupMenuItemCopySessionToken = new PopupMenuItemCopySessionToken(getHttpSessionsPanel());
 		}
 		return popupMenuItemCopySessionToken;
+	}
+
+	private PopupMenuSessionSearch getPopupMenuItemFindRelatedMessages() {
+		if (popupMenuItemFindRelatedMessages == null) {
+			popupMenuItemFindRelatedMessages = new PopupMenuSessionSearch(httpSessionsPanel);
+		}
+		return popupMenuItemFindRelatedMessages;
 	}
 
 	/**
