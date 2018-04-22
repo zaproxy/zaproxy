@@ -350,7 +350,16 @@ public class ExtensionParams extends ExtensionAdaptor
 						param.getId(), param.getTimesUsed(), setToString(param.getFlags()), setToString(param.getValues()));
 			}
 		} catch (DatabaseException e) {
-			logger.error(e.getMessage(), e);
+			if (e.getCause().getMessage().contains("truncation")) {
+				logger.warn("Could not add or update param: " + param.getName());
+				logger.warn("It is likely that the length of one of the data elements exceeded the column size.");
+				logger.warn(e.getMessage());
+				if (logger.isDebugEnabled()) {
+					logger.debug(e.getMessage(), e);
+				}
+			} else {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 

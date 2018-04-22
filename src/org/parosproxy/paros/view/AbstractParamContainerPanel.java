@@ -27,6 +27,7 @@
 // ZAP: 2017/09/03 Cope with Java 9 change to TreeNode.children().
 // ZAP: 2018/01/08 Allow to expand the node of a param panel.
 // ZAP: 2018/03/26 Ensure node of selected panel is visible.
+// ZAP: 2018/04/12 Allow to check if a param panel is selected.
 
 package org.parosproxy.paros.view;
 
@@ -609,6 +610,43 @@ public class AbstractParamContainerPanel extends JSplitPane {
         if (node != null) {
             getTreeParam().expandPath(new TreePath(node.getPath()));
         }
+    }
+
+    /**
+     * Tells whether or not the given param panel is selected.
+     *
+     * @param panelName the name of the panel to check if it is selected, should not be {@code null}.
+     * @return {@code true} if the panel is selected, {@code false} otherwise.
+     * @since TODO add version
+     * @see #isParamPanelOrChildSelected(String)
+     */
+    public boolean isParamPanelSelected(String panelName) {
+        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
+        if (node != null) {
+            return getTreeParam().isPathSelected(new TreePath(node.getPath()));
+        }
+        return false;
+    }
+
+    /**
+     * Tells whether or not the given param panel, or one of its child panels, is selected.
+     *
+     * @param panelName the name of the panel to check, should not be {@code null}.
+     * @return {@code true} if the panel or one of its child panels is selected, {@code false} otherwise.
+     * @since TODO add version
+     * @see #isParamPanelSelected(String)
+     */
+    public boolean isParamPanelOrChildSelected(String panelName) {
+        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
+        if (node != null) {
+            TreePath panelPath = new TreePath(node.getPath());
+            if (getTreeParam().isPathSelected(panelPath)) {
+                return true;
+            }
+            TreePath selectedPath = getTreeParam().getSelectionPath();
+            return selectedPath != null && panelPath.equals(selectedPath.getParentPath());
+        }
+        return false;
     }
 
     public void showDialog(boolean showRoot) {

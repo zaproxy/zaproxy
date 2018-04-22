@@ -570,7 +570,7 @@ public class MenuFileControl implements SessionListener {
 				}
 				View.getSingleton().showWarningDialog(Constant.messages.getString("context.import.error", detailError));
 			} catch (Exception e1) {
-				log.debug(e1.getMessage(), e1);
+				log.error(e1.getMessage(), e1);
 				View.getSingleton().showWarningDialog(Constant.messages.getString("context.import.error", e1.getMessage()));
 			}
 	    }

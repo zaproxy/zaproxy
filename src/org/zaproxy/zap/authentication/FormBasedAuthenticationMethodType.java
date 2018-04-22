@@ -601,12 +601,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					
 					ExtensionUserManagement userExt = getUserExt();
 					if (userExt != null && userExt.getUIConfiguredUsers(context.getIndex()).size() == 0) {
-						if (! userParam.getValue().contains(FormBasedAuthenticationMethod.MSG_USER_PATTERN) &&
-								! passwdParam.getValue().contains(FormBasedAuthenticationMethod.MSG_PASS_PATTERN)) {
+						String username = userParam.getValue();
+						String password = passwdParam.getValue();
+						if (!username.isEmpty() && !username.contains(FormBasedAuthenticationMethod.MSG_USER_PATTERN)
+								&& !password.contains(FormBasedAuthenticationMethod.MSG_PASS_PATTERN)) {
 							// Add the user based on the details provided
 							// Note that right now application/x-www-form-urlencoded forms are supported 
-							String userStr = URLDecoder.decode(userParam.getValue(), "UTF8");
-							String passwdStr = URLDecoder.decode(passwdParam.getValue(), "UTF8");
+							String userStr = URLDecoder.decode(username, "UTF8");
+							String passwdStr = URLDecoder.decode(password, "UTF8");
 							User user = new User(context.getIndex(), userStr);
 							UsernamePasswordAuthenticationCredentials upac = 
 									new UsernamePasswordAuthenticationCredentials(userStr, passwdStr);

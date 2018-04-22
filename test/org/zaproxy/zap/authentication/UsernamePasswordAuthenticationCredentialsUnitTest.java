@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 import org.zaproxy.zap.extension.api.ApiResponse;
 
@@ -121,6 +122,18 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
                     encodedUsernamePassword,
                     is("bXlVc2Vy~bXlQYXNz~"));
         }
+    }
+
+    @Test
+    public void shouldDecodeEmptyUsernameAndPassword() {
+        // Given
+        String encodedCredentials = "~~";
+        UsernamePasswordAuthenticationCredentials authCredentials = new UsernamePasswordAuthenticationCredentials();
+        // When
+        authCredentials.decode(encodedCredentials);
+        // Then
+        assertThat(authCredentials.getUsername(), is(equalTo("")));
+        assertThat(authCredentials.getPassword(), is(equalTo("")));
     }
 
     @Test

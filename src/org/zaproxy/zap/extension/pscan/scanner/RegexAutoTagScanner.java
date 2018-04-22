@@ -187,7 +187,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getRequestHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				matched(msg, id);
+				matched(m, msg, id);
 				return;
 			}
 		}
@@ -196,7 +196,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getRequestHeader().getURI().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				matched(msg, id);
+				matched(m, msg, id);
 				return;
 			}
 		}
@@ -216,7 +216,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getResponseHeader().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				matched(msg, id);
+				matched(m, msg, id);
 				return;
 			}
 		}
@@ -225,7 +225,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 					msg.getResponseBody().toString());
 			if (m.find()) {
 				// Scanner matches, so do what it wants...
-				matched(msg, id);
+				matched(m, msg, id);
 				return;
 			}
 		}
@@ -310,9 +310,13 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
         return true;
     }
     
-	private void matched(HttpMessage msg, int id) {
+	private void matched(Matcher matcher, HttpMessage msg, int id) {
+		String tag = getConf();
 		if (tagHistoryType(msg.getHistoryRef().getHistoryType())) {
-			parent.addTag(id, this.getConf());
+			if (matcher.groupCount() > 0) {
+				tag =  matcher.pattern().matcher(matcher.group()).replaceFirst(tag);
+			}
+			parent.addTag(id, tag);
 		}
 		
 		try {
