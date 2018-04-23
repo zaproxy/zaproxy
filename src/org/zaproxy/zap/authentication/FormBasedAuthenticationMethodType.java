@@ -427,6 +427,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	private static boolean isValidLoginUrl(String loginUrl) {
+		if (loginUrl.isEmpty()) {
+			return false;
+		}
+
 		try {
 			createLoginUrl(loginUrl, "", "");
 			return true;
