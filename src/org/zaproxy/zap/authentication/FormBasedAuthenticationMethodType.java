@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -611,13 +612,15 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 								&& !password.contains(FormBasedAuthenticationMethod.MSG_PASS_PATTERN)) {
 							// Add the user based on the details provided
 							// Note that right now application/x-www-form-urlencoded forms are supported 
-							String userStr = URLDecoder.decode(username, "UTF8");
-							String passwdStr = URLDecoder.decode(password, "UTF8");
-							User user = new User(context.getIndex(), userStr);
-							UsernamePasswordAuthenticationCredentials upac = 
-									new UsernamePasswordAuthenticationCredentials(userStr, passwdStr);
-							user.setAuthenticationCredentials(upac);
-							getUserExt().getContextUserAuthManager(context.getIndex()).addUser(user);
+							String userStr = decodeValue(username);
+							String passwdStr = decodeValue(password);
+							if (!userStr.isEmpty() && !passwdStr.isEmpty()) {
+								User user = new User(context.getIndex(), userStr);
+								UsernamePasswordAuthenticationCredentials upac = 
+										new UsernamePasswordAuthenticationCredentials(userStr, passwdStr);
+								user.setAuthenticationCredentials(upac);
+								getUserExt().getContextUserAuthManager(context.getIndex()).addUser(user);
+							}
 						}
 					}
 					
@@ -630,6 +633,17 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
+		}
+
+		private static String decodeValue(String value) {
+			try {
+				return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+			} catch (UnsupportedEncodingException ignore) {
+				// Standard charset.
+			} catch (IllegalArgumentException e) {
+				log.debug("Failed to URL decode: " + value, e);
+			}
+			return "";
 		}
 
 		@Override
