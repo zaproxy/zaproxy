@@ -15,7 +15,9 @@
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-jxpath-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.7.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-api-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-text-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/diffutils-1.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/ezmorph-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/harlib-jackson-1.1.2.jar"/>

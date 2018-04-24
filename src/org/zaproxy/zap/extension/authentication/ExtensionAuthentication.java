@@ -44,6 +44,7 @@ import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.authentication.HttpAuthenticationMethodType;
+import org.zaproxy.zap.authentication.JsonBasedAuthenticationMethodType;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType;
 import org.zaproxy.zap.authentication.ScriptBasedAuthenticationMethodType;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
@@ -202,6 +203,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 		this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
 		this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
 		this.authenticationMethodTypes.add(new ScriptBasedAuthenticationMethodType());
+		this.authenticationMethodTypes.add(new JsonBasedAuthenticationMethodType());
 
 		for (AuthenticationMethodType a : authenticationMethodTypes) {
 			a.hook(hook);
