@@ -76,8 +76,8 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
-		// Only enable it for the HttpSessionsPanel and for the entries that are not already active
-		if (invoker.getName() != null && invoker.getName().equals(HttpSessionsPanel.PANEL_NAME)) {
+		if (HttpSessionsPanel.PANEL_NAME.equals(invoker.getName())) {
+			setEnabled(extension.getHttpSessionsPanel().getSelectedSession() != null);
 			return true;
 		}
 		return false;
