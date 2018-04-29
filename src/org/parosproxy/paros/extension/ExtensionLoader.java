@@ -71,6 +71,7 @@
 // ZAP: 2017/07/25 Hook HttpSenderListener.
 // ZAP: 2017/10/11 Include add-on in extensions' initialisation errors.
 // ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
+// ZAP: 2018/04/25 Allow to add ProxyServer to automatically add/remove proxy related listeners to it.
 
 package org.parosproxy.paros.extension;
 
@@ -81,6 +82,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -96,6 +99,7 @@ import org.parosproxy.paros.control.Proxy;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
+import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.scanner.Scanner;
 import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.db.Database;
@@ -133,9 +137,13 @@ public class ExtensionLoader {
     private View view = null;
     private static final Logger logger = Logger.getLogger(ExtensionLoader.class);
 
+    private List<ProxyServer> proxyServers;
+
     public ExtensionLoader(Model model, View view) {
         this.model = model;
         this.view = view;
+
+        this.proxyServers = new ArrayList<>();
     }
 
     public void addExtension(Extension extension) {
@@ -235,6 +243,64 @@ public class ExtensionLoader {
 
     public int getExtensionCount() {
         return extensionList.size();
+    }
+
+    /**
+     * Adds the given proxy server, to be automatically updated with proxy related listeners.
+     *
+     * @param proxyServer the proxy server to add, must not be null.
+     * @since TODO add version
+     * @see #removeProxyServer(ProxyServer)
+     */
+    public void addProxyServer(ProxyServer proxyServer) {
+        proxyServers.add(proxyServer);
+        extensionHooks.values().forEach(extHook -> hookProxyServer(extHook, proxyServer));
+    }
+
+    private static void hookProxyServer(ExtensionHook extHook, ProxyServer proxyServer) {
+        process(extHook.getProxyListenerList(), proxyServer::addProxyListener);
+        process(extHook.getOverrideMessageProxyListenerList(), proxyServer::addOverrideMessageProxyListener);
+        process(extHook.getPersistentConnectionListener(), proxyServer::addPersistentConnectionListener);
+        process(extHook.getConnectRequestProxyListeners(), proxyServer::addConnectRequestProxyListener);
+    }
+
+    private static <T> void process(List<T> elements, Consumer<T> action) {
+        try {
+            elements.stream().filter(Objects::nonNull).forEach(action);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void hookProxies(ExtensionHook extHook) {
+        for (ProxyServer proxyServer : proxyServers) {
+            hookProxyServer(extHook, proxyServer);
+        }
+    }
+
+    /**
+     * Removes the given proxy server.
+     *
+     * @param proxyServer the proxy server to remove, must not be null.
+     * @since TODO add version
+     * @see #addProxyServer(ProxyServer)
+     */
+    public void removeProxyServer(ProxyServer proxyServer) {
+        proxyServers.remove(proxyServer);
+        extensionHooks.values().forEach(extHook -> unhookProxyServer(extHook, proxyServer));
+    }
+
+    private void unhookProxyServer(ExtensionHook extHook, ProxyServer proxyServer) {
+        process(extHook.getProxyListenerList(), proxyServer::removeProxyListener);
+        process(extHook.getOverrideMessageProxyListenerList(), proxyServer::removeOverrideMessageProxyListener);
+        process(extHook.getPersistentConnectionListener(), proxyServer::removePersistentConnectionListener);
+        process(extHook.getConnectRequestProxyListeners(), proxyServer::removeConnectRequestProxyListener);
+    }
+
+    private void unhookProxies(ExtensionHook extHook) {
+        for (ProxyServer proxyServer : proxyServers) {
+            unhookProxyServer(extHook, proxyServer);
+        }
     }
 
     public void hookProxyListener(Proxy proxy) {
@@ -705,6 +771,7 @@ public class ExtensionLoader {
             }
             
             hookOptions(extHook);
+            hookProxies(extHook);
             ext.optionsLoaded();
             ext.postInit();
         } catch (Exception e) {
@@ -791,6 +858,7 @@ public class ExtensionLoader {
                 }
                 
                 hookOptions(extHook);
+                hookProxies(extHook);
                 ext.optionsLoaded();
                 
             } catch (Throwable e) {
@@ -1301,6 +1369,8 @@ public class ExtensionLoader {
         extensionHooks.values().remove(hook);
 
         unloadOptions(hook);
+
+        unhookProxies(hook);
 
         removePersistentConnectionListener(hook);
 

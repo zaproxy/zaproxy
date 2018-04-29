@@ -37,6 +37,7 @@
 // ZAP: 2017/02/08 Change isEmpty to check start line instead of headers (if it has the status/request line it's not empty).
 // ZAP: 2017/03/02 Issue 3226: Added API Key and Nonce headers
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
+// ZAP: 2018/04/24 Add JSON Content-Type.
 
 package org.parosproxy.paros.network;
 
@@ -88,6 +89,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String _KEEP_ALIVE = "Keep-Alive";
     public static final String _CHUNKED = "Chunked";
     public static final String FORM_URLENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String SCHEME_HTTP = "http://";
     public static final String SCHEME_HTTPS = "https://";
     public static final String HTTP = "http";

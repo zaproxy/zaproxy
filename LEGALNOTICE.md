@@ -5,7 +5,7 @@ OWASP Zed Attack Proxy (ZAP)
 
 The software package is:
 
-    Copyright © 2010-2016 ZAP Development Team
+    Copyright © 2010-2018 ZAP Development Team
 
 Individual contributions, components, and libraries are copyright of their
 respective authors.
@@ -46,8 +46,10 @@ and subject to their respective licenses.
 | commons-io-2.4.jar            | Apache 2.0                |
 | commons-jxpath-1.3.jar        | Apache 2.0                |
 | commons-lang-2.6.jar          | Apache 2.0                |
+| commons-lang3-3.7.jar         | Apache 2.0                |
 | commons-logging-1.2.jar       | Apache 2.0                |
 | commons-logging-api-1.1.1.jar | Apache 2.0                |
+| commons-text-1.3.jar          | Apache 2.0                |
 | diffutils-1.2.1.jar           | Apache 2.0                |
 | ezmorph-1.0.6.jar             | Apache 2.0                |
 | harlib-jackson-1.1.2.jar      | Apache 2.0                |
