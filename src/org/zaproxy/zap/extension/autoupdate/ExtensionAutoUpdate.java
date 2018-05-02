@@ -276,10 +276,25 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				: latestVersionInfo);
 
 		boolean update = false;
+		boolean uninstallBeforeAddOnCopy = false;
 		AddOnChangesResult result;
 		AddOn installedAddOn = getLocalVersionInfo().getAddOn(ao.getId());
 		if (installedAddOn != null) {
-			if (!ao.isUpdateTo(installedAddOn)) {
+			if (ao.getVersion().equals(installedAddOn.getVersion())) {
+				int reinstall = View.getSingleton().showYesNoDialog(
+						View.getSingleton().getMainFrame(),
+						new Object[] {
+								Constant.messages.getString(
+										"cfu.warn.addOnSameVersion",
+										installedAddOn.getVersion(),
+										View.getSingleton().getStatusUI(installedAddOn.getStatus()).toString(),
+										ao.getVersion(),
+										View.getSingleton().getStatusUI(ao.getStatus()).toString()) });
+				if (reinstall != JOptionPane.YES_OPTION) {
+					return;
+				}
+				uninstallBeforeAddOnCopy = true;
+			} else if (!ao.isUpdateTo(installedAddOn)) {
 				View.getSingleton().showWarningDialog(
 						Constant.messages.getString(
 								"cfu.warn.addOnOlderVersion",
@@ -308,7 +323,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				}
 			}
 			
-			installLocalAddOn(ao);
+			installLocalAddOn(ao, uninstallBeforeAddOnCopy);
 			return;
 		}
 
@@ -327,10 +342,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		}
 		
 		processAddOnChanges(getView().getMainFrame(), result);
-		installLocalAddOn(ao);
+		installLocalAddOn(ao, uninstallBeforeAddOnCopy);
 	}
 
-	private void installLocalAddOn(AddOn ao) {
+	private void installLocalAddOn(AddOn ao, boolean uninstallBeforeAddOnCopy) {
+		if (uninstallBeforeAddOnCopy && !uninstallAddOn(null, getLocalVersionInfo().getAddOn(ao.getId()), true)) {
+			return;
+		}
+
 		File addOnFile;
 		try {
 			addOnFile = copyAddOnFileToLocalPluginFolder(ao);
