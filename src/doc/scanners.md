@@ -24,6 +24,7 @@ Scanners:
 10000   Password Autocomplete in browser [Deprecated]
 10001   Secure page browser cache [Deprecated]
 
+10009   In Page Banner Info Leak
 10010   Cookie set without HttpOnly flag
 10011   Cookie set without secure flag
 10012   Password Autocomplete in browser [Deprecated]
