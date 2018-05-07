@@ -300,6 +300,11 @@ public class ExtensionFactory {
     }
 
     private static ResourceBundle getExtensionResourceBundle(Extension ext) {
+        if (ext.getAddOn() == null) {
+            // Core extensions use core resource bundle.
+            return null;
+        }
+
         String extensionPackage = ext.getClass().getPackage().getName();
         ClassLoader classLoader = ext.getClass().getClassLoader();
         try {
@@ -347,6 +352,11 @@ public class ExtensionFactory {
     }
 
     private static URL getExtensionHelpSetUrl(Extension extension) {
+        if (extension.getAddOn() == null) {
+            // Core extensions use core help.
+            return null;
+        }
+
         String extensionPackage = extension.getClass().getPackage().getName();
         String localeToken = "%LC%";
         Function<String, URL> getResource = extension.getClass().getClassLoader()::getResource;
