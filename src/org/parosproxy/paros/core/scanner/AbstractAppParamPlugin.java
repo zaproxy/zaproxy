@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
@@ -149,6 +150,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
         if ((enabledRPC & ScannerParam.RPC_USERDEF) != 0) {
             listVariant.add(new VariantUserDefined());
+        }
+
+        if (listVariant.isEmpty()) {
+            getParent().pluginSkipped(this, Constant.messages.getString("ascan.progress.label.skipped.reason.noinputvectors"));
+            return;
         }
 
         
