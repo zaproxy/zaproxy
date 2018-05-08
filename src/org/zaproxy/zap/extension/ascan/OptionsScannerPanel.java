@@ -49,9 +49,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JPanel panelScanner = null;
     private JSlider sliderHostPerScan = null;
     private JSlider sliderThreadsPerHost = null;
-    private JSlider sliderDelayInMs = null;
+    private ZapNumberSpinner spinnerDelayInMs = null;
     private JLabel labelThreadsPerHostValue = null;
-    private JLabel labelDelayInMsValue = null;
     private ZapNumberSpinner spinnerMaxRuleDuration = null;
     private ZapNumberSpinner spinnerMaxScanDuration = null;
     private ZapNumberSpinner spinnerMaxResultsList = null;
@@ -122,11 +121,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.delayInMs.label")),
-                    LayoutHelper.getGBC(0, row, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            panelScanner.add(getLabelDelayInMsValue(),
-                    LayoutHelper.getGBC(2, row++, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            panelScanner.add(getSliderDelayInMs(),
-                    LayoutHelper.getGBC(0, row++, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelScanner.add(getSpinnerDelayInMs(),
+                    LayoutHelper.getGBC(1, row++, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             
             // Add checkboxes for Active scan configuration
             // ---------------------------------------------            
@@ -202,8 +199,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         ScannerParam param = options.getParamSet(ScannerParam.class);
         getSliderHostPerScan().setValue(param.getHostPerScan());
         getSliderThreadsPerHost().setValue(param.getThreadPerHost());
-        getSliderDelayInMs().setValue(param.getDelayInMs());
-        setLabelDelayInMsValue(param.getDelayInMs());
+        getSpinnerDelayInMs().setValue(param.getDelayInMs());
         getSpinnerMaxResultsList().setValue(param.getMaxResultsToList());
         getSpinnerMaxRuleDuration().setValue(param.getMaxRuleDurationInMins());
         getSpinnerMaxScanDuration().setValue(param.getMaxScanDurationInMins());
@@ -281,64 +277,15 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return sliderThreadsPerHost;
     }
 
-    private JSlider getSliderDelayInMs() {
-        if (sliderDelayInMs == null) {
-            sliderDelayInMs = new JSlider();
-            sliderDelayInMs.setMaximum(1000);
-            sliderDelayInMs.setMinimum(0);
-            sliderDelayInMs.setValue(0);
-            sliderDelayInMs.setPaintTicks(true);
-            sliderDelayInMs.setPaintLabels(true);
-            sliderDelayInMs.setMinorTickSpacing(25);
-            sliderDelayInMs.setMajorTickSpacing(100);
-            sliderDelayInMs.setSnapToTicks(true);
-            sliderDelayInMs.setPaintTrack(true);
-
-            sliderDelayInMs.addChangeListener(new ChangeListener() {
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    setLabelDelayInMsValue(getSliderDelayInMs().getValue());
-                }
-            });
-
+    private ZapNumberSpinner getSpinnerDelayInMs() {
+        if (spinnerDelayInMs == null) {
+            spinnerDelayInMs = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
         }
-        return sliderDelayInMs;
+        return spinnerDelayInMs;
     }
 
     private int getDelayInMs() {
-        return this.sliderDelayInMs.getValue();
-    }
-
-    private void setLabelDelayInMsValue(int value) {
-        if (labelDelayInMsValue == null) {
-            labelDelayInMsValue = new JLabel();
-        }
-
-        // Snap to ticks
-        value = ((value + 13) / 25) * 25;
-        
-        String val;
-        if (value < 10) {
-            val = "   " + value;
-            
-        } else if (value < 100) {
-            val = "  " + value;
-            
-        } else if (value < 1000) {
-            val = " " + value;
-            
-        } else {
-            val = Integer.toString(value);
-        }
-        
-        labelDelayInMsValue.setText(val);
-    }
-
-    private JLabel getLabelDelayInMsValue() {
-        if (labelDelayInMsValue == null) {
-            setLabelDelayInMsValue(getSliderDelayInMs().getValue());
-        }
-        return labelDelayInMsValue;
+        return this.spinnerDelayInMs.getValue();
     }
 
     private void setLabelThreadsPerHostValue(int value) {
