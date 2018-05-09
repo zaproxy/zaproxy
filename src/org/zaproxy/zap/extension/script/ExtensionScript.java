@@ -143,6 +143,14 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @see #optionsLoaded()
 	 */
 	private boolean shouldLoadTemplatesOnScriptTypeRegistration;
+
+	/**
+	 * The directories added to the extension, to automatically add and remove its scripts.
+	 * 
+	 * @see #addScriptsFromDir(File)
+	 * @see #removeScriptsFromDir(File)
+	 */
+	private List<File> trackedDirs = Collections.synchronizedList(new ArrayList<>());
 	
     public ExtensionScript() {
         super(NAME);
@@ -261,6 +269,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		
 		// Templates for this engine might not have been loaded
 		this.loadTemplates(wrapper);
+
+		synchronized (trackedDirs) {
+			String engineName = wrapper.getLanguageName() + LANG_ENGINE_SEP + wrapper.getEngineName();
+			for (File dir : trackedDirs) {
+				for (ScriptType type : this.getScriptTypes()) {
+					addScriptsFromDir(dir, type, engineName);
+				}
+			}
+		}
 
 		if (scriptUI != null) {
 			try {
@@ -482,6 +499,12 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 		if (shouldLoadTemplatesOnScriptTypeRegistration) {
 			loadScriptTemplates(type);
+		}
+
+		synchronized (trackedDirs) {
+			for (File dir : trackedDirs) {
+				addScriptsFromDir(dir, type, null);
+			}
 		}
 	}
 	
@@ -798,49 +821,111 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     }
 
 	
+	/**
+	 * Adds the scripts from the given directory and starts tracking it.
+	 * <p>
+	 * The directory will be tracked to add or remove its scripts when a new script engine/type is added or removed.
+	 * <p>
+	 * The scripts are expected to be under directories of the corresponding script type, for example:
+	 * <pre>
+	 * {@code
+	 * (dir specified)
+	 * ├── active
+	 * │   ├── gof_lite.js
+	 * │   ├── TestInsecureHTTPVerbs.py
+	 * │   └── User defined attacks.js
+	 * ├── extender
+	 * │   └── HTTP Message Logger.js
+	 * ├── httpfuzzerprocessor
+	 * │   ├── add_msgs_sites_tree.js
+	 * │   ├── http_status_code_filter.py
+	 * │   └── showDifferences.js
+	 * ├── httpsender
+	 * │   ├── add_header_request.py
+	 * │   └── Capture and Replace Anti CSRF Token.js
+	 * └── variant
+	 *     └── JsonStrings.js
+	 * }
+	 * </pre>
+	 * 
+	 * where {@code active}, {@code extender}, {@code httpfuzzerprocessor}, {@code httpsender}, and {@code variant} are the
+	 * script types.
+	 * 
+	 * @param dir the directory from where to add the scripts.
+	 * @return the number of scripts added.
+	 * @since 2.4.1
+	 * @see #removeScriptsFromDir(File)
+	 */
 	public int addScriptsFromDir (File dir) {
 		logger.debug("Adding scripts from dir: " + dir.getAbsolutePath());
+		trackedDirs.add(dir);
 		int addedScripts = 0;
 		for (ScriptType type : this.getScriptTypes()) {
-			File locDir = new File(dir, type.getName());
-			if (locDir.exists()) {
-				for (File f : locDir.listFiles()) {
-					String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
-					String engineName = this.getEngineNameForExtension(ext);
-					
-					if (engineName != null) {
-						try {
-							if (f.canWrite()) {
-								String scriptName = this.getUniqueScriptName(f.getName(), ext);
-								logger.debug("Loading script " + scriptName);
-								ScriptWrapper sw = new ScriptWrapper(scriptName, "", 
-										this.getEngineWrapper(engineName), type, false, f);
-								this.loadScript(sw);
-								this.addScript(sw, false);
-							} else {
-								// Cant write so add as a template
-								String scriptName = this.getUniqueTemplateName(f.getName(), ext);
-								logger.debug("Loading script " + scriptName);
-								ScriptWrapper sw = new ScriptWrapper(scriptName, "", 
-										this.getEngineWrapper(engineName), type, false, f);
-								this.loadScript(sw);
-								this.addTemplate(sw, false);
-							}
-							addedScripts++;
-						} catch (Exception e) {
-							logger.error(e.getMessage(), e);
+			addedScripts += addScriptsFromDir(dir, type, null);
+		}
+		return addedScripts;
+	}
+
+	/**
+	 * Adds the scripts from the given directory of the given script type and, optionally, for the engine with the given name.
+	 *
+	 * @param dir the directory from where to add the scripts.
+	 * @param type the script type, must not be {@code null}.
+	 * @param targetEngineName the engine that the scripts must be of, {@code null} for all engines.
+	 * @return the number of scripts added.
+	 */
+	private int addScriptsFromDir(File dir, ScriptType type, String targetEngineName) {
+		int addedScripts = 0;
+		File typeDir = new File(dir, type.getName());
+		if (typeDir.exists()) {
+			for (File f : typeDir.listFiles()) {
+				String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
+				String engineName = this.getEngineNameForExtension(ext);
+				
+				if (engineName != null && (targetEngineName == null || engineName.equals(targetEngineName))) {
+					try {
+						if (f.canWrite()) {
+							String scriptName = this.getUniqueScriptName(f.getName(), ext);
+							logger.debug("Loading script " + scriptName);
+							ScriptWrapper sw = new ScriptWrapper(scriptName, "", 
+									this.getEngineWrapper(engineName), type, false, f);
+							this.loadScript(sw);
+							this.addScript(sw, false);
+						} else {
+							// Cant write so add as a template
+							String scriptName = this.getUniqueTemplateName(f.getName(), ext);
+							logger.debug("Loading script " + scriptName);
+							ScriptWrapper sw = new ScriptWrapper(scriptName, "", 
+									this.getEngineWrapper(engineName), type, false, f);
+							this.loadScript(sw);
+							this.addTemplate(sw, false);
 						}
-					} else {
-						logger.debug("Ignoring " + f.getName());
+						addedScripts++;
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
 					}
+				} else {
+					logger.debug("Ignoring " + f.getName());
 				}
 			}
 		}
 		return addedScripts;
 	}
 
+	/**
+	 * Removes the scripts added from the given directory and stops tracking it.
+	 * <p>
+	 * The number of scripts removed might be different than the number of scripts initially added, as a script engine or type
+	 * might have been added or removed in the meantime.
+	 * 
+	 * @param dir the directory previously added.
+	 * @return the number of scripts removed.
+	 * @since 2.4.1
+	 * @see #addScriptsFromDir(File)
+	 */
 	public int removeScriptsFromDir (File dir) {
 		logger.debug("Removing scripts from dir: " + dir.getAbsolutePath());
+		trackedDirs.remove(dir);
 		int removedScripts = 0;
 		
 		for (ScriptType type : this.getScriptTypes()) {
@@ -882,6 +967,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		return file.getParentFile().equals(directory);
 	}
 
+	/**
+	 * Gets the numbers of scripts for the given directory for the currently registered script engines and types.
+	 * 
+	 * @param dir the directory to check.
+	 * @return the number of scripts.
+	 * @since 2.4.1
+	 */
 	public int getScriptCount(File dir) {
 		int scripts = 0;
 		
