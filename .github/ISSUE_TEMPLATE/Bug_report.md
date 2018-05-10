@@ -22,6 +22,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Software versions**
  - ZAP: [note that we typically only support the latest version of ZAP]
+ - Add-on: Name and version [e.g. Passive Scan Rules Alpha v19. https://github.com/zaproxy/zaproxy/wiki/FAQAddonVersions]
  - OS: [e.g. Windows 10]
  - Java: [e.g. openjdk version "1.8.0_171"]
  - Browser: [e.g. chrome 66, firefox 59, safari 11.1]
