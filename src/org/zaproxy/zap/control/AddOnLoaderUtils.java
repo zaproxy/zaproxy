@@ -110,7 +110,7 @@ final class AddOnLoaderUtils {
             @SuppressWarnings("unchecked")
             Constructor<T> c = (Constructor<T>) cls.getConstructor();
             return c.newInstance();
-        } catch (ExceptionInInitializerError | Exception e) {
+        } catch (LinkageError | Exception e) {
             LOGGER.error("Failed to initialise: " + classname, e);
         }
         return null;
