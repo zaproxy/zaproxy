@@ -34,7 +34,6 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
 	private static final String[] COLUMN_NAMES = {
 		Constant.messages.getString("pscan.options.table.header.enabled"),
 		Constant.messages.getString("pscan.options.table.header.name"),
-		Constant.messages.getString("pscan.options.table.header.type"),
 		Constant.messages.getString("pscan.options.table.header.configuration")};
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
@@ -94,8 +93,6 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
         case 1:
             return getElement(rowIndex).getName();
         case 2:
-            return getElement(rowIndex).getType().toString();
-        case 3:
             return getElement(rowIndex).getConf();
         }
         return null;

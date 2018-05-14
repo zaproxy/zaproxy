@@ -45,7 +45,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
     private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.add.button.confirm");
 
     private static final String NAME_FIELD_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.field.label.name");
-    private static final String TYPE_FIELD_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.field.label.type");
     private static final String CONFIGURATION_FIELD_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.field.label.config");
     private static final String REQUEST_URL_REGEX_FIELD_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.field.label.editRequestUrlRegex");
     private static final String REQUEST_HEADER_REGEX_FIELD_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.field.label.editRequestHeaderRegex");
@@ -63,7 +62,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
     private static final String MESSAGE_INVALID_RESPONSE_HEADER_REGEX = Constant.messages.getString("pscan.options.dialog.scanner.warning.invalid.responseHeaderRegex");
 
     private ZapTextField nameTextField;
-    private ZapTextField typeTextField;
     private ZapTextField configurationTextField;
     private ZapTextField requestUrlRegexTextField;
     private ZapTextField requestHeaderRegexTextField;
@@ -94,7 +92,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
         layout.setAutoCreateContainerGaps(true);
         
         JLabel nameLabel = new JLabel(NAME_FIELD_LABEL);
-        JLabel typeLabel = new JLabel(TYPE_FIELD_LABEL);
         JLabel configurationLabel = new JLabel(CONFIGURATION_FIELD_LABEL);
         JLabel requestUrlRegexLabel = new JLabel(REQUEST_URL_REGEX_FIELD_LABEL);
         JLabel requestHeaderRegexLabel = new JLabel(REQUEST_HEADER_REGEX_FIELD_LABEL);
@@ -105,7 +102,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
         layout.setHorizontalGroup(layout.createSequentialGroup()
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                 .addComponent(nameLabel)
-                .addComponent(typeLabel)
                 .addComponent(configurationLabel)
                 .addComponent(requestUrlRegexLabel)
                 .addComponent(requestHeaderRegexLabel)
@@ -114,7 +110,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
                 .addComponent(enabledLabel))
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addComponent(getNameTextField())
-                .addComponent(getTypeTextField())
                 .addComponent(getConfigurationTextField())
                 .addComponent(getRequestUrlRegexTextField())
                 .addComponent(getRequestHeaderRegexTextField())
@@ -127,9 +122,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(nameLabel)
                 .addComponent(getNameTextField()))
-            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                .addComponent(typeLabel)
-                .addComponent(getTypeTextField()))
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(configurationLabel)
                 .addComponent(getConfigurationTextField()))
@@ -258,16 +250,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
         }
         
         return nameTextField;
-    }
-
-    protected ZapTextField getTypeTextField() {
-        if (typeTextField == null) {
-            typeTextField = new ZapTextField();
-            typeTextField.setEditable(false);
-            typeTextField.setText(RegexAutoTagScanner.TYPE.TAG.name());
-        }
-
-        return typeTextField;
     }
     
     protected ZapTextField getConfigurationTextField() {
