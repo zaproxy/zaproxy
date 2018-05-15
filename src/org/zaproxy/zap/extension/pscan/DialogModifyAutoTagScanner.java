@@ -56,10 +56,7 @@ class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
     @Override
     protected void init() {
         getNameTextField().setText(scanner.getName());
-        getRequestUrlRegexTextField().discardAllEdits();
-        
-        getTypeTextField().setText(scanner.getType().name());
-        getRequestUrlRegexTextField().discardAllEdits();
+        getNameTextField().discardAllEdits();
         
         getConfigurationTextField().setText(scanner.getConf());
         getConfigurationTextField().discardAllEdits();
