@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="test/resources"/>
+	<classpathentry excluding="resources/" kind="src" path="test"/>
 	<classpathentry kind="lib" path="lib/orange-extensions-1.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/bcmail-jdk15on-152.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-152.jar"/>

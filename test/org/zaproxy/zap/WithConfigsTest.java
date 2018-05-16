@@ -24,12 +24,15 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -37,38 +40,47 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
-//import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
+import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.I18N;
 
 @RunWith(MockitoJUnitRunner.class)
-public abstract class WithConfigsTest {
+public abstract class WithConfigsTest extends TestUtils {
 
-    private static final String INSTALL_PATH = "test/resources/install";
-    private static final File HOME_DIR = new File("test/resources/home");
+    /**
+     * A temporary directory where ZAP home/installation dirs are created.
+     * <p>
+     * Can be used for other temporary files/dirs.
+     */
+    @ClassRule
+    public static TemporaryFolder tempDir = new TemporaryFolder();
+    private static String zapInstallDir;
+    private static String zapHomeDir;
 
     @BeforeClass
-    public static void beforeClass() {
+    public static void beforeClass() throws Exception {
+        File installDir = tempDir.newFolder("install");
+        Path langDir = Files.createDirectory(installDir.toPath().resolve("lang"));
+        Files.createFile(langDir.resolve("Messages.properties"));
+        Path xmlDir = Files.createDirectory(installDir.toPath().resolve("xml"));
+        Files.createFile(xmlDir.resolve("log4j.properties"));
+        Path configXmlPath = Files.createFile(xmlDir.resolve("config.xml"));
+        Files.write(configXmlPath, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><config></config>".getBytes(StandardCharsets.UTF_8));
+
+        zapInstallDir = installDir.getAbsolutePath();
+        zapHomeDir = tempDir.newFolder("home").getAbsolutePath();
     }
 
-    public WithConfigsTest() {
-        super();
-    }
-
+    /**
+     * Sets up ZAP, by initialising the home/installation dirs and core classes (for example, {@link Constant}, {@link Control},
+     * {@link Model}).
+     *
+     * @throws Exception if an error occurred while setting up the dirs or core classes.
+     */
     @Before
-    public void setUp() throws Exception {
-/*
-        // Useful if you need to get some info when debugging
-        BasicConfigurator.configure();
-        ConsoleAppender ca = new ConsoleAppender();
-        ca.setWriter(new OutputStreamWriter(System.out));
-        ca.setLayout(new PatternLayout("%-5p [%t]: %m%n"));
-        Logger.getRootLogger().addAppender(ca);
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-/**/
-        Constant.setZapInstall(INSTALL_PATH);
-        HOME_DIR.mkdirs();
-        Constant.setZapHome(HOME_DIR.getAbsolutePath());
+    public void setUpZap() throws Exception {
+        Constant.setZapInstall(zapInstallDir);
+        Constant.setZapHome(zapHomeDir);
 
         File langDir = new File(Constant.getZapInstall(), "lang");
         ClassLoaderUtil.addFile(langDir.getAbsolutePath());
@@ -85,12 +97,5 @@ public abstract class WithConfigsTest {
         given(i18n.getLocal()).willReturn(Locale.getDefault());
         Constant.messages = i18n;
         Control.initSingletonForTesting(Model.getSingleton());
-        Mockito.when (control.getExtensionLoader()).thenReturn(extLoader);
-        
-    }
-    
-    @After
-    public void shutDown() throws Exception {
-        FileUtils.deleteDirectory(HOME_DIR);
     }
 }

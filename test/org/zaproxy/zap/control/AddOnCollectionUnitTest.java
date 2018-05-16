@@ -24,13 +24,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.zaproxy.zap.control.AddOnCollection.Platform;
+import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 import java.io.StringReader;
@@ -40,10 +40,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AddOnCollectionUnitTest {
+public class AddOnCollectionUnitTest extends TestUtils {
 
-    private static final Path DIRECTORY = Paths.get("test/resources/org/zaproxy/zap/control/");
-    //private static final Path DIRECTORY = Paths.get("../test/resources/org/zaproxy/zap/control/");
+    private static final Path DIRECTORY = getResourcePath("", AddOnCollectionUnitTest.class);
 
 	private ZapXmlConfiguration configA;
 	private ZapXmlConfiguration configB;

@@ -29,7 +29,6 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
@@ -41,6 +40,7 @@ import java.util.ResourceBundle;
 
 import org.junit.Test;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.testutils.TestUtils;
 
 /**
  * Unit test to verify that translated time stamps (in {@code Messages.properties} files) are valid patterns for
@@ -48,12 +48,12 @@ import org.parosproxy.paros.Constant;
  * 
  * @see TimeStampUtils
  */
-public class TimeStampLocaleUnitTest {
+public class TimeStampLocaleUnitTest extends TestUtils {
 
     private static final String KEY_DATE_TIME_PATTERN = "timestamp.format.datetime";
     private static final String KEY_TIME_ONLY_PATTERN = "timestamp.format.timeonly";
 
-    private static final Path DIRECTORY = Paths.get("src/" + Constant.LANG_DIR);
+    private static final Path DIRECTORY = getResourcePath("/" + Constant.LANG_DIR, TimeStampLocaleUnitTest.class);
     private static final String BASE_NAME = Constant.MESSAGES_PREFIX;
     private static final String FILE_NAME = BASE_NAME + "_";
     private static final String FILE_EXTENSION = ".properties";

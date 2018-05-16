@@ -29,7 +29,6 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -43,13 +42,14 @@ import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.testutils.TestUtils;
 
 /**
  * Unit test to verify that the {@code Messages.properties} files are loaded with expected {@code Locale}.
  */
-public class MessagesLocaleUnitTest {
+public class MessagesLocaleUnitTest extends TestUtils {
 
-    private static final Path DIRECTORY = Paths.get("src/" + Constant.LANG_DIR);
+    private static final Path DIRECTORY = getResourcePath("/" + Constant.LANG_DIR, MessagesLocaleUnitTest.class);
     private static final String BASE_NAME = Constant.MESSAGES_PREFIX;
     private static final String FILE_NAME = BASE_NAME + "_";
     private static final String FILE_EXTENSION = ".properties";

@@ -40,19 +40,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 
 /**
  * Unit test for {@link AddOn}.
  */
-public class AddOnUnitTest {
+public class AddOnUnitTest extends TestUtils {
 
 	@Rule
 	public TemporaryFolder tempDir = new TemporaryFolder();
 
 	private static final File ZAP_VERSIONS_XML = 
-			Paths.get("test/resources/org/zaproxy/zap/control", "ZapVersions-deps.xml").toFile();
+			getResourcePath("ZapVersions-deps.xml", AddOnUnitTest.class).toFile();
 
 	@Test
 	@SuppressWarnings("deprecation")

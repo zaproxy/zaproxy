@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -44,7 +43,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    private static final Path BASE_DIR_TEST_FILES = Paths.get("test/resources/org/zaproxy/zap/spider/parser/sitemapxml");
+    private static final Path BASE_DIR_TEST_FILES = getResourcePath("sitemapxml", SpiderSitemapXMLParserUnitTest.class);
 
     @BeforeClass
     public static void suppressLogging() {
