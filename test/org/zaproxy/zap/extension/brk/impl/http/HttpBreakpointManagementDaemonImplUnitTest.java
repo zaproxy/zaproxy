@@ -37,10 +37,8 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
 
 	private HttpBreakpointManagementDaemonImpl impl;
 	
-	@Override
 	@Before
 	public void setUp() throws Exception {
-		super.setUp();
 		impl = new HttpBreakpointManagementDaemonImpl();
 	}
 	

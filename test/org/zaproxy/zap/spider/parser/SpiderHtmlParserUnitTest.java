@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -45,7 +44,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    private static final Path BASE_DIR_HTML_FILES = Paths.get("test/resources/org/zaproxy/zap/spider/parser/html");
+    private static final Path BASE_DIR_HTML_FILES = getResourcePath("html", SpiderHtmlParserUnitTest.class);
 
     @BeforeClass
     public static void suppressLogging() {

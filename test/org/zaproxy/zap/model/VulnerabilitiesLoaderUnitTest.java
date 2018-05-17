@@ -4,19 +4,19 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
+import org.zaproxy.zap.testutils.TestUtils;
 
 /**
  * Unit test for {@link VulnerabilitiesLoader}.
  */
-public class VulnerabilitiesLoaderUnitTest {
+public class VulnerabilitiesLoaderUnitTest extends TestUtils {
 
-    private static final Path DIRECTORY = Paths.get("test/resources/vulnerabilities/");
-    private static final Path DIRECTORY_INVALID = Paths.get("test/resources/vulnerabilities/invalid");
+    private static final Path DIRECTORY = getResourcePath("/vulnerabilities/", VulnerabilitiesLoaderUnitTest.class);
+    private static final Path DIRECTORY_INVALID = getResourcePath("/vulnerabilities/invalid", VulnerabilitiesLoaderUnitTest.class);
     private static final String FILE_NAME = "vulnerabilities-test";
     private static final String FILE_EXTENSION = ".xml";
 

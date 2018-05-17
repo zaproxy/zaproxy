@@ -348,11 +348,17 @@
     </target>
 
 	<target name="test" depends="dist">
-        <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
+		<!-- Copy test resources -->
+        <echo message="Copying resources..." />
+        <copy todir="${test.build}">
+            <fileset dir="${src}" includes="lang/**" />
+            <fileset dir="${test.src}/resources/" />
+        </copy>
+        <echo message="Running tests..." />
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
-                <pathelement location="${build}"/>
                 <pathelement location="${test.build}"/>
+                <pathelement location="${build}"/>
         		<fileset dir="${dist.lib.dir}">
         			<include name="*.jar" />
         			<exclude name="ant*.jar" />
