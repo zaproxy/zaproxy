@@ -18,8 +18,10 @@
 package org.zaproxy.zap.extension.api;
 
 import net.sf.json.JSON;
+import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
@@ -41,7 +43,16 @@ public class ApiResponseElement extends ApiResponse {
 
 	public ApiResponseElement(String name, String value) {
 		super(name);
-		this.value = value;
+		if (value != null) {
+			try {
+				JSONSerializer.toJSON(value);
+				// Its valid JSON so escape
+				this.value = "'" + value + "'";
+			} catch (JSONException e) {
+				// Its not a valid JSON object so can add as is
+				this.value = value;
+			}
+		}
 	}
 
 	public ApiResponseElement(ApiResponse value) {
@@ -70,7 +81,8 @@ public class ApiResponseElement extends ApiResponse {
 		if (apiResponse == null) {
 			jo.put(this.getName(), this.value == null ? JSONNull.getInstance() : this.value);
 		} else {
-			jo.put(this.getName(), apiResponse.toJSON());
+			// toString() is required to prevent auto conversion of text values to JSON
+			jo.put(this.getName(), apiResponse.toJSON().toString());
 		}
 		return jo;
 	}

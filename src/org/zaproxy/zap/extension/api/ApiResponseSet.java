@@ -20,14 +20,16 @@ package org.zaproxy.zap.extension.api;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 import org.zaproxy.zap.utils.XMLStringUtil;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 public class ApiResponseSet<T> extends ApiResponse {
 
@@ -45,7 +47,20 @@ public class ApiResponseSet<T> extends ApiResponse {
 		}
 		JSONObject jo = new JSONObject();
 		for (Entry<String, T> val : values.entrySet()) {
-			jo.put(val.getKey(), val.getValue());
+			T value = val.getValue();
+			if (value instanceof String) {
+				// Unfortunately json-lib performs auto conversion on json strings
+				try {
+					JSONSerializer.toJSON(value);
+					// Its valid JSON so escape
+					jo.put(val.getKey(), "'" + value + "'");
+				} catch (JSONException e) {
+					// Its not a valid JSON object so can add as is
+					jo.put(val.getKey(), value);
+				}
+			} else {
+				jo.put(val.getKey(), value);
+			}
 		}
 		return jo;
 	}
