@@ -22,7 +22,9 @@ import java.util.List;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
@@ -72,14 +74,24 @@ public class ApiResponseList extends ApiResponse {
 		}
 		JSONObject jo = new JSONObject();
 		JSONArray array = new JSONArray();
+		// Add the array in place to prevent auto conversion 
+		jo.put(getName(), array);
 		for (ApiResponse resp: this.list) {
 			if (resp instanceof ApiResponseElement) {
-				array.add(((ApiResponseElement)resp).getValue());
+				String value = ((ApiResponseElement)resp).getValue();
+				try {
+					JSONSerializer.toJSON(value);
+					// Its valid JSON so escape
+					value = "'" + value + "'";
+				} catch (JSONException e) {
+					// Its not a valid JSON object so can add as is
+				}
+				jo.getJSONArray(getName()).add(value);
 			} else {
-				array.add(resp.toJSON());
+				// toString() is required to prevent auto conversion of text values to JSON
+				jo.getJSONArray(getName()).add(resp.toJSON().toString());
 			}
 		}
-		jo.put(getName(), array);
 		return jo;
 	}
 
