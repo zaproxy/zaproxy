@@ -1061,6 +1061,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 		ExtensionFactory.getAddOnLoader().addAddon(ao);
 
+		logger.info("Finished installing new addon " + ao.getId() + " v" + ao.getVersion());
+		if (View.isInitialised()) {
+			// Report info to the Output tab
+			View.getSingleton().getOutputPanel().append(
+					Constant.messages.getString("cfu.output.installing.finished", ao.getName(), ao.getVersion()) + "\n");
+		}
+		
         if (latestVersionInfo != null) {
             AddOn addOn = latestVersionInfo.getAddOn(ao.getId());
             if (addOn != null && AddOn.InstallationStatus.DOWNLOADING == addOn.getInstallationStatus()) {
