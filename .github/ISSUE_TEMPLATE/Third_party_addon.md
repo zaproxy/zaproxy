@@ -26,5 +26,11 @@ Will be used in the announcement tweet from @zaproxy
 
 **Promote to Beta or Release?**
 Note that all new add-ons start at Alpha status.
+<!--
+Refer to the following pages for the guidelines of each status:
+https://github.com/zaproxy/zap-extensions/wiki/AddOnsAlpha
+https://github.com/zaproxy/zap-extensions/wiki/AddOnsBeta
+https://github.com/zaproxy/zap-extensions/wiki/AddOnsRelease
+-->
 
 **Anything else we should know**
