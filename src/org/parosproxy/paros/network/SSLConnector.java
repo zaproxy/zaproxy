@@ -32,6 +32,7 @@
 // ZAP: 2015/10/13 Issue 1975: Allow use of default disabled cipher suites (such as RC4-SHA)
 // ZAP: 2017/04/14 Validate that SSLv2Hello is set in conjunction with at least one SSL/TLS version.
 // ZAP: 2017/09/22 Rely on SNI if the domain is no known when creating the SSL/TLS tunnel.
+// ZAP: 2017/11/07 Pass the listeningIpAddress when creating the SSL/TLS tunnel. Check if hostname is an ipAddress when creating the SSL/TLS tunnel.
 // ZAP: 2018/06/08 Don't enable client cert if none set (Issue 4745).
 
 package org.parosproxy.paros.network;
@@ -81,8 +82,10 @@ import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
+import org.parosproxy.paros.security.CertData;
 import org.parosproxy.paros.security.SslCertificateService;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
@@ -536,8 +539,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	 * @throws IOException
 	 */
 	public Socket createTunnelServerSocket(String targethost, Socket socket) throws IOException {
+		InetAddress listeningAddress = socket.getLocalAddress();
 		// ZAP: added host name parameter
-		SSLSocket s = (SSLSocket) getTunnelSSLSocketFactory(targethost).createSocket(socket, socket
+		SSLSocket s = (SSLSocket) getTunnelSSLSocketFactory(targethost, listeningAddress).createSocket(socket, socket
 				.getInetAddress().getHostAddress(), socket.getPort(), true);
 		
 		s.setUseClientMode(false);
@@ -545,8 +549,17 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		return s;
 	}
 
-	// ZAP: added new ServerSocketFaktory with support of dynamic SSL certificates
+
+	/**
+	 * @deprecated (TODO add version) No longer used/needed.
+	 *
+	 */
+	@Deprecated
 	public SSLSocketFactory getTunnelSSLSocketFactory(String hostname) {
+		return getTunnelSSLSocketFactory(hostname, null);
+	}
+
+	public SSLSocketFactory getTunnelSSLSocketFactory(String hostname, InetAddress listeningAddress) {
 
 		//	SSLServerSocketFactory ssf = null;
 		// set up key manager to do server authentication
@@ -559,10 +572,10 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 			KeyManager[] keyManagers;
 			if (hostname != null && !hostname.isEmpty()) {
-				initKeyManagerFactoryWithCertForHostname(kmf, hostname);
+				initKeyManagerFactoryWithCertForHostname(kmf, hostname, listeningAddress);
 				keyManagers = kmf.getKeyManagers();
 			} else {
-				keyManagers = new KeyManager[] { new SniX509KeyManager(kmf) };
+				keyManagers = new KeyManager[] { new SniX509KeyManager(kmf, listeningAddress) };
 			}
 
 			java.security.SecureRandom x = new java.security.SecureRandom();
@@ -583,11 +596,27 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         }
 	}
 
-	static void initKeyManagerFactoryWithCertForHostname(KeyManagerFactory keyManagerFactory, String hostname)
+	static void initKeyManagerFactoryWithCertForHostname(KeyManagerFactory keyManagerFactory, String hostname, InetAddress listeningAddress)
 			throws InvalidKeyException, UnrecoverableKeyException, NoSuchAlgorithmException, CertificateException,
 			NoSuchProviderException, SignatureException, KeyStoreException, IOException {
-		KeyStore ks = CachedSslCertifificateServiceImpl.getService().createCertForHost(hostname);
+
+		boolean hostnameIsIpAddress = isIpAddress(hostname);
+
+		CertData certData = hostnameIsIpAddress ? new CertData() : new CertData(hostname);
+		if(hostname == null && listeningAddress != null){
+			certData.addSubjectAlternativeName(new CertData.Name(CertData.Name.IP_ADDRESS, listeningAddress.getHostAddress()));
+		}
+
+		if(hostnameIsIpAddress){
+			certData.addSubjectAlternativeName(new CertData.Name(CertData.Name.IP_ADDRESS, hostname));
+		}
+
+		KeyStore ks = CachedSslCertifificateServiceImpl.getService().createCertForHost(certData);
 		keyManagerFactory.init(ks, SslCertificateService.PASSPHRASE);
+	}
+
+	private static boolean isIpAddress(String value){
+		return value != null && !value.isEmpty() && InetAddressValidator.getInstance().isValid(value);
 	}
 
 	private static SSLSocketFactory createDecoratedServerSslSocketFactory(final SSLSocketFactory delegate) {
@@ -657,10 +686,12 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static class SniX509KeyManager implements X509KeyManager {
 
 		private final KeyManagerFactory keyManagerFactory;
+		private InetAddress listeningAddress;
 		private X509KeyManager x509KeyManager;
 
-		public SniX509KeyManager(KeyManagerFactory keyManagerFactory) {
+		public SniX509KeyManager(KeyManagerFactory keyManagerFactory, InetAddress listeningAddress) {
 			this.keyManagerFactory = keyManagerFactory;
+			this.listeningAddress = listeningAddress;
 		}
 
 		@Override
@@ -680,11 +711,11 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			String hostname = extractHostname(sslSocket.getHandshakeSession());
 
 			if (hostname == null) {
-				logAndThrow("No domain extracted from SSL/TLS handshake session.");
+				logger.debug("No domain extracted from SSL/TLS handshake session.");
 			}
 
 			try {
-				initKeyManagerFactoryWithCertForHostname(keyManagerFactory, hostname);
+				initKeyManagerFactoryWithCertForHostname(keyManagerFactory, hostname, listeningAddress);
 			} catch (InvalidKeyException
 					 | UnrecoverableKeyException
 					 | NoSuchAlgorithmException

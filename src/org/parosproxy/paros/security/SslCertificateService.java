@@ -69,6 +69,31 @@ public interface SslCertificateService {
 			KeyStoreException, IOException, UnrecoverableKeyException;
 
 	/**
+	 * Generate a certificate signed by our CA's intermediate certificate.
+	 * Thy certificate, private key and public key are returned in one
+	 * {@link KeyStore} available with alias {@link #ZAPROXY_JKS_ALIAS}.
+	 *
+	 * @param certData
+	 * @return a {@link KeyStore} which contains root certificate, signed
+	 *         certificate, private key and public key of signed certificate
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws CertificateException
+	 * @throws NoSuchProviderException
+	 * @throws SignatureException
+	 * @throws KeyStoreException
+	 * @throws IOException
+	 * @throws UnrecoverableKeyException
+	 * @throws MissingRootCertificateException when it wasn't initialized.
+	 */
+	default KeyStore createCertForHost(CertData certData)
+			throws NoSuchAlgorithmException, InvalidKeyException,
+			CertificateException, NoSuchProviderException, SignatureException,
+			KeyStoreException, IOException, UnrecoverableKeyException{
+		return createCertForHost(certData.getCommonName());
+	}
+
+	/**
 	 * Loads CA's private key, public key and X.509 certificate into this bean.
 	 *
 	 * @param keystore
