@@ -240,7 +240,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			engineNames.add(engine.getLanguageName() + LANG_ENGINE_SEP + engine.getEngineName());
 		}
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
-			if (! engines.contains(sew.getFactory())) {
+			if (sew.isVisible() && ! engines.contains(sew.getFactory())) {
 				engineNames.add(sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName());
 			}
 		}
