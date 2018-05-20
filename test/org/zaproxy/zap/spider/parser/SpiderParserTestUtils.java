@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 import net.htmlparser.jericho.Source;
@@ -39,7 +40,7 @@ import net.htmlparser.jericho.Source;
  *
  * @see org.zaproxy.zap.spider.parser.SpiderParser
  */
-public class SpiderParserTestUtils {
+public class SpiderParserTestUtils extends TestUtils {
 
     protected static Source createSource(HttpMessage messageHtmlResponse) {
         return new Source(messageHtmlResponse.getResponseBody().toString());

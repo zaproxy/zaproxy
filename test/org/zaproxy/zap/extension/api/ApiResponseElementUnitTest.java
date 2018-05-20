@@ -21,7 +21,11 @@ package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -86,6 +90,33 @@ public class ApiResponseElementUnitTest {
         // Then
         assertThat(element.getChildNodes().getLength(), is(equalTo(1)));
         assertThat(element.getFirstChild().getNodeValue(), is(equalTo(value)));
+    }
+
+    @Test
+    public void shouldReturnCorrectJsonObjectWithJsonStringValues() throws ApiException {
+        // Given
+        String name = "name";
+        String value = "{\"key\":\"value\"}";
+        ApiResponseElement apiResponse = new ApiResponseElement(name, value);
+        // When
+        String jsonResponse = apiResponse.toJSON().toString();
+        // Then
+        assertEquals(jsonResponse, "{\"name\":\"{\\\"key\\\":\\\"value\\\"}\"}");
+    }
+
+    @Test
+    public void shouldReturnCorrectJsonObjectWithMapJsonStringValues() throws ApiException {
+        // Given
+        String name = "name";
+        String value = "{\"key\":\"value\"}";
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(name, value);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseElement apiResponse = new ApiResponseElement(apiRespSet);
+        // When
+        String jsonResponse = apiResponse.toJSON().toString();
+        // Then
+        assertEquals(jsonResponse, "{\"test\":{\"name\":\"{\\\"key\\\":\\\"value\\\"}\"}}");
     }
 
     private static Document createDocument() {

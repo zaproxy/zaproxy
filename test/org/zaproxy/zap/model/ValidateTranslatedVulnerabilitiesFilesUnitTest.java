@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,14 +33,16 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.testutils.TestUtils;
 
 /**
  * Validates that the translated vulnerabilities files have expected content (e.g. same number of vulnerabilities as the source
  * file).
  */
-public class ValidateTranslatedVulnerabilitiesFilesUnitTest {
+public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
 
-    private static final Path DIRECTORY = Paths.get("src/lang");
+    private static final Path DIRECTORY = getResourcePath("/" + Constant.LANG_DIR, ValidateTranslatedVulnerabilitiesFilesUnitTest.class);
     private static final String FILE_NAME = "vulnerabilities";
     private static final String FILE_EXTENSION = ".xml";
     private static final String SOURCE_FILE = FILE_NAME + FILE_EXTENSION;
