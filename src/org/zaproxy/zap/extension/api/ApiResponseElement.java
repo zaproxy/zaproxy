@@ -18,15 +18,14 @@
 package org.zaproxy.zap.extension.api;
 
 import net.sf.json.JSON;
-import net.sf.json.JSONException;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.zaproxy.zap.utils.JsonUtil;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseElement extends ApiResponse {
@@ -44,14 +43,7 @@ public class ApiResponseElement extends ApiResponse {
 	public ApiResponseElement(String name, String value) {
 		super(name);
 		if (value != null) {
-			try {
-				JSONSerializer.toJSON(value);
-				// Its valid JSON so escape
-				this.value = "'" + value + "'";
-			} catch (JSONException e) {
-				// Its not a valid JSON object so can add as is
-				this.value = value;
-			}
+			this.value = JsonUtil.getJsonFriendlyString(value);
 		}
 	}
 

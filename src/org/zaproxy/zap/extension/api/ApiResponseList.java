@@ -22,13 +22,12 @@ import java.util.List;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.zaproxy.zap.utils.JsonUtil;
 
 public class ApiResponseList extends ApiResponse {
 	
@@ -79,13 +78,7 @@ public class ApiResponseList extends ApiResponse {
 		for (ApiResponse resp: this.list) {
 			if (resp instanceof ApiResponseElement) {
 				String value = ((ApiResponseElement)resp).getValue();
-				try {
-					JSONSerializer.toJSON(value);
-					// Its valid JSON so escape
-					value = "'" + value + "'";
-				} catch (JSONException e) {
-					// Its not a valid JSON object so can add as is
-				}
+				value = JsonUtil.getJsonFriendlyString(value);
 				jo.getJSONArray(getName()).add(value);
 			} else {
 				// toString() is required to prevent auto conversion of text values to JSON
