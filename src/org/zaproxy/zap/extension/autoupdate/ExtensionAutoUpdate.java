@@ -253,16 +253,41 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
 	private void installLocalAddOn(Path file) throws Exception {
-		if (!AddOn.isAddOn(file)) {
-			showWarningMessageInvalidAddOnFile();
-			return;
-		}
-
 		AddOn ao;
 		try {
 			ao = new AddOn(file);
-		} catch (Exception e) {
-			showWarningMessageInvalidAddOnFile();
+		} catch (AddOn.InvalidAddOnException e) {
+			AddOn.ValidationResult result = e.getValidationResult();
+			switch (result.getValidity()) {
+			case INVALID_PATH:
+				showWarningMessageInvalidAddOnFile(Constant.messages.getString("cfu.warn.invalidAddOn.invalidPath"));
+				break;
+			case INVALID_FILE_NAME:
+				showWarningMessageInvalidAddOnFile(Constant.messages.getString("cfu.warn.invalidAddOn.noZapExtension"));
+				break;
+			case FILE_NOT_READABLE:
+				showWarningMessageInvalidAddOnFile(Constant.messages.getString("cfu.warn.invalidAddOn.notReadable"));
+				break;
+			case UNREADABLE_ZIP_FILE:
+				showWarningMessageInvalidAddOnFile(
+						Constant.messages.getString("cfu.warn.invalidAddOn.errorZip", e.getMessage()));
+				break;
+			case IO_ERROR_FILE:
+				showWarningMessageInvalidAddOnFile(
+						Constant.messages.getString("cfu.warn.invalidAddOn.ioError", e.getMessage()));
+				break;
+			case MISSING_MANIFEST:
+				showWarningMessageInvalidAddOnFile(Constant.messages.getString("cfu.warn.invalidAddOn.missingManifest"));
+				break;
+			case INVALID_MANIFEST:
+				showWarningMessageInvalidAddOnFile(
+						Constant.messages.getString("cfu.warn.invalidAddOn.invalidManifest", e.getMessage()));
+				break;
+			default:
+				showWarningMessageInvalidAddOnFile(e.getMessage());
+				logger.warn(e);
+				break;
+			}
 			return;
 		}
 
@@ -368,8 +393,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		install(ao);
 	}
 
-	private void showWarningMessageInvalidAddOnFile() {
-		View.getSingleton().showWarningDialog(Constant.messages.getString("cfu.warn.invalidAddOn"));
+	private void showWarningMessageInvalidAddOnFile(String reason) {
+		View.getSingleton().showWarningDialog(Constant.messages.getString("cfu.warn.invalidAddOn", reason));
 	}
 
 	private void showWarningMessageCantLoadAddOn(AddOn ao) {
