@@ -26,15 +26,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
-import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
@@ -42,6 +39,9 @@ import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ApiUtils;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class ContextAPI extends ApiImplementor {
 
@@ -263,10 +263,18 @@ public class ContextAPI extends ApiImplementor {
         
         switch(name) {
         case VIEW_EXCLUDE_REGEXS:
-        	result = new ApiResponseElement(name, getContext(params).getExcludeFromContextRegexs().toString());
+            resultList = new ApiResponseList(name);
+            for (String regex : getContext(params).getExcludeFromContextRegexs()) {
+                resultList.addItem(new ApiResponseElement(REGEX_PARAM, regex));
+            }
+            result = resultList;
         	break;
         case VIEW_INCLUDE_REGEXS:
-        	result = new ApiResponseElement(name, getContext(params).getIncludeInContextRegexs().toString());
+            resultList = new ApiResponseList(name);
+            for (String regex : getContext(params).getIncludeInContextRegexs()) {
+                resultList.addItem(new ApiResponseElement(REGEX_PARAM, regex));
+            }
+            result = resultList;
         	break;
         case VIEW_CONTEXT_LIST:
             resultList = new ApiResponseList(name);
@@ -346,8 +354,8 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("id", Integer.toString(c.getIndex()));
 		fields.put("description", c.getDescription());
 		fields.put("inScope", Boolean.toString(c.isInScope()));
-		fields.put("excludeRegexs", c.getExcludeFromContextRegexs().toString());
-		fields.put("includeRegexs", c.getIncludeInContextRegexs().toString());
+		fields.put("excludeRegexs", jsonEncodeList(c.getExcludeFromContextRegexs()));
+		fields.put("includeRegexs", jsonEncodeList(c.getIncludeInContextRegexs()));
 		
 		AuthenticationMethod authenticationMethod = c.getAuthenticationMethod();
 		if(authenticationMethod != null){
@@ -370,6 +378,14 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 		
 		return new ApiResponseSet<String>("context", fields);
+	}
+	
+	private String jsonEncodeList(List<String> list) {
+	    JSONArray js = new JSONArray();
+	    for (String item : list) {
+	        js.add(item);
+	    }
+	    return js.toString();
 	}
 	
 	/**
