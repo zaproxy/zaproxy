@@ -84,6 +84,7 @@ Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (one
   * "Atomic commits" (logical changes to be in a single commit). Please don't group disjointed changes into a single commit/PR.
   * Descriptive commits (subject and message):
     * For example: https://github.com/spring-projects/spring-framework/blob/master/CONTRIBUTING.md#format-commit-messages
+  * Please, leave a comment after force pushing changes. It allows everyone to know that new changes are available.
   * Discussion about the changes:
     * Should be done in/on the PR or via the Dev Group and a link to that Dev Group thread added to the PR comments. (i.e.: Shared information is important, if something happens via IRC or private email please ensure a summary makes it to the PR.)
     * Discussion will be kept in the pull request unless off topic.

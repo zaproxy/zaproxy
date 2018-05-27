@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
+import org.parosproxy.paros.Constant;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -47,6 +48,7 @@ public class ScriptAPI extends ApiImplementor {
 
 	private static final String PREFIX = "script";
 	private static final String VIEW_ENGINES = "listEngines";
+	private static final String VIEW_TYPES = "listTypes";
 	private static final String VIEW_GLOBAL_VAR = "globalVar";
 	private static final String VIEW_GLOBAL_VARS = "globalVars";
 	private static final String VIEW_SCRIPTS = "listScripts";
@@ -77,6 +79,7 @@ public class ScriptAPI extends ApiImplementor {
 	public ScriptAPI (ExtensionScript extension) {
 		this.extension = extension;
 		this.addApiView(new ApiView(VIEW_ENGINES, new String[]{}, new String[]{}));
+		this.addApiView(new ApiView(VIEW_TYPES));
 		this.addApiView(new ApiView(VIEW_SCRIPTS, new String[]{}, new String[]{}));
 		this.addApiView(new ApiView(VIEW_GLOBAL_VAR, new String[] { PARAM_VAR_KEY }));
 		this.addApiView(new ApiView(VIEW_GLOBAL_VARS));
@@ -136,6 +139,18 @@ public class ScriptAPI extends ApiImplementor {
 			}
 			return result;
  			
+		} else if (VIEW_TYPES.equals(name)) {
+			ApiResponseList result = new ApiResponseList(name);
+			for (ScriptType type : extension.getScriptTypes()) {
+				Map<String, String> data = new HashMap<>();
+				data.put("name", type.getName());
+				data.put("uiName", Constant.messages.getString(type.getI18nKey()));
+				String descKey = type.getI18nKey() + ".desc";
+				String description = Constant.messages.containsKey(descKey) ? Constant.messages.getString(descKey) : "";
+				data.put("description", description);
+				result.addItem(new ApiResponseSet<>("type", data));
+			}
+			return result;
 		} else if (VIEW_GLOBAL_VAR.equals(name)) {
 			String value = ScriptVars.getGlobalVar(params.getString(PARAM_VAR_KEY));
 			validateVarValue(value);

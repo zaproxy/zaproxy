@@ -79,6 +79,25 @@ public abstract class ScriptEngineWrapper {
 	public List<String> getExtensions() {
 		return factory.getExtensions();
 	}
+
+	/**
+	 * Tells whether or not this engine should be visible to the user.
+	 * <p>
+	 * Engines that are not visible are not shown in the GUI nor listed through the API.
+	 * <p>
+	 * Engines are visible by default.
+	 *
+	 * @return {@code true} if the engine should be visible to the user, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public boolean isVisible() {
+		// TODO remove the if statement once NullScriptEngineWrapper implements this method.
+		// NullScriptEngineWrapper is not a functional engine.
+		if ("Null".equals(getEngineName())) {
+			return false;
+		}
+		return true;
+	}
 	
 	public abstract boolean isRawEngine();
 	

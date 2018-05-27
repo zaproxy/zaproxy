@@ -240,7 +240,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			engineNames.add(engine.getLanguageName() + LANG_ENGINE_SEP + engine.getEngineName());
 		}
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
-			if (! engines.contains(sew.getFactory())) {
+			if (sew.isVisible() && ! engines.contains(sew.getFactory())) {
 				engineNames.add(sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName());
 			}
 		}
@@ -364,18 +364,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			return false;
 		}
 
-		if (name.equals(engineName)) {
-			return true;
-		}
-
-		// Nasty, but sometime the engine names are reported differently, eg 'Mozilla Rhino' vs 'Rhino'
-		if (name.endsWith(engineName)) {
-			return true;
-		}
-		if (engineName.endsWith(name)) {
-			return true;
-		}
-		return false;
+		return name.equals(engineName);
 	}
 
 	/**

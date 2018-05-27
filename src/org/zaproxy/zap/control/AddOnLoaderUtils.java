@@ -94,6 +94,9 @@ final class AddOnLoaderUtils {
         } catch (ClassNotFoundException e) {
             LOGGER.error("Declared \"" + type + "\" was not found: " + classname, e);
             return null;
+        } catch (LinkageError e) {
+            LOGGER.error("Declared \"" + type + "\" could not be loaded: " + classname, e);
+            return null;
         }
 
         if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
