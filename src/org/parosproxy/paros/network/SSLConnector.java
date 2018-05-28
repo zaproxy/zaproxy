@@ -97,12 +97,14 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	public static final String SECURITY_PROTOCOL_TLS_V1 = "TLSv1";
 	public static final String SECURITY_PROTOCOL_TLS_V1_1 = "TLSv1.1";
 	public static final String SECURITY_PROTOCOL_TLS_V1_2 = "TLSv1.2";
+	public static final String SECURITY_PROTOCOL_TLS_V1_3 = "TLSv1.3";
 
 	private static final String[] DEFAULT_ENABLED_PROTOCOLS = {
 		SECURITY_PROTOCOL_SSL_V3,
 		SECURITY_PROTOCOL_TLS_V1,
 		SECURITY_PROTOCOL_TLS_V1_1,
-		SECURITY_PROTOCOL_TLS_V1_2 };
+		SECURITY_PROTOCOL_TLS_V1_2,
+		SECURITY_PROTOCOL_TLS_V1_3 };
 
 	private static final String[] FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS = { SECURITY_PROTOCOL_TLS_V1 };
 
