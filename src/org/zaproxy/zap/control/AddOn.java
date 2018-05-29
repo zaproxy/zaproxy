@@ -35,12 +35,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
@@ -60,6 +62,8 @@ public class AddOn  {
 
 	/**
 	 * The name of the manifest file, contained in the add-ons.
+	 * <p>
+	 * The manifest is expected to be in the root of the ZIP file.
 	 * 
 	 * @since 2.6.0
 	 */
@@ -109,6 +113,112 @@ public class AddOn  {
 		 * dependency.
 		 */
 		SOFT_UNINSTALLATION_FAILED
+	}
+
+	/**
+	 * The result of checking if a file is a valid add-on.
+	 * 
+	 * @since TODO add version
+	 * @see AddOn#isValidAddOn(Path)
+	 */
+	public static class ValidationResult {
+
+		/**
+		 * The validity of the add-on.
+		 */
+		public enum Validity {
+			/**
+			 * The add-on is valid.
+			 * <p>
+			 * The result contains the {@link ValidationResult#getManifest() manifest} of the add-on.
+			 */
+			VALID,
+			/**
+			 * The file path is not valid.
+			 */
+			INVALID_PATH,
+			/**
+			 * The file does not have the expected extension {@value #FILE_EXTENSION}.
+			 */
+			INVALID_FILE_NAME,
+			/**
+			 * The file is not a regular file or is not readable.
+			 */
+			FILE_NOT_READABLE,
+			/**
+			 * There was an error reading the ZIP file.
+			 * <p>
+			 * The result contains the {@link ValidationResult#getException() exception}.
+			 */
+			UNREADABLE_ZIP_FILE,
+			/**
+			 * There was an error reading the file.
+			 * <p>
+			 * The result contains the {@link ValidationResult#getException() exception}.
+			 */
+			IO_ERROR_FILE,
+			/**
+			 * The ZIP file does not have the add-on manifest, {@value #MANIFEST_FILE_NAME}.
+			 * <p>
+			 * The result contains the {@link ValidationResult#getException() exception}.
+			 */
+			MISSING_MANIFEST,
+			/**
+			 * The manifest is not valid.
+			 * <p>
+			 * The result contains the {@link ValidationResult#getException() exception}.
+			 */
+			INVALID_MANIFEST,
+		};
+
+		private final Validity validity;
+		private final Exception exception;
+		private final ZapAddOnXmlFile manifest;
+
+		private ValidationResult(Validity validity) {
+			this(validity, null);
+		}
+
+		private ValidationResult(ZapAddOnXmlFile manifest) {
+			this(Validity.VALID, null, manifest);
+		}
+
+		private ValidationResult(Validity validity, Exception exception) {
+			this(validity, exception, null);
+		}
+
+		private ValidationResult(Validity validity, Exception exception, ZapAddOnXmlFile manifest) {
+			this.validity = validity;
+			this.exception = exception;
+			this.manifest = manifest;
+		}
+
+		/**
+		 * Gets the validity of the add-on.
+		 *
+		 * @return the validity of the add-on.
+		 */
+		public Validity getValidity() {
+			return validity;
+		}
+
+		/**
+		 * Gets the exception that occurred while validating the file.
+		 *
+		 * @return the exception, or {@code null} if none.
+		 */
+		public Exception getException() {
+			return exception;
+		}
+
+		/**
+		 * Gets the manifest of the add-on.
+		 *
+		 * @return the manifest of the add-on, if valid, {@code null} otherwise.
+		 */
+		public ZapAddOnXmlFile getManifest() {
+			return manifest;
+		}
 	}
 	
 	/**
@@ -257,27 +367,50 @@ public class AddOn  {
 	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
 	 * @since 2.6.0
 	 * @see #isAddOnFileName(String)
+	 * @see #isValidAddOn(Path)
 	 */
 	public static boolean isAddOn(Path file) {
+	    return isValidAddOn(file).getValidity() == ValidationResult.Validity.VALID;
+	}
+
+	/**
+	 * Tells whether or not the given file is a ZAP add-on.
+	 * 
+	 * @param file the file to be checked.
+	 * @return the result of the validation.
+	 * @since TODO add version
+	 * @see #isValidAddOn(Path)
+	 */
+	public static ValidationResult isValidAddOn(Path file) {
 		if (file == null || file.getNameCount() == 0) {
-			return false;
+			return new ValidationResult(ValidationResult.Validity.INVALID_PATH);
 		}
 
 		if (!isAddOnFileName(file.getFileName().toString())) {
-			return false;
+			return new ValidationResult(ValidationResult.Validity.INVALID_FILE_NAME);
 		}
 
 		if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
-			return false;
+			return new ValidationResult(ValidationResult.Validity.FILE_NOT_READABLE);
 		}
 
 		try (ZipFile zip = new ZipFile(file.toFile())) {
-			return zip.getEntry(MANIFEST_FILE_NAME) != null;
-		} catch (Exception e) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Failed to obtain " + MANIFEST_FILE_NAME + " entry:", e);
+			ZipEntry manifest = zip.getEntry(MANIFEST_FILE_NAME);
+			if (manifest == null) {
+				return new ValidationResult(ValidationResult.Validity.MISSING_MANIFEST);
 			}
-			return false;
+
+			try (InputStream zis = zip.getInputStream(manifest)) {
+				try {
+					return new ValidationResult(new ZapAddOnXmlFile(zis));
+				} catch (Exception e) {
+					return new ValidationResult(ValidationResult.Validity.INVALID_MANIFEST, e);
+				}
+			}
+		} catch (ZipException e) {
+			return new ValidationResult(ValidationResult.Validity.UNREADABLE_ZIP_FILE, e);
+		} catch (Exception e) {
+			return new ValidationResult(ValidationResult.Validity.IO_ERROR_FILE, e);
 		}
 	}
 
@@ -326,17 +459,19 @@ public class AddOn  {
 	 * The installation status of the add-on is 'not installed'.
 	 * 
 	 * @param file the file of the add-on
-	 * @throws IOException if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
-	 *             while reading the {@value #MANIFEST_FILE_NAME} ZIP file entry
+	 * @throws InvalidAddOnException (since TODO add version) if the given {@code file} does not exist, does not have a valid
+	 *             add-on file name, or an error occurred while reading the add-on manifest ({@value #MANIFEST_FILE_NAME}).
+	 * @throws IOException if an error occurred while reading/validating the file.
 	 * @see #isAddOn(Path)
 	 */
 	public AddOn(Path file) throws IOException {
-		if (! isAddOn(file)) {
-			throw new IOException("Invalid ZAP add-on file " + (file != null ? file.toAbsolutePath() : "[null]"));
+		ValidationResult result = isValidAddOn(file);
+		if (result.getValidity() != ValidationResult.Validity.VALID) {
+			throw new InvalidAddOnException(result);
 		}
 		this.id = extractAddOnId(file.getFileName().toString());
 		this.file = file.toFile();
-		loadManifestFile();
+		readZapAddOnXmlFile(result.getManifest());
 	}
 
 	private static String extractAddOnId(String fileName) {
@@ -355,31 +490,34 @@ public class AddOn  {
 
 				try (InputStream zis = zip.getInputStream(zapAddOnEntry)) {
 					ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
-
-					this.name = zapAddOnXml.getName();
-					this.version = zapAddOnXml.getVersion();
-					this.semVer = zapAddOnXml.getSemVer();
-					this.status = AddOn.Status.valueOf(zapAddOnXml.getStatus());
-					this.description = zapAddOnXml.getDescription();
-					this.changes = zapAddOnXml.getChanges();
-					this.author = zapAddOnXml.getAuthor();
-					this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
-					this.notFromVersion = zapAddOnXml.getNotFromVersion();
-					this.dependencies = zapAddOnXml.getDependencies();
-
-					this.ascanrules = zapAddOnXml.getAscanrules();
-					this.extensions = zapAddOnXml.getExtensions();
-					this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
-					this.files = zapAddOnXml.getFiles();
-					this.pscanrules = zapAddOnXml.getPscanrules();
-
-					this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
-
-					hasZapAddOnEntry = true;
+					readZapAddOnXmlFile(zapAddOnXml);
 				}
 			}
 		}
 		
+	}
+	
+	private void readZapAddOnXmlFile(ZapAddOnXmlFile zapAddOnXml) {
+		this.name = zapAddOnXml.getName();
+		this.version = zapAddOnXml.getVersion();
+		this.semVer = zapAddOnXml.getSemVer();
+		this.status = AddOn.Status.valueOf(zapAddOnXml.getStatus());
+		this.description = zapAddOnXml.getDescription();
+		this.changes = zapAddOnXml.getChanges();
+		this.author = zapAddOnXml.getAuthor();
+		this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
+		this.notFromVersion = zapAddOnXml.getNotFromVersion();
+		this.dependencies = zapAddOnXml.getDependencies();
+
+		this.ascanrules = zapAddOnXml.getAscanrules();
+		this.extensions = zapAddOnXml.getExtensions();
+		this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
+		this.files = zapAddOnXml.getFiles();
+		this.pscanrules = zapAddOnXml.getPscanrules();
+
+		this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
+
+		hasZapAddOnEntry = true;
 	}
 
 	/**
@@ -1723,6 +1861,41 @@ public class AddOn  {
 		public String getClassname() {
 			return classname;
 		}
+	}
+
+	/**
+	 * An {@link IOException} that indicates that a file is not a valid add-on.
+	 *
+	 * @since TODO add version
+	 * @see #getValidationResult()
+	 */
+	public static class InvalidAddOnException extends IOException {
+
+		private static final long serialVersionUID = 1L;
+
+		private final ValidationResult validationResult;
+
+		private InvalidAddOnException(ValidationResult validationResult) {
+			super(getRootCauseMessage(validationResult.getException()), validationResult.getException());
+			this.validationResult = validationResult;
+		}
+
+		/**
+		 * Gets the result of validating the add-on.
+		 *
+		 * @return the result, never {@code null}.
+		 */
+		public ValidationResult getValidationResult() {
+			return validationResult;
+		}
+	}
+
+	private static String getRootCauseMessage(Exception exception) {
+		if (exception == null) {
+			return null;
+		}
+		Throwable root = ExceptionUtils.getRootCause(exception);
+		return root == null ? exception.getLocalizedMessage() : root.getLocalizedMessage();
 	}
 
 	private static int getJavaVersion(String javaVersion) {
