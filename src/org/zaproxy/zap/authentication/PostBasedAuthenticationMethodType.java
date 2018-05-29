@@ -66,6 +66,8 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.authentication.UsernamePasswordAuthenticationCredentials.UsernamePasswordAuthenticationCredentialsOptionsPanel;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -159,6 +161,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 		private SiteNode loginSiteNode = null;
 		private String loginRequestURL;
 		private String loginRequestBody;
+		
+		private ExtensionAntiCSRF extAntiCsrf;
 
 		/**
 		 * Constructs a {@code PostBasedAuthenticationMethod} with the given data.
@@ -275,16 +279,16 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 			HttpMessage msg;
 			try {
 				msg = prepareRequestMessage(cred);
+				// Make sure the message will be sent with a good WebSession that can record the changes
+				if (user.getAuthenticatedSession() == null)
+					user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
+				msg.setRequestingUser(user);
+				
+				replaceAntiCsrfTokenValueIfRequired(msg, user);
 			} catch (Exception e) {
 				LOGGER.error("Unable to prepare authentication message: " + e.getMessage(), e);
 				return null;
 			}
-
-			// Make sure the message will be sent with a good WebSession that can record the changes
-			if (user.getAuthenticatedSession() == null)
-				user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
-			msg.setRequestingUser(user);
-
 			// Clear any session identifiers
 			msg.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
 
@@ -314,6 +318,51 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
 			// Return the web session as extracted by the session management method
 			return sessionManagementMethod.extractWebSession(msg);
+		}
+		
+		/**
+		 * Modifies the input {@code requestMessage} by replacing fresh anti-CSRF token value in the request body.  
+		 * It first checks if the input {@code requestMessage} has an anti-CSRF token.
+		 * If yes, then it makes a {@code GET} request to the login page in order to renew the anti-CSRF token.
+		 * Then it modifies the input {@code requestMessage} with the regenerated anti-CSRF token value.
+		 * If the first {@code POST} login request does not have anti-CSRF token
+		 * then the input {@code requestMessage} is left as it is.
+		 * 
+		 * @param requestMessage the login request message with correct credential
+		 * @param user the user of the context
+		 * @throws IOException if problem occurs when sending login request to get login page.
+		 */
+		private void replaceAntiCsrfTokenValueIfRequired(HttpMessage requestMessage, User user) throws IOException {
+			if(extAntiCsrf == null) {
+				extAntiCsrf = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
+			}
+			List<AntiCsrfToken> antiCsrfTokensOfFirstLoginMsg = null;
+  			if(extAntiCsrf != null) {
+				antiCsrfTokensOfFirstLoginMsg = extAntiCsrf.getTokens(requestMessage);
+			}
+			AntiCsrfToken antiCsrfTokenOfFirstLoginMsg = null;
+			if(antiCsrfTokensOfFirstLoginMsg != null && antiCsrfTokensOfFirstLoginMsg.size() > 0) {
+				antiCsrfTokenOfFirstLoginMsg = antiCsrfTokensOfFirstLoginMsg.get(0);
+			}
+			
+			if (antiCsrfTokenOfFirstLoginMsg != null) {
+				HttpMessage loginMsgToRegenerateAntiCsrfToken = antiCsrfTokenOfFirstLoginMsg.getMsg().cloneAll();
+				loginMsgToRegenerateAntiCsrfToken.setRequestingUser(user);
+				
+				// Clear any session identifiers
+				loginMsgToRegenerateAntiCsrfToken.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
+				
+				getHttpSender().sendAndReceive(loginMsgToRegenerateAntiCsrfToken);
+				AuthenticationHelper.addAuthMessageToHistory(loginMsgToRegenerateAntiCsrfToken);
+
+				String regeneratedAntiCsrfTokenValue = extAntiCsrf.getTokenValue(loginMsgToRegenerateAntiCsrfToken, antiCsrfTokenOfFirstLoginMsg.getName());
+				String requestBody = requestMessage.getRequestBody().toString();
+				if (regeneratedAntiCsrfTokenValue != null) {
+					requestBody = requestBody.replace(
+							antiCsrfTokenOfFirstLoginMsg.getValue(), paramEncoder.apply(regeneratedAntiCsrfTokenValue));
+					requestMessage.getRequestBody().setBody(requestBody);
+				}
+			}
 		}
 
 		/**
