@@ -87,6 +87,11 @@ public class SecurityProtocolsPanel extends JPanel {
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_2, checkBox);
         add(checkBox, gbc);
+
+        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.tlsv1.3.label"));
+        checkBox.setEnabled(false);
+        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_3, checkBox);
+        add(checkBox, gbc);
     }
 
     public void setSecurityProtocolsEnabled(String[] selectedProtocols) {
