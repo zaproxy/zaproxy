@@ -50,7 +50,7 @@ class DialogModifyProxy extends DialogAddProxy {
     @Override
     protected boolean validateFields() {
         ProxiesParamProxy testProxy = proxyPanel.getProxy();
-        if (testProxy.getAddress().equals(proxy.getAddress()) && testProxy.getPort() == proxy.getPort()) {
+        if (ExtensionProxies.isSameAddress(testProxy.getAddress(), proxy.getAddress()) && testProxy.getPort() == proxy.getPort()) {
             // No change, assume its ok
             return true;
         }
