@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -23,6 +24,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 public class PassiveScanThread extends Thread implements ProxyListener, SessionChangedListener {
@@ -180,6 +182,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					return;
 				}
 				logger.error("Failed on record " + currentId + " from History table", e);
+			}
+			if (View.isInitialised()) {
+				Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class).getScanStatus()
+						.setScanCount(getRecordsToScan());
 			}
 		}
 		
