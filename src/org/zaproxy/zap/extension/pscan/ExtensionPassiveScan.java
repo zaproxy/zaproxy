@@ -130,6 +130,18 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         getPassiveScannerList().setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
     }
 
+    @Override
+    public List<String> getActiveActions() {
+        int recordsToScan = getRecordsToScan();
+        if (recordsToScan == 0) {
+            return Collections.emptyList();
+        }
+
+        List<String> activeActions = new ArrayList<>(1);
+        activeActions.add(Constant.messages.getString("pscan.activeAction", recordsToScan));
+        return activeActions;
+    }
+
     /**
      * @deprecated (2.4.3) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the status of the
      *             scanner is not properly set.
