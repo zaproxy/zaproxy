@@ -49,6 +49,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
+import org.zaproxy.zap.view.ScanStatus;
 
 public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -61,6 +62,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     private PassiveScanThread pst = null;
     private boolean passiveScanEnabled;
     private PassiveScanParam passiveScanParam;
+    private ScanStatus scanStatus = null;
     private static final List<Class<? extends Extension>> DEPENDENCIES;
 
     static {
@@ -106,6 +108,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             extensionHook.getHookView().addOptionPanel(getPassiveScannerOptionsPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
+            View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
         }
 
         ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
@@ -484,6 +487,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     @Override
     public void sessionChanged(Session session) {
         startPassiveScanThread();
+        if (View.isInitialised()) {
+            getScanStatus().setScanCount(0);
+        }
     }
 
     private void startPassiveScanThread() {
@@ -559,6 +565,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             }
         }
 	}
+
+    protected ScanStatus getScanStatus() {
+        if (scanStatus == null) {
+            scanStatus = new ScanStatus(
+                    new ImageIcon(
+                        ExtensionPassiveScan.class.getResource("/resource/icon/16/pscan.png")),
+                        Constant.messages.getString("pscan.footer.label"));
+        }
+        return scanStatus;
+    }
 
     @Override
     public boolean supportsLowMemory() {
