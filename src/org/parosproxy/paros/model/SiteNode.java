@@ -52,10 +52,12 @@
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 // ZAP: 2017/07/09: Issue 3727: Add getName() function, returning the node name without HTTP method (verb)
 // ZAP: 2018/01/24 Clear highest alert when all deleted.
+// ZAP: 2018/05/29 Allow to use add-on icons in SiteNode.
 
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -72,6 +74,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.SessionStructure;
 
 public class SiteNode extends DefaultMutableTreeNode {
@@ -164,8 +167,20 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         synchronized (this.icons) {  
             if (!this.icons.isEmpty()) {
-                for(String icon : this.icons) {
-                    iconList.add(new ImageIcon(Constant.class.getResource(icon)));
+                for (Iterator<String> it = icons.iterator(); it.hasNext();) {
+                    String icon = it.next();
+                    URL url = Constant.class.getResource(icon);
+                    if (url == null) {
+                        url = ExtensionFactory.getAddOnLoader().getResource(icon);
+                        if (url == null) {
+                            log.warn("Failed to find icon: " + icon);
+                            it.remove();
+                        }
+                    }
+
+                    if (url != null) {
+                        iconList.add(new ImageIcon(url));
+                    }
                 }
             }
         }

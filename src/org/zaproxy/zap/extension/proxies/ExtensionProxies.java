@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
 
     private void restartProxies() {
         List<ProxiesParamProxy> proxyParams = this.getParam().getProxies();
+        Map<String, ProxiesParamProxy> newProxies = new HashMap<>();
         Map<String, ProxyServer> currentProxies = proxyServers;
         proxyServers = new HashMap<String, ProxyServer>();
         for (ProxiesParamProxy proxyParam : proxyParams) {
@@ -121,16 +123,20 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
                 ProxyServer proxy = currentProxies.remove(key);
                 if (proxy == null) {
                     // Its a new one
-                    proxy = startProxyServer(proxyParam);
+                    newProxies.put(key, proxyParam);
                 } else {
                     applyProxyOptions(proxyParam, proxy);
+                    proxyServers.put(key, proxy);
                 }
-                proxyServers.put(key, proxy);
             }
         }
         // Any proxies left have been removed
         for (Entry<String, ProxyServer> entry : currentProxies.entrySet()) {
             stopProxyServer(entry.getKey(), entry.getValue());
+        }
+        for (Entry<String, ProxiesParamProxy> entry : newProxies.entrySet()) {
+            ProxyServer proxy = startProxyServer(entry.getValue());
+            proxyServers.put(entry.getKey(), proxy);
         }
     }
 
@@ -275,6 +281,18 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
             return new URL(Constant.ZAP_HOMEPAGE);
         } catch (MalformedURLException e) {
             return null;
+        }
+    }
+
+    static boolean isSameAddress(String address, String otherAddress) {
+        if (address.equals(otherAddress)) {
+            return true;
+        }
+
+        try {
+            return InetAddress.getByName(address).equals(InetAddress.getByName(otherAddress));
+        } catch (UnknownHostException e) {
+            return false;
         }
     }
 

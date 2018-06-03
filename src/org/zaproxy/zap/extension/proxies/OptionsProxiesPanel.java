@@ -105,7 +105,7 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
         String newAddress = mainProxy.getAddress();
         int newPort = mainProxy.getPort();
 
-        if (!this.currentAddress.equals(newAddress) || this.currentPort != newPort) {
+        if (!ExtensionProxies.isSameAddress(this.currentAddress, newAddress) || this.currentPort != newPort) {
             // Only check if they've changed, otherwise we'll still be listening on them
             if (!extension.canListenOn(newAddress, newPort) || extension.getAdditionalProxy(newAddress, newPort) != null) {
                 throw new Exception(
