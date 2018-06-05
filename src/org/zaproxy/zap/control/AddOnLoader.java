@@ -239,6 +239,7 @@ public class AddOnLoader extends URLClassLoader {
             if (updatedAddOns.contains(addOn)) {
                 AddOnInstaller.updateAddOnFiles(addOnClassLoader, addOn);
             }
+            AddOnInstaller.installResourceBundle(addOnClassLoader, addOn);
         }
     }
 

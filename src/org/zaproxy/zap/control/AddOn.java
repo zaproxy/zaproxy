@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -296,6 +297,20 @@ public class AddOn  {
 	
 	private Dependencies dependencies;
 
+	/**
+	 * The data of the bundle declared in the manifest.
+	 * <p>
+	 * Never {@code null}.
+	 */
+	private BundleData bundleData = BundleData.EMPTY_BUNDLE;
+
+	/**
+	 * The resource bundle from the declaration in the manifest.
+	 * <p>
+	 * Might be {@code null}, if not declared.
+	 */
+	private ResourceBundle resourceBundle;
+
 	private static final Logger logger = Logger.getLogger(AddOn.class);
 	
 	/**
@@ -516,6 +531,11 @@ public class AddOn  {
 		this.pscanrules = zapAddOnXml.getPscanrules();
 
 		this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
+
+		String bundleBaseName = zapAddOnXml.getBundleBaseName();
+		if (!bundleBaseName.isEmpty()) {
+			bundleData = new BundleData(bundleBaseName, zapAddOnXml.getBundlePrefix());
+		}
 
 		hasZapAddOnEntry = true;
 	}
@@ -1446,6 +1466,40 @@ public class AddOn  {
 	}
 	
 	/**
+	 * Gets the data of the bundle declared in the manifest.
+	 *
+	 * @return the bundle data, never {@code null}.
+	 * @since TODO add version
+	 * @see #getResourceBundle()
+	 */
+	public BundleData getBundleData() {
+		return bundleData;
+	}
+
+	/**
+	 * Gets the resource bundle of the add-on.
+	 *
+	 * @return the resource bundle, or {@code null} if none.
+	 * @since TODO add version
+	 */
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
+	}
+
+	/**
+	 * Sets the resource bundle of the add-on.
+	 * <p>
+	 * <strong>Note:</strong> This method should be called only by bootstrap classes.
+	 *
+	 * @param resourceBundle the resource bundle of the add-on, might be {@code null}.
+	 * @since TODO add version
+	 * @see #getBundleData()
+	 */
+	public void setResourceBundle(ResourceBundle resourceBundle) {
+		this.resourceBundle = resourceBundle;
+	}
+
+	/**
 	 * Returns the IDs of the add-ons dependencies, an empty collection if none.
 	 *
 	 * @return the IDs of the dependencies.
@@ -1860,6 +1914,60 @@ public class AddOn  {
 		 */
 		public String getClassname() {
 			return classname;
+		}
+	}
+
+	/**
+	 * The data of the bundle declared in the manifest of an add-on.
+	 * <p>
+	 * Used to load a {@link ResourceBundle}.
+	 *
+	 * @since TODO add version
+	 */
+	public static final class BundleData {
+
+		private static final BundleData EMPTY_BUNDLE = new BundleData();
+
+		private final String baseName;
+		private final String prefix;
+
+		private BundleData() {
+			this("", "");
+		}
+
+		private BundleData(String baseName, String prefix) {
+			this.baseName = baseName;
+			this.prefix = prefix;
+		}
+
+		/**
+		 * Tells whether or not the the bundle data is empty.
+		 * <p>
+		 * An empty {@code BundleData} does not contain any information to load a {@link ResourceBundle}.
+		 *
+		 * @return {@code true} if empty, {@code false} otherwise.
+		 */
+		public boolean isEmpty() {
+			return this == EMPTY_BUNDLE;
+		}
+
+		/**
+		 * Gets the base name of the bundle.
+		 *
+		 * @return the base name, or empty if not defined.
+		 */
+		public String getBaseName() {
+			return baseName;
+		}
+
+		/**
+		 * Gets the prefix of the bundle, to add into a
+		 * {@link org.zaproxy.zap.utils.I18N#addMessageBundle(String, ResourceBundle) I18N}.
+		 *
+		 * @return the prefix, or empty if not defined.
+		 */
+		public String getPrefix() {
+			return prefix;
 		}
 	}
 
