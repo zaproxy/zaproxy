@@ -154,7 +154,7 @@ public final class LocaleUtils {
 	 * <p>
 	 * The function is called for each resource until a non-{@code null} resource is returned or all resources are consumed. The
 	 * resource name is built using the parameters {@code fileName}, {@code fileExtension}, and the given {@code locale}. The
-	 * {@code localeToken}, if non-{@ocde null} nor empty, is replaced in the {@code fileName} with the current candidate
+	 * {@code localeToken}, if non-{@code null} nor empty, is replaced in the {@code fileName} with the current candidate
 	 * locale. The candidates and fallback locale are obtained from a {@link ZapResourceBundleControl}.
 	 * <p>
 	 * For example, with the following parameters:
@@ -201,7 +201,7 @@ public final class LocaleUtils {
 	 * <p>
 	 * The function is called for each resource until a non-{@code null} resource is returned or all resources are consumed. The
 	 * resource name is built using the parameters {@code fileName}, {@code fileExtension}, and the given {@code locale}. The
-	 * {@code localeToken}, if non-{@ocde null} nor empty, is replaced in the {@code fileName} with the current candidate
+	 * {@code localeToken}, if non-{@code null} nor empty, is replaced in the {@code fileName} with the current candidate
 	 * locale. The candidates and fallback locale are obtained from the given resource bundle control.
 	 * <p>
 	 * For example, with the following parameters:
