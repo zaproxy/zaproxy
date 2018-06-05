@@ -20,16 +20,21 @@
 package org.zaproxy.zap.extension.help;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import javax.help.CSH;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
+import javax.help.HelpSetException;
 import javax.help.SwingHelpUtilities;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -76,7 +81,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	public static final String HELP_SET_FILE_NAME = "helpset";
 
 	/**
-	 * The (default) file extension of a HelpSet.
+	 * The file extension of a HelpSet.
 	 * 
 	 * @see HelpSet
 	 * @since TODO add version
@@ -123,6 +128,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * @see #setHelpEnabled(boolean)
 	 */
 	private static WeakHashMap<JComponent, String> componentsWithHelp;
+
+	private static Map<AddOn, HelpSet> addOnHelpSets = new HashMap<>();
 
 	private static final Logger logger = Logger.getLogger(ExtensionHelp.class);
 	
@@ -194,6 +201,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		if (enabled && findHelpSetUrl() != null) {
 			createHelpBroker();
 
+			loadAddOnHelpSets(ExtensionFactory.getAddOnLoader().getAddOnCollection().getInstalledAddOns());
+
 			getMenuHelpZapUserGuide().addActionListener(showHelpActionListener);
 			getMenuHelpZapUserGuide().setToolTipText(null);
 			getMenuHelpZapUserGuide().setEnabled(true);
@@ -228,6 +237,43 @@ public class ExtensionHelp extends ExtensionAdaptor {
 			hb = null;
 			hs = null;
 			showHelpActionListener = null;
+		}
+	}
+
+	private static void loadAddOnHelpSets(List<AddOn> addOns) {
+		addOns.forEach(ExtensionHelp::loadAddOnHelpSet);
+	}
+
+	private static void loadAddOnHelpSet(AddOn addOn) {
+		AddOn.HelpSetData helpSetData = addOn.getHelpSetData();
+		if (helpSetData.isEmpty()) {
+			return;
+		}
+
+		ClassLoader classLoader = addOn.getClassLoader();
+		URL helpSetUrl = LocaleUtils.findResource(
+				helpSetData.getBaseName(),
+				ExtensionHelp.HELP_SET_FILE_EXTENSION,
+				helpSetData.getLocaleToken(),
+				Constant.getLocale(),
+				classLoader::getResource);
+		if (helpSetUrl == null) {
+			logger.error(
+					"Declared helpset not found for '" + addOn.getId() + "' add-on, with base name: "
+							+ helpSetData.getBaseName()
+							+ (helpSetData.getLocaleToken().isEmpty()
+									? ""
+									: " and locale token: " + helpSetData.getLocaleToken()));
+			return;
+		}
+
+		try {
+			logger.debug("Loading help for '" + addOn.getId() + "' add-on and merging with core help.");
+			HelpSet addOnHelpSet = new HelpSet(classLoader, helpSetUrl);
+			hb.getHelpSet().add(addOnHelpSet);
+			addOnHelpSets.put(addOn, addOnHelpSet);
+		} catch (HelpSetException e) {
+			logger.error("An error occured while adding help for '" + addOn.getId() + "' add-on:", e);
 		}
 	}
 
@@ -397,8 +443,12 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
         @Override
         public void addOnInstalled(AddOn addOn) {
-            if (hb == null && findHelpSetUrl() != null) {
-                setHelpEnabled(true);
+            if (hb == null) {
+                if (findHelpSetUrl() != null) {
+                    setHelpEnabled(true);
+                }
+            } else {
+                loadAddOnHelpSet(addOn);
             }
         }
 
@@ -409,8 +459,17 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
         @Override
         public void addOnUninstalled(AddOn addOn, boolean successfully) {
-            if (hb != null && findHelpSetUrl() == null) {
+            if (hb == null) {
+                return;
+            }
+
+            if (findHelpSetUrl() == null) {
                 setHelpEnabled(false);
+            } else {
+                addOnHelpSets.computeIfPresent(addOn, (k, helpset) -> {
+                    EventQueue.invokeLater(() -> hb.getHelpSet().remove(helpset));
+                    return null;
+                });
             }
         }
     }

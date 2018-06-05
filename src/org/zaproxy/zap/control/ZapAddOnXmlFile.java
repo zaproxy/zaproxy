@@ -40,6 +40,8 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
     private static final String FILES_ALL_ELEMENTS = "files/" + FILE_ELEMENT;
     private static final String BUNDLE_ELEMENT = "bundle";
     private static final String BUNDLE_PREFIX_ATT = "bundle/@prefix";
+    private static final String HELPSET_ELEMENT = "helpset";
+    private static final String HELPSET_LOCALE_TOKEN_ATT= "helpset/@localetoken";
 
     private List<String> ascanrules;
     private List<String> pscanrules;
@@ -47,6 +49,8 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
 
     private String bundleBaseName;
     private String bundlePrefix;
+    private String helpSetBaseName;
+    private String helpSetLocaleToken;
 
     public ZapAddOnXmlFile(InputStream is) throws IOException {
         super(is);
@@ -60,6 +64,8 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
 
         bundleBaseName = zapAddOnXml.getString(BUNDLE_ELEMENT, "");
         bundlePrefix = zapAddOnXml.getString(BUNDLE_PREFIX_ATT, "");
+        helpSetBaseName = zapAddOnXml.getString(HELPSET_ELEMENT, "");
+        helpSetLocaleToken = zapAddOnXml.getString(HELPSET_LOCALE_TOKEN_ATT, "");
     }
 
     public List<String> getAscanrules() {
@@ -92,5 +98,25 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
      */
     public String getBundlePrefix() {
         return bundlePrefix;
+    }
+
+    /**
+     * Gets the base name of the HelpSet file.
+     *
+     * @return the base name of the HelpSet file, never {@code null}.
+     * @since TODO add version
+     */
+    public String getHelpSetBaseName() {
+        return helpSetBaseName;
+    }
+
+    /**
+     * Gets the locale token for the HelpSet file.
+     *
+     * @return the locale token for the HelpSet file, never {@code null}.
+     * @since TODO add version
+     */
+    public String getHelpSetLocaleToken() {
+        return helpSetLocaleToken;
     }
 }
