@@ -471,13 +471,11 @@ public class SpiderAPI extends ApiImplementor {
 
 			node = getStartNode(startURI, recurse);
 		}
-		Target target;
-		if (useUrl) {
-			target = new Target(node);
-			target.setContext(context);
-		} else {
-			target = new Target(context);
+		Target target = new Target();
+		if (useUrl && node != null) {
+			target.setStartNode(node);
 		}
+		target.setContext(context);
 		target.setRecurse(recurse);
 		
 		switch (Control.getSingleton().getMode()) {
