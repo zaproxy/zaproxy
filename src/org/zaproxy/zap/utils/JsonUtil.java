@@ -19,6 +19,11 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONSerializer;
 
@@ -36,6 +41,16 @@ public final class JsonUtil {
 			// Its not a valid JSON object so can add as is
 			return value;
 		}
+	}
+	
+	
+	public static List<String> toStringList(JSONArray array) {
+		List<String> list = new ArrayList<String>();
+		Iterator<?> iter = JSONArray.toCollection(array).iterator();
+		while (iter.hasNext()) {
+			list.add(iter.next().toString());
+		}
+		return list;
 	}
 
 }
