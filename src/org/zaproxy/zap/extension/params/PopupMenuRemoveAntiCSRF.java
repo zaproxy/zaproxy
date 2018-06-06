@@ -58,8 +58,7 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
             }
         	
         	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
-        	// Note that only form params are currently supported
-        	if (item != null && HtmlParameter.Type.form.equals(item.getType()) && 
+        	if (item != null && 
         			item.getFlags().contains(HtmlParameter.Flags.anticsrf.name())) {
         		this.setEnabled(true);
                 return true;
