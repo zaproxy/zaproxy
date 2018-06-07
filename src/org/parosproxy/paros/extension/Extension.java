@@ -198,6 +198,7 @@ public interface Extension {
 	 * Set during start up based on the available resource bundles:
 	 * <ol>
 	 * <li>extension's resource bundle, located in the {@code resources} directory under the extension's package;</li>
+	 * <li>add-on's resource bundle;</li>
 	 * <li>core resource bundle;</li>
 	 * </ol>
 	 *
