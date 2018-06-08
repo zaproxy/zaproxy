@@ -20,11 +20,9 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,11 +31,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.function.Function;
-
-import javax.help.HelpBroker;
-import javax.help.HelpSet;
-import javax.help.HelpSetException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
@@ -47,8 +40,6 @@ import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.extension.ext.ExtensionParam;
-import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.utils.ZapResourceBundleControl;
 
 public class ExtensionFactory {
@@ -147,7 +138,6 @@ public class ExtensionFactory {
      * @param extension the extension
      * @see #loadMessages(Extension)
      * @see ExtensionLoader#addExtension(Extension)
-     * @see #intitializeHelpSet(Extension)
      */
     private static void loadMessagesAndAddExtension(ExtensionLoader extensionLoader, Extension extension) {
         loadMessages(extension);
@@ -162,7 +152,6 @@ public class ExtensionFactory {
         if (extension.supportsDb(Model.getSingleton().getDb().getType()) &&  
         		(extension.supportsLowMemory() || ! Constant.isLowMemoryOptionSet())) {
             extensionLoader.addExtension(extension);
-            intitializeHelpSet(extension);
         } else if (!extension.supportsDb(Model.getSingleton().getDb().getType())) {
             log.debug("Not loading extension " + extension.getName() + ": doesnt support " + Model.getSingleton().getDb().getType());
             extension.setEnabled(false);
@@ -332,56 +321,6 @@ public class ExtensionFactory {
         return ResourceBundle.getBundle(name, Constant.getLocale(), classLoader, new ZapResourceBundleControl());
     }
 
-    /**
-     * If there are help files within the extension, they are loaded and merged
-     * with existing help files if the core help was correctly loaded.
-     * @param ext the extension being initialised
-     */
-    private static void intitializeHelpSet(Extension ext) {
-        HelpBroker hb = ExtensionHelp.getHelpBroker();
-        if (hb == null) {
-            return;
-        }
-
-        URL helpSetUrl = getExtensionHelpSetUrl(ext);
-        if (helpSetUrl != null) {
-            try {
-                log.debug("Load help files for extension '" + ext.getName() + "' and merge with core help.");
-                HelpSet extHs = new HelpSet(ext.getClass().getClassLoader(), helpSetUrl);
-                hb.getHelpSet().add(extHs);
-            } catch (HelpSetException e) {
-                log.error("An error occured while adding help file of extension '" + ext.getName() + "': " + e.getMessage(), e);
-            }
-        }
-    }
-
-    private static URL getExtensionHelpSetUrl(Extension extension) {
-        if (extension.getAddOn() == null) {
-            // Core extensions use core help.
-            return null;
-        }
-
-        String extensionPackage = extension.getClass().getPackage().getName();
-        String localeToken = "%LC%";
-        Function<String, URL> getResource = extension.getClass().getClassLoader()::getResource;
-        URL helpSetUrl = LocaleUtils.findResource(
-                extensionPackage + ".resources.help" + localeToken + "." + ExtensionHelp.HELP_SET_FILE_NAME,
-                ExtensionHelp.HELP_SET_FILE_EXTENSION,
-                localeToken,
-                Constant.getLocale(),
-                getResource);
-        if (helpSetUrl == null) {
-            // Search in old location
-            helpSetUrl = LocaleUtils.findResource(
-                    extensionPackage + ".resource.help" + localeToken + "." + ExtensionHelp.HELP_SET_FILE_NAME,
-                    ExtensionHelp.HELP_SET_FILE_EXTENSION,
-                    localeToken,
-                    Constant.getLocale(),
-                    getResource);
-        }
-        return helpSetUrl;
-    }
-
     public static List<Extension> getAllExtensions() {
         return listAllExtension;
     }
@@ -390,7 +329,7 @@ public class ExtensionFactory {
         return mapAllExtension.get(name);
     }
 
-    static void removeAddOnExtension(Extension extension) {
+    public static void unloadAddOnExtension(Extension extension) {
         synchronized (mapAllExtension) {
             unloadMessages(extension);
 
@@ -411,37 +350,10 @@ public class ExtensionFactory {
         }
     }
 
-    public static void unloadAddOnExtension(Extension extension) {
-        synchronized (mapAllExtension) {
-            removeAddOnExtension(extension);
-            unloadHelpSet(extension);
-        }
-    }
-
     private static void unloadMessages(Extension extension) {
         ResourceBundle msg = extension.getMessages();
         if (msg != null) {
             Constant.messages.removeMessageBundle(extension.getI18nPrefix());
-        }
-    }
-
-    private static void unloadHelpSet(Extension ext) {
-        HelpBroker hb = ExtensionHelp.getHelpBroker();
-        if (hb == null) {
-            return;
-        }
-
-        URL helpSetUrl = getExtensionHelpSetUrl(ext);
-        if (helpSetUrl != null) {
-            HelpSet baseHelpSet = hb.getHelpSet();
-            Enumeration<?> helpSets = baseHelpSet.getHelpSets();
-            while (helpSets.hasMoreElements()) {
-                HelpSet extensionHelpSet = (HelpSet) helpSets.nextElement();
-                if (helpSetUrl.equals(extensionHelpSet.getHelpSetURL())) {
-                    baseHelpSet.remove(extensionHelpSet);
-                    break;
-                }
-            }
         }
     }
 }
