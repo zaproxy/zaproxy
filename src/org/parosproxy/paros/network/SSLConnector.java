@@ -32,6 +32,7 @@
 // ZAP: 2015/10/13 Issue 1975: Allow use of default disabled cipher suites (such as RC4-SHA)
 // ZAP: 2017/04/14 Validate that SSLv2Hello is set in conjunction with at least one SSL/TLS version.
 // ZAP: 2017/09/22 Rely on SNI if the domain is no known when creating the SSL/TLS tunnel.
+// ZAP: 2018/06/08 Don't enable client cert if none set (Issue 4745).
 
 package org.parosproxy.paros.network;
 
@@ -198,6 +199,10 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	public void setEnableClientCert(boolean enabled) {
 		if (enabled) {
+			if (clientSSLSockCertFactory == null) {
+				return;
+			}
+
 			clientSSLSockFactory = clientSSLSockCertFactory;
 			logger.info("ClientCert enabled using: " + sslContextManager.getDefaultKey());
 		} else {
