@@ -239,6 +239,7 @@ public class AddOnLoader extends URLClassLoader {
             if (updatedAddOns.contains(addOn)) {
                 AddOnInstaller.updateAddOnFiles(addOnClassLoader, addOn);
             }
+            AddOnInstaller.installResourceBundle(addOnClassLoader, addOn);
         }
     }
 
@@ -294,6 +295,7 @@ public class AddOnLoader extends URLClassLoader {
             if (idsAddOnDependencies.isEmpty()) {
                 addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, ao.getAddOnClassnames());
                 this.addOnLoaders.put(ao.getId(), addOnClassLoader);
+                ao.setClassLoader(addOnClassLoader);
                 return addOnClassLoader;
             }
 
@@ -308,6 +310,7 @@ public class AddOnLoader extends URLClassLoader {
 
             addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies, ao.getAddOnClassnames());
             this.addOnLoaders.put(ao.getId(), addOnClassLoader);
+            ao.setClassLoader(addOnClassLoader);
             return addOnClassLoader;
         } catch (MalformedURLException e) {
             logger.error(e.getMessage(), e);
@@ -627,6 +630,7 @@ public class AddOnLoader extends URLClassLoader {
             } catch (Exception e) {
                 logger.error("Failure while closing class loader of " + addOn.getId() + " add-on:", e);
             }
+            addOn.setClassLoader(null);
         }
     }
 

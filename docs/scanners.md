@@ -39,8 +39,8 @@ Scanners:
 10021   X-Content-Type-Options header missing
 10022   Information disclosure - database error messages [Deprecated]
 10023   Information disclosure - debug error messages
-10024   Information disclosure - sensitive informations in URL
-10025   Information disclosure - sensitive informations on HTTP Referrer header
+10024   Information disclosure - sensitive information in URL
+10025   Information disclosure - sensitive information on HTTP Referrer header
 10026   HTTP Parameter Override
 10027   Information disclosure - suspicious comments
 10028   Open redirect

@@ -410,8 +410,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 	@Override
 	public void spiderProgress(int percentageComplete, int numberCrawled, int numberToCrawl) {
-		this.progress = percentageComplete;
-		SpiderEventPublisher.publishScanProgressEvent(scanId, percentageComplete);
+		if (this.progress != percentageComplete) {
+			this.progress = percentageComplete;
+			SpiderEventPublisher.publishScanProgressEvent(scanId, percentageComplete);
+		}
 
 		if (listener != null) {
 			listener.scanProgress(this.getScanId(), this.getDisplayName(), percentageComplete, 100);

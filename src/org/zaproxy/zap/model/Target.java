@@ -28,7 +28,7 @@ import org.parosproxy.paros.model.SiteNode;
 /**
  * The target of a scan 
  * @author simon
- *
+ * @since 2.4.0
  */
 public class Target {
 
@@ -38,6 +38,16 @@ public class Target {
 	private int maxChildren = -1;
 	private int maxDepth = -1;
 	private boolean recurse = false;
+
+	/**
+	 * Constructs a {@code Target} with no start node.
+	 *
+	 * @since TODO add version
+	 * @see #setStartNode(StructuralNode)
+	 */
+	public Target() {
+		super();
+	}
 	
 	public Target(boolean inScopeOnly) {
 		super();
@@ -121,8 +131,20 @@ public class Target {
 		return maxDepth;
 	}
 	public void setStartNode(SiteNode startNode) {
-		this.startNodes = new ArrayList<StructuralNode>(); 
-		this.startNodes.add(new StructuralSiteNode(startNode));
+		setStartNode(new StructuralSiteNode(startNode));
+	}
+
+	/**
+	 * Sets the given node as the start node.
+	 * <p>
+	 * Start nodes previously set are discarded.
+	 * 
+	 * @param startNode the start node.
+	 * @since TODO add version
+	 */
+	public void setStartNode(StructuralNode startNode) {
+		this.startNodes = new ArrayList<>();
+		this.startNodes.add(startNode);
 	}
 
 	public void setContext(Context context) {

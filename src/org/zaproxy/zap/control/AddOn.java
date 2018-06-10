@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -293,8 +294,31 @@ public class AddOn  {
 	private List<String> files = Collections.emptyList();
 
 	private AddOnClassnames addOnClassnames = AddOnClassnames.ALL_ALLOWED;
+
+	private ClassLoader classLoader;
 	
 	private Dependencies dependencies;
+
+	/**
+	 * The data of the bundle declared in the manifest.
+	 * <p>
+	 * Never {@code null}.
+	 */
+	private BundleData bundleData = BundleData.EMPTY_BUNDLE;
+
+	/**
+	 * The resource bundle from the declaration in the manifest.
+	 * <p>
+	 * Might be {@code null}, if not declared.
+	 */
+	private ResourceBundle resourceBundle;
+
+	/**
+	 * The data for the HelpSet, declared in the manifest.
+	 * <p>
+	 * Never {@code null}.
+	 */
+	private HelpSetData helpSetData = HelpSetData.EMPTY_HELP_SET;
 
 	private static final Logger logger = Logger.getLogger(AddOn.class);
 	
@@ -517,6 +541,16 @@ public class AddOn  {
 
 		this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
 
+		String bundleBaseName = zapAddOnXml.getBundleBaseName();
+		if (!bundleBaseName.isEmpty()) {
+			bundleData = new BundleData(bundleBaseName, zapAddOnXml.getBundlePrefix());
+		}
+		
+		String helpSetBaseName = zapAddOnXml.getHelpSetBaseName();
+		if (!helpSetBaseName.isEmpty()) {
+			this.helpSetData = new HelpSetData(helpSetBaseName, zapAddOnXml.getHelpSetLocaleToken());
+		}
+
 		hasZapAddOnEntry = true;
 	}
 
@@ -690,6 +724,28 @@ public class AddOn  {
 	
 	public void setAuthor(String author) {
 		this.author = author;
+	}
+
+	/**
+	 * Gets the class loader of the add-on.
+	 *
+	 * @return the class loader of the add-on, {@code null} if the add-on is not installed.
+	 * @since TODO add version
+	 */
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	/**
+	 * Sets the class loader of the add-on.
+	 * <p>
+	 * <strong>Note:</strong> This method should be called only by bootstrap classes.
+	 *
+	 * @param classLoader the class loader of the add-on, might be {@code null}.
+	 * @since TODO add version
+	 */
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 	/**
@@ -1446,6 +1502,50 @@ public class AddOn  {
 	}
 	
 	/**
+	 * Gets the data of the bundle declared in the manifest.
+	 *
+	 * @return the bundle data, never {@code null}.
+	 * @since TODO add version
+	 * @see #getResourceBundle()
+	 */
+	public BundleData getBundleData() {
+		return bundleData;
+	}
+
+	/**
+	 * Gets the resource bundle of the add-on.
+	 *
+	 * @return the resource bundle, or {@code null} if none.
+	 * @since TODO add version
+	 */
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
+	}
+
+	/**
+	 * Sets the resource bundle of the add-on.
+	 * <p>
+	 * <strong>Note:</strong> This method should be called only by bootstrap classes.
+	 *
+	 * @param resourceBundle the resource bundle of the add-on, might be {@code null}.
+	 * @since TODO add version
+	 * @see #getBundleData()
+	 */
+	public void setResourceBundle(ResourceBundle resourceBundle) {
+		this.resourceBundle = resourceBundle;
+	}
+
+	/**
+	 * Gets the data for the HelpSet, declared in the manifest.
+	 *
+	 * @return the HelpSet data, never {@code null}.
+	 * @since TODO add version
+	 */
+	public HelpSetData getHelpSetData() {
+		return helpSetData;
+	}
+
+	/**
 	 * Returns the IDs of the add-ons dependencies, an empty collection if none.
 	 *
 	 * @return the IDs of the dependencies.
@@ -1860,6 +1960,113 @@ public class AddOn  {
 		 */
 		public String getClassname() {
 			return classname;
+		}
+	}
+
+	/**
+	 * The data of the bundle declared in the manifest of an add-on.
+	 * <p>
+	 * Used to load a {@link ResourceBundle}.
+	 *
+	 * @since TODO add version
+	 */
+	public static final class BundleData {
+
+		private static final BundleData EMPTY_BUNDLE = new BundleData();
+
+		private final String baseName;
+		private final String prefix;
+
+		private BundleData() {
+			this("", "");
+		}
+
+		private BundleData(String baseName, String prefix) {
+			this.baseName = baseName;
+			this.prefix = prefix;
+		}
+
+		/**
+		 * Tells whether or not the the bundle data is empty.
+		 * <p>
+		 * An empty {@code BundleData} does not contain any information to load a {@link ResourceBundle}.
+		 *
+		 * @return {@code true} if empty, {@code false} otherwise.
+		 */
+		public boolean isEmpty() {
+			return this == EMPTY_BUNDLE;
+		}
+
+		/**
+		 * Gets the base name of the bundle.
+		 *
+		 * @return the base name, or empty if not defined.
+		 */
+		public String getBaseName() {
+			return baseName;
+		}
+
+		/**
+		 * Gets the prefix of the bundle, to add into a
+		 * {@link org.zaproxy.zap.utils.I18N#addMessageBundle(String, ResourceBundle) I18N}.
+		 *
+		 * @return the prefix, or empty if not defined.
+		 */
+		public String getPrefix() {
+			return prefix;
+		}
+	}
+
+	/**
+	 * The data to load a {@link javax.help.HelpSet HelpSet}, declared in the manifest of an add-on.
+	 * <p>
+	 * Used to dynamically add/remove the help of the add-on.
+	 *
+	 * @since TODO add version
+	 */
+	public static final class HelpSetData {
+
+		private static final HelpSetData EMPTY_HELP_SET = new HelpSetData();
+
+		private final String baseName;
+		private final String localeToken;
+
+		private HelpSetData() {
+			this("", "");
+		}
+
+		private HelpSetData(String baseName, String localeToken) {
+			this.baseName = baseName;
+			this.localeToken = localeToken;
+		}
+
+		/**
+		 * Tells whether or not the the HelpSet data is empty.
+		 * <p>
+		 * An empty {@code HelpSetData} does not contain any information to load the help.
+		 *
+		 * @return {@code true} if empty, {@code false} otherwise.
+		 */
+		public boolean isEmpty() {
+			return this == EMPTY_HELP_SET;
+		}
+
+		/**
+		 * Gets the base name of the HelpSet file.
+		 *
+		 * @return the base name, or empty if not defined.
+		 */
+		public String getBaseName() {
+			return baseName;
+		}
+
+		/**
+		 * Gets the locale token.
+		 *
+		 * @return the locale token, or empty if not defined.
+		 */
+		public String getLocaleToken() {
+			return localeToken;
 		}
 	}
 

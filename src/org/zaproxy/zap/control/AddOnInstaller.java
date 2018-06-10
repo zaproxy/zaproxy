@@ -28,6 +28,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
@@ -42,6 +44,7 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
+import org.zaproxy.zap.utils.ZapResourceBundleControl;
 
 /**
  * Helper class responsible to install and uninstall add-ons and all its (dynamically installable) components 
@@ -68,6 +71,7 @@ public final class AddOnInstaller {
      * <p>
      * The components are installed in the following order:
      * <ol>
+     * <li>{@link java.util.ResourceBundle ResourceBundle};</li>
      * <li>Files;</li>
      * <li>Extensions;</li>
      * <li>Active scanners;</li>
@@ -83,6 +87,7 @@ public final class AddOnInstaller {
      * @see Extension#postInstall()
      */
     public static void install(AddOnClassLoader addOnClassLoader, AddOn addOn) {
+        installResourceBundle(addOnClassLoader, addOn);
         installAddOnFiles(addOnClassLoader, addOn, true);
         List<Extension> listExts = installAddOnExtensions(addOn);
         installAddOnActiveScanRules(addOn, addOnClassLoader);
@@ -112,6 +117,7 @@ public final class AddOnInstaller {
      * <li>Active scanners;</li>
      * <li>Extensions;</li>
      * <li>Files;</li>
+     * <li>{@link java.util.ResourceBundle ResourceBundle};</li>
      * </ol>
      * 
      * @param addOn the add-on that will be uninstalled
@@ -139,6 +145,7 @@ public final class AddOnInstaller {
      * <li>Active scanners;</li>
      * <li>Extensions;</li>
      * <li>Files (if not in use by other add-ons);</li>
+     * <li>{@link java.util.ResourceBundle ResourceBundle};</li>
      * </ol>
      * 
      * @param addOn the add-on that will be uninstalled.
@@ -162,6 +169,7 @@ public final class AddOnInstaller {
             uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnFiles(addOn, callback, installedAddOns);
+            uninstallResourceBundle(addOn);
     
             return uninstalledWithoutErrors;
         } catch (Throwable e) {
@@ -203,6 +211,43 @@ public final class AddOnInstaller {
         } catch (Throwable e) {
             logger.error("An error occurred while uninstalling the add-on: " + addOn.getId(), e);
             return false;
+        }
+    }
+
+    /**
+     * Installs (and sets into the add-on) the resource bundle declared by the given add-on, if any.
+     *
+     * @param addOnClassLoader the ClassLoader of the add-on.
+     * @param addOn the add-on.
+     * @since TODO add version
+     * @see AddOn#getBundleData()
+     */
+    static void installResourceBundle(AddOnClassLoader addOnClassLoader, AddOn addOn) {
+        AddOn.BundleData bundleData = addOn.getBundleData();
+        if (bundleData.isEmpty()) {
+            return;
+        }
+
+        try {
+            ResourceBundle resourceBundle = ResourceBundle.getBundle(
+                    bundleData.getBaseName(),
+                    Constant.getLocale(),
+                    addOnClassLoader,
+                    new ZapResourceBundleControl());
+            addOn.setResourceBundle(resourceBundle);
+            String bundlePrefix = bundleData.getPrefix();
+            if (!bundlePrefix.isEmpty()) {
+                Constant.messages.addMessageBundle(bundlePrefix, resourceBundle);
+            }
+        } catch (MissingResourceException e) {
+            logger.error("Declared bundle not found in " + addOn.getId() + " add-on:", e);
+        }
+    }
+
+    private static void uninstallResourceBundle(AddOn addOn) {
+        String bundlePrefix = addOn.getBundleData().getPrefix();
+        if (!bundlePrefix.isEmpty()) {
+            Constant.messages.removeMessageBundle(bundlePrefix);
         }
     }
 

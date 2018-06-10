@@ -290,21 +290,25 @@ public class ExtensionFactory {
     }
 
     private static void loadMessages(Extension ext) {
+        AddOn addOn = ext.getAddOn();
+        if (addOn == null) {
+            // Core extensions use core resource bundle.
+            ext.setMessages(Constant.messages.getCoreResourceBundle());
+            return;
+        }
+
         ResourceBundle msg = getExtensionResourceBundle(ext);
         if (msg != null) {
             ext.setMessages(msg);
             Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
+        } else if (addOn.getResourceBundle() != null) {
+            ext.setMessages(addOn.getResourceBundle());
         } else {
             ext.setMessages(Constant.messages.getCoreResourceBundle());
         }
     }
 
     private static ResourceBundle getExtensionResourceBundle(Extension ext) {
-        if (ext.getAddOn() == null) {
-            // Core extensions use core resource bundle.
-            return null;
-        }
-
         String extensionPackage = ext.getClass().getPackage().getName();
         ClassLoader classLoader = ext.getClass().getClassLoader();
         try {
@@ -317,7 +321,7 @@ public class ExtensionFactory {
             try {
                 return getPropertiesResourceBundle(oldLocation, classLoader);
             } catch (MissingResourceException ignoreAgain) {
-                // It will be using the standard message bundle
+                // It will be using a fallback message bundle
             }
         }
         return null;

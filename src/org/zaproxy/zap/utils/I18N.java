@@ -1,11 +1,14 @@
 package org.zaproxy.zap.utils;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -20,6 +23,15 @@ public class I18N {
     private ResourceBundle stdMessages = null;
     private Locale locale = null;
     private Map<String, ResourceBundle> addonMessages = new HashMap<>();
+
+    /**
+     * A set of missing keys, to {@link #handleMissingResourceException(MissingResourceException) log an error} just once.
+     * <p>
+     * The keys are removed when the corresponding bundle is removed (e.g. same prefix) or if a new bundle already defines it
+     * (e.g. contained in a resource bundle of an updated add-on), still, it might be possible that some keys are kept in memory
+     * until ZAP is shutdown.
+     */
+    private Set<String> missingKeys = Collections.synchronizedSet(new HashSet<>());
     
 	private static final Logger logger = Logger.getLogger(I18N.class);
 
@@ -46,6 +58,8 @@ public class I18N {
     }
     
     public void removeMessageBundle(String prefix) {
+        missingKeys.removeIf(k -> k.startsWith(prefix));
+
         logger.debug("Removing message bundle with prefix: " + prefix);
         if (addonMessages.containsKey(prefix)) {
             addonMessages.remove(prefix);
@@ -81,12 +95,25 @@ public class I18N {
         }
     }
 
-    private static String handleMissingResourceException(MissingResourceException e) {
+    private String handleMissingResourceException(MissingResourceException e) {
         logger.error("Failed to load a message:", e);
-        return '!' + e.getKey() + '!';
+        String key = e.getKey();
+        missingKeys.add(key);
+        return missingKeyReplacement(key);
+    }
+
+    private static String missingKeyReplacement(String key) {
+        return '!' + key  + '!';
     }
 
     private String getStringImpl(String key) {
+        if (missingKeys.contains(key)) {
+            if (!containsKey(key)) {
+                return missingKeyReplacement(key);
+            }
+            missingKeys.remove(key);
+        }
+
     	if (key.indexOf(".") > 0) {
     		String prefix = key.substring(0, key.indexOf("."));
     		ResourceBundle bundle = this.addonMessages.get(prefix);
