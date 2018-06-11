@@ -635,7 +635,7 @@ public class AddOnLoader extends URLClassLoader {
     }
 
     private void unloadDependentExtensions(AddOn ao) {
-        boolean changed = true;
+        boolean changed = false;
         for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
             AddOn runningAddOn = aoc.getAddOn(entry.getKey());
             for (Extension ext : runningAddOn.getLoadedExtensionsWithDeps()) {
