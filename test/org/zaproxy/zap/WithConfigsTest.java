@@ -41,7 +41,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.testutils.TestUtils;
-import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.I18N;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,8 +59,6 @@ public abstract class WithConfigsTest extends TestUtils {
     @BeforeClass
     public static void beforeClass() throws Exception {
         File installDir = tempDir.newFolder("install");
-        Path langDir = Files.createDirectory(installDir.toPath().resolve("lang"));
-        Files.createFile(langDir.resolve("Messages.properties"));
         Path xmlDir = Files.createDirectory(installDir.toPath().resolve("xml"));
         Files.createFile(xmlDir.resolve("log4j.properties"));
         Path configXmlPath = Files.createFile(xmlDir.resolve("config.xml"));
@@ -82,9 +79,6 @@ public abstract class WithConfigsTest extends TestUtils {
         Constant.setZapInstall(zapInstallDir);
         Constant.setZapHome(zapHomeDir);
 
-        File langDir = new File(Constant.getZapInstall(), "lang");
-        ClassLoaderUtil.addFile(langDir.getAbsolutePath());
-        
         ExtensionLoader extLoader = Mockito.mock(ExtensionLoader.class);
         Control control = Mockito.mock(Control.class);
         Mockito.when (control.getExtensionLoader()).thenReturn(extLoader);

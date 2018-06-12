@@ -353,6 +353,8 @@
         <copy todir="${test.build}">
             <fileset dir="${src}" includes="lang/**" />
             <fileset dir="${test.src}/resources/" />
+            <!-- Messages.properties file loaded by I18N during functional tests. -->
+            <fileset dir="${src}/lang" includes="Messages.properties" />
         </copy>
         <echo message="Running tests..." />
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
