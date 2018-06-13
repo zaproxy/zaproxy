@@ -19,11 +19,8 @@
  */
 package org.zaproxy.zap;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -31,11 +28,9 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
-import org.zaproxy.zap.utils.ClassLoaderUtil;
 
 public class ZAP {
 
@@ -94,8 +89,6 @@ public class ZAP {
             System.exit(1);
         }
 
-        initClassLoader();
-
         ZapBootstrap bootstrap = createZapBootstrap(cmdLine);
         try {
             int rc = bootstrap.start();
@@ -108,40 +101,6 @@ public class ZAP {
             System.exit(1);
         }
 
-    }
-
-    private static void initClassLoader() {
-        try {
-            // lang directory includes all of the language files
-            final File langDir = new File(Constant.getZapInstall(), "lang");
-            if (langDir.exists() && langDir.isDirectory()) {
-                ClassLoaderUtil.addFile(langDir.getAbsolutePath());
-
-            } else {
-                System.out
-                        .println("Warning: failed to load language files from "
-                                + langDir.getAbsolutePath());
-            }
-
-            // Load all of the jars in the lib directory
-            final File libDir = new File(Constant.getZapInstall(), "lib");
-            if (libDir.exists() && libDir.isDirectory()) {
-                final File[] files = libDir.listFiles();
-                for (final File file : files) {
-                    if (file.getName().toLowerCase(Locale.ENGLISH)
-                            .endsWith("jar")) {
-                        ClassLoaderUtil.addFile(file);
-                    }
-                }
-
-            } else {
-                System.out.println("Warning: failed to load jar files from "
-                        + libDir.getAbsolutePath());
-            }
-
-        } catch (final IOException e) {
-            System.out.println("Failed loading jars: " + e);
-        }
     }
 
     private static ZapBootstrap createZapBootstrap(CommandLine cmdLineArgs) {
