@@ -77,12 +77,14 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/03/16 Use equalsIgnoreCase (Issue 4327).
 // ZAP: 2018/04/16 Keep backup of malformed config file.
+// ZAP: 2018/06/13 Correct install dir detection from JAR.
 
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -1056,14 +1058,19 @@ public final class Constant {
     		String path = ".";
     		Path localDir = Paths.get(path);
     		if ( ! Files.isDirectory(localDir.resolve("db")) || ! Files.isDirectory(localDir.resolve("lang"))) {
-    			path = ZAP.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    			try {
+    				Path sourceLocation = Paths.get(ZAP.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    				if (!Files.isDirectory(sourceLocation)) {
+    					sourceLocation = sourceLocation.getParent();
+    				}
+    				path = sourceLocation.toString();
+    			} catch (URISyntaxException e) {
+    				System.err.println("Failed to determine the ZAP installation dir: " + e.getMessage());
+    				path = localDir.toAbsolutePath().toString();
+    			}
     			// Loggers wont have been set up yet
     			System.out.println("Defaulting ZAP install dir to " + path);
             }
-    		if (path.startsWith("/") && path.indexOf(":") > 0) {
-    			// This is likely to be a Windows path, remove to initial slash or it will fail
-    			path = path.substring(1);
-    		}
 
     		zapInstall = getAbsolutePath(path);
     	}
