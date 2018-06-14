@@ -1,10 +1,5 @@
 package org.zaproxy.zap.extension.pscan;
 
-import net.htmlparser.jericho.MasonTagTypes;
-import net.htmlparser.jericho.MicrosoftTagTypes;
-import net.htmlparser.jericho.PHPTagTypes;
-import net.htmlparser.jericho.Source;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,10 +17,17 @@ import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.utils.Stats;
+
+import net.htmlparser.jericho.MasonTagTypes;
+import net.htmlparser.jericho.MicrosoftTagTypes;
+import net.htmlparser.jericho.PHPTagTypes;
+import net.htmlparser.jericho.Source;
 
 public class PassiveScanThread extends Thread implements ProxyListener, SessionChangedListener {
 
@@ -52,6 +54,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private TableHistory historyTable = null;
 	private HistoryReference href = null;
 	private Session session;
+	
+	private String currentRuleName = "";
+	private String currentUrl = "";
+	private long currentRuleStartTime = 0;
 
 	/**
 	 * Constructs a {@code PassiveScanThread} with the given data.
@@ -142,6 +148,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 						// Parse the record
 						HttpMessage msg = href.getHttpMessage();
 						Source src = new Source(msg.getResponseBody().toString());
+						currentUrl = msg.getRequestHeader().getURI().toString();
 						
 						for (PassiveScanner scanner : scannerList.list()) {
 							try {
@@ -152,9 +159,24 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 								if (scanner.isEnabled() && (scanner.appliesToHistoryType(hrefHistoryType)
 										|| optedInHistoryTypes.contains(hrefHistoryType))) {
 									scanner.setParent(this);
+									currentRuleName = scanner.getName();
+									currentRuleStartTime = System.currentTimeMillis();
 									scanner.scanHttpRequestSend(msg, href.getHistoryId());
 									if (msg.isResponseFromTargetHost()) {
 										scanner.scanHttpResponseReceive(msg, href.getHistoryId(), src);
+									}
+									long timeTaken = System.currentTimeMillis() - currentRuleStartTime;
+									Stats.incCounter("stats.pscan." + currentRuleName, timeTaken);
+									if (timeTaken > 5000) {
+										// Took over 5 seconds, thats not ideal
+										String responseInfo = "";
+										if (msg.isResponseFromTargetHost()) {
+											responseInfo = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE) + " " +
+													msg.getResponseBody().length();
+										}
+										logger.warn("Passive Scan rule " + currentRuleName + " took " + (timeTaken / 1000) + 
+												" seconds to scan " + currentUrl + " " +
+												responseInfo);
 									}
 								}
 							} catch (Throwable e) {
@@ -165,6 +187,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 										" failed on record " + currentId + " from History table: "
 										+ href.getMethod() + " " + href.getURI(), e);
 							}
+							// Unset in case this is the last one that gets run for a while
+							currentRuleName = "";
+							currentRuleStartTime = 0;
 						}
 					} catch (Exception e) {
 						if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
@@ -175,7 +200,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 							logger.error("Parser failed on record " + currentId + " from History table", e);
 						}
 					}
-					
+					currentUrl = "";
 				}
 			} catch (Exception e) {
 				if (shutDown) {
@@ -345,4 +370,21 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 		return allApplicableTypes;
 	}
+
+	
+	public String getCurrentRuleName() {
+		return currentRuleName;
+	}
+
+	
+	public String getCurrentUrl() {
+		return currentUrl;
+	}
+
+	
+	public long getCurrentRuleStartTime() {
+		return currentRuleStartTime;
+	}
+	
+	
 }
