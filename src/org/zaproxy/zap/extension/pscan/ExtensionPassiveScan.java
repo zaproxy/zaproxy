@@ -499,6 +499,20 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
     }
 
+    public String getCurrentRuleName() {
+        return this.getPassiveScanThread().getCurrentRuleName();
+    }
+
+    
+    public String getCurrentUrl() {
+        return this.getPassiveScanThread().getCurrentUrl();
+    }
+
+    
+    public long getCurrentRuleStartTime() {
+        return this.getPassiveScanThread().getCurrentRuleStartTime();
+    }
+
     @Override
     public void destroy() {
         super.destroy();

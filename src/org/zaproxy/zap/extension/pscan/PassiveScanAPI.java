@@ -43,6 +43,7 @@ public class PassiveScanAPI extends ApiImplementor {
 	private static final String VIEW_SCAN_ONLY_IN_SCOPE = "scanOnlyInScope";
 	private static final String VIEW_RECORDS_TO_SCAN = "recordsToScan";
 	private static final String VIEW_SCANNERS = "scanners";
+	private static final String VIEW_CURRENT_RULE = "currentRule";
 
 	private static final String ACTION_SET_ENABLED = "setEnabled";
 	private static final String ACTION_SET_SCAN_ONLY_IN_SCOPE = "setScanOnlyInScope";
@@ -74,6 +75,7 @@ public class PassiveScanAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_SCAN_ONLY_IN_SCOPE));
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS));
+		this.addApiView(new ApiView(VIEW_CURRENT_RULE));
 
 	}
 	
@@ -179,6 +181,17 @@ public class PassiveScanAPI extends ApiImplementor {
 			}
 			
 			result = resultList;
+			break;
+		case VIEW_CURRENT_RULE:
+			Map<String, String> map = new HashMap<>();
+			map.put("name", extension.getCurrentRuleName());
+			map.put("url", extension.getCurrentUrl());
+			long time = extension.getCurrentRuleStartTime();
+			if (time > 0) {
+				time = System.currentTimeMillis() - time;
+			}
+			map.put("time", String.valueOf(time));
+			result = new ApiResponseSet<String>(name, map);
 			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
