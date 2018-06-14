@@ -547,7 +547,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.refreshScript(script);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 	}
@@ -599,7 +599,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.scriptAdded(script, display);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 		if (script.isLoadOnStart() && script.getFile() != null) {
@@ -607,6 +607,12 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			this.getScriptParam().saveScripts();
 		}
 		return node;
+	}
+
+	private void logScriptEventListenerException(ScriptEventListener listener, ScriptWrapper script, Exception e) {
+		String classname = listener.getClass().getCanonicalName();
+		String scriptName = script.getName();
+		logger.error("Error while notifying '" + classname + "' with script '" + scriptName + "', cause: " + e.getMessage(), e);
 	}
 
 	public void saveScript(ScriptWrapper script) throws IOException {
@@ -622,7 +628,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.scriptSaved(script);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 	}
@@ -636,7 +642,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.scriptRemoved(script);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 	}
@@ -647,7 +653,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.templateRemoved(template);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, template, e);
 			}
 		}
 	}
@@ -666,7 +672,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.templateAdded(template, display);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, template, e);
 			}
 		}
 		return node;
@@ -1254,7 +1260,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.preInvoke(script);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 	}
@@ -1554,7 +1560,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.scriptChanged(script);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 	}
@@ -1585,7 +1591,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			try {
 				listener.scriptError(script);
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logScriptEventListenerException(listener, script, e);
 			}
 		}
 	}
