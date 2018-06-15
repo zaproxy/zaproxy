@@ -26,7 +26,7 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
  * @since 2.6.0
  * @author psiinon
- *
+ * @see ExtensionCallback#registerCallbackImplementor(CallbackImplementor)
  */
 public interface CallbackImplementor {
 
