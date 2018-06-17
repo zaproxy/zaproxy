@@ -330,7 +330,7 @@ public final class AddOnInstaller {
             }
             callback.extensionRemoved(extUiName);
         } else {
-            ExtensionFactory.removeAddOnExtension(extension);
+            ExtensionFactory.unloadAddOnExtension(extension);
         }
         addOn.removeLoadedExtension(extension);
 

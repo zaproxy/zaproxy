@@ -11,6 +11,11 @@ import org.apache.log4j.Logger;
 
 // Based on code from http://twit88.com/blog/2007/10/04/java-dynamic-loading-of-class-and-jar-file/
 
+/**
+ * @deprecated (TODO add version) The use of this class is discouraged, it expects a {@code URLClassLoader} as system class
+ *             loader, which is not always the case (e.g. Java 9+).
+ */
+@Deprecated
 public class ClassLoaderUtil {
 
     // Log object

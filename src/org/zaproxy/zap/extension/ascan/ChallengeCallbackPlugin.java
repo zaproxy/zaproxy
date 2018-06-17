@@ -24,7 +24,9 @@ import org.parosproxy.paros.network.HttpMessage;
  * Callback API
  * 
  * @author yhawke (2014)
+ * @deprecated (TODO add version) Superseded by {@link org.zaproxy.zap.extension.callback.CallbackImplementor}.
  */
+@Deprecated
 public interface ChallengeCallbackPlugin {
     
     public void notifyCallback(String challenge, HttpMessage msg);

@@ -37,7 +37,9 @@ import org.zaproxy.zap.extension.api.ApiImplementor;
  * General Abstract class for Challenge/Response Active Plugin management
  * 
  * @author yhawke (2014)
+ * @deprecated (TODO add version) Superseded by {@link org.zaproxy.zap.extension.callback.CallbackImplementor}.
  */
+@Deprecated
 public abstract class ChallengeCallbackAPI extends ApiImplementor {
 
     // This are the result contents that should be returned by the API

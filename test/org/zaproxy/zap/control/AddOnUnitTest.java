@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -36,10 +37,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.zaproxy.zap.control.AddOn.BundleData;
+import org.zaproxy.zap.control.AddOn.HelpSetData;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -351,6 +355,98 @@ public class AddOnUnitTest extends TestUtils {
 		// Then
 		assertThat(normalisedFileName, is(equalTo("addon-2.8.1.zap")));
 	}
+
+	@Test
+	public void shouldHaveEmptyBundleByDefault() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0");
+		AddOn addOn = new AddOn(file);
+		// When
+		BundleData bundleData = addOn.getBundleData();
+		// Then
+		assertThat(bundleData, is(notNullValue()));
+		assertThat(bundleData.isEmpty(), is(equalTo(true)));
+		assertThat(bundleData.getBaseName(), is(equalTo("")));
+		assertThat(bundleData.getPrefix(), is(equalTo("")));
+	}
+
+	@Test
+	public void shouldHaveDeclaredBundle() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0", manifest -> {
+			manifest.append("<bundle>").append("org.zaproxy.Messages").append("</bundle>");
+		});
+		AddOn addOn = new AddOn(file);
+		// When
+		BundleData bundleData = addOn.getBundleData();
+		// Then
+		assertThat(bundleData, is(notNullValue()));
+		assertThat(bundleData.isEmpty(), is(equalTo(false)));
+		assertThat(bundleData.getBaseName(), is(equalTo("org.zaproxy.Messages")));
+		assertThat(bundleData.getPrefix(), is(equalTo("")));
+	}
+
+	@Test
+	public void shouldHaveDeclaredBundleWithPrefix() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0", manifest -> {
+			manifest.append("<bundle prefix=\"msgs\">").append("org.zaproxy.Messages").append("</bundle>");
+		});
+		AddOn addOn = new AddOn(file);
+		// When
+		BundleData bundleData = addOn.getBundleData();
+		// Then
+		assertThat(bundleData, is(notNullValue()));
+		assertThat(bundleData.isEmpty(), is(equalTo(false)));
+		assertThat(bundleData.getBaseName(), is(equalTo("org.zaproxy.Messages")));
+		assertThat(bundleData.getPrefix(), is(equalTo("msgs")));
+	}
+
+	@Test
+	public void shouldHaveEmptyHelpSetByDefault() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0");
+		AddOn addOn = new AddOn(file);
+		// When
+		HelpSetData helpSetData = addOn.getHelpSetData();
+		// Then
+		assertThat(helpSetData, is(notNullValue()));
+		assertThat(helpSetData.isEmpty(), is(equalTo(true)));
+		assertThat(helpSetData.getBaseName(), is(equalTo("")));
+		assertThat(helpSetData.getLocaleToken(), is(equalTo("")));
+	}
+
+	@Test
+	public void shouldHaveDeclaredHelpSet() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0", manifest -> {
+			manifest.append("<helpset>").append("org.zaproxy.help.helpset").append("</helpset>");
+		});
+		AddOn addOn = new AddOn(file);
+		// When
+		HelpSetData helpSetData = addOn.getHelpSetData();
+		// Then
+		assertThat(helpSetData, is(notNullValue()));
+		assertThat(helpSetData.isEmpty(), is(equalTo(false)));
+		assertThat(helpSetData.getBaseName(), is(equalTo("org.zaproxy.help.helpset")));
+		assertThat(helpSetData.getLocaleToken(), is(equalTo("")));
+	}
+
+	@Test
+	public void shouldHaveDeclaredHelpSetWithLocaleToken() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0", manifest -> {
+			manifest.append("<helpset localetoken=\"%LC%\">").append("org.zaproxy.help%LC%.helpset").append("</helpset>");
+		});
+		AddOn addOn = new AddOn(file);
+		// When
+		HelpSetData helpSetData = addOn.getHelpSetData();
+		// Then
+		assertThat(helpSetData, is(notNullValue()));
+		assertThat(helpSetData.isEmpty(), is(equalTo(false)));
+		assertThat(helpSetData.getBaseName(), is(equalTo("org.zaproxy.help%LC%.helpset")));
+		assertThat(helpSetData.getLocaleToken(), is(equalTo("%LC%")));
+	}
 	
 	@Test
 	public void shouldDependOnDependency() throws Exception {
@@ -552,10 +648,18 @@ public class AddOnUnitTest extends TestUtils {
 	}
 
 	private Path createAddOnFile(String fileName, String status, String version) {
-		return createAddOnFile(fileName, status, version, null);
+		return createAddOnFile(fileName, status, version, (String) null);
 	}
 
 	private Path createAddOnFile(String fileName, String status, String version, String javaVersion) {
+		return createAddOnFile(fileName, status, version, javaVersion, null) ;
+	}
+
+	private Path createAddOnFile(String fileName, String status, String version, Consumer<StringBuilder> manifestConsumer) {
+		return createAddOnFile(fileName, status, version, null, manifestConsumer) ;
+	}
+
+	private Path createAddOnFile(String fileName, String status, String version, String javaVersion, Consumer<StringBuilder> manifestConsumer) {
 		try {
 			File file = tempDir.newFile(fileName);
 			try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
@@ -569,6 +673,9 @@ public class AddOnUnitTest extends TestUtils {
 					strBuilder.append("<dependencies>");
 					strBuilder.append("<javaversion>").append(javaVersion).append("</javaversion>");
 					strBuilder.append("</dependencies>");
+				}
+				if (manifestConsumer != null) {
+					manifestConsumer.accept(strBuilder);
 				}
 				strBuilder.append("</zapaddon>");
 				byte[] bytes = strBuilder.toString().getBytes(StandardCharsets.UTF_8);
