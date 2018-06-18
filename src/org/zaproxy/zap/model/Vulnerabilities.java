@@ -19,16 +19,21 @@
  */
 package org.zaproxy.zap.model;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public final class Vulnerabilities {
 	
+	private static final Logger LOGGER = Logger.getLogger(Vulnerabilities.class);
+
 	private static List<Vulnerability> vulnerabilities;
 	private static Map<String, Vulnerability> vulnerabilitiesMap;
 	
@@ -42,6 +47,24 @@ public final class Vulnerabilities {
 					Constant.VULNERABILITIES_PREFIX,
 					Constant.VULNERABILITIES_EXTENSION);
 			List<Vulnerability> vulns = loader.load(Constant.getLocale());
+
+			if (vulns.isEmpty()) {
+				String path = "/org/zaproxy/zap/resources/" + Constant.VULNERABILITIES_PREFIX + Constant.VULNERABILITIES_EXTENSION;
+				LOGGER.debug("Using bundled vulnerabilities file.");
+				try (InputStream in = VulnerabilitiesLoader.class.getResourceAsStream(path)) {
+					if (in == null) {
+						LOGGER.error("The vulnerabilities file was not bundled: " + path);
+					} else {
+						vulns = VulnerabilitiesLoader.loadVulnerabilities(in);
+						if (vulns == null) {
+							vulns = Collections.emptyList();
+							LOGGER.error("Failed to load vulnerabilities from bundled file.");
+						}
+					}
+				} catch (IOException e) {
+					LOGGER.error("Failed to read the bundled vulnerabilities file:", e);
+				}
+			}
 
 			Map<String, Vulnerability> map = new HashMap<>();
 			for (Vulnerability vulnerability : vulns) {

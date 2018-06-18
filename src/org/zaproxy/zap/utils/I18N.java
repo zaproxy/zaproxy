@@ -168,9 +168,19 @@ public class I18N {
 			return;
 		}
     	this.locale = locale;
-    	this.stdMessages = ResourceBundle.getBundle(Constant.MESSAGES_PREFIX, locale, new ZapResourceBundleControl());
+        ZapResourceBundleControl rbc = new ZapResourceBundleControl();
+        try {
+            this.stdMessages = loadResourceBundle(Constant.MESSAGES_PREFIX, rbc);
+            logger.debug("Using file system Messages resource bundle.");
+        } catch (MissingResourceException e) {
+            this.stdMessages = loadResourceBundle("org.zaproxy.zap.resources." + Constant.MESSAGES_PREFIX, rbc);
+            logger.debug("Using bundled Messages resource bundle.");
+        }
     }
 
+    private ResourceBundle loadResourceBundle(String path, ZapResourceBundleControl rbc) {
+        return ResourceBundle.getBundle(path, locale, rbc);
+    }
     
     public Locale getLocal() {
     	return this.locale;

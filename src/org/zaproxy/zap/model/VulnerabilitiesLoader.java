@@ -1,6 +1,8 @@
 package org.zaproxy.zap.model;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -92,10 +94,18 @@ public class VulnerabilitiesLoader {
 	}
 	
 	List<Vulnerability> loadVulnerabilitiesFile(Path file) {
+		try (InputStream is = new BufferedInputStream(Files.newInputStream(file))) {
+			return loadVulnerabilities(is);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			return null;
+		}
+	}
 
+	static List<Vulnerability> loadVulnerabilities(InputStream is) {
 		ZapXmlConfiguration config;
         try {
-        	config = new ZapXmlConfiguration(file.toFile());
+        	config = new ZapXmlConfiguration(is);
         } catch (ConfigurationException e) {
         	logger.error(e.getMessage(), e);
         	return null;
@@ -145,6 +155,11 @@ public class VulnerabilitiesLoader {
 	 * @see LocaleUtils#createResourceFilesPattern(String, String)
 	 */
 	List<String> getListOfVulnerabilitiesFiles() {
+		if (!Files.exists(directory)) {
+			logger.debug("Skipping read of vulnerabilities, the directory does not exist: " + directory.toAbsolutePath());
+			return Collections.emptyList();
+		}
+
 		final Pattern filePattern = LocaleUtils.createResourceFilesPattern(fileName, fileExtension);
 		final List<String> fileNames = new ArrayList<>();
 		try {
