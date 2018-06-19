@@ -68,6 +68,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 		this.listeners = listeners;
 		this.component = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 2));
 		component.setOpaque(false);
+		this.setLabelFor(component);
 		this.putClientProperty("html.disable", Boolean.TRUE);
 	}
 
