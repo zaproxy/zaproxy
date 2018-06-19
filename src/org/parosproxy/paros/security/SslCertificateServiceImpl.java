@@ -38,6 +38,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -134,8 +135,8 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 		X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder (
 				new X509CertificateHolder(caCert.getEncoded()).getSubject(),
 				BigInteger.valueOf(serial.getAndIncrement()),
-				new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 30),
-				new Date(System.currentTimeMillis() + 100*(1000L * 60 * 60 * 24 * 30)),
+				new Date(System.currentTimeMillis() - Duration.ofDays(30).toMillis()),
+				new Date(System.currentTimeMillis() + Duration.ofDays(1000).toMillis()),
 				namebld.build(),
 				pubKey
 			);
