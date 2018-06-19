@@ -363,11 +363,16 @@ public final class LocaleUtils {
 
 	private static List<String> readAvailableLocales() {
 		File dir = new File(Constant.getZapInstall(), Constant.LANG_DIR);
+		if (!dir.exists()) {
+			logger.debug("Skipping read of available locales, the directory does not exist: " + dir.getAbsolutePath());
+			return new ArrayList<>(0);
+		}
+
 		FilenameFilter filter = new MessagesPropertiesFilenameFilter();
 		String[] files = dir.list(filter);
 
 		if (files == null || files.length == 0) {
-			logger.error("Failed to find any locale files in directory " + dir.getAbsolutePath());
+			logger.warn("No Messages files in directory " + dir.getAbsolutePath());
 			return new ArrayList<>(0);
 		}
 

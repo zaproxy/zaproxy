@@ -20,6 +20,7 @@
 package org.zaproxy.zap.utils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -56,6 +57,18 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 
 		super.setEncoding("UTF-8");
 		super.setDelimiterParsingDisabled(true);
+	}
+
+	/**
+	 * Creates a new instance of {@code ZapXmlConfiguration} with the configuration loaded from the given input stream.
+	 * 
+	 * @param in the input stream to load the configuration from.
+	 * @throws ConfigurationException if loading the configuration fails.
+	 * @since TODO add version
+	 */
+	public ZapXmlConfiguration(InputStream in) throws ConfigurationException {
+		this();
+		load(in);
 	}
 
 	/**
