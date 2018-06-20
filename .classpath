@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry including="Messages*.properties" kind="src" path="lang"/>
 	<classpathentry kind="src" path="test/resources"/>
 	<classpathentry excluding="resources/" kind="src" path="test"/>
 	<classpathentry kind="lib" path="lib/orange-extensions-1.3.0.jar"/>
