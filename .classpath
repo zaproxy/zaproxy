@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="lib/bcmail-jdk15on-152.jar"/>
 	<classpathentry kind="lib" path="lib/bcprov-jdk15on-152.jar"/>
 	<classpathentry kind="lib" path="lib/bcpkix-jdk15on-152.jar"/>
-	<classpathentry kind="lib" path="lib/BrowserLauncher2-1_3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-configuration-1.9.jar"/>
