@@ -161,7 +161,7 @@ public class AddOnCollection {
     		return;
     	}
     	if (! dir.exists()) {
-    		logger.warn("No such directory: " + dir.getAbsolutePath());
+    		logger.warn("Skipping enumeration of add-ons, the directory does not exist: " + dir.getAbsolutePath());
     		return;
     	}
     	if (! dir.isDirectory()) {
