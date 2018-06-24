@@ -422,11 +422,12 @@ public class ContextAPI extends ApiImplementor {
 	 * @throws ApiException the api exception
 	 */
 	private Tech getTech(String techName) throws ApiException {
+		String trimmedTechName = techName.trim();
 		for(Tech tech : Tech.builtInTech) {
-			if (tech.toString().equalsIgnoreCase(techName))
+			if (tech.toString().equalsIgnoreCase(trimmedTechName))
 				return tech;
 		}
 		throw new ApiException(Type.ILLEGAL_PARAMETER, 
-				"The tech " + techName + " does not exist");
+				"The tech '" + trimmedTechName + "' does not exist");
 	}
 }
