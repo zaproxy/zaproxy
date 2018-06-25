@@ -72,7 +72,7 @@ public class AuthenticationHelper {
 		// Let the user know it failed
 		if (View.isInitialised()) {
 			View.getSingleton().getOutputPanel()
-					.appendAsync(Constant.messages.getString("authentication.output.failure") + "\n");
+					.appendAsync(Constant.messages.getString("authentication.output.failure", msg.getRequestHeader().getURI().toString()) + "\n");
 		}
 	}
 
