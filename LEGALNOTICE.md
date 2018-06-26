@@ -34,9 +34,6 @@ and subject to their respective licenses.
 | bcmail-jdk15on-152.jar        | MIT                       |
 | bcpkix-jdk15on-152.jar        | MIT                       |
 | bcprox-jdk15on-152.jar        | MIT                       |
-| BrowserLauncher2-1_3.jar      | LGPL                      |
-| - WrapLog                     | BSD-3 clause              |
-| - Regor                       | GPL / LGPL dual license   |
 | commons-beanutils-1.8.3.jar   | Apache 2.0                |
 | commons-codec-1.9.jar         | Apache 2.0                |
 | commons-collections-3.2.2.jar | Apache 2.0                |
