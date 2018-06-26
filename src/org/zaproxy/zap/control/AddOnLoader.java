@@ -375,11 +375,11 @@ public class AddOnLoader extends URLClassLoader {
     		return;
     	}
     	if (! dir.exists()) {
-    		logger.error("No such directory: " + dir.getAbsolutePath());
+    		logger.debug("No such directory: " + dir.getAbsolutePath());
     		return;
     	}
     	if (! dir.isDirectory()) {
-    		logger.error("Not a directory: " + dir.getAbsolutePath());
+    		logger.warn("Not a directory: " + dir.getAbsolutePath());
     		return;
     	}
 
