@@ -59,7 +59,6 @@ and subject to their respective licenses.
 | jdom.jar                      | BSD                       |
 | jericho-html-3.1.jar          | EPL / LGPL dual license   |
 | jfreechart-1.0.13.jar         | LGPL                      |
-| jfxrt.jar                     | Oracle Binary Code        |
 | jgrapht-core-0.9.0.jar        | LGPL 2.1                  |
 | jh.jar                        | GPL + classpath exception |
 | json-lib-2.4-jdk15.jar        | MIT + "Good, Not Evil"    |
