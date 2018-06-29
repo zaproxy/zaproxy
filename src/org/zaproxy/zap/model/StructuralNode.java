@@ -43,6 +43,8 @@ public interface StructuralNode {
 
 	URI getURI();
 	
+	String getMethod();
+	
 	boolean isRoot();
 	
 	boolean isLeaf();

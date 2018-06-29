@@ -86,6 +86,11 @@ public class StructuralTableNode implements StructuralNode {
 	}
 
 	@Override
+	public String getMethod() {
+		return this.rs.getMethod();
+	}
+
+	@Override
 	public boolean isRoot() {
 		return SessionStructure.ROOT.equals(this.rs.getUrl());
 	}

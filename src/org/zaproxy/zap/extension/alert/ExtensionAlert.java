@@ -515,7 +515,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
                 }
             }
         }
-        siteTree.nodeStructureChanged((SiteNode) siteTree.getRoot());
+        siteTree.nodeStructureChanged(siteTree.getRoot());
     }
 
     private PopupMenuAlert getPopupMenuAlertAdd() {
@@ -574,7 +574,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         }
 
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        ((SiteNode) siteTree.getRoot()).deleteAllAlerts();
+        siteTree.getRoot().deleteAllAlerts();
 
         for (HistoryReference href : hrefs.values()) {
             href.deleteAllAlerts();

@@ -103,7 +103,7 @@ public class NodeSelectDialog extends AbstractDialog {
 	public SiteNode showDialog(SiteNode defaultNode) {
 		// Assume Contexts cant be selected
 		this.getTreeContext().setVisible(false);
-		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
+		SiteNode siteRoot = Model.getSingleton().getSession().getSiteTree().getRoot();
 		populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultNode);
 		if (selectedSiteNode != null) {
 			// Found the default node, select it
@@ -125,7 +125,7 @@ public class NodeSelectDialog extends AbstractDialog {
 	public Target showDialog(Target defaultTarget) {
 		// Assume Contexts can be selected
 		this.getTreeContext().setVisible(true);
-		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
+		SiteNode siteRoot = Model.getSingleton().getSession().getSiteTree().getRoot();
 		populateContexts((SiteNode)this.contextTree.getRoot());
 		if (defaultTarget != null) {
 			populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultTarget.getStartNode());
@@ -200,7 +200,7 @@ public class NodeSelectDialog extends AbstractDialog {
 
 	private DefaultTreeModel emptySiteTree() {
 		// Make a very sparse copy of the site tree
-		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
+		SiteNode siteRoot = Model.getSingleton().getSession().getSiteTree().getRoot();
         SiteNode root = new SiteNode(null, -1, Constant.messages.getString("tab.sites"));
         root.setUserObject(siteRoot);
         return new DefaultTreeModel(root);

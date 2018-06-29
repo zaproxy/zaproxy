@@ -220,7 +220,7 @@ public class Context {
 	 */
 	public List<SiteNode> getNodesInContextFromSiteTree() {
 		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
+		SiteNode rootNode = session.getSiteTree().getRoot();
 		fillNodesInContext(rootNode, nodes);
 		return nodes;
 	}
@@ -233,7 +233,7 @@ public class Context {
 	 * @see #getNodesInContextFromSiteTree()
 	 */
 	public boolean hasNodesInContextFromSiteTree() {
-		return hasNodesInContext((SiteNode) session.getSiteTree().getRoot());
+		return hasNodesInContext(session.getSiteTree().getRoot());
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class Context {
 	 */
 	public List<SiteNode> getTopNodesInContextFromSiteTree() {
 		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
+		SiteNode rootNode = session.getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
