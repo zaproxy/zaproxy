@@ -24,9 +24,13 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,12 +38,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 
 public class LicenseFrame extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(LicenseFrame.class);
+	
 	private JPanel jPanel = null;
 	private JTextPane txtLicense = null;
 	private JPanel jPanel1 = null;
@@ -47,7 +54,6 @@ public class LicenseFrame extends AbstractFrame {
 	private JButton btnDecline = null;
 	private JScrollPane jScrollPane = null;
 
-	private int currentPage = 0;
 	private boolean accepted = false;
 
 	private JPanel jPanel2 = null;
@@ -76,7 +82,7 @@ public class LicenseFrame extends AbstractFrame {
         	}
         });
 
-        showLicense(currentPage);
+        showLicense();
 	}
 
 	public void setPostTask(Runnable postTask) {
@@ -217,22 +223,26 @@ public class LicenseFrame extends AbstractFrame {
 		return jScrollPane;
 	}
 
-	private void showLicense(int page) {
-
-	    String localUrl = null;
-	    switch (page) {
-	//String remoteUrl = "http://www.statistica.unimib.it/utenti/dellavedova/software/artistic2.html";
-	    	case 0:
-	    	    //localUrl = "file:" + System.getProperty("user.dir") + System.getProperty("file.separator") + "license/TheClarifiedArtisticLicense.htm";
-	    	    localUrl = "file:" + Constant.getZapInstall() + System.getProperty("file.separator") + "license/ApacheLicense-2.0.txt";
-	    	    break;
-	    }
+	private static URL getUrlLicenseFile() {
+		String licenseFileName = "ApacheLicense-2.0.txt";
+		Path path = Paths.get(Constant.getZapInstall(), "license", licenseFileName);
+		if (Files.exists(path)) {
+			try {
+				return path.toUri().toURL();
+			} catch (MalformedURLException e) {
+				LOGGER.warn("Failed to convert file system path:", e);
+			}
+		}
+		return LicenseFrame.class.getResource("/org/zaproxy/zap/resources/" + licenseFileName);
+	}
+	
+	private void showLicense() {
 	    try{
-	        txtLicense.setPage(localUrl);
+	        txtLicense.setPage(getUrlLicenseFile());
 	    } catch (final IOException e){
-			e.printStackTrace();
-      		JOptionPane.showMessageDialog(new JFrame(), "Error: setting file is missing. Program will exit.");
-      		System.exit(0);
+            LOGGER.error("Failed to read license from '" + getUrlLicenseFile() + "'", e);
+            JOptionPane.showMessageDialog(null, "Error: unable to show license. Program will exit.");
+            System.exit(1);
     	}
     }
 

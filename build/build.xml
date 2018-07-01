@@ -155,6 +155,7 @@
 
 		<copy todir="${build}/org/zaproxy/zap/resources/">
 			<fileset dir="${src}/lang" includes="Messages.properties,vulnerabilities.xml" />
+			<fileset dir="${src}/license" includes="ApacheLicense-2.0.txt" />
 		</copy>
 
 		<copy todir="${dist}/license">

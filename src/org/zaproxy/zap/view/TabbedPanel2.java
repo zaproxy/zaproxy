@@ -308,7 +308,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	 * @see #setVisible(Component, boolean)
 	 */
 	public void addTabHidden(AbstractPanel panel) {
-		this.addTab(panel.getName(), panel.getIcon(), panel, panel.isHideable(), false, panel.getTabIndex());
+		this.addTab(panel.getName(), panel.getIcon(), panel, panel.isHideable(), false, panel.getTabIndex(), false);
 	}
 
 	/**
@@ -340,12 +340,29 @@ public class TabbedPanel2 extends TabbedPanel {
 	 * @param index the index of the tab.
 	 */
 	public void addTab(String title, Icon icon, final Component c, boolean hideable, boolean visible, int index) {
+	    addTab(title, icon, c, hideable, visible, index, true);
+	}
+
+	/**
+	 * Adds a tab with the given component.
+	 *
+	 * @param title the title of the tab.
+	 * @param icon the icon of the tab.
+	 * @param c the component of the tab.
+	 * @param hideable {@code true} if the tab can be hidden, {@code false} otherwise.
+	 * @param visible {@code true} if the tab should be visible, {@code false} otherwise.
+	 * @param index the index of the tab.
+	 * @param reparent {@code true} if the component should have as parent this {@code TabbedPanel2}, {@code false} otherwise.
+	 */
+	private void addTab(String title, Icon icon, final Component c, boolean hideable, boolean visible, int index, boolean reparent) {
 		if (!this.fullTabList.contains(c)) {
 			this.fullTabList.add(c);
 		}
 
 		if (c instanceof AbstractPanel) {
-			((AbstractPanel)c).setParent(this);
+			if (reparent) {
+				((AbstractPanel) c).setParent(this);
+			}
 			((AbstractPanel)c).setTabIndex(index);
 			((AbstractPanel)c).setHideable(hideable);
 		}
@@ -631,6 +648,8 @@ public class TabbedPanel2 extends TabbedPanel {
                 AbstractPanel ap = (AbstractPanel) component;
                 if (!canHidePanel(ap)) {
                     setVisible(component, true);
+                } else {
+                    ap.setParent(this);
                 }
             }
         }

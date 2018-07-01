@@ -34,9 +34,6 @@ and subject to their respective licenses.
 | bcmail-jdk15on-152.jar        | MIT                       |
 | bcpkix-jdk15on-152.jar        | MIT                       |
 | bcprox-jdk15on-152.jar        | MIT                       |
-| BrowserLauncher2-1_3.jar      | LGPL                      |
-| - WrapLog                     | BSD-3 clause              |
-| - Regor                       | GPL / LGPL dual license   |
 | commons-beanutils-1.8.3.jar   | Apache 2.0                |
 | commons-codec-1.9.jar         | Apache 2.0                |
 | commons-collections-3.2.2.jar | Apache 2.0                |
@@ -54,15 +51,12 @@ and subject to their respective licenses.
 | ezmorph-1.0.6.jar             | Apache 2.0                |
 | harlib-jackson-1.1.2.jar      | Apache 2.0                |
 | hsqldb.jar                    | BSD                       |
-| httpclient-4.5.jar            | Apache 2.0                |
-| httpcore-4.4.1.jar            | Apache 2.0                |
 | ice4j-1.0.jar                 | Apache 2.0                |
 | java-semver-0.8.0.jar         | MIT                       |
 | jcommon-1.0.23.jar            | LGPL                      |
 | jdom.jar                      | BSD                       |
 | jericho-html-3.1.jar          | EPL / LGPL dual license   |
 | jfreechart-1.0.13.jar         | LGPL                      |
-| jfxrt.jar                     | Oracle Binary Code        |
 | jgrapht-core-0.9.0.jar        | LGPL 2.1                  |
 | jh.jar                        | GPL + classpath exception |
 | json-lib-2.4-jdk15.jar        | MIT + "Good, Not Evil"    |
