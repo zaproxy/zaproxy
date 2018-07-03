@@ -89,7 +89,7 @@ public class VariantMultipartFormParameters implements Variant {
 
 				String name = nameMatcher.group("name");
 				// Value doesn't include boundary, headerline, or double CRLF
-				String value = part.replaceAll(boundary + partHeaderLine + HttpHeader.CRLF + HttpHeader.CRLF, "");
+				String value = part.replaceAll(Pattern.quote(boundary + partHeaderLine) + HttpHeader.CRLF + HttpHeader.CRLF, "");
 				value = value.replaceAll(HttpHeader.CRLF + "(" + Pattern.quote(getBoundary(contentType)) + "--"
 						+ HttpHeader.CRLF + ")?$", ""); // Strip final boundary
 				if (isFileParam) {
