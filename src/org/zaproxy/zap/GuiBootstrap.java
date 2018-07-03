@@ -174,7 +174,9 @@ public class GuiBootstrap extends ZapBootstrap {
                         Constant.messages.getString("start.title.error"),
                         JOptionPane.ERROR_MESSAGE);
             }
-            logger.fatal(e.getMessage(), e);
+            logger.fatal("Failed to initialise: " + e.getMessage(), e);
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
 
         OptionsParam options = Model.getSingleton().getOptionsParam();
