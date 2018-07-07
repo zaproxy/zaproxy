@@ -78,6 +78,7 @@
 // ZAP: 2018/03/16 Use equalsIgnoreCase (Issue 4327).
 // ZAP: 2018/04/16 Keep backup of malformed config file.
 // ZAP: 2018/06/13 Correct install dir detection from JAR.
+// ZAP: 2018/06/29 Allow to check if in dev mode.
 
 package org.parosproxy.paros;
 
@@ -292,6 +293,13 @@ public final class Constant {
      * @since 2.4.0
      */
     public static final String VULNERABILITIES_EXTENSION = ".xml";
+
+    /**
+     * Flag that indicates whether or not the "dev mode" is enabled.
+     * 
+     * @see #isDevMode()
+     */
+    private static boolean devMode;
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";
@@ -346,7 +354,7 @@ public final class Constant {
     	}
     	
         if (incDevOption) {
-	        if (isDevBuild() || isDailyBuild()) {
+	        if (isDevMode() || isDailyBuild()) {
 	        	// Default to a different home dir to prevent messing up full releases
 	        	return zapStd + "_D";
 	        }
@@ -358,7 +366,7 @@ public final class Constant {
     public void copyDefaultConfigs(File f, boolean forceReset) throws IOException, ConfigurationException {
         FileCopier copier = new FileCopier();
         File oldf;
-        if (isDevBuild() || isDailyBuild()) {
+        if (isDevMode() || isDailyBuild()) {
             // try standard location
             oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
         } else {
@@ -371,7 +379,7 @@ public final class Constant {
             LOG.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
             copier.copy(oldf,f);
             
-            if (isDevBuild() || isDailyBuild()) {
+            if (isDevMode() || isDailyBuild()) {
                 ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
                 newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
                 newConfig.save();
@@ -496,7 +504,7 @@ public final class Constant {
 	            
 	            if (ver == VERSION_TAG) {
 	            	// Nothing to do
-	            } else if (isDevBuild() || isDailyBuild()) {
+	            } else if (isDevMode() || isDailyBuild()) {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
@@ -1136,7 +1144,36 @@ public final class Constant {
     	}
     	return null;
     }
+
+    /**
+     * Tells whether or not the "dev mode" should be enabled.
+     * <p>
+     * Should be used to enable development related utilities/functionalities.
+     * 
+     * @return {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public static boolean isDevMode() {
+        return devMode || isDevBuild();
+    }
+
+    /**
+     * Sets whether or not the "dev mode" should be enabled.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap classes.
+     * 
+     * @param devMode {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
+     */
+    public static void setDevMode(boolean devMode) {
+        Constant.devMode = devMode;
+    }
     
+    /**
+     * Tells whether or not ZAP is running from a dev build.
+     *
+     * @return {@code true} if it's a dev build, {@code false} otherwise.
+     * @see #isDevMode()
+     */
     public static boolean isDevBuild() {
     	return isDevBuild(PROGRAM_VERSION);
     }
