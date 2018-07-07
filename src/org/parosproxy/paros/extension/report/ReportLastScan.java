@@ -31,10 +31,12 @@
 // ZAP: 2016/09/22 Issue 2886: Support Markdown format
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
+// ZAP: 2018/07/04 Don't open the report if it was not generated.
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Locale;
 
 import javax.swing.JFileChooser;
@@ -232,6 +234,11 @@ public class ReportLastScan {
                 File report = generate(file.getAbsolutePath(), model, localReportType);
                 if (report == null) {
                     view.showMessageDialog(Constant.messages.getString("report.unknown.error", file.getAbsolutePath()));
+                    return;
+                }
+
+                if (Files.notExists(report.toPath())) {
+                    logger.info("Not opening report, does not exist: " + report);
                     return;
                 }
 

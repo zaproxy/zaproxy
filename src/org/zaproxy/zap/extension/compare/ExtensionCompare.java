@@ -23,6 +23,7 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -289,6 +290,11 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 				        ReportGenerator.stringToHtml(sb.toString(), 
 					    		Constant.getZapInstall() + File.separator + "xml" + File.separator + "reportCompare.xsl", 
 					    		outputFile.getAbsolutePath());
+
+						if (Files.notExists(outputFile.toPath())) {
+							log.info("Not opening report, does not exist: " + outputFile);
+							return;
+						}
 
 			    		try {
 							DesktopUtils.openUrlInBrowser(outputFile.toURI());
