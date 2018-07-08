@@ -21,11 +21,14 @@ package org.zaproxy.zap.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.URL;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -131,6 +134,13 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 		return result;
 	}
 
+	@Override
+	protected Transformer createTransformer() throws TransformerException {
+		Transformer transformer = super.createTransformer();
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+		return transformer;
+	}
+
 	/**
 	 * Creates a new instance of {@code ZapXmlConfiguration}. The configuration
 	 * is loaded from the specified {@code url}.
@@ -176,4 +186,27 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 	public void setDelimiterParsingDisabled(boolean delimiterParsingDisabled) {
 		// Always disabled.
 	}
+
+	@Override
+	public void load(InputStream in) throws ConfigurationException {
+		super.load(in);
+		postLoad();
+	}
+
+	@Override
+	public void load(Reader in) throws ConfigurationException {
+		super.load(in);
+		postLoad();
+	}
+
+	private void postLoad() {
+		// Ensure it's used a "clean" document for proper indentation of the configurations.
+		// In newer Java versions (9+) the text nodes are indented as well, which would lead
+		// to additional text nodes each time the configuration is loaded/saved.
+		clearReferences(getRootNode());
+		String rootName = getRootElementName();
+		getDocument().removeChild(getDocument().getDocumentElement());
+		getDocument().appendChild(getDocument().createElement(rootName));
+	}
+
 }

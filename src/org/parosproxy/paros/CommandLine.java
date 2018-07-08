@@ -40,6 +40,7 @@
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually exclusive).
 // ZAP: 2017/12/26 Remove unused command line arg SP.
+// ZAP: 2018/06/29 Add command line to run ZAP in dev mode.
 
 package org.parosproxy.paros;
 
@@ -88,6 +89,21 @@ public class CommandLine {
      */
     public static final String NOSTDOUT = "-nostdout";
 
+    /**
+     * Command line option to enable "dev mode".
+     * <p>
+     * With this option development related utilities/functionalities are enabled. For example, it's shown an error counter in
+     * the footer tool bar and license is implicitly accepted (thus not requiring to show/accept the license each time a new
+     * home is used).
+     * <p>
+     * <strong>Note:</strong> this mode is always enabled when running ZAP directly from source (i.e. not packaged in a JAR) or
+     * using a dev build.
+     * 
+     * @see #isDevMode()
+     * @since TODO add version
+     */
+    public static final String DEV_MODE = "-dev";
+
     static final String NO_USER_AGENT = "-nouseragent";
 
     private boolean GUI = true;
@@ -107,6 +123,11 @@ public class CommandLine {
      * Flag that indicates whether or not the default logging through standard output should be disabled.
      */
     private boolean noStdOutLog;
+
+    /**
+     * Flag that indicates whether or not the "dev mode" is enabled.
+     */
+    private boolean devMode;
 
     public CommandLine(String[] args) throws Exception {
         this.args = args == null ? new String[0] : args;
@@ -323,6 +344,9 @@ public class CommandLine {
             displaySupportInfo = true;
             setDaemon(false);
             setGUI(false);
+        } else if (checkSwitch(args, DEV_MODE, i)) {
+            devMode = true;
+            Constant.setDevMode(true);
         }
 
         return result;
@@ -477,6 +501,17 @@ public class CommandLine {
      */
     public boolean isNoStdOutLog() {
         return noStdOutLog;
+    }
+
+    /**
+     * Tells whether or not the "dev mode" should be enabled.
+     *
+     * @return {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
+     * @since TODO add version
+     * @see #DEV_MODE
+     */
+    public boolean isDevMode() {
+        return devMode;
     }
 
     public static String getHelp(List<CommandLineArgument[]> cmdList) {

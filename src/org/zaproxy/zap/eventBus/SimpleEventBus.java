@@ -71,7 +71,7 @@ public class SimpleEventBus implements EventBus {
 			// Check to see if there are any cached consumers
 			for (RegisteredConsumer regCon : this.danglingConsumers) {
 				if (regCon.getPublisherName().equals(publisher.getPublisherName())) {
-					regProd.addComsumer(regCon);
+					regProd.addConsumer(regCon);
 					this.danglingConsumers.remove(regCon);
 					break;
 				}
@@ -121,7 +121,7 @@ public class SimpleEventBus implements EventBus {
 				// Cache until the publisher registers
 				this.danglingConsumers.add(new RegisteredConsumer(consumer, eventTypes, publisherName));
 			} else {
-				publisher.addComsumer(consumer, eventTypes);
+				publisher.addConsumer(consumer, eventTypes);
 			}
 		} finally {
 			regMgmtLock.unlock();
@@ -138,7 +138,7 @@ public class SimpleEventBus implements EventBus {
 		try {
 			log.debug("unregisterConsumer " + consumer.getClass().getCanonicalName());
 			for (Entry<String, RegisteredPublisher> entry : nameToPublisher.entrySet()) {
-				entry.getValue().removeComsumer(consumer);
+				entry.getValue().removeConsumer(consumer);
 			}
 			// Check to see if its cached waiting for a publisher
 			removeDanglingConsumer(consumer);
@@ -167,7 +167,7 @@ public class SimpleEventBus implements EventBus {
 			log.debug("unregisterConsumer " + consumer.getClass().getCanonicalName() + " for " + publisherName);
 			RegisteredPublisher publisher = this.nameToPublisher.get(publisherName);
 			if (publisher != null) {
-				publisher.removeComsumer(consumer);
+				publisher.removeConsumer(consumer);
 			} else {
 				// Check to see if its cached waiting for the publisher
 				removeDanglingConsumer(consumer);
@@ -273,13 +273,13 @@ public class SimpleEventBus implements EventBus {
 		public List<RegisteredConsumer> getConsumers() {
 			return consumers;
 		}
-		public void addComsumer(RegisteredConsumer consumer) {
+		public void addConsumer(RegisteredConsumer consumer) {
 			this.consumers.add(consumer);
 		}
-		public void addComsumer(EventConsumer consumer, String [] eventTypes) {
+		public void addConsumer(EventConsumer consumer, String [] eventTypes) {
 			this.consumers.add(new RegisteredConsumer(consumer, eventTypes));
 		}
-		public void removeComsumer(EventConsumer consumer) {
+		public void removeConsumer(EventConsumer consumer) {
 			for (RegisteredConsumer cons : consumers) {
 				if (cons.getConsumer().equals(consumer)) {
 					this.consumers.remove(cons);
