@@ -87,6 +87,7 @@ def usage():
     print('    -P                specify listen port')
     print('    -D                delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
+    print('    -I                do not return failure on warning')
     print('    -j                use the Ajax spider in addition to the traditional one')
     print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print('    -n context_file   context file which will be loaded prior to spidering the target')
@@ -94,7 +95,6 @@ def usage():
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
-    print('    -I                Do not return failure on warning')
     print('')
     print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
 
