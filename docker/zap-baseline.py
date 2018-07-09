@@ -178,6 +178,8 @@ def main(argv):
             zap_alpha = True
         elif opt == '-i':
             info_unspecified = True
+        elif opt == '-I':
+            ignore_warn = True        
         elif opt == '-j':
             ajax = True
         elif opt == '-l':
@@ -193,9 +195,6 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
-        elif opt == '-I':
-            ignore_warn = True
-        
 
     check_zap_client_version()
 
