@@ -430,7 +430,7 @@ def main(argv):
 
     if fail_count > 0:
         sys.exit(1)
-    elif (not ignore_warn) and warn_count > 0:        
+    elif (not ignore_warn) and warn_count > 0:
         sys.exit(2)
     elif pass_count > 0:
         sys.exit(0)
