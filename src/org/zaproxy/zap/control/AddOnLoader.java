@@ -493,6 +493,9 @@ public class AddOnLoader extends URLClassLoader {
         boolean changed = false;
         for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
             AddOn runningAddOn = aoc.getAddOn(entry.getKey());
+            if (runningAddOn.getInstallationStatus() == AddOn.InstallationStatus.UNINSTALLATION_FAILED) {
+                continue;
+            }
             for (String extClassName : runningAddOn.getExtensionsWithDeps()) {
                 if (!runningAddOn.isExtensionLoaded(extClassName)) {
                     AddOn.AddOnRunRequirements reqs = runningAddOn.calculateExtensionRunRequirements(

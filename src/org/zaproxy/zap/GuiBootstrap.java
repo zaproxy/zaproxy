@@ -174,7 +174,9 @@ public class GuiBootstrap extends ZapBootstrap {
                         Constant.messages.getString("start.title.error"),
                         JOptionPane.ERROR_MESSAGE);
             }
-            logger.fatal(e.getMessage(), e);
+            logger.fatal("Failed to initialise: " + e.getMessage(), e);
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
 
         OptionsParam options = Model.getSingleton().getOptionsParam();
@@ -200,7 +202,7 @@ public class GuiBootstrap extends ZapBootstrap {
                     initControlAndPostViewInit();
 
                 } catch (Throwable e) {
-                    if (!Constant.isDevBuild()) {
+                    if (!Constant.isDevMode()) {
                         ErrorInfo errorInfo = new ErrorInfo(
                                 Constant.messages.getString("start.gui.dialog.fatal.error.title"),
                                 Constant.messages.getString("start.gui.dialog.fatal.error.message"),
@@ -568,11 +570,15 @@ public class GuiBootstrap extends ZapBootstrap {
      * Tells whether or not ZAP license should be shown, if the license was already accepted it does not need to be shown again.
      * <p>
      * The license is considered accepted if a file named {@link Constant#ACCEPTED_LICENSE_DEFAULT AcceptedLicense} exists in
-     * the installation and/or home directory.
+     * the installation and/or home directory, or if running ZAP in "dev mode".
      *
      * @return {@code true} if the license should be shown, {@code false} otherwise.
      */
-    private static boolean isShowLicense() {
+    private boolean isShowLicense() {
+        if (getArgs().isDevMode()) {
+            return false;
+        }
+
         Path acceptedLicenseFile = Paths.get(Constant.getZapInstall(), Constant.getInstance().ACCEPTED_LICENSE_DEFAULT);
         if (Files.exists(acceptedLicenseFile)) {
             return false;

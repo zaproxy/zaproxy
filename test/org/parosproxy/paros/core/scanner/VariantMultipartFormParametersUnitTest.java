@@ -94,6 +94,41 @@ public class VariantMultipartFormParametersUnitTest {
 	}
 
 	@Test
+	public void shouldExtractParametersFromAllPartsEventIfTheyContainRegexChars() {
+		// Given
+		VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+		HttpMessage message = createBaseMessage();
+		StringBuilder bodySb = new StringBuilder(320);
+		bodySb.append("--------------------------d74496d66958873e").append(CRLF);
+		bodySb.append("Content-Disposition: form-data; name=\"param[]\"").append(CRLF);
+		bodySb.append(CRLF);
+		bodySb.append("paramContent[]").append(CRLF);
+		bodySb.append("--------------------------d74496d66958873e").append(CRLF);
+		bodySb.append("Content-Disposition: form-data; name=\"somefile[]\"; filename=\"file[]\"").append(CRLF);
+		bodySb.append("Content-Type: ContentType[]").append(CRLF);
+		bodySb.append(CRLF);
+		bodySb.append("filecontent[]").append(CRLF);
+		bodySb.append("--------------------------d74496d66958873e--").append(CRLF);
+		message.setRequestBody(bodySb.toString());
+		// When
+		variant.setMessage(message);
+		// Then
+		assertThat(variant.getParamList().size(), is(equalTo(4)));
+		assertThat(variant.getParamList().get(0).getName(), is(equalTo("param[]")));
+		assertThat(variant.getParamList().get(0).getValue(), is(equalTo("paramContent[]")));
+		assertThat(variant.getParamList().get(0).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+		assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile[]")));
+		assertThat(variant.getParamList().get(1).getValue(), is(equalTo("filecontent[]")));
+		assertThat(variant.getParamList().get(1).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+		assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile[]")));
+		assertThat(variant.getParamList().get(2).getValue(), is(equalTo("file[]")));
+		assertThat(variant.getParamList().get(2).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+		assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile[]")));
+		assertThat(variant.getParamList().get(3).getValue(), is(equalTo("ContentType[]")));
+		assertThat(variant.getParamList().get(3).getType(), is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+	}
+
+	@Test
 	public void shouldInjectParamValueModificationInGeneralParam() {
 		// Given
 		VariantMultipartFormParameters variant = new VariantMultipartFormParameters();

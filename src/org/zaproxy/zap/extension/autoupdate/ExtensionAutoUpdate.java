@@ -492,9 +492,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
 	public void installNewExtensions() {
+		installNewExtensionsImpl();
+	}
+
+	private boolean installNewExtensionsImpl() {
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
 		List<Downloader> handledFiles = new ArrayList<>();
 		
+		boolean allInstalled = true;
 		for (Downloader dl : downloadFiles) {
 			if (dl.getFinished() == null) {
 				continue;
@@ -503,6 +508,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			try {
 				if (!dl.isValidated()) {
 					logger.debug("Ignoring unvalidated download: " + dl.getUrl());
+					allInstalled = false;
 					if (addonsDialog != null) {
 						addonsDialog.notifyAddOnDownloadFailed(dl.getUrl().toString());
 					} else {
@@ -533,6 +539,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							} else {
 								logger.error("Failed to move downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
 										" to " + f.getAbsolutePath() + " - skipping", e);
+								allInstalled = false;
 								continue;
 							}
 						}
@@ -540,7 +547,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 					
 					AddOn ao = new AddOn(f.toPath());
 					if (ao.canLoadInCurrentVersion()) {
-						install(ao);
+						allInstalled &= install(ao);
 					} else {
 			    		logger.info("Cant load add-on " + ao.getName() + 
 			    				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
@@ -556,6 +563,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			// Cant remove in loop above as we're iterating through the list
 			this.downloadFiles.remove(dl);
 		}
+		return allInstalled;
 	}
 	
 	public int getDownloadProgressPercent(URL url) throws Exception {
@@ -1063,7 +1071,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		}
 	}
 	
-	private void install(AddOn ao) {
+	private boolean install(AddOn ao) {
 		if (! ao.canLoadInCurrentVersion()) {
     		throw new IllegalArgumentException("Cant load add-on " + ao.getName() + 
     				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
@@ -1074,7 +1082,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		if (installedAddOn != null) {
 			if ( ! uninstallAddOn(null, installedAddOn, true)) {
                 // Cant uninstall the old version, so dont try to install the new one
-	            return;
+	            return false;
 			}
 		}
 		logger.info("Installing new addon " + ao.getId() + " v" + ao.getVersion());
@@ -1103,6 +1111,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         if (addonsDialog != null) {
             addonsDialog.notifyAddOnInstalled(ao);
         }
+        return true;
 	}
 	
     private boolean uninstall(AddOn addOn, boolean upgrading, AddOnUninstallationProgressCallback callback) {
@@ -1671,7 +1680,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
                 processAddOnChanges(null, result);
             }
-            waitAndInstallDownloads();
+            if (!waitAndInstallDownloads()) {
+                errorMessages.append(Constant.messages.getString("cfu.cmdline.addoninst.error")).append("\n");
+            }
         }
         return errorMessages.toString();
     }
@@ -1829,7 +1840,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         }
 	}
 	
-	private void waitAndInstallDownloads() {
+	private boolean waitAndInstallDownloads() {
 		while (downloadManager.getCurrentDownloadCount() > 0) {
 			try {
 				Thread.sleep(200);
@@ -1847,8 +1858,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			}
 		}
 		if (getView() == null) {
-			installNewExtensions();
+			return installNewExtensionsImpl();
 		}
+		return true;
 	}
 
 	@Override

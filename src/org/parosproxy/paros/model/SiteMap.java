@@ -388,7 +388,7 @@ public class SiteMap extends SortedTreeModel {
     		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
     	}
 
-    	if (View.isInitialised() && Constant.isDevBuild() && ! EventQueue.isDispatchThread()) {
+    	if (View.isInitialised() && Constant.isDevMode() && ! EventQueue.isDispatchThread()) {
     		// In developer mode log an error if we're not on the EDT
     		// Adding to the site tree on GUI ('initial') threads causes problems
     		log.error("SiteMap.addPath not on EDT " + Thread.currentThread().getName(), new Exception());
