@@ -94,6 +94,7 @@ def usage():
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
+    print('    -I                Do not return failure on warning')
     print('')
     print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
 
@@ -123,6 +124,7 @@ def main(argv):
     zap_options = ''
     delay = 0
     timeout = 0
+    ignore_warn = False
 
     pass_count = 0
     warn_count = 0
@@ -133,7 +135,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:")
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:I")
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -191,6 +193,9 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+        elif opt == '-I':
+            ignore_warn = True
+        
 
     check_zap_client_version()
 
@@ -425,7 +430,7 @@ def main(argv):
 
     if fail_count > 0:
         sys.exit(1)
-    elif warn_count > 0:
+    elif (not ignore_warn) and warn_count > 0:        
         sys.exit(2)
     elif pass_count > 0:
         sys.exit(0)
