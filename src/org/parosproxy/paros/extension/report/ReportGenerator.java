@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2016/04/18 Issue 2127: Added return statements & GUI dialogs after IOExceptions
 // ZAP: 2016/06/25 pull 2561: It specifies the Charset of stringToHtml to UTF-8
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
+// ZAP: 2018/07/04 Allow to use a custom StreamSource for the XSL.
 
 package org.parosproxy.paros.extension.report;
 
@@ -98,18 +99,20 @@ public class ReportGenerator {
 	}
 
 	public static File stringToHtml(String inxml, String infilexsl, String outfilename) {
-		if (infilexsl != null) {
+		return stringToHtml(inxml, infilexsl != null ? new StreamSource(new File(infilexsl)) : null, outfilename);
+	}
+
+	public static File stringToHtml(String inxml, StreamSource stylesource, String outfilename) {
+		if (stylesource != null) {
 			Document doc = null;
 	
 			// factory.setNamespaceAware(true);
 			// factory.setValidating(true);
-			File stylesheet = null;
 			File outfile = null;
 			StringReader inReader = new StringReader(inxml);
 			String tempOutfilename = outfilename + ".temp"; 
 	
 			try {
-				stylesheet = new File(infilexsl);
 				outfile = new File(tempOutfilename);
 	
 				DocumentBuilder builder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
@@ -117,7 +120,6 @@ public class ReportGenerator {
 	
 				// Use a Transformer for output
 				TransformerFactory tFactory = TransformerFactory.newInstance();
-				StreamSource stylesource = new StreamSource(stylesheet);
 				Transformer transformer = tFactory.newTransformer(stylesource);
 	
 				DOMSource source = new DOMSource(doc);
@@ -225,23 +227,22 @@ public class ReportGenerator {
 	}
 
 	public static String stringToHtml(String inxml, String infilexsl) {
+		return stringToHtml(inxml, new StreamSource(new File(infilexsl)));
+	}
+
+	public static String stringToHtml(String inxml, StreamSource stylesource) {
 		Document doc = null;
 
-		// factory.setNamespaceAware(true);
-		// factory.setValidating(true);
-		File stylesheet = null;
 		StringReader inReader = new StringReader(inxml);
 		StringWriter writer = new StringWriter();
 
 		try {
-			stylesheet = new File(infilexsl);
 
 			DocumentBuilder builder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
 			doc = builder.parse(new InputSource(inReader));
 
 			// Use a Transformer for output
 			TransformerFactory tFactory = TransformerFactory.newInstance();
-			StreamSource stylesource = new StreamSource(stylesheet);
 			Transformer transformer = tFactory.newTransformer(stylesource);
 
 			DOMSource source = new DOMSource(doc);

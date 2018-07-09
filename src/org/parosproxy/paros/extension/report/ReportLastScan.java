@@ -32,16 +32,22 @@
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2018/07/04 Don't open the report if it was not generated.
+// ZAP: 2018/07/04 Fallback to bundled XSL files.
 // ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -61,7 +67,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class ReportLastScan {
 
-    private Logger logger = Logger.getLogger(ReportLastScan.class);
+    private static final Logger logger = Logger.getLogger(ReportLastScan.class);
     
     private static final String HTM_FILE_EXTENSION=".htm";
     private static final String HTML_FILE_EXTENSION=".html";
@@ -85,27 +91,34 @@ public class ReportLastScan {
     }
 
     public File generate(String fileName, Model model, ReportType reportType) throws Exception {
-        String xslFile = "";
-        switch(reportType) {
-            case XML:   // Don't use XSLT for XML/JSON
-            case JSON:
-                xslFile = null;
-                break;
-            case MD:
-                xslFile = (Constant.getZapInstall() + "/xml/report.md.xsl");
-                break;
-            case HTML:
-            default:
-                xslFile = (Constant.getZapInstall() + "/xml/report.html.xsl");
-                break;
-        }
-
         StringBuilder sb = new StringBuilder(500);
         this.generate(sb, model);
         if (reportType == ReportType.JSON) {
             return ReportGenerator.stringToJson(sb.toString(), fileName);
         }
-        return ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
+
+        if (reportType == ReportType.XML) {
+            return ReportGenerator.stringToHtml(sb.toString(), (String) null, fileName);
+        }
+
+        String xslFileName = reportType == ReportType.MD ? "report.md.xsl" : "report.html.xsl";
+        return generateReportWithXsl(sb.toString(), fileName, xslFileName);
+    }
+
+    private static File generateReportWithXsl(String report, String reportFile, String xslFileName) throws IOException {
+        Path xslFile = Paths.get(Constant.getZapInstall(), "xml", xslFileName);
+        if (Files.exists(xslFile)) {
+            return ReportGenerator.stringToHtml(report, xslFile.toString(), reportFile);
+        }
+
+        String path = "/org/zaproxy/zap/resources/xml/" + xslFileName;
+        try (InputStream is = ReportLastScan.class.getResourceAsStream(path)) {
+            if (is == null) {
+                logger.error("Bundled file not found: " + path);
+                return new File(reportFile);
+            }
+            return ReportGenerator.stringToHtml(report, new StreamSource(is), reportFile);
+        }
     }
 
     public void generate(StringBuilder report, Model model) throws Exception {

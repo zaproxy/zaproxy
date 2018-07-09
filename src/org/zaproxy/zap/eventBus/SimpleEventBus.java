@@ -66,16 +66,16 @@ public class SimpleEventBus implements EventBus {
 
 			RegisteredPublisher regProd = new RegisteredPublisher(publisher, eventTypes);
 
-			this.nameToPublisher.put(publisher.getPublisherName(), regProd);
-
 			// Check to see if there are any cached consumers
-			for (RegisteredConsumer regCon : this.danglingConsumers) {
+			danglingConsumers.removeIf(regCon -> {
 				if (regCon.getPublisherName().equals(publisher.getPublisherName())) {
 					regProd.addConsumer(regCon);
-					this.danglingConsumers.remove(regCon);
-					break;
+					return true;
 				}
-			}
+				return false;
+			});
+
+			this.nameToPublisher.put(publisher.getPublisherName(), regProd);
 		} finally {
 			regMgmtLock.unlock();
 		}

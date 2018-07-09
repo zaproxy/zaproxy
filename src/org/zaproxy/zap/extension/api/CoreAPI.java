@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.api;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -42,6 +43,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.tree.TreeNode;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -1525,21 +1527,33 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			response = report.toString();
 		} else if (ScanReportType.MD == reportType) {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
-			response = ReportGenerator.stringToHtml(
-					report.toString(),
-					Paths.get(Constant.getZapInstall(), "xml/report.md.xsl").toString());
+			response = generateReportWithXsl(report.toString(), "report.md.xsl");
 		} else if (ScanReportType.JSON == reportType) {
 			msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8"));
 			response = ReportGenerator.stringToJson(report.toString());
 		} else {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
-			response = ReportGenerator.stringToHtml(
-					report.toString(),
-					Paths.get(Constant.getZapInstall(), "xml/report.html.xsl").toString());
+			response = generateReportWithXsl(report.toString(), "report.html.xsl");
 		}
 
 		msg.setResponseBody(response);
 		msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
+	}
+
+	private static String generateReportWithXsl(String report, String xslFileName) throws IOException {
+		Path xslFile = Paths.get(Constant.getZapInstall(), "xml", xslFileName);
+		if (Files.exists(xslFile)) {
+			return ReportGenerator.stringToHtml(report, xslFile.toString());
+		}
+
+		String path = "/org/zaproxy/zap/resources/xml/" + xslFileName;
+		try (InputStream is = ReportLastScan.class.getResourceAsStream(path)) {
+			if (is == null) {
+				logger.error("Bundled file not found: " + path);
+				return "";
+			}
+			return ReportGenerator.stringToHtml(report, new StreamSource(is));
+		}
 	}
 
 	@Override
