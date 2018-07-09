@@ -74,6 +74,7 @@
 // ZAP: 2017/10/11 Make contextsChangedListeners static.
 // ZAP: 2018/01/25 Do not save session file if not file based.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 
 package org.parosproxy.paros.model;
 
@@ -563,7 +564,7 @@ public class Session {
 		
     	if (! Constant.isLowMemoryOptionSet()) {
 			synchronized (siteTree) {
-			    saveSiteTree((SiteNode) siteTree.getRoot());
+			    saveSiteTree(siteTree.getRoot());
 			}
     	}
 		
@@ -741,14 +742,14 @@ public class Session {
     	}
 
         if (EventQueue.isDispatchThread()) {
-        	refreshScope((SiteNode) siteTree.getRoot());
+        	refreshScope(siteTree.getRoot());
         	Control.getSingleton().sessionScopeChanged();
         } else {
             try {
                 EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                    	refreshScope((SiteNode) siteTree.getRoot());
+                    	refreshScope(siteTree.getRoot());
                     	Control.getSingleton().sessionScopeChanged();
                     }
                 });
@@ -848,7 +849,7 @@ public class Session {
 	 */
 	public List<SiteNode> getNodesInScopeFromSiteTree() {
 		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
+		SiteNode rootNode = getSiteTree().getRoot();
 		fillNodesInScope(rootNode, nodes);
 		return nodes;
 	}
@@ -863,7 +864,7 @@ public class Session {
 	 */
 	public List<SiteNode> getTopNodesInScopeFromSiteTree() {
 		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
+		SiteNode rootNode = getSiteTree().getRoot();
 		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
@@ -917,7 +918,7 @@ public class Session {
 	 */
 	public List<SiteNode> getNodesInContextFromSiteTree(Context context) {
 		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
+		SiteNode rootNode = getSiteTree().getRoot();
 		fillNodesInContext(rootNode, nodes, context);
 		return nodes;
 	}

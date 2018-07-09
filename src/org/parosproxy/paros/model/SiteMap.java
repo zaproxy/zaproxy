@@ -57,6 +57,7 @@
 // ZAP: 2017/12/26 Remove redundant request header null checks.
 // ZAP: 2018/02/07 Set the HistoryReference into the temp node before adding it to the tree (Issue 4356).
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/07/09 Override getRoot method
 
 package org.parosproxy.paros.model;
 
@@ -129,7 +130,7 @@ public class SiteMap extends SortedTreeModel {
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
-        SiteNode parent = (SiteNode) getRoot();
+        SiteNode parent = getRoot();
         String folder;
         
         try {
@@ -193,7 +194,7 @@ public class SiteMap extends SortedTreeModel {
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
-        SiteNode parent = (SiteNode) getRoot();
+        SiteNode parent = getRoot();
         String folder = "";
         
         try {
@@ -256,7 +257,7 @@ public class SiteMap extends SortedTreeModel {
         	String host = getHostName(uri);
             
             // no host yet
-            resultNode = findChild((SiteNode) getRoot(), host);
+            resultNode = findChild(getRoot(), host);
             if (resultNode == null) {
                 return null;
         	}
@@ -302,7 +303,7 @@ public class SiteMap extends SortedTreeModel {
     		return null;
     	}
         SiteNode lastParent = null;
-        SiteNode parent = (SiteNode) getRoot();
+        SiteNode parent = getRoot();
         String folder = "";
         
         try {
@@ -396,7 +397,7 @@ public class SiteMap extends SortedTreeModel {
         URI uri = msg.getRequestHeader().getURI();
         log.debug("addPath " + uri.toString());
         
-        SiteNode parent = (SiteNode) getRoot();
+        SiteNode parent = getRoot();
         SiteNode leaf = null;
         String folder = "";
         boolean isNew = false;
@@ -729,7 +730,7 @@ public class SiteMap extends SortedTreeModel {
 	 */
 	public void setFilter (SiteTreeFilter filter) {
 		this.filter = filter;
-		SiteNode root = (SiteNode) getRoot();
+		SiteNode root = getRoot();
 		setFilter(filter, root);
 		// Never filter the root node
 		root.setFiltered(false);
@@ -752,7 +753,7 @@ public class SiteMap extends SortedTreeModel {
 	 */
 	public void clearFilter () {
 		this.filter = null;
-		clearFilter((SiteNode) getRoot());
+		clearFilter(getRoot());
 	}
 	
 	private void clearFilter (SiteNode node) {
@@ -833,6 +834,11 @@ public class SiteMap extends SortedTreeModel {
 	 */
 	private static void publishEvent(String event, SiteNode node) {
 		ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), new Event(SiteMapEventPublisher.getPublisher(), event, new Target(node)));
+	}
+
+	@Override
+	public SiteNode getRoot() {
+		return (SiteNode)this.root;
 	}
 }
 

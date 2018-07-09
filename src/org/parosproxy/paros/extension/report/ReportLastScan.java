@@ -33,6 +33,7 @@
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2018/07/04 Don't open the report if it was not generated.
 // ZAP: 2018/07/04 Fallback to bundled XSL files.
+// ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 
 package org.parosproxy.paros.extension.report;
 
@@ -129,7 +130,7 @@ public class ReportLastScan {
 
     private void siteXML(StringBuilder report) {
         SiteMap siteMap = Model.getSingleton().getSession().getSiteTree();
-        SiteNode root = (SiteNode) siteMap.getRoot();
+        SiteNode root = siteMap.getRoot();
         int siteNumber = root.getChildCount();
         for (int i = 0; i < siteNumber; i++) {
             SiteNode site = (SiteNode) root.getChildAt(i);

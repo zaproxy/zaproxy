@@ -623,7 +623,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	
 	protected SiteNode getSiteNode (String siteName) {
 		SiteMap siteTree = this.getExtension().getModel().getSession().getSiteTree();
-		SiteNode rootNode = (SiteNode) siteTree.getRoot();
+		SiteNode rootNode = siteTree.getRoot();
 		
 		@SuppressWarnings("unchecked")
 		Enumeration<TreeNode> en = rootNode.children();
