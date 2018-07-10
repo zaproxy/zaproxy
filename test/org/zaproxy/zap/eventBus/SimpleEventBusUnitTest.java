@@ -188,6 +188,32 @@ public class SimpleEventBusUnitTest {
         assertThat(consumer1.getEvents(), contains(event));
         assertThat(consumer2.getEvents(), contains(event));
     }
+
+    @Test
+    public void consumerShouldBeAbleToRemoveItselfDuringEventConsumption() {
+        // Given
+        TestEventPublisher publisher = new TestEventPublisher("publisher");
+        TestEventConsumer consumer1 = new TestEventConsumer() {
+
+            @Override
+            public void eventReceived(Event event) {
+                super.eventReceived(event);
+                seb.unregisterConsumer(this);
+            }
+        };
+        TestEventConsumer consumer2 = new TestEventConsumer();
+        seb.registerPublisher(publisher, new String[] { "event" });
+        seb.registerConsumer(consumer1, "publisher");
+        seb.registerConsumer(consumer2, "publisher");
+        Event event1 = new Event(publisher, "event", null);
+        Event event2 = new Event(publisher, "event", null);
+        // When
+        seb.publishSyncEvent(publisher, event1);
+        seb.publishSyncEvent(publisher, event2);
+        // Then
+        assertThat(consumer1.getEvents(), contains(event1));
+        assertThat(consumer2.getEvents(), contains(event1, event2));
+    }
     
     private class TestEventConsumer implements EventConsumer {
         
