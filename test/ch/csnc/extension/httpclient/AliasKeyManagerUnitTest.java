@@ -5,10 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.Socket;
 import java.security.*;
@@ -25,8 +22,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author bjoern.kimminich@gmx.de
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(KeyStore.class)
+@RunWith(MockitoJUnitRunner.class)
 public class AliasKeyManagerUnitTest {
 
 	private static final String ALIAS = "alias";
@@ -42,9 +38,8 @@ public class AliasKeyManagerUnitTest {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		keyStore = PowerMockito.mock(KeyStore.class);
-		Whitebox.setInternalState(keyStore, "initialized", true);
-		Whitebox.setInternalState(keyStore, "keyStoreSpi", keyStoreSpi);
+		keyStore = new KeyStore(keyStoreSpi, null, null) {};
+		keyStore.load(null);
 	}
 
 	@Test

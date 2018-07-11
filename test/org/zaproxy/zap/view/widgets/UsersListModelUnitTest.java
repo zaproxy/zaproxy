@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +39,8 @@ import javax.swing.event.ListDataListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.parosproxy.paros.Constant;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.I18N;
@@ -52,22 +49,15 @@ import org.zaproxy.zap.view.ListModelTestUtils;
 /**
  * Unit test for {@code UsersListModel}.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Constant.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UsersListModelUnitTest extends ListModelTestUtils {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        mockConstantClass();
-    }
-
-    private void mockConstantClass() {
-        Constant constant = PowerMockito.mock(Constant.class);
-        I18N i18n = PowerMockito.mock(I18N.class);
+        I18N i18n = mock(I18N.class);
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), anyObject())).willReturn("");
-        Whitebox.setInternalState(constant, "messages", i18n);
+        Constant.messages = i18n;
     }
 
     @Test(expected = NullPointerException.class)

@@ -43,20 +43,15 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.zaproxy.zap.utils.I18N;
 
 /**
  * Unit test for {@link CommandLine}.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Constant.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CommandLineUnitTest {
 
     @Rule
@@ -66,24 +61,15 @@ public class CommandLineUnitTest {
     private static final Map<String, CommandLineListener> NO_SUPPORTED_FILE_EXTENSIONS = Collections.emptyMap();
 
     @Mock
-    private Constant constant;
-    @Mock
     private I18N i18n;
 
     private CommandLine cmdLine;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        mockConstantClass();
-    }
-
-    private void mockConstantClass() {
-        constant = PowerMockito.mock(Constant.class);
-        i18n = PowerMockito.mock(I18N.class);
-        Whitebox.setInternalState(constant, "messages", i18n);
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), anyObject())).willReturn("");
+        Constant.messages = i18n;
     }
 
     @Test

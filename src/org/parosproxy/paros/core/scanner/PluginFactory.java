@@ -97,17 +97,24 @@ public class PluginFactory {
     
     private static synchronized void initPlugins() {
     	if (loadedPlugins == null) {
-	    	loadedPlugins = new ArrayList<>(CoreFunctionality.getBuiltInActiveScanRules());
-	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
-	        //sort by the criteria below.
-	        Collections.sort(loadedPlugins, riskComparator);
-
-            mapLoadedPlugins = new HashMap<>();
-            for (Plugin plugin : loadedPlugins) {
-                checkPluginId(plugin);
-                mapLoadedPlugins.put(plugin.getId(), plugin);
-            }
+    	    init(true);
     	}
+    }
+
+    // Helper method to ease tests.
+    static void init(boolean includeAddOns) {
+        loadedPlugins = new ArrayList<>(CoreFunctionality.getBuiltInActiveScanRules());
+        if (includeAddOns) {
+            loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
+        }
+        //sort by the criteria below.
+        Collections.sort(loadedPlugins, riskComparator);
+
+        mapLoadedPlugins = new HashMap<>();
+        for (Plugin plugin : loadedPlugins) {
+            checkPluginId(plugin);
+            mapLoadedPlugins.put(plugin.getId(), plugin);
+        }
     }
 
     private static void checkPluginId(Plugin plugin) {
