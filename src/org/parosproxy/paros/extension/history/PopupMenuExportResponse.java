@@ -46,6 +46,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class PopupMenuExportResponse extends JMenuItem {
 
 	private static final long serialVersionUID = 1L;
+	private static final String NEWLINE = System.lineSeparator();
 
 	// ZAP: Added logger
     private static Logger log = Logger.getLogger(PopupMenuExportResponse.class);
@@ -65,26 +66,8 @@ public class PopupMenuExportResponse extends JMenuItem {
                     extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.select.warning"));        	        	// ZAP: i18n
                     return;
         	    }
-
-                if (hrefs.size() > 1) {
-                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.single.warning"));	// ZAP: i18n
-                    return;
-                }
-
-                HttpMessage msg = null;
-                try {
-                    msg = hrefs.get(0).getHttpMessage();
-                } catch (Exception e1) {
-                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.read.warning"));	// ZAP: i18n
-                    return;
-                }
-                
-                if (msg.getResponseHeader().isEmpty() || msg.getResponseBody().length() == 0) {
-                    extension.getView().showWarningDialog(Constant.messages.getString("history.export.response.body.warning"));	// ZAP: i18n
-                    return;                    
-                }
                     
-        	    File file = getOutputFile(msg);
+        	    File file = getOutputFile();
         	    if (file == null) {
         	        return;
         	    }
@@ -102,7 +85,11 @@ public class PopupMenuExportResponse extends JMenuItem {
         	    BufferedOutputStream bos = null;
                 try {
                     bos = new BufferedOutputStream(new FileOutputStream(file, isAppend));
-           	        exportHistory(msg, bos);
+                    for (HistoryReference href : hrefs) {
+                        HttpMessage msg = null;
+                        msg = href.getHttpMessage();
+                        exportHistory(msg, bos);
+                    }
 
                 } catch (Exception e1) {
                     extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath() + ".");
@@ -130,6 +117,8 @@ public class PopupMenuExportResponse extends JMenuItem {
 
         try {
             if (!msg.getResponseHeader().isEmpty()) {
+                String boundary = NEWLINE + "==== " + msg.getHistoryRef().getHistoryId() + " ==========" + NEWLINE;
+                bos.write(boundary.getBytes());
 
                 bos.write(msg.getResponseBody().getBytes());
             }
@@ -141,15 +130,10 @@ public class PopupMenuExportResponse extends JMenuItem {
         
     }
     
-    private File getOutputFile(HttpMessage msg) {
+    private File getOutputFile() {
 
-        String filename = "";
-        try {
-            filename = msg.getRequestHeader().getURI().getPath();
-            int pos = filename.lastIndexOf("/");
-            filename = filename.substring(pos);
-        } catch (Exception e) {
-        }
+        String filename = "untitled.txt";
+
         JFileChooser chooser = new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
         if (filename.length() > 0) {
             chooser.setSelectedFile(new File(filename));            
