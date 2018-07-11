@@ -469,7 +469,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         return new User(1, name);
     }
 
-    private User createEnabledUser() {
+    private static User createEnabledUser() {
         User user = createUser();
         user.setEnabled(true);
         return user;

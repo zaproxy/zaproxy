@@ -94,7 +94,6 @@ public class UserUnitTest {
 		assertEquals(user.getContextId(), result.getContextId());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldGenerateUniqueIds() {
 		// Given
