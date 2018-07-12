@@ -527,7 +527,6 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldIgnoreAppendOfNullByteArray() {
         // Given
-        byte[] chunk = { 1, 2, 3, 4, 5 };
         HttpBody httpBody = new HttpBodyImpl();
         // When
         httpBody.append(null, 5);

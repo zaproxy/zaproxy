@@ -46,7 +46,7 @@ public class ExtensionAlertUnitTest {
         extAlert = new ExtensionAlert();
     }
     
-    private Alert newAlert (int pluginId) {
+    private static Alert newAlert (int pluginId) {
         Alert alert = new Alert(pluginId);
         alert.setName(ORIGINAL_NAME);
         alert.setDescription(ORIGINAL_DESC);

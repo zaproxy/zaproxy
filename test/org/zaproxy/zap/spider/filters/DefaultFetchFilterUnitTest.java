@@ -249,7 +249,7 @@ public class DefaultFetchFilterUnitTest {
         }
     }
 
-    private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope(String... domains) {
+    private static List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope(String... domains) {
         if (domains == null || domains.length == 0) {
             return Collections.emptyList();
         }
@@ -261,7 +261,7 @@ public class DefaultFetchFilterUnitTest {
         return domainsAlwaysInScope;
     }
 
-    private List<String> excludeRegexes(String... regexes) {
+    private static List<String> excludeRegexes(String... regexes) {
         if (regexes == null || regexes.length == 0) {
             return Collections.emptyList();
         }

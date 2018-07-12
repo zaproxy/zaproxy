@@ -108,7 +108,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
         // When
-        User user = usersListModel.getElementAt(2);
+        usersListModel.getElementAt(2);
         // Then = ArrayIndexOutOfBoundsException
     }
 
@@ -654,7 +654,6 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
-        User user = createUser();
         // When
         tableModel.clear();
         // Then
@@ -694,7 +693,6 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         UsersListModel usersListModel = new UsersListModel(tableModel);
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
-        User user = createUser();
         // When
         tableModel.clear();
         // Then
@@ -714,7 +712,6 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
-        User user = createUser();
         // When
         tableModel.removeElement(1);
         // Then
@@ -753,7 +750,6 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
-        User user = createUser();
         // When
         tableModel.removeElement(0);
         // Then
@@ -771,7 +767,6 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         UsersListModel usersListModel = new UsersListModel(tableModel);
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
-        User user = createUser();
         // When
         tableModel.removeElement(0);
         // Then

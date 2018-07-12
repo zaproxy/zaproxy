@@ -986,12 +986,11 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Given
         TestValueGenerator valueGenerator = new TestValueGenerator();
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
-        TestSpiderParserListener listener = createTestSpiderParserListener();
         HttpMessage msg = createMessageWith("FormsForValueGenerator.html");
         Source source = createSource(msg);
         int fieldIndex = 0;
         // When
-        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(valueGenerator.getFields(), hasSize(9));
         assertThat(
@@ -1218,11 +1217,11 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         return new SimpleDateFormat(format).format(date);
     }
 
-    private SpiderHtmlFormParser createSpiderHtmlFormParser() {
+    private static SpiderHtmlFormParser createSpiderHtmlFormParser() {
         return createSpiderHtmlFormParser(new DefaultValueGenerator());
     }
 
-    private SpiderHtmlFormParser createSpiderHtmlFormParser(ValueGenerator valueGenerator) {
+    private static SpiderHtmlFormParser createSpiderHtmlFormParser(ValueGenerator valueGenerator) {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(true);
