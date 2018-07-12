@@ -231,9 +231,24 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 			x = this.addToolBarElements(panelToolbar, Location.afterProgressBar, x);
 			
 			panelToolbar.add(new JLabel(), getGBC(x++,0, 1.0, new Insets(0,0,0,0)));	// Spacer
-			panelToolbar.add(getOptionsButton(), getGBC(x++,0));
+			if (hasOptionsButton()) {
+				panelToolbar.add(getOptionsButton(), getGBC(x++,0));
+			}
 		}
 		return panelToolbar;
+	}
+
+	/**
+	 * Tells whether or not the tool bar should have a button to open the Options dialogue.
+	 * <p>
+	 * Returns {@code true} by default.
+	 * 
+	 * @return {@code true} if the panel's tool bar should have an options button, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #addToolBarElements(JToolBar, Location, int)
+	 */
+	protected boolean hasOptionsButton() {
+		return true;
 	}
 
 	/**
@@ -250,7 +265,10 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	 * <p>
 	 * The method must return the new coordinates of the current cell, after the elements have been
 	 * added.
-	 * </p>
+	 * <p>
+	 * <strong>Note:</strong> A button is added at the end of the tool bar to show the Options dialogue, unless
+	 * {@link #hasOptionsButton()} returns {@code false}. The name of the options panel to show is obtained from the resource
+	 * message with the key {@code prefix + ".options.title"}.
 	 * 
 	 * @param toolBar the tool bar
 	 * @param location the current location where elements will be added
