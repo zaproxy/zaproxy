@@ -35,14 +35,17 @@
 // ZAP: 2017/12/13 Do not allow to edit the name/key of active cert.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/03/29 Use FileNameExtensionFilter.
+// ZAP: 2018/07/12 Fallback to bundled drivers.xml file.
 
 package org.parosproxy.paros.extension.option;
 
 //TODO: Buttons should be gray
 import java.awt.CardLayout;
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStoreException;
 import java.security.ProviderException;
 import java.security.cert.Certificate;
@@ -150,7 +153,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 		JPanel certificatePanel = getPanelCertificate();
 		this.add(certificatePanel, certificatePanel.getName());
 
-		driverConfig = new DriverConfiguration(new File(Constant.getZapInstall(), "xml/drivers.xml"));
+		driverConfig = createDriverConfiguration();
 		updateDriverComboBox();
 		driverConfig.addChangeListener(e -> updateDriverComboBox());
 
@@ -161,6 +164,14 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 
 	}
 
+	private static DriverConfiguration createDriverConfiguration() {
+		String fileName = "drivers.xml";
+		Path path = Paths.get(Constant.getZapInstall(), "xml", fileName);
+		if (Files.exists(path)) {
+			return new DriverConfiguration(path.toFile());
+		}
+		return new DriverConfiguration(OptionsCertificatePanel.class.getResource("/org/zaproxy/zap/resources/" + fileName));
+	}
 
 	private void updateDriverComboBox() {
 		driverComboBox.removeAllItems();

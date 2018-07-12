@@ -157,6 +157,7 @@
 			<fileset dir="${src}/lang" includes="Messages.properties,vulnerabilities.xml" />
 			<fileset dir="${src}/license" includes="ApacheLicense-2.0.txt" />
 			<fileset dir="${src}" includes="xml/report*.xsl" />
+			<fileset dir="${src}/xml" includes="drivers.xml" />
 		</copy>
 
 		<copy todir="${dist}/license">
