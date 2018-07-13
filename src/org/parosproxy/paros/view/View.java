@@ -77,6 +77,7 @@
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 // ZAP: 2018/01/08 Expand first context added.
 // ZAP: 2018/03/30 Check if resource message exists (for changes in I18N).
+// ZAP: 2018/07/13 Added canGetFocus option
 
 package org.parosproxy.paros.view;
 
@@ -218,6 +219,11 @@ public class View implements ViewDelegate {
      * Lazily initialised in {@link #getDefaultDeleteKeyStroke()}.
      */
     private KeyStroke defaultDeleteKeyStroke;
+    
+    /**
+     * If true then the UI can request focus from other applications, if false then it should not
+     */
+    private boolean canGetFocus = true;
 
     /**
      * @return Returns the mainFrame.
@@ -1041,5 +1047,23 @@ public class View implements ViewDelegate {
         } else {
             getResponsePanel().setMessage(httpMessage, true);
         }
+    }
+
+    /**
+     * If true then the UI can request focus from other applications, if false then it should not
+     * @return true if the UI can request focus from other applications
+     * @since TODO add version
+     */
+    public boolean isCanGetFocus() {
+        return canGetFocus;
+    }
+
+    /**
+     * Set whether the UI can request focus from other applications
+     * @param canGetFocus if true then the UI can request focus from other applications, otherwise it should not
+     * @since TODO add version
+     */
+    public void setCanGetFocus(boolean canGetFocus) {
+        this.canGetFocus = canGetFocus;
     }
 }

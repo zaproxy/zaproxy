@@ -147,7 +147,8 @@ public class AttackModeScanner implements EventConsumer {
     
     public void sessionModeChanged(Mode mode) {
         if (mode.equals(Mode.attack)) {
-        	if (View.isInitialised() && extension.getScannerParam().isPromptInAttackMode()) {
+        	if (View.isInitialised() && View.getSingleton().isCanGetFocus() &&
+        			extension.getScannerParam().isPromptInAttackMode()) {
         		SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
