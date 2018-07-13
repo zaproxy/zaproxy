@@ -34,6 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -50,6 +51,7 @@ import org.jdom.output.XMLOutputter;
 
 public class DriverConfiguration {
 	private File file = null;
+	private URL url;
 
 	private Vector<String> names;
 	private Vector<String> paths;
@@ -61,15 +63,25 @@ public class DriverConfiguration {
 	private EventListenerList eventListeners = new EventListenerList();
 	private ChangeEvent changeEvent;
 
+	public DriverConfiguration(URL url) {
+		this.url = url;
+		load();
+	}
+
 	public DriverConfiguration(File file) {
 		this.file = file;
+		load();
+	}
+
+	private void load() {
 		names = new Vector<String>();
 		paths = new Vector<String>();
 		slots = new Vector<Integer>();
 		slotListIndexes = new Vector<Integer>();
 
 		try {
-			final Document doc = new SAXBuilder().build(file);
+			SAXBuilder builder = new SAXBuilder();
+			final Document doc = file != null ? builder.build(file) : builder.build(url);
 			final Element root = doc.getRootElement();
 			for (final Object o : root.getChildren("driver")) {
 				final Element nameElement = ((Element) o).getChild("name");
@@ -123,6 +135,11 @@ public class DriverConfiguration {
 	}
 
 	public void write() {
+		if (file == null) {
+			fireStateChanged();
+			return;
+		}
+
 		final Document doc = new Document();
 		final Element root = new Element("driverConfiguration");
 		doc.addContent(root);
@@ -149,11 +166,9 @@ public class DriverConfiguration {
 			slotListIndex.addContent(slotListIndexes.get(i).toString());
 		}
 
-		try {
-			final OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(file));
+		try (OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
 			final XMLOutputter out = new XMLOutputter();
 			out.output(doc, fileOutputStream);
-			fileOutputStream.close();
 		} catch (final FileNotFoundException e) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					"Error accessing key store: ", e.toString() }, "Error",
