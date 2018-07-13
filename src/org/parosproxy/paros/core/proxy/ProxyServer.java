@@ -187,7 +187,7 @@ public class ProxyServer implements Runnable {
                     return -1;
                 } else if (message.startsWith("Permission denied") || message.startsWith("Address already in use")) {
                     if (!isDynamicPort) {
-                        showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + ip + ":" + port);
+                        showErrorMessage(Constant.messages.getString("proxy.error.port", ip, Integer.toString(port)));
                         return -1;
                     } else if (port < 65535) {
                         port++;
