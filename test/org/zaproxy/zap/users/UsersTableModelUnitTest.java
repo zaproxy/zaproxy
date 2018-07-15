@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +40,8 @@ import javax.swing.event.TableModelListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.parosproxy.paros.Constant;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.view.TableModelTestUtils;
@@ -52,22 +49,15 @@ import org.zaproxy.zap.view.TableModelTestUtils;
 /**
  * Unit test for {@code UsersTableModel}.
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Constant.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UsersTableModelUnitTest extends TableModelTestUtils {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        mockConstantClass();
-    }
-
-    private void mockConstantClass() {
-        Constant constant = PowerMockito.mock(Constant.class);
-        I18N i18n = PowerMockito.mock(I18N.class);
+        I18N i18n = mock(I18N.class);
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), anyObject())).willReturn("");
-        Whitebox.setInternalState(constant, "messages", i18n);
+        Constant.messages = i18n;
     }
 
     @Test(expected = NullPointerException.class)
@@ -479,7 +469,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         return new User(1, name);
     }
 
-    private User createEnabledUser() {
+    private static User createEnabledUser() {
         User user = createUser();
         user.setEnabled(true);
         return user;

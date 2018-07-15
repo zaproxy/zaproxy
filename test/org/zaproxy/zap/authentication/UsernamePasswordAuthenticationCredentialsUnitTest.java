@@ -74,7 +74,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
         // Given
         UsernamePasswordAuthenticationCredentials credentials = new UsernamePasswordAuthenticationCredentials(username, null);
         // When
-        boolean isConfigured = notConfiguredInstance.isConfigured();
+        boolean isConfigured = credentials.isConfigured();
         // Then
         assertThat(isConfigured, is(false));
     }

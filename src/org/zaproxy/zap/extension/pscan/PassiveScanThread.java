@@ -233,6 +233,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 	
 	protected int getRecordsToScan() {
+		if (historyTable == null) {
+			return 0;
+		}
 		return this.getLastHistoryId() - getLastScannedId();
 	}
 

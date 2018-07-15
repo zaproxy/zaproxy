@@ -33,8 +33,6 @@ import org.zaproxy.zap.Version;
  */
 public class VersionUnitTest {
 
-    private static final String VALID_VERSION = "1.0.0";
-
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionIfVersionIsNull() {
         // Given

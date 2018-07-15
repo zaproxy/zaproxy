@@ -117,7 +117,7 @@ public class VariantJSONQueryUnitTest {
         assertThat(parameters.get(0).getValue(), is("bar\""));
     }
 
-    private HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
+    private static HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
         return new HttpMessage(
                 new HttpRequestHeader("POST / HTTP/1.1\nHost: www.example.com\nContent-Type: application/json"),
                 new HttpRequestBody(body));

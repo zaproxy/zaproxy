@@ -448,7 +448,7 @@ public class APIUnitTest {
         }
     }
 
-    private List<DomainMatcher> createPermittedAddresses(String... addresses) {
+    private static List<DomainMatcher> createPermittedAddresses(String... addresses) {
         if (addresses == null || addresses.length == 0) {
             return new ArrayList<>();
         }

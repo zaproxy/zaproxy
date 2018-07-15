@@ -67,6 +67,11 @@ public class StructuralSiteNode implements StructuralNode {
 	public String getName() {
 		return this.getHistoryReference().getURI().toString();
 	}
+	
+	@Override
+	public String getMethod() {
+		return this.getHistoryReference().getMethod();
+	}
 
 	@Override
 	public boolean isRoot() {

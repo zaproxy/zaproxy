@@ -119,11 +119,11 @@ public class ApiResponseConversionUtilsUnitTest {
 		assertThat(response.getValues(), hasEntry("responseBody", responseBody.toString()));
 	}
 	
-	private byte[] gzip(byte[] raw) throws Exception {
+	private static byte[] gzip(byte[] raw) throws Exception {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream(raw.length);
-		GZIPOutputStream zip = new GZIPOutputStream(bytes);
-		zip.write(raw);
-		zip.close();
+		try (GZIPOutputStream zip = new GZIPOutputStream(bytes)) {
+			zip.write(raw);
+		}
 		return bytes.toByteArray();
 		
 	}

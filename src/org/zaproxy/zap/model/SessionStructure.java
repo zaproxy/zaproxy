@@ -279,10 +279,10 @@ public class SessionStructure {
 		RecordStructure msgRs = Model.getSingleton().getDb().getTableStructure().find(session.getSessionId(), nodeName, method);
 		if (msgRs == null) {
 			long parentId = -1;
-			if (!nodeName.equals("Root")) {
+			if (!nodeName.equals(ROOT)) {
 				HttpMessage tmpMsg = null;
 				int parentHistoryId = -1;
-				if (!parentName.equals("Root")) {
+				if (!parentName.equals(ROOT)) {
 					tmpMsg = getTempHttpMessage(session, parentName, msg);
 					parentHistoryId = tmpMsg.getHistoryRef().getHistoryId();
 				}
@@ -360,6 +360,25 @@ public class SessionStructure {
 		}
 		
 		return host.toString();
+	}
+	
+	public static StructuralNode getRootNode() {
+		Model model = Model.getSingleton();
+		if (!Constant.isLowMemoryOptionSet()) {
+			return new StructuralSiteNode(model.getSession().getSiteTree().getRoot());
+		}
+
+		Session session = Model.getSingleton().getSession();
+		RecordStructure rs;
+		try {
+			rs = model.getDb().getTableStructure().find(session.getSessionId(), ROOT, HttpRequestHeader.GET);
+			if (rs != null) {
+				return new StructuralTableNode(rs);
+			}
+		} catch (DatabaseException e) {
+			log.error(e.getMessage(), e);
+		}
+		return null;
 	}
 
 	private static String getParams(Session session, HttpMessage msg) throws URIException {

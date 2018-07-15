@@ -41,7 +41,6 @@
 	<classpathentry kind="lib" path="testlib/junit-dep-4.11.jar"/>
 	<classpathentry kind="lib" path="testlib/mockito-all-1.10.8.jar"/>
 	<classpathentry kind="lib" path="testlib/objenesis-1.2.jar"/>
-	<classpathentry kind="lib" path="testlib/powermock-mockito-release-full-1.5.6-full.jar"/>
 	<classpathentry kind="lib" path="testlib/simple-5.0.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.8.11.1.jar"/>

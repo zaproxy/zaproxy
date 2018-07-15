@@ -252,6 +252,9 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 	
 	@Override
 	public void breakpointDisplayed () {
+		if (! View.getSingleton().isCanGetFocus()) {
+			return;
+		}
 		final Boolean alwaysOnTopOption = breakpointsParams.getAlwaysOnTop();
 		if (alwaysOnTopOption == null || alwaysOnTopOption) {
 		

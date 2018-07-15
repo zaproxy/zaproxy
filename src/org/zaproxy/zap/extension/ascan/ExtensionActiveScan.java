@@ -216,7 +216,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
     public void startScanAllInScope() {
-        SiteNode snroot = (SiteNode) Model.getSingleton().getSession().getSiteTree().getRoot();
+        SiteNode snroot = Model.getSingleton().getSession().getSiteTree().getRoot();
     	this.startScan(new Target(snroot, null, true, true));
     }
 

@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.api;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,10 +43,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.tree.TreeNode;
-
-import net.sf.json.JSON;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -81,7 +80,9 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.SessionUtils;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
@@ -90,6 +91,9 @@ import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarLog;
+import net.sf.json.JSON;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -146,6 +150,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_HOSTS = "hosts";
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
+    private static final String VIEW_CHILD_NODES = "childNodes";
 	private static final String VIEW_MESSAGE = "message";
 	private static final String VIEW_MESSAGES = "messages";
     private static final String VIEW_MESSAGES_BY_ID = "messagesById";
@@ -288,6 +293,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS, null, new String[] { PARAM_BASE_URL }));
+        this.addApiView(new ApiView(VIEW_CHILD_NODES, null, new String[] {PARAM_URL}));
 		this.addApiView(new ApiView(VIEW_MESSAGE, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
@@ -600,7 +606,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                     logger.error(e.getMessage(), e);
                 }
 
-                SiteNode rootNode = (SiteNode) Model.getSingleton().getSession().getSiteTree().getRoot();
+                SiteNode rootNode = Model.getSingleton().getSession().getSiteTree().getRoot();
                 rootNode.deleteAllAlerts();
 
                 removeHistoryReferenceAlerts(rootNode);
@@ -940,7 +946,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		if (VIEW_HOSTS.equals(name)) {
 			result = new ApiResponseList(name);
-			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+			SiteNode root = session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
 			Enumeration<TreeNode> en = root.children();
 			while (en.hasMoreElements()) {
@@ -955,7 +961,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 		} else if (VIEW_SITES.equals(name)) {
 			result = new ApiResponseList(name);
-			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+			SiteNode root = session.getSiteTree().getRoot();
 			@SuppressWarnings("unchecked")
 			Enumeration<TreeNode> en = root.children();
 			while (en.hasMoreElements()) {
@@ -963,8 +969,32 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 		} else if (VIEW_URLS.equals(name)) {
 			result = new ApiResponseList(name);
-			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
+			SiteNode root = session.getSiteTree().getRoot();
 			addUrlsToList(getParam(params, PARAM_BASE_URL, ""), root, new HashSet<String>(), (ApiResponseList)result);
+        } else if (VIEW_CHILD_NODES.equals(name)) {
+            StructuralNode node;
+            String url = this.getParam(params, PARAM_URL, "");
+            
+            if (url.trim().length() == 0) {
+                node = SessionStructure.getRootNode();
+            } else {
+                try {
+                    node = SessionStructure.find(session.getSessionId(), new URI(url, false), null, null);
+                } catch (URIException e) {
+                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
+                } catch (DatabaseException e) {
+                    throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+                }
+            }
+            if (node == null) {
+                throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_URL);
+            }
+            result = new ApiResponseList(name);
+            
+            Iterator<StructuralNode> iter = node.getChildIterator();
+            while (iter.hasNext()) {
+                ((ApiResponseList)result).addItem(structuralNodeToResponse(iter.next()));
+            }
 		} else if (VIEW_ALERT.equals(name)){
 			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
 			RecordAlert recordAlert;
@@ -1157,6 +1187,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, Integer.toString(id));
 		}
 		return recordHistory;
+	}
+	
+	private ApiResponseSet<Object> structuralNodeToResponse(StructuralNode node) {
+        Map<String, Object> nodeData = new HashMap<>();
+        nodeData.put("name", node.getName());
+        nodeData.put("method", node.getMethod());
+        nodeData.put("uri", node.getURI().toString());
+        nodeData.put("isLeaf", node.isLeaf());
+        nodeData.put("hrefId", node.getHistoryReference().getHistoryId());
+        return new ApiResponseSet<Object>("node", nodeData);
 	}
 
 	private ApiResponse proxyChainExcludedDomainsToApiResponseList(
@@ -1487,21 +1527,33 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			response = report.toString();
 		} else if (ScanReportType.MD == reportType) {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
-			response = ReportGenerator.stringToHtml(
-					report.toString(),
-					Paths.get(Constant.getZapInstall(), "xml/report.md.xsl").toString());
+			response = generateReportWithXsl(report.toString(), "report.md.xsl");
 		} else if (ScanReportType.JSON == reportType) {
 			msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8"));
 			response = ReportGenerator.stringToJson(report.toString());
 		} else {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
-			response = ReportGenerator.stringToHtml(
-					report.toString(),
-					Paths.get(Constant.getZapInstall(), "xml/report.html.xsl").toString());
+			response = generateReportWithXsl(report.toString(), "report.html.xsl");
 		}
 
 		msg.setResponseBody(response);
 		msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
+	}
+
+	private static String generateReportWithXsl(String report, String xslFileName) throws IOException {
+		Path xslFile = Paths.get(Constant.getZapInstall(), "xml", xslFileName);
+		if (Files.exists(xslFile)) {
+			return ReportGenerator.stringToHtml(report, xslFile.toString());
+		}
+
+		String path = "/org/zaproxy/zap/resources/xml/" + xslFileName;
+		try (InputStream is = ReportLastScan.class.getResourceAsStream(path)) {
+			if (is == null) {
+				logger.error("Bundled file not found: " + path);
+				return "";
+			}
+			return ReportGenerator.stringToHtml(report, new StreamSource(is));
+		}
 	}
 
 	@Override

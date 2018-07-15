@@ -77,7 +77,7 @@ public class SessionUtilsUnitTest {
         return tempFolder.newFile(name).toPath();
     }
 
-    private Path pathWith(String baseDir, String... paths) {
+    private static Path pathWith(String baseDir, String... paths) {
         return Paths.get(baseDir, paths);
     }
 
