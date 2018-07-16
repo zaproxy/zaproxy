@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.Socket;
@@ -37,7 +36,6 @@ public class AliasKeyManagerUnitTest {
 
 	@Before
 	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
 		keyStore = new KeyStore(keyStoreSpi, null, null) {};
 		keyStore.load(null);
 	}
