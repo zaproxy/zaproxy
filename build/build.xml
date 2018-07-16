@@ -210,7 +210,6 @@
 				<fileset dir="${dist}/lib">
 					<include name="**/*.jar" />
 				</fileset>
-				<path location="${dist}/lang/" />
 			</classpath>
 		</manifestclasspath>
 
