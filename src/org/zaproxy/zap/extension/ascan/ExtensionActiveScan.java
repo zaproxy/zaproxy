@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +35,6 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -308,7 +306,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ZapMenuItem getMenuItemPolicy() {
         if (menuItemPolicy == null) {
             menuItemPolicy = new ZapMenuItem("menu.analyse.scanPolicy",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+                    getView().getMenuShortcutKeyStroke(KeyEvent.VK_P, 0, false));
 
             menuItemPolicy.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -354,7 +352,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ZapMenuItem getMenuItemCustomScan() {
         if (menuItemCustomScan == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.ascanadv",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
+                    getView().getMenuShortcutKeyStroke(KeyEvent.VK_A, KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(e -> showCustomScanDialog((Target) null));

@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -37,7 +36,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -107,8 +105,8 @@ public class HttpSessionsPanel extends AbstractPanel {
 		this.setSize(474, 251);
 		this.setName(Constant.messages.getString("httpsessions.panel.title"));
 		this.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/session.png")));
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
+		this.setDefaultAccelerator(extension.getView().getMenuShortcutKeyStroke(
+				KeyEvent.VK_H, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("httpsessions.panel.mnemonic"));
 		this.add(getPanelCommand(), getPanelCommand().getName());
 	}

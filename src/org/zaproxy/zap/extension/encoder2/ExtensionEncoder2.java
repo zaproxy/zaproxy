@@ -20,12 +20,10 @@
 package org.zaproxy.zap.extension.encoder2;
 
 import java.awt.Frame;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -76,7 +74,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 	private ZapMenuItem getToolsMenuItemEncoder() {
 		if (toolsMenuEncoder == null) {
 			toolsMenuEncoder = new ZapMenuItem("enc2.tools.menu.encdec",
-					KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+					getView().getMenuShortcutKeyStroke(KeyEvent.VK_E, 0, false));
 
 			toolsMenuEncoder.addActionListener(new java.awt.event.ActionListener() { 
 				@Override

@@ -20,14 +20,11 @@
 package org.zaproxy.zap.extension.search;
 
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -212,7 +209,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
 	private ZapMenuItem getMenuSearch() {
         if (menuSearch == null) {
         	menuSearch = new ZapMenuItem("menu.edit.search",
-        			KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+        			getView().getMenuShortcutKeyStroke(KeyEvent.VK_H, 0, false));
 
         	menuSearch.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -227,7 +224,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
     private ZapMenuItem getMenuNext() {
         if (menuNext == null) {
         	menuNext = new ZapMenuItem("menu.edit.next", 
-        			KeyStroke.getKeyStroke(KeyEvent.VK_G, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+        			getView().getMenuShortcutKeyStroke(KeyEvent.VK_G, 0, false));
 
         	menuNext.addActionListener(new java.awt.event.ActionListener() {
                 @Override

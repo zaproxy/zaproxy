@@ -45,12 +45,12 @@
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2017/10/20 Add action/shortcut to delete history entries (Issue 3626).
 // ZAP: 2018/01/29 Make getHistoryReferenceTable protected (Issue 4000).
+// ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -61,7 +61,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -135,7 +134,7 @@ public class LogPanel extends AbstractPanel {
 	    }
 		this.add(getHistoryPanel(), java.awt.BorderLayout.CENTER);
 		
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
+		this.setDefaultAccelerator(view.getMenuShortcutKeyStroke(KeyEvent.VK_H, KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("history.panel.mnemonic"));
 		
 	}

@@ -23,7 +23,6 @@ package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,7 +34,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.lang.StringUtils;
@@ -817,7 +815,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
     private ZapMenuItem getMenuItemCustomScan() {
         if (menuItemCustomScan  == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.spider",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
+                    getView().getMenuShortcutKeyStroke(KeyEvent.VK_S, KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(e -> showSpiderDialog((Target) null));
