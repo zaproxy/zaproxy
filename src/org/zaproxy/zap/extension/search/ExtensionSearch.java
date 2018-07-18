@@ -47,8 +47,6 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
 	public enum Type {All, URL, Request, Response, Header, Custom};
 
-	private static final Logger logger = Logger.getLogger(ExtensionSearch.class);
-	
 	private SearchParam searchParam;
 	private OptionsSearchPanel optionsPanel;
 
@@ -315,7 +313,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
 					}
 				});
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				LOGGER.error(e.getMessage(), e);
 			}
 		}
 
