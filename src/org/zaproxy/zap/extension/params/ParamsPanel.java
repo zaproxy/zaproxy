@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.params;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -30,7 +29,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -81,7 +79,7 @@ public class ParamsPanel extends AbstractPanel{
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("params.panel.title"));
 		this.setIcon(new ImageIcon(ParamsPanel.class.getResource("/resource/icon/16/179.png")));	// 'form' icon
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
+		this.setDefaultAccelerator(extension.getView().getMenuShortcutKeyStroke(KeyEvent.VK_P, KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("params.panel.mnemonic"));
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}

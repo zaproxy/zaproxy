@@ -25,13 +25,13 @@
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.HeadlessException;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -46,7 +46,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -60,6 +59,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
@@ -260,7 +260,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog imp
 	public ZapMenuItem getMenuItem() {
 		if (menuItem == null) {
 			menuItem = new ZapMenuItem("menu.tools.manReq",
-					KeyStroke.getKeyStroke(KeyEvent.VK_M, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+					View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_M, 0, false));
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
