@@ -79,18 +79,21 @@
 // ZAP: 2018/04/16 Keep backup of malformed config file.
 // ZAP: 2018/06/13 Correct install dir detection from JAR.
 // ZAP: 2018/06/29 Allow to check if in dev mode.
+// ZAP: 2018/07/19 Fallback to bundled config.xml and log4j.properties.
 
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -265,6 +268,11 @@ public final class Constant {
     private static final Locale SYSTEMS_LOCALE = Locale.getDefault();
 
     /**
+     * The path to bundled (in zap.jar) config.xml file.
+     */
+    private static final String PATH_BUNDLED_CONFIG_XML = "/org/zaproxy/zap/resources/" + FILE_CONFIG_NAME;
+
+    /**
      * Name of directory that contains the (source and translated) resource files.
      * 
      * @see #MESSAGES_PREFIX
@@ -385,12 +393,42 @@ public final class Constant {
                 newConfig.save();
             }
         } else {
-            LOG.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
-            copier.copy(getPathDefaultConfigFile().toFile(),f);
+            LOG.info("Copying default configuration to " + FILE_CONFIG);
+            copyDefaultConfigFile();
         }
 
     }
-    	
+
+    private void copyDefaultConfigFile() throws IOException {
+        copyFileToHome(Paths.get(FILE_CONFIG), "xml/" + FILE_CONFIG_NAME, PATH_BUNDLED_CONFIG_XML);
+    }
+
+    private static void copyFileToHome(Path targetFile, String sourceFilePath, String fallbackResource) throws IOException {
+        Path defaultConfig = Paths.get(zapInstall, sourceFilePath);
+        if (Files.exists(defaultConfig)) {
+            Files.copy(defaultConfig, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } else {
+            try (InputStream is = Constant.class.getResourceAsStream(fallbackResource)) {
+                if (is == null) {
+                    throw new IOException("Bundled resource not found: " + fallbackResource);
+                }
+                Files.copy(is, targetFile);
+            }
+        }
+    }
+
+    private static URL getUrlDefaultConfigFile() {
+        Path path = getPathDefaultConfigFile();
+        if (Files.exists(path)) {
+            try {
+                return path.toUri().toURL();
+            } catch (MalformedURLException e) {
+                LOG.debug("Failed to convert file system path:", e);
+            }
+        }
+        return Constant.class.getResource(PATH_BUNDLED_CONFIG_XML);
+    }
+
     public void initializeFilesAndDirectories() {
 
     	FileCopier copier = new FileCopier();
@@ -439,13 +477,7 @@ public final class Constant {
                 }
             }
             
-            // Setup the logging
-            File logFile = new File(zapHome + "/log4j.properties");
-            if (!logFile.exists()) {
-            	copier.copy(new File(zapInstall, "xml/log4j.properties"),logFile);
-            }
-            System.setProperty("log4j.configuration", logFile.getAbsolutePath());
-            PropertyConfigurator.configure(logFile.getAbsolutePath());
+            setUpLogging();
             
             f = new File(FILE_CONFIG);
             if (!f.isFile()) {
@@ -607,6 +639,16 @@ public final class Constant {
 
         messages = new I18N(locale);
     }
+
+    private static void setUpLogging() throws IOException {
+        String fileName = "log4j.properties";
+        File logFile = new File(zapHome, fileName);
+        if (!logFile.exists()) {
+            copyFileToHome(logFile.toPath(), "xml/" + fileName, "/org/zaproxy/zap/resources/" + fileName);
+        }
+        System.setProperty("log4j.configuration", logFile.getAbsolutePath());
+        PropertyConfigurator.configure(logFile.getAbsolutePath());
+    }
     
     private void handleMalformedConfigFile(Exception e) throws IOException {
         logAndPrintError("Failed to load/upgrade config file:", e);
@@ -619,7 +661,7 @@ public final class Constant {
             logAndPrintError("Failed to backup file:", ioe);
         }
         logAndPrintInfo("Using default config file...");
-        new FileCopier().copy(getPathDefaultConfigFile().toFile(), new File(FILE_CONFIG));
+        copyDefaultConfigFile();
     }
 
     private static void logAndPrintError(String message, Exception e) {
@@ -648,7 +690,7 @@ public final class Constant {
     private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-        XMLConfiguration newConfig = new ZapXmlConfiguration(getPathDefaultConfigFile().toFile());
+        XMLConfiguration newConfig = new ZapXmlConfiguration(getUrlDefaultConfigFile());
         newConfig.setAutoSave(false);
 
         copyAllProperties(newConfig, config, "pscans");                
@@ -657,7 +699,7 @@ public final class Constant {
     private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-        XMLConfiguration newConfig = new ZapXmlConfiguration(getPathDefaultConfigFile().toFile());
+        XMLConfiguration newConfig = new ZapXmlConfiguration(getUrlDefaultConfigFile());
         newConfig.setAutoSave(false);
 
         copyProperty(newConfig, config, "view.editorView");
@@ -1027,7 +1069,10 @@ public final class Constant {
 
     /**
      * Returns the path to default configuration file, located in installation directory.
-     *
+     * <p>
+     * <strong>Note:</strong> The default configuration file is not guaranteed to exist, for example, when running just with ZAP
+     * JAR.
+     * 
      * @return the {@code Path} to default configuration file.
      * @since 2.4.2
      */

@@ -23,10 +23,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Locale;
 
 import org.junit.Before;
@@ -58,13 +54,7 @@ public abstract class WithConfigsTest extends TestUtils {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        File installDir = tempDir.newFolder("install");
-        Path xmlDir = Files.createDirectory(installDir.toPath().resolve("xml"));
-        Files.createFile(xmlDir.resolve("log4j.properties"));
-        Path configXmlPath = Files.createFile(xmlDir.resolve("config.xml"));
-        Files.write(configXmlPath, "<?xml version=\"1.0\" encoding=\"UTF-8\"?><config></config>".getBytes(StandardCharsets.UTF_8));
-
-        zapInstallDir = installDir.getAbsolutePath();
+        zapInstallDir = tempDir.newFolder("install").getAbsolutePath();
         zapHomeDir = tempDir.newFolder("home").getAbsolutePath();
     }
 
