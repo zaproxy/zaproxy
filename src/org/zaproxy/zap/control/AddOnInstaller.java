@@ -278,7 +278,8 @@ public final class AddOnInstaller {
             logger.debug("Starting extension " + ext.getName());
             try {
                 extensionLoader.startLifeCycle(ext);
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                // Catch Throwable to (try) prevent extensions' issues from breaking the installation process.
                 logger.error("An error occurred while installing the add-on: " + addOn.getId(), e);
             }
         }
