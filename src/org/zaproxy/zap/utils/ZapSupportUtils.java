@@ -61,6 +61,16 @@ public final class ZapSupportUtils {
 		return Constant.messages.getString("support.home.directory.label") + " " + Constant.getZapHome();
 	}
 
+	/**
+	 * Gets the installation directory (preceded with the corresponding label).
+	 *
+	 * @return the installation directory
+	 * @since TODO add version
+	 */
+	public static String getZapInstallDirectory() {
+		return Constant.messages.getString("support.install.directory.label") + " " + Constant.getZapInstall();
+	}
+
 	public static String getOperatingSystem() {
 		return Constant.messages.getString("support.operating.system.label") + " " + System.getProperty("os.name");
 	}
@@ -128,6 +138,7 @@ public final class ZapSupportUtils {
 		supportDetailsBuilder.append(getLocaleDisplay()).append(NEWLINE);
 		supportDetailsBuilder.append(getLocaleFormat()).append(NEWLINE);
 		supportDetailsBuilder.append(getZapHomeDirectory()).append(NEWLINE);
+		supportDetailsBuilder.append(getZapInstallDirectory()).append(NEWLINE);
 		supportDetailsBuilder.append(getLookAndFeel()).append(NEWLINE);
 		
 		return supportDetailsBuilder.toString();
