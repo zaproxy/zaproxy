@@ -157,7 +157,8 @@
 			<fileset dir="${src}/lang" includes="Messages.properties,vulnerabilities.xml" />
 			<fileset dir="${src}/license" includes="ApacheLicense-2.0.txt" />
 			<fileset dir="${src}" includes="xml/report*.xsl" />
-			<fileset dir="${src}/xml" includes="drivers.xml" />
+			<fileset dir="${src}/xml" includes="config.xml,drivers.xml,log4j.properties" />
+			<fileset dir="${src}/db" includes="zapdb.script" />
 		</copy>
 
 		<copy todir="${dist}/license">
