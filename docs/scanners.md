@@ -161,6 +161,8 @@ Scanners:
 50002   Fuzzer HTTP Processor scripts
 50003   Stats passive scan rule
 50004   Zest scripts (Action - Fail)
+50005   Client side Active Scan scripts
+50006   Client side Passive Scan scripts
 
 60000   Example simple passive rule
 60001   Example file passive rule
