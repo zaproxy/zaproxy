@@ -17,7 +17,7 @@ Scanners:
 6       Directory/Path traversal
 7       Remote File Inclusion
 
-41      Source Code Disclosure - Git 
+41      Source Code Disclosure - Git
 42      Source Code Disclosure - SVN
 43      Source Code Disclosure - File Inclusion
 
@@ -162,10 +162,10 @@ Scanners:
 50003   Stats passive scan rule
 50004   Zest scripts (Action - Fail)
 
-60000   Example simple passive rule 
-60001   Example file passive rule 
-60100   Example simple active rule 
-60101   Example file active rule 
+60000   Example simple passive rule
+60001   Example file passive rule
+60100   Example simple active rule
+60101   Example file active rule
 
 90001   Insecure JSF ViewState
 90011   Charset Mismatch
