@@ -26,8 +26,11 @@
 // ZAP: 2016/03/22 Allow to remove ContextPanelFactory
 // ZAP: 2016/04/14 Allow to display a message
 // ZAP: 2017/10/20 Allow to obtain default delete keyboard shortcut (Issue 3626).
+// ZAP: 2018/07/17 Allow to obtain a KeyStroke with menu shortcut key mask.
 
 package org.parosproxy.paros.extension;
+
+import java.awt.Toolkit;
 
 import javax.swing.KeyStroke;
 
@@ -113,4 +116,20 @@ public interface ViewDelegate {
      * @since 2.7.0
      */
     KeyStroke getDefaultDeleteKeyStroke();
+
+    /**
+     * Convenience method that returns a key stroke with the menu shortcut key mask already applied along with the given values.
+     * 
+     * @param keyCode the keyboard key.
+     * @param modifiers the key modifiers.
+     * @param onKeyRelease {@code true} if on key release, {@code false} otherwise.
+     * @return the KeyStroke.
+     * @since TODO add version
+     * @see KeyStroke#getKeyStroke(int, int, boolean)
+     */
+    @SuppressWarnings("deprecation")
+    default KeyStroke getMenuShortcutKeyStroke(int keyCode, int modifiers, boolean onKeyRelease) {
+        // XXX Use getMenuShortcutKeyMaskEx() (and remove warn suppression) when targeting Java 10+
+        return KeyStroke.getKeyStroke(keyCode, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | modifiers, onKeyRelease);
+    }
 }

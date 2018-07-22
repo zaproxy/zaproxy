@@ -42,6 +42,7 @@
 // ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 // ZAP: 2018/03/27 Validate that context and configurations for ContextDataFactory are not null.
+// ZAP: 2018/07/19 Fallback to bundled zapdb.script file.
 
 package org.parosproxy.paros.model;
 
@@ -49,6 +50,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -433,7 +437,13 @@ public class Model {
 
 			copier.copy(fileIn, fileOut);
 		} else {
-			throw new FileNotFoundException("Required file not found: " + fileIn.getAbsolutePath());
+			String fallbackResource = "/org/zaproxy/zap/resources/zapdb.script";
+			try (InputStream is = Model.class.getResourceAsStream(fallbackResource)) {
+				if (is == null) {
+					throw new FileNotFoundException("Bundled resource not found: " + fallbackResource);
+				}
+				Files.copy(is, Paths.get(currentDBNameUntitled + ".script"));
+			}
 		}
 
 		fileIn = new File(currentDBNameUntitled + ".backup");

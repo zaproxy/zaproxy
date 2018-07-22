@@ -28,13 +28,13 @@
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 
 package org.parosproxy.paros.view;
 
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
@@ -42,7 +42,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -84,7 +83,7 @@ public class OutputPanel extends AbstractPanel {
 	    }
         // ZAP: Added Output (doc) icon
 		this.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/16/172.png")));	// 'doc' icon
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
+		this.setDefaultAccelerator(View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_O, KeyEvent.SHIFT_DOWN_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("output.panel.mnemonic"));
 
         this.add(getMainPanel(), BorderLayout.CENTER);

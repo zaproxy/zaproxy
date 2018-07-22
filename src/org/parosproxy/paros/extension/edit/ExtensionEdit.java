@@ -29,10 +29,10 @@
 // ZAP: 2017/07/22 Added KeyStroke constant for consistency with other FindDialog usage
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 // ZAP: 2017/10/18 Use Window for parent of invoked component.
+// ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 
 package org.parosproxy.paros.extension.edit;
 
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 
@@ -44,6 +44,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.FindDialog;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionEdit extends ExtensionAdaptor {
@@ -119,8 +120,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
      */
     public static KeyStroke getFindDefaultKeyStroke() {
         if (findDefaultKeyStroke == null) {
-            findDefaultKeyStroke = KeyStroke
-                    .getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false);
+            findDefaultKeyStroke = View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_F, 0, false);
         }
         return findDefaultKeyStroke;
     }

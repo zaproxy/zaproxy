@@ -78,11 +78,11 @@
 // ZAP: 2018/01/08 Expand first context added.
 // ZAP: 2018/03/30 Check if resource message exists (for changes in I18N).
 // ZAP: 2018/07/13 Added canGetFocus option
+// ZAP: 2018/07/17 Use getMenuShortcutKeyStroke.
 
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -627,8 +627,7 @@ public class View implements ViewDelegate {
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
             requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-            requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK, false));
+            requestPanel.setDefaultAccelerator(getMenuShortcutKeyStroke(KeyEvent.VK_R, KeyEvent.SHIFT_DOWN_MASK, false));
             requestPanel.setMnemonic(Constant.messages.getChar("http.panel.request.mnemonic"));
 
         }
@@ -645,8 +644,8 @@ public class View implements ViewDelegate {
             responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-            responsePanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
+            responsePanel.setDefaultAccelerator(
+                    getMenuShortcutKeyStroke(KeyEvent.VK_R, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
             responsePanel.setMnemonic(Constant.messages.getChar("http.panel.response.mnemonic"));
         }
         return responsePanel;

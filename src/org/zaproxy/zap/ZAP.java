@@ -19,11 +19,15 @@
  */
 package org.zaproxy.zap;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Locale;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.log4j.Appender;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -76,6 +80,8 @@ public class ZAP {
      *             if something wrong happens
      */
     public static void main(String[] args) throws Exception {
+        setCustomErrStream();
+
         CommandLine cmdLine = null;
         try {
             cmdLine = new CommandLine(args != null ? Arrays.copyOf(args, args.length) : null);
@@ -101,6 +107,20 @@ public class ZAP {
             System.exit(1);
         }
 
+    }
+
+    private static void setCustomErrStream() {
+        System.setErr(new DelegatorPrintStream(System.err) {
+
+            @Override
+            public void println(String x) {
+                // Suppress Nashorn removal warnings, too verbose (a warn each time is used).
+                if ("Warning: Nashorn engine is planned to be removed from a future JDK release".equals(x)) {
+                    return;
+                }
+                super.println(x);
+            }
+        });
     }
 
     private static ZapBootstrap createZapBootstrap(CommandLine cmdLineArgs) {
@@ -173,6 +193,191 @@ public class ZAP {
             }
 
             return loggerConfigured;
+        }
+    }
+
+    private static class DelegatorPrintStream extends PrintStream {
+
+        private final PrintStream delegatee;
+
+        public DelegatorPrintStream(PrintStream delegatee) {
+            super(NullOutputStream.NULL_OUTPUT_STREAM);
+            this.delegatee = delegatee;
+        }
+
+        @Override
+        public void flush() {
+            delegatee.flush();
+        }
+
+        @Override
+        public void close() {
+            delegatee.close();
+        }
+
+        @Override
+        public boolean checkError() {
+            return delegatee.checkError();
+        }
+
+        @Override
+        protected void setError() {
+            // delegatee manages its error state.
+        }
+
+        @Override
+        protected void clearError() {
+            // delegatee manages its error state.
+        }
+
+        @Override
+        public void write(int b) {
+            delegatee.write(b);
+        }
+
+        @Override
+        public void write(byte[] b) throws IOException {
+            delegatee.write(b);
+        }
+
+        @Override
+        public void write(byte buf[], int off, int len) {
+            delegatee.write(buf, off, len);
+        }
+
+        @Override
+        public void print(boolean b) {
+            delegatee.print(b);
+        }
+
+        @Override
+        public void print(char c) {
+            delegatee.print(c);
+        }
+
+        @Override
+        public void print(int i) {
+            delegatee.print(i);
+        }
+
+        @Override
+        public void print(long l) {
+            delegatee.print(l);
+        }
+
+        @Override
+        public void print(float f) {
+            delegatee.print(f);
+        }
+
+        @Override
+        public void print(double d) {
+            delegatee.print(d);
+        }
+
+        @Override
+        public void print(char s[]) {
+            delegatee.print(s);
+        }
+
+        @Override
+        public void print(String s) {
+            delegatee.print(s);
+        }
+
+        @Override
+        public void print(Object obj) {
+            delegatee.print(obj);
+        }
+
+        @Override
+        public void println() {
+            delegatee.println();
+        }
+
+        @Override
+        public void println(boolean x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(char x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(int x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(long x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(float x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(double x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(char x[]) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(String x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public void println(Object x) {
+            delegatee.println(x);
+        }
+
+        @Override
+        public PrintStream printf(String format, Object... args) {
+            return delegatee.printf(format, args);
+        }
+
+        @Override
+        public PrintStream printf(Locale l, String format, Object... args) {
+            return delegatee.printf(l, format, args);
+        }
+
+        @Override
+        public PrintStream format(String format, Object... args) {
+            delegatee.format(format, args);
+            return this;
+        }
+
+        @Override
+        public PrintStream format(Locale l, String format, Object... args) {
+            delegatee.format(l, format, args);
+            return this;
+        }
+
+        @Override
+        public PrintStream append(CharSequence csq) {
+            delegatee.append(csq);
+            return this;
+        }
+
+        @Override
+        public PrintStream append(CharSequence csq, int start, int end) {
+            delegatee.append(csq, start, end);
+            return this;
+        }
+
+        @Override
+        public PrintStream append(char c) {
+            delegatee.append(c);
+            return this;
         }
     }
 }

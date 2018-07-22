@@ -1,5 +1,11 @@
 package org.zaproxy.zap.utils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,11 +38,32 @@ public class I18N {
      * until ZAP is shutdown.
      */
     private Set<String> missingKeys = Collections.synchronizedSet(new HashSet<>());
+
+    /**
+     * The class loader for file system Messages resource bundle.
+     * 
+     * @see #createLangClassLoader()
+     * @see #loadFsResourceBundle(ZapResourceBundleControl)
+     */
+    private URLClassLoader langClassLoader;
     
 	private static final Logger logger = Logger.getLogger(I18N.class);
 
     public I18N (Locale locale) {
+        langClassLoader = createLangClassLoader();
     	setLocale(locale);
+    }
+
+    private static URLClassLoader createLangClassLoader() {
+        Path langDir = Paths.get(Constant.getZapInstall(), Constant.LANG_DIR);
+        if (Files.exists(langDir)) {
+            try {
+                return new URLClassLoader(new URL[] { langDir.toUri().toURL() });
+            } catch (MalformedURLException e) {
+                logger.warn("Failed to convert path " + langDir, e);
+            }
+        }
+        return null;
     }
 
     /**
@@ -169,17 +196,36 @@ public class I18N {
 		}
     	this.locale = locale;
         ZapResourceBundleControl rbc = new ZapResourceBundleControl();
-        try {
-            this.stdMessages = loadResourceBundle(Constant.MESSAGES_PREFIX, rbc);
+        ResourceBundle fsRb = loadFsResourceBundle(rbc);
+        if (fsRb != null) {
+            this.stdMessages = fsRb;
             logger.debug("Using file system Messages resource bundle.");
-        } catch (MissingResourceException e) {
+        } else {
             this.stdMessages = loadResourceBundle("org.zaproxy.zap.resources." + Constant.MESSAGES_PREFIX, rbc);
             logger.debug("Using bundled Messages resource bundle.");
         }
     }
 
+    private ResourceBundle loadFsResourceBundle(ZapResourceBundleControl rbc) {
+        if (langClassLoader == null) {
+            return null;
+        }
+
+        ResourceBundle.clearCache(langClassLoader);
+        try {
+            return loadResourceBundle(Constant.MESSAGES_PREFIX, langClassLoader, rbc);
+        } catch (MissingResourceException e) {
+            logger.debug("Failed to load file system Messages resource bundle.", e);
+        }
+        return null;
+    }
+
     private ResourceBundle loadResourceBundle(String path, ZapResourceBundleControl rbc) {
-        return ResourceBundle.getBundle(path, locale, rbc);
+        return loadResourceBundle(path, getClass().getClassLoader(), rbc);
+    }
+
+    private ResourceBundle loadResourceBundle(String path, ClassLoader classLoader, ZapResourceBundleControl rbc) {
+        return ResourceBundle.getBundle(path, locale, classLoader, rbc);
     }
     
     public Locale getLocal() {

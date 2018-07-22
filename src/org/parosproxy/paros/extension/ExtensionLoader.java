@@ -72,6 +72,7 @@
 // ZAP: 2017/10/11 Include add-on in extensions' initialisation errors.
 // ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
 // ZAP: 2018/04/25 Allow to add ProxyServer to automatically add/remove proxy related listeners to it.
+// ZAP: 2018/07/18 Tweak logging.
 
 package org.parosproxy.paros.extension;
 
@@ -775,7 +776,7 @@ public class ExtensionLoader {
             ext.optionsLoaded();
             ext.postInit();
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logExtensionInitError(ext, e);
         }
         
         ext.start();

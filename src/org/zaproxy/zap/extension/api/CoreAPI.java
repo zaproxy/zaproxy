@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -54,11 +53,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyParam;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
-import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.report.ReportGenerator;
@@ -77,6 +73,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.alert.AlertAPI;
 import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
@@ -91,7 +88,6 @@ import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarLog;
-import net.sf.json.JSON;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -106,13 +102,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		MD
 	}
 
-	/**
-	 * The constant that indicates that no risk ID is being provided.
-	 * 
-	 * @see #getRiskId(JSONObject)
-	 * @see #processAlerts(String, int, int, int, Processor)
-	 */
-	private static final int NO_RISK_ID = -1;
 
 	private static final String PREFIX = "core";
 	private static final String ACTION_LOAD_SESSION = "loadSession";
@@ -263,8 +252,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				ACTION_SEND_REQUEST,
 				new String[] { PARAM_REQUEST },
 				new String[] { PARAM_FOLLOW_REDIRECTS }));
-		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
-		this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID }));
 		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
 		this.addApiAction(new ApiAction(ACTION_DELETE_SITE_NODE, new String[] {PARAM_URL}, new String[] {PARAM_METHOD, PARAM_POST_DATA}));
 		this.addApiAction(
@@ -284,12 +271,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_OPTION_MAXIMUM_ALERT_INSTANCES, new String[] { PARAM_NUMBER_OF_INSTANCES }));
 		this.addApiAction(new ApiAction(ACTION_OPTION_MERGE_RELATED_ALERTS, new String[] { PARAM_ENABLED }));
 		this.addApiAction(new ApiAction(ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH, null, new String[] { PARAM_FILE_PATH }));
-		
-		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
-		this.addApiView(new ApiView(VIEW_ALERTS, null, 
-				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK}));
-		this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
-		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }));
+
+		// Deprecated actions
+		this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALL_ALERTS)));
+		this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID })));
+
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS, null, new String[] { PARAM_BASE_URL }));
@@ -319,7 +305,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_OPTION_MAXIMUM_ALERT_INSTANCES));
 		this.addApiView(new ApiView(VIEW_OPTION_MERGE_RELATED_ALERTS));
 		this.addApiView(new ApiView(VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH));
-		
+
+		// Deprecated views
+		this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERT, new String[] {PARAM_ID})));
+		this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERTS, null, 
+				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK})));
+		this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL})));
+		this.addApiView((depreciatedAlertApi(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }))));
+
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
@@ -341,6 +334,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiShortcut(OTHER_SCRIPT_JS);
 
 		addApiOptions(this.connectionParam);
+	}
+	
+	private <T extends ApiElement> T depreciatedAlertApi(T element) {
+		element.setDeprecated(true);
+		element.setDeprecatedDescription(Constant.messages.getString("core.api.depreciated.alert"));
+		return element;
 	}
 
 	@Override
@@ -596,48 +595,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			validateForCurrentMode(request);
 			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
 		} else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
-            final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-            if (extAlert != null) {
-                extAlert.deleteAllAlerts();
-            } else {
-                try {
-                    Model.getSingleton().getDb().getTableAlert().deleteAllAlerts();
-                } catch (DatabaseException e) {
-                    logger.error(e.getMessage(), e);
-                }
-
-                SiteNode rootNode = Model.getSingleton().getSession().getSiteTree().getRoot();
-                rootNode.deleteAllAlerts();
-
-                removeHistoryReferenceAlerts(rootNode);
-            }
+			return API.getInstance().getImplementors().get(AlertAPI.PREFIX).handleApiAction(name, params);
 		} else if (ACTION_DELETE_ALERT.equals(name)) {
-			int alertId = ApiUtils.getIntParam(params, PARAM_ID);
-
-			RecordAlert recAlert;
-			try {
-				recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
-			} catch (DatabaseException e) {
-				logger.error(e.getMessage(), e);
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-			}
-
-			if (recAlert == null) {
-				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
-			}
-
-			final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-			if (extAlert != null) {
-				extAlert.deleteAlert(new Alert(recAlert));
-			} else {
-				try {
-					Model.getSingleton().getDb().getTableAlert().deleteAlert(alertId);
-				} catch (DatabaseException e) {
-					logger.error(e.getMessage(), e);
-					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-				}
-			}
-
+			return API.getInstance().getImplementors().get(AlertAPI.PREFIX).handleApiAction(name, params);
 		} else if (ACTION_COLLECT_GARBAGE.equals(name)) {
 			System.gc();
 			return ApiResponseElement.OK;
@@ -926,18 +886,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		}
 	}
 	
-    private static void removeHistoryReferenceAlerts(SiteNode siteNode) {
-        for (int i = 0; i < siteNode.getChildCount(); i++) {
-            removeHistoryReferenceAlerts((SiteNode) siteNode.getChildAt(i));
-        }
-        if (siteNode.getHistoryReference() != null) {
-            siteNode.getHistoryReference().deleteAllAlerts();
-        }
-        for (HistoryReference hRef : siteNode.getPastHistoryReference()) {
-            hRef.deleteAllAlerts();
-        }
-    }
-
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
@@ -996,66 +944,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 ((ApiResponseList)result).addItem(structuralNodeToResponse(iter.next()));
             }
 		} else if (VIEW_ALERT.equals(name)){
-			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
-			RecordAlert recordAlert;
-			try {
-				recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
-			} catch (DatabaseException e) {
-				logger.error("Failed to read the alert from the session:", e);
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-			}
-			if (recordAlert == null) {
-				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-			}
-			result = new ApiResponseElement(alertToSet(new Alert(recordAlert)));
+			return API.getInstance().getImplementors().get(AlertAPI.PREFIX).handleApiView(name, params);
 		} else if (VIEW_ALERTS.equals(name)) {
-			final ApiResponseList resultList = new ApiResponseList(name);
-			
-			processAlerts(
-					this.getParam(params, PARAM_BASE_URL, (String) null), 
-					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1), 
-					getRiskId(params), new Processor<Alert>() {
-
-						@Override
-						public void process(Alert alert) {
-							resultList.addItem(alertToSet(alert));
-						}
-					});
-			result = resultList;
+			return API.getInstance().getImplementors().get(AlertAPI.PREFIX).handleApiView(name, params);
 		} else if (VIEW_NUMBER_OF_ALERTS.equals(name)) {
-			CounterProcessor<Alert> counter = new CounterProcessor<>();
-			processAlerts(
-					this.getParam(params, PARAM_BASE_URL, (String) null), 
-					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1), 
-					getRiskId(params), counter);
-			
-			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+			return API.getInstance().getImplementors().get(AlertAPI.PREFIX).handleApiView(name, params);
 		} else if (VIEW_ALERTS_SUMMARY.equals(name)) {
-			final int[] riskSummary = { 0, 0, 0, 0 };
-			Processor<Alert> counter = new Processor<Alert>() {
-
-				@Override
-				public void process(Alert alert) {
-					riskSummary[alert.getRisk()]++;
-				}
-			};
-			processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, NO_RISK_ID, counter);
-
-			Map<String, Object> alertData = new HashMap<>();
-			for (int i = 0; i < riskSummary.length; i++) {
-				alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
-			}
-			result = new ApiResponseSet<Object>("risk", alertData) {
-
-				@Override
-				public JSON toJSON() {
-					JSONObject response = new JSONObject();
-					response.put(name, super.toJSON());
-					return response;
-				}
-			};
+			return API.getInstance().getImplementors().get(AlertAPI.PREFIX).handleApiView(name, params);
 		} else if (VIEW_MESSAGE.equals(name)) {
 			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
 			RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
@@ -1141,38 +1036,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
-	}
-
-	/**
-	 * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK} as parameter name.
-	 *
-	 * @param parameters the parameters of the API request.
-	 * @return the ID of the risk, or {@link #NO_RISK_ID} if none provided.
-	 * @throws ApiException if the provided risk ID is not valid (not an integer nor a valid risk ID).
-	 */
-	private int getRiskId(JSONObject parameters) throws ApiException {
-		String riskIdParam = getParam(parameters, PARAM_RISK, "").trim();
-		if (riskIdParam.isEmpty()) {
-			return NO_RISK_ID;
-		}
-
-		int riskId = NO_RISK_ID;
-		try {
-			riskId = Integer.parseInt(riskIdParam);
-		} catch (NumberFormatException e) {
-			throwInvalidRiskId();
-		}
-
-		if (riskId < Alert.RISK_INFO || riskId > Alert.RISK_HIGH) {
-			throwInvalidRiskId();
-		}
-		return riskId;
-	}
-
-	private static void throwInvalidRiskId() throws ApiException {
-		throw new ApiException(
-				ApiException.Type.ILLEGAL_PARAMETER,
-				"Parameter " + PARAM_RISK + " is not a valid risk ID (integer in interval [0, 3]).");
 	}
 
 	private RecordHistory getRecordHistory(TableHistory tableHistory, Integer id) throws ApiException {
@@ -1597,75 +1460,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 
 			addUrlsToList(baseUrl, child, addedUrls, list);
-		}
-	}
-
-	private ApiResponseSet<String> alertToSet(Alert alert) {
-		Map<String, String> map = new HashMap<>();
-		map.put("id", String.valueOf(alert.getAlertId()));
-		map.put("pluginId", String.valueOf(alert.getPluginId()));
-		map.put("alert", alert.getName()); //Deprecated in 2.5.0, maintain for compatibility with custom code
-		map.put("name", alert.getName());
-		map.put("description", alert.getDescription());
-		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
-		map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
-		map.put("url", alert.getUri());
-		map.put("method", alert.getMethod());
-		map.put("other", alert.getOtherInfo());
-		map.put("param", alert.getParam());
-		map.put("attack", alert.getAttack());
-		map.put("evidence", alert.getEvidence());
-		map.put("reference", alert.getReference());
-		map.put("cweid", String.valueOf(alert.getCweId()));
-		map.put("wascid", String.valueOf(alert.getWascId()));
-		map.put("sourceid", String.valueOf(alert.getSource().getId()));
-		map.put("solution", alert.getSolution());
-		map.put("messageId",
-				(alert.getHistoryRef() != null) ? String.valueOf(alert.getHistoryRef().getHistoryId()) : "");
-
-		return new ApiResponseSet<String>("alert", map);
-	}
-
-	private void processAlerts(String baseUrl, int start, int count, int riskId, Processor<Alert> processor) throws ApiException {
-		List<Alert> alerts = new ArrayList<>();
-		try {
-			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
-        	// TODO this doesn't work, but should be used when its fixed :/
-			//Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
-			Vector<Integer> v = tableAlert.getAlertList();
-
-			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
-			for (int i = 0; i < v.size(); i++) {
-				int alertId = v.get(i);
-				RecordAlert recAlert = tableAlert.read(alertId);
-				Alert alert = new Alert(recAlert);
-
-				if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE
-						&& !alerts.contains(alert)) {
-					if (baseUrl != null && ! alert.getUri().startsWith(baseUrl)) {
-						// Not subordinate to the specified URL
-						continue;
-					}
-					if (riskId != NO_RISK_ID && alert.getRisk() != riskId) {
-						continue;
-					}
-
-					pcc.recordProcessed();
-					alerts.add(alert);
-					
-					if (!pcc.hasPageStarted()) {
-						continue;
-					}
-					processor.process(alert);
-					
-					if (pcc.hasPageEnded()) {
-						break;
-					}
-				}
-			}
-		} catch (DatabaseException e) {
-			logger.error(e.getMessage(), e);
-			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 		}
 	}
 

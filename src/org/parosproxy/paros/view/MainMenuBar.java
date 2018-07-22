@@ -32,19 +32,18 @@
 // ZAP: 2017/05/10 Issue 3460: Add Show Support Info help menuitem
 // ZAP: 2017/06/27 Issue 2375: Added option to change ZAP mode in edit menu
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
+// ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 
 package org.parosproxy.paros.view;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.ButtonGroup;
@@ -224,7 +223,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuToolsOptions() {
 		if (menuToolsOptions == null) {
 			menuToolsOptions = new ZapMenuItem("menu.tools.options",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
+					View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_O, KeyEvent.ALT_DOWN_MASK, false));
 			menuToolsOptions.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -283,7 +282,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem getMenuFileNewSession() {
 		if (menuFileNewSession == null) {
 			menuFileNewSession = new ZapMenuItem("menu.file.newSession",
-					KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+					View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_N, 0, false));
 			menuFileNewSession.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -311,7 +310,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem getMenuFileOpen() {
 		if (menuFileOpen == null) {
 			menuFileOpen = new ZapMenuItem("menu.file.openSession",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+					View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_O, 0, false));
 			menuFileOpen.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -433,7 +432,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuFileProperties() {
 		if (menuFileProperties == null) {
 			menuFileProperties = new ZapMenuItem("menu.file.properties",
-					KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.ALT_DOWN_MASK, false));
+					View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_P, KeyEvent.ALT_DOWN_MASK, false));
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
 				@Override

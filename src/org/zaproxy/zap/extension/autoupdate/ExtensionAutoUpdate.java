@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,7 +49,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
@@ -197,7 +195,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private ZapMenuItem getMenuItemCheckUpdate() {
 		if (menuItemCheckUpdate == null) {
 			menuItemCheckUpdate = new ZapMenuItem("cfu.help.menu.check", 
-					KeyStroke.getKeyStroke(KeyEvent.VK_U, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+					getView().getMenuShortcutKeyStroke(KeyEvent.VK_U, 0, false));
 			menuItemCheckUpdate.setText(Constant.messages.getString("cfu.help.menu.check"));
 			menuItemCheckUpdate.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -213,7 +211,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private ZapMenuItem getMenuItemLoadAddOn() {
 		if (menuItemLoadAddOn == null) {
 			menuItemLoadAddOn = new ZapMenuItem("cfu.file.menu.loadaddon", 
-					KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+					getView().getMenuShortcutKeyStroke(KeyEvent.VK_L, 0, false));
 			menuItemLoadAddOn.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {

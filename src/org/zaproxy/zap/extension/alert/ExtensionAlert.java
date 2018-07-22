@@ -118,7 +118,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         }
         extensionHook.addSessionListener(this);
         extensionHook.addOptionsChangedListener(this);
-
+        extensionHook.addApiImplementor(new AlertAPI(this));
     }
 
 	@Override
