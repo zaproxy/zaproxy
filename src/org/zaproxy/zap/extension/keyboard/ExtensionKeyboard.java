@@ -97,12 +97,12 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	}
 	
 	public void registerMenuItem(ZapMenuItem zme) {
-		KeyboardMapping mapping = menuToMapping(zme);
-		String identifier = mapping.getIdentifier();
+		String identifier = zme.getIdentifier();
 		if (identifier != null) {
-			this.map.put(identifier, mapping);
+			setConfiguredAccelerator(zme);
+			this.map.put(identifier, new KeyboardMapping(zme));
 		} else {
-			logger.warn("ZapMenuItem \"" + mapping.getName() + "\" has a null identifier.");
+			logger.warn("ZapMenuItem \"" + zme.getName() + "\" has a null identifier.");
 		}
 	}
 
@@ -121,20 +121,20 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 		}
 	}
 	
-	private KeyboardMapping menuToMapping(ZapMenuItem menuItem) {
-		KeyStroke ks = this.getKeyboardParam().getShortcut(menuItem.getIdenfifier());
-		
-		if (ks != null) {
-			if (ks.getKeyCode() == 0) {
-				// Used to indicate no accelerator should be used
-				logger.debug("Cleaning menu " + menuItem.getIdenfifier() + " accelerator");
-				menuItem.setAccelerator(null);
-			} else {
-				logger.debug("Setting menu " + menuItem.getIdenfifier() + " accelerator to " + ks.toString());
-				menuItem.setAccelerator(ks);
-			}
+	private void setConfiguredAccelerator(ZapMenuItem menuItem) {
+		KeyStroke ks = this.getKeyboardParam().getShortcut(menuItem.getIdentifier());
+		if (ks == null) {
+			return;
 		}
-		return new KeyboardMapping(menuItem);
+
+		if (ks.getKeyCode() == 0) {
+			// Used to indicate no accelerator should be used
+			logger.debug("Cleaning menu " + menuItem.getIdentifier() + " accelerator");
+			ks = null;
+		} else {
+			logger.debug("Setting menu " + menuItem.getIdentifier() + " accelerator to " + ks.toString());
+		}
+		menuItem.setAccelerator(ks);
 	}
 
 	public List<KeyboardShortcut> getShortcuts() {
@@ -176,23 +176,11 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	
 	private KeyboardShortcut menuToShortcut(ZapMenuItem menuItem, boolean reset) {
 		if (reset) {
-			return new KeyboardShortcut(menuItem.getIdenfifier(), menuItem.getText(), menuItem.getDefaultAccelerator());
+			return new KeyboardShortcut(menuItem.getIdentifier(), menuItem.getText(), menuItem.getDefaultAccelerator());
 		}
 		
-		KeyStroke ks = this.getKeyboardParam().getShortcut(menuItem.getIdenfifier());
-		
-		if (ks != null) {
-			if (ks.getKeyCode() == 0) {
-				// Used to indicate no accelerator should be used
-				logger.debug("Cleaning menu " + menuItem.getIdenfifier() + " accelerator");
-				menuItem.setAccelerator(null);
-			} else {
-				logger.debug("Setting menu " + menuItem.getIdenfifier() + " accelerator to " + ks.toString());
-				menuItem.setAccelerator(ks);
-			}
-		}
-		
-		return new KeyboardShortcut(menuItem.getIdenfifier(), menuItem.getText(), menuItem.getAccelerator());
+		setConfiguredAccelerator(menuItem);
+		return new KeyboardShortcut(menuItem.getIdentifier(), menuItem.getText(), menuItem.getAccelerator());
 		
 	}
 	
