@@ -386,6 +386,7 @@ public class AlertAPI extends ApiImplementor {
         map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
         map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
         map.put("url", alert.getUri());
+        map.put("param", alert.getParam());
 
         return new ApiResponseSet<String>("alertsummary", map);
     }
