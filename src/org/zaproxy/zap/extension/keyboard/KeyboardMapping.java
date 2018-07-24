@@ -50,7 +50,7 @@ class KeyboardMapping {
     
     public String getIdentifier() {
     	if (this.menuItem != null) {
-    		return this.menuItem.getIdenfifier();
+    		return this.menuItem.getIdentifier();
     	}
     	return this.i18nKey;
     	
