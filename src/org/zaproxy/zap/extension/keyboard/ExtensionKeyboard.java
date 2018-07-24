@@ -48,13 +48,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	private KeyboardAPI api = null;
 
 	public ExtensionKeyboard() {
-		super();
-		initialize();
-	}
-
-	private void initialize() {
-        this.setName(NAME);
-        this.setOrder(2000);	// Really want this to be added late on
+		super(NAME);
 	}
 
 	@Override
@@ -83,7 +77,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	}
 
 	@Override
-	public void optionsLoaded() {
+	public void postInit() {
 		if (View.isInitialised()) {
 			logger.info("Initializing keyboard shortcuts");
 			initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile());
