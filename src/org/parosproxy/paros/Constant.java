@@ -412,7 +412,7 @@ public final class Constant {
                 if (is == null) {
                     throw new IOException("Bundled resource not found: " + fallbackResource);
                 }
-                Files.copy(is, targetFile);
+                Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
@@ -451,7 +451,7 @@ public final class Constant {
 		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
 		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
 		FUZZER_DIR = zapHome + FUZZER_DIR;
-		FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_LOCAL_PLUGIN;
+		FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_PLUGIN;
 
         try {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
