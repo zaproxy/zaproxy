@@ -63,6 +63,19 @@ class KeyboardMapping {
     	return null;
     }
 
+    /**
+     * Gets the default accelerator of the menu item.
+     *
+     * @return the default accelerator.
+     * @since TODO add version
+     */
+    public KeyStroke getDefaultKeyStroke() {
+        if (this.menuItem != null) {
+            return this.menuItem.getDefaultAccelerator();
+        }
+        return null;
+    }
+
     public String getKeyStrokeKeyCodeString() {
     	if (this.menuItem == null || this.menuItem.getAccelerator() == null) {
     		return "";
