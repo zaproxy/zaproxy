@@ -51,6 +51,7 @@ import org.apache.commons.httpclient.util.EncodingUtil;
  * 
  * Changes:
  *  - Removed the characters "$" from the previous SVN keywords (HeadURL, Revision and Date) to avoid accidental expansions;
+ *  - Address some JavaDoc warns.
  *  - Add missing override and deprecated annotations;
  *  - Fix unchecked/rawtypes warnings (required by lint checks).
  *  - Allow to use underscores in hostnames.
@@ -84,7 +85,7 @@ import org.apache.commons.httpclient.util.EncodingUtil;
  * URI Syntactic Components
  * <p><blockquote><pre>
  * - In general, written as follows:
- *   Absolute URI = &lt;scheme&gt:&lt;scheme-specific-part&gt;
+ *   Absolute URI = &lt;scheme&gt;:&lt;scheme-specific-part&gt;
  *   Generic URI = &lt;scheme&gt;://&lt;authority&gt;&lt;path&gt;?&lt;query&gt;
  *
  * - Syntax
@@ -1671,7 +1672,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
      * This is a two mapping, one from original characters to octets, and
      * subsequently a second from octets to URI characters:
      * <p><blockquote><pre>
-     *   original character sequence->octet sequence->URI character sequence
+     *   original character sequence-&gt;octet sequence-&gt;URI character sequence
      * </pre></blockquote><p>
      *
      * An escaped octet is encoded as a character triplet, consisting of the
@@ -1719,7 +1720,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
      * This is a two mapping, one from URI characters to octets, and
      * subsequently a second from octets to original characters:
      * <p><blockquote><pre>
-     *   URI character sequence->octet sequence->original character sequence
+     *   URI character sequence-&gt;octet sequence-&gt;original character sequence
      * </pre></blockquote><p>
      *
      * A URI must be separated into its components before the escaped
@@ -1757,7 +1758,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
      * This is a two mapping, one from URI characters to octets, and
      * subsequently a second from octets to original characters:
      * <p><blockquote><pre>
-     *   URI character sequence->octet sequence->original character sequence
+     *   URI character sequence-&gt;octet sequence-&gt;original character sequence
      * </pre></blockquote><p>
      *
      * A URI must be separated into its components before the escaped

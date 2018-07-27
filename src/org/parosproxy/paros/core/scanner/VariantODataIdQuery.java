@@ -33,7 +33,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * It's focused on OData v2
  *
  * Example of query having a single unnamed id:<br/>
- * http://services.odata.org/OData/OData.svc/Category(1)/Products?$top=2&$orderby=name
+ * {@literal http://services.odata.org/OData/OData.svc/Category(1)/Products?$top=2&$orderby=name}
  * <p/>
  * Example of query having a composite (named) id:<br/>
  * http://services.odata.org/OData/OData.svc/DisplayItem(key1=2L,key2='B0EB1CA')

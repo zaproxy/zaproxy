@@ -32,7 +32,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Variant class used for URL path elements. For a URL like:
- * http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg it will handle: aaa, bbb
+ * {@literal http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg} it will handle: aaa, bbb
  * and ccc
  *
  * @author psiinon

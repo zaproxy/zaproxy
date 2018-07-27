@@ -61,6 +61,7 @@ import org.parosproxy.paros.network.HttpHeader;
  * 
  * Changes:
  *  - Removed the characters "$" from the previous SVN keywords (HeadURL, Revision and Date) to avoid accidental expansions.
+ *  - Address some JavaDoc warns.
  *  - Always add the "?" character to the request URI (Issue 1180) in the method #generateRequestLine(HttpConnection, String, 
  *  String, String, String) to preserve the intended request URI.
  *  - Change the way cookie headers are handled when using forced user mode, put all the headers in a single line see ISSUE 1874
@@ -218,7 +219,7 @@ public abstract class HttpMethodBase implements HttpMethod {
     /**
      * Constructor specifying a URI.
      * It is responsibility of the caller to ensure that URI elements
-     * (path & query parameters) are properly encoded (URL safe).
+     * (path &amp; query parameters) are properly encoded (URL safe).
      *
      * @param uri either an absolute or relative URI. The URI is expected
      *            to be URL-encoded
