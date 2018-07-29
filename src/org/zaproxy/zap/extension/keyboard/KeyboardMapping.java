@@ -50,7 +50,7 @@ class KeyboardMapping {
     
     public String getIdentifier() {
     	if (this.menuItem != null) {
-    		return this.menuItem.getIdenfifier();
+    		return this.menuItem.getIdentifier();
     	}
     	return this.i18nKey;
     	
@@ -61,6 +61,19 @@ class KeyboardMapping {
     		return this.menuItem.getAccelerator();
     	}
     	return null;
+    }
+
+    /**
+     * Gets the default accelerator of the menu item.
+     *
+     * @return the default accelerator.
+     * @since TODO add version
+     */
+    public KeyStroke getDefaultKeyStroke() {
+        if (this.menuItem != null) {
+            return this.menuItem.getDefaultAccelerator();
+        }
+        return null;
     }
 
     public String getKeyStrokeKeyCodeString() {

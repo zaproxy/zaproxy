@@ -33,6 +33,7 @@
 // ZAP: 2017/03/21 Add method to check if response type is json (isJson())
 // ZAP: 2017/11/10 Allow to set the status code and reason.
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
+// ZAP: 2018/07/23 Add CSP headers.
 
 package org.parosproxy.paros.network;
 
@@ -50,6 +51,34 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 public class HttpResponseHeader extends HttpHeader {
+
+    /**
+     * The {@code Content-Security-Policy} response header.
+     * 
+     * @since TODO add version
+     */
+    public static final String CSP = "Content-Security-Policy";
+
+    /**
+     * The {@code Content-Security-Policy-Report-Only} response header.
+     * 
+     * @since TODO add version
+     */
+    public static final String CSP_REPORT_ONLY = "Content-Security-Policy-Report-Only";
+
+    /**
+     * The {@code X-Content-Security-Policy} response header.
+     * 
+     * @since TODO add version
+     */
+    public static final String XCSP = "X-Content-Security-Policy";
+
+    /**
+     * The {@code X-WebKit-CSP} response header.
+     * 
+     * @since TODO add version
+     */
+    public static final String WEBKIT_CSP = "X-WebKit-CSP";
 
 	private static final long serialVersionUID = 2812716126742059785L;
     private static final Logger log = Logger.getLogger(HttpResponseHeader.class);

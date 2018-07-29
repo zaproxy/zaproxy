@@ -98,12 +98,24 @@ public class ZapMenuItem extends JMenuItem {
 	public ZapMenuItem(String i18nKey) {
 		this(i18nKey, null);
 	}
+
+	/**
+	 * Gets the identifier of the menu item.
+	 *
+	 * @return the identifier, might be {@code null}.
+	 * @since TODO add version
+	 */
+	public String getIdentifier() {
+		return this.identifier;
+	}
 	
 	/**
 	 * Gets the identifier of the menu item.
 	 *
 	 * @return the identifier, might be {@code null}
+	 * @deprecated (TODO add version) Use {@link #getIdentifier()} instead.
 	 */
+	@Deprecated
 	public String getIdenfifier() {
 		return this.identifier;
 	}
