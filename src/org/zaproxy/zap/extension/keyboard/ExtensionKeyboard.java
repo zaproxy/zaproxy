@@ -49,11 +49,13 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	private KeyboardAPI api = null;
 
 	/**
-	 * The menus with duplicated default accelerator.
+	 * The identifiers of the menus with duplicated default accelerators.
+	 * <p>
+	 * Lazily initialised.
 	 * 
 	 * @see #getDefaultAccelerator(ZapMenuItem)
 	 */
-	private List<JMenuItem> menusDupDefaultAccelerator;
+	private List<String> menusDupDefaultAccelerator;
 
 	public ExtensionKeyboard() {
 		super(NAME);
@@ -123,10 +125,17 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 			return;
 		}
 
+		if (isIdentifierWithDuplicatedAccelerator(zme.getIdentifier())) {
+			return;
+		}
+
 		for (Object obj : map.values()) {
 			KeyboardMapping km = (KeyboardMapping) obj;
-			KeyStroke kmKs = km.getDefaultKeyStroke();
-			if (kmKs != null && kmKs.getKeyCode() == ks.getKeyCode() && kmKs.getModifiers() == ks.getModifiers()) {
+			if (isIdentifierWithDuplicatedAccelerator(km.getIdentifier())) {
+				continue;
+			}
+
+			if (hasSameDefaultAccelerator(km, ks) && !zme.getIdentifier().equals(km.getIdentifier())) {
 				String msg = String.format(
 						"Menus %s and %s use the same default accelerator: %s",
 						zme.getIdentifier(),
@@ -136,13 +145,38 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 				if (menusDupDefaultAccelerator == null) {
 					menusDupDefaultAccelerator = new ArrayList<>();
 				}
-				menusDupDefaultAccelerator.add(zme);
+				menusDupDefaultAccelerator.add(zme.getIdentifier());
 				if (zme.getDefaultAccelerator().equals(zme.getAccelerator())) {
 					zme.setAccelerator(null);
 				}
-				return;
 			}
 		}
+	}
+
+	/**
+	 * Tells whether or not the given keyboard mapping has the given default accelerator.
+	 *
+	 * @param km the keyboard mapping to check.
+	 * @param ks the accelerator.
+	 * @return {@code true} if the keyboard mapping has the given default accelerator, {@code false} otherwise.
+	 */
+	private static boolean hasSameDefaultAccelerator(KeyboardMapping km, KeyStroke ks) {
+		KeyStroke kmKs = km.getDefaultKeyStroke();
+		if (kmKs == null) {
+			return false;
+		}
+		return kmKs.getKeyCode() == ks.getKeyCode() && kmKs.getModifiers() == ks.getModifiers();
+	}
+
+	/**
+	 * Tells whether or not the given identifier is of a menu with duplicated default accelerator.
+	 *
+	 * @param identifier the menu identifier to check.
+	 * @return {@code true} if it's a menu with duplicated default accelerator, {@code false} otherwise.
+	 * @see #menusDupDefaultAccelerator
+	 */
+	private boolean isIdentifierWithDuplicatedAccelerator(String identifier) {
+		return menusDupDefaultAccelerator != null && menusDupDefaultAccelerator.contains(identifier);
 	}
 
 	private void initAllMenuItems(JMenu menu) {
@@ -230,7 +264,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	 * @return the KeyStroke or {@code null} if duplicated or does not have a default.
 	 */
 	private KeyStroke getDefaultAccelerator(ZapMenuItem menuItem) {
-		if (menusDupDefaultAccelerator != null && menusDupDefaultAccelerator.contains(menuItem)) {
+		if (isIdentifierWithDuplicatedAccelerator(menuItem.getIdentifier())) {
 			return null;
 		}
 		return menuItem.getDefaultAccelerator();
