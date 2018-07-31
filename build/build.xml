@@ -131,8 +131,6 @@
 		<mkdir dir="${dist}" />
 		<!--copy file="lib.jar" tofile="${dist}/lib.jar"/-->
 
-		<copy file="${src}/xml/log4j.properties" tofile="${build}/xml/log4j.properties" />
-
 		<copy todir="${build}/resource">
 			<fileset dir="${src}/resource" excludes="**/.svn/** **/_svn/**" />
 		</copy>
@@ -202,9 +200,6 @@
 
 		<copy file="${src}/resource/zap.ico" todir="${dist}"/>
 
-		<!-- Copy source to build directory to be included in jar, only if "dist.with.source" is set -->
-		<antcall target="copy-source-to-build" />
-
 		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/${zap.jar}">
 			<!--classpath refid="dist.classpath" /-->
 			<classpath>
@@ -235,17 +230,6 @@
 		<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
 
 		<chmod perm="755" file="${dist}/zap.sh" />
-	</target>
-
-	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
-		<property name="dist.with.source" value="true" />
-		<antcall target="dist" />
-	</target>
-
-	<target name="copy-source-to-build" if="dist.with.source">
-		<copy todir="${build}">
-			<fileset dir="${src}" includes="**/*.java" />
-		</copy>
 	</target>
 
 	<macrodef name="copy-help-to-addon" description="deploy the help file to the equivalent addon">
