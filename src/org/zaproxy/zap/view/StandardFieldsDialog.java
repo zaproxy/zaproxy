@@ -1402,6 +1402,99 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	/**
+	 * Add a custom {@code Component} to a tabbed {@code StandardFieldsDialog} without any label.
+	 * 
+	 * @param tabIndex the index of the tab to which the {@code Component} need to be added
+	 * @param component the {@code Component} to be added
+	 * @since TODO add version
+	 * @see #addCustomComponent(Component)
+	 * @see #addCustomComponent(String, Component)
+	 * @see #addCustomComponent(int, String, Component)
+	 */
+	public void addCustomComponent(int tabIndex, Component component) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (this.fieldList.contains(component)) {
+			throw new IllegalArgumentException("Component already added: " + component);
+		}
+		this.tabPanels.get(tabIndex).add(component, 
+				LayoutHelper.getGBC(0, this.tabOffsets.get(tabIndex), 2, fieldWeight, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		if (this.fieldList.size() == 0) {
+			// First field, always grab focus
+			component.requestFocusInWindow();
+		}
+		this.fieldList.add(component);
+		this.incTabOffset(tabIndex);
+	}
+	
+	/**
+	 * Add a custom {@code Component} to a {@code StandardFieldsDialog} without any label.
+	 * 
+	 * @param component the {@code Component} to be added
+	 * @since TODO add version
+	 * @see #addCustomComponent(int, Component)
+	 * @see #addCustomComponent(String, Component)
+	 * @see #addCustomComponent(int, String, Component)
+	 */
+	public void addCustomComponent(Component component) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		if (this.fieldList.contains(component)) {
+			throw new IllegalArgumentException("Component already added: " + component);
+		}
+		this.getMainPanel().add(component, 
+				LayoutHelper.getGBC(0, this.fieldList.size(), 2, fieldWeight, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		if (this.fieldList.size() == 0) {
+			// First field, always grab focus
+			component.requestFocusInWindow();
+		}
+		this.fieldList.add(component);
+	}
+	
+	/**
+	 * Add a custom {@code Component} to a tabbed {@code StandardFieldsDialog} with the given label.
+	 * 
+	 * @param tabIndex tabIndex the index of the tab to which the {@code Component} need to be added
+	 * @param componentLabel the {@code I18N} key for the component label, should not be null
+	 * @param component the {@code Component} to be added
+	 * @since TODO add version
+	 * @see #addCustomComponent(Component)
+	 * @see #addCustomComponent(int, Component)
+	 * @see #addCustomComponent(String, Component)
+	 */
+	public void addCustomComponent(int tabIndex, String componentLabel, Component component) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), componentLabel, component, component, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
+	
+	
+	/**
+	 * Add a custom {@code Component} to {@code StandardFieldsDialog} with the given label.
+	 * 
+	 * @param componentLabel the {@code I18N} key for the component label, should not be null
+	 * @param component the {@code Component} to be added
+	 * @since TODO add version
+	 * @see #addCustomComponent(Component)
+	 * @see #addCustomComponent(int, Component)
+	 * @see #addCustomComponent(int, String, Component)
+	 */
+	public void addCustomComponent(String componentLabel, Component component) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		this.addField(componentLabel, component, component, 0.0D);
+	}
+	
+	/**
 	 * Notifies that a site node was selected.
 	 * <p>
 	 * By default it does nothing.
