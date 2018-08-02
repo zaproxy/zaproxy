@@ -1159,6 +1159,48 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.incTabOffset(tabIndex);
 	}
 	
+	/**
+	 * Add a 'node select' field to a non tabbed dialog. This includes 
+	 * a button for showing a Node Select Dialog and a 
+	 * field for showing the selected node.
+	 * @param fieldLabel the {@code I18N} key for the field label, should not be null
+	 * @param value the selected {@code Target} to show, can be null
+	 * @param editable whether the field showing selected {@code Target} is editable or not
+	 * @param allowRoot whether to allow root {@code SiteNode} to be selected as {@code Target} value or not
+	 * @since TODO add version
+	 * @see #addTargetSelectField(int, String, Target, boolean, boolean)
+	 */
+	public void addTargetSelectField(final String fieldLabel, final Target value,
+			final boolean editable, final boolean allowRoot) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		final ZapTextField text = new ZapTextField();
+		text.setEditable(editable);
+		this.setTextTarget(text, value);
+
+		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
+		selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
+		selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			// Keep a local copy so that we can always select the last node chosen
+			Target target = value;
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
+				nsd.setAllowRoot(allowRoot);
+				target = nsd.showDialog(target);
+				setTextTarget(text, target);
+				targetSelected(fieldLabel, target);
+			}
+		});
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		this.addField(fieldLabel, text, panel, 0.0D);
+	}
+	
 	/*
 	 * Add a 'node select' field which provides a button for showing a Node Select Dialog and a 
 	 * non editable field for showing the node selected
