@@ -238,6 +238,14 @@ public class HttpSender {
 		}
 	}
 
+	/**
+	 * Sets whether or not the global state should be used.
+	 * <p>
+	 * Refer to {@link #HttpSender(ConnectionParam, boolean, int)} for details on how the global state is used.
+	 *
+	 * @param enableGlobalState {@code true} if the global state should be used, {@code false} otherwise.
+	 * @since TODO add version
+	 */
 	public void setUseGlobalState(boolean enableGlobalState) {
 		if (enableGlobalState) {
 			checkState();
