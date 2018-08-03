@@ -34,6 +34,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -490,9 +491,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 	
 	private void incTabOffset(int tabIndex) {
-		int next = this.tabOffsets.get(tabIndex)+1;
-		this.tabOffsets.remove(tabIndex);
-		this.tabOffsets.add(tabIndex, next);
+		this.tabOffsets.set(tabIndex, tabOffsets.get(tabIndex) + 1);
 	}
 
 	public void addPadding(int tabIndex) {
@@ -1654,6 +1653,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			for (JPanel panel : this.tabPanels) {
 				panel.removeAll();
 			}
+			Collections.fill(tabOffsets, 0);
 		} else {
 			this.getMainPanel().removeAll();
 		}
