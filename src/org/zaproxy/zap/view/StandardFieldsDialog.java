@@ -1593,6 +1593,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public void setCustomTabPanel(int i, JComponent panel) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (i < 0 || i >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + i);
+		}
 		this.tabPanels.get(i).add(panel, LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D, GridBagConstraints.BOTH));
 	}
 

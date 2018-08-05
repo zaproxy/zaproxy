@@ -65,7 +65,7 @@ public class CommonUserAgents {
 				logger.error(e.getMessage(), e);
 			}
 		} else {
-			logger.error("Failed to read common user agents from " + f.getAbsolutePath());
+			logger.info("No common user agents will be suggested, file does not exist: " + f.getAbsolutePath());
 		}
 	}
 	
