@@ -27,19 +27,19 @@ function authenticate(helper, paramsValues, credentials) {
 	var URI = Java.type("org.apache.commons.httpclient.URI")
 
 	// Prepare the login request details
-	requestUri = new URI(paramsValues.get("Target URL"), false);
-	requestMethod = HttpRequestHeader.POST;
+	var requestUri = new URI(paramsValues.get("Target URL"), false);
+	var requestMethod = HttpRequestHeader.POST;
 	
 	// Build the request body using the credentials values
-	extraPostData = paramsValues.get("Extra POST data");
-	requestBody = paramsValues.get("Username field") + "=" + encodeURIComponent(credentials.getParam("Username"));
+	var extraPostData = paramsValues.get("Extra POST data");
+	var requestBody = paramsValues.get("Username field") + "=" + encodeURIComponent(credentials.getParam("Username"));
 	requestBody+= "&" + paramsValues.get("Password field") + "=" + encodeURIComponent(credentials.getParam("Password"));
 	if(extraPostData.trim().length() > 0)
 		requestBody += "&" + extraPostData.trim();
 
 	// Build the actual message to be sent
 	print("Sending " + requestMethod + " request to " + requestUri + " with body: " + requestBody);
-	msg = helper.prepareMessage();
+	var msg = helper.prepareMessage();
 	msg.setRequestHeader(new HttpRequestHeader(requestMethod, requestUri, HttpHeader.HTTP10));
 	msg.setRequestBody(requestBody);
 

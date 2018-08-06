@@ -22,14 +22,14 @@ function authenticate(helper, paramsValues, credentials) {
 	var URI = Java.type("org.apache.commons.httpclient.URI")
 
 	// Prepare the login request details
-	requestUri = new URI("http://localhost:8080/bodgeit/login.jsp", false);
-	requestMethod = HttpRequestHeader.POST;
+	var requestUri = new URI("http://localhost:8080/bodgeit/login.jsp", false);
+	var requestMethod = HttpRequestHeader.POST;
 	// Build the request body using the credentials values
-	requestBody = "username="+encodeURIComponent(credentials.getParam("username"));
+	var requestBody = "username="+encodeURIComponent(credentials.getParam("username"));
 	requestBody+= "&password="+encodeURIComponent(credentials.getParam("password"));
 
 	// Build the actual message to be sent
-	msg=helper.prepareMessage();
+	var msg=helper.prepareMessage();
 	msg.setRequestHeader(new HttpRequestHeader(requestMethod, requestUri, HttpHeader.HTTP10));
 	msg.setRequestBody(requestBody);
 
