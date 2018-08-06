@@ -30,7 +30,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The credentials implementation for use in systems that require a username and password
  * combination for authentication.
  */
-class UsernamePasswordAuthenticationCredentials implements AuthenticationCredentials {
+public class UsernamePasswordAuthenticationCredentials implements AuthenticationCredentials {
 
 	private static final String API_NAME = "UsernamePasswordAuthenticationCredentials";
 

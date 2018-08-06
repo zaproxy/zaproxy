@@ -72,6 +72,7 @@
 // ZAP: 2018/02/19 Added WEB_SOCKET_INITIATOR.
 // ZAP: 2018/02/23 Issue 1161: Allow to override the global session tracking setting
 //                 Fix Session Tracking button sync
+// ZAP: 2018/08/03 Added AUTHENTICATION_HELPER_INITIATOR.
 
 package org.parosproxy.paros.network;
 
@@ -131,6 +132,7 @@ public class HttpSender {
 	public static final int FORCED_BROWSE_INITIATOR = 11;
 	public static final int TOKEN_GENERATOR_INITIATOR = 12;
 	public static final int WEB_SOCKET_INITIATOR = 13;
+	public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
 
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
