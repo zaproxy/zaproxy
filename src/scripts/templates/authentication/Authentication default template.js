@@ -16,7 +16,7 @@
 //					returned by the getCredentialsParamsNames() below
 function authenticate(helper, paramsValues, credentials) {
 	print("Authenticating via JavaScript script...");
-	msg = helper.prepareMessage();
+	var msg = helper.prepareMessage();
 	
 	// TODO: Process message to match the authentication needs
 
