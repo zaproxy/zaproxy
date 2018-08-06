@@ -33,7 +33,7 @@ import org.zaproxy.zap.model.SessionStructure;
 
 /**
  * Variant class used for URL path elements that are defined as Data Driven Nodes.
- * For a URL like: http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg
+ * For a URL like: {@literal http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg}
  * parameter	position
  *      aaa     1
  *      bbb     2
@@ -42,8 +42,8 @@ import org.zaproxy.zap.model.SessionStructure;
  *      https://www.example.com/en-US/container/item/itemA
  *      https://www.example.com/en-US/container/item/itemB
  * Defined as:
- *      https://www.example.com/en-US/container/item/<<DDN1>>
- * Test/inject <<DDN1>>
+ *      {@literal https://www.example.com/en-US/container/item/<<DDN1>>}
+ * Test/inject {@literal <<DDN1>>}
  */
 public class VariantDdnPath implements Variant {
 

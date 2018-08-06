@@ -57,6 +57,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * Changes:
  *  - Removed the characters "$" from the previous SVN keywords (HeadURL, Revision and Date) to avoid accidental expansions.
+ *  - Address some JavaDoc warns.
  *  - Remove use of reflection to call Socket.shutdownOutput() in shutdownOutput(), not needed by minimum Java version targeted.
  *  - Add @Deprecated annotations to deprecated methods (by JavaDoc deprecated tag).
  *  - Change method tunnelCreated() to also create the tunnel if requested by calling code.
@@ -502,7 +503,7 @@ public class HttpConnection {
      *
      * <p>To avoid side-effects, the underlying connection is wrapped by a
      * {@link BufferedInputStream}, so although data might be read, what is visible
-     * to clients of the connection will not change with this call.</p.
+     * to clients of the connection will not change with this call.</p>.
      *
      * @throws IOException if the stale connection test is interrupted.
      * 
