@@ -149,29 +149,29 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         try {
 			// Add the SOURCEHISTORYID column to the db if necessary
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, SOURCEHISTORYID)) {
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+SOURCEHISTORYID+" INT DEFAULT 0"));
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+SOURCEHISTORYID+" INT DEFAULT 0");
 			}
 			
 			// Add the ATTACK column to the db if necessary
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, ATTACK)) {
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+ATTACK+" VARCHAR(32768) DEFAULT ''"));
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+ATTACK+" VARCHAR(32768) DEFAULT ''");
 			}
 			
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, EVIDENCE)) {
 				// Evidence, cweId and wascId all added at the same time
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+EVIDENCE+" VARCHAR(16777216) DEFAULT ''"));
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+CWEID+" INT DEFAULT -1"));
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+WASCID+" INT DEFAULT -1"));
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+EVIDENCE+" VARCHAR(16777216) DEFAULT ''");
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+CWEID+" INT DEFAULT -1");
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+WASCID+" INT DEFAULT -1");
 			}
 			
 			if (!DbUtils.hasIndex(connection, TABLE_NAME, ALERT_INDEX)) {
 				// this speads up session loading
-				DbUtils.executeAndClose(connection.prepareStatement("CREATE INDEX "+ALERT_INDEX+" ON "+TABLE_NAME+" ("+SOURCEHISTORYID+")"));
+				DbUtils.execute(connection, "CREATE INDEX "+ALERT_INDEX+" ON "+TABLE_NAME+" ("+SOURCEHISTORYID+")");
 			}
 
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, SOURCEID)) {
-				DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+SOURCEID+" INT DEFAULT 0"));
-				DbUtils.executeAndClose(connection.prepareStatement("CREATE INDEX INDEX_ALERT_SOURCEID ON "+TABLE_NAME+" ("+SOURCEID+")"));
+				DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+SOURCEID+" INT DEFAULT 0");
+				DbUtils.execute(connection, "CREATE INDEX INDEX_ALERT_SOURCEID ON "+TABLE_NAME+" ("+SOURCEID+")");
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
