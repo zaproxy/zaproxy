@@ -343,6 +343,7 @@
         <echo message="Copying resources..." />
         <copy todir="${test.build}">
             <fileset dir="${src}" includes="lang/**" />
+            <fileset dir="${src}" includes="scripts/templates/**" />
             <fileset dir="${test.src}/resources/" />
         </copy>
         <echo message="Running tests..." />
@@ -369,6 +370,7 @@
                     <include name="**/AbstractPluginUnitTest.class"/>
                     <include name="**/AbstractParamUnitTest.class"/>
                     <include name="**/AbstractMultipleOptionsBaseTableModelUnitTest.class"/>
+                    <include name="**/VerifyScriptTemplates.class"/>
                 </fileset>
             </batchtest>
 		</junit>
