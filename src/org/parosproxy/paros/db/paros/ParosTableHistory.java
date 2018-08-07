@@ -195,12 +195,12 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     private void updateTable(Connection connection) throws DatabaseException {
         try {
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, TAG)) {
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+TAG+" VARCHAR(32768) DEFAULT ''"));
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+TAG+" VARCHAR(32768) DEFAULT ''");
 			}
 
 			// Add the NOTE column to the db if necessary
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, NOTE)) {
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+NOTE+" VARCHAR(1048576) DEFAULT ''"));
+			    DbUtils.execute(connection, "ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+NOTE+" VARCHAR(1048576) DEFAULT ''");
 			}
 			
 			if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY) != Types.SQL_VARBINARY) {
@@ -214,10 +214,10 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			}
 
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, RESPONSE_FROM_TARGET_HOST)) {
-			    DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE " + TABLE_NAME + " ADD COLUMN "
-			            + RESPONSE_FROM_TARGET_HOST + " BOOLEAN DEFAULT FALSE"));
-			    DbUtils.executeUpdateAndClose(connection.prepareStatement("UPDATE " + TABLE_NAME + " SET " + RESPONSE_FROM_TARGET_HOST
-			            + " = TRUE "));
+			    DbUtils.execute(connection, "ALTER TABLE " + TABLE_NAME + " ADD COLUMN "
+			            + RESPONSE_FROM_TARGET_HOST + " BOOLEAN DEFAULT FALSE");
+			    DbUtils.executeUpdate(connection, "UPDATE " + TABLE_NAME + " SET " + RESPONSE_FROM_TARGET_HOST
+			            + " = TRUE ");
 			}
 			
 			int requestbodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, REQBODY);
@@ -225,15 +225,15 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			try {	        
 			    if (requestbodysizeindb != this.configuredrequestbodysize && this.configuredrequestbodysize > 0) {
 			    	if (log.isDebugEnabled()) log.debug("Extending table "+ TABLE_NAME + " request body length from "+ requestbodysizeindb + " to " + this.configuredrequestbodysize);
-			    	DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE " + TABLE_NAME + " ALTER COLUMN "
-			            + REQBODY + " VARBINARY("+this.configuredrequestbodysize+")"));
+			    	DbUtils.execute(connection, "ALTER TABLE " + TABLE_NAME + " ALTER COLUMN "
+			            + REQBODY + " VARBINARY("+this.configuredrequestbodysize+")");
 			    	if (log.isDebugEnabled()) log.debug("Completed extending table "+ TABLE_NAME + " request body length from "+ requestbodysizeindb + " to " + this.configuredrequestbodysize);
 			    }
 			    
 			    if (responsebodysizeindb != this.configuredresponsebodysize && this.configuredresponsebodysize > 0) {
 			    	if (log.isDebugEnabled()) log.debug("Extending table "+ TABLE_NAME + " response body length from "+ responsebodysizeindb + " to " + this.configuredresponsebodysize);
-			    	DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE " + TABLE_NAME + " ALTER COLUMN "
-			            + RESBODY + " VARBINARY("+this.configuredresponsebodysize+")"));
+			    	DbUtils.execute(connection, "ALTER TABLE " + TABLE_NAME + " ALTER COLUMN "
+			            + RESBODY + " VARBINARY("+this.configuredresponsebodysize+")");
 			    	if (log.isDebugEnabled()) log.debug("Completed extending table "+ TABLE_NAME + " response body length from "+ responsebodysizeindb + " to " + this.configuredresponsebodysize);
 			    }
 			}

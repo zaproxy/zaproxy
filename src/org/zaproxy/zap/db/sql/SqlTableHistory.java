@@ -125,12 +125,12 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     private void updateTable(Connection connection) throws DatabaseException {
         try {
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, TAG)) {
-			    DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("history.ps.addtag")));
+			    DbUtils.execute(connection, DbSQL.getSQL("history.ps.addtag"));
 			}
 
 			// Add the NOTE column to the db if necessary
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, NOTE)) {
-			    DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("history.ps.addnote")));
+			    DbUtils.execute(connection, DbSQL.getSQL("history.ps.addnote"));
 			}
 			
 			/* TODO how to handle HSQLDB dependancy?? Need to parameterize somehow.. vvvvvvvvvvvv */ 
@@ -145,23 +145,25 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 			}
 
 			if (!DbUtils.hasColumn(connection, TABLE_NAME, RESPONSE_FROM_TARGET_HOST)) {
-			    DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("history.ps.addrespfromtarget")));
-			    DbUtils.executeUpdateAndClose(connection.prepareStatement(DbSQL.getSQL("history.ps.setrespfromtarget")));
+			    DbUtils.execute(connection, DbSQL.getSQL("history.ps.addrespfromtarget"));
+			    DbUtils.executeUpdate(connection, DbSQL.getSQL("history.ps.setrespfromtarget"));
 			}
 			
 			int requestbodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, REQBODY);
 			int responsebodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, RESBODY);
 			try {	        
 			    if (requestbodysizeindb != this.configuredrequestbodysize && this.configuredrequestbodysize > 0) {
-			    	PreparedStatement stmt = connection.prepareStatement(DbSQL.getSQL("history.ps.changereqsize"));
-			    	stmt.setInt(1, this.configuredrequestbodysize);
-			    	DbUtils.executeAndClose(stmt);
+			    	try (PreparedStatement stmt = connection.prepareStatement(DbSQL.getSQL("history.ps.changereqsize"))){
+			    	    stmt.setInt(1, this.configuredrequestbodysize);
+			            stmt.execute();
+			        }
 			    }
 			    
 			    if (responsebodysizeindb != this.configuredresponsebodysize && this.configuredresponsebodysize > 0) {
-			    	PreparedStatement stmt = connection.prepareStatement(DbSQL.getSQL("history.ps.changerespsize"));
-			    	stmt.setInt(1, this.configuredresponsebodysize);
-			    	DbUtils.executeAndClose(stmt);
+                    try (PreparedStatement stmt = connection.prepareStatement(DbSQL.getSQL("history.ps.changerespsize"))){
+                        stmt.setInt(1, this.configuredresponsebodysize);
+                        stmt.execute();
+                    }
 			    }
 			}
 			catch (SQLException e) {

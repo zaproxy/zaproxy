@@ -48,7 +48,7 @@ public class SqlTableContext extends SqlAbstractTable implements TableContext {
         try {
 			if (!DbUtils.hasTable(conn, TABLE_NAME)) {
 			    // Need to create the table
-			    DbUtils.executeAndClose(conn.prepareStatement(DbSQL.getSQL("context.ps.createtable")));
+			    DbUtils.execute(conn, DbSQL.getSQL("context.ps.createtable"));
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);

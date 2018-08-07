@@ -238,7 +238,9 @@ public class DbUtils {
      *             {@code preparedStatement}
      * @see PreparedStatement#close()
      * @see PreparedStatement#execute()
+     * @deprecated (TODO add version) replaced by {@link #execute}
      */
+    @Deprecated
     public static void executeAndClose(final PreparedStatement preparedStatement) throws SQLException {
         try {
             preparedStatement.execute();
@@ -254,13 +256,32 @@ public class DbUtils {
     }
 
     /**
+     * Utility function for executing the given {@code sql}
+     * 
+     * @param connection
+     *            the database connection to use
+     * @param sql
+     *            the sql statement to run
+     * @throws SQLException
+     *             if error occurred while executing the given {@code sql}
+     * @since TODO add version
+     */
+    public static void execute(final Connection connection, final String sql) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.execute();
+        }
+    }
+
+    /**
      * Executes (update) and closes the given {@code preparedStatement}.
      * 
      * @param preparedStatement the statement that will be executed and immediately closed
      * @throws SQLException if error occurred while executing the given {@code preparedStatement}
      * @see PreparedStatement#close()
      * @see PreparedStatement#executeUpdate()
+     * @deprecated (TODO add version) replaced by {@link #executeUpdate}
      */
+    @Deprecated
     public static void executeUpdateAndClose(PreparedStatement preparedStatement) throws SQLException {
         try {
             preparedStatement.executeUpdate();
@@ -272,6 +293,23 @@ public class DbUtils {
                     logger.debug(e.getMessage(), e);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Utility function for executing an update {@code sql} statement
+     * 
+     * @param connection
+     *            the database connection to use
+     * @param sql
+     *            the sql statement to run
+     * @throws SQLException if error occurred while executing the given {@code sql}
+     * @since TODO add version
+     */
+    public static void executeUpdate(final Connection connection, final String sql) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.executeUpdate();
         }
     }
 
