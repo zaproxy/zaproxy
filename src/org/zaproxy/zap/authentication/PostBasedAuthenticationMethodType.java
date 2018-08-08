@@ -129,7 +129,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 	 * @param labelPopupMenuKey the name of the menu item that flags the request as login.
 	 * @param postDataRequired {@code true} if the POST data is required by the authentication method, {@code false} otherwise.
 	 */
-	protected PostBasedAuthenticationMethodType(
+	public PostBasedAuthenticationMethodType(
 			String methodName,
 			int methodIdentifier,
 			String apiMethodName,
