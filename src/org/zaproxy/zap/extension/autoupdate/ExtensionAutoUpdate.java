@@ -851,8 +851,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
     private ZapXmlConfiguration getRemoteConfigurationUrl(String url) throws 
     		IOException, ConfigurationException, InvalidCfuUrlException {
-        HttpMessage msg = new HttpMessage(new URI(url, true), 
-        		Model.getSingleton().getOptionsParam().getConnectionParam());
+        HttpMessage msg = new HttpMessage(new URI(url, true));
         getHttpSender().sendAndReceive(msg,true);
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
             throw new IOException(
