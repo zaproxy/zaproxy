@@ -259,7 +259,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 
 	/**
-	 * @deprecated (2.3.0) No longer supported since it's no longer required/called by Commons HttpClient library (version >= 
+	 * @deprecated (2.3.0) No longer supported since it's no longer required/called by Commons HttpClient library (version &ge;
 	 *             3.0). Throws {@code UnsupportedOperationException}.
 	 */
 	@Override
@@ -488,7 +488,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	}
 
 	/**
-	 * @deprecated (2.3.0) No longer supported since it's no longer required/called by Commons HttpClient library (version >= 
+	 * @deprecated (2.3.0) No longer supported since it's no longer required/called by Commons HttpClient library (version &ge;
 	 *             3.0). Throws {@code UnsupportedOperationException}.
 	 */
 	@Override

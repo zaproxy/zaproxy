@@ -52,7 +52,7 @@ public class SqlTableStructure extends SqlAbstractTable implements TableStructur
         try {
 			if (!DbUtils.hasTable(conn, TABLE_NAME)) {
 			    // Need to create the table
-			    DbUtils.executeAndClose(conn.prepareStatement(DbSQL.getSQL("structure.ps.createtable")));
+			    DbUtils.execute(conn, DbSQL.getSQL("structure.ps.createtable"));
 			}
 
 		} catch (SQLException e) {

@@ -65,7 +65,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 	 * The implementation for an {@link AuthenticationMethodType} where the Users are authenticated
 	 * through HTTP Authentication.
 	 */
-	protected static class HttpAuthenticationMethod extends AuthenticationMethod {
+	public static class HttpAuthenticationMethod extends AuthenticationMethod {
 
 		public HttpAuthenticationMethod() {
 			super();
@@ -74,6 +74,18 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 		protected String hostname;
 		protected int port = 80;
 		protected String realm;
+
+		public void setHostname(String hostname) {
+			this.hostname = hostname;
+		}
+
+		public void setPort(int port) {
+			this.port = port;
+		}
+
+		public void setRealm(String realm) {
+			this.realm = realm;
+		}
 
 		@Override
 		public boolean isConfigured() {

@@ -19,6 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2018/07/27 Address JavaDoc warns.
 package org.parosproxy.paros.network;
 
 public final class HttpStatusCode {
@@ -86,7 +87,7 @@ public final class HttpStatusCode {
 		GATEWAY_TIEMOUT, HTTP_VERSION_NOT_SUPPORTED};
 	
 	/**
-	 * Check if a status code is informational.  (100 <= status < 200)
+	 * Check if a status code is informational.  (100 &le; status &lt; 200)
 	 * @param statusCode
 	 * @return true if informational
 	 */
@@ -99,7 +100,7 @@ public final class HttpStatusCode {
 
 
 	/**
-	 * Check if a HTTP status code is successful.  (200 <= status < 300)
+	 * Check if a HTTP status code is successful.  (200 &le; status &lt; 300)
 	 * @param statusCode
 	 * @return
 	 */
@@ -111,7 +112,7 @@ public final class HttpStatusCode {
 	}
 
 	/**
-	 * Check if a HTTP status code is redirection.  (300 <= status < 400)
+	 * Check if a HTTP status code is redirection.  (300 &le; status &lt; 400)
 	 * @param statusCode
 	 * @return
 	 */
@@ -124,7 +125,7 @@ public final class HttpStatusCode {
 	}
 
 	/**
-	 * Check if a HTTP status code is client error (400 <= status <500)
+	 * Check if a HTTP status code is client error (400 &le; status &lt; 500)
 	 * @param statusCode
 	 * @return
 	 */
@@ -136,7 +137,7 @@ public final class HttpStatusCode {
 	}
 
 	/**
-	 * Check if a HTTP status code is server error (500 <= status)
+	 * Check if a HTTP status code is server error (500 &le; status)
 	 * @param statusCode
 	 * @return
 	 */
