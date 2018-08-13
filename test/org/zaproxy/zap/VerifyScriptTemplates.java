@@ -51,6 +51,7 @@ public class VerifyScriptTemplates {
         // Given
         List<Path> templates = getScriptTemplates(".js");
         Compilable se = (Compilable) new ScriptEngineManager().getEngineByName("ECMAScript");
+        assertThat("No ECMAScript script engine found.", se, is(not(nullValue())));
         for (Path template : templates) {
             try (Reader reader = Files.newBufferedReader(template, StandardCharsets.UTF_8)) {
                 // When / Then
