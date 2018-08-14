@@ -25,7 +25,7 @@ function parseParameters(helper, msg) {
 
     var vars = query.split("&");
     for (var i = 0; i < vars.length; i++) {
-        pair = vars[i].split("=");
+        var pair = vars[i].split("=");
 
         if (helper.isBase64(decodeURIComponent(pair[1]))) {
             var value = helper.decodeBase64(decodeURIComponent(pair[1]));
@@ -61,8 +61,6 @@ function setParameter(helper, msg, param, value, escaped) {
                     value = encodeURIComponent(value);
                 }
                 pvalue = value;
-            } else {
-                pvalue = pvalue;
             }
         }
         query = pname + "=" + pvalue + "&" + query;
