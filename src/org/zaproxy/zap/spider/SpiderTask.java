@@ -153,7 +153,7 @@ public class SpiderTask implements Runnable {
 		// HistoryReference
 		try {
 			HttpRequestHeader requestHeader = 
-					new HttpRequestHeader(method, uri, HttpHeader.HTTP11, parent.getConnectionParam());
+					new HttpRequestHeader(method, uri, HttpHeader.HTTP11);
 			if (sourceUri != null && parent.getSpiderParam().isSendRefererHeader()) {
 				requestHeader.setHeader(HttpRequestHeader.REFERER, sourceUri.toString());
 			}

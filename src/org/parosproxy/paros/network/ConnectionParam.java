@@ -42,6 +42,7 @@
 // ZAP: 2017/06/19 Do not allow to set negative timeout values and expose the default value.
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/08/10 Set the default user agent to HttpRequestHeader (Issue 4846).
 
 package org.parosproxy.paros.network;
 
@@ -215,6 +216,7 @@ public class ConnectionParam extends AbstractParam {
 		setHttpStateEnabledImpl(getBoolean(HTTP_STATE_ENABLED, false));
 
 		this.defaultUserAgent = getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
+		HttpRequestHeader.setDefaultUserAgent(defaultUserAgent);
         
         loadSecurityProtocolsEnabled();
 	}
@@ -746,6 +748,7 @@ public class ConnectionParam extends AbstractParam {
 	}
 	public void setDefaultUserAgent(String defaultUserAgent) {
 		this.defaultUserAgent = defaultUserAgent;
+		HttpRequestHeader.setDefaultUserAgent(defaultUserAgent);
 		getConfig().setProperty(DEFAULT_USER_AGENT, defaultUserAgent);
 	}
 

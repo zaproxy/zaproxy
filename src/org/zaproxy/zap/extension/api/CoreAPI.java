@@ -366,8 +366,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						new HttpRequestHeader(
 								HttpRequestHeader.GET,
 								uri,
-								HttpHeader.HTTP11,
-								Model.getSingleton().getOptionsParam().getConnectionParam()));
+								HttpHeader.HTTP11));
 			} catch (HttpMalformedHeaderException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
 			}
