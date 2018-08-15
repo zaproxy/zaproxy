@@ -72,7 +72,7 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
 	@Override
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-	    AntiCsrfParam param = optionsParam.getAntiCsrfParam();
+	    AntiCsrfParam param = optionsParam.getParamSet(AntiCsrfParam.class);
 	    getAntiCsrfModel().setTokens(param.getTokens());
 	    tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveToken());
     }
@@ -83,7 +83,7 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-	    AntiCsrfParam antiCsrfParam = optionsParam.getAntiCsrfParam();
+	    AntiCsrfParam antiCsrfParam = optionsParam.getParamSet(AntiCsrfParam.class);
 	    antiCsrfParam.setTokens(getAntiCsrfModel().getElements());
 	    antiCsrfParam.setConfirmRemoveToken(!tokensOptionsPanel.isRemoveWithoutConfirmation());
     }
