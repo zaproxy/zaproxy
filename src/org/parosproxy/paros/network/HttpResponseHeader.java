@@ -34,6 +34,7 @@
 // ZAP: 2017/11/10 Allow to set the status code and reason.
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
 // ZAP: 2018/07/23 Add CSP headers.
+// ZAP: 2018/08/15 Add Server header.
 
 package org.parosproxy.paros.network;
 
@@ -79,6 +80,13 @@ public class HttpResponseHeader extends HttpHeader {
      * @since TODO add version
      */
     public static final String WEBKIT_CSP = "X-WebKit-CSP";
+
+    /**
+     * The {@code Server} response header.
+     * 
+     * @since TODO add version
+     */
+    public static final String SERVER = "Server";
 
 	private static final long serialVersionUID = 2812716126742059785L;
     private static final Logger log = Logger.getLogger(HttpResponseHeader.class);
