@@ -1403,9 +1403,6 @@ public class AddOn  {
      * @since 2.4.0
      */
     public boolean isExtensionLoaded(String classname) {
-        List<Extension> allExtensions = new ArrayList<>(getLoadedExtensions().size() + getLoadedExtensionsWithDeps().size());
-        allExtensions.addAll(getLoadedExtensions());
-        allExtensions.addAll(getLoadedExtensionsWithDeps());
         for (Extension extension : getLoadedExtensions()) {
             if (classname.equals(extension.getClass().getCanonicalName())) {
                 return true;

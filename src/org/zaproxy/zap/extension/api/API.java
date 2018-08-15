@@ -477,16 +477,18 @@ public class API {
 						msg = impl.handleApiOther(msg, name, params);
 						break;
 					case pconn:
-						ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
-						if (pconn != null) {
-							if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
-								if ( ! this.hasValidKey(requestHeader, params)) {
-									throw new ApiException(ApiException.Type.BAD_API_KEY);
+						if (impl != null) {
+							ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
+							if (pconn != null) {
+								if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
+									if ( ! this.hasValidKey(requestHeader, params)) {
+										throw new ApiException(ApiException.Type.BAD_API_KEY);
+									}
 								}
+								validateMandatoryParams(params, pconn);
 							}
-							validateMandatoryParams(params, pconn);
+							impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
 						}
-						impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
 						return new HttpMessage();
 					}
 				} else {

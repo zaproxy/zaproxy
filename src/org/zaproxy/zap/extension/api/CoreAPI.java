@@ -1422,13 +1422,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	public HttpMessage handleShortcut(HttpMessage msg)  throws ApiException {
 		try {
 			if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_PROXY_PAC)) {
-				return this.handleApiOther(msg, OTHER_PROXY_PAC, null);
+				return this.handleApiOther(msg, OTHER_PROXY_PAC, new JSONObject());
 			} else if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SET_PROXY)) {
 				JSONObject params = new JSONObject();
 				params.put(PARAM_PROXY_DETAILS, msg.getRequestBody().toString());
 				return this.handleApiOther(msg, OTHER_SET_PROXY, params);
 			} else if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SCRIPT_JS)) {
-				return this.handleApiOther(msg, OTHER_SCRIPT_JS, null);
+				return this.handleApiOther(msg, OTHER_SCRIPT_JS, new JSONObject());
 			}
 		} catch (URIException e) {
 			logger.error(e.getMessage(), e);

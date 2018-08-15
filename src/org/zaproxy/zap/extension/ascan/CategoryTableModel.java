@@ -187,7 +187,7 @@ public class CategoryTableModel extends DefaultTableModel {
 
     private int getPluginRow(Plugin plugin) {
         for (int i = 0; i < listTestCategory.size(); i++) {
-            if (plugin.equals(listTestCategory.get(i))) {
+            if (plugin.equals(listTestCategory.get(i).getPlugin())) {
                 return i;
             }
         }
