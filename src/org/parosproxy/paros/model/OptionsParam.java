@@ -38,6 +38,7 @@
 // ZAP: 2015/04/09 Generify getParamSet(Class) to avoid unnecessary casts
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2016/12/06 Add ExtensionParam
+// ZAP: 2018/08/15 Move AntiCsrfParam to ExtensionAntiCSRF
 
 package org.parosproxy.paros.model;
 
@@ -79,7 +80,6 @@ public class OptionsParam extends AbstractParam {
 	private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
 	// ZAP: Added many instance variables for new functionality.
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
-	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private GlobalExcludeURLParam globalExcludeURLParam = new GlobalExcludeURLParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
@@ -193,7 +193,6 @@ public class OptionsParam extends AbstractParam {
 		getCertificateParam().load(getConfig());
 		getViewParam().load(getConfig());
 		getCheckForUpdatesParam().load(getConfig());
-		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
 		getGlobalExcludeURLParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
@@ -260,8 +259,16 @@ public class OptionsParam extends AbstractParam {
 		}
     }
 
+	/**
+	 * Gets the anti-csrf extension's options.
+	 *
+	 * @return the anti-csrf options.
+	 * @deprecated (TODO add version) Use {@link org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF ExtensionAntiCSRF} to
+	 *             manage the tokens, if the {@code AntiCsrfParam} is really needed use {@link #getParamSet(Class)} instead.
+	 */
+	@Deprecated
 	public AntiCsrfParam getAntiCsrfParam() {
-		return antiCsrfParam;
+		return getParamSet(AntiCsrfParam.class);
 	}
 	
 	// ZAP: Added getter.

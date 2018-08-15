@@ -50,7 +50,6 @@ import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -71,6 +70,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	private static Logger log = Logger.getLogger(ExtensionAntiCSRF.class);
 
+	private AntiCsrfParam antiCsrfParam;
 	private AntiCsrfDetectScanner antiCsrfDetectScanner;
 
 	private HistoryReferenceFactory historyReferenceFactory;
@@ -92,6 +92,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
     @Override
     public void init() {
+        antiCsrfParam = new AntiCsrfParam();
         antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
     }
     
@@ -103,6 +104,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
+
+	    extensionHook.addOptionsParamSet(antiCsrfParam);
 
 		final ExtensionHistory extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
 		if (extensionHistory != null) {
@@ -167,7 +170,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	protected AntiCsrfParam getParam() {
-        return Model.getSingleton().getOptionsParam().getAntiCsrfParam();
+        return antiCsrfParam;
 	}
 	
 	public List<String> getAntiCsrfTokenNames() {
