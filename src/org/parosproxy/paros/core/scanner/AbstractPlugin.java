@@ -58,6 +58,7 @@
 // ZAP: 2017/11/14 Notify completion in a finally block.
 // ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
 // ZAP: 2018/02/02 Add helper method to check if any of several techs is in scope.
+// ZAP: 2018/08/15 Implemented hashCode
 
 package org.parosproxy.paros.core.scanner;
 
@@ -68,6 +69,7 @@ import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -680,6 +682,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getId());
+    }
+    
     /**
      * Check if the given pattern can be found in the header.
      *

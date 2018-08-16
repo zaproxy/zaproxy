@@ -43,6 +43,7 @@
 // ZAP: 2017/06/07 Allow to persist the session properties (e.g. name, description).
 // ZAP: 2018/03/27 Validate that context and configurations for ContextDataFactory are not null.
 // ZAP: 2018/07/19 Fallback to bundled zapdb.script file.
+// ZAP: 2018/08/15 Deprecated addSessionListener
 
 package org.parosproxy.paros.model;
 
@@ -84,7 +85,6 @@ public class Model {
 	private String currentDBNameUntitled = "";
 	// ZAP: Added logger
 	private Logger logger = Logger.getLogger(Model.class);
-	private List<SessionListener> sessionListeners = new ArrayList<>();
 	private List<ContextDataFactory> contextDataFactories = new ArrayList<>();
 
 	private boolean postInitialisation;
@@ -466,8 +466,8 @@ public class Model {
 		DBNAME_COPY++;
 	}
 
+	@Deprecated
 	public void addSessionListener(SessionListener listener) {
-		this.sessionListeners.add(listener);
 	}
 
 	/**
