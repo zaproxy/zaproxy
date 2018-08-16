@@ -56,6 +56,13 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
+/**
+ * An {@code Extension} that handles anti-csrf tokens.
+ * <p>
+ * Extracts and tracks anti-csrf tokens, allowing to refresh and send them in new requests.
+ *
+ * @since 1.3.0
+ */
 public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChangedListener {
 
 	public static final String NAME = "ExtensionAntiCSRF"; 
@@ -173,14 +180,41 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         return antiCsrfParam;
 	}
 	
+	/**
+	 * Gets the names of the anti-csrf tokens handled by this extension.
+	 *
+	 * @return the names of the anti-csrf tokens.
+	 * @see #addAntiCsrfTokenName(String)
+	 * @since 1.4.0
+	 */
 	public List<String> getAntiCsrfTokenNames() {
 		return this.getParam().getTokensNames();
 	}
 	
+	/**
+	 * Adds the given token name, enabled by default.
+	 * <p>
+	 * The call to this method has no effect if the given name is null or empty, or a token with the given name already exist.
+	 *
+	 * @param token the token name to add.
+	 * @see #removeAntiCsrfTokenName(String)
+	 * @see #getAntiCsrfTokenNames()
+	 * @since 1.4.0
+	 */
 	public void addAntiCsrfTokenName(String token) {
 		this.getParam().addToken(token);
 	}
 
+	/**
+	 * Removes the given token name.
+	 * <p>
+	 * The call to this method has no effect if the given name is null or empty, or if the token with the given name does not
+	 * exist.
+	 *
+	 * @param token the token name to remove.
+	 * @see #addAntiCsrfTokenName(String)
+	 * @since 1.4.0
+	 */
 	public void removeAntiCsrfTokenName(String token) {
 		this.getParam().removeToken(token);
 	}
@@ -271,6 +305,26 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		return null;
 	}
 
+	/**
+	 * Convenience method that calls {@link #getTokensFromResponse(HttpMessage, Source)} with a {@code Source} built from the
+	 * response of the given HTTP message.
+	 *
+	 * @param msg from where the tokens should be extracted.
+	 * @return the extracted anti-csrf tokens.
+	 * @since TODO add version
+	 */
+	public List<AntiCsrfToken> getTokensFromResponse(HttpMessage msg) {
+		return getTokensFromResponse(msg, new Source(msg.getResponseBody().toString()));
+	}
+
+	/**
+	 * Gets the {@link #getAntiCsrfTokenNames() known} anti-csrf tokens from the given response.
+	 *
+	 * @param msg from where the tokens should be extracted.
+	 * @param source the HTML source document of the response.
+	 * @return the extracted anti-csrf tokens.
+	 * @since 2.2.0
+	 */
 	public List<AntiCsrfToken> getTokensFromResponse(HttpMessage msg, Source source) {
 		List<AntiCsrfToken> list = new ArrayList<>();
 		List<Element> formElements = source.getAllElements(HTMLElementName.FORM);
