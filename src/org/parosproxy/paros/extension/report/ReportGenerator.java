@@ -53,7 +53,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sf.json.xml.XMLSerializer;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.Constant;
@@ -317,7 +317,7 @@ public class ReportGenerator {
 
 		// The escapeXml function doesn't cope with some 'special' chrs
 
-		return StringEscapeUtils.escapeXml(XMLStringUtil.escapeControlChrs(result));
+		return StringEscapeUtils.escapeXml10(XMLStringUtil.escapeControlChrs(result));
 	}
 
 	/**

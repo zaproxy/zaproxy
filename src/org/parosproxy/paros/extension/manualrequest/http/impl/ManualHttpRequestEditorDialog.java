@@ -26,6 +26,7 @@
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
+// ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -290,8 +291,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog imp
 		try {
 			URI uri = new URI("http://www.any_domain_name.org/path", true);
 			msg.setRequestHeader(
-					new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10,
-							Model.getSingleton().getOptionsParam().getConnectionParam()));
+					new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
 			setMessage(msg);
 		} catch (HttpMalformedHeaderException e) {
 			logger.error(e.getMessage(), e);

@@ -62,47 +62,47 @@ public class GlobalExcludeURLParam extends AbstractParam {
     	 * once per boot, it need not be optimized).  */
     	final String defaultListArray[][] = {
 			{
-	    		"^.*\\.(gif|jpe?g|png|ico|icns|bmp)$",
+	    		"^.*\\.(?:gif|jpe?g|png|ico|icns|bmp)$",
 	    	    "Extension - Image (ends with .extension)",
 	            "false"
 	  	    }, {
-				"^.*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
+				"^.*\\.(?:mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
 				"Extension - Audio/Video (ends with .extension)",
 				"false"
 			}, {
-				"^.*\\.(pdf|docx?|xlsx?|pptx?)$",
+				"^.*\\.(?:pdf|docx?|xlsx?|pptx?)$",
 				"Extension - PDF & Office (ends with .extension)",
 				"false"
 			}, {
-				"^.*\\.(css|js)$",
+				"^.*\\.(?:css|js)$",
 				"Extension - Stylesheet, JavaScript (ends with .extension)",
 				"false"
 			}, {
-				"^.*\\.(sw[fa]|flv)$",
+				"^.*\\.(?:sw[fa]|flv)$",
 				"Extension - Flash & related (ends with .extension)",
 				"false"
 			}, {
-				"^[^\\?]*\\.(gif|jpe?g|png|ico|icns|bmp)\\?.*$",
+				"^[^\\?]*\\.(?:gif|jpe?g|png|ico|icns|bmp)\\?.*$",
 				"ExtParam - Image (extension plus ?params=values)",
 				"false"
 			}, {
-				"^[^\\?]*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
+				"^[^\\?]*\\.(?:mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
 				"ExtParam - Audio/Video (extension plus ?params=values)",
 				"false"
 			}, {
-				"^[^\\?]*\\.(pdf|docx?|xlsx?|pptx?)\\?.*$",
+				"^[^\\?]*\\.(?:pdf|docx?|xlsx?|pptx?)\\?.*$",
 				"ExtParam - PDF & Office (extension plus ?params=values)",
 				"false"
 			}, {
-				"^[^\\?]*\\.(css|js)\\?.*$",
+				"^[^\\?]*\\.(?:css|js)\\?.*$",
 				"ExtParam - Stylesheet, JavaScript (extension plus ?params=values)",
 				"false"
 			}, {
-				"^[^\\?]*\\.(sw[fa]|flv)\\?.*$",
+				"^[^\\?]*\\.(?:sw[fa]|flv)\\?.*$",
 				"ExtParam - Flash & related (extension plus ?params=values)",
 				"false"
 			}, {
-				"^[^\\?]*/(WebResource|ScriptResource)\\.axd\\?d=.*$",
+				"^[^\\?]*/(?:WebResource|ScriptResource)\\.axd\\?d=.*$",
 				"ExtParam - .NET adx resources (SR/WR.adx?d=)",
 				"false"
 			}, {
@@ -110,24 +110,24 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"Site - Bing API queries",
 				"false"
 			}, {
-				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com/.*$",
+				"^https?://(?:safebrowsing-cache|sb-ssl|sb|safebrowsing).*\\.(?:google|googleapis)\\.com/.*$",
 				"Site - Google malware detector updates",
 				"false"
 			}, {
-				"^https?://([^/])*\\.?lastpass\\.com",
+				"^https?://(?:[^/])*\\.?lastpass\\.com",
 				"Site - Lastpass manager",
 				"false"
 			}, {
-				"^https?://(.*addons|aus[0-9])\\.mozilla\\.(org|net|com)/.*$",
+				"^https?://(?:.*addons|aus[0-9])\\.mozilla\\.(org|net|com)/.*$",
 				"Site - Mozilla Firefox browser updates",
 				"false"
 			}, {
-				"^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
+				"^https?://(?:[^/])*\\.?(?:getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
 				"Site - Mozilla Firefox extensions phoning home",
 				"false"
 			}, {
 				// some of this from http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
-				"^https?://(.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
+				"^https?://(?:.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
 				"Site - Microsoft Windows updates",
 				"false"
 			}, {
@@ -149,6 +149,26 @@ public class GlobalExcludeURLParam extends AbstractParam {
 			}, {
 				"^https?://fonts.*$",
 				"Site - Fonts CDNs such as fonts.gstatic.com, etc",
+				"false"
+			}, {
+				"^https?://.*\\.cdn\\.mozilla\\.(?:com|org|net)/.*$",
+				"Site - Mozilla CDN (requests such as getpocked)",
+				"false"
+			}, {
+				"^https?://.*\\.telemetry\\.mozilla\\.(?:com|org|net)/.*$",
+				"Site - Mozilla Firefox browser telemetry",
+				"false"
+			}, {
+				"^https?://.*\\.adblockplus\\.org.*$",
+				"Site - Adblockplus updates and notifications",
+				"false"
+			}, {
+				"^https?://.*\\.services\\.mozilla\\.com.*$",
+				"Site - Firefox services",
+				"false"
+			}, {
+				"^https?://.*\\.gvt1\\.com.*$",
+				"Site - Google updates",
 				"false"
 			}
     	};

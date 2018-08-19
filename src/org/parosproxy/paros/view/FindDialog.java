@@ -25,20 +25,19 @@
 // ZAP: 2017/07/12 Issue 765: Add constructor with window parent, to facilitate ctrl-F in various HttpPanels
 // ZAP: 2017/07/17: Prevent opening multiple dialogs per parent.
 // ZAP: 2017/10/18 Do not allow to obtain the FindDialog with a null parent.
+// ZAP: 2018/08/17 Show a message if the string was not found (Issue 4935).
 
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Map;
 
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -46,14 +45,16 @@ import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 
 import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public class FindDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = -3223449799557586758L;
+	
+	private static final Logger LOGGER = Logger.getLogger(FindDialog.class);
 	
 	@SuppressWarnings("unchecked")
 	private static Map<Object, FindDialog> parentsMap = new ReferenceMap(ReferenceMap.WEAK, ReferenceMap.HARD);
@@ -64,6 +65,11 @@ public class FindDialog extends AbstractDialog {
 	private ZapTextField txtFind = null;
 	private JPanel jPanel1 = null;
     private JTextComponent lastInvoker = null;
+
+    /**
+     * A label to inform if the string was not found. 
+     */
+    private JLabel infoLabel;
     
     /**
      * @param lastInvoker The lastInvoker to set.
@@ -114,13 +120,10 @@ public class FindDialog extends AbstractDialog {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setVisible(false);
-        this.setResizable(false);
         this.setTitle(Constant.messages.getString("edit.find.title"));
+        this.infoLabel = new JLabel(Constant.messages.getString("edit.find.label.notfound"));
+        this.infoLabel.setVisible(false);
         this.setContentPane(getJPanel());
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(261, 111);
-	    }
         centreDialog();
         txtFind.requestFocus();
         this.getRootPane().setDefaultButton(btnFind);
@@ -177,6 +180,8 @@ public class FindDialog extends AbstractDialog {
 	            txtComp = (JTextComponent) c;
             }
         }
+
+	    infoLabel.setVisible(false);
         
         // ZAP: Check if a JTextComponent was really found.
         if (txtComp == null) {
@@ -200,10 +205,10 @@ public class FindDialog extends AbstractDialog {
 		        txtComp.requestFocusInWindow();
                 txtFind.requestFocusInWindow();
 		    } else {
-		        Toolkit.getDefaultToolkit().beep();
+		        infoLabel.setVisible(true);
 		    }
 		} catch (Exception e) {
-			System.out.println("Exception: " + e.getMessage());
+		    LOGGER.error("An error occurred while finding:", e);
 		}
 	}
 	/**
@@ -213,36 +218,32 @@ public class FindDialog extends AbstractDialog {
 	 */    
 	private JPanel getJPanel() {
 		if (jPanel == null) {
-			java.awt.GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel = new JLabel();
+			javax.swing.JLabel jLabel = new JLabel(Constant.messages.getString("edit.find.label.what"));
 
 			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
-			jLabel.setText(Constant.messages.getString("edit.find.label.what"));
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(2,10,2,10);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints5.weightx = 1.0;
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints5.gridx = 1;
-			gridBagConstraints5.gridy = 0;
-			gridBagConstraints5.insets = new java.awt.Insets(12,2,8,10);
-			gridBagConstraints5.ipadx = 50;
-			gridBagConstraints5.gridwidth = 2;
-			gridBagConstraints6.gridwidth = 3;
-			gridBagConstraints6.gridx = 0;
-			gridBagConstraints6.gridy = 1;
-			gridBagConstraints6.insets = new java.awt.Insets(2,2,2,2);
-			jPanel.add(jLabel, gridBagConstraints1);
-			jPanel.add(getTxtFind(), gridBagConstraints5);
-			jPanel.add(getJPanel1(), gridBagConstraints6);
+            GroupLayout layout = new GroupLayout(jPanel);
+            jPanel.setLayout(layout);
+            layout.setAutoCreateGaps(true);
+            layout.setAutoCreateContainerGaps(true);
+            layout.setHonorsVisibility(infoLabel, Boolean.FALSE);
+
+            layout.setHorizontalGroup(
+                    layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(jLabel))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                            .addComponent(getTxtFind())
+                                            .addComponent(infoLabel)
+                                            .addComponent(getJPanel1())));
+
+            layout.setVerticalGroup(
+                    layout.createSequentialGroup()
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(jLabel)
+                                            .addComponent(getTxtFind()))
+                            .addComponent(infoLabel)
+                            .addComponent(getJPanel1()));
 		}
 		return jPanel;
 	}
@@ -297,9 +298,7 @@ public class FindDialog extends AbstractDialog {
 	 */    
 	private ZapTextField getTxtFind() {
 		if (txtFind == null) {
-			txtFind = new ZapTextField();
-			txtFind.setMinimumSize(new java.awt.Dimension(120,24));
-			txtFind.setPreferredSize(new java.awt.Dimension(120,24));
+			txtFind = new ZapTextField(15);
 		}
 		return txtFind;
 	}
@@ -311,9 +310,8 @@ public class FindDialog extends AbstractDialog {
 	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
 			jPanel1 = new JPanel();
-			jPanel1.setMinimumSize(new java.awt.Dimension(155,35));
-			jPanel1.add(getBtnFind(), null);
-			jPanel1.add(getBtnCancel(), null);
+			jPanel1.add(getBtnFind());
+			jPanel1.add(getBtnCancel());
 		}
 		return jPanel1;
 	}

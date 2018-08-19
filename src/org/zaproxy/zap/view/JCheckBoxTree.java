@@ -82,9 +82,11 @@ public class JCheckBoxTree extends JTree {
 
     void fireCheckChangeEvent(CheckChangeEvent evt) {
         Object[] listeners = listenerList.getListenerList();
-        for (int i = 0; i < listeners.length; i++) {
+        // Note that the listeners list contains "pair of entries", 
+        // the first is the class and the following the instance
+        for (int i = 0; i < listeners.length-1; i += 2) {
             if (listeners[i] == CheckChangeEventListener.class) {
-                ((CheckChangeEventListener) listeners[i + 1]).checkStateChanged(evt);
+                ((CheckChangeEventListener) listeners[i+1]).checkStateChanged(evt);
             }
         }
     }

@@ -49,6 +49,7 @@
 // ZAP: 2017/08/23 queryEquals correct comparison and add JavaDoc. equalType update JavaDoc.
 // ZAP: 2018/03/13 Added toEventData()
 // ZAP: 2018/04/04 Add a copy constructor.
+// ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 
 package org.parosproxy.paros.network;
 
@@ -154,12 +155,46 @@ public class HttpMessage implements Message {
 	public HttpMessage() {
 	}
 
+	/**
+	 * Constructs a {@code HttpMessage} with a HTTP/1.1 GET request to the given URI.
+	 * <p>
+	 * The following headers are automatically added:
+	 * <ul>
+	 * <li>{@code Host}, with the domain and port from the given URI.</li>
+	 * <li>{@code User-Agent}, using the {@link HttpRequestHeader#getDefaultUserAgent()}.</li>
+	 * <li>{@code Pragma: no-cache}</li>
+	 * <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1</li>
+	 * <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.</li>
+	 * </ul>
+	 *
+	 * @param uri the request target.
+	 * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
+	 */
 	public HttpMessage(URI uri) throws HttpMalformedHeaderException {
-		this(uri, null);
+		setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
 	}
 	
+	/**
+	 * Constructs a {@code HttpMessage} with a HTTP/1.1 GET request to the given URI.
+	 * <p>
+	 * The following headers are automatically added:
+	 * <ul>
+	 * <li>{@code Host}, with the domain and port from the given URI.</li>
+	 * <li>{@code User-Agent}, using the {@link HttpRequestHeader#getDefaultUserAgent()}.</li>
+	 * <li>{@code Pragma: no-cache}</li>
+	 * <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1</li>
+	 * <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.</li>
+	 * </ul>
+	 *
+	 * @param uri the request target.
+	 * @param params unused.
+	 * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
+	 * @deprecated (TODO add version) Use {@link #HttpMessage(URI)} instead.
+	 * @since 2.4.2
+	 */
+	@Deprecated
 	public HttpMessage(URI uri, ConnectionParam params) throws HttpMalformedHeaderException {
-	    setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11, params));
+		this(uri);
 	}
 
 	/**

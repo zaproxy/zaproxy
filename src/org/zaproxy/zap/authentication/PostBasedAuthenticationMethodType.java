@@ -245,8 +245,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 				String method = (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
 				requestMessage = new HttpMessage();
 				requestMessage.setRequestHeader(
-						new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10,
-								Model.getSingleton().getOptionsParam().getConnectionParam()));
+						new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
 				if (requestBody != null) {
 					requestMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
 					requestMessage.getRequestBody().setBody(requestBody);

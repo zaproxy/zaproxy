@@ -47,6 +47,7 @@
 // ZAP: 2017/11/22 Address a NPE in isImage().
 // ZAP: 2018/01/10 Tweak how cookie header is reconstructed from HtmlParameter(s).
 // ZAP: 2018/02/06 Make the upper case changes locale independent (Issue 4327).
+// ZAP: 2018/08/10 Allow to set the user agent used by default request headers (Issue 4846).
 
 package org.parosproxy.paros.network;
 
@@ -94,6 +95,12 @@ public class HttpRequestHeader extends HttpHeader {
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
     private static final Pattern patternImage = Pattern.compile("\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
     private static final Pattern patternPartialRequestLine = Pattern.compile("\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * The user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
+     */
+    private static String defaultUserAgent;
+
     private String mMethod;
     private URI mUri;
     private String mHostName;
@@ -162,12 +169,24 @@ public class HttpRequestHeader extends HttpHeader {
 
     }
 
+    /**
+     * Constructs a {@code HttpRequestHeader} with the given method, URI, and version.
+     * <p>
+     * The following headers are automatically added:
+     * <ul>
+     * <li>{@code Host}, with the domain and port from the given URI.</li>
+     * <li>{@code User-Agent}, using the {@link #getDefaultUserAgent()}.</li>
+     * <li>{@code Pragma: no-cache}</li>
+     * <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1</li>
+     * <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.</li>
+     * </ul>
+     *
+     * @param method the request method.
+     * @param uri the request target.
+     * @param version the version, for example, {@code HTTP/1.1}.
+     * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
+     */
     public HttpRequestHeader(String method, URI uri, String version) throws HttpMalformedHeaderException {
-        this(method, uri, version, null);
-    }
-
-    public HttpRequestHeader(String method, URI uri, String version,
-    		ConnectionParam params) throws HttpMalformedHeaderException {
         this(method + " " + uri.toString() + " " + version.toUpperCase(Locale.ROOT) + CRLF + CRLF);
         
         try {
@@ -177,10 +196,7 @@ public class HttpRequestHeader extends HttpHeader {
             log.error(e.getMessage(), e);
         }
         
-        String userAgent = params != null
-                ? params.getDefaultUserAgent()
-                : "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)";
-        setHeader(USER_AGENT, userAgent);
+        setHeader(USER_AGENT, defaultUserAgent);
         setHeader(PRAGMA, "no-cache");
         
         // ZAP: added the Cache-Control header field to comply with HTTP/1.1
@@ -200,6 +216,32 @@ public class HttpRequestHeader extends HttpHeader {
             setContentLength(0);
         }
 
+    }
+
+    /**
+     * Constructs a {@code HttpRequestHeader} with the given method, URI, and version.
+     * <p>
+     * The following headers are automatically added:
+     * <ul>
+     * <li>{@code Host}, with the domain and port from the given URI.</li>
+     * <li>{@code User-Agent}, using the {@link #getDefaultUserAgent()}.</li>
+     * <li>{@code Pragma: no-cache}</li>
+     * <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1</li>
+     * <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.</li>
+     * </ul>
+     *
+     * @param method the request method.
+     * @param uri the request target.
+     * @param version the version, for example, {@code HTTP/1.1}.
+     * @param params unused.
+     * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
+     * @deprecated (TODO add version) Use {@link #HttpRequestHeader(String, URI, String)} instead.
+     * @since 2.4.2
+     */
+    @Deprecated
+    public HttpRequestHeader(String method, URI uri, String version,
+           ConnectionParam params) throws HttpMalformedHeaderException {
+        this(method, uri, version);
     }
 
     /**
@@ -797,4 +839,25 @@ public class HttpRequestHeader extends HttpHeader {
         return senderAddress;
     }
     
+    /**
+     * Sets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
+     * <p>
+     * This is expected to be called only by core code, when the corresponding option is changed.
+     *
+     * @param defaultUserAgent the default user agent.
+     * @since TODO add version
+     */
+    public static void setDefaultUserAgent(String defaultUserAgent) {
+        HttpRequestHeader.defaultUserAgent = defaultUserAgent;
+    }
+
+    /**
+     * Gets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
+     *
+     * @return the default user agent.
+     * @since TODO add version
+     */
+    public static String getDefaultUserAgent() {
+        return defaultUserAgent;
+    }
 }

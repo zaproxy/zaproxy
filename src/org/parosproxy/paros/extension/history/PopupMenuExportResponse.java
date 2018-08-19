@@ -25,6 +25,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Changed to a JMenuItem.
 // ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
+// ZAP: 2018/08/15 Added null check
 
 package org.parosproxy.paros.extension.history;
 
@@ -82,9 +83,11 @@ public class PopupMenuExportResponse extends JMenuItem {
                     }
         	    }
                     
-        	    BufferedOutputStream bos = null;
-                try {
-                    bos = new BufferedOutputStream(new FileOutputStream(file, isAppend));
+        	    
+                try (BufferedOutputStream bos = 
+                        new BufferedOutputStream(
+                                new FileOutputStream(file, isAppend));) {
+                    
                     for (HistoryReference href : hrefs) {
                         HttpMessage msg = null;
                         msg = href.getHttpMessage();
@@ -95,13 +98,6 @@ public class PopupMenuExportResponse extends JMenuItem {
                     extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath() + ".");
                 	// ZAP: Log exceptions
                 	log.warn(e1.getMessage(), e1);
-                } finally {
-            	    try {
-            	        bos.close();
-            	    } catch (Exception e2) {
-                    	// ZAP: Log exceptions
-                    	log.warn(e2.getMessage(), e2);
-            	    }
                 }
         	}
         });

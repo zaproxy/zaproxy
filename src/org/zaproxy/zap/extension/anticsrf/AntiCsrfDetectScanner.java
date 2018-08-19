@@ -31,6 +31,15 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
 
+/**
+ * A {@code PassiveScanner} that {@link ExtensionAntiCSRF#getTokensFromResponse(HttpMessage,Source) extracts} and
+ * {@link ExtensionAntiCSRF#registerAntiCsrfToken(AntiCsrfToken) registers} anti-csrf tokens found in
+ * {@link PluginPassiveScanner#getDefaultHistoryTypes() HTTP messages}.
+ * <p>
+ * Additionally, the messages with anti-csrf tokens are tagged with {@link ExtensionAntiCSRF#TAG}.
+ * 
+ * @since 1.3.0
+ */
 public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	public static final String ACSRF_STATS_PREFIX = "stats.acsrf.";
