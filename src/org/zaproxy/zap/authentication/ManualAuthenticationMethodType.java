@@ -111,12 +111,17 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				throw new UnsupportedAuthenticationCredentialsException(
 						"Manual authentication credentials should be used for Manual authentication.");
 			}
+			ManualAuthenticationCredentials mc = (ManualAuthenticationCredentials) credentials;
+			HttpSession httpSession = mc.getSelectedSession();
+			if (httpSession == null) {
+				return null;
+			}
+
 			// Build a new WebSession based on the values from the HttpSession
 			// TODO: Changes in either the WebSession or the HttpSession are not
 			// visible in the other
-			ManualAuthenticationCredentials mc = (ManualAuthenticationCredentials) credentials;
 			WebSession session = new CookieBasedSessionManagementMethodType.CookieBasedSession();
-			for (Entry<String, Cookie> v : mc.getSelectedSession().getTokenValuesUnmodifiableMap().entrySet()) {
+			for (Entry<String, Cookie> v : httpSession.getTokenValuesUnmodifiableMap().entrySet()) {
 				session.getHttpState().addCookie(v.getValue());
 			}
 			return session;
