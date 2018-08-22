@@ -30,6 +30,7 @@ import sys
 import time
 import traceback
 import errno
+import imp
 import zapv2
 from random import randint
 from six.moves.urllib.request import urlopen
@@ -47,8 +48,79 @@ OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
  the latest version.'''.replace('\n', '')
 
 zap_conf_lvls = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
+zap_hooks = None
+
+def load_custom_hooks(hooks_file=None):
+    """ Loads a custom python module which modifies zap scripts behaviour
+    hooks_file - a python file which defines custom hooks
+    """
+    global zap_hooks
+    hooks_file = hooks_file if hooks_file else os.environ.get('ZAP_HOOKS', '~/.zap_hooks.py')
+    hooks_file = os.path.expanduser(hooks_file)
+
+    if not os.path.exists(hooks_file):
+        logging.debug('Could not find custom hooks file at %s ' % hooks_file)
+        return
+
+    zap_hooks = imp.load_source("zap_hooks", hooks_file)
 
 
+def hook(hook_name=None, **kwargs):
+    """
+    Decorator method for calling hook before/after method.
+    Always adds a hook that runs before intercepting args and if wrap=True will create
+    another hook to intercept the return.
+    hook_name - name of hook for interactions, if None will use the name of the method it wrapped
+    """
+    after_hook = kwargs.get('wrap', False)
+    def _decorator(func):
+        name = func.__name__
+        _hook_name = hook_name if hook_name else name
+        def _wrap(*args, **kwargs):
+            hook_args = list(args)
+            hook_kwargs = dict(kwargs)
+            args = trigger_hook(_hook_name, *hook_args, **hook_kwargs)
+            args_list = list(args)
+            return_data = func(*args_list, **kwargs)
+
+            if after_hook:
+                return trigger_hook('%s_wrap' % _hook_name, return_data, **hook_kwargs)
+            return return_data
+        return _wrap
+    return _decorator
+
+
+def trigger_hook(name, *args, **kwargs):
+    """ Trigger execution of custom hook method if found """
+    global zap_hooks
+    arg_length = len(args)
+    args_list = list(args)
+    args = args[0] if arg_length == 1 else args
+
+    logging.debug('Trigger hook: %s, args: %s' %  (name, arg_length))
+
+    if not zap_hooks:
+        return args
+    elif not hasattr(zap_hooks, name):
+        return args
+
+    hook_fn = getattr(zap_hooks, name)
+    if not callable(hook_fn):
+        return args
+
+    response = hook_fn(*args_list, **kwargs)
+
+    # The number of args returned should match arguments passed
+    if not response:
+        return args
+    elif arg_length == 1:
+      return args
+    elif (isinstance(response, list) or isinstance(response, tuple)) and len(response) != arg_length:
+        return args
+    return response
+
+
+@hook()
 def load_config(config, config_dict, config_msg, out_of_scope_dict):
     """ Loads the config file specified into:
     config_dict - a dictionary which maps plugin_ids to levels (IGNORE, WARN, FAIL)
@@ -123,7 +195,7 @@ def print_rules(alert_dict, level, config_dict, config_msg, min_level, inc_rule,
                 inprog_count += 1
             else:
                 count += 1
-    return count, inprog_count
+    return trigger_hook('print_rules_wrap', count, inprog_count)
 
 
 def inc_ignore_rules(config_dict, key, inc_extra):
@@ -174,6 +246,7 @@ def add_zap_options(params, zap_options):
             params.append(zap_opt)
 
 
+@hook()
 def start_zap(port, extra_zap_params):
     logging.debug('Starting ZAP')
     # All of the default common params
@@ -214,6 +287,7 @@ def wait_for_zap_start(zap, timeout_in_secs = 600):
           'Failed to connect to ZAP after {0} seconds'.format(timeout_in_secs))
 
 
+@hook(wrap=True)
 def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
     try:
         logging.debug('Pulling ZAP Docker image: ' + docker_image)
@@ -281,12 +355,14 @@ def stop_docker(cid):
         logging.warning('Docker rm failed')
 
 
+@hook()
 def zap_access_target(zap, target):
     res = zap.urlopen(target)
     if res.startswith("ZAP Error"):
         raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
 
 
+@hook(wrap=True)
 def zap_spider(zap, target):
     logging.debug('Spider ' + target)
     spider_scan_id = zap.spider.scan(target)
@@ -298,6 +374,7 @@ def zap_spider(zap, target):
     logging.debug('Spider complete')
 
 
+@hook(wrap=True)
 def zap_ajax_spider(zap, target, max_time):
     logging.debug('AjaxSpider ' + target)
     if max_time:
@@ -311,6 +388,7 @@ def zap_ajax_spider(zap, target, max_time):
     logging.debug('Ajax Spider complete')
 
 
+@hook(wrap=True)
 def zap_active_scan(zap, target, policy):
     logging.debug('Active Scan ' + target + ' with policy ' + policy)
     ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)
@@ -341,6 +419,7 @@ def zap_wait_for_passive_scan(zap, timeout_in_secs = 0):
       logging.debug('Passive scanning complete')
 
 
+@hook(wrap=True)
 def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
     # Retrieve the alerts using paging in case there are lots of them
     st = 0
@@ -423,3 +502,11 @@ def write_report(file_path, report):
             report = report.encode('utf-8')
 
         f.write(report)
+
+@hook(wrap=True)
+def zap_import_context(zap, context_file):
+    res = context_id = zap.context.import_context(context_file)
+    if res.startswith("ZAP Error"):
+        context_id = None
+        logging.error('Failed to load context file ' + context_file + ' : ' + res)
+    return context_id
