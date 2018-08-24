@@ -118,7 +118,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
             }
 
         } catch (Exception e1) {
-            log.warn(e1.getStackTrace(), e1);
+            log.warn("An error occurred while writing the URLs:", e1);
             extension.getView().showWarningDialog(Constant.messages.getString("file.save.error") + file.getAbsolutePath());
         } finally {
             try {
