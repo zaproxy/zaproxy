@@ -201,39 +201,5 @@
 			</scanner>
 		</autoTagScanners>
 	</pscans>
-	
-	<anticsrf>
-		<tokens>
-			<token>
-				<enabled>true</enabled>
-				<name>anticsrf</name>
-			</token>
-			<token>
-				<enabled>true</enabled>
-				<name>CSRFToken</name></token>
-			<token>
-				<enabled>true</enabled>
-				<name>__RequestVerificationToken</name>
-			</token>
-			<token>
-				<enabled>true</enabled>
-				<name>csrfmiddlewaretoken</name>
-			</token>
-			<token>
-				<enabled>true</enabled>
-				<name>authenticity_token</name>
-			</token>
-			<token>
-			        <!-- django-session-csrf default: https://github.com/mozilla/django-session-csrf#differences-from-django -->
-				<enabled>true</enabled>
-				<name>anoncsrf</name>
-			</token>
-			<token>
-				<!-- https://docs.djangoproject.com/en/2.0/ref/templates/builtins/#std:templatetag-csrf_token -->
-				<enabled>true</enabled>
-				<name>csrf_token</name>
-			</token>
-		</tokens>
-	</anticsrf>
 
 </config>
