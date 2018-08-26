@@ -1,6 +1,5 @@
 package org.zaproxy.zap.session;
 
-import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +50,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 		private Context context;
 
-		private static WeakReference<ExtensionHttpSessions> extHttpSessions;
+		private static ExtensionHttpSessions extHttpSessions;
 
 		public CookieBasedSessionManagementMethod(int contextId) {
 			this.contextId = contextId;
@@ -115,14 +114,11 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 			message.setCookies(cookies);
 		}
 
-		private ExtensionHttpSessions getHttpSessionsExtension() {
-			if (extHttpSessions == null || extHttpSessions.get() == null) {
-				extHttpSessions = new WeakReference<>( Control
-						.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class));
-				if (extHttpSessions == null)
-					log.error("An error occured while loading the ExtensionHttpSessions.");
+		private static ExtensionHttpSessions getHttpSessionsExtension() {
+			if (extHttpSessions == null) {
+				extHttpSessions = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class);
 			}
-			return extHttpSessions.get();
+			return extHttpSessions;
 		}
 
 		private Context getContext() {
@@ -139,6 +135,10 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 		@Override
 		public void clearWebSessionIdentifiers(HttpMessage msg) {
+			if (getHttpSessionsExtension() == null) {
+				log.info("No tokens will be removed, the HTTP Sessions Extension is not enabled.");
+				return;
+			}
 			HttpSessionTokensSet tokens = getHttpSessionsExtension().getHttpSessionTokensSetForContext(
 					getContext());
 			if (tokens == null) {
