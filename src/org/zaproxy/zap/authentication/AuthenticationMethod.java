@@ -305,19 +305,22 @@ public abstract class AuthenticationMethod {
 		if (getClass() != obj.getClass())
 			return false;
 		AuthenticationMethod other = (AuthenticationMethod) obj;
-		if (loggedInIndicatorPattern == null) {
-			if (other.loggedInIndicatorPattern != null)
-				return false;
-		} else if (!loggedInIndicatorPattern.pattern().equals(other.loggedInIndicatorPattern.pattern()))
+		if (!isSamePattern(loggedInIndicatorPattern, other.loggedInIndicatorPattern)) {
 			return false;
-		if (loggedOutIndicatorPattern == null) {
-			if (other.loggedOutIndicatorPattern != null)
-				return false;
-		} else if (!loggedOutIndicatorPattern.pattern().equals(other.loggedOutIndicatorPattern.pattern()))
+		}
+		if (!isSamePattern(loggedOutIndicatorPattern, other.loggedOutIndicatorPattern)) {
 			return false;
+		}
 		return true;
 	}
 
+	private static boolean isSamePattern(Pattern pattern, Pattern other) {
+		if (pattern == null) {
+			return other == null;
+		}
+		return other != null && pattern.pattern().equals(other.pattern());
+	}
+	
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
 	 */
