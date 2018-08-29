@@ -533,9 +533,9 @@ For any security checks that are performed on the client side, ensure that these
 
 Even though client-side checks provide minimal benefits with respect to server-side security, they are still useful. First, they can support intrusion detection. If the server receives input that should have been rejected by the client, then it may be an indication of an attack. Second, client-side error-checking can provide helpful feedback to the user about the expectations for valid input. Third, there may be a reduction in server-side processing time for accidental input errors, although this is typically a small savings.
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
+Do not rely exclusively on blacklist validation to detect malicious input or to encode output. Postoji više načina za kodiranje istog znaka, tako da ćete vjerovatno propustiti neke varijante.
 
-When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.
+Kada Vaša aplikacija kombinuje podatke iz više izvora, izvršite provjeru valjanosti nakon kombinovanja izvora. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.
 
 Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use a whitelist of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a blacklist). However, blacklists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
@@ -720,7 +720,7 @@ When a web application fails to properly sanitize user-supplied input, it is pos
 
 Assume all input is malicious. Use an "accept known good" input validation strategy (i.e., use a whitelist). Reject any input that does not strictly conform to specifications, or transform it into something that does. Use a blacklist to reject any unexpected inputs and detect potential attacks.
 
-Do not rely exclusively on blacklist validation to detect malicious input or to encode output. There are too many ways to encode the same character, so you're likely to miss some variants.
+Do not rely exclusively on blacklist validation to detect malicious input or to encode output. Postoji više načina za kodiranje istog znaka, tako da ćete vjerovatno propustiti neke varijante.
 
 Directly convert your input type into the expected data type, such as using a conversion function that translates a string into a number. After converting to the expected data type, ensure that the input's values fall within the expected range of allowable values and that multi-field consistencies are maintained.
 
@@ -730,7 +730,7 @@ Consider performing repeated canonicalization until your input does not change a
 
 When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.
 
-When your application combines data from multiple sources, perform the validation after the sources have been combined. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.</solution>
+Kada Vaša aplikacija kombinuje podatke iz više izvora, izvršite provjeru valjanosti nakon kombinovanja izvora. The individual data elements may pass the validation step but violate the intended restrictions after they have been combined.</solution>
 	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/88.html</reference>
 </vuln_item_wasc_30>
@@ -1004,7 +1004,7 @@ Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (
 <vuln_item_wasc_46>
 	<alert>XQuery Injection</alert>
 	<desc>XQuery Injection is a variant of the classic SQL injection attack against the XML XQuery Language. XQuery Injection uses improperly validated data that is passed to XQuery commands. This inturn will execute commands on behalf of the attacker that the XQuery routines have access to. XQuery injection can be used to enumerate elements on the victim's environment, inject commands to the local host, or execute queries to remote files and data sources. Like SQL injection attacks, the attacker tunnels through the application entry point to target the resource access layer.</desc>
-	<solution>Use parameterized queries. This will help ensure separation between data plane and control plane.
+	<solution>Use parameterized queries. Ovo će omogućiti razdvajanje između podatkovne i kontrolne ravni.
 
 Properly validate user input. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XQL queries is safe in that context.</solution>
 	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
