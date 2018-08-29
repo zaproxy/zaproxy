@@ -55,13 +55,16 @@
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
@@ -70,6 +73,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryReference;
@@ -77,6 +81,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
@@ -209,6 +214,18 @@ public class LogPanel extends AbstractPanel {
             panelToolbar.add(getLinkWithSitesTreeButton(), gbc);
 
             ++gbc.gridx;
+            addToolbarSeparator();
+
+            ++gbc.gridx;
+            panelToolbar.add(getFiltersComboBox(), gbc);
+
+            ++gbc.gridx;
+            panelToolbar.add(getApplyFilterButton(), gbc);
+
+            ++gbc.gridx;
+            addToolbarSeparator();
+
+            ++gbc.gridx;
             panelToolbar.add(getFilterButton(), gbc);
 
             filterStatus =
@@ -221,6 +238,12 @@ public class LogPanel extends AbstractPanel {
             panelToolbar.add(filterStatus, gbc);
 
             ++gbc.gridx;
+            panelToolbar.add(getResetFilterButton(), gbc);
+
+            ++gbc.gridx;
+            addToolbarSeparator();
+
+            ++gbc.gridx;
             panelToolbar.add(getExportButton(), gbc);
 
             ++gbc.gridx;
@@ -229,8 +252,19 @@ public class LogPanel extends AbstractPanel {
             gbc.anchor = java.awt.GridBagConstraints.EAST;
             gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
             panelToolbar.add(new JLabel(), gbc);
+
+            GridBagConstraints optionsGridBag = new GridBagConstraints();
+            optionsGridBag.gridx = ++gbc.gridx;
+            optionsGridBag.gridy = 0;
+            optionsGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
+            optionsGridBag.anchor = java.awt.GridBagConstraints.EAST;
+            panelToolbar.add(getOptionsButton(), optionsGridBag);
         }
         return panelToolbar;
+    }
+
+    private void addToolbarSeparator() {
+        panelToolbar.addSeparator(new Dimension(10, 30));
     }
 
     private JButton getFilterButton() {
@@ -240,7 +274,7 @@ public class LogPanel extends AbstractPanel {
             filterButton.setIcon(
                     new ImageIcon(
                             LogPanel.class.getResource(
-                                    "/resource/icon/16/054.png"))); // 'filter' icon
+                                    "/resource/icon/16/funnel.png"))); // 'filter' icon
             filterButton.setToolTipText(
                     Constant.messages.getString("history.filter.button.filter"));
             DisplayUtils.scaleIcon(filterButton);
@@ -255,6 +289,71 @@ public class LogPanel extends AbstractPanel {
                     });
         }
         return filterButton;
+    }
+
+    private JComboBox<String> filtersComboBox = null;
+
+    private JComboBox<String> getFiltersComboBox() {
+        if (filtersComboBox == null) {
+            filtersComboBox = new JComboBox<>();
+            Dimension dimension = filtersComboBox.getPreferredSize();
+            dimension.width = 150;
+            filtersComboBox.setPreferredSize(dimension);
+        }
+        return filtersComboBox;
+    }
+
+    private JButton applyFilterButton = null;
+
+    private JButton getApplyFilterButton() {
+        if (applyFilterButton == null) {
+            applyFilterButton = new JButton();
+            applyFilterButton.setIcon(
+                    new ImageIcon(
+                            LogPanel.class.getResource("/resource/icon/16/funnel--arrow.png")));
+            applyFilterButton.setToolTipText(
+                    Constant.messages.getString("history.filter.apply.button.tooltip"));
+            DisplayUtils.scaleIcon(applyFilterButton);
+            applyFilterButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+
+                            String currentName = "";
+                            if (getFiltersComboBox().getSelectedItem() != null) {
+                                currentName = getFiltersComboBox().getSelectedItem().toString();
+                            }
+
+                            extension.applyAsCurrentFilter(currentName);
+                            filtersComboBox.setSelectedIndex(-1);
+                        }
+                    });
+        }
+        return applyFilterButton;
+    }
+
+    private JButton resetFilterButton = null;
+
+    private JButton getResetFilterButton() {
+        if (resetFilterButton == null) {
+            resetFilterButton = new JButton();
+            resetFilterButton.setIcon(
+                    new ImageIcon(
+                            LogPanel.class.getResource("/resource/icon/16/funnel--cancel.png")));
+            resetFilterButton.setToolTipText(
+                    Constant.messages.getString("history.filter.reset.button.tooltip"));
+            DisplayUtils.scaleIcon(resetFilterButton);
+            resetFilterButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            extension.applyAsCurrentFilter(new HistoryFilter());
+                        }
+                    });
+        }
+        return resetFilterButton;
     }
 
     private JToggleButton getScopeButton() {
@@ -317,6 +416,33 @@ public class LogPanel extends AbstractPanel {
             exportButton = new TableExportButton<>(getHistoryReferenceTable());
         }
         return exportButton;
+    }
+
+    private JButton optionsButton;
+
+    private JButton getOptionsButton() {
+        if (optionsButton == null) {
+            optionsButton = new JButton();
+            optionsButton.setToolTipText(
+                    Constant.messages.getString("history.filter.options.button.tooltip"));
+            optionsButton.setIcon(
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    SearchPanel.class.getResource("/resource/icon/16/041.png"))));
+            optionsButton.addActionListener(
+                    new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            Control.getSingleton()
+                                    .getMenuToolsControl()
+                                    .options(
+                                            Constant.messages.getString(
+                                                    "history.filter.options.title"));
+                        }
+                    });
+        }
+        return optionsButton;
     }
 
     public void setLinkWithSitesTreeSelection(boolean enabled) {
@@ -401,6 +527,16 @@ public class LogPanel extends AbstractPanel {
     public void setFilterStatus(HistoryFilter filter) {
         filterStatus.setText(filter.toShortString());
         filterStatus.setToolTipText(filter.toLongString());
+    }
+
+    public void setFilters(List<String> filterNames) {
+        JComboBox<String> filtersComboBox = getFiltersComboBox();
+        filtersComboBox.removeAllItems();
+        filtersComboBox.addItem("");
+        for (String quickFilter : filterNames) {
+            filtersComboBox.addItem(quickFilter);
+        }
+        filtersComboBox.setSelectedIndex(0);
     }
 
     private LinkWithSitesTreeSelectionListener getLinkWithSitesTreeSelectionListener() {
