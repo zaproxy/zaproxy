@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ "$SNAP_ARCH" = "amd64" ]; then
+  ARCH="x86_64-linux-gnu"
+elif [ "$SNAP_ARCH" = "armhf" ]; then
+  ARCH="arm-linux-gnueabihf"
+else
+  ARCH="$SNAP_ARCH-linux-gnu"
+fi
+
+# Envars required as per https://bugs.launchpad.net/ubuntu/+source/snapcraft/+bug/1576303
+# Not good, needed for fontconfig
+export XDG_DATA_HOME=$SNAP/usr/share
+# Font Config
+export FONTCONFIG_PATH=$SNAP/etc/fonts/config.d
+export FONTCONFIG_FILE=$SNAP/etc/fonts/fonts.conf
+export HOME=$SNAP_USER_DATA
+
+# java
+export JAVA_HOME=$SNAP/usr/lib/jvm/java-1.8.0-openjdk-$SNAP_ARCH
+export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH
+
+$SNAP/zap.sh "$@"
