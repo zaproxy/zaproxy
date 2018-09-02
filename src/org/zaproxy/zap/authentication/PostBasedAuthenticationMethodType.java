@@ -277,13 +277,19 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 			// Prepare login message
 			HttpMessage msg;
 			try {
-				msg = prepareRequestMessage(cred);
 				// Make sure the message will be sent with a good WebSession that can record the changes
 				if (user.getAuthenticatedSession() == null)
 					user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
+				
+				HttpMessage loginMsgToRenewCookie = new HttpMessage(new URI(loginRequestURL, true));
+				loginMsgToRenewCookie.setRequestingUser(user);
+				getHttpSender().sendAndReceive(loginMsgToRenewCookie);
+				AuthenticationHelper.addAuthMessageToHistory(loginMsgToRenewCookie);
+								
+				msg = prepareRequestMessage(cred);
 				msg.setRequestingUser(user);
 				
-				replaceAntiCsrfTokenValueIfRequired(msg, user);
+				replaceAntiCsrfTokenValueIfRequired(msg, loginMsgToRenewCookie);
 			} catch (Exception e) {
 				LOGGER.error("Unable to prepare authentication message: " + e.getMessage(), e);
 				return null;
@@ -320,47 +326,66 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 		}
 		
 		/**
-		 * Modifies the input {@code requestMessage} by replacing fresh anti-CSRF token value in the request body.  
-		 * It first checks if the input {@code requestMessage} has an anti-CSRF token.
-		 * If yes, then it makes a {@code GET} request to the login page in order to renew the anti-CSRF token.
-		 * Then it modifies the input {@code requestMessage} with the regenerated anti-CSRF token value.
-		 * If the first {@code POST} login request does not have anti-CSRF token
+		 * <strong>Modifies</strong> the input {@code requestMessage} by replacing 
+		 * old anti-CSRF(ACSRF) token value with the fresh one in the request body.  
+		 * It first checks if the input {@code loginMsgWithFreshAcsrfToken} has any ACSRF token.
+		 * If yes, then it modifies the input {@code requestMessage} with the fresh ACSRF token value.
+		 * If the {@code loginMsgWithFreshAcsrfToken} does not have any ACSRF token 
 		 * then the input {@code requestMessage} is left as it is.
+		 * <p>
+		 * This logic relies on {@code ExtensionAntiCSRF} to extract the ACSRF token value from the response.
+		 * If {@code ExtensionAntiCSRF} is not available for some reason, no further processing is done.  
 		 * 
-		 * @param requestMessage the login request message with correct credential
-		 * @param user the user of the context
-		 * @throws IOException if problem occurs when sending login request to get login page.
+		 * @param requestMessage the login ({@code POST})request message with correct credentials
+		 * @param loginMsgWithFreshAcsrfToken the {@code HttpMessage} of the login page(form) with fresh cookie and ACSRF token. 
 		 */
-		private void replaceAntiCsrfTokenValueIfRequired(HttpMessage requestMessage, User user) throws IOException {
+		private void replaceAntiCsrfTokenValueIfRequired(HttpMessage requestMessage, HttpMessage loginMsgWithFreshAcsrfToken) {
 			if(extAntiCsrf == null) {
 				extAntiCsrf = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
 			}
-			List<AntiCsrfToken> antiCsrfTokensOfFirstLoginMsg = null;
+			List<AntiCsrfToken> freshAcsrfTokens = null;
   			if(extAntiCsrf != null) {
-				antiCsrfTokensOfFirstLoginMsg = extAntiCsrf.getTokens(requestMessage);
+				freshAcsrfTokens = extAntiCsrf.getTokensFromResponse(loginMsgWithFreshAcsrfToken);
+			} else {
+				LOGGER.debug("ExtensionAntiCSRF is not available, skipping ACSRF replacing task");
+				return;
 			}
-			AntiCsrfToken antiCsrfTokenOfFirstLoginMsg = null;
-			if(antiCsrfTokensOfFirstLoginMsg != null && antiCsrfTokensOfFirstLoginMsg.size() > 0) {
-				antiCsrfTokenOfFirstLoginMsg = antiCsrfTokensOfFirstLoginMsg.get(0);
+  			if(freshAcsrfTokens == null || freshAcsrfTokens.size() == 0) {
+  				if(LOGGER.isDebugEnabled()) {
+					LOGGER.debug("No ACSRF token found in the response of " + loginMsgWithFreshAcsrfToken.getRequestHeader());
+				}
+  				return;
+  			}
+  			
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug("The login page has " + freshAcsrfTokens.size() + " ACSRF token(s)");
 			}
 			
-			if (antiCsrfTokenOfFirstLoginMsg != null) {
-				HttpMessage loginMsgToRegenerateAntiCsrfToken = antiCsrfTokenOfFirstLoginMsg.getMsg().cloneAll();
-				loginMsgToRegenerateAntiCsrfToken.setRequestingUser(user);
-				
-				// Clear any session identifiers
-				loginMsgToRegenerateAntiCsrfToken.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
-				
-				getHttpSender().sendAndReceive(loginMsgToRegenerateAntiCsrfToken);
-				AuthenticationHelper.addAuthMessageToHistory(loginMsgToRegenerateAntiCsrfToken);
-
-				String regeneratedAntiCsrfTokenValue = extAntiCsrf.getTokenValue(loginMsgToRegenerateAntiCsrfToken, antiCsrfTokenOfFirstLoginMsg.getName());
-				String requestBody = requestMessage.getRequestBody().toString();
-				if (regeneratedAntiCsrfTokenValue != null) {
-					requestBody = requestBody.replace(
-							antiCsrfTokenOfFirstLoginMsg.getValue(), paramEncoder.apply(regeneratedAntiCsrfTokenValue));
-					requestMessage.getRequestBody().setBody(requestBody);
+			String postRequestBody = requestMessage.getRequestBody().toString();
+			Map<String, String> parameters = extractParametersFromPostData(postRequestBody);
+			if(parameters != null) {
+				String oldAcsrfTokenValue = null;
+				String replacedPostData = null;
+				for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
+					oldAcsrfTokenValue = parameters.get(antiCsrfToken.getName());
+					replacedPostData = postRequestBody.replace(oldAcsrfTokenValue, antiCsrfToken.getValue());
+					
+					if(LOGGER.isDebugEnabled()) {
+						LOGGER.debug("replaced " + oldAcsrfTokenValue + " old ACSRF token value with " + antiCsrfToken.getValue());
+					}
 				}
+				requestMessage.getRequestBody().setBody(replacedPostData);
+			} else {
+				LOGGER.debug("ACSRF token found but could not replace old value with fresh value");
+			}
+		}
+		
+		private Map<String, String> extractParametersFromPostData(String postRequestBody) {
+			Context context = Model.getSingleton().getSession().getContextsForUrl(loginRequestURL).get(0);
+			if(context != null) {
+				return context.getPostParamParser().parse(postRequestBody);
+			} else {
+				return null;
 			}
 		}
 

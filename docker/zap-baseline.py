@@ -95,6 +95,7 @@ def usage():
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
+    print('    --hook            path to python file that define your custom hooks')
     print('')
     print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
 
@@ -125,6 +126,7 @@ def main(argv):
     delay = 0
     timeout = 0
     ignore_warn = False
+    hook_file = None
 
     pass_count = 0
     warn_count = 0
@@ -135,7 +137,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:I")
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:I", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -179,7 +181,7 @@ def main(argv):
         elif opt == '-i':
             info_unspecified = True
         elif opt == '-I':
-            ignore_warn = True        
+            ignore_warn = True
         elif opt == '-j':
             ajax = True
         elif opt == '-l':
@@ -195,8 +197,13 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+        elif opt == '--hook':
+            hook_file = arg
 
     check_zap_client_version()
+
+    load_custom_hooks(hook_file)
+    trigger_hook('cli_opts', opts)
 
     # Check target supplied and ok
     if len(target) == 0:
@@ -298,12 +305,11 @@ def main(argv):
         zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
 
         wait_for_zap_start(zap, timeout * 60)
+        trigger_hook('zap_started', zap, target)
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
-            res = zap.context.import_context('/zap/wrk/' + os.path.basename(context_file))
-            if res.startswith("ZAP Error"):
-                logging.error('Failed to load context file ' + context_file + ' : ' + res)
+            zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
 
         zap_access_target(zap, target)
 
@@ -406,6 +412,7 @@ def main(argv):
                 '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
                 '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
 
+        trigger_hook('zap_pre_shutdown', zap)
         # Stop ZAP
         zap.core.shutdown()
 
@@ -426,6 +433,8 @@ def main(argv):
 
     if not running_in_docker():
         stop_docker(cid)
+
+    trigger_hook('pre_exit', fail_count, warn_count, pass_count)
 
     if fail_count > 0:
         sys.exit(1)

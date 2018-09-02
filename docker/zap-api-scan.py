@@ -106,6 +106,7 @@ def usage():
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
+    print('    --hook            path to python file that define your custom hooks')
     print('')
     print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-API-Scan')
 
@@ -138,6 +139,7 @@ def main(argv):
     zap_options = ''
     delay = 0
     timeout = 0
+    hook_file = None
 
     pass_count = 0
     warn_count = 0
@@ -148,7 +150,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:O:")
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:O:", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -206,8 +208,13 @@ def main(argv):
             timeout = int(arg)
         elif opt == '-O':
             host_override = arg
+        elif opt == '--hook':
+            hook_file = arg
 
     check_zap_client_version()
+
+    load_custom_hooks(hook_file)
+    trigger_hook('cli_opts', opts)
 
     # Check target supplied and ok
     if len(target) == 0:
@@ -331,12 +338,11 @@ def main(argv):
         zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
 
         wait_for_zap_start(zap, timeout * 60)
+        trigger_hook('zap_started', zap, target)
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
-            res = zap.context.import_context('/zap/wrk/' + os.path.basename(context_file))
-            if res.startswith("ZAP Error"):
-                logging.error('Failed to load context file ' + context_file + ' : ' + res)
+            zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
 
         # Enable scripts
         zap.script.load('Alert_on_HTTP_Response_Code_Errors.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_HTTP_Response_Code_Errors.js')
@@ -346,6 +352,7 @@ def main(argv):
 
         # Import the API defn
         if format == 'openapi':
+            trigger_hook('importing_openapi', target_url, target_file)
             if target_url:
                 logging.debug('Import OpenAPI URL ' + target_url)
                 res = zap.openapi.import_url(target, host_override)
@@ -362,6 +369,7 @@ def main(argv):
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
         else:
+            trigger_hook('importing_soap', target_url, target_file)
             if target_url:
                 logging.debug('Import SOAP URL ' + target_url)
                 res = zap._request(zap.base + 'soap/action/importUrl/', {'url':target})
@@ -513,6 +521,7 @@ def main(argv):
                 '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
                 '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
 
+        trigger_hook('zap_pre_shutdown', zap)
         # Stop ZAP
         zap.core.shutdown()
 
@@ -536,6 +545,8 @@ def main(argv):
 
     if not running_in_docker():
         stop_docker(cid)
+
+    trigger_hook('pre_exit', fail_count, warn_count, pass_count)
 
     if fail_count > 0:
         sys.exit(1)

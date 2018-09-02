@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.List;
 
 import javax.swing.TransferHandler;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeCellRenderer;
 
 public interface ScriptUI {
@@ -29,9 +30,47 @@ public interface ScriptUI {
 	 */
 	void engineRemoved(ScriptEngineWrapper scriptEngineWrapper);
 
+	/**
+	 * Gets the currently selected script node.
+	 *
+	 * @return the selected node, or {@code null} if none.
+	 * @see #getSelectedNodes()
+	 * @see #addSelectionListener(TreeSelectionListener)
+	 */
 	ScriptNode getSelectedNode();
 	
+	/**
+	 * Gets the currently selected script nodes.
+	 *
+	 * @return the selected nodes, or empty list if none.
+	 * @see #getSelectedNode()
+	 * @see #addSelectionListener(TreeSelectionListener)
+	 */
 	List<ScriptNode> getSelectedNodes();
+
+	/**
+	 * Adds the given tree selection listener.
+	 *
+	 * @param tsl the tree selection listener to be added.
+	 * @since TODO add version
+	 * @see #removeSelectionListener(TreeSelectionListener)
+	 * @see #getSelectedNode()
+	 * @see #getSelectedNodes()
+	 */
+	default void addSelectionListener(TreeSelectionListener tsl) {
+		// Nothing to do.
+	}
+
+	/**
+	 * Removes the given tree selection listener.
+	 *
+	 * @param tsl the tree selection listener to remove.
+	 * @since TODO add version
+	 * @see #addSelectionListener(TreeSelectionListener)
+	 */
+	default void removeSelectionListener(TreeSelectionListener tsl) {
+		// Nothing to do.
+	}
 	
 	void addMouseListener(MouseAdapter adapter); 
 
