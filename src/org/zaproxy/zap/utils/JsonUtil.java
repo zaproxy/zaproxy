@@ -24,23 +24,33 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONSerializer;
+import net.sf.json.JSONObject;
+import net.sf.json.util.JSONUtils;
 
+/**
+ * Utilities to workaround "quirks" of {@link JSONObject} and related classes.
+ *
+ * @since TODO add version
+ */
 public final class JsonUtil {
 	
 	private JsonUtil() {
 	}
 
+	/**
+	 * Gets the given value in a form that can be safely put in a {@code JSONObject}.
+	 * <p>
+	 * {@code JSONObject} automatically parses strings that look like JSON arrays/objects, so they need to be processed (quoted)
+	 * to prevent that behaviour.
+	 *
+	 * @param value the value to process.
+	 * @return the value that can be safely put in a {@code JSONObject}.
+	 */
 	public static String getJsonFriendlyString(String value) {
-		try {
-			JSONSerializer.toJSON(value);
-			// Its valid JSON so escape
+		if (!"null".equals(value) && JSONUtils.mayBeJSON(value)) {
 			return "'" + value + "'";
-		} catch (JSONException e) {
-			// Its not a valid JSON object so can add as is
-			return value;
 		}
+		return value;
 	}
 	
 	
