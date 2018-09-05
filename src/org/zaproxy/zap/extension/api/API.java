@@ -53,6 +53,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.zaproxy.zap.utils.JsonUtil;
 
 import net.sf.json.JSONObject;
 
@@ -734,7 +735,7 @@ public class API {
 				try {
 					key = URLDecoder.decode(keyValue[i].substring(0,pos), "UTF-8");
 					value = URLDecoder.decode(keyValue[i].substring(pos+1), "UTF-8");
-					jp.put(key, value);
+					jp.put(key, JsonUtil.getJsonFriendlyString(value));
 				} catch (UnsupportedEncodingException | IllegalArgumentException e) {
 					// Carry on anyway
 					Exception apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params, e);
