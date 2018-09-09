@@ -824,7 +824,11 @@ public class ActiveScanAPI extends ApiImplementor {
 			activeScan = getActiveScan(params);
 			int progress = 0;
 			if (activeScan != null) {
-				progress = activeScan.getProgress();
+				if (activeScan.isStopped()) {
+					progress = 100;
+				} else {
+					progress = activeScan.getProgress();
+				}
 			}
 			result = new ApiResponseElement(name, String.valueOf(progress));
 			break;
