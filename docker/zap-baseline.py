@@ -241,7 +241,8 @@ def main(argv):
     elif config_url:
         # load config file from url
         try:
-            load_config(urlopen(config_url).read().decode('UTF-8'), config_dict, config_msg, out_of_scope_dict)
+            config_data = urlopen(config_url).read().decode('UTF-8').splitlines()
+            load_config(config_data, config_dict, config_msg, out_of_scope_dict)
         except ValueError as e:
             logging.warning("Failed to read configs from " + config_url + " " + str(e))
             sys.exit(3)

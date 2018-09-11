@@ -144,6 +144,7 @@ def load_config(config, config_dict, config_msg, out_of_scope_dict):
                     config_msg[key] = usermsg
                 else:
                     config_msg[key] = ''
+    logging.debug('Loaded config: {0}'.format(config_dict))
 
 
 def is_in_scope(plugin_id, url, out_of_scope_dict):
