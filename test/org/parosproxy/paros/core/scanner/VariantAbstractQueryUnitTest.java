@@ -72,14 +72,27 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCreateOneDummyNameValuePairIfNoParametersProvided() {
+    public void shouldCreateOneDummyNameValuePairIfNoParametersProvidedAndAddQueryParamTrue() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
+        variantAbstractQuery.setAddQueryParam(true);
         List<org.zaproxy.zap.model.NameValuePair> noParameters = parameters();
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
         // Then
         assertThat(variantAbstractQuery.getParamList(), contains(param(NAME_VALUE_PAIR_TYPE, "query", "query", 0)));
+    }
+
+    @Test
+    public void shouldNotCreateOneDummyNameValuePairIfNoParametersProvidedAndAddQueryParamFalse() {
+        // Given
+        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
+        variantAbstractQuery.setAddQueryParam(false);
+        List<org.zaproxy.zap.model.NameValuePair> noParameters = parameters();
+        // When
+        variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
+        // Then
+        assertThat(variantAbstractQuery.getParamList(), is(empty()));
     }
 
     @Test
@@ -305,6 +318,7 @@ public class VariantAbstractQueryUnitTest {
             }
         };
         List<org.zaproxy.zap.model.NameValuePair> noParameters = parameters();
+        variantAbstractQuery.setAddQueryParam(true);
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
         HttpMessage message = createMessage();
         // When

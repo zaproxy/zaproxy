@@ -33,6 +33,7 @@
 // ZAP: 2014/08/14 Issue 1279: Active scanner excluded parameters not working when "Where" is "Any"
 // ZAP: 2016/06/15 Add VariantHeader based on the current scan options
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
+// ZAP: 2018/09/12 Make the addition of a query parameter optional.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -63,7 +64,9 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
         // First check URL query-string target configuration
         if ((targets & ScannerParam.TARGET_QUERYSTRING) != 0) {
-            listVariant.add(new VariantURLQuery());
+            VariantURLQuery vuq = new VariantURLQuery();
+            vuq.setAddQueryParam(scanOptions.isAddQueryParam());
+            listVariant.add(vuq);
 
             // ZAP: To handle parameters in OData urls
             if ((enabledRPC & ScannerParam.RPC_ODATA) != 0) {
