@@ -31,6 +31,7 @@
 // ZAP: 2016/05/26 Use non-null String for names and values of parameters, scanners might not handle null names/values well
 // ZAP: 2016/09/13 Issue 2863: Attack query string even if not originally specified
 // ZAP: 2017/11/06 Use indexed names for array parameters (Issue 2496).
+// ZAP: 2018/09/12 Make the addition of a query parameter optional.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -52,6 +53,7 @@ public abstract class VariantAbstractQuery implements Variant {
 
     private List<NameValuePair> listParam;
     private List<String> originalNames;
+    private boolean addQueryParam;
 
     public VariantAbstractQuery() {
         listParam = Collections.emptyList();
@@ -143,7 +145,7 @@ public abstract class VariantAbstractQuery implements Variant {
             listParam.add(new NameValuePair(type, name, nonNullString(parameter.getValue()), i));
             i++;
         }
-        if (i == 0) {
+        if (i == 0 && addQueryParam) {
             String param = "query";
         	// No query params, lets add one just to make sure
             listParam.add(new NameValuePair(type, param, param, i));
@@ -257,4 +259,8 @@ public abstract class VariantAbstractQuery implements Variant {
         
         return isEdited;
     }
+
+     public void setAddQueryParam(boolean addQueryParam) {
+        this.addQueryParam = addQueryParam;
+     }
 }
