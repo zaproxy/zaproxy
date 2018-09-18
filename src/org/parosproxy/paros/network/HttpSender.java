@@ -73,6 +73,7 @@
 // ZAP: 2018/02/23 Issue 1161: Allow to override the global session tracking setting
 //                 Fix Session Tracking button sync
 // ZAP: 2018/08/03 Added AUTHENTICATION_HELPER_INITIATOR.
+// ZAP: 2018/09/17 Set the user to messages created for redirections (Issue 2531).
 
 package org.parosproxy.paros.network;
 
@@ -435,6 +436,7 @@ public class HttpSender {
 			sendAuthenticated(msg, false);
 
 			HttpMessage temp = msg.cloneAll();
+			temp.setRequestingUser(getUser(msg));
 			// POST/PUT method cannot be redirected by library. Need to follow by code
 
 			// loop 1 time only because httpclient can handle redirect itself after first GET.
@@ -958,6 +960,7 @@ public class HttpSender {
         HttpRedirectionValidator validator = requestConfig.getRedirectionValidator();
         validator.notifyMessageReceived(message);
 
+        User requestingUser = getUser(message);
         HttpMessage redirectMessage = message;
         int maxRedirections = client.getParams().getIntParameter(HttpClientParams.MAX_REDIRECTS, 100);
         for (int i = 0; i < maxRedirections && isRedirectionNeeded(redirectMessage.getResponseHeader().getStatusCode()); i++) {
@@ -967,6 +970,7 @@ public class HttpSender {
             }
 
             redirectMessage = redirectMessage.cloneAll();
+            redirectMessage.setRequestingUser(requestingUser);
             redirectMessage.getRequestHeader().setURI(newLocation);
 
             if (isRequestRewriteNeeded(redirectMessage.getResponseHeader().getStatusCode())) {
