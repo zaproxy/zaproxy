@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.eventBus;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import org.zaproxy.zap.model.Target;
 
@@ -36,16 +38,25 @@ public class Event {
 	private Map<String, String> parameters;
 		
 	public Event(EventPublisher publisher, String eventType, Target target) {
-		this(publisher, eventType, target, null);
+		this(publisher, eventType, target, Collections.emptyMap());
 	}
 	
+	/**
+	 * Constructs an {@code Event} with the given data.
+	 *
+	 * @param publisher the publisher of the events.
+	 * @param eventType the type of event.
+	 * @param target the target, might be {@code null}.
+	 * @param parameters the parameters of the event.
+	 * @throws NullPointerException (since TODO add version) if the given parameters are {@code null}.
+	 */
 	public Event(EventPublisher publisher, String eventType, Target target,
 			Map<String, String> parameters) {
 		super();
 		this.publisher = publisher;
 		this.eventType = eventType;
 		this.target = target;
-		this.parameters = parameters;
+		this.parameters = Objects.requireNonNull(parameters);
 	}
 	
 	public EventPublisher getPublisher() {
@@ -57,6 +68,12 @@ public class Event {
 	public Target getTarget() {
 		return target;
 	}
+
+	/**
+	 * Gets the parameters of the event.
+	 *
+	 * @return the parameters, never {@code null} (since TODO add version).
+	 */
 	public Map<String, String> getParameters() {
 		return parameters;
 	}
@@ -69,8 +86,15 @@ public class Event {
 	public void setTarget(Target target) {
 		this.target = target;
 	}
+
+	/**
+	 * Sets the parameters of the event.
+	 *
+	 * @param parameters the parameters for the event.
+	 * @throws NullPointerException (since TODO add version) if the given parameters are {@code null}.
+	 */
 	public void setParameters(Map<String, String> parameters) {
-		this.parameters = parameters;
+		this.parameters = Objects.requireNonNull(parameters);
 	}
 		
 }
