@@ -56,6 +56,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLPropertiesConfiguration;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
@@ -497,7 +498,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
 		List<Downloader> handledFiles = new ArrayList<>();
 		
-		boolean allInstalled = true;
+		MutableBoolean allInstalled = new MutableBoolean(true);
 		for (Downloader dl : downloadFiles) {
 			if (dl.getFinished() == null) {
 				continue;
@@ -506,7 +507,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			try {
 				if (!dl.isValidated()) {
 					logger.debug("Ignoring unvalidated download: " + dl.getUrl());
-					allInstalled = false;
+					allInstalled.setFalse();
 					if (addonsDialog != null) {
 						addonsDialog.notifyAddOnDownloadFailed(dl.getUrl().toString());
 					} else {
@@ -518,7 +519,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							}
 						}
 					}
-				} else if (AddOn.isAddOn(dl.getTargetFile().toPath())) {
+				} else if (AddOn.isAddOnFileName(dl.getTargetFile().getName())) {
 					File f = dl.getTargetFile();
 					if (! options.getDownloadDirectory().equals(dl.getTargetFile().getParentFile())) {
 						// Move the file to the specified directory - we do this after its been downloaded
@@ -537,20 +538,21 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							} else {
 								logger.error("Failed to move downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
 										" to " + f.getAbsolutePath() + " - skipping", e);
-								allInstalled = false;
+								allInstalled.setFalse();
 								continue;
 							}
 						}
 					}
 					
-					AddOn ao = new AddOn(f.toPath());
-					if (ao.canLoadInCurrentVersion()) {
-						allInstalled &= install(ao);
-					} else {
-			    		logger.info("Cant load add-on " + ao.getName() + 
-			    				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
-			    				" Version=" + Constant.PROGRAM_VERSION);
-					}
+					AddOn.createAddOn(f.toPath()).ifPresent(ao -> {
+						if (ao.canLoadInCurrentVersion()) {
+							allInstalled.setValue(allInstalled.booleanValue() & install(ao));
+						} else {
+							logger.info("Cant load add-on " + ao.getName() + 
+									" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
+									" Version=" + Constant.PROGRAM_VERSION);
+						}
+					});
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -561,7 +563,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			// Cant remove in loop above as we're iterating through the list
 			this.downloadFiles.remove(dl);
 		}
-		return allInstalled;
+		return allInstalled.booleanValue();
 	}
 	
 	public int getDownloadProgressPercent(URL url) throws Exception {

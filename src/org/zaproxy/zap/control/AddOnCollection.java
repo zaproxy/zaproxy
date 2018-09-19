@@ -172,11 +172,7 @@ public class AddOnCollection {
     	// Load the addons
     	try (DirectoryStream<Path> addOnFiles = Files.newDirectoryStream(dir.toPath(), "*" + AddOn.FILE_EXTENSION)) {
         	for (Path addOnFile : addOnFiles) {
-        		if (AddOn.isAddOn(addOnFile)) {
-	            	AddOn ao = createAddOn(addOnFile);
-                    if (ao == null) {
-                        continue;
-                    }
+                AddOn.createAddOn(addOnFile).ifPresent(ao -> {
 
 	            	boolean add = true;
 	            	for (AddOn addOn : addOns) {
@@ -209,20 +205,11 @@ public class AddOnCollection {
 	            		logger.debug("Found addon " + ao.getId() + " version " + ao.getVersion());
 	            		this.addOns.add(ao);
 	            	}
-        		}
+        		});
 	        }
         }
     }
 
-    private static AddOn createAddOn(Path addOnFile) {
-        try {
-            return new AddOn(addOnFile);
-        } catch (Exception e) {
-            logger.warn("Failed to create add-on for: " + addOnFile.toString(), e);
-        }
-        return null;
-    }
-    
     /**
      * Gets all add-ons of this add-on collection.
      *
