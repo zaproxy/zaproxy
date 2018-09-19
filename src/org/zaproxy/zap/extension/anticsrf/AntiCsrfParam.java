@@ -165,6 +165,7 @@ public class AntiCsrfParam extends AbstractParam {
         }
     }
 
+    @ZapApiIgnore
     public List<String> getTokensNames() {
         return enabledTokensNames;
     }
