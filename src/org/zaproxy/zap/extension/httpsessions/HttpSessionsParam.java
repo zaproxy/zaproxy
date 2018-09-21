@@ -22,6 +22,9 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -144,25 +147,118 @@ public class HttpSessionsParam extends AbstractParam {
 	public void setDefaultTokens(final List<HttpSessionToken> tokens) {
 		this.defaultTokens = tokens;
 		
+		saveDefaultTokens();
+		this.defaultTokensEnabled = defaultTokens.stream()
+				.filter(HttpSessionToken::isEnabled)
+				.map(HttpSessionToken::getName)
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Saves the {@link #defaultTokens default session tokens} to the {@link #getConfig() configuration}.
+	 */
+	private void saveDefaultTokens() {
 		((HierarchicalConfiguration) getConfig()).clearTree(ALL_DEFAULT_TOKENS_KEY);
 
-		ArrayList<String> enabledTokens = new ArrayList<>(tokens.size());
-		for (int i = 0, size = tokens.size(); i < size; ++i) {
+		for (int i = 0, size = defaultTokens.size(); i < size; ++i) {
 			String elementBaseKey = ALL_DEFAULT_TOKENS_KEY + "(" + i + ").";
-			HttpSessionToken token = tokens.get(i);
+			HttpSessionToken token = defaultTokens.get(i);
 			
 			getConfig().setProperty(elementBaseKey + TOKEN_NAME_KEY, token.getName());
 			getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, token.isEnabled());
-			
-			if (token.isEnabled()) {
-				enabledTokens.add(token.getName());
-			}
 		}
-		
-		enabledTokens.trimToSize();
-		this.defaultTokensEnabled = enabledTokens;
+	}
+	
+	/**
+	 * Adds the default session token with the given name and enabled state.
+	 *
+	 * @param name the name of the session token.
+	 * @param enabled {@code true} if should be enabled, {@code false} otherwise.
+	 * @return {@code true} if the token did not exist, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public boolean addDefaultToken(String name, boolean enabled) {
+		String normalisedName = getNormalisedSessionTokenName(name);
+		if (!getDefaultToken(normalisedName).isPresent()) {
+			defaultTokens.add(new HttpSessionToken(normalisedName, enabled));
+			if (enabled) {
+				defaultTokensEnabled.add(normalisedName);
+			}
+			saveDefaultTokens();
+			return true;
+		}
+		return false;
 	}
 
+	/**
+	 * Gets the default session token with the given name.
+	 *
+	 * @param name the name of the session token.
+	 * @return a container with the {@code HttpSessionToken}, or empty if not found.
+	 * @see #defaultTokens
+	 */
+	private Optional<HttpSessionToken> getDefaultToken(String name) {
+		return defaultTokens.stream().filter(e -> name.equalsIgnoreCase(e.getName())).findFirst();
+	}
+
+	/**
+	 * Sets whether or not the default session token with the given name is enabled.
+	 *
+	 * @param name the name of the session token.
+	 * @param enabled {@code true} if should be enabled, {@code false} otherwise.
+	 * @return {@code true} if the token's enabled state changed, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public boolean setDefaultTokenEnabled(String name, boolean enabled) {
+		Optional<HttpSessionToken> maybeToken = getDefaultToken(getNormalisedSessionTokenName(name));
+		if (maybeToken.isPresent()) {
+			HttpSessionToken token = maybeToken.get();
+			if (token.isEnabled() == enabled) {
+				return true;
+			}
+			if (token.isEnabled()) {
+				defaultTokensEnabled.remove(token.getName());
+			} else {
+				defaultTokensEnabled.add(token.getName());
+			}
+			token.setEnabled(enabled);
+			saveDefaultTokens();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Gets the normalised name of the given name.
+	 * <p>
+	 * Session token names are case insensitive thus normalised to be always lower-case.
+	 *
+	 * @param name the name of the session token.
+	 * @return the name normalised.
+	 */
+	private static String getNormalisedSessionTokenName(String name) {
+		return name.toLowerCase(Locale.ROOT);
+	}
+
+	/**
+	 * Removes the default session token with the given name.
+	 *
+	 * @param name the name of the session token.
+	 * @return {@code true} if the token existed, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public boolean removeDefaultToken(String name) {
+		String normalisedName = getNormalisedSessionTokenName(name);
+		Optional<HttpSessionToken> maybeToken = getDefaultToken(normalisedName);
+		if (maybeToken.isPresent()) {
+			defaultTokens.remove(maybeToken.get());
+			defaultTokensEnabled.remove(normalisedName);
+			saveDefaultTokens();
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Checks if the extension is only processing Proxy messages.
 	 * 
