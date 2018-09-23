@@ -45,6 +45,7 @@
 // ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API 
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/09/12 Make the addition of a query parameter optional.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -101,6 +102,14 @@ public class ScannerParam extends AbstractParam {
      * @see #scanHeadersAllRequests
      */
     private static final String SCAN_HEADERS_ALL_REQUESTS = ACTIVE_SCAN_BASE_KEY + ".scanHeadersAllRequests";
+
+    /**
+     * Configuration key to write/read the {@code addQueryParam} flag.
+     * 
+     * @since TODO add version
+     * @see #addQueryParam
+     */
+    private static final String SCAN_ADD_QUERY_PARAM = ACTIVE_SCAN_BASE_KEY + ".addQueryParam";
 
     // ZAP: Configuration constants
     public static final int TARGET_QUERYSTRING = 1;
@@ -159,6 +168,17 @@ public class ScannerParam extends AbstractParam {
      */
     private boolean scanHeadersAllRequests;
 
+    /**
+     * Flag that indicates if a query param should be added to GET requests that don't have one.
+     * <p>
+     * Default value is {@code false}.
+     * 
+     * @since TODO add version
+     * @see #isAddQueryParam()
+     * @see #setAddQueryParam(boolean)
+     */
+    private boolean addQueryParam;
+
     // ZAP: Excluded Parameters
     private final List<ScannerParamFilter> excludedParams = new ArrayList<>();
     private final Map<Integer, List<ScannerParamFilter>> excludedParamsMap = new HashMap<>();
@@ -212,6 +232,8 @@ public class ScannerParam extends AbstractParam {
         this.maxChartTimeInMins = getInt(MAX_CHART_TIME_IN_MINS, DEFAULT_MAX_CHART_TIME_IN_MINS);
 
         this.scanHeadersAllRequests = getBoolean(SCAN_HEADERS_ALL_REQUESTS, false);
+
+        this.addQueryParam = getBoolean(SCAN_ADD_QUERY_PARAM, false);
 
         // Parse the parameters that need to be excluded
         // ------------------------------------------------
@@ -579,6 +601,29 @@ public class ScannerParam extends AbstractParam {
 
         this.scanHeadersAllRequests = scanAllRequests;
         getConfig().setProperty(SCAN_HEADERS_ALL_REQUESTS, this.scanHeadersAllRequests);
+    }
+
+    /**
+     * Tells whether ZAP should add a parameter to GET requests that don't have one.
+     *
+     * @return {@code true} if a GET parameter should be added, {@code false} otherwise
+     * @since TODO add version
+     * @see #setAddQueryParam(boolean)
+     */
+    public boolean isAddQueryParam() {
+        return addQueryParam;
+    }
+
+    /**
+     * Sets whether or not ZAP should add a parameter to GET requests that don't have one.
+     *
+     * @param addQueryParam {@code true} if ZAP should add a parameter to GET requests that don't have one, {@code false} otherwise
+     * @since TODO add version
+     * @see #isAddQueryParam()
+     */
+    public void setAddQueryParam(boolean addQueryParam) {
+        this.addQueryParam = addQueryParam;
+        getConfig().setProperty(SCAN_ADD_QUERY_PARAM, this.addQueryParam);
     }
 
 }
