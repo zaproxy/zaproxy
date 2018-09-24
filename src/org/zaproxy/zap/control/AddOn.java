@@ -403,7 +403,7 @@ public class AddOn  {
 	 * @param file the file to be checked.
 	 * @return the result of the validation.
 	 * @since TODO add version
-	 * @see #isValidAddOn(Path)
+	 * @see #isAddOn(Path)
 	 */
 	public static ValidationResult isValidAddOn(Path file) {
 		if (file == null || file.getNameCount() == 0) {
