@@ -51,6 +51,14 @@ final class AddOnClassnames {
         this.restrictedClassnames = restrictedClassnames;
     }
 
+    List<String> getAllowedClassnames() {
+        return allowedClassnames;
+    }
+
+    List<String> getRestrictedClassnames() {
+        return restrictedClassnames;
+    }
+
     /**
      * Tells whether or not the given classname is allowed, thus can be loaded.
      *
