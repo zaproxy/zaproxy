@@ -40,6 +40,48 @@ import org.zaproxy.zap.users.User;
 public class HttpMessageUnitTest {
 
     @Test
+    public void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage(new HttpRequestHeader("GET / HTTP/1.1\r\nAccept: text/event-stream"));
+        // When
+        boolean eventStream = message.isEventStream();
+        // Then
+        assertThat(eventStream, is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream() throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage(new HttpRequestHeader("GET / HTTP/1.1\r\nAccept: */*"));
+        // When
+        boolean eventStream = message.isEventStream();
+        // Then
+        assertThat(eventStream, is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldBeEventStreamIfResponseHasEventStreamContentType() throws Exception {
+        // Given
+        HttpMessage message = newHttpMessage();
+        message.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/event-stream;charset=utf-8");
+        // When
+        boolean eventStream = message.isEventStream();
+        // Then
+        assertThat(eventStream, is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType() throws Exception {
+        // Given
+        HttpMessage message = newHttpMessage();
+        message.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/not-event-stream;charset=utf-8");
+        // When
+        boolean eventStream = message.isEventStream();
+        // Then
+        assertThat(eventStream, is(equalTo(false)));
+    }
+
+    @Test
     public void shouldCopyHttpMessage() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
