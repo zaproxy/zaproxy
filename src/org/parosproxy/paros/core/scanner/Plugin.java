@@ -51,11 +51,17 @@ import org.zaproxy.zap.model.TechSet;
 public interface Plugin extends Runnable {
 
     public enum AlertThreshold {
-        OFF, DEFAULT, LOW, MEDIUM, HIGH
+        /** Indicates that the scanner is disabled. A scanner is not used when set to {@code OFF}. */
+        OFF,
+        /** Indicates that the configured default value will be used (scanners do not need to check this value). */
+        DEFAULT,
+        LOW, MEDIUM, HIGH
     };
 
     public enum AttackStrength {
-        DEFAULT, LOW, MEDIUM, HIGH, INSANE
+        /** Indicates that the configured default value will be used (scanners do not need to check this value). */
+        DEFAULT,
+        LOW, MEDIUM, HIGH, INSANE
     };
 
     /**
