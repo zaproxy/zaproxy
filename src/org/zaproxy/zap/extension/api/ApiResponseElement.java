@@ -42,9 +42,7 @@ public class ApiResponseElement extends ApiResponse {
 
 	public ApiResponseElement(String name, String value) {
 		super(name);
-		if (value != null) {
-			this.value = JsonUtil.getJsonFriendlyString(value);
-		}
+		this.value = value;
 	}
 
 	public ApiResponseElement(ApiResponse value) {
@@ -71,7 +69,7 @@ public class ApiResponseElement extends ApiResponse {
 	public JSON toJSON() {
 		JSONObject jo = new JSONObject();
 		if (apiResponse == null) {
-			jo.put(this.getName(), this.value == null ? JSONNull.getInstance() : this.value);
+			jo.put(this.getName(), this.value == null ? JSONNull.getInstance() : JsonUtil.getJsonFriendlyString(this.value));
 		} else {
 			// toString() is required to prevent auto conversion of text values to JSON
 			jo.put(this.getName(), apiResponse.toJSON().toString());
