@@ -1,2 +1,3 @@
-docker pull snapcore/snapcraft
-docker run -it -v "$PWD:$PWD" -w "$PWD" snapcore/snapcraft snapcraft
+export DOCKER=snapcore/snapcraft:latest
+docker pull $DOCKER
+docker run -it -v "$PWD:$PWD" -w "$PWD" $DOCKER snapcraft
