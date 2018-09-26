@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -152,9 +153,12 @@ public abstract class BaseZapAddOnXmlData {
      * data.
      * 
      * @param inputStream the source of the {@code ZapAddOn} XML data.
+     * @throws NullPointerException if the given input stream is {@code null}.
      * @throws IOException if an error occurs while reading the data
      */
     public BaseZapAddOnXmlData(InputStream inputStream) throws IOException {
+        Objects.requireNonNull(inputStream, "The InputStream must not be null.");
+
         ZapXmlConfiguration zapAddOnXml = new ZapXmlConfiguration();
         zapAddOnXml.setExpressionEngine(new XPathExpressionEngine());
 
