@@ -560,7 +560,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @since TODO add version
      * @see #getNormalisedContentTypeValue()
      */
-    protected boolean hasContentType(String... contentTypes) {
+    public boolean hasContentType(String... contentTypes) {
         if (contentTypes == null || contentTypes.length == 0) {
             return true;
         }
@@ -587,7 +587,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @since TODO add version
      * @see #hasContentType(String...)
      */
-    protected String getNormalisedContentTypeValue() {
+    public String getNormalisedContentTypeValue() {
         String contentType = getHeader(CONTENT_TYPE);
         if (contentType != null) {
             return contentType.toLowerCase(Locale.ROOT);

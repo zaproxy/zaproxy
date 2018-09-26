@@ -22,6 +22,7 @@ package org.zaproxy.zap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Locale;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
@@ -202,7 +203,7 @@ public class ZapGetMethod extends EntityEnclosingMethod {
 		Header header = getResponseHeader("content-type");
 		if (header != null) {
 			String contentTypeHeader = header.getValue();
-			if (contentTypeHeader != null && contentTypeHeader.equals("text/event-stream")) {
+			if (contentTypeHeader != null && contentTypeHeader.toLowerCase(Locale.ROOT).contains("text/event-stream")) {
 				return;
 			}
 		}

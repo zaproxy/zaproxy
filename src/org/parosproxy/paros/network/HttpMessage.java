@@ -982,11 +982,7 @@ public class HttpMessage implements Message {
 	public boolean isEventStream() {
 		boolean isEventStream = false;
 		if (!getResponseHeader().isEmpty()) {
-			String contentTypeHeader = getResponseHeader().getHeader("content-type");
-			if (contentTypeHeader != null && contentTypeHeader.equals("text/event-stream")) {
-				// response is an SSE stream
-				isEventStream = true;
-			}
+			isEventStream = getResponseHeader().hasContentType("text/event-stream");
 		} else {
 			// response not available
 			// is request for event-stream?
