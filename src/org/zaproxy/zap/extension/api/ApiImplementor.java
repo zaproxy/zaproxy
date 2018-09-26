@@ -83,14 +83,33 @@ public abstract class ApiImplementor {
 	}
 
 	public void addApiView (ApiView view) {
+		validateApiElement(apiViews, view);
 		this.apiViews.add(view);
+	}
+
+	/**
+	 * Validates that the name of the given {@code ApiElement} does not already exist in the given list of {@code ApiElement}.
+	 * <p>
+	 * The names should be unique as they are used to select the {@code ApiElement}s.
+	 *
+	 * @param apiElements the existing API elements.
+	 * @param apiElement the API element to validate.
+	 * @throws IllegalArgumentException if the name already exists.
+	 */
+	private static void validateApiElement(List<? extends ApiElement> apiElements, ApiElement apiElement) {
+		String name = apiElement.getName();
+		apiElements.stream().filter(e -> name.equals(e.getName())).findFirst().ifPresent(e -> {
+			throw new IllegalArgumentException("An ApiElement with the given name already exists: " + name);
+		});
 	}
 	
 	public void addApiOthers (ApiOther other) {
+		validateApiElement(apiOthers, other);
 		this.apiOthers.add(other);
 	}
 	
 	public void addApiAction (ApiAction action) {
+		validateApiElement(apiActions, action);
 		this.apiActions.add(action);
 	}
 	
