@@ -155,6 +155,7 @@ Scanners:
 40031   Cross Site Scripting - Detection by Callback
 40032   .htaccess Scanner
 40033	NoSQL Injection MongoDB
+40034   .env File Scanner
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
