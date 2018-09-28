@@ -70,6 +70,21 @@ public class BreakPanelToolbarFactory {
 	private BreakpointsParam breakpointsParams;
 	private int mode = 0;
 
+	/**
+	 * A counter to keep track of how many messages are currently caught, to disable the break buttons when no message is left.
+	 * <p>
+	 * The counter is increased when a {@link #breakpointHit() breakpoint is hit} and decreased when a message is no longer
+	 * {@link #isHoldMessage() being held}.
+	 * 
+	 * @see #countLock
+	 */
+	private int countCaughtMessages;
+
+	/**
+	 * The object to synchronise changes to {@link #countCaughtMessages}.
+	 */
+	private final Object countLock = new Object();
+
 	public BreakPanelToolbarFactory(BreakpointsParam breakpointsParams, BreakPanel breakPanel) {
 		super();
 
@@ -110,6 +125,10 @@ public class BreakPanelToolbarFactory {
 	}
 
 	public void breakpointHit () {
+		synchronized (countLock) {
+			countCaughtMessages++;
+		}
+
 		// This could have been via a break point, so force the serialisation
 		resetRequestSerialization(true);
 
@@ -257,6 +276,20 @@ public class BreakPanelToolbarFactory {
 	}
 
 	public boolean isHoldMessage() {
+		if (isHoldMessageImpl()) {
+			return true;
+		}
+
+		synchronized (countLock) {
+			countCaughtMessages--;
+			if (countCaughtMessages == 0) {
+				setButtonsAndIconState(false);
+			}
+		}
+		return false;
+	}
+
+	private boolean isHoldMessageImpl() {
 		if (step) {
 			// Only works one time, until its pressed again
 			stepping = true;
@@ -310,18 +343,16 @@ public class BreakPanelToolbarFactory {
 		setButtonsAndIconState( ! isContinue);
 	}
 
-	protected void setStep(boolean isStep) {
-		step = isStep;
-		setButtonsAndIconState( ! isStep);
+	protected void step() {
+		step = true;
 	}
 	
-	protected void setDrop(boolean isDrop) {
-		if (isDrop && breakpointsParams.isConfirmDropMessage() && 
+	protected void drop() {
+		if (breakpointsParams.isConfirmDropMessage() && 
 				askForDropConfirmation() != JOptionPane.OK_OPTION) {
 			return;
 		}
-		drop = isDrop;
-		setButtonsAndIconState( ! isDrop);
+		drop = true;
 	}
 
 	public boolean isToBeDropped() {
@@ -340,6 +371,7 @@ public class BreakPanelToolbarFactory {
 		isBreakRequest = false;
 		isBreakResponse = false;
 		isBreakAll = false;
+		countCaughtMessages = 0;
 	}
 
 	public void reset() {
@@ -433,7 +465,7 @@ public class BreakPanelToolbarFactory {
             	// so that its hopefully obvious to users when break is on or not
                 setContinue(true);
             } else {
-                setStep(true);
+                step();
             }
         }
     }
@@ -451,7 +483,7 @@ public class BreakPanelToolbarFactory {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            setDrop(true);
+            drop();
         }
     }
 

@@ -462,7 +462,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 
 	@Override
 	public void step() {
-		breakToolbarFactory.setStep(true);
+		breakToolbarFactory.step();
 	}
 	
 	@Override
@@ -475,7 +475,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 
 	@Override
 	public void drop() {
-		breakToolbarFactory.setDrop(true);
+		breakToolbarFactory.drop();
 	}
 
 	public void showNewBreakPointDialog() {
