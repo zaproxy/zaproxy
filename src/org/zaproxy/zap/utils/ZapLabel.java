@@ -52,4 +52,15 @@ public class ZapLabel extends JTextArea {
 		this.setBackground(new Color(UIManager.getLookAndFeel().getDefaults().getColor("Label.background").getRGB()));
 		this.setForeground(new Color(UIManager.getLookAndFeel().getDefaults().getColor("Label.foreground").getRGB()));
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * The caret position is set to 0 after setting the text.
+	 */
+	@Override
+	public void setText(String t) {
+		super.setText(t);
+		setCaretPosition(0);
+	}
 }
