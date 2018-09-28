@@ -56,6 +56,7 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -65,6 +66,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -552,8 +554,11 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public void addTextField(String fieldLabel, String value) {
+		addTextComponent(new ZapTextField(), fieldLabel, value);
+	}
+
+	private void addTextComponent(JTextComponent field, String fieldLabel, String value) {
 		validateNotTabbed();
-		ZapTextField field = new ZapTextField();
 		if (value != null) {
 			field.setText(value);
 		}
@@ -561,14 +566,55 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public void addTextField(int tabIndex, String fieldLabel, String value) {
+		addTextComponent(tabIndex, new ZapTextField(), fieldLabel, value);
+	}
+
+	private void addTextComponent(int tabIndex, JTextComponent field, String fieldLabel, String value) {
 		validateTabbed(tabIndex);
-		ZapTextField field = new ZapTextField();
 		if (value != null) {
 			field.setText(value);
 		}
 
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
 		incTabOffset(tabIndex);
+	}
+
+	/**
+	 * Adds a {@link ZapLabel} field, with the given label and, optionally, the given value.
+	 *
+	 * @param fieldLabel the name of the label of the read-only text field.
+	 * @param value the value of the field, might be {@code null}.
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue has tabs;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @since TODO add version
+	 * @see #addTextFieldReadOnly(int, String, String)
+	 * @see #addTextField(String, String)
+	 */
+	public void addTextFieldReadOnly(String fieldLabel, String value) {
+		addTextComponent(new ZapLabel(), fieldLabel, value);
+	}
+
+	/**
+	 * Adds a {@link ZapLabel} field, with the given label and, optionally, the given value, to the tab with the given index.
+	 *
+	 * @param tabIndex the index of the tab where the read-only text field should be added.
+	 * @param fieldLabel the name of the label of the read-only text field.
+	 * @param value the value of the field, might be {@code null}.
+	 * @since TODO add version
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue does not have tabs;</li>
+	 *             <li>the dialogue has tabs but the given tab index is not valid;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @see #addTextFieldReadOnly(String, String)
+	 * @see #addTextField(int, String, String)
+	 */
+	public void addTextFieldReadOnly(int tabIndex, String fieldLabel, String value) {
+		addTextComponent(tabIndex, new ZapLabel(), fieldLabel, value);
 	}
 
 	/**
@@ -582,12 +628,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @see #getPasswordValue(String)
 	 */
 	public void addPasswordField(String fieldLabel, String value) {
-		validateNotTabbed();
-		JPasswordField field = new JPasswordField();
-		if (value != null) {
-			field.setText(value);
-		}
-		this.addField(fieldLabel, field, field, 0.0D);
+		addTextComponent(new JPasswordField(), fieldLabel, value);
 	}
 
 	/**
@@ -604,14 +645,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @see #getPasswordValue(String)
 	 */
 	public void addPasswordField(int tabIndex, String fieldLabel, String value) {
-		validateTabbed(tabIndex);
-		JPasswordField field = new JPasswordField();
-		if (value != null) {
-			field.setText(value);
-		}
-
-		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
-		incTabOffset(tabIndex);
+		addTextComponent(tabIndex, new JPasswordField(), fieldLabel, value);
 	}
 
 	public void addMultilineField(String fieldLabel, String value) {
