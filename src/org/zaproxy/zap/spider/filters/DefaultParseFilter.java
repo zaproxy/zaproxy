@@ -63,6 +63,17 @@ public class DefaultParseFilter extends ParseFilter {
 	private static final Pattern GIT_FILENAME_PATTERN = Pattern.compile (".*/\\.git/index$");
 
 	/**
+	 * a pattern to match the robots.txt file.
+	 */
+	private static final Pattern ROBOTS_FILENAME_PATTERN = Pattern.compile(".*/robots.txt$", Pattern.CASE_INSENSITIVE);
+
+	/**
+	 * a pattern to match the sitemap.xml file.
+	 */
+	private static final Pattern SITEMAP_FILENAME_PATTERN = Pattern.compile(".*/sitemap.xml$",
+			Pattern.CASE_INSENSITIVE);
+
+	/**
 	 * The configurations of the spider, never {@code null}.
 	 */
 	private final SpiderParam params;
@@ -125,11 +136,14 @@ public class DefaultParseFilter extends ParseFilter {
 		}
 
 		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it 
+		//if it's a robots.txt or sitemap.xml the relevant parsers will process it
 		//regardless of type, and regardless of whether it exceeds the file size restriction below.
 		String fullfilename = responseMessage.getRequestHeader().getURI().getEscapedPath();
 		if (fullfilename != null && (SVN_SQLITE_FILENAME_PATTERN.matcher(fullfilename).find()
 				|| SVN_XML_FILENAME_PATTERN.matcher(fullfilename).find()
-				|| GIT_FILENAME_PATTERN.matcher(fullfilename).find())) {
+				|| GIT_FILENAME_PATTERN.matcher(fullfilename).find()
+				|| ROBOTS_FILENAME_PATTERN.matcher(fullfilename).find()
+				|| SITEMAP_FILENAME_PATTERN.matcher(fullfilename).find())) {
 			return FilterResult.NOT_FILTERED;
 		}
 

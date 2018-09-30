@@ -30,6 +30,7 @@ import org.apache.log4j.varia.NullAppender;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -188,6 +189,54 @@ public class DefaultParseFilterUnitTest {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.git/index");
+        // When
+        FilterResult filterResult = filter.filtered(httpMessage);
+        // Then
+        assertThat(filterResult.isFiltered(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithoutContentType() throws Exception {
+        // Given
+        DefaultParseFilter filter = createDefaultParseFilter();
+        HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
+        httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "");
+        // When
+        FilterResult filterResult = filter.filtered(httpMessage);
+        // Then
+        assertThat(filterResult.isFiltered(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithContentType() throws Exception {
+        // Given
+        DefaultParseFilter filter = createDefaultParseFilter();
+        HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
+        httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/plain");
+        // When
+        FilterResult filterResult = filter.filtered(httpMessage);
+        // Then
+        assertThat(filterResult.isFiltered(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithoutContentType() throws Exception {
+        // Given
+        DefaultParseFilter filter = createDefaultParseFilter();
+        HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
+        httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "");
+        // When
+        FilterResult filterResult = filter.filtered(httpMessage);
+        // Then
+        assertThat(filterResult.isFiltered(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithContentType() throws Exception {
+        // Given
+        DefaultParseFilter filter = createDefaultParseFilter();
+        HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
+        httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "application/xml");
         // When
         FilterResult filterResult = filter.filtered(httpMessage);
         // Then
