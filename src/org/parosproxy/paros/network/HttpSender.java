@@ -579,7 +579,7 @@ public class HttpSender {
 		// no more retry
 		modifyUserAgent(msg);
 		method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody(), params);
-		if (!(method instanceof EntityEnclosingMethod)) {
+		if (!(method instanceof EntityEnclosingMethod) || method instanceof ZapGetMethod) {
 			// cant do this for EntityEnclosingMethod methods - it will fail
 			method.setFollowRedirects(isFollowRedirect);
 		}

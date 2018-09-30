@@ -1,6 +1,7 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,6 +57,15 @@ public class HttpSessionsAPI extends ApiImplementor {
 
 	/** The action of setting the value for a session token for a particular session. */
 	private static final String ACTION_SET_SESSION_TOKEN = "setSessionTokenValue";
+	
+	/** The action to add a default session token. */
+	private static final String ACTION_ADD_DEFAULT_SESSION_TOKEN = "addDefaultSessionToken";
+
+	/** The action to set the enabled state of a default session token. */
+	private static final String ACTION_SET_DEFAULT_SESSION_TOKEN_ENABLED = "setDefaultSessionTokenEnabled";
+
+	/** The action to remove a default session token. */
+	private static final String ACTION_REMOVE_DEFAULT_SESSION_TOKEN = "removeDefaultSessionToken";
 
 	/** The action of renaming a session. */
 	private static final String ACTION_RENAME_SESSION = "renameSession";
@@ -78,6 +88,9 @@ public class HttpSessionsAPI extends ApiImplementor {
 	/** The mandatory parameter required for setting the value of a session token. */
 	private static final String ACTION_PARAM_TOKEN_VALUE = "tokenValue";
 
+	/** The parameter for setting the enabled state of a default session token. */
+	private static final String ACTION_PARAM_TOKEN_ENABLED = "tokenEnabled";
+
 	/** The view which lists all of the sites with session tokens. */
 	private static final String VIEW_SITES = "sites";
 
@@ -89,6 +102,9 @@ public class HttpSessionsAPI extends ApiImplementor {
 
 	/** The view which describes which are the session tokens for a particular site. */
 	private static final String VIEW_SESSION_TOKENS = "sessionTokens";
+
+	/** The view to get the default session tokens. */
+	private static final String VIEW_DEFAULT_SESSION_TOKENS = "defaultSessionTokens";
 
 	/** The mandatory parameter required for viewing data regarding a particular site. */
 	private static final String VIEW_PARAM_SITE = "site";
@@ -123,6 +139,16 @@ public class HttpSessionsAPI extends ApiImplementor {
 				ACTION_PARAM_SESSION, ACTION_PARAM_TOKEN_NAME, ACTION_PARAM_TOKEN_VALUE }));
 		this.addApiAction(new ApiAction(ACTION_RENAME_SESSION, new String[] { ACTION_PARAM_SITE,
 				ACTION_PARAM_SESSION_OLD_NAME, ACTION_PARAM_SESSION_NEW_NAME }));
+		this.addApiAction(
+				new ApiAction(
+						ACTION_ADD_DEFAULT_SESSION_TOKEN,
+						new String[] { ACTION_PARAM_TOKEN_NAME },
+						new String[] { ACTION_PARAM_TOKEN_ENABLED }));
+		this.addApiAction(
+				new ApiAction(
+						ACTION_SET_DEFAULT_SESSION_TOKEN_ENABLED,
+						new String[] { ACTION_PARAM_TOKEN_NAME, ACTION_PARAM_TOKEN_ENABLED }));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_DEFAULT_SESSION_TOKEN, new String[] { ACTION_PARAM_TOKEN_NAME }));
 
 		// Register the views
 		this.addApiView(new ApiView(VIEW_SITES));
@@ -130,6 +156,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 				new String[] { VIEW_PARAM_SESSION }));
 		this.addApiView(new ApiView(VIEW_ACTIVE_SESSION, new String[] { VIEW_PARAM_SITE }));
 		this.addApiView(new ApiView(VIEW_SESSION_TOKENS, new String[] { VIEW_PARAM_SITE }));
+		this.addApiView(new ApiView(VIEW_DEFAULT_SESSION_TOKENS));
 	}
 
 	@Override
@@ -222,6 +249,25 @@ public class HttpSessionsAPI extends ApiImplementor {
 						Constant.messages.getString("httpsessions.api.error.rename"));
 			}
 			return ApiResponseElement.OK;
+		case ACTION_ADD_DEFAULT_SESSION_TOKEN:
+			if (!extension.getParam().addDefaultToken(
+					params.getString(ACTION_PARAM_TOKEN_NAME),
+					getParam(params, ACTION_PARAM_TOKEN_ENABLED, true))) {
+				throw new ApiException(ApiException.Type.ALREADY_EXISTS, ACTION_PARAM_TOKEN_NAME);
+			}
+			return ApiResponseElement.OK;
+		case ACTION_SET_DEFAULT_SESSION_TOKEN_ENABLED:
+			if (!extension.getParam().setDefaultTokenEnabled(
+					params.getString(ACTION_PARAM_TOKEN_NAME),
+					params.getBoolean(ACTION_PARAM_TOKEN_ENABLED))) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_TOKEN_NAME);
+			}
+			return ApiResponseElement.OK;
+		case ACTION_REMOVE_DEFAULT_SESSION_TOKEN:
+			if (!extension.getParam().removeDefaultToken(params.getString(ACTION_PARAM_TOKEN_NAME))) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_TOKEN_NAME);
+			}
+			return ApiResponseElement.OK;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -309,6 +355,15 @@ public class HttpSessionsAPI extends ApiImplementor {
 				}
 			}
 			return responseST;
+		case VIEW_DEFAULT_SESSION_TOKENS:
+			ApiResponseList defaultSessionTokens = new ApiResponseList(name);
+			for (HttpSessionToken token : extension.getParam().getDefaultTokens()) {
+				Map<String, Object> tokenFields = new HashMap<>();
+				tokenFields.put("name", token.getName());
+				tokenFields.put("enabled", token.isEnabled());
+				defaultSessionTokens.addItem(new ApiResponseSet<>("token", tokenFields));
+			}
+			return defaultSessionTokens;
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

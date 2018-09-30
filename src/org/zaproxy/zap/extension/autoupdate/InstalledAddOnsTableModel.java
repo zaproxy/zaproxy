@@ -40,6 +40,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
 	private static final String[] COLUMN_NAMES = {
 		"", // Column for warning of running issues (e.g. incorrect Java version, missing dependency...)
 		Constant.messages.getString("cfu.table.header.name"),
+		Constant.messages.getString("cfu.table.header.version"),
 		Constant.messages.getString("cfu.table.header.desc"),
 		Constant.messages.getString("cfu.table.header.update"),
 		""};
@@ -77,7 +78,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 0 || columnIndex == 4) {
+        if (columnIndex == 0 || columnIndex == 5) {
             return Boolean.class;
         }
         return String.class;
@@ -94,8 +95,10 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
         case 1:
             return aow.getAddOn().getName();
         case 2:
-            return aow.getAddOn().getDescription();
+            return aow.getAddOn().getVersion();
         case 3:
+            return aow.getAddOn().getDescription();
+        case 4:
         	int progress = aow.getProgress();
         	if (aow.isFailed()) {
         		return Constant.messages.getString("cfu.table.label.failed");
@@ -109,7 +112,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
         	} else {
         		return "";
         	}
-        case 4:
+        case 5:
             return getAddOnWrapper(rowIndex).isEnabled();
         }
         return null;
@@ -117,7 +120,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex != 4) {
+        if (columnIndex != 5) {
             return;
         }
 
@@ -137,7 +140,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (columnIndex != 4) {
+        if (columnIndex != 5) {
             return false;
         }
 

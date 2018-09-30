@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -403,7 +404,7 @@ public class AddOn  {
 	 * @param file the file to be checked.
 	 * @return the result of the validation.
 	 * @since TODO add version
-	 * @see #isValidAddOn(Path)
+	 * @see #isAddOn(Path)
 	 */
 	public static ValidationResult isValidAddOn(Path file) {
 		if (file == null || file.getNameCount() == 0) {
@@ -438,6 +439,26 @@ public class AddOn  {
 		}
 	}
 
+	/**
+	 * Convenience method that attempts to create an {@code AddOn} from the given file.
+	 * <p>
+	 * A warning is logged if the add-on is invalid and an error if an error occurred while creating it.
+	 * 
+	 * @param file the file of the add-on.
+	 * @return a container with the {@code AddOn}, or empty if not valid or an error occurred while creating it.
+	 * @since TODO add version
+	 */
+	public static Optional<AddOn> createAddOn(Path file) {
+		try {
+			return Optional.of(new AddOn(file));
+		} catch (AddOn.InvalidAddOnException e) {
+			logger.warn("Invalid add-on: " + file.toString(), e);
+		} catch (Exception e) {
+			logger.error("Failed to create an add-on from: " + file.toString(), e);
+		}
+		return Optional.empty();
+	}
+	
 	/**
 	 * Constructs an {@code AddOn} with the given file name.
 	 *

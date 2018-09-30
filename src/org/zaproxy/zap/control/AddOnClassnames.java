@@ -21,6 +21,7 @@ package org.zaproxy.zap.control;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A class that allows to query if a classname can be loaded.
@@ -50,7 +51,24 @@ final class AddOnClassnames {
         this.restrictedClassnames = restrictedClassnames;
     }
 
+    List<String> getAllowedClassnames() {
+        return allowedClassnames;
+    }
+
+    List<String> getRestrictedClassnames() {
+        return restrictedClassnames;
+    }
+
+    /**
+     * Tells whether or not the given classname is allowed, thus can be loaded.
+     *
+     * @param classname the classname to check.
+     * @return {@code true} if the given classname is allowed, {@code false} otherwise.
+     * @throws NullPointerException if the {@code classname} is {@code null}.
+     */
     public boolean isAllowed(String classname) {
+        Objects.requireNonNull(classname);
+
         if (!restrictedClassnames.isEmpty()) {
             for (String restrictedClassname : restrictedClassnames) {
                 if (classname.startsWith(restrictedClassname)) {

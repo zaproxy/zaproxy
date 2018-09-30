@@ -28,18 +28,28 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiOther;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiResponseList;
+import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.extension.api.ApiException.Type;
 
 public class AntiCsrfAPI extends ApiImplementor {
 
 	private static final String PREFIX = "acsrf";
 
+	private static final String VIEW_TOKENS_NAMES = "optionTokensNames";
+
 	private static final String OTHER_GENERATE_FORM = "genForm";
 	private static final String OTHER_GENERATE_FORM_PARAM_HREFID = "hrefId";
+
+	private static final String TOKEN_NAME = "tokenName";
 	
 	private ExtensionAntiCSRF extension = null;
 	
 	public AntiCsrfAPI(ExtensionAntiCSRF ext) {
 		this.extension = ext;
+		this.addApiView(new ApiView(VIEW_TOKENS_NAMES));
 		this.addApiOthers(new ApiOther(OTHER_GENERATE_FORM, new String[] {OTHER_GENERATE_FORM_PARAM_HREFID}));
 	}
 
@@ -51,6 +61,25 @@ public class AntiCsrfAPI extends ApiImplementor {
 	public static String getAntiCsrfFormUrl(int hrefid) {
 		return API.getInstance().getBaseURL(API.Format.OTHER, PREFIX, API.RequestType.other, OTHER_GENERATE_FORM, false) +
 				OTHER_GENERATE_FORM_PARAM_HREFID + "=" + hrefid;
+	}
+
+	@Override
+	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
+		ApiResponse result;
+		ApiResponseList resultList;
+
+		switch (name) {
+		case VIEW_TOKENS_NAMES:
+			resultList = new ApiResponseList(name);
+			for (String tokenName : extension.getParam().getTokensNames()) {
+				resultList.addItem(new ApiResponseElement(TOKEN_NAME, tokenName));
+			}
+			result = resultList;
+			break;
+		default:
+			throw new ApiException(Type.BAD_VIEW);
+		}
+		return result;
 	}
 
 	@Override

@@ -33,10 +33,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -44,6 +48,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.zaproxy.zap.control.AddOn.BundleData;
 import org.zaproxy.zap.control.AddOn.HelpSetData;
+import org.zaproxy.zap.control.AddOn.ValidationResult;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -288,6 +293,110 @@ public class AddOnUnitTest extends TestUtils {
 		boolean addOnFile = AddOn.isAddOn(file);
 		// Then
 		assertThat(addOnFile, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfPathIsNull() throws Exception {
+		// Given
+		Path file = null;
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_PATH)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfPathHasNoFileName() throws Exception {
+		// Given
+		Path file = Paths.get("/");
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_PATH)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfFileDoesNotHaveZapExtension() throws Exception {
+		// Given
+		Path file = tempDir.newFile("addon.zip").toPath();
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_FILE_NAME)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfPathIsDirectory() throws Exception {
+		// Given
+		Path file = tempDir.newFolder("addon.zap").toPath();
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.FILE_NOT_READABLE)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfPathIsNotReadable() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "alpha", "1");
+		Set<PosixFilePermission> perms = Files.readAttributes(file, PosixFileAttributes.class).permissions();
+		perms.remove(PosixFilePermission.OWNER_READ);
+		Files.setPosixFilePermissions(file, perms);
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.FILE_NOT_READABLE)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfNotZipFile() throws Exception {
+		// Given
+		Path file = tempDir.newFile("addon.zap").toPath();
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.UNREADABLE_ZIP_FILE)));
+		assertThat(result.getException(), is(notNullValue()));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfItHasNoManifest() throws Exception {
+		// Given
+		Path file = tempDir.newFile("addon.zap").toPath();
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
+			zos.putNextEntry(new ZipEntry("Not a manifest"));
+			zos.closeEntry();
+		}
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.MISSING_MANIFEST)));
+	}
+
+	@Test
+	public void shouldNotBeValidAddOnIfManifestIsMalformed() throws Exception {
+		// Given
+		Path file = tempDir.newFile("addon.zap").toPath();
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
+			zos.putNextEntry(new ZipEntry(AddOn.MANIFEST_FILE_NAME));
+			zos.closeEntry();
+		}
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_MANIFEST)));
+		assertThat(result.getException(), is(notNullValue()));
+	}
+
+	@Test
+	public void shouldBeValidAddOnIfValid() throws Exception {
+		// Given
+		Path file = createAddOnFile("addon.zap", "release", "1.0.0");
+		// When
+		ValidationResult result = AddOn.isValidAddOn(file);
+		// Then
+		assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.VALID)));
+		assertThat(result.getManifest(), is(notNullValue()));
 	}
 
 	@Test(expected = IOException.class)

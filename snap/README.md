@@ -8,7 +8,7 @@ In order to build the snap run:
 
 To install the snap you've built locally run:
 
-`snap install zaproxy_2.7.0_amd64.snap --dangerous --devmode`
+`snap install zaproxy_2.7.0_amd64.snap --dangerous --classic`
 
 Note that the architecture component '_amd64' may be different on your system.
 

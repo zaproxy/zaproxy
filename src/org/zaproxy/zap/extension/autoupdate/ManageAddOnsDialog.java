@@ -399,12 +399,14 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			installedAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);//icon
 			installedAddOnsTable.getColumnExt(0).setSortable(false);//icon doesn't need to be sortable
 			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(200);//name
-			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(400);//description
-			installedAddOnsTable.getColumnExt(2).setSortable(false);//description doesn't need to be sortable
-			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);//update
-			installedAddOnsTable.getColumnExt(3).setSortable(false);//update doesn't need to be sortable
-			installedAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(40);
-			installedAddOnsTable.getColumnExt(4).setSortable(false);//checkbox doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(60);//version
+			installedAddOnsTable.getColumnExt(2).setSortable(false);//version doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(400);//description
+			installedAddOnsTable.getColumnExt(3).setSortable(false);//description doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(60);//update
+			installedAddOnsTable.getColumnExt(4).setSortable(false);//update doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(5).setPreferredWidth(40);
+			installedAddOnsTable.getColumnExt(5).setSortable(false);//checkbox doesn't need to be sortable
           
             //Default sort by name (column 1)
             List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
