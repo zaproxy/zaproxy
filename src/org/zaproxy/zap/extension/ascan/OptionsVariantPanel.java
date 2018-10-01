@@ -50,6 +50,16 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class OptionsVariantPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Flag that indicates whether or not the {@code ExtensionScript} is enabled.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #isExtensionScriptEnabled()
+     */
+    private static Boolean extensionScriptEnabled;
+
     private JPanel panelVariant = null;
     
     // Checkbox for Target definitions
@@ -202,12 +212,12 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         int targets = param.getTargetParamsInjectable();
         this.getChkInjectableQueryString().setSelected((targets & ScannerParam.TARGET_QUERYSTRING) != 0);
         this.getChkAddQueryParam().setSelected(param.isAddQueryParam());
-        this.getChkAddQueryParam().setEnabled(getChkInjectableQueryString().isSelected());
+        this.getChkAddQueryParam().setEnabled(getChkInjectableQueryString().isEnabled() && getChkInjectableQueryString().isSelected());
         this.getChkInjectableUrlPath().setSelected((targets & ScannerParam.TARGET_URLPATH) != 0);
         this.getChkInjectablePostData().setSelected((targets & ScannerParam.TARGET_POSTDATA) != 0);
         this.getChkInjectableHeaders().setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
         this.getChkInjectableHeadersAllRequests().setSelected(param.isScanHeadersAllRequests());
-        this.getChkInjectableHeadersAllRequests().setEnabled(getChkInjectableHeaders().isSelected());
+        this.getChkInjectableHeadersAllRequests().setEnabled(getChkInjectableHeaders().isEnabled() && getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
 
         int rpcEnabled = param.getTargetParamsEnabledRPC();
@@ -218,9 +228,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCoData().setSelected((rpcEnabled & ScannerParam.RPC_ODATA) != 0);
         this.getChkRPCDWR().setSelected((rpcEnabled & ScannerParam.RPC_DWR) != 0);
         this.getChkRPCCustom().setSelected((rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
-        
-        ExtensionScript extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
-        this.getChkRPCCustom().setEnabled((extension != null));
 
         this.getExcludedParameterModel().setTokens(param.getExcludedParamList());
     }
@@ -308,7 +315,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     public void setAllInjectableAndRPC(boolean enabled) {
         
         this.getChkInjectableQueryString().setEnabled(enabled);
-        this.getChkAddQueryParam().setEnabled(enabled);
+        this.getChkAddQueryParam().setEnabled(enabled && getChkInjectableQueryString().isSelected());
         this.getChkInjectableUrlPath().setEnabled(enabled);
         this.getChkInjectablePostData().setEnabled(enabled);
         this.getChkInjectableHeaders().setEnabled(enabled);
@@ -321,7 +328,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCGWT().setEnabled(enabled);
         this.getChkRPCoData().setEnabled(enabled);
         this.getChkRPCDWR().setEnabled(enabled);
-        this.getChkRPCCustom().setEnabled(enabled);
+        this.getChkRPCCustom().setEnabled(enabled && isExtensionScriptEnabled());
     }
     
     /**
@@ -464,8 +471,16 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (chkRPCCustom == null) {
             chkRPCCustom = new JCheckBox();
             chkRPCCustom.setText(Constant.messages.getString("variant.options.rpc.custom.label"));
+            chkRPCCustom.setEnabled(isExtensionScriptEnabled());
         }
         return chkRPCCustom;
+    }
+
+    private static boolean isExtensionScriptEnabled() {
+        if (extensionScriptEnabled == null) {
+            extensionScriptEnabled = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class) != null;
+        }
+        return extensionScriptEnabled;
     }
 
     private static class ExcludedParameterPanel extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
