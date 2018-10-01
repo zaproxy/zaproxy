@@ -31,7 +31,7 @@ public class ProxyListenerScript implements ProxyListener {
     // so that anything can be changed
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER - 2;
 	
-	private ExtensionScript extension = null;
+	private final ExtensionScript extension;
 
 	private static final Logger logger = Logger.getLogger(ProxyListenerScript.class);
 
@@ -46,11 +46,15 @@ public class ProxyListenerScript implements ProxyListener {
 	
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
-		for (ScriptWrapper script : extension.getScripts("proxy")) {
+		return invokeProxyScripts(msg, true);
+	}
+
+	private boolean invokeProxyScripts(HttpMessage msg, boolean processRequest) {
+		for (ScriptWrapper script : extension.getScripts(ExtensionScript.TYPE_PROXY)) {
 			if (script.isEnabled()) {
 				try {
-					if (! extension.invokeProxyScript(script, msg, true)) {
-						// The script is telling us to drop this request
+					if (! extension.invokeProxyScript(script, msg, processRequest)) {
+						// The script is telling us to drop the message
 						return false;
 					}
 					
@@ -65,21 +69,7 @@ public class ProxyListenerScript implements ProxyListener {
 
 	@Override
 	public boolean onHttpResponseReceive(HttpMessage msg) {
-		for (ScriptWrapper script : extension.getScripts("proxy")) {
-			if (script.isEnabled()) {
-				try {
-					if (! extension.invokeProxyScript(script, msg, false)) {
-						// The script is telling us to drop this response
-						return false;
-					}
-					
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		// No scripts, or they all passed
-		return true;
+		return invokeProxyScripts(msg, false);
 	}
     
 }
