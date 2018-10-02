@@ -200,7 +200,6 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setTitle(Constant.messages.getString(titleLabel));
-		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);
 		this.hideOnSave = true;
 	}
