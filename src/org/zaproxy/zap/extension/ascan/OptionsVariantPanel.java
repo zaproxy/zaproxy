@@ -25,6 +25,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Objects;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -85,10 +86,33 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private ExcludedParameterTableModel excludedParamModel = null;
 
     /**
+     * The reason why the variants are disabled.
+     * <p>
+     * Never {@code null}.
+     * 
+     * @see #labelReasonVariantsDisabled
+     */
+    private String reasonVariantsDisabled;
+
+    /**
+     * The label that shows the {@link #reasonVariantsDisabled reason} why the variants are disabled.
+     * <p>
+     * The label is only shown if the reason is non-empty.
+     * 
+     * @see #setAllInjectableAndRPC(boolean)
+     */
+    private JLabel labelReasonVariantsDisabled;
+    
+    /**
      * General Constructor
      */
     public OptionsVariantPanel() {
         super();
+
+        reasonVariantsDisabled = "";
+        labelReasonVariantsDisabled = new JLabel();
+        labelReasonVariantsDisabled.setVisible(false);
+
         initialize();
     }
 
@@ -180,16 +204,20 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCCustom(), 
                     LayoutHelper.getGBC(0, 2, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));            
 
+            panelVariant.add(
+                    labelReasonVariantsDisabled,
+                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
+
             // Excluded Parameters
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.excludedparam.label.tokens")), 
-                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, 4, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             
             // Set an header on it
             excludedParamPanel = new ExcludedParameterPanel(getExcludedParameterModel());
             panelVariant.add(
                     excludedParamPanel,
-                    LayoutHelper.getGBC(0, 4, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));            
+                    LayoutHelper.getGBC(0, 5, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));            
         }
         
         return panelVariant;
@@ -311,6 +339,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     /**
      * Set all checkbox to a specific value
      * @param enabled true if all the checkbox should be enabled, false otherwise
+     * @see #setReasonVariantsDisabled(String)
      */
     public void setAllInjectableAndRPC(boolean enabled) {
         
@@ -329,6 +358,10 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCoData().setEnabled(enabled);
         this.getChkRPCDWR().setEnabled(enabled);
         this.getChkRPCCustom().setEnabled(enabled && isExtensionScriptEnabled());
+
+        if (!reasonVariantsDisabled.isEmpty()) {
+            labelReasonVariantsDisabled.setVisible(!enabled);
+        }
     }
     
     /**
@@ -346,6 +379,23 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.options.ascaninput";
+    }
+
+    /**
+     * Sets the reason to show when the the variants are disabled.
+     *
+     * @param reason the reason that indicates why the variants are disabled.
+     * @since TODO add version
+     * @throws NullPointerException if the given {@code reason} is {@code null}.
+     * @see #setAllInjectableAndRPC(boolean)
+     */
+    public void setReasonVariantsDisabled(String reason) {
+        reasonVariantsDisabled = Objects.requireNonNull(reason);
+
+        labelReasonVariantsDisabled.setText(reasonVariantsDisabled);
+        if (reasonVariantsDisabled.isEmpty() && labelReasonVariantsDisabled.isVisible()) {
+            labelReasonVariantsDisabled.setVisible(false);
+        }
     }
 
     private JCheckBox getChkInjectableQueryString() {

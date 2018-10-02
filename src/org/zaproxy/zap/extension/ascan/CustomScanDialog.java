@@ -96,8 +96,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
     private static final String FIELD_ADVANCED = "ascan.custom.label.adv";
     
-    private static final String FIELD_DISABLE_VARIANTS_MSG = "variant.options.disable";
-
     private static final Logger logger = Logger.getLogger(CustomScanDialog.class);
     private static final long serialVersionUID = 1L;
 
@@ -434,6 +432,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private OptionsVariantPanel getVariantPanel() {
         if (variantPanel == null) {
             variantPanel = new OptionsVariantPanel();            
+            variantPanel.setReasonVariantsDisabled(Constant.messages.getString("ascan.custom.warn.disabled"));
         }
         
         return variantPanel;
@@ -559,24 +558,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JCheckBox getDisableNonCustomVectors() {
         if (disableNonCustomVectors == null) {
             disableNonCustomVectors = new JCheckBox(Constant.messages.getString("ascan.custom.label.disableiv"));
-            disableNonCustomVectors.addActionListener(new ActionListener() {
-                
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Enable/disable all of the input vector options as appropriate
-                    getVariantPanel().setAllInjectableAndRPC(!disableNonCustomVectors.isSelected());
-
-                    if (disableNonCustomVectors.isSelected()) {
-                        setFieldValue(FIELD_DISABLE_VARIANTS_MSG,
-                                Constant.messages.getString("ascan.custom.warn.disabled"));
-                    
-                    } else {
-                        setFieldValue(FIELD_DISABLE_VARIANTS_MSG, "");
-                    }
-
-                }
-            });
-
+            disableNonCustomVectors
+                    .addActionListener(e -> getVariantPanel().setAllInjectableAndRPC(!disableNonCustomVectors.isSelected()));
         }
         return disableNonCustomVectors;
     }
