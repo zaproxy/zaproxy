@@ -560,9 +560,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 
 	private void addTextComponent(JTextComponent field, String fieldLabel, String value) {
 		validateNotTabbed();
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 		this.addField(fieldLabel, field, field, 0.0D);
 	}
 
@@ -572,12 +570,31 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 
 	private void addTextComponent(int tabIndex, JTextComponent field, String fieldLabel, String value) {
 		validateTabbed(tabIndex);
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
 		incTabOffset(tabIndex);
+	}
+
+	/**
+	 * Sets the given value to the given field.
+	 * <p>
+	 * The edits are discarded after setting the value, if the field is a {@link ZapTextField} or {@link ZapTextArea}.
+	 *
+	 * @param field the field to set the value.
+	 * @param value the value to set.
+	 */
+	private static void setTextAndDiscardEdits(JTextComponent field, String value) {
+		if (value == null) {
+			return;
+		}
+
+		field.setText(value);
+		if (field instanceof ZapTextField) {
+			((ZapTextField) field).discardAllEdits();
+		} else if (field instanceof ZapTextArea) {
+			((ZapTextArea) field).discardAllEdits();
+		}
 	}
 
 	/**
@@ -656,9 +673,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setViewportView(field);
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 		this.addField(fieldLabel, field, scrollPane, 1.0D);
 	}
 
@@ -669,9 +684,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setViewportView(field);
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, scrollPane, 1.0D);
 		this.incTabOffset(tabIndex);
 	}
