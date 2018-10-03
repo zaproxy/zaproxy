@@ -50,6 +50,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -1713,6 +1714,27 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				((JPasswordField)c).addMouseListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addMouseListener(listener);
+			} else {
+				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			}
+		}
+	}
+
+	/**
+	 * Sets the given pop up menu to the field with the given label.
+	 * <p>
+	 * The pop up menu is only set to {@link JComponent} fields.
+	 *
+	 * @param fieldLabel the label of the field.
+	 * @param popup the pop up menu.
+	 * @since TODO add version
+	 * @see JComponent#setComponentPopupMenu(JPopupMenu)
+	 */
+	public void setFieldPopupMenu(String fieldLabel, JPopupMenu popup) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c != null) {
+			if (c instanceof JComponent) {
+				((JComponent) c).setComponentPopupMenu(popup);
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}
