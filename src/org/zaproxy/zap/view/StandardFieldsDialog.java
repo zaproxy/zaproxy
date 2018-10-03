@@ -54,6 +54,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
@@ -1480,10 +1481,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public String getStringValue(String fieldLabel) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				return ((ZapTextField)c).getText();
-			} else if (c instanceof ZapTextArea) {
-				return ((ZapTextArea)c).getText();
+			if (c instanceof JTextComponent) {
+				return ((JTextComponent) c).getText();
 			} else if (c instanceof JComboBox) {
 				return (String)((JComboBox<?>)c).getSelectedItem();
 			} else {
@@ -1551,12 +1550,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public void setFieldValue(String fieldLabel, String value) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				((ZapTextField)c).setText(value);
-			} else if (c instanceof JPasswordField) {
-				((JPasswordField)c).setText(value);
-			} else if (c instanceof ZapTextArea) {
-				((ZapTextArea)c).setText(value);
+			if (c instanceof JTextComponent) {
+				((JTextComponent) c).setText(value);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).setSelectedItem(value);
 			} else if (c instanceof JLabel) {
@@ -1582,12 +1577,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
 			Object value = null;
-			if (c instanceof ZapTextField) {
-				value = ((ZapTextField)c).getText();
-			} else if (c instanceof JPasswordField) {
-				return ((JPasswordField) c).getDocument().getLength() == 0;
-			} else if (c instanceof ZapTextArea) {
-				value = ((ZapTextArea)c).getText();
+			if (c instanceof JTextComponent) {
+				return ((JTextComponent) c).getDocument().getLength() == 0;
 			} else if (c instanceof JComboBox) {
 				value = ((JComboBox<?>)c).getSelectedItem();
 			} else if (c instanceof ZapNumberSpinner) {
@@ -1689,10 +1680,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public void addFieldListener(String fieldLabel, ActionListener listener) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				((ZapTextField)c).addActionListener(listener);
-			} else if (c instanceof JPasswordField) {
-				((JPasswordField)c).addActionListener(listener);
+			if (c instanceof JTextField) {
+				((JTextField) c).addActionListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addActionListener(listener);
 			} else if (c instanceof JCheckBox) {
@@ -1704,20 +1693,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public void addFieldListener(String fieldLabel, MouseAdapter listener) {
-		Component c = this.fieldMap.get(fieldLabel);
-		if (c != null) {
-			if (c instanceof ZapTextField) {
-				((ZapTextField)c).addMouseListener(listener);
-			} else if (c instanceof ZapTextArea) {
-				((ZapTextArea)c).addMouseListener(listener);
-			} else if (c instanceof JPasswordField) {
-				((JPasswordField)c).addMouseListener(listener);
-			} else if (c instanceof JComboBox) {
-				((JComboBox<?>)c).addMouseListener(listener);
-			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
-			}
-		}
+		this.fieldMap.computeIfPresent(fieldLabel, (k, c) -> {
+			c.addMouseListener(listener);
+			return c;
+		});
 	}
 
 	/**
