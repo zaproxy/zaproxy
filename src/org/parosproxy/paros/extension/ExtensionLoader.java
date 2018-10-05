@@ -73,6 +73,7 @@
 // ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
 // ZAP: 2018/04/25 Allow to add ProxyServer to automatically add/remove proxy related listeners to it.
 // ZAP: 2018/07/18 Tweak logging.
+// ZAP: 2018/10/05 Get menu/view hooks without initialising them.
 
 package org.parosproxy.paros.extension;
 
@@ -963,7 +964,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        ExtensionHookMenu hookMenu = hook.getHookMenuNoInit();
         if (hookMenu == null) {
             return;
         }
@@ -1026,7 +1027,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        ExtensionHookMenu hookMenu = hook.getHookMenuNoInit();
         if (hookMenu == null) {
             return;
         }
@@ -1107,7 +1108,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookView pv = hook.getHookView();
+        ExtensionHookView pv = hook.getHookViewNoInit();
         if (pv == null) {
             return;
         }
@@ -1143,7 +1144,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookView pv = hook.getHookView();
+        ExtensionHookView pv = hook.getHookViewNoInit();
         if (pv == null) {
             return;
         }
