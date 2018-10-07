@@ -50,12 +50,15 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -65,6 +68,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -198,7 +202,6 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setTitle(Constant.messages.getString(titleLabel));
-		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);
 		this.hideOnSave = true;
 	}
@@ -552,23 +555,84 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public void addTextField(String fieldLabel, String value) {
+		addTextComponent(new ZapTextField(), fieldLabel, value);
+	}
+
+	private void addTextComponent(JTextComponent field, String fieldLabel, String value) {
 		validateNotTabbed();
-		ZapTextField field = new ZapTextField();
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 		this.addField(fieldLabel, field, field, 0.0D);
 	}
 
 	public void addTextField(int tabIndex, String fieldLabel, String value) {
+		addTextComponent(tabIndex, new ZapTextField(), fieldLabel, value);
+	}
+
+	private void addTextComponent(int tabIndex, JTextComponent field, String fieldLabel, String value) {
 		validateTabbed(tabIndex);
-		ZapTextField field = new ZapTextField();
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
 		incTabOffset(tabIndex);
+	}
+
+	/**
+	 * Sets the given value to the given field.
+	 * <p>
+	 * The edits are discarded after setting the value, if the field is a {@link ZapTextField} or {@link ZapTextArea}.
+	 *
+	 * @param field the field to set the value.
+	 * @param value the value to set.
+	 */
+	private static void setTextAndDiscardEdits(JTextComponent field, String value) {
+		if (value == null) {
+			return;
+		}
+
+		field.setText(value);
+		if (field instanceof ZapTextField) {
+			((ZapTextField) field).discardAllEdits();
+		} else if (field instanceof ZapTextArea) {
+			((ZapTextArea) field).discardAllEdits();
+		}
+	}
+
+	/**
+	 * Adds a {@link ZapLabel} field, with the given label and, optionally, the given value.
+	 *
+	 * @param fieldLabel the name of the label of the read-only text field.
+	 * @param value the value of the field, might be {@code null}.
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue has tabs;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @since TODO add version
+	 * @see #addTextFieldReadOnly(int, String, String)
+	 * @see #addTextField(String, String)
+	 */
+	public void addTextFieldReadOnly(String fieldLabel, String value) {
+		addTextComponent(new ZapLabel(), fieldLabel, value);
+	}
+
+	/**
+	 * Adds a {@link ZapLabel} field, with the given label and, optionally, the given value, to the tab with the given index.
+	 *
+	 * @param tabIndex the index of the tab where the read-only text field should be added.
+	 * @param fieldLabel the name of the label of the read-only text field.
+	 * @param value the value of the field, might be {@code null}.
+	 * @since TODO add version
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue does not have tabs;</li>
+	 *             <li>the dialogue has tabs but the given tab index is not valid;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @see #addTextFieldReadOnly(String, String)
+	 * @see #addTextField(int, String, String)
+	 */
+	public void addTextFieldReadOnly(int tabIndex, String fieldLabel, String value) {
+		addTextComponent(tabIndex, new ZapLabel(), fieldLabel, value);
 	}
 
 	/**
@@ -582,12 +646,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @see #getPasswordValue(String)
 	 */
 	public void addPasswordField(String fieldLabel, String value) {
-		validateNotTabbed();
-		JPasswordField field = new JPasswordField();
-		if (value != null) {
-			field.setText(value);
-		}
-		this.addField(fieldLabel, field, field, 0.0D);
+		addTextComponent(new JPasswordField(), fieldLabel, value);
 	}
 
 	/**
@@ -604,14 +663,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @see #getPasswordValue(String)
 	 */
 	public void addPasswordField(int tabIndex, String fieldLabel, String value) {
-		validateTabbed(tabIndex);
-		JPasswordField field = new JPasswordField();
-		if (value != null) {
-			field.setText(value);
-		}
-
-		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
-		incTabOffset(tabIndex);
+		addTextComponent(tabIndex, new JPasswordField(), fieldLabel, value);
 	}
 
 	public void addMultilineField(String fieldLabel, String value) {
@@ -621,9 +673,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setViewportView(field);
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 		this.addField(fieldLabel, field, scrollPane, 1.0D);
 	}
 
@@ -634,9 +684,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setViewportView(field);
-		if (value != null) {
-			field.setText(value);
-		}
+		setTextAndDiscardEdits(field, value);
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, scrollPane, 1.0D);
 		this.incTabOffset(tabIndex);
 	}
@@ -1446,10 +1494,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public String getStringValue(String fieldLabel) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				return ((ZapTextField)c).getText();
-			} else if (c instanceof ZapTextArea) {
-				return ((ZapTextArea)c).getText();
+			if (c instanceof JTextComponent) {
+				return ((JTextComponent) c).getText();
 			} else if (c instanceof JComboBox) {
 				return (String)((JComboBox<?>)c).getSelectedItem();
 			} else {
@@ -1517,12 +1563,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public void setFieldValue(String fieldLabel, String value) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				((ZapTextField)c).setText(value);
-			} else if (c instanceof JPasswordField) {
-				((JPasswordField)c).setText(value);
-			} else if (c instanceof ZapTextArea) {
-				((ZapTextArea)c).setText(value);
+			if (c instanceof JTextComponent) {
+				((JTextComponent) c).setText(value);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).setSelectedItem(value);
 			} else if (c instanceof JLabel) {
@@ -1548,12 +1590,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
 			Object value = null;
-			if (c instanceof ZapTextField) {
-				value = ((ZapTextField)c).getText();
-			} else if (c instanceof JPasswordField) {
-				return ((JPasswordField) c).getDocument().getLength() == 0;
-			} else if (c instanceof ZapTextArea) {
-				value = ((ZapTextArea)c).getText();
+			if (c instanceof JTextComponent) {
+				return ((JTextComponent) c).getDocument().getLength() == 0;
 			} else if (c instanceof JComboBox) {
 				value = ((JComboBox<?>)c).getSelectedItem();
 			} else if (c instanceof ZapNumberSpinner) {
@@ -1655,10 +1693,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public void addFieldListener(String fieldLabel, ActionListener listener) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				((ZapTextField)c).addActionListener(listener);
-			} else if (c instanceof JPasswordField) {
-				((JPasswordField)c).addActionListener(listener);
+			if (c instanceof JTextField) {
+				((JTextField) c).addActionListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addActionListener(listener);
 			} else if (c instanceof JCheckBox) {
@@ -1670,16 +1706,27 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public void addFieldListener(String fieldLabel, MouseAdapter listener) {
+		this.fieldMap.computeIfPresent(fieldLabel, (k, c) -> {
+			c.addMouseListener(listener);
+			return c;
+		});
+	}
+
+	/**
+	 * Sets the given pop up menu to the field with the given label.
+	 * <p>
+	 * The pop up menu is only set to {@link JComponent} fields.
+	 *
+	 * @param fieldLabel the label of the field.
+	 * @param popup the pop up menu.
+	 * @since TODO add version
+	 * @see JComponent#setComponentPopupMenu(JPopupMenu)
+	 */
+	public void setFieldPopupMenu(String fieldLabel, JPopupMenu popup) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
-			if (c instanceof ZapTextField) {
-				((ZapTextField)c).addMouseListener(listener);
-			} else if (c instanceof ZapTextArea) {
-				((ZapTextArea)c).addMouseListener(listener);
-			} else if (c instanceof JPasswordField) {
-				((JPasswordField)c).addMouseListener(listener);
-			} else if (c instanceof JComboBox) {
-				((JComboBox<?>)c).addMouseListener(listener);
+			if (c instanceof JComponent) {
+				((JComponent) c).setComponentPopupMenu(popup);
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}
