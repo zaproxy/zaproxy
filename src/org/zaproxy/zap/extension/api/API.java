@@ -269,6 +269,12 @@ public class API {
 					break;
 				}
 			}
+			if (callbackImpl == null) {
+				logger.warn("Request to callback URL " + requestHeader.getURI().toString() + " from " +
+							requestHeader.getSenderAddress().getHostAddress() + 
+							" not found - this could be a callback url from a previous session or possibly an attempt to attack ZAP");
+				return new HttpMessage();
+			}
 		}
 		String path = requestHeader.getURI().getPath();
 		if (path != null) {
@@ -772,6 +778,7 @@ public class API {
 	public String getCallBackUrl(ApiImplementor impl, String site) {
 		String url = site + CALL_BACK_URL + random.nextLong();
 		this.callBacks.put(url, impl);
+		logger.debug("Callback " + url + " registered for " + impl.getClass().getCanonicalName());
 		return url;
 	}
 
@@ -785,6 +792,7 @@ public class API {
 	 * @see #removeApiImplementor(ApiImplementor)
 	 */
 	public void removeCallBackUrl(String url) {
+		logger.debug("Callback " + url + " removed");
 		this.callBacks.remove(url);
 	}
 
@@ -802,6 +810,7 @@ public class API {
 		if (impl == null) {
 			throw new IllegalArgumentException("Parameter impl must not be null.");
 		}
+		logger.debug("All callbacks removed for " + impl.getClass().getCanonicalName());
 		this.callBacks.values().removeIf(impl::equals);
 	}
 
