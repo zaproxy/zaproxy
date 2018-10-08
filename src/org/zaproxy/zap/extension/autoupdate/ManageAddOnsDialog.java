@@ -108,6 +108,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JButton updateButton = null;
 	private JButton updateAllButton = null;
 	private JButton uninstallButton = null;
+	private JButton installAllButton;
 	private JButton installButton = null;
 	private JButton close1Button = null;
 	private JButton close2Button = null;
@@ -321,12 +322,16 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			}
 
 			int row = 0;
-			uninstalledAddOnsPanel.add(uninstalledAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 4, 0.0D));
-			uninstalledAddOnsPanel.add(getMarketPlaceScrollPane(), LayoutHelper.getGBC(0, row++, 4, 1.0D, 1.0D));
-			uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
-			uninstalledAddOnsPanel.add(getInstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
-			uninstalledAddOnsPanel.add(getAddOnInfoButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
-			uninstalledAddOnsPanel.add(getClose2Button(), LayoutHelper.getGBC(3, row, 1, 0.0D));
+			int column = 0;
+			uninstalledAddOnsPanel.add(uninstalledAddOnsFilterPanel, LayoutHelper.getGBC(column, row++, 5, 0.0D));
+			uninstalledAddOnsPanel.add(getMarketPlaceScrollPane(), LayoutHelper.getGBC(column, row++, 5, 1.0D, 1.0D));
+			uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(column++, row, 1, 1.0D));
+			if (Constant.isDevMode()) {
+				uninstalledAddOnsPanel.add(getInstallAllButton(), LayoutHelper.getGBC(column++, row, 1, 0.0D));
+			}
+			uninstalledAddOnsPanel.add(getInstallButton(), LayoutHelper.getGBC(column++, row, 1, 0.0D));
+			uninstalledAddOnsPanel.add(getAddOnInfoButton(), LayoutHelper.getGBC(column++, row, 1, 0.0D));
+			uninstalledAddOnsPanel.add(getClose2Button(), LayoutHelper.getGBC(column, row, 1, 0.0D));
 
 		}
 		return uninstalledAddOnsPanel;
@@ -459,6 +464,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				@Override
 				public void tableChanged(TableModelEvent e) {
 					getInstallButton().setEnabled(uninstalledAddOnsModel.canIinstallSelected());
+					getInstallAllButton().setEnabled(uninstalledAddOnsModel.hasAvailableAddOns());
 				}});
 			
 			uninstalledAddOnsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
@@ -936,32 +942,39 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return uninstallButton;
 	}
 
+	private JButton getInstallAllButton() {
+		if (installAllButton == null) {
+			installAllButton = new JButton();
+			installAllButton.setEnabled(false);
+			installAllButton.setText(Constant.messages.getString("cfu.button.addons.installall"));
+			installAllButton.addActionListener(e -> installAddOns(uninstalledAddOnsModel.getAvailableAddOns()));
+		}
+		return installAllButton;
+	}
+
 	private JButton getInstallButton() {
 		if (installButton == null) {
 			installButton = new JButton();
 			installButton.setText(Constant.messages.getString("cfu.button.addons.install"));
 			installButton.setEnabled(false);	// Nothing will be selected initially
-			installButton.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					Set<AddOn> selectedAddOns = uninstalledAddOnsModel.getSelectedAddOns();
-					if (selectedAddOns.isEmpty()) {
-						return;
-					}
-
-					AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
-
-					AddOnDependencyChecker.AddOnChangesResult changes = calc.calculateInstallChanges(selectedAddOns);
-					if (!calc.confirmInstallChanges(ManageAddOnsDialog.this,changes)) {
-						return;
-					}
-
-					extension.processAddOnChanges(ManageAddOnsDialog.this, changes);
-				}
-			});
-
+			installButton.addActionListener(e -> installAddOns(uninstalledAddOnsModel.getSelectedAddOns()));
 		}
 		return installButton;
+	}
+
+	private void installAddOns(Set<AddOn> addOns) {
+		if (addOns.isEmpty()) {
+			return;
+		}
+
+		AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
+
+		AddOnDependencyChecker.AddOnChangesResult changes = calc.calculateInstallChanges(addOns);
+		if (!calc.confirmInstallChanges(ManageAddOnsDialog.this, changes)) {
+			return;
+		}
+
+		extension.processAddOnChanges(ManageAddOnsDialog.this, changes);
 	}
 
 	private JButton getAddOnInfoButton() {
