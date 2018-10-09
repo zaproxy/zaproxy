@@ -318,7 +318,7 @@ public final class AddOnInstaller {
                 logger.debug("Unloading ext: " + extension.getName());
                 try {
                     extension.unload();
-                    Control.getSingleton().getExtensionLoader().removeExtension(extension, extension.getExtensionHook());
+                    Control.getSingleton().getExtensionLoader().removeExtension(extension);
                     ExtensionFactory.unloadAddOnExtension(extension);
                 } catch (Exception e) {
                     logger.error("An error occurred while uninstalling the extension \"" + extension.getName()
