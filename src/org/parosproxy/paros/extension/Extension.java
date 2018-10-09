@@ -36,6 +36,7 @@
 // ZAP: 2017/05/22 Use Class<? extends Extension> for dependencies of the extension.
 // ZAP: 2017/05/25 Add JavaDoc to isEnabled/setEnabled.
 // ZAP: 2018/06/01 Add JavaDoc to getMessages/setMessages.
+// ZAP: 2018/10/09 Remove getExtensionHook and add JavaDoc to hook.
 
 package org.parosproxy.paros.extension;
 
@@ -141,19 +142,13 @@ public interface Extension {
      */
     void initXML(Session session, OptionsParam options);
     
-    void hook(ExtensionHook pluginHook);
-
     /**
-     * Gets the {@code ExtensionHook} used to hook the components during initialisation.
-     * <p>
-     * Should be called only by core functionality (e.g. to unload the hooked components).
-     * 
-     * @return the {@code ExtensionHook} used to hook the components.
-     * @since 2.6.0
-     * @see #hook(ExtensionHook)
+     * Called during extension's initialisation to allow to add new functionality to core components.
+     *
+     * @param hook the hook to add the components.
      */
-    ExtensionHook getExtensionHook();
-    
+    void hook(ExtensionHook hook);
+
     boolean isDepreciated ();
     
     int getOrder();

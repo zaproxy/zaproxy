@@ -37,6 +37,7 @@
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2017/02/17 Let core code remove/unhook the extension.
 // ZAP: 2017/05/22 Update for change in Extension.getDependencies().
+// ZAP: 2018/10/09 Remove instance variable hook and method getExtensionHook.
 
 package org.parosproxy.paros.extension;
 
@@ -64,7 +65,6 @@ public abstract class ExtensionAdaptor implements Extension {
     private boolean enabled = true;
     private ResourceBundle messages = null;
     private String i18nPrefix = null;
-	private ExtensionHook hook = null;
     
     /**
      * The add-on that this extension belongs too, might be {@code null} if core extension.
@@ -187,12 +187,7 @@ public abstract class ExtensionAdaptor implements Extension {
 
     @Override
     public void hook(ExtensionHook extensionHook) {
-    	this.hook  = extensionHook;
-    }
-
-    @Override
-    public ExtensionHook getExtensionHook() {
-        return hook;
+        // Nothing to do.
     }
 
     @Override
