@@ -161,6 +161,8 @@ public class MainToolbarPanel extends JPanel {
 		validateComponentNonNull(component);
 
 		getToolbar().remove(component);
+		getToolbar().validate();
+		getToolbar().repaint();
 	}
 	
 	public void addButton (JButton button) {
@@ -169,7 +171,7 @@ public class MainToolbarPanel extends JPanel {
 	}
 
 	public void removeButton(JButton button) {
-		getToolbar().remove(button);
+		removeToolBarComponent(button);
 	}
 
 	public void addButton(JToggleButton button) {
@@ -178,7 +180,7 @@ public class MainToolbarPanel extends JPanel {
 	}
 
 	public void removeButton(JToggleButton button) {
-		getToolbar().remove(button);
+		removeToolBarComponent(button);
 	}
 
 	public void addSeparator() {
@@ -190,7 +192,7 @@ public class MainToolbarPanel extends JPanel {
 	}
 
 	public void removeSeparator(JToolBar.Separator separator) {
-		getToolbar().remove(separator);
+		removeToolBarComponent(separator);
 	}
 	
 	private JComboBox<String> getModeSelect() {
