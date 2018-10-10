@@ -88,6 +88,16 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private static final EmptyBorder FULL_BORDER = new EmptyBorder(8, 8, 8, 8);
 	private static final EmptyBorder TOP_BOTTOM_BORDER = new EmptyBorder(8, 0, 8, 0);
 
+	/**
+	 * The main pop up menu, to be shared by the fields.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getMainPopupMenu()
+	 * @see #setFieldMainPopupMenu(String)
+	 */
+	private static JPopupMenu mainPopupMenu;
+
 	private JPanel mainPanel = null;
 	private List<JPanel> tabPanels = null;
 	private List<Integer> tabOffsets = null;
@@ -1731,6 +1741,35 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}
 		}
+	}
+
+	/**
+	 * Convenience method that sets the {@link org.parosproxy.paros.view.MainPopupMenu main pop up menu} to the field with the
+	 * given label.
+	 * <p>
+	 * The same pop up menu instance is shared between all components.
+	 *
+	 * @param fieldLabel the label of the field.
+	 * @since TODO add version
+	 * @see #setFieldPopupMenu(String, JPopupMenu)
+	 */
+	public void setFieldMainPopupMenu(String fieldLabel) {
+		setFieldPopupMenu(fieldLabel, getMainPopupMenu());
+	}
+
+	private static JPopupMenu getMainPopupMenu() {
+		if (mainPopupMenu == null) {
+			mainPopupMenu = new JPopupMenu() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void show(Component invoker, int x, int y) {
+					View.getSingleton().getPopupMenu().show(invoker, x, y);
+				}
+			};
+		}
+		return mainPopupMenu;
 	}
 
 	public void removeAllFields() {
