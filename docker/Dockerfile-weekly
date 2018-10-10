@@ -1,6 +1,8 @@
 # This dockerfile builds the zap weekly release
-FROM ubuntu:16.04
+FROM ubuntu:latest
 LABEL maintainer="psiinon@gmail.com"
+
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
