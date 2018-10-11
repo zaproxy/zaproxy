@@ -308,9 +308,8 @@
 
 	</target>
 
-	<target name="generate-apis" description="Generates the client APIs">
+	<target name="generate-apis" depends="dist" description="Generates the client APIs">
 		<path id="classpath">
-			<pathelement location="../bin" />
 			<pathelement location="./zap/${zap.jar}" />
 			<pathelement location="./zap" />
 			<fileset dir="../lib" includes="**/*.jar" />
