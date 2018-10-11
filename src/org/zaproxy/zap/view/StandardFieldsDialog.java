@@ -60,6 +60,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
@@ -1009,9 +1010,15 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			// Ignore - could be during init
 			logger.debug("No field for " + fieldLabel);
 		} else {
-			logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			handleUnexpectedFieldClass(fieldLabel, c);
 		}
 	}
+
+    private static void handleUnexpectedFieldClass(String fieldLabel, Component component) {
+        logger.error(
+                "Unexpected field class " + fieldLabel + ": " + component.getClass().getCanonicalName() + "\n\t"
+                        + StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
+    }
 	
 	public void setComboFields(String fieldLabel, List<String> choices, String value) {
 		Component c = this.fieldMap.get(fieldLabel);
@@ -1029,7 +1036,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			// Ignore - could be during init
 			logger.debug("No field for " + fieldLabel);
 		} else {
-			logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			handleUnexpectedFieldClass(fieldLabel, c);
 		}
 	}
 
@@ -1055,7 +1062,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			// Ignore - could be during init
 			logger.debug("No field for " + fieldLabel);
 		} else {
-			logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			handleUnexpectedFieldClass(fieldLabel, c);
 		}
 	}
 	
@@ -1509,7 +1516,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			} else if (c instanceof JComboBox) {
 				return (String)((JComboBox<?>)c).getSelectedItem();
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 		return null;
@@ -1542,7 +1549,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			if (c instanceof ContextSelectComboBox) {
 				return ((ContextSelectComboBox)c).getSelectedContext();
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 		return null;
@@ -1565,7 +1572,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			if (c instanceof ContextSelectComboBox) {
 				((ContextSelectComboBox) c).setSelectedItem(context);
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 	}
@@ -1580,7 +1587,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			} else if (c instanceof JLabel) {
 				((JLabel)c).setText(value);
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 	}
@@ -1591,7 +1598,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			if (c instanceof JCheckBox) {
 				((JCheckBox)c).setSelected(value);
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 	}
@@ -1610,7 +1617,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 					value = null;
 				}
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 			return value == null || value.toString().length() == 0;
 			
@@ -1626,7 +1633,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			} else if (c instanceof JComboBox) {
 				return (Integer)((JComboBox<?>)c).getSelectedItem();
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 		return -1;
@@ -1640,7 +1647,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).setSelectedItem(value);
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 	}
@@ -1694,7 +1701,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			if (c instanceof JCheckBox) {
 				return ((JCheckBox)c).isSelected();
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 		return null;
@@ -1710,7 +1717,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			} else if (c instanceof JCheckBox) {
 				((JCheckBox)c).addActionListener(listener);
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 	}
@@ -1738,7 +1745,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			if (c instanceof JComponent) {
 				((JComponent) c).setComponentPopupMenu(popup);
 			} else {
-				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+				handleUnexpectedFieldClass(fieldLabel, c);
 			}
 		}
 	}
