@@ -73,6 +73,8 @@
 // ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
 // ZAP: 2018/04/25 Allow to add ProxyServer to automatically add/remove proxy related listeners to it.
 // ZAP: 2018/07/18 Tweak logging.
+// ZAP: 2018/10/05 Get menu/view hooks without initialising them.
+// ZAP: 2018/10/09 Use managed ExtensionHook when removing extensions.
 
 package org.parosproxy.paros.extension;
 
@@ -758,9 +760,9 @@ public class ExtensionLoader {
         ext.initView(view);
         
         ExtensionHook extHook = new ExtensionHook(model, view);
+        extensionHooks.put(ext, extHook);
         try {
             ext.hook(extHook);
-            extensionHooks.put(ext, extHook);
 
             hookContextDataFactories(ext, extHook);
             hookApiImplementors(ext, extHook);
@@ -838,8 +840,8 @@ public class ExtensionLoader {
             try {
                 logger.info("Initializing " + ext.getDescription());
                 final ExtensionHook extHook = new ExtensionHook(model, view);
-                ext.hook(extHook);
                 extensionHooks.put(ext, extHook);
+                ext.hook(extHook);
 
                 hookContextDataFactories(ext, extHook);
                 hookApiImplementors(ext, extHook);
@@ -963,7 +965,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        ExtensionHookMenu hookMenu = hook.getHookMenuNoInit();
         if (hookMenu == null) {
             return;
         }
@@ -1026,7 +1028,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookMenu hookMenu = hook.getHookMenu();
+        ExtensionHookMenu hookMenu = hook.getHookMenuNoInit();
         if (hookMenu == null) {
             return;
         }
@@ -1107,7 +1109,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookView pv = hook.getHookView();
+        ExtensionHookView pv = hook.getHookViewNoInit();
         if (pv == null) {
             return;
         }
@@ -1143,7 +1145,7 @@ public class ExtensionLoader {
             return;
         }
 
-        ExtensionHookView pv = hook.getHookView();
+        ExtensionHookView pv = hook.getHookViewNoInit();
         if (pv == null) {
             return;
         }
@@ -1347,27 +1349,22 @@ public class ExtensionLoader {
     }
 
     /**
-     * Removes an extension from internal list. As a result listeners added via
-     * the {@link ExtensionHook} object are unregistered.
-     *
-     * @param extension
-     * @param hook
+     * Removes the given extension and any components added through its extension hook.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap classes.
+     * 
+     * @param extension the extension to remove.
+     * @since TODO add version
      */
-    public void removeExtension(Extension extension, ExtensionHook hook) {
+    public void removeExtension(Extension extension) {
         extensionList.remove(extension);
         extensionsMap.remove(extension.getClass());
 
+        ExtensionHook hook = extensionHooks.remove(extension);
         if (hook == null) {
-            logger.info("ExtensionHook is null for \"" + extension.getClass().getCanonicalName()
-                    + "\" the hooked objects will not be automatically removed.");
+            logger.error("ExtensionHook not found for: " + extension.getClass().getCanonicalName());
             return;
         }
-
-        // by removing the ExtensionHook object,
-        // the following listeners are no longer informed:
-        // 		* SessionListeners
-        // 		* OptionsChangedListeners
-        extensionHooks.values().remove(hook);
 
         unloadOptions(hook);
 

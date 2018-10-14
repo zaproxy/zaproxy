@@ -56,8 +56,25 @@ import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionHook {
 
-    private ExtensionHookMenu hookMenu = new ExtensionHookMenu();
-    private ExtensionHookView hookView = new ExtensionHookView();
+    /**
+     * The hook for menus.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getHookMenu()
+     * @see #getHookMenuNoInit()
+     */
+    private ExtensionHookMenu hookMenu;
+
+    /**
+     * The hook for view components.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getHookView()
+     * @see #getHookViewNoInit()
+     */
+    private ExtensionHookView hookView;
     private Model model = null;
     private Vector<OptionsChangedListener> optionsListenerList = new Vector<>();
 
@@ -253,17 +270,49 @@ public class ExtensionHook {
     }
 
     /**
-     * @return Returns the hookMenu.
+     * Gets the hook for menus.
+     * 
+     * @return the hook for menus, never {@code null}.
      */
     public ExtensionHookMenu getHookMenu() {
+        if (hookMenu == null) {
+            hookMenu = new ExtensionHookMenu();
+        }
         return hookMenu;
     }
+
     /**
-     * @return Returns the hookView.
+     * Gets the hook for menus, without initialising it.
+     *
+     * @return the hook for menus, might be {@code null}.
+     * @since TODO add version
+     */
+    ExtensionHookMenu getHookMenuNoInit() {
+        return hookMenu;
+    }
+
+    /**
+     * Gets the hook for view components.
+     * 
+     * @return the hook for view components, never {@code null}.
      */
     public ExtensionHookView getHookView() {
+        if (hookView == null) {
+            hookView = new ExtensionHookView();
+        }
         return hookView;
     }
+
+    /**
+     * Gets the hook for view components, without initialising it.
+     *
+     * @return the hook for view components, might be {@code null}.
+     * @since TODO add version
+     */
+    ExtensionHookView getHookViewNoInit() {
+        return hookView;
+    }
+
     /**
      * @return Returns the model.
      */

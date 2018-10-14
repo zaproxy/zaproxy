@@ -27,12 +27,14 @@
 // ZAP: 2014/05/02 Fixed method links in Javadocs
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2016/09/26 JavaDoc tweaks
+// ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
 
 package org.parosproxy.paros.extension;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -41,22 +43,122 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.view.ZapMenuItem;
 
+/**
+ * The object to add/hook menus and menu items to the {@link org.parosproxy.paros.view.MainFrame#getMainMenuBar() main menu bar}
+ * and to the {@link View#getPopupMenu() main context menu}.
+ * <p>
+ * The menus added through the hook are removed when the extension is unloaded.
+ * <p>
+ * <strong>Note:</strong> This class is not thread-safe, the menus should be added only through the thread that
+ * {@link Extension#hook(ExtensionHook) hooks the extension}.
+ *
+ * @since 1.0.0
+ * @see View#getMainFrame()
+ */
 public class ExtensionHookMenu {
     
     public static final JMenuItem MENU_SEPARATOR;
     public static final ExtensionPopupMenuItem POPUP_MENU_SEPARATOR;
     
-    private Vector<JMenuItem> newMenuList = new Vector<>();
-    private Vector<JMenuItem> fileMenuItemList = new Vector<>();
-    private Vector<JMenuItem> editMenuItemList = new Vector<>();
-    private Vector<JMenuItem> viewMenuItemList = new Vector<>();
-    private Vector<JMenuItem> analyseMenuItemList = new Vector<>();
-    private Vector<JMenuItem> toolsMenuItemList = new Vector<>();
-    private Vector<JMenuItem> popupMenuList = new Vector<>();
-    // ZAP: Added help and reports menu extension hook
-    private Vector<JMenuItem> helpMenuList = new Vector<>();
-    private Vector<JMenuItem> reportMenuList = new Vector<>();
-    private Vector<JMenuItem> onlineMenuList = new Vector<>();
+    /**
+     * The new menus for the main menu bar added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addNewMenu(JMenu)
+     * @see #getNewMenus()
+     */
+    private List<JMenuItem> newMenuList;
+
+    /**
+     * The file menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addFileMenuItemImpl(JMenuItem)
+     * @see #getFile()
+     */
+    private List<JMenuItem> fileMenuItemList;
+
+    /**
+     * The edit menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addEditMenuItemImpl(JMenuItem)
+     * @see #getEdit()
+     */
+    private List<JMenuItem> editMenuItemList;
+
+    /**
+     * The view menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addViewMenuItemImpl(JMenuItem)
+     * @see #getView()
+     */
+    private List<JMenuItem> viewMenuItemList;
+
+    /**
+     * The analyse menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addAnalyseMenuItemImpl(JMenuItem)
+     * @see #getAnalyse()
+     */
+    private List<JMenuItem> analyseMenuItemList;
+
+    /**
+     * The tools menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addToolsMenuItemImpl(JMenuItem)
+     * @see #getTools()
+     */
+    private List<JMenuItem> toolsMenuItemList;
+
+    /**
+     * The menus for the main context menu added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addPopupMenuImpl(JMenuItem)
+     * @see #getPopupMenus()
+     */
+    private List<JMenuItem> popupMenuList;
+
+    /**
+     * The help menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addHelpMenuItemImpl(JMenuItem)
+     * @see #getHelpMenus()
+     */
+    private List<JMenuItem> helpMenuList;
+
+    /**
+     * The report menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addReportMenuItemImpl(JMenuItem)
+     * @see #getReportMenus()
+     */
+    private List<JMenuItem> reportMenuList;
+
+    /**
+     * The online menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addOnlineMenuItem(ZapMenuItem)
+     * @see #getOnlineMenus()
+     */
+    private List<JMenuItem> onlineMenuList;
     
     // ZAP: Added static block.
     static {
@@ -73,27 +175,27 @@ public class ExtensionHookMenu {
     }
     
     List<JMenuItem> getNewMenus() {
-        return newMenuList;
+        return unmodifiableList(newMenuList);
     }
 
     List<JMenuItem> getFile() {
-        return fileMenuItemList;
+        return unmodifiableList(fileMenuItemList);
     }
 
     List<JMenuItem> getEdit() {
-        return editMenuItemList;
+        return unmodifiableList(editMenuItemList);
     }
 
     List<JMenuItem> getView() {
-        return viewMenuItemList;
+        return unmodifiableList(viewMenuItemList);
     }
 
     List<JMenuItem> getAnalyse() {
-        return analyseMenuItemList;
+        return unmodifiableList(analyseMenuItemList);
     }
 
     List<JMenuItem> getTools() {
-        return toolsMenuItemList;
+        return unmodifiableList(toolsMenuItemList);
     }
     
 
@@ -104,19 +206,19 @@ public class ExtensionHookMenu {
      * @return a {@code List} containing the popup menu items of the extension
      */
     List<JMenuItem> getPopupMenus() {
-        return popupMenuList;
+        return unmodifiableList(popupMenuList);
     }
 
     List<JMenuItem> getHelpMenus() {
-        return helpMenuList;
+        return unmodifiableList(helpMenuList);
     }
 
     List<JMenuItem> getReportMenus() {
-        return reportMenuList;
+        return unmodifiableList(reportMenuList);
     }
 
     List<JMenuItem> getOnlineMenus() {
-        return onlineMenuList;
+        return unmodifiableList(onlineMenuList);
     }
 
     /**
@@ -127,7 +229,14 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addFileMenuItem(JMenuItem menuItem) {
-        getFile().add(menuItem);
+        addFileMenuItemImpl(menuItem);
+    }
+
+    private void addFileMenuItemImpl(JMenuItem menuItem) {
+        if (fileMenuItemList == null) {
+            fileMenuItemList = createList();
+        }
+        fileMenuItemList.add(menuItem);
     }
 
     /**
@@ -138,7 +247,14 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addEditMenuItem(JMenuItem menuItem) {
-        getEdit().add(menuItem);
+        addEditMenuItemImpl(menuItem);
+    }
+
+    private void addEditMenuItemImpl(JMenuItem menuItem) {
+        if (editMenuItemList == null) {
+            editMenuItemList = createList();
+        }
+        editMenuItemList.add(menuItem);
     }
 
     /**
@@ -149,7 +265,14 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addViewMenuItem(JMenuItem menuItem) {
-        getView().add(menuItem);
+        addViewMenuItemImpl(menuItem);
+    }
+
+    private void addViewMenuItemImpl(JMenuItem menuItem) {
+        if (viewMenuItemList == null) {
+            viewMenuItemList = createList();
+        }
+        viewMenuItemList.add(menuItem);
     }
 
     /**
@@ -160,7 +283,14 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addAnalyseMenuItem(JMenuItem menuItem) {
-        getAnalyse().add(menuItem);
+        addAnalyseMenuItemImpl(menuItem);
+    }
+
+    private void addAnalyseMenuItemImpl(JMenuItem menuItem) {
+        if (analyseMenuItemList == null) {
+            analyseMenuItemList = createList();
+        }
+        analyseMenuItemList.add(menuItem);
     }
 
     /**
@@ -171,32 +301,42 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addToolsMenuItem(JMenuItem menuItem) {
-        getTools().add(menuItem);
+        addToolsMenuItemImpl(menuItem);
+    }
+
+    private void addToolsMenuItemImpl(JMenuItem menuItem) {
+        if (toolsMenuItemList == null) {
+            toolsMenuItemList = createList();
+        }
+        toolsMenuItemList.add(menuItem);
     }
     
     public void addFileMenuItem(ZapMenuItem menuItem) {
-        getFile().add(menuItem);
+        addFileMenuItemImpl(menuItem);
     }
 
     public void addEditMenuItem(ZapMenuItem menuItem) {
-        getEdit().add(menuItem);
+        addEditMenuItemImpl(menuItem);
     }
 
     public void addViewMenuItem(ZapMenuItem menuItem) {
-        getView().add(menuItem);
+        addViewMenuItemImpl(menuItem);
     }
 
     public void addAnalyseMenuItem(ZapMenuItem menuItem) {
-        getAnalyse().add(menuItem);
+        addAnalyseMenuItemImpl(menuItem);
     }
 
     public void addToolsMenuItem(ZapMenuItem menuItem) {
-        getTools().add(menuItem);
+        addToolsMenuItemImpl(menuItem);
     }
 
 
     public void addNewMenu(JMenu menu) {
-        getNewMenus().add(menu);
+        if (newMenuList == null) {
+            newMenuList = createList();
+        }
+        newMenuList.add(menu);
     }
 
     /**
@@ -205,12 +345,19 @@ public class ExtensionHookMenu {
      * @param menuItem the popup menu item
      */
     public void addPopupMenuItem(ExtensionPopupMenuItem menuItem) {
-        getPopupMenus().add(menuItem);        
+        addPopupMenuImpl(menuItem);
+    }
+
+    private void addPopupMenuImpl(JMenuItem menu) {
+        if (popupMenuList == null) {
+            popupMenuList = createList();
+        }
+        popupMenuList.add(menu);
     }
     
     // ZAP: Added the method.
     public void addPopupMenuItem(ExtensionPopupMenu menu) {
-        getPopupMenus().add(menu);
+        addPopupMenuImpl(menu);
     }
     
     /**
@@ -221,7 +368,14 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addHelpMenuItem(JMenuItem menuItem) {
-        getHelpMenus().add(menuItem);        
+        addHelpMenuItemImpl(menuItem);        
+    }
+
+    private void addHelpMenuItemImpl(JMenuItem menuItem) {
+        if (helpMenuList == null) {
+            helpMenuList = createList();
+        }
+        helpMenuList.add(menuItem);
     }
     
     /**
@@ -232,19 +386,29 @@ public class ExtensionHookMenu {
      */
     @Deprecated
     public void addReportMenuItem(JMenuItem menuItem) {
-        getReportMenus().add(menuItem);        
+        addReportMenuItemImpl(menuItem);
+    }
+
+    private void addReportMenuItemImpl(JMenuItem menuItem) {
+        if (reportMenuList == null) {
+            reportMenuList = createList();
+        }
+        reportMenuList.add(menuItem);
     }
     
     public void addHelpMenuItem(ZapMenuItem menuItem) {
-        getHelpMenus().add(menuItem);        
+        addHelpMenuItemImpl(menuItem);
     }
     
     public void addReportMenuItem(ZapMenuItem menuItem) {
-        getReportMenus().add(menuItem);        
+        addReportMenuItemImpl(menuItem);
     }
     
     public void addOnlineMenuItem(ZapMenuItem menuItem) {
-        getOnlineMenus().add(menuItem);        
+        if (onlineMenuList == null) {
+            onlineMenuList = createList();
+        }
+        onlineMenuList.add(menuItem);
     }
     
     public JMenuItem getMenuSeparator() {
@@ -253,5 +417,29 @@ public class ExtensionHookMenu {
 
     public ExtensionPopupMenuItem getPopupMenuSeparator() {
         return POPUP_MENU_SEPARATOR;
+    }
+
+    /**
+     * Creates an {@link ArrayList} with initial capacity of 1.
+     * <p>
+     * Most of the extensions just add one menu.
+     *
+     * @return the {@code ArrayList}.
+     */
+    private static <T> List<T> createList() {
+        return new ArrayList<>(1);
+    }
+
+    /**
+     * Gets an unmodifiable list from the given list.
+     *
+     * @param list the list, might be {@code null}.
+     * @return an unmodifiable list, never {@code null}.
+     */
+    private static <T> List<T> unmodifiableList(List<T> list) {
+        if (list == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(list);
     }
 }

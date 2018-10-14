@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.I18N;
 
 /**
  * The base class for ZAP API client generators.
@@ -83,6 +84,7 @@ abstract class AbstractAPIGenerator {
                         "lang." + Constant.MESSAGES_PREFIX,
                         Locale.ENGLISH,
                         ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
+        Constant.messages = new I18N(Locale.ENGLISH);
     }
 
     /**

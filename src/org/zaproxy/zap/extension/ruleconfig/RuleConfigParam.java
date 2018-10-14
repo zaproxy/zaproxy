@@ -67,6 +67,14 @@ public class RuleConfigParam extends AbstractParam {
      * when checking for issues.
      */
     public static final String RULE_COOKIE_IGNORE_LIST = "rules.cookie.ignorelist";
+
+    /**
+     * The name of the rule to obtain the string containing a comma separated list of URL regex patterns. Any URLs that match
+     * the patterns will be considered trusted domains and the issues ignored.
+     * 
+     * @since TODO add version
+     */
+    public static final String RULE_DOMAINS_TRUSTED = "rules.domains.trusted";
     
     /**
      * The default time, in seconds, to use for time-based attacks
@@ -90,6 +98,7 @@ public class RuleConfigParam extends AbstractParam {
         this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_ATT_NAME, ""));
         this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_ATT_VALUE, ""));
         this.addRuleConfig(new RuleConfig(RULE_COOKIE_IGNORE_LIST, ""));
+        this.addRuleConfig(new RuleConfig(RULE_DOMAINS_TRUSTED, ""));
         
         Iterator<String> iter = this.getConfig().getKeys(RULES_BASE_KEY);
         RuleConfig rc;

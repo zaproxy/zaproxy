@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.Icon;
 
@@ -136,6 +138,25 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
     	}
     	return enable;
 	}
+	
+    public Set<AddOn> getAvailableAddOns() {
+        Set<AddOn> addOns = new HashSet<>();
+        for (AddOnWrapper aow : getAddOnWrappers()) {
+            if (aow.getInstallationStatus() == AddOn.InstallationStatus.AVAILABLE) {
+                addOns.add(aow.getAddOn());
+            }
+        }
+        return addOns;
+    }
+
+    public boolean hasAvailableAddOns() {
+        for (AddOnWrapper aow : getAddOnWrappers()) {
+            if (aow.getInstallationStatus() == AddOn.InstallationStatus.AVAILABLE) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     public void addAddOn(AddOn addOn) {
         addAddOnWrapper(addOn, null);

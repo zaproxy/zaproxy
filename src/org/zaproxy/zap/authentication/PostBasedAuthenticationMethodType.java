@@ -859,6 +859,9 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+		if (!View.isInitialised()) {
+			return;
+		}
 		extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoginRequestMenuFactory());
 	}
 
