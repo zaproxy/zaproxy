@@ -32,6 +32,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 import org.zaproxy.zap.Version;
@@ -127,6 +129,29 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getChanges(), is(equalTo(changes)));
         assertThat(manifest.getNotBeforeVersion(), is(equalTo(notBeforeVersion)));
         assertThat(manifest.getNotFromVersion(), is(equalTo(notFromVersion)));
+    }
+
+    @Test
+    public void shouldLoadManifestWithRecognisedStatuses() throws Exception {
+        // Given
+        List<String> statuses = Arrays.asList("alpha", "beta", "release");
+        for (String status : statuses) {
+            InputStream manifestData = manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
+            // When
+            ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
+            // Then
+            assertThat(manifest.getStatus(), is(equalTo(status)));
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToLoadManifestWithUnrecognisedStatus() throws Exception {
+        // Given
+        String status = "unrecognised-status";
+        InputStream manifestData = manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
+        // When
+        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
+        // Then = IllegalArgumentException
     }
 
     @Test
