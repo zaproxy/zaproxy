@@ -74,6 +74,7 @@
 //                 Fix Session Tracking button sync
 // ZAP: 2018/08/03 Added AUTHENTICATION_HELPER_INITIATOR.
 // ZAP: 2018/09/17 Set the user to messages created for redirections (Issue 2531).
+// ZAP: 2018/10/12 Deprecate getClient(), it exposes implementation details.
 
 package org.parosproxy.paros.network;
 
@@ -799,7 +800,12 @@ public class HttpSender {
 		this.user = user;
 	}
 	
-	// ZAP: Added a getter for the client.
+	/**
+	 * @return the HTTP client implementation.
+	 * @deprecated (TODO add version) Do not use, this exposes implementation details which might change without warning. It
+	 *             will be removed in a following version.
+	 */
+	@Deprecated
 	public HttpClient getClient() {
 		return this.client;
 	}
