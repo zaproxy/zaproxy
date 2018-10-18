@@ -979,7 +979,7 @@ public class HttpSender {
             redirectMessage.setRequestingUser(requestingUser);
             redirectMessage.getRequestHeader().setURI(newLocation);
 
-            if (isRequestRewriteNeeded(redirectMessage.getResponseHeader().getStatusCode())) {
+            if (isRequestRewriteNeeded(redirectMessage)) {
                 redirectMessage.getRequestHeader().setMethod(HttpRequestHeader.GET);
                 redirectMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, null);
                 redirectMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
@@ -1018,18 +1018,24 @@ public class HttpSender {
     }
 
     /**
-     * Tells whether or not the (original) request of the redirection with the given status code, should be rewritten.
+     * Tells whether or not the (original) request of the redirection, should be rewritten.
      * <p>
-     * For status codes 301, 302 and 303 the request should be changed from POST to GET when following redirections (mimicking
-     * the behaviour of browsers, which per <a href="https://tools.ietf.org/html/rfc7231#section-6.4">RFC 7231, Section 6.4</a>
-     * is now OK).
+     * For status codes 301 and 302 the request should be changed from POST to GET when following redirections, for status code
+     * 303 it should be changed to GET for all methods except GET/HEAD (mimicking the behaviour of browsers, which per
+     * <a href="https://tools.ietf.org/html/rfc7231#section-6.4">RFC 7231, Section 6.4</a> is now OK).
      *
-     * @param statusCode the status code that will be checked
+     * @param message the message with the redirection.
      * @return {@code true} if the request should be rewritten, {@code false} otherwise
      * @see #isRedirectionNeeded(int)
      */
-    private static boolean isRequestRewriteNeeded(int statusCode) {
-        return statusCode == 301 || statusCode == 302 || statusCode == 303;
+    private static boolean isRequestRewriteNeeded(HttpMessage message) {
+        int statusCode = message.getResponseHeader().getStatusCode();
+        String method = message.getRequestHeader().getMethod();
+        if (statusCode == 301 || statusCode == 302) {
+            return HttpRequestHeader.POST.equalsIgnoreCase(method);
+        }
+        return statusCode == 303
+                && !(HttpRequestHeader.GET.equalsIgnoreCase(method) || HttpRequestHeader.HEAD.equalsIgnoreCase(method));
     }
 
     /**
