@@ -46,6 +46,7 @@ package org.parosproxy.paros.core.scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -116,7 +117,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             // ZAP: Removed unnecessary cast.
             originalPair = nameValuePairs.get(i);
 
-            if (!isToExclude(originalPair)) {
+            if (!isToExclude(originalPair) && isToInclude(originalPair)) {
 
                 // We need to use a fresh copy of the original message
                 // for further analysis inside all plugins
@@ -147,6 +148,19 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             if (filter.isToExclude(msg, param)) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    private boolean isToInclude(NameValuePair param) {
+        String whitelistingValueExpression =
+                this.getParent().getScannerParam().getWhitelistingValueExpression();
+        if (whitelistingValueExpression == null || StringUtils.isBlank(whitelistingValueExpression))
+            return true;
+
+        if (param.getValue().matches(whitelistingValueExpression)) {
+            return true;
         }
 
         return false;

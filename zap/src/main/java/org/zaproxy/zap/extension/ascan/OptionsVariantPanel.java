@@ -26,11 +26,13 @@ import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Objects;
+import java.util.regex.PatternSyntaxException;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SortOrder;
+import org.apache.commons.lang.StringUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.ScannerParam;
@@ -39,6 +41,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -80,6 +83,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkRPCoData = null;
     private JCheckBox chkRPCDWR = null;
     private JCheckBox chkRPCCustom = null;
+    private ZapTextField txtValueFilterExpression = null;
 
     // Table for Parameter exclusions
     private ExcludedParameterPanel excludedParamPanel;
@@ -351,6 +355,36 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                             GridBagConstraints.BOTH,
                             new Insets(2, 2, 2, 2)));
 
+            panelVariant.add(
+                    labelReasonVariantsDisabled,
+                    LayoutHelper.getGBC(
+                            0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
+
+            panelVariant.add(
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "variant.options.whitelistvalueexpression.label.name")),
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(16, 2, 2, 2)));
+            this.txtValueFilterExpression = new ZapTextField();
+
+            panelVariant.add(
+                    txtValueFilterExpression,
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
             // Excluded Parameters
             panelVariant.add(
                     new JLabel(
@@ -426,6 +460,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCCustom().setSelected((rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
 
         this.getExcludedParameterModel().setTokens(param.getExcludedParamList());
+        this.txtValueFilterExpression.setText(param.getWhitelistingValueExpression());
+        this.txtValueFilterExpression.discardAllEdits();
     }
 
     @Override
@@ -504,6 +540,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         param.setTargetParamsEnabledRPC(enabledRpc);
 
         param.setExcludedParamList(getExcludedParameterModel().getElements());
+        param.setWhitelistedValuesExpression(txtValueFilterExpression.getText());
     }
 
     /**
@@ -569,6 +606,19 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         labelReasonVariantsDisabled.setText(reasonVariantsDisabled);
         if (reasonVariantsDisabled.isEmpty() && labelReasonVariantsDisabled.isVisible()) {
             labelReasonVariantsDisabled.setVisible(false);
+        }
+    }
+
+    public String validateFields() {
+        return this.validateWhitelistedValuesExpression(txtValueFilterExpression.getText());
+    }
+
+    private String validateWhitelistedValuesExpression(String expression) {
+        try {
+            if (!StringUtils.isEmpty(expression)) "".matches(expression);
+            return null;
+        } catch (PatternSyntaxException ex) {
+            return "Invalid regular expression in whitelisting field detected!";
         }
     }
 
