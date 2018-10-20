@@ -31,12 +31,17 @@ import java.util.ResourceBundle;
 
 public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     
+    /**
+	 * Default output directory in zap-api-nodejs project.
+	 */
+    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-nodejs/src/zapv2/";
+
     private final String HEADER = 
             "/* Zed Attack Proxy (ZAP) and its related class files.\n" +
             " *\n" +
             " * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
             " *\n" +
-            " * Copyright 2016 the ZAP development team\n" +
+            " * Copyright " + Year.now() + " the ZAP development team\n" +
             " *\n" +
             " * Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
             " * you may not use this file except in compliance with the License.\n" +
@@ -65,7 +70,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     }
 
     public NodeJSAPIGenerator() {
-    	super("nodejs/api/zapv2");
+    	super(DEFAULT_OUTPUT_DIR);
     }
 
     public NodeJSAPIGenerator(String path, boolean optional) {
@@ -139,26 +144,10 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                 out.write(safeName(param.toLowerCase()));
             }
         }
-        if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-            // Always add the API key - we've no way of knowing if it will be required or not
-            if (hasParams) {
-                out.write(", ");
-            }
-            hasParams = true;
-            out.write(API.API_KEY_PARAM);
-        }
         if (hasParams) {
             out.write(", ");
         }
-        out.write("callback) {\n");
-
-        if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-            // Make the API key optional
-            out.write("  if (!callback && typeof(" + API.API_KEY_PARAM + ") === 'function') {\n");
-            out.write("    callback = " + API.API_KEY_PARAM + ";\n");
-            out.write("    " + API.API_KEY_PARAM + " = null;\n");
-            out.write("  }\n");
-        }
+        out.write(") {\n");
 
         // , {'url': url}))
         StringBuilder reqParams = new StringBuilder();
@@ -175,17 +164,10 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                     reqParams.append("'" + param + "' : " + safeName(param.toLowerCase()));
                 }
             }
-            if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-                // Always add the API key - we've no way of knowing if it will be required or not
-                if (!first) {
-                    reqParams.append(", ");
-                }
-                reqParams.append("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
-            }
             reqParams.append("}");
 
             if (element.getOptionalParamNames() != null && !element.getOptionalParamNames().isEmpty()) {
-                out.write("  var params = ");
+                out.write("  const params = ");
                 out.write(reqParams.toString());
                 out.write(";\n");
                 reqParams.replace(0, reqParams.length(), "params");
@@ -202,13 +184,13 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         if (type.equals(OTHER_ENDPOINT)) {
             method = "requestOther";
         }
-        out.write("  this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+        out.write("  return this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
 
         if (hasParams) {
             out.write(", ");
             out.write(reqParams.toString());
         }
-        out.write(", callback);\n");
+        out.write(");\n");
         out.write("};\n\n");
         
     }
@@ -267,7 +249,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     }
 
     public static void main(String[] args) throws Exception {
-        // Command for generating a python version of the ZAP API
+        // Command for generating a nodejs version of the ZAP API
         
         NodeJSAPIGenerator wapi = new NodeJSAPIGenerator();
         wapi.generateCoreAPIFiles();
