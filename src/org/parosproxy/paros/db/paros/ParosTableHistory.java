@@ -417,6 +417,11 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
         return getHistoryIdsOfHistType(sessionId, null);
     }
 
+	@Override
+	public List<Integer> getHistoryIdsStartingAt(long sessionId, int startAtHistoryId) throws DatabaseException {
+		return getHistoryIdsByParams(sessionId, startAtHistoryId, true, null);
+	}
+
     /**
      * Gets all the history record IDs of the given session and with the given history types.
      *
@@ -430,33 +435,56 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      */
     @Override
     public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes) throws DatabaseException {
-        try {
+        return getHistoryIdsByParams(sessionId, 0, true, histTypes);
+    }
+
+	@Override
+	public List<Integer> getHistoryIdsOfHistTypeStartingAt(long sessionId, int startAtHistoryId, int... histTypes) throws DatabaseException {
+		return getHistoryIdsByParams(sessionId, startAtHistoryId, true, histTypes);
+	}
+
+	private List<Integer> getHistoryIdsByParams(long sessionId, int startAtHistoryId,  boolean includeHistTypes, int... histTypes) throws DatabaseException {
+		try {
 			boolean hasHistTypes = histTypes != null && histTypes.length > 0;
-			int strLength = hasHistTypes ? 97 : 68;
+			final int strLength = 121;
 			StringBuilder strBuilder = new StringBuilder(strLength);
 			strBuilder.append("SELECT ").append(HISTORYID);
 			strBuilder.append(" FROM ").append(TABLE_NAME).append(" WHERE ").append(SESSIONID).append(" = ?");
 			if (hasHistTypes) {
-			    strBuilder.append(" AND ").append(HISTTYPE).append(" IN ( UNNEST(?) )");
+				strBuilder.append(" AND ").append(HISTTYPE);
+				if (!includeHistTypes) {
+					strBuilder.append(" NOT");
+				}
+				strBuilder.append(" IN ( UNNEST(?) )");
 			}
+
+			if(startAtHistoryId > 0){
+				strBuilder.append(" AND ").append(HISTORYID).append(" >= ?");
+			}
+
 			strBuilder.append(" ORDER BY ").append(HISTORYID);
 
 			try (PreparedStatement psReadSession = getConnection().prepareStatement(strBuilder.toString())) {
 
-			    psReadSession.setLong(1, sessionId);
-			    if (hasHistTypes) {
-			        Array arrayHistTypes = getConnection().createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
-			        psReadSession.setArray(2, arrayHistTypes);
-			    }
-			    try (ResultSet rs = psReadSession.executeQuery()) {
-			        ArrayList<Integer> ids = new ArrayList<>();
-			        while (rs.next()) {
-			            ids.add(rs.getInt(HISTORYID));
-			        }
-			        ids.trimToSize();
+				psReadSession.setLong(1, sessionId);
+				int parameterIndex = 2;
+				if (hasHistTypes) {
+					Array arrayHistTypes = getConnection().createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
+					psReadSession.setArray(parameterIndex++, arrayHistTypes);
+				}
+				if(startAtHistoryId > 0) {
+					psReadSession.setInt(parameterIndex++, startAtHistoryId);
+				}
 
-			        return ids;
-			    }
+				try (ResultSet rs = psReadSession.executeQuery()) {
+					ArrayList<Integer> ids = new ArrayList<>();
+					while (rs.next()) {
+						ids.add(rs.getInt(HISTORYID));
+					}
+					ids.trimToSize();
+
+					return ids;
+				}
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
@@ -475,38 +503,13 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      */
     @Override
     public List<Integer> getHistoryIdsExceptOfHistType(long sessionId, int... histTypes) throws DatabaseException {
-        try {
-			boolean hasHistTypes = histTypes != null && histTypes.length > 0;
-			int strLength = hasHistTypes ? 102 : 68;
-			StringBuilder sb = new StringBuilder(strLength);
-			sb.append("SELECT ").append(HISTORYID);
-			sb.append(" FROM ").append(TABLE_NAME).append(" WHERE ").append(SESSIONID).append(" = ?");
-			if (hasHistTypes) {
-			    sb.append(" AND ").append(HISTTYPE).append(" NOT IN ( UNNEST(?) )");
-			}
-			sb.append(" ORDER BY ").append(HISTORYID);
-
-			try (PreparedStatement psReadSession = getConnection().prepareStatement(sb.toString())) {
-
-			    psReadSession.setLong(1, sessionId);
-			    if (hasHistTypes) {
-			        Array arrayHistTypes = getConnection().createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
-			        psReadSession.setArray(2, arrayHistTypes);
-			    }
-			    try (ResultSet rs = psReadSession.executeQuery()) {
-			        ArrayList<Integer> ids = new ArrayList<>();
-			        while (rs.next()) {
-			            ids.add(rs.getInt(HISTORYID));
-			        }
-			        ids.trimToSize();
-
-			        return ids;
-			    }
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+		return getHistoryIdsByParams(sessionId, 0, false, histTypes);
     }
+
+	@Override
+	public List<Integer> getHistoryIdsExceptOfHistTypeStartingAt(long sessionId, int startAtHistoryId, int... histTypes) throws DatabaseException {
+		return getHistoryIdsByParams(sessionId, startAtHistoryId, false, histTypes);
+	}
 
 	/**
 	 * @deprecated (2.3.0) Use {@link #getHistoryIdsOfHistType(long, int...)} instead. If the thread-safety provided by the
