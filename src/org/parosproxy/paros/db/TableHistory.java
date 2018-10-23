@@ -50,6 +50,18 @@ public interface TableHistory extends DatabaseListener {
 			throws DatabaseException;
 
 	/**
+	 * Gets the history record IDs of the given session starting at the specified historyId (inclusive).
+	 *
+	 * @param sessionId the ID of session of the history records to be returned
+	 * @param startAtHistoryId filters historyIds with >= startAtHistoryId
+	 * @return a {@code List} with the history IDs of the given session starting at the specified historyId (inclusive), never {@code null}
+	 * @throws DatabaseException if an error occurred while getting the history IDs
+	 * @since 2.8.0
+	 */
+	List<Integer> getHistoryIdsStartingAt(long sessionId, int startAtHistoryId)
+			throws DatabaseException;
+
+	/**
 	 * Gets all the history record IDs of the given session and with the given history types.
 	 *
 	 * @param sessionId the ID of session of the history records
@@ -64,6 +76,19 @@ public interface TableHistory extends DatabaseListener {
 			int... histTypes) throws DatabaseException;
 
 	/**
+	 * Gets the history record IDs of the given session and with the given history types starting at the specified historyId (inclusive).
+	 *
+	 * @param sessionId the ID of session of the history records
+	 * @param startAtHistoryId filters historyIds with >= startAtHistoryId
+	 * @param histTypes the history types of the history records that should be returned
+	 * @return a {@code List} with all the history IDs of the given session and history types starting at the specified historyId (inclusive), never {@code null}
+	 * @throws DatabaseException if an error occurred while getting the history IDs
+	 * @since 2.8.0
+	 */
+	List<Integer> getHistoryIdsOfHistTypeStartingAt(long sessionId, int startAtHistoryId,
+			int... histTypes) throws DatabaseException;
+
+	/**
 	 * Returns all the history record IDs of the given session except the ones with the given history types.
 	 ** 
 	 * @param sessionId the ID of session of the history records
@@ -74,6 +99,19 @@ public interface TableHistory extends DatabaseListener {
 	 * @see #getHistoryIdsOfHistType(long, int...)
 	 */
 	List<Integer> getHistoryIdsExceptOfHistType(long sessionId,
+			int... histTypes) throws DatabaseException;
+
+	/**
+	 * Returns the history record IDs of the given session except the ones with the given history types starting at the specified historyId (inclusive).
+	 **
+	 * @param sessionId the ID of session of the history records
+	 * @param startAtHistoryId filters historyIds with >= startAtHistoryId
+	 * @param histTypes the history types of the history records that should be excluded
+	 * @return a {@code List} with all the history IDs of the given session and history types starting at the specified historyId (inclusive), never {@code null}
+	 * @throws DatabaseException if an error occurred while getting the history IDs
+	 * @since 2.8.0
+	 */
+	List<Integer> getHistoryIdsExceptOfHistTypeStartingAt(long sessionId, int startAtHistoryId,
 			int... histTypes) throws DatabaseException;
 
 	List<Integer> getHistoryList(long sessionId, int histType,
