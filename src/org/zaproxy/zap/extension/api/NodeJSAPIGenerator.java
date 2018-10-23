@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -143,9 +144,6 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                 }
                 out.write(safeName(param.toLowerCase()));
             }
-        }
-        if (hasParams) {
-            out.write(", ");
         }
         out.write(") {\n");
 
