@@ -372,7 +372,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
 		} else if (ACTION_SHUTDOWN.equals(name)) {
-			Thread thread = new Thread() {
+			Thread thread = new Thread("ZAP-Shutdown") {
 				@Override
 				public void run() {
 					try {
