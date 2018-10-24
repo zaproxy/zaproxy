@@ -118,12 +118,12 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"Site - Lastpass manager",
 				"false"
 			}, {
-				"^https?://(?:.*addons|aus[0-9])\\.mozilla\\.(org|net|com)/.*$",
-				"Site - Mozilla Firefox browser updates",
+				"^https?://(?:.*addons|aus[0-9])\\.mozilla\\.(?:org|net|com)/.*$",
+				"Site - Firefox browser updates",
 				"false"
 			}, {
 				"^https?://(?:[^/])*\\.?(?:getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
-				"Site - Mozilla Firefox extensions phoning home",
+				"Site - Firefox extensions phoning home",
 				"false"
 			}, {
 				// some of this from http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
@@ -152,11 +152,11 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"false"
 			}, {
 				"^https?://.*\\.cdn\\.mozilla\\.(?:com|org|net)/.*$",
-				"Site - Mozilla CDN (requests such as getpocked)",
+				"Site - Mozilla CDN (requests such as getpocket)",
 				"false"
 			}, {
 				"^https?://.*\\.telemetry\\.mozilla\\.(?:com|org|net)/.*$",
-				"Site - Mozilla Firefox browser telemetry",
+				"Site - Firefox browser telemetry",
 				"false"
 			}, {
 				"^https?://.*\\.adblockplus\\.org.*$",
