@@ -263,7 +263,7 @@ public class Control extends AbstractControl implements SessionListener {
 	    	    }
 	    		System.exit(0);   
 	        }
-	    });
+	    }, "ZAP-Shutdown");
 
 	    if (view != null) {
 		    WaitMessageDialog dialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.shuttingDown"));	// ZAP: i18n
