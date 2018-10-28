@@ -1002,7 +1002,7 @@ public class HttpSender {
      *
      * @param statusCode the status code that will be checked
      * @return {@code true} if a redirection is needed, {@code false} otherwise
-     * @see #isRequestRewriteNeeded(int)
+     * @see #isRequestRewriteNeeded(HttpMessage)
      */
     private static boolean isRedirectionNeeded(int statusCode) {
         switch (statusCode) {
