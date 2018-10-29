@@ -109,18 +109,18 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             String desc = getMessages().getString(descTag);
             out.write("/**\n");
             out.write(" * " + desc + "\n");
-			if (isOptional()) {
-	            out.write(" * " + OPTIONAL_MESSAGE + "\n");
-			}
+            if (isOptional()) {
+                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+            }
             out.write(" **/\n");
         } catch (Exception e) {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
-			if (isOptional()) {
-	            out.write("/**\n");
-	            out.write(" * " + OPTIONAL_MESSAGE + "\n");
-	            out.write(" **/\n");
-			}
+            if (isOptional()) {
+                out.write("/**\n");
+                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+                out.write(" **/\n");
+            }
         }
 
         out.write(className + ".prototype." + createMethodName(element.getName()) + " = function (");
@@ -145,7 +145,10 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                 out.write(safeName(param.toLowerCase()));
             }
         }
-        out.write(") {\n");
+        if (hasParams) {
+            out.write(", ");
+        }
+        out.write("callback) {\n");
 
         // , {'url': url}))
         StringBuilder reqParams = new StringBuilder();
@@ -178,17 +181,26 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             }
         }
         
-        String method = "request";
-        if (type.equals(OTHER_ENDPOINT)) {
-            method = "requestOther";
-        }
-        out.write("  return this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+        String methodCb = (type.equals(OTHER_ENDPOINT)) ? "requestOther" : "request";
+        String methodP = (type.equals(OTHER_ENDPOINT)) ? "requestPromiseOther" : "requestPromise";
 
+        // Is the consumer in callback or promise mode
+        out.write("  if (typeof callback === 'function') {\n");
+        out.write("    this.api." + methodCb + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+        if (hasParams) {
+            out.write(", ");
+            out.write(reqParams.toString());
+        }
+        out.write(", callback);\n");
+        out.write("    return;\n");
+        out.write("  }\n");
+        out.write("  return this.api." + methodP + "('/" + component + "/" + type + "/" + element.getName() + "/'");
         if (hasParams) {
             out.write(", ");
             out.write(reqParams.toString());
         }
         out.write(");\n");
+	
         out.write("};\n\n");
         
     }
