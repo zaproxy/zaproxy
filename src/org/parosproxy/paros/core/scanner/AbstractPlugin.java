@@ -148,9 +148,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
         this.parent = parent;
-        if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
-    		this.msg.getRequestHeader().setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
-    	}
         init();
     }
 
@@ -272,6 +269,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 }
             }
         }
+
+        if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
+    		this.msg.getRequestHeader().setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
+    	}
 
         // always get the fresh copy
         message.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
