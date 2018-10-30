@@ -201,6 +201,8 @@ public class ScannerParam extends AbstractParam {
      */
     private boolean addQueryParam;
 
+    private ScannerParamValueFilterRule whitelistingValueFilter;
+
     /**
      * Flag that indicates if the active scanner should scan null JSON values.
      *
@@ -622,10 +624,15 @@ public class ScannerParam extends AbstractParam {
         this.whitelistingValueExpression = expression;
         getConfig()
                 .setProperty(SCAN_VALUE_WHITELISTING_EXPRESSION, this.whitelistingValueExpression);
+        whitelistingValueFilter = new ScannerParamValueFilterRule(this.whitelistingValueExpression);
     }
 
     public String getWhitelistingValueExpression() {
         return this.whitelistingValueExpression;
+    }
+
+    public ScannerParamValueFilterRule getWhitelistingValueFilter() {
+        return this.whitelistingValueFilter;
     }
 
     /**

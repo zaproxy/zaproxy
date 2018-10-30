@@ -46,7 +46,6 @@ package org.parosproxy.paros.core.scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -117,7 +116,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             // ZAP: Removed unnecessary cast.
             originalPair = nameValuePairs.get(i);
 
-            if (!isToExclude(originalPair) && isToInclude(originalPair)) {
+            if (!isFiltered(originalPair)) {
 
                 // We need to use a fresh copy of the original message
                 // for further analysis inside all plugins
@@ -138,32 +137,17 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @param param the param object
      * @return true if it need to be excluded
      */
-    private boolean isToExclude(NameValuePair param) {
-        List<ScannerParamFilter> excludedParameters = getParameterExclusionFilters(param);
+    private boolean isFiltered(NameValuePair param) {
+        List<? extends ScannerParamFilterRule> excludedParameters =
+                getParameterExclusionFilters(param);
+        ScannerParamFilterRules filterRules = new ScannerParamFilterRules();
+        filterRules.addParamFilters(excludedParameters);
+        filterRules.addParamFilter(this.getParent().getScannerParam().getWhitelistingValueFilter());
 
         // We can use the base one, we don't do anything with it
         HttpMessage msg = getBaseMsg();
 
-        for (ScannerParamFilter filter : excludedParameters) {
-            if (filter.isToExclude(msg, param)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean isToInclude(NameValuePair param) {
-        String whitelistingValueExpression =
-                this.getParent().getScannerParam().getWhitelistingValueExpression();
-        if (whitelistingValueExpression == null || StringUtils.isBlank(whitelistingValueExpression))
-            return true;
-
-        if (param.getValue().matches(whitelistingValueExpression)) {
-            return true;
-        }
-
-        return false;
+        return filterRules.filter(msg, param);
     }
 
     private List<ScannerParamFilter> getParameterExclusionFilters(NameValuePair parameter) {
