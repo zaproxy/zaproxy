@@ -40,7 +40,7 @@ public class SiteMapEventPublisher implements EventPublisher {
 		if (publisher == null) {
 			publisher = new SiteMapEventPublisher(); 
 	        ZAP.getEventBus().registerPublisher(publisher, 
-	        		new String[] {SITE_NODE_ADDED_EVENT, SITE_NODE_REMOVED_EVENT, SITE_ADDED_EVENT, SITE_REMOVED_EVENT});
+	        		SITE_NODE_ADDED_EVENT, SITE_NODE_REMOVED_EVENT, SITE_ADDED_EVENT, SITE_REMOVED_EVENT);
 
 		}
 		return publisher;

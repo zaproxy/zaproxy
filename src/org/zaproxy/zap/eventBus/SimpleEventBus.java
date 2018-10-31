@@ -31,7 +31,7 @@ public class SimpleEventBus implements EventBus {
 	private static Logger log = Logger.getLogger(SimpleEventBus.class);
 
 	@Override
-	public void registerPublisher(EventPublisher publisher, String[] eventTypes) {
+	public void registerPublisher(EventPublisher publisher, String... eventTypes) {
 		if (publisher == null) {
 			throw new InvalidParameterException("Publisher must not be null");
 		}
@@ -88,12 +88,12 @@ public class SimpleEventBus implements EventBus {
 
 	@Override
 	public void registerConsumer(EventConsumer consumer, String publisherName) {
-		this.registerConsumer(consumer, publisherName, null);
+		this.registerConsumer(consumer, publisherName, (String[]) null);
 	}
 
 	@Override
 	public void registerConsumer(EventConsumer consumer, String publisherName,
-			String[] eventTypes) {
+			String... eventTypes) {
 		if (consumer == null) {
 			throw new InvalidParameterException("Consumer must not be null");
 		}

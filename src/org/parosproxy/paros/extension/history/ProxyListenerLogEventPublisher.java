@@ -72,7 +72,7 @@ public final class ProxyListenerLogEventPublisher implements EventPublisher {
             publisher = new ProxyListenerLogEventPublisher();
             ZAP.getEventBus().registerPublisher(
                     publisher,
-                    new String[] { EVENT_ADDED });
+                    EVENT_ADDED);
         }
     }
     

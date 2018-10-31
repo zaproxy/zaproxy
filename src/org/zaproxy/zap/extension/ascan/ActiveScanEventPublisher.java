@@ -37,7 +37,7 @@ public class ActiveScanEventPublisher extends ScanEventPublisher {
     public static synchronized ActiveScanEventPublisher getPublisher() {
         if (publisher == null) {
             publisher = new ActiveScanEventPublisher();
-            ZAP.getEventBus().registerPublisher(publisher, ScanEventPublisher.EVENTS);
+            ZAP.getEventBus().registerPublisher(publisher, getEvents());
         }
         return publisher;
     }
