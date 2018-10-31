@@ -35,7 +35,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     /**
 	 * Default output directory in zap-api-nodejs project.
 	 */
-    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-nodejs/src/zapv2/";
+    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-nodejs/src/";
 
     private final String HEADER = 
             "/* Zed Attack Proxy (ZAP) and its related class files.\n" +
