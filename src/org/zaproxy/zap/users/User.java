@@ -29,6 +29,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
+import org.zaproxy.zap.authentication.AuthenticationMethod.UnsupportedAuthenticationCredentialsException;
 import org.zaproxy.zap.extension.authentication.ExtensionAuthentication;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
@@ -252,8 +253,13 @@ public class User extends Enableable {
 	 */
 	public void authenticate() {
 		log.info("Authenticating user: " + this.name);
-		WebSession result = getContext().getAuthenticationMethod().authenticate(
+		WebSession result = null;
+		try {
+			result = getContext().getAuthenticationMethod().authenticate(
 				getContext().getSessionManagementMethod(), this.authenticationCredentials, this);
+		} catch (UnsupportedAuthenticationCredentialsException e) {
+			log.error("User does not have the expected type of credentials:", e);
+		}
 		// no issues appear if a simultaneous call to #queueAuthentication() is made
 		synchronized (this) {
 			this.lastSuccessfulAuthTime = System.currentTimeMillis();
