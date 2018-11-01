@@ -59,7 +59,7 @@ public class AlertEventPublisher implements EventPublisher {
 		if (publisher == null) {
 			publisher = new AlertEventPublisher(); 
 	        ZAP.getEventBus().registerPublisher(publisher, 
-	        		new String[] {ALERT_ADDED_EVENT, ALERT_CHANGED_EVENT, ALERT_REMOVED_EVENT, ALL_ALERTS_REMOVED_EVENT});
+	        		ALERT_ADDED_EVENT, ALERT_CHANGED_EVENT, ALERT_REMOVED_EVENT, ALL_ALERTS_REMOVED_EVENT);
 
 		}
 		return publisher;

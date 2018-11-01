@@ -31,7 +31,7 @@ public interface EventBus {
 	 * @param publisher the publisher
 	 * @param eventTypes the full set of event types the publisher can publish
 	 */
-	void registerPublisher(EventPublisher publisher, String[] eventTypes);
+	void registerPublisher(EventPublisher publisher, String... eventTypes);
 	
 	/**
 	 * Unregister the publisher
@@ -53,7 +53,7 @@ public interface EventBus {
 	 * @param publisherName the name of the publisher
 	 * @param eventTypes the event types
 	 */
-	void registerConsumer (EventConsumer consumer, String publisherName, String[] eventTypes);
+	void registerConsumer (EventConsumer consumer, String publisherName, String... eventTypes);
 	
 	/**
 	 * Unregister the consumer from all publishers

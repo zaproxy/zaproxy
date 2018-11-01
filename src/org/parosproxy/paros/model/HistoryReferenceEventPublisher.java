@@ -85,7 +85,7 @@ public final class HistoryReferenceEventPublisher implements EventPublisher {
             publisher = new HistoryReferenceEventPublisher();
             ZAP.getEventBus().registerPublisher(
                     publisher,
-                    new String[] { EVENT_TAG_ADDED, EVENT_TAG_REMOVED, EVENT_TAGS_SET, EVENT_NOTE_SET, EVENT_REMOVED });
+                    EVENT_TAG_ADDED, EVENT_TAG_REMOVED, EVENT_TAGS_SET, EVENT_NOTE_SET, EVENT_REMOVED);
         }
     }
 }

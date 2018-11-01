@@ -37,7 +37,7 @@ public class SpiderEventPublisher extends ScanEventPublisher {
     public static synchronized SpiderEventPublisher getPublisher() {
         if (publisher == null) {
             publisher = new SpiderEventPublisher();
-            ZAP.getEventBus().registerPublisher(publisher, ScanEventPublisher.EVENTS);
+            ZAP.getEventBus().registerPublisher(publisher, getEvents());
         }
         return publisher;
     }

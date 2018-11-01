@@ -60,7 +60,7 @@ public class BreakEventPublisher implements EventPublisher {
     public static synchronized BreakEventPublisher getPublisher() {
         if (publisher == null) {
             publisher = new BreakEventPublisher();
-            ZAP.getEventBus().registerPublisher(publisher, new String[] { BREAK_POINT_HIT, BREAK_POINT_ACTIVE, BREAK_POINT_INACTIVE });
+            ZAP.getEventBus().registerPublisher(publisher, BREAK_POINT_HIT, BREAK_POINT_ACTIVE, BREAK_POINT_INACTIVE);
         }
         return publisher;
     }

@@ -20,6 +20,7 @@
 
 package org.zaproxy.zap.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,13 +38,22 @@ public abstract class ScanEventPublisher implements EventPublisher {
     public static final String SCAN_COMPLETED_EVENT = "scan.completed";
     public static final String SCAN_PROGRESS_EVENT = "scan.progress";
 
-    public static final String[] EVENTS = { SCAN_STARTED_EVENT, SCAN_STOPPED_EVENT, SCAN_PAUSED_EVENT,
-            SCAN_RESUMED_EVENT, SCAN_COMPLETED_EVENT, SCAN_PROGRESS_EVENT };
-
     public static final String SCAN_ID = "scanId";
     public static final String SCAN_PROGRESS = "scanProgress";
     public static final String USER_ID = "userId";
     public static final String USER_NAME = "userName";
+
+    private static final String[] EVENTS = { SCAN_STARTED_EVENT, SCAN_STOPPED_EVENT, SCAN_PAUSED_EVENT,
+            SCAN_RESUMED_EVENT, SCAN_COMPLETED_EVENT, SCAN_PROGRESS_EVENT };
+
+    /**
+     * Returns a new array with all events.
+     *
+     * @return an array containing all events.
+     */
+    protected static String[] getEvents() {
+        return Arrays.copyOf(EVENTS, EVENTS.length);
+    }
 
     @Override
     public String getPublisherName() {
