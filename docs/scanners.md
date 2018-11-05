@@ -170,6 +170,7 @@ Scanners:
 60001   Example file passive rule
 60100   Example simple active rule
 60101   Example file active rule
+60200   HUD tutorial examples
 
 90001   Insecure JSF ViewState
 90011   Charset Mismatch
