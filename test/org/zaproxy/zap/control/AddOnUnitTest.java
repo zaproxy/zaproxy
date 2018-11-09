@@ -150,6 +150,92 @@ public class AddOnUnitTest extends TestUtils {
 		addOnA2.isUpdateTo(addOnA1);
 		// Then = Exception
 	}
+
+	@Test
+	public void shouldBeUpdateIfSameVersionWithHigherStatus() throws Exception {
+		// Given
+		String name = "addon.zap";
+		String version = "1.0.0";
+		AddOn addOn = new AddOn(createAddOnFile(name, "beta", version));
+		AddOn addOnHigherStatus = new AddOn(createAddOnFile(name, "release", version));
+		// When
+		boolean update = addOnHigherStatus.isUpdateTo(addOn);
+		// Then
+		assertThat(update, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeUpdateIfSameVersionWithLowerStatus() throws Exception {
+		// Given
+		String name = "addon.zap";
+		String version = "1.0.0";
+		AddOn addOn = new AddOn(createAddOnFile(name, "beta", version));
+		AddOn addOnHigherStatus = new AddOn(createAddOnFile(name, "release", version));
+		// When
+		boolean update = addOn.isUpdateTo(addOnHigherStatus);
+		// Then
+		assertThat(update, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldBeUpdateIfFileIsNewerWithSameStatusAndVersion() throws Exception {
+		// Given
+		String name = "addon.zap";
+		String status = "release";
+		String version = "1.0.0";
+		AddOn addOn = new AddOn(createAddOnFile(name, status, version));
+		AddOn newestAddOn = new AddOn(createAddOnFile(name, status, version));
+		newestAddOn.getFile().setLastModified(System.currentTimeMillis() + 1000);
+		// When
+		boolean update = newestAddOn.isUpdateTo(addOn);
+		// Then
+		assertThat(update, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeUpdateIfFileIsOlderWithSameStatusAndVersion() throws Exception {
+		// Given
+		String name = "addon.zap";
+		String status = "release";
+		String version = "1.0.0";
+		AddOn addOn = new AddOn(createAddOnFile(name, status, version));
+		AddOn newestAddOn = new AddOn(createAddOnFile(name, status, version));
+		newestAddOn.getFile().setLastModified(System.currentTimeMillis() + 1000);
+		// When
+		boolean update = addOn.isUpdateTo(newestAddOn);
+		// Then
+		assertThat(update, is(equalTo(false)));
+	}
+
+	@Test
+	public void shouldBeUpdateIfOtherAddOnDoesNotHaveFileWithSameStatusAndVersion() throws Exception {
+		// Given
+		String name = "addon.zap";
+		String status = "release";
+		String version = "1.0.0";
+		AddOn addOn = new AddOn(createAddOnFile(name, status, version));
+		AddOn addOnWithoutFile = new AddOn(createAddOnFile(name, status, version));
+		addOnWithoutFile.setFile(null);
+		// When
+		boolean update = addOn.isUpdateTo(addOnWithoutFile);
+		// Then
+		assertThat(update, is(equalTo(true)));
+	}
+
+	@Test
+	public void shouldNotBeUpdateIfCurrentAddOnDoesNotHaveFileWithSameStatusAndVersion() throws Exception {
+		// Given
+		String name = "addon.zap";
+		String status = "release";
+		String version = "1.0.0";
+		AddOn addOn = new AddOn(createAddOnFile(name, status, version));
+		AddOn addOnWithoutFile = new AddOn(createAddOnFile(name, status, version));
+		addOnWithoutFile.setFile(null);
+		// When
+		boolean update = addOnWithoutFile.isUpdateTo(addOn);
+		// Then
+		assertThat(update, is(equalTo(false)));
+	}
 	
 	@Test
 	@SuppressWarnings("deprecation")
@@ -770,7 +856,7 @@ public class AddOnUnitTest extends TestUtils {
 
 	private Path createAddOnFile(String fileName, String status, String version, String javaVersion, Consumer<StringBuilder> manifestConsumer) {
 		try {
-			File file = tempDir.newFile(fileName);
+			File file = new File(tempDir.newFolder(), fileName);
 			try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
 				ZipEntry manifest = new ZipEntry(AddOn.MANIFEST_FILE_NAME);
 				zos.putNextEntry(manifest);
