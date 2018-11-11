@@ -1114,10 +1114,23 @@ public class AddOn  {
 		if (! this.isSameAddOn(addOn)) {
 			throw new IllegalArgumentException("Different addons: " + this.getId() + " != " + addOn.getId());
 		}
-		if (this.getVersion().compareTo(addOn.getVersion()) > 0) {
+		int result = this.getVersion().compareTo(addOn.getVersion());
+		if (result != 0) {
+			return result > 0;
+		}
+
+		result = this.getStatus().compareTo(addOn.getStatus());
+		if (result != 0) {
+			return result > 0;
+		}
+
+		if (getFile() == null) {
+			return false;
+		}
+		if (addOn.getFile() == null) {
 			return true;
 		}
-		return this.getStatus().ordinal() > addOn.getStatus().ordinal();
+		return getFile().lastModified() > addOn.getFile().lastModified();
 	}
 	
 	/**
