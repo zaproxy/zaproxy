@@ -320,7 +320,7 @@ public class User extends Enableable {
 	 * @return the user
 	 */
 	protected static User decode(int contextId, String encodedString, ExtensionAuthentication authenticationExtension) {
-		String[] pieces = encodedString.split(FIELD_SEPARATOR);
+		String[] pieces = encodedString.split(FIELD_SEPARATOR, -1);
 		User user = null;
 		try {
 			int id = Integer.parseInt(pieces[0]);
