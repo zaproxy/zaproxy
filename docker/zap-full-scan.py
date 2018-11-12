@@ -80,7 +80,7 @@ def usage():
     print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
     print('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
     print('    -g gen_file       generate default config file(all rules set to WARN)')
-    print('    -m mins           the number of minutes to spider for (default 1)')
+    print('    -m mins           the number of minutes to spider for (defaults to no limit)')
     print('    -r report_html    file to write the full ZAP HTML report')
     print('    -w report_md      file to write the full ZAP Wiki(Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
