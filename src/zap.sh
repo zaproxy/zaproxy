@@ -79,7 +79,7 @@ elif [ "$OS" = "FreeBSD" ]; then
 fi
 
 if [ ! -z "$JMEM" ]; then
-  echo "Using jvm memory setting from $JVMPROPS"
+  echo "Read custom JVM args from $JVMPROPS"
   JAVAGC=""
 elif [ -z "$MEM" ]; then
   echo "Failed to obtain current memory, using jvm default memory settings"
@@ -114,7 +114,7 @@ done
 
 if [ -n "$JMEM" ]
 then
-  echo "Setting jvm heap size: $JMEM"
+  echo "Using JVM args: $JMEM"
 fi
 
 if [ -n "$JAVADEBUG" ]
