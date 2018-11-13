@@ -1,7 +1,9 @@
 package org.zaproxy.zap.extension.pscan;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -58,6 +60,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private String currentRuleName = "";
 	private String currentUrl = "";
 	private long currentRuleStartTime = 0;
+	private Map<Integer, Integer> alertCounts = new HashMap<Integer, Integer>();
 
 	/**
 	 * Constructs a {@code PassiveScanThread} with the given data.
@@ -245,7 +248,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 		return currentId;
 	}
-
+	
 	public void raiseAlert(int id, Alert alert) {
 		if (shutDown) {
 			return;
@@ -258,7 +261,24 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		alert.setSource(Alert.Source.PASSIVE);
 	    // Raise the alert
 		extAlert.alertFound(alert, href);
-
+		
+		if (this.pscanOptions.getMaxAlertsPerRule() > 0) {
+			// Theres a limit on how many each rule can raise
+			Integer count = alertCounts.get(alert.getPluginId());
+			if (count == null) {
+				count = Integer.valueOf(0);
+			}
+			alertCounts.put(alert.getPluginId(), count+1);
+			if (count > this.pscanOptions.getMaxAlertsPerRule()) {
+				// Disable the plugin
+				PassiveScanner scanner = this.scannerList.getScanner(alert.getPluginId());
+				if (scanner != null) {
+					logger.info("Disabling passive scanner " + scanner.getName() + " as it has raised more than "
+							+ this.pscanOptions.getMaxAlertsPerRule() + " alerts.");
+					scanner.setEnabled(false);
+				}
+			}
+		}
 	}
 
 	public void addTag(int id, String tag) {
