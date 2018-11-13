@@ -51,6 +51,7 @@ public class PassiveScanParam extends AbstractParam {
 
     private static final String SCAN_ONLY_IN_SCOPE_KEY = PASSIVE_SCANS_BASE_KEY + ".scanOnlyInScope";
     private static final String SCAN_FUZZER_MESSAGES_KEY = PASSIVE_SCANS_BASE_KEY + ".scanFuzzerMessages";
+    private static final String MAX_ALERTS_PER_RULE = PASSIVE_SCANS_BASE_KEY + ".maxAlertsPerRule";
 
     private List<RegexAutoTagScanner> autoTagScanners = new ArrayList<>(0);
     
@@ -69,6 +70,12 @@ public class PassiveScanParam extends AbstractParam {
      * Default is {@code false}, fuzzer traffic is not scanned.
      */
     private boolean scanFuzzerMessages;
+    
+    /**
+     * The maximum number of alerts any passive scan rule should raise. Rules will be disabled once they exceed this threshold.
+     * Default 0, which means there is no limit. This is typically only useful for automated scanning.
+     */
+    private int maxAlertsPerRule;
     
     public PassiveScanParam() {
     }
@@ -105,6 +112,7 @@ public class PassiveScanParam extends AbstractParam {
         this.scanOnlyInScope = getBoolean(SCAN_ONLY_IN_SCOPE_KEY, false);
         this.scanFuzzerMessages = getBoolean(SCAN_FUZZER_MESSAGES_KEY, false);
         setFuzzerOptin(this.scanFuzzerMessages);
+        this.maxAlertsPerRule = this.getInt(MAX_ALERTS_PER_RULE, 0);
     }
 
     public void setAutoTagScanners(List<RegexAutoTagScanner> scanners) {
@@ -214,4 +222,16 @@ public class PassiveScanParam extends AbstractParam {
     public boolean isScanFuzzerMessages() {
         return scanFuzzerMessages;
     }
+
+    
+    public int getMaxAlertsPerRule() {
+        return maxAlertsPerRule;
+    }
+
+    
+    public void setMaxAlertsPerRule(int maxAlertsPerRule) {
+        this.maxAlertsPerRule = maxAlertsPerRule;
+        getConfig().setProperty(MAX_ALERTS_PER_RULE, maxAlertsPerRule);
+    }
+    
 }
