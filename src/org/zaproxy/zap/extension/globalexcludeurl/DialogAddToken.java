@@ -123,7 +123,7 @@ class DialogAddToken extends AbstractFormDialog {
     protected boolean validateFields() {
         String tokenName = getRegexTextField().getText();
         for (GlobalExcludeURLParamToken t : tokens) {
-            if (tokenName.equalsIgnoreCase(t.getRegex())) {
+            if (tokenName.equals(t.getRegex())) {
                 JOptionPane.showMessageDialog(this, TEXT_NAME_REPEATED_DIALOG,
                         TITLE_NAME_REPEATED_DIALOG,
                         JOptionPane.INFORMATION_MESSAGE);
@@ -145,6 +145,7 @@ class DialogAddToken extends AbstractFormDialog {
         getRegexTextField().setText("");
         getRegexTextField().discardAllEdits();
         getDescTextField().setText("");
+        getDescTextField().discardAllEdits();
     }
 
     public GlobalExcludeURLParamToken getToken() {
