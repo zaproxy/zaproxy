@@ -38,6 +38,7 @@
 // ZAP: 2017/03/02 Issue 3226: Added API Key and Nonce headers
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
 // ZAP: 2018/04/24 Add JSON Content-Type.
+// ZAP: 2018/11/15 Add Accept header for HTTP requests.
 
 package org.parosproxy.paros.network;
 
@@ -69,6 +70,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String IF_NONE_MATCH = "If-None-Match";
     public static final String USER_AGENT = "User-Agent";
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
+    public static final String ACCEPT = "Accept";
     // ZAP:  the correct case is "Cache-Control", not "Cache-control"
     public static final String CACHE_CONTROL = "Cache-Control";
     public static final String PRAGMA = "Pragma";
