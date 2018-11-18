@@ -87,4 +87,21 @@ public class PassiveScannerList {
 		return null;
 	}
 
+    /**
+     * Returns the PassiveScan rule with the given id 
+     * @param pluginId
+     * @return the PassiveScan rule with the given id, or null if not found
+     * @since TODO add version
+     */
+    public PassiveScanner getScanner(int pluginId) {
+        for (PassiveScanner scanner : passiveScanners) {
+            if (scanner instanceof PluginPassiveScanner) {
+                if (((PluginPassiveScanner)scanner).getPluginId() == pluginId) {
+                    return scanner;
+                }
+            }
+        }
+        return null;
+    }
+
 }

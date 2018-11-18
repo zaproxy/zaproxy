@@ -20,6 +20,8 @@
  */
 package org.zaproxy.zap.extension.globalexcludeurl;
 
+import java.util.Objects;
+
 import org.zaproxy.zap.utils.Enableable;
 
 class GlobalExcludeURLParamToken extends Enableable {
@@ -36,7 +38,7 @@ class GlobalExcludeURLParamToken extends Enableable {
     }
 
     public GlobalExcludeURLParamToken(String regex, boolean enabled) {
-        this(regex, "", false);
+        this(regex, "", enabled);
     }
 
     public GlobalExcludeURLParamToken(String regex, String description, boolean enabled) {
@@ -68,11 +70,10 @@ class GlobalExcludeURLParamToken extends Enableable {
 
     @Override
     public int hashCode() {
-        return 31 * super.hashCode() + ((regex == null) ? 0 : regex.hashCode());
+        return Objects.hash(isEnabled(), regex, description);
     }
 
     @Override
-    /** If the regexs are equal, then the objects are equal; description is not compared. */
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -84,11 +85,10 @@ class GlobalExcludeURLParamToken extends Enableable {
             return false;
         }
         GlobalExcludeURLParamToken other = (GlobalExcludeURLParamToken) obj;
-        if (regex == null) {
-            if (other.regex != null) {
-                return false;
-            }
-        } else if (!regex.equals(other.regex)) {
+        if (!Objects.equals(regex, other.regex)) {
+            return false;
+        }
+        if (!Objects.equals(description, other.description)) {
             return false;
         }
         return true;
