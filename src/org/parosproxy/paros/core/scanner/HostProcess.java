@@ -81,6 +81,7 @@
 // ZAP: 2017/11/29 Skip plugins if there's nothing to scan.
 // ZAP: 2017/12/29 Provide means to validate the redirections.
 // ZAP: 2018/01/01 Update initialisation of PluginStats.
+// ZAP: 2018/11/14 Log alert count when completed.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -696,7 +697,7 @@ public class HostProcess implements Runnable {
     private void notifyHostComplete() {
         long diffTimeMillis = System.currentTimeMillis() - hostProcessStartTime;
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-        log.info("completed host " + hostAndPort + " in " + diffTimeString);
+        log.info("completed host " + hostAndPort + " in " + diffTimeString + " with " + getAlertCount() + " alert(s) raised.");
         parentScanner.notifyHostComplete(hostAndPort);
     }
 
