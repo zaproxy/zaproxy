@@ -25,6 +25,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -45,6 +46,7 @@ import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -205,16 +207,18 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 					if (e.getStateChange() == ItemEvent.SELECTED && !e.getItem().equals(shownMethodType)) {
 						log.debug("Selected new Authentication type: " + e.getItem());
 
-						if (needsConfirm && !confirmAndExecuteUsersDeletion()) {
-							log.debug("Cancelled change of authentication type.");
+						AuthenticationMethodType type = ((AuthenticationMethodType) e.getItem());
+						if (shownMethodType == null || type.getAuthenticationCredentialsType() != shownMethodType
+								.getAuthenticationCredentialsType()) {
 
-							authenticationMethodsComboBox.setSelectedItem(shownMethodType);
-							return;
+							if (needsConfirm && !confirmAndResetUsersCredentials(type)) {
+								log.debug("Cancelled change of authentication type.");
+
+								authenticationMethodsComboBox.setSelectedItem(shownMethodType);
+								return;
+							}
 						}
 						resetLoggedInOutIndicators();
-
-						// Prepare the new authentication method
-						AuthenticationMethodType type = ((AuthenticationMethodType) e.getItem());
 
 						// If no authentication method was previously selected or it's a different
 						// class, create a new authentication method object
@@ -243,27 +247,37 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 	}
 
 	/**
-	 * Make sure the user acknowledges the Users corresponding to this context will be deleted.
+	 * Make sure the user acknowledges the Users corresponding to this context will have the credentials changed with the new
+	 * type of authentication method.
 	 * 
+	 * @param type the type of authentication method being set.
 	 * @return true, if successful
 	 */
-	private boolean confirmAndExecuteUsersDeletion() {
+	private boolean confirmAndResetUsersCredentials(AuthenticationMethodType type) {
 		ExtensionUserManagement usersExtension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
-		if (usersExtension != null) {
-			if (usersExtension.getSharedContextUsers(getUISharedContext()).size() > 0) {
-				authenticationMethodsComboBox.transferFocus();
-				int choice = JOptionPane.showConfirmDialog(this,
-						Constant.messages.getString("authentication.dialog.confirmChange.label"),
-						Constant.messages.getString("authentication.dialog.confirmChange.title"),
-						JOptionPane.OK_CANCEL_OPTION);
-				if (choice == JOptionPane.CANCEL_OPTION) {
-					return false;
-				}
-				// Removing the users from the 'shared context' (the UI) will cause their removal at
-				// save as well
-				usersExtension.removeSharedContextUsers(getUISharedContext());
+		if (usersExtension == null) {
+			return true;
+		}
+		List<User> users = usersExtension.getSharedContextUsers(getUISharedContext());
+		if (users.isEmpty()) {
+			return true;
+		}
+		if (users.stream().anyMatch(user -> user.getAuthenticationCredentials().isConfigured())) {
+			authenticationMethodsComboBox.transferFocus();
+			int choice = JOptionPane.showConfirmDialog(this,
+					Constant.messages.getString("authentication.dialog.confirmChange.label"),
+					Constant.messages.getString("authentication.dialog.confirmChange.title"),
+					JOptionPane.OK_CANCEL_OPTION);
+			if (choice == JOptionPane.CANCEL_OPTION) {
+				return false;
 			}
 		}
+		users.replaceAll(user -> {
+			User modifiedUser = new User(user.getContextId(), user.getName(), user.getId());
+			modifiedUser.setEnabled(false);
+			modifiedUser.setAuthenticationCredentials(type.createAuthenticationCredentials());
+			return modifiedUser;
+		});
 		return true;
 	}
 
