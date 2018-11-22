@@ -686,6 +686,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
     	
+        if (View.isInitialised()) {
+            if (!options.isCheckOnStart()) {
+                alertIfOutOfDate(false);
+                return;
+            }
+        }
+
 		if (! options.checkOnStart()) {
 			// Top level option not set, dont do anything, unless already downloaded last release
 			if (View.isInitialised() && this.getPreviousVersionInfo() != null) {
