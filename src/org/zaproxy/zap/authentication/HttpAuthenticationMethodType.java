@@ -328,6 +328,11 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 	}
 
 	@Override
+	public Class<UsernamePasswordAuthenticationCredentials> getAuthenticationCredentialsType() {
+		return UsernamePasswordAuthenticationCredentials.class;
+	}
+
+	@Override
 	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
 		return new ApiDynamicActionImplementor(API_METHOD_NAME, new String[] { PARAM_HOSTNAME, PARAM_REALM },
 				new String[] { PARAM_PORT }) {
@@ -355,8 +360,6 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 						throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PORT);
 					}
 
-				if (!context.getAuthenticationMethod().isSameType(method))
-					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 
 			}
