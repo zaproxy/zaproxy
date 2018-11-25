@@ -23,13 +23,11 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
-import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 
@@ -185,16 +183,19 @@ public abstract class AuthenticationMethodType {
 	public abstract AuthenticationCredentials createAuthenticationCredentials();
 
 	/**
+	 * Gets the type of the authentication credentials that this authentication method creates.
+	 *
+	 * @return the type of the authentication credentials, should not be {@code null}.
+	 * @since TODO version
+	 */
+	public abstract Class<? extends AuthenticationCredentials> getAuthenticationCredentialsType();
+
+	/**
 	 * Gets the {@link ApiAction} that can be used to set an authentication method of this type for
 	 * a context.
 	 * <p>
 	 * This api action will be handled by executing the
 	 * {@link ApiDynamicActionImplementor#handleAction(JSONObject)} method.
-	 * </p>
-	 * <p>
-	 * In the {@link ApiDynamicActionImplementor#handleAction(JSONObject)} method, if the new type
-	 * of method differs from the current type of method, a call should be made to
-	 * {@link #apiChangedAuthenticationMethodForContext(int)} to make sure changes are propagated.
 	 * </p>
 	 * 
 	 * @return the api action, or null if there is no way to set this method type through the API
@@ -212,25 +213,6 @@ public abstract class AuthenticationMethodType {
 	 * @return the api action, or null if there is no way to set this method type through the API
 	 */
 	public abstract ApiDynamicActionImplementor getSetCredentialsForUserApiAction();
-
-	/**
-	 * Called when the authentication method for a context is changed through an API call.
-	 * <p>
-	 * Makes sure the Users are wiped so the authentication credentials for them match the Method.
-	 * </p>
-	 * 
-	 * @param contextId the context id
-	 */
-	protected static void apiChangedAuthenticationMethodForContext(int contextId) {
-		// Make sure the Users are wiped so the authentication credentials for them match the
-		// Method.
-		ExtensionUserManagement usersExtension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
-		if (usersExtension != null) {
-			if (usersExtension.getContextUserAuthManager(contextId).getUsers().size() > 0) {
-				usersExtension.removeContextUsers(contextId);
-			}
-		}
-	}
 
 	@Override
 	public int hashCode() {

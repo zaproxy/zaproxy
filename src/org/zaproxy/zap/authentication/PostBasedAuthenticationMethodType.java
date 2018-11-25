@@ -1031,6 +1031,11 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 		return new UsernamePasswordAuthenticationCredentials();
 	}
 
+	@Override
+	public Class<UsernamePasswordAuthenticationCredentials> getAuthenticationCredentialsType() {
+		return UsernamePasswordAuthenticationCredentials.class;
+	}
+
 	/* API related constants and methods. */
 	private static final String PARAM_LOGIN_URL = "loginUrl";
 	private static final String PARAM_LOGIN_REQUEST_DATA = "loginRequestData";
@@ -1070,8 +1075,6 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 
-				if (!context.getAuthenticationMethod().isSameType(method))
-					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}
 		};

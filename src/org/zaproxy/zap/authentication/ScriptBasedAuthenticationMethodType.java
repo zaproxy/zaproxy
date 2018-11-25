@@ -647,6 +647,11 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		return new GenericAuthenticationCredentials(new String[0]);
 	}
 
+	@Override
+	public Class<GenericAuthenticationCredentials> getAuthenticationCredentialsType() {
+		return GenericAuthenticationCredentials.class;
+	}
+
 	private ExtensionScript getScriptsExtension() {
 		if (extensionScript == null)
 			extensionScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
@@ -801,10 +806,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 					throw new ApiException(ApiException.Type.BAD_SCRIPT_FORMAT, e.getMessage());
 				}
 
-				// Set the method, making sure that, if the type is different, things are changed
-				// accordingly
-				if (!context.getAuthenticationMethod().isSameType(method))
-					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}
 		};
