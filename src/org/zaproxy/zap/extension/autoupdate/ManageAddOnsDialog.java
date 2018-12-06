@@ -233,12 +233,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				corePanel.add(this.getCheckForUpdatesButton(), LayoutHelper.getGBC(2, 0, 1, 0.0D));
 				
 			} else if (this.latestInfo.getZapRelease().isNewerThan(this.currentVersion)) {
-				corePanel.add(new JLabel(Constant.messages.getString("cfu.check.zap.newer")), LayoutHelper.getGBC(0, 0, 1, 0.0D));
-				corePanel.add(new JLabel(this.latestInfo.getZapRelease().getVersion()), LayoutHelper.getGBC(1, 0, 1, 0.1D));
-				corePanel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 0.8D));
-				corePanel.add(this.getDownloadProgress(), LayoutHelper.getGBC(3, 0, 1, 0.2D));
-				corePanel.add(this.getCoreNotesButton(), LayoutHelper.getGBC(4, 0, 1, 0.0D));
-				corePanel.add(this.getDownloadZapButton(), LayoutHelper.getGBC(5, 0, 1, 0.0D));
+				addNewerVersionComponents(corePanel);
 				
 			} else {
 				corePanel.add(new JLabel(this.currentVersion + " : " + Constant.messages.getString("cfu.check.zap.latest")), LayoutHelper.getGBC(0, 0, 1, 1.0D));
@@ -248,12 +243,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			corePanel.removeAll();
 
 			if (this.latestInfo.getZapRelease().isNewerThan(this.currentVersion)) {
-				corePanel.add(new JLabel(Constant.messages.getString("cfu.check.zap.newer")), LayoutHelper.getGBC(0, 0, 1, 0.0D));
-				corePanel.add(new JLabel(this.latestInfo.getZapRelease().getVersion()), LayoutHelper.getGBC(1, 0, 1, 0.1D));
-				corePanel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 0.8D));
-				corePanel.add(this.getDownloadProgress(), LayoutHelper.getGBC(3, 0, 1, 0.2D));
-				corePanel.add(this.getCoreNotesButton(), LayoutHelper.getGBC(4, 0, 1, 0.0D));
-				corePanel.add(this.getDownloadZapButton(), LayoutHelper.getGBC(5, 0, 1, 0.0D));
+				addNewerVersionComponents(corePanel);
 			} else {
 				corePanel.add(new JLabel(this.currentVersion + " : " + Constant.messages.getString("cfu.check.zap.latest")), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			}
@@ -262,6 +252,19 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		
 		
 		return corePanel;
+	}
+
+	private void addNewerVersionComponents(JPanel panel) {
+		int x = 0;
+		panel.add(
+				new JLabel(Constant.messages.getString("cfu.check.zap.newer", this.latestInfo.getZapRelease().getVersion())),
+				LayoutHelper.getGBC(x, 0, 1, 0.0D));
+		panel.add(new JLabel(""), LayoutHelper.getGBC(++x, 0, 1, 0.8D));
+		panel.add(this.getDownloadProgress(), LayoutHelper.getGBC(++x, 0, 1, 0.2D));
+		if (!Constant.isDailyBuild()) {
+			panel.add(this.getCoreNotesButton(), LayoutHelper.getGBC(++x, 0, 1, 0.0D));
+		}
+		panel.add(this.getDownloadZapButton(), LayoutHelper.getGBC(++x, 0, 1, 0.0D));
 	}
 
 	private JPanel getInstalledAddOnsPanel() {
