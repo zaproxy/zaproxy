@@ -41,17 +41,19 @@ public interface ProxyListener extends ArrangeableProxyListener {
      * Notifies the listener that a new request was received from the client and
      * is ready to be forwarded to the server.
      * <p>
-     * The {@code HttpMessage} {@code msg} can be modified (only the request
-     * should be modified). If the return value is {@code true} the message
-     * <i>may be</i> forwarded and the following listeners will be notified, if
-     * the value is {@code false} the message <i>will not</i> be forwarded and
-     * no more listeners will be notified.
+     * The {@code HttpMessage} {@code msg} can be modified, if the response is set
+     * it will be used instead of forwarding the request to the server. If the 
+     * return value is {@code true} the message <i>may be</i> forwarded and the
+     * following listeners will be notified, if the value is {@code false} the
+     * message <i>will not</i> be forwarded and no more listeners will be notified.
      * <p>
      * <strong>Note:</strong> In the presence of more than one listener there
      * are <i>no</i> guarantees that:
      * <ul>
      * <li>the {@code HttpMessage} {@code msg} is equal to the one forwarded to
      * the server, as the following listeners may modify it;</li>
+     * <li>the response set is the one forwarded to the client, as the following
+     * listeners may clear or modify it;</li>
      * <li>the message will really be forwarded to the server, even if the
      * return value is {@code true}, as the following listeners may return
      * {@code false}.</li>

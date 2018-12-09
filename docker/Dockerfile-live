@@ -55,12 +55,16 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	git clone --branch beta --depth 1 https://github.com/zaproxy/zap-extensions.git zap-extensions_beta && \
 	git clone --branch alpha --depth 1 https://github.com/zaproxy/zap-extensions.git zap-extensions_alpha && \
 	git clone --depth 1 https://github.com/zaproxy/zap-core-help.git && \
+	git clone --depth 1 https://github.com/zaproxy/zap-hud.git && \
 	# Download the webdrivers
 	cd zap-extensions_beta && \
 	ant -f build/build.xml download-webdrivers && \
 	# Build ZAP
 	cd ../zaproxy && \
 	ant -f build/build.xml deploy-weekly-addons && \
+	cd ../zap-hud/ && \
+	./gradlew copyAddOn && \
+	cd ../zaproxy && \
 	ant -f build/build.xml day-stamped-release && \
 	cp -R /zap-src/zaproxy/build/zap/* /zap/ && \
 	rm -rf /zap-src/* && \
