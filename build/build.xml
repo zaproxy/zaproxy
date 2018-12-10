@@ -163,13 +163,11 @@
 			<fileset dir="${src}/license">
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
-				<exclude name="OrangeExtensions.License.txt" />
 			</fileset>
 		</copy>
 		<copy todir="${dist}/lib">
 			<fileset dir="${dist.lib.dir}">
 				<include name="**/*.jar" />
-				<exclude name="orange-extensions-1.3.0.jar" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
 			</fileset>
