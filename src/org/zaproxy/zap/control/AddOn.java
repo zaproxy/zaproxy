@@ -553,6 +553,7 @@ public class AddOn  {
 		this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
 		this.notFromVersion = zapAddOnXml.getNotFromVersion();
 		this.dependencies = zapAddOnXml.getDependencies();
+		this.info = createInfoUrl(zapAddOnXml.getUrl());
 
 		this.ascanrules = zapAddOnXml.getAscanrules();
 		this.extensions = zapAddOnXml.getExtensions();
@@ -607,18 +608,21 @@ public class AddOn  {
 		this.size = addOnData.getSize();
 		this.notBeforeVersion = addOnData.getNotBeforeVersion();
 		this.notFromVersion = addOnData.getNotFromVersion();
-		if (addOnData.getInfo() != null && !addOnData.getInfo().isEmpty()) {
-			try {
-				this.info = new URL(addOnData.getInfo());
-			} catch (Exception ignore) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Wrong info URL for add-on \"" + name + "\":", ignore);
-				}
-			}
-		}
+		this.info = createInfoUrl(addOnData.getInfo());
 		this.hash = addOnData.getHash();
 		
 		loadManifestFile();
+	}
+
+	private URL createInfoUrl(String url) {
+		if (url != null && !url.isEmpty()) {
+			try {
+				return new URL(url);
+			} catch (Exception e) {
+				logger.warn("Invalid info URL for add-on \"" + id + "\":", e);
+			}
+		}
+		return null;
 	}
 
 	public String getId() {

@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -29,32 +31,45 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXHyperlink;
+import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.ScrollableSizeHint;
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.CompoundHighlighter;
@@ -67,13 +82,13 @@ import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.panels.TableFilterPanel;
@@ -86,6 +101,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			InstalledAddOnsTableModel.class.getResource("/resource/icon/16/050.png"));
 	static final Icon ICON_ADD_ON_EXTENSION_ISSUES = new ImageIcon(
 			InstalledAddOnsTableModel.class.getResource("/resource/icon/fugue/information-white.png"));
+
+	private static final String RETRIEVE_PANEL = "RetrievePanel";
+	private static final String MARKETPLACE_PANEL = "MarketplacePanel";
+	private static final double ADD_ON_DETAILS_RESIZE_WEIGHT = 0.7D;
 	
 	private static final Logger logger = Logger.getLogger(ManageAddOnsDialog.class);
 	private static final long serialVersionUID = 1L;
@@ -97,9 +116,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JPanel installedAddOnsPanel = null;
 	private JPanel installedAddOnsFilterPanel = null;
 	private JPanel uninstalledAddOnsPanel = null;
-	private JPanel uninstalledAddOnsFilterPanel = null;
+	private JPanel marketplacePanel;
+	private CardLayout marketplaceCardLayout;
 	private JPanel retrievePanel = null;
-	private JScrollPane marketPlaceScrollPane = null;
 
 	private JButton addOnInfoButton = null;
 	private JButton coreNotesButton = null;
@@ -154,9 +173,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         //this.setContentPane(getJTabbed());
         this.setContentPane(getTopPanel());
         this.pack();
-        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-        	this.setSize(700, 500);
-        }
+        centerFrame();
         state = State.IDLE;
         
         // Handle escape key to close the dialog
@@ -287,9 +304,38 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
 			installedAddOnsFilterPanel = new TableFilterPanel<>(getInstalledAddOnsTable());
 
+			AddOnDetailsPanel addonDetailsPanel = new AddOnDetailsPanel();
+			getInstalledAddOnsTable().getSelectionModel().addListSelectionListener(e -> {
+				if (e.getValueIsAdjusting()) {
+					return;
+				}
+
+				int selectedRow = getInstalledAddOnsTable().getSelectedRow();
+				if (selectedRow != -1) {
+					AddOnWrapper aow = (AddOnWrapper) installedAddOnsModel.getValueAt(
+							getInstalledAddOnsTable().convertRowIndexToModel(selectedRow),
+							AddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
+					AddOn addOn;
+					if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == aow.getInstallationStatus()
+							|| AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == aow.getInstallationStatus()) {
+						addOn = aow.getAddOn();
+					} else {
+						addOn = aow.getAddOnUpdate() != null ? aow.getAddOnUpdate() : aow.getAddOn();
+					}
+
+					addonDetailsPanel.setDetails(addOn);
+				} else {
+					addonDetailsPanel.clearDetails();
+				}
+			});
+
 			int row = 0;
 			installedAddOnsPanel.add(installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 5, 0.0D));
-			installedAddOnsPanel.add(scrollPane, LayoutHelper.getGBC(0, row++, 5, 1.0D, 1.0D));
+			JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+			split.setTopComponent(scrollPane);
+			split.setBottomComponent(addonDetailsPanel);
+			split.setResizeWeight(ADD_ON_DETAILS_RESIZE_WEIGHT);
+			installedAddOnsPanel.add(split, LayoutHelper.getGBC(0, row++, 5, 1.0D, 1.0D));
 			installedAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			installedAddOnsPanel.add(getUninstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
 			installedAddOnsPanel.add(getUpdateButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
@@ -312,22 +358,14 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
-			uninstalledAddOnsFilterPanel = new TableFilterPanel<>(getUninstalledAddOnsTable());
 
-			if (latestInfo == null) {
-				// Not checked yet
-				getUninstalledAddOnsTable();	// To initialise the table and model
-				getMarketPlaceScrollPane().setViewportView(getRetrievePanel());
-				uninstalledAddOnsFilterPanel.setVisible(false);
-			} else {
-				getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
-				uninstalledAddOnsFilterPanel.setVisible(true);
+			if (latestInfo != null) {
+				getMarketplaceCardLayout().show(getMarketplacePanel(), MARKETPLACE_PANEL);
 			}
 
 			int row = 0;
 			int column = 0;
-			uninstalledAddOnsPanel.add(uninstalledAddOnsFilterPanel, LayoutHelper.getGBC(column, row++, 5, 0.0D));
-			uninstalledAddOnsPanel.add(getMarketPlaceScrollPane(), LayoutHelper.getGBC(column, row++, 5, 1.0D, 1.0D));
+			uninstalledAddOnsPanel.add(getMarketplacePanel(), LayoutHelper.getGBC(column, row++, 5, 1.0D, 1.0D));
 			uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(column++, row, 1, 1.0D));
 			if (Constant.isDevMode()) {
 				uninstalledAddOnsPanel.add(getInstallAllButton(), LayoutHelper.getGBC(column++, row, 1, 0.0D));
@@ -340,14 +378,49 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return uninstalledAddOnsPanel;
 	}	
 
-	private JScrollPane getMarketPlaceScrollPane () {
-		if (marketPlaceScrollPane == null) {
-			marketPlaceScrollPane = new JScrollPane();
-			marketPlaceScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	private JPanel getMarketplacePanel() {
+		if (marketplacePanel == null) {
+			marketplacePanel = new JPanel(getMarketplaceCardLayout());
+			JSplitPane marketplaceSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+			JScrollPane uninstalledAddOnsScrollPane = new JScrollPane(getUninstalledAddOnsTable());
+			uninstalledAddOnsScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			marketplaceSplitPane.setTopComponent(uninstalledAddOnsScrollPane);
+			AddOnDetailsPanel addonDetailsPanel = new AddOnDetailsPanel();
+			getUninstalledAddOnsTable().getSelectionModel().addListSelectionListener(e -> {
+				if (e.getValueIsAdjusting()) {
+					return;
+				}
+
+				int selectedRow = getUninstalledAddOnsTable().getSelectedRow();
+				if (selectedRow != -1) {
+					addonDetailsPanel.setDetails(
+							((AddOnWrapper) uninstalledAddOnsModel.getValueAt(
+									getUninstalledAddOnsTable().convertRowIndexToModel(selectedRow),
+									AddOnsTableModel.COLUMN_ADD_ON_WRAPPER)).getAddOn());
+				} else {
+					addonDetailsPanel.clearDetails();
+				}
+			});
+			marketplaceSplitPane.setBottomComponent(addonDetailsPanel);
+			marketplaceSplitPane.setResizeWeight(ADD_ON_DETAILS_RESIZE_WEIGHT);
+
+			JPanel addOnsPanel = new JPanel(new BorderLayout());
+			addOnsPanel.add(new TableFilterPanel<>(getUninstalledAddOnsTable()), BorderLayout.PAGE_START);
+			addOnsPanel.add(marketplaceSplitPane, BorderLayout.CENTER);
+
+			marketplacePanel.add(getRetrievePanel(), RETRIEVE_PANEL);
+			marketplacePanel.add(addOnsPanel, MARKETPLACE_PANEL);
 		}
-		return marketPlaceScrollPane;
+		return marketplacePanel;
 	}
 	
+	private CardLayout getMarketplaceCardLayout() {
+		if (marketplaceCardLayout == null) {
+			marketplaceCardLayout = new CardLayout();
+		}
+		return marketplaceCardLayout;
+	}
+
 	private JPanel getRetrievePanel() {
 		if (retrievePanel == null) {
 			retrievePanel = new JPanel();
@@ -386,9 +459,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			List<AddOn> addOnsNotInstalled = installedAddOnsModel.updateEntries();
 			uninstalledAddOnsModel.setAddOns(addOnsNotInstalled, prevInfo);
 		}
-		getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
-		uninstalledAddOnsFilterPanel.setVisible(true);
-
+		getMarketplaceCardLayout().show(getMarketplacePanel(), MARKETPLACE_PANEL);
 	}
 	
 	private ZapTable getInstalledAddOnsTable () {
@@ -420,12 +491,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
             sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
             installedAddOnsTable.getRowSorter().setSortKeys(sortKeys);
-			
-			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
-					AddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
-			for (int i = 1; i < installedAddOnsTable.getColumnCount(); i++) {
-				installedAddOnsTable.getColumnExt(i).addHighlighter(toolTipHighlighter);
-			}
 
 			installedAddOnsTable.getColumnExt(0).setCellRenderer(
 					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
@@ -501,12 +566,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             sortKeys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
             sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
             uninstalledAddOnsTable.getRowSorter().setSortKeys(sortKeys);
-                        
-			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
-					UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
-			for (int i = 1; i < uninstalledAddOnsTable.getColumnCount(); i++) {
-				uninstalledAddOnsTable.getColumnExt(i).addHighlighter(toolTipHighlighter);
-			}
 
 			uninstalledAddOnsTable.getColumnExt(0).setCellRenderer(
 					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
@@ -520,92 +579,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return uninstalledAddOnsTable;
 	}
 	
-	private String addOnToHtml(AddOn ao) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<html>");
-		sb.append("<table>");
-		
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.name"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getName());
-		sb.append("</td></tr>");
-		
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.status"));
-		sb.append("</i></td><td>");
-		sb.append(Constant.messages.getString("cfu.status." + ao.getStatus().name()));
-		sb.append("</td></tr>");
-		
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.id"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getId());
-		sb.append("</td></tr>");
-		
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.desc"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getDescription());
-		sb.append("</td></tr>");
-		
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.author"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getAuthor());
-		sb.append("</td></tr>");
-		
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.changes"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getChanges());
-		sb.append("</td></tr>");
-
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.version"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getVersion());
-		sb.append("</td></tr>");
-
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.notbefore"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getNotBeforeVersion());
-		sb.append("</td></tr>");
-
-		sb.append("<tr><td><i>");
-		sb.append(Constant.messages.getString("cfu.table.header.notfrom"));
-		sb.append("</i></td><td>");
-		sb.append(ao.getNotFromVersion());
-		sb.append("</td></tr>");
-
-		if (!ao.getIdsAddOnDependencies().isEmpty()) {
-			sb.append("<tr><td><i>");
-			sb.append(Constant.messages.getString("cfu.table.header.dependencies"));
-			sb.append("</i></td><td>");
-			for (String addOnId : ao.getIdsAddOnDependencies()) {
-				AddOn dep = installedAddOns.getAddOn(addOnId);
-				if (dep == null && latestInfo != null) {
-					dep = latestInfo.getAddOn(addOnId);
-				}
-
-				if (dep != null) {
-					sb.append(dep.getName());
-				} else {
-					sb.append(addOnId);
-				}
-				sb.append("<br>");
-			}
-			sb.append("</td></tr>");
-		}
-
-		sb.append("</table>");
-		sb.append("</html>");
-		
-		return sb.toString();
-
-	}
-
 	private JLabel getUpdatesMessage() {
 		if (this.updatesMessage == null) {
 			this.updatesMessage = new JLabel(" ");
@@ -1071,6 +1044,246 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
    		View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.warn.badurl"));
 	}
 
+    private class AddOnDetailsPanel extends JPanel {
+
+        private static final long serialVersionUID = 1L;
+
+        private static final String DETAILS_PANEL = "DetailsPanel";
+        private static final String NO_DETAILS_PANEL = "NoDetailsPanel";
+
+        private final ZapLabel nameField;
+        private final ZapLabel statusField;
+        private final ZapLabel versionField;
+        private final JLabel descLabel;
+        private final ZapLabel descField;
+        private final JLabel changesLabel;
+        private final JEditorPane changesField;
+        private final JLabel infoLabel;
+        private final JXHyperlink infoField;
+        private final ZapLabel idField;
+        private final JLabel authorLabel;
+        private final ZapLabel authorField;
+        private final JLabel dependenciesLabel;
+        private final ZapLabel dependenciesField;
+        private final JLabel notBeforeVersionLabel;
+        private final ZapLabel notBeforeVersionField;
+        private final JLabel notFromVersionLabel;
+        private final ZapLabel notFromVersionField;
+
+        private final CardLayout cardLayout;
+
+        public AddOnDetailsPanel() {
+            JXPanel contentPanel = new JXPanel();
+            contentPanel.setScrollableHeightHint(ScrollableSizeHint.NONE);
+
+            JScrollPane contentScrollPane = new JScrollPane(contentPanel);
+            contentScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+            GroupLayout layout = new GroupLayout(contentPanel);
+            contentPanel.setLayout(layout);
+            layout.setAutoCreateGaps(true);
+            layout.setAutoCreateContainerGaps(true);
+
+            JLabel nameLabel = new JLabel(Constant.messages.getString("cfu.table.header.name"));
+            nameField = createZapLabelField(nameLabel);
+
+            JLabel statusLabel = new JLabel(Constant.messages.getString("cfu.table.header.status"));
+            statusField = createZapLabelField(statusLabel);
+
+            JLabel versionLabel = new JLabel(Constant.messages.getString("cfu.table.header.version"));
+            versionField = createZapLabelField(versionLabel);
+
+            descLabel = new JLabel(Constant.messages.getString("cfu.table.header.desc"));
+            descField = createZapLabelField(descLabel);
+
+            changesLabel = new JLabel(Constant.messages.getString("cfu.table.header.changes"));
+            changesField = new JEditorPane();
+            changesLabel.setLabelFor(changesField);
+            changesField.setEditable(false);
+            changesField.setContentType("text/html; charset=UTF-8");
+            changesField.addHyperlinkListener(evt -> {
+                if (evt.getEventType() == HyperlinkEvent.EventType.ENTERED) {
+                    changesField.setToolTipText(evt.getURL().toString());
+                } else if (evt.getEventType() == HyperlinkEvent.EventType.EXITED) {
+                    changesField.setToolTipText(null);
+                } else if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    try {
+                        Desktop.getDesktop().browse(evt.getURL().toURI());
+                    } catch (IOException | URISyntaxException e) {
+                        logger.warn("Failed to open the URL: " + evt.getURL(), e);
+                    }
+                }
+            });
+            ((DefaultCaret) changesField.getCaret()).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+
+            infoLabel = new JLabel(Constant.messages.getString("cfu.table.header.info"));
+            infoField = new JXHyperlink();
+            infoLabel.setLabelFor(infoField);
+
+            JLabel idLabel = new JLabel(Constant.messages.getString("cfu.table.header.id"));
+            idField = createZapLabelField(idLabel);
+
+            authorLabel = new JLabel(Constant.messages.getString("cfu.table.header.author"));
+            authorField = createZapLabelField(authorLabel);
+
+            dependenciesLabel = new JLabel(Constant.messages.getString("cfu.table.header.dependencies"));
+            dependenciesField = createZapLabelField(dependenciesLabel);
+
+            notBeforeVersionLabel = new JLabel(Constant.messages.getString("cfu.table.header.notbefore"));
+            notBeforeVersionField = createZapLabelField(notBeforeVersionLabel);
+
+            notFromVersionLabel = new JLabel(Constant.messages.getString("cfu.table.header.notfrom"));
+            notFromVersionField = createZapLabelField(notFromVersionLabel);
+
+            layout.setHorizontalGroup(
+                    layout.createSequentialGroup()
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                            .addComponent(nameLabel)
+                                            .addComponent(statusLabel)
+                                            .addComponent(versionLabel)
+                                            .addComponent(descLabel)
+                                            .addComponent(changesLabel)
+                                            .addComponent(infoLabel)
+                                            .addComponent(idLabel)
+                                            .addComponent(authorLabel)
+                                            .addComponent(dependenciesLabel)
+                                            .addComponent(notBeforeVersionLabel)
+                                            .addComponent(notFromVersionLabel))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                            .addComponent(nameField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(statusField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(versionField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(descField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(changesField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(infoField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(idField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(authorField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(dependenciesField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(notBeforeVersionField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(notFromVersionField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+
+            layout.setVerticalGroup(
+                    layout.createSequentialGroup()
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(nameLabel)
+                                            .addComponent(nameField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(statusLabel)
+                                            .addComponent(statusField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(versionLabel)
+                                            .addComponent(versionField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(descLabel)
+                                            .addComponent(descField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(changesLabel)
+                                            .addComponent(changesField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(infoLabel)
+                                            .addComponent(infoField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(idLabel)
+                                            .addComponent(idField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(authorLabel)
+                                            .addComponent(authorField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(dependenciesLabel)
+                                            .addComponent(dependenciesField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(notBeforeVersionLabel)
+                                            .addComponent(notBeforeVersionField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(notFromVersionLabel)
+                                            .addComponent(notFromVersionField)));
+
+            cardLayout = new CardLayout();
+            setLayout(cardLayout);
+
+            JPanel noDetailsPanel = new JPanel(new BorderLayout());
+            noDetailsPanel.add(new JLabel(Constant.messages.getString("cfu.label.selectAddOnForDetails"), JLabel.CENTER));
+            add(noDetailsPanel, NO_DETAILS_PANEL);
+
+            JPanel detailsPanel = new JPanel(new BorderLayout());
+            detailsPanel.add(contentScrollPane);
+            add(detailsPanel, DETAILS_PANEL);
+        }
+
+        public void setDetails(AddOn addOn) {
+            cardLayout.show(this, DETAILS_PANEL);
+            nameField.setText(addOn.getName());
+            statusField.setText(Constant.messages.getString("cfu.status." + addOn.getStatus().name()));
+            versionField.setText(addOn.getVersion().toString());
+            setTextOrHide(descLabel, descField, addOn.getDescription());
+            setTextOrHide(changesLabel, changesField, addOn.getChanges());
+            if (addOn.getInfo() != null) {
+                infoLabel.setVisible(true);
+                infoField.setURI(URI.create(addOn.getInfo().toString()));
+                infoField.setVisible(true);
+            } else {
+                infoLabel.setVisible(false);
+                infoField.setURI(null);
+                infoField.setVisible(false);
+            }
+            idField.setText(addOn.getId());
+            setTextOrHide(authorLabel, authorField, addOn.getAuthor());
+            setTextOrHide(dependenciesLabel, dependenciesField,
+                    addOn.getIdsAddOnDependencies().isEmpty() ? "" : addOn.getIdsAddOnDependencies().stream().map(addOnId -> {
+                        AddOn dep = installedAddOns.getAddOn(addOnId);
+                        if (dep == null && latestInfo != null) {
+                            dep = latestInfo.getAddOn(addOnId);
+                        }
+                        return dep != null ? dep.getName() : addOnId;
+                    }).collect(Collectors.joining(",")));
+            setTextOrHide(notBeforeVersionLabel, notBeforeVersionField, addOn.getNotBeforeVersion());
+            setTextOrHide(notFromVersionLabel, notFromVersionField, addOn.getNotFromVersion());
+        }
+
+        public void clearDetails() {
+            cardLayout.show(this, NO_DETAILS_PANEL);
+            nameField.setText("");
+            statusField.setText("");
+            versionField.setText("");
+            descField.setText("");
+            changesField.setText("");
+            infoField.setText("");
+            idField.setText("");
+            authorField.setText("");
+            dependenciesField.setText("");
+            notBeforeVersionField.setText("");
+            notFromVersionField.setText("");
+        }
+    }
+
+    private static ZapLabel createZapLabelField(JLabel label) {
+        ZapLabel field = new ZapLabel();
+        field.setLineWrap(true);
+        field.setWrapStyleWord(true);
+        label.setLabelFor(field);
+        return field;
+    }
+
+    private static void setTextOrHide(JLabel label, JTextComponent textComponent, String text) {
+        boolean visible = !text.isEmpty();
+        label.setVisible(visible);
+        textComponent.setVisible(visible);
+        textComponent.setText(text);
+    }
+
     private static class DisableSelectionHighlighter extends AbstractHighlighter {
 
         public DisableSelectionHighlighter(final int columnIndex) {
@@ -1164,11 +1377,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         }
     }
 
-    private class DefaultAddOnToolTipHighlighter extends AbstractHighlighter {
+    private abstract class AbstractAddOnToolTipHighlighter extends AbstractHighlighter {
 
         private final int column;
 
-        public DefaultAddOnToolTipHighlighter(int column) {
+        public AbstractAddOnToolTipHighlighter(int column) {
             this.column = column;
         }
 
@@ -1178,18 +1391,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             return component;
         }
 
-        protected String getToolTip(AddOnWrapper aow) {
-            if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == aow.getInstallationStatus()
-                    || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == aow.getInstallationStatus()) {
-                return addOnToHtml(aow.getAddOn());
-            }
-
-            AddOn addOn = (aow.getAddOnUpdate() != null) ? aow.getAddOnUpdate() : aow.getAddOn();
-            return addOnToHtml(addOn);
-        }
+        protected abstract String getToolTip(AddOnWrapper aow);
     }
 
-    private class WarningRunningIssuesToolTipHighlighter extends DefaultAddOnToolTipHighlighter {
+    private class WarningRunningIssuesToolTipHighlighter extends AbstractAddOnToolTipHighlighter {
 
         public WarningRunningIssuesToolTipHighlighter(int column) {
             super(column);
@@ -1197,14 +1402,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
         @Override
         protected String getToolTip(AddOnWrapper aow) {
-            if (aow.hasRunningIssues()) {
-                return aow.getRunningIssues();
-            }
-            return super.getToolTip(aow);
+            return aow.hasRunningIssues() ?  aow.getRunningIssues() : null;
         }
     }
 
-    private class WarningUpdateIssuesToolTipHighlighter extends DefaultAddOnToolTipHighlighter {
+    private class WarningUpdateIssuesToolTipHighlighter extends AbstractAddOnToolTipHighlighter {
 
         public WarningUpdateIssuesToolTipHighlighter(int column) {
             super(column);
@@ -1212,10 +1414,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
         @Override
         protected String getToolTip(AddOnWrapper aow) {
-            if (aow.hasUpdateIssues()) {
-                return aow.getUpdateIssues();
-            }
-            return super.getToolTip(aow);
+            return aow.hasUpdateIssues() ? aow.getUpdateIssues() : null;
         }
     }
 }
