@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
@@ -110,6 +111,26 @@ public class ExtensionHookView {
      * @see #getMainToolBarComponents()
      */
     private List<Component> mainToolBarComponents;
+
+    /**
+     * The {@link DisplayedMessageChangedListener} added to this extension hook, to be later added to the request panel changelisteners.
+     * <p>
+     * Lazily initialised.
+     *
+     * @see #addRequestPanelDisplayedMessageChangedListener(DisplayedMessageChangedListener)
+     * @see #getRequestPanelDisplayedMessageChangedListeners()
+     */
+    private List<DisplayedMessageChangedListener> requestPanelDisplayedMessageChangedListener;
+
+    /**
+     * The {@link DisplayedMessageChangedListener} added to this extension hook, to be later added to the response panel changelisteners.
+     * <p>
+     * Lazily initialised.
+     *
+     * @see #addResponsePanelDisplayedMessageChangedListener(DisplayedMessageChangedListener)
+     * @see #getResponsePanelDisplayedMessageChangedListeners()
+     */
+    private List<DisplayedMessageChangedListener> responsePanelDisplayedMessageChangedListener;
 
     public ExtensionHookView() {
     }
@@ -280,5 +301,55 @@ public class ExtensionHookView {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(list);
+    }
+
+    /**
+     * Adds the given {@link DisplayedMessageChangedListener} to the view hook, to be later added to the
+     * the {@link org.parosproxy.paros.view.View}s {@link org.zaproxy.zap.extension.httppanel.HttpPanelRequest} ChangeListeners.
+     *
+     * @see org.zaproxy.zap.extension.httppanel.HttpPanelRequest#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
+     * @param messageChangedListener the listener for the request panel.
+     * @since TODO add version
+     */
+    public void addRequestPanelDisplayedMessageChangedListener(DisplayedMessageChangedListener messageChangedListener){
+        if (requestPanelDisplayedMessageChangedListener == null) {
+            requestPanelDisplayedMessageChangedListener = createList();
+        }
+        requestPanelDisplayedMessageChangedListener.add(messageChangedListener);
+    }
+
+    /**
+     * Gets the {@link DisplayedMessageChangedListener}s added to this hook, for the RequestPanel.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code DisplayedMessageChangedListener}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<DisplayedMessageChangedListener> getRequestPanelDisplayedMessageChangedListeners(){
+        return unmodifiableList(requestPanelDisplayedMessageChangedListener);
+    }
+
+    /**
+     * Adds the given {@link DisplayedMessageChangedListener} to the view hook, to be later added to the
+     * the {@link org.parosproxy.paros.view.View}s {@link org.zaproxy.zap.extension.httppanel.HttpPanelResponse} ChangeListeners.
+     *
+     * @see org.zaproxy.zap.extension.httppanel.HttpPanelResponse#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
+     * @param messageChangedListener the listener for the response panel.
+     * @since TODO add version
+     */
+    public void addResponsePanelDisplayedMessageChangedListener(DisplayedMessageChangedListener messageChangedListener){
+        if (responsePanelDisplayedMessageChangedListener == null) {
+            responsePanelDisplayedMessageChangedListener = createList();
+        }
+        responsePanelDisplayedMessageChangedListener.add(messageChangedListener);
+    }
+
+    /**
+     * Gets the {@link DisplayedMessageChangedListener}s added to this hook, for the ResponsePanel.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code DisplayedMessageChangedListener}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<DisplayedMessageChangedListener> getResponsePanelDisplayedMessageChangedListeners(){
+        return unmodifiableList(responsePanelDisplayedMessageChangedListener);
     }
 }

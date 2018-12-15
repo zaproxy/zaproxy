@@ -124,6 +124,7 @@ import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
+import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
@@ -1138,6 +1139,14 @@ public class ExtensionLoader {
 
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
+
+        for (DisplayedMessageChangedListener changedListener : pv.getRequestPanelDisplayedMessageChangedListeners()) {
+            view.getRequestPanel().addDisplayedMessageChangedListener(changedListener);
+        }
+
+        for (DisplayedMessageChangedListener changedListener : pv.getResponsePanelDisplayedMessageChangedListeners()) {
+            view.getResponsePanel().addDisplayedMessageChangedListener(changedListener);
+        }
     }
 
     private void removeView(Extension extension, View view, ExtensionHook hook) {
@@ -1174,6 +1183,14 @@ public class ExtensionLoader {
 
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
+
+        for (DisplayedMessageChangedListener changedListener : pv.getRequestPanelDisplayedMessageChangedListeners()) {
+            view.getRequestPanel().removeDisplayedMessageChangedListener(changedListener);
+        }
+
+        for (DisplayedMessageChangedListener changedListener : pv.getResponsePanelDisplayedMessageChangedListeners()) {
+            view.getResponsePanel().removeDisplayedMessageChangedListener(changedListener);
+        }
     }
 
     public void removeStatusPanel(AbstractPanel panel) {
