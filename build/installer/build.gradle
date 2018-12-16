@@ -1,19 +1,7 @@
-buildscript {
-    repositories {
-        maven {
-            url 'http://maven.ej-technologies.com/repository'
-        }
-    }
-    dependencies {
-         classpath 'com.install4j:install4j-gradle:6.1.6'
-    }
-}
-
 plugins {
-    id 'edu.sc.seis.launch4j' version '2.4.2'
+    id 'com.install4j.gradle' version '6.1.6'
+    id 'edu.sc.seis.launch4j' version '2.4.4'
 }
-
-apply plugin: 'install4j'
 
 version file('../version.txt').getText('UTF-8')
 
