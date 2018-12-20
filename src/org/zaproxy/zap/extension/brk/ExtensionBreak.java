@@ -24,7 +24,6 @@ import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -248,42 +247,28 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 
 	public void addHttpBreakpoint(String string, String location, String match, boolean inverse, boolean ignoreCase) {
-		Location loc;
-		Match mtch;
-		
-		try {
-			loc = Location.valueOf(location);
-		} catch (Exception e) {
-			throw new InvalidParameterException("location must be one of " + Arrays.toString(Location.values()));
-		}
-		
-		try {
-			mtch = Match.valueOf(match);
-		} catch (Exception e) {
-			throw new InvalidParameterException("match must be one of " + Arrays.toString(Match.values()));
-		}
-		
-		this.addBreakpoint(new HttpBreakpointMessage(string, loc, mtch, inverse, ignoreCase));
+		this.addBreakpoint(new HttpBreakpointMessage(string, getLocationEnum(location), getMatchEnum(match), inverse, ignoreCase));
 		
 	}
 
+    private static Location getLocationEnum(String location) {
+        try {
+            return Location.valueOf(location);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("location must be one of " + Arrays.toString(Location.values()));
+        }
+    }
+
+    private static Match getMatchEnum(String match) {
+        try {
+            return Match.valueOf(match);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("match must be one of " + Arrays.toString(Match.values()));
+        }
+    }
+
 	public void removeHttpBreakpoint(String string, String location, String match, boolean inverse, boolean ignoreCase) {
-		Location loc;
-		Match mtch;
-		
-		try {
-			loc = Location.valueOf(location);
-		} catch (Exception e) {
-			throw new InvalidParameterException("location must be one of " + Arrays.toString(Location.values()));
-		}
-		
-		try {
-			mtch = Match.valueOf(match);
-		} catch (Exception e) {
-			throw new InvalidParameterException("match must be one of " + Arrays.toString(Match.values()));
-		}
-		
-		this.removeBreakpoint(new HttpBreakpointMessage(string, loc, mtch, inverse, ignoreCase));
+		this.removeBreakpoint(new HttpBreakpointMessage(string, getLocationEnum(location), getMatchEnum(match), inverse, ignoreCase));
 		
 	}
 
