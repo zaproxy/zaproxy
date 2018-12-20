@@ -250,6 +250,36 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		}
 		return menuItemLoadAddOn;
 	}
+
+	boolean installLocalAddOnQuietly(Path file) {
+		AddOn ao;
+		try {
+			ao = new AddOn(file);
+		} catch (IOException e) {
+			logger.warn("Failed to create the add-on: " + e.getMessage(), e);
+			return false;
+		}
+
+		if (!ao.canLoadInCurrentVersion()) {
+			logger.warn("Can not install the add-on, incompatible ZAP version.");
+			return false;
+		}
+
+		AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
+		if (installedAddOn != null) {
+			try {
+				if (Files.isSameFile(installedAddOn.getFile().toPath(), ao.getFile().toPath())) {
+					logger.warn("Can not install the add-on, same file already installed.");
+					return false;
+				}
+			} catch (IOException e) {
+				logger.warn("An error occurred while checking the add-ons' files: " + e.getMessage(), e);
+				return false;
+			}
+		}
+
+		return install(ao);
+	}
 	
 	private void installLocalAddOn(Path file) throws Exception {
 		AddOn ao;
