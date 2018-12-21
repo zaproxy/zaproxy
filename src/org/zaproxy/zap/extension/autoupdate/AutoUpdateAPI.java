@@ -17,6 +17,9 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +29,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -44,6 +48,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 	private static final String PREFIX = "autoupdate";
 	private static final String ACTION_DOWNLOAD_LATEST_RELEASE = "downloadLatestRelease";
 	private static final String ACTION_INSTALL_ADDON = "installAddon";
+	private static final String ACTION_INSTALL_LOCAL_ADDON = "installLocalAddon";
 	private static final String ACTION_UNINSTALL_ADDON = "uninstallAddon";
 	private static final String VIEW_LATEST_VERSION_NUMBER = "latestVersionNumber";
 	private static final String VIEW_IS_LATEST_VERSION = "isLatestVersion";
@@ -52,6 +57,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 	private static final String VIEW_UPDATED_ADDONS = "updatedAddons";
 	private static final String VIEW_MARKETPLACE_ADDONS = "marketplaceAddons";
 	private static final String PARAM_ID = "id";
+	private static final String PARAM_FILE = "file";
 	
 	private ExtensionAutoUpdate extension;
 	
@@ -59,6 +65,9 @@ public class AutoUpdateAPI extends ApiImplementor {
 		this.extension = extension;
 		this.addApiAction(new ApiAction(ACTION_DOWNLOAD_LATEST_RELEASE));
 		this.addApiAction(new ApiAction(ACTION_INSTALL_ADDON, new String[]{PARAM_ID}));
+		if (Constant.isDevMode()) {
+			this.addApiAction(new ApiAction(ACTION_INSTALL_LOCAL_ADDON, new String[] { PARAM_FILE }));
+		}
 		this.addApiAction(new ApiAction(ACTION_UNINSTALL_ADDON, new String[]{PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_LATEST_VERSION_NUMBER));
 		this.addApiView(new ApiView(VIEW_IS_LATEST_VERSION));
@@ -99,6 +108,10 @@ public class AutoUpdateAPI extends ApiImplementor {
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, errorMessages);
 				}
 			}
+		} else if (ACTION_INSTALL_LOCAL_ADDON.equals(name) && Constant.isDevMode()) {
+			return extension.installLocalAddOnQuietly(createPath(params.getString(PARAM_FILE)))
+					? ApiResponseElement.OK
+					: ApiResponseElement.FAIL;
 		} else if (ACTION_UNINSTALL_ADDON.equals(name)) {
 			String id = params.getString(PARAM_ID);
 			AddOn ao = extension.getLocalVersionInfo().getAddOn(id);
@@ -116,6 +129,14 @@ public class AutoUpdateAPI extends ApiImplementor {
 			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
+		}
+	}
+
+	private static Path createPath(String path) throws ApiException {
+		try {
+			return Paths.get(path);
+		} catch (InvalidPathException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE, e);
 		}
 	}
 
