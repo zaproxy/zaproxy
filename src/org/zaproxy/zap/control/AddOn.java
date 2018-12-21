@@ -2118,7 +2118,7 @@ public class AddOn  {
 		private final ValidationResult validationResult;
 
 		private InvalidAddOnException(ValidationResult validationResult) {
-			super(getRootCauseMessage(validationResult.getException()), validationResult.getException());
+			super(getRootCauseMessage(validationResult), validationResult.getException());
 			this.validationResult = validationResult;
 		}
 
@@ -2132,9 +2132,10 @@ public class AddOn  {
 		}
 	}
 
-	private static String getRootCauseMessage(Exception exception) {
+	private static String getRootCauseMessage(ValidationResult validationResult) {
+		Exception exception = validationResult.getException();
 		if (exception == null) {
-			return null;
+			return validationResult.getValidity().toString();
 		}
 		Throwable root = ExceptionUtils.getRootCause(exception);
 		return root == null ? exception.getLocalizedMessage() : root.getLocalizedMessage();
