@@ -166,7 +166,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 		}
 		
 		if(contextManager.getKeyStoreCount() != 0) {
-			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(0), 0);
 			overrideEnableClientCertificate = true;
 		}
 
@@ -1004,6 +1003,14 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 		if(overrideEnableClientCertificate) {
 			certParam.setEnableCertificate(true);
 			overrideEnableClientCertificate = false;
+		}
+		keyStoreListModel.clear();
+		for (int i = 0; i < contextManager.getKeyStoreCount(); i++) {
+			keyStoreListModel.addElement(contextManager.getKeyStoreDescription(i));
+		}
+		Certificate cert = contextManager.getDefaultCertificate();
+		if (cert != null) {
+			certificateTextField.setText(cert.toString());
 		}
 		useClientCertificateCheckBox.setSelected(certParam.isUseClientCert());
 		useClientCertificateCheckBoxActionPerformed(null);
