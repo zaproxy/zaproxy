@@ -87,6 +87,57 @@ public class ApiUtilsUnitTest {
     }
 
     @Test(expected = NullPointerException.class)
+    public void shouldThrowNullPointerExceptionWhenGettingBooleanFromNullParams() throws Exception {
+        // Given
+        JSONObject params = null;
+        // When
+        ApiUtils.getBooleanParam(params, "name");
+        // Then = NullPointerException
+    }
+
+    @Test
+    public void shouldThrowMissingParameterWhenGettingBooleanIfMissingParam() {
+        // Given
+        String name = "ParamNotInObject";
+        JSONObject params = new JSONObject();
+        try {
+            // When
+            ApiUtils.getBooleanParam(params, name);
+        } catch (ApiException e) {
+            // Then
+            assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
+        }
+    }
+
+    @Test
+    public void shouldThrowIllegalParameterWhenGettingBooleanIfParamNotBoolean() {
+        // Given
+        String name = "ParamNotBoolean";
+        JSONObject params = new JSONObject();
+        params.put(name, "String");
+        try {
+            // When
+            ApiUtils.getBooleanParam(params, name);
+        } catch (ApiException e) {
+            // Then
+            assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
+        }
+    }
+
+    @Test
+    public void shouldReturnBooleanValueWhenGettingBoolean() throws Exception {
+        // Given
+        String name = "ParamBoolean";
+        boolean value = true;
+        JSONObject params = new JSONObject();
+        params.put(name, value);
+        // When
+        boolean obtainedValue = ApiUtils.getBooleanParam(params, name);
+        // Then
+        assertThat(obtainedValue, is(equalTo(value)));
+    }
+
+    @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenGettingAuthorityFromNullSite() {
         // Given
         String nullSite = null;
