@@ -56,6 +56,29 @@ public final class ApiUtils {
 	}
 
 	/**
+	 * Gets a boolean from the parameter with the given name.
+	 * 
+	 * @param params the API parameters
+	 * @param paramName the name of the parameter
+	 * @return the boolean value
+	 * @throws ApiException if the parameter is missing
+	 *             ({@link org.zaproxy.zap.extension.api.ApiException.Type#MISSING_PARAMETER MISSING_PARAMETER}) or not a
+	 *             boolean ({@link org.zaproxy.zap.extension.api.ApiException.Type#ILLEGAL_PARAMETER ILLEGAL_PARAMETER}).
+	 * @since TODO add version
+	 */
+	public static boolean getBooleanParam(JSONObject params, String paramName) throws ApiException {
+		if (!params.containsKey(paramName)) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, paramName);
+		}
+
+		try {
+			return params.getBoolean(paramName);
+		} catch (JSONException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName, e);
+		}
+	}
+
+	/**
 	 * Gets an optional string param, returning null if the parameter was not found.
 	 *
 	 * @param params the params

@@ -36,6 +36,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/03/29 Use FileNameExtensionFilter.
 // ZAP: 2018/07/12 Fallback to bundled drivers.xml file.
+// ZAP: 2018/09/19 GUI support for setting client certificate from CLI
 
 package org.parosproxy.paros.extension.option;
 
@@ -125,6 +126,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 	
 	// Issue 182
 	private boolean retry = true;
+	// Used if certificate is set from commandline
+	private boolean overrideEnableClientCertificate = false;
 	
 	// Keep track of login attempts on PKCS11 smartcards to avoid blocking the smartcard
 	private static int login_attempts = 0;
@@ -148,7 +151,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 		aliasTableModel = new AliasTableModel(contextManager);
 
 		this.setLayout(new CardLayout());
-		this.setName(Constant.messages.getString("options.cert.title.cert"));
+		this.setName(Constant.messages.getString("options.cert.title"));
 
 		JPanel certificatePanel = getPanelCertificate();
 		this.add(certificatePanel, certificatePanel.getName());
@@ -160,6 +163,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 		Certificate cert =contextManager.getDefaultCertificate();
 		if(cert!=null) {
 			certificateTextField.setText(cert.toString());
+		}
+		
+		if(contextManager.getKeyStoreCount() != 0) {
+			keyStoreListModel.insertElementAt(contextManager.getKeyStoreDescription(0), 0);
+			overrideEnableClientCertificate = true;
 		}
 
 	}
@@ -991,10 +999,19 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 		OptionsParam options = (OptionsParam) obj;
 		OptionsParamCertificate certParam = options.getCertificateParam();
+		
+		// Should only run once after startup if client certificate is set from commandline
+		if(overrideEnableClientCertificate) {
+			certParam.setEnableCertificate(true);
+			overrideEnableClientCertificate = false;
+		}
 		useClientCertificateCheckBox.setSelected(certParam.isUseClientCert());
+		useClientCertificateCheckBoxActionPerformed(null);
+		
 		//getBtnLocation().setEnabled(getChkUseClientCertificate().isSelected());
 		//getTxtLocation().setText(options.getCertificateParam().getClientCertLocation());
 		enableUnsafeSSLRenegotiationCheckBox.setSelected(certParam.isAllowUnsafeSslRenegotiation());
+
 	}
 
 	@Override

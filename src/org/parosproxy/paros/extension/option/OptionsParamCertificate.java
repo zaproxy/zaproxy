@@ -25,11 +25,17 @@
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2018/08/01 Added support for setting and persisting client cert from CLI
 
 package org.parosproxy.paros.extension.option;
 
 import java.io.File;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
@@ -46,12 +52,17 @@ public class OptionsParamCertificate extends AbstractParam {
     private static final String CERTIFICATE_BASE_KEY = "certificate";
 
     private static final String USE_CLIENT_CERT = CERTIFICATE_BASE_KEY + ".use";
-    private static final String CLIENT_CERT_LOCATION = CERTIFICATE_BASE_KEY + ".clientCertLocation";
+    private static final String PERSIST_CLIENT_CERT = CERTIFICATE_BASE_KEY + ".persist";
+    private static final String CLIENT_CERT_LOCATION = CERTIFICATE_BASE_KEY + ".pkcs12.path";
+    private static final String CLIENT_CERT_PASSWORD = CERTIFICATE_BASE_KEY + ".pkcs12.password";
+    private static final String CLIENT_CERT_INDEX = CERTIFICATE_BASE_KEY + ".pkcs12.index";
 
     private static final String ALLOW_UNSAFE_SSL_RENEGOTIATION = CERTIFICATE_BASE_KEY + ".allowUnsafeSslRenegotiation";
 
-    private int useClientCert = 0;
+    private boolean useClientCert = false;
     private String clientCertLocation = "";
+    private String clientCertPassword = "";
+    private int clientCertIndex = 0;
     
     private boolean allowUnsafeSslRenegotiation = false;
 
@@ -61,12 +72,73 @@ public class OptionsParamCertificate extends AbstractParam {
     @Override
     protected void parse() {
 
-        // always turn off client cert
-        setUseClientCert(false);
-        setClientCertLocation("");
+        clientCertCheck();
+        saveClientCertSettings();
         
         allowUnsafeSslRenegotiation = getBoolean(ALLOW_UNSAFE_SSL_RENEGOTIATION, false);
         setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
+    }
+
+    /**
+     *  Saves the client cert settings if the flag is set explicitly.
+     *  Only works for the CLI currently.
+     */
+    private void saveClientCertSettings(){
+
+        if (getBoolean(PERSIST_CLIENT_CERT, false)){
+            logger.warn("Saving Client Certificate settings: password will be found in config");
+            setUseClientCert(getBoolean(USE_CLIENT_CERT, false));
+            setClientCertLocation(getString(CLIENT_CERT_LOCATION, ""));
+            setClientCertPassword(getString(CLIENT_CERT_PASSWORD, ""));
+            setClientCertIndex(getInt(CLIENT_CERT_INDEX, 0));
+
+        } else {
+            // Default to clear settings
+            setUseClientCert(false);
+            setClientCertLocation("");
+            setClientCertPassword("");
+            setClientCertIndex(0);
+        }
+    }
+
+    /**
+     * Enables ClientCertificate from -config CLI parameters
+     * Requires location, password and a flag to use client certificate.
+     */
+    private void clientCertCheck(){
+
+        boolean enableClientCert = getBoolean(USE_CLIENT_CERT, false);
+        String certPath = getString(CLIENT_CERT_LOCATION, "");
+        String certPass = getString(CLIENT_CERT_PASSWORD, "");
+        int certIndex = getInt(CLIENT_CERT_INDEX, 0);
+
+        if(enableClientCert && !certPath.isEmpty() && !certPass.isEmpty()) {
+            try {
+
+                SSLContextManager contextManager = getSSLContextManager();
+                int ksIndex = contextManager.loadPKCS12Certificate(certPath, certPass);
+                contextManager.unlockKey(ksIndex, certIndex, certPass);
+                contextManager.setDefaultKey(ksIndex, certIndex);
+
+                setActiveCertificate();
+                setEnableCertificate(true);
+
+                logger.info("Client Certificate enabled from CLI");
+                logger.info("Use -config certificate.persist=true to save settings");
+
+            } catch (IOException|CertificateException|NoSuchAlgorithmException|KeyStoreException|KeyManagementException ex) {
+                logger.error("The certificate could not be enabled due to an error", ex);
+            }
+        }
+    }
+
+    public String getClientCertPassword() {
+        return clientCertPassword;
+    }
+
+    public void setClientCertPassword(String clientCertPassword) {
+        this.clientCertPassword = clientCertPassword;
+        getConfig().setProperty(CLIENT_CERT_PASSWORD, clientCertPassword);
     }
 
     /**
@@ -90,18 +162,22 @@ public class OptionsParamCertificate extends AbstractParam {
         getConfig().setProperty(CLIENT_CERT_LOCATION, clientCertLocation);
     }
 
+    public int getClientCertIndex() {
+        return clientCertIndex;
+    }
+    
+    public void setClientCertIndex(int clientCertIdx) {
+        this.clientCertIndex = clientCertIdx;
+        getConfig().setProperty(CLIENT_CERT_INDEX, Integer.toString(clientCertIndex));
+    }
+
     public boolean isUseClientCert() {
-        return (useClientCert != 0);
+        return useClientCert;
     }
 
     private void setUseClientCert(boolean isUse) {
-    	if (isUse) {
-            useClientCert = 1;
-            getConfig().setProperty(USE_CLIENT_CERT, Integer.toString(useClientCert));
-            return;
-        }
-        useClientCert = 0;
-        getConfig().setProperty(USE_CLIENT_CERT, Integer.toString(useClientCert));
+        useClientCert = isUse;
+        getConfig().setProperty(USE_CLIENT_CERT, Boolean.toString(useClientCert));
     }
         
 
