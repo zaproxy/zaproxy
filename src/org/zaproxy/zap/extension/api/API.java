@@ -324,9 +324,11 @@ public class API {
 					}
 				}
 				msg = shortcutImpl.handleShortcut(msg);
+				impl = shortcutImpl;
 			} else if (callbackImpl != null) {
 				// Callbacks have suitably random URLs and therefore don't require keys/nonces
 				response = callbackImpl.handleCallBack(msg);
+				impl = callbackImpl;
 			} else {
 			
 				// Parse the query:
