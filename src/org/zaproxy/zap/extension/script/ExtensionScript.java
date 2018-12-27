@@ -40,6 +40,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.script.Invocable;
 import javax.script.ScriptContext;
@@ -152,6 +154,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 */
 	private List<File> trackedDirs = Collections.synchronizedList(new ArrayList<>());
 	
+    /**
+     * The script output listeners added to the extension.
+     * 
+     * @see #addScriptOutputListener(ScriptOutputListener)
+     * @see #getWriters(ScriptWrapper)
+     * @see #removeScriptOutputListener(ScriptOutputListener)
+     */
+    private List<ScriptOutputListener> outputListeners = new CopyOnWriteArrayList<>();
+
     public ExtensionScript() {
         super(NAME);
         this.setOrder(EXTENSION_ORDER);
@@ -1191,17 +1202,16 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * ever script. It also supports script specific writers.
 	 */
 	private Writer getWriters(ScriptWrapper script) {
+		Writer delegatee = this.writers;
 		Writer writer = script.getWriter();
-		if (writer == null) {
-			// No script specific writer, just return the std one
-			return this.writers;
-		} else {
-			// Return the script specific writer in addition to the std one
+		if (writer != null) {
+			// Use the script specific writer in addition to the std one
 			MultipleWriters scriptWriters = new MultipleWriters();
 			scriptWriters.addWriter(writer);
 			scriptWriters.addWriter(writers);
-			return scriptWriters;
+			delegatee = scriptWriters;
 		}
+		return new ScriptWriter(script, delegatee, outputListeners);
 	}
 
 	/**
@@ -1609,12 +1619,51 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.listeners.remove(listener);
 	}
 
+	/**
+	 * Adds the given writer.
+	 * <p>
+	 * It will be written to each time a script writes some output.
+	 *
+	 * @param writer the writer to add.
+	 * @see #removeWriter(Writer)
+	 * @see #addScriptOutputListener(ScriptOutputListener)
+	 */
 	public void addWriter(Writer writer) {
 		this.writers.addWriter(writer);
 	}
 	
+	/**
+	 * Removes the given writer.
+	 *
+	 * @param writer the writer to remove.
+	 * @see #addWriter(Writer)
+	 */
 	public void removeWriter(Writer writer) {
 		this.writers.removeWriter(writer);
+	}
+
+	/**
+	 * Adds the given script output listener.
+	 *
+	 * @param listener the listener to add.
+	 * @since TODO add version
+	 * @throws NullPointerException if the given listener is {@code null}.
+	 * @see #removeScriptOutputListener(ScriptOutputListener)
+	 */
+	public void addScriptOutputListener(ScriptOutputListener listener) {
+		outputListeners.add(Objects.requireNonNull(listener, "The parameter listener must not be null."));
+	}
+
+	/**
+	 * Removes the given script output listener.
+	 *
+	 * @param listener the listener to remove.
+	 * @since TODO add version
+	 * @throws NullPointerException if the given listener is {@code null}.
+	 * @see #addScriptOutputListener(ScriptOutputListener)
+	 */
+	public void removeScriptOutputListener(ScriptOutputListener listener) {
+		outputListeners.remove(Objects.requireNonNull(listener, "The parameter listener must not be null."));
 	}
 
 	public ScriptUI getScriptUI() {
@@ -1852,4 +1901,39 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 
 	}
+
+    /**
+     * A {@code Writer} that notifies {@link ScriptOutputListener}s when writing.
+     */
+    private static class ScriptWriter extends Writer {
+
+        private final ScriptWrapper script;
+        private final Writer delegatee;
+        private final List<ScriptOutputListener> outputListeners;
+
+        public ScriptWriter(ScriptWrapper script, Writer delegatee, List<ScriptOutputListener> outputListeners) {
+            this.script = Objects.requireNonNull(script);
+            this.delegatee = Objects.requireNonNull(delegatee);
+            this.outputListeners = Objects.requireNonNull(outputListeners);
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            delegatee.write(cbuf, off, len);
+            if (!outputListeners.isEmpty()) {
+                String output = new String(cbuf, off, len);
+                outputListeners.forEach(e -> e.output(script, output));
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            delegatee.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            delegatee.close();
+        }
+    }
 }
