@@ -189,7 +189,7 @@ public class BreakpointsPanel extends AbstractPanel {
 	public BreakpointMessageInterface getSelectedBreakpoint() {
 	    int selectedRow = breakpointsTable.getSelectedRow();
 	    if (selectedRow != -1) {
-	       return model.getBreakpointAtRow(selectedRow);
+	       return model.getBreakpointAtRow(breakpointsTable.convertRowIndexToModel(selectedRow));
 	    }
         return null;
     }
