@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2016/06/25 pull 2561: It specifies the Charset of stringToHtml to UTF-8
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
 // ZAP: 2018/07/04 Allow to use a custom StreamSource for the XSL.
+// ZAP: 2018/12/27 Use always an array for sites in JSON format (Issue 5162).
 
 package org.parosproxy.paros.extension.report;
 
@@ -52,6 +53,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -302,7 +305,16 @@ public class ReportGenerator {
 	}
 
 	public static String stringToJson(String inxml) {
-        return new XMLSerializer().read(inxml).toString();
+        JSONObject report = (JSONObject) new XMLSerializer().read(inxml);
+        Object site = report.get("site");
+        if (!(site instanceof JSONArray)) {
+            JSONArray siteArray = new JSONArray();
+            if (site != null) {
+                siteArray.add(site);
+            }
+            report.put("site", siteArray);
+        }
+        return report.toString();
     }
 
 	/**
