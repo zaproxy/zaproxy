@@ -19,6 +19,7 @@
  */
 package org.parosproxy.paros.extension.report;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -74,6 +75,48 @@ public class ReportGeneratorUnitTest extends TestUtils {
         ReportGenerator.stringToHtml(data, identityXsl(), report.toString());
         // Then = nothing written.
         assertThat(contents(report), is(equalTo("")));
+    }
+
+    @Test
+    public void shouldUseEmptyArrayForSitesInJsonReportIfNoSitePresent() {
+        // Given
+        String xmlReport =
+                "<?xml version=\"1.0\"?><OWASPZAPReport version=\"Dev Build\"></OWASPZAPReport>";
+        // When
+        String jsonReport = ReportGenerator.stringToJson(xmlReport);
+        // Then
+        assertThat(jsonReport, containsString("\"site\":[]"));
+    }
+
+    @Test
+    public void shouldUseArrayForSitesInJsonReportIfOneSitePresent() {
+        // Given
+        String xmlReport =
+                "<?xml version=\"1.0\"?><OWASPZAPReport version=\"Dev Build\">\n"
+                        + "<site name=\"http://example.com\"></site>"
+                        + "</OWASPZAPReport>";
+        // When
+        String jsonReport = ReportGenerator.stringToJson(xmlReport);
+        // Then
+        assertThat(jsonReport, containsString("\"site\":[{\"@name\":\"http://example.com\"}]"));
+    }
+
+    @Test
+    public void shouldUseArrayForSitesInJsonReportIfSeveralSitesPresent() {
+        // Given
+        String xmlReport =
+                "<?xml version=\"1.0\"?><OWASPZAPReport version=\"Dev Build\">\n"
+                        + "<site name=\"http://a.example.com\"></site>"
+                        + "<site name=\"http://b.example.com\"></site>"
+                        + "</OWASPZAPReport>";
+        // When
+        String jsonReport = ReportGenerator.stringToJson(xmlReport);
+        // Then
+        assertThat(
+                jsonReport,
+                containsString(
+                        "\"site\":[{\"@name\":\"http://a.example.com\"},"
+                                + "{\"@name\":\"http://b.example.com\"}]"));
     }
 
     private static String contents(Path path) throws IOException {
