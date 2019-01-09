@@ -39,6 +39,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.callback.ui.CallbackRequest;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.callback.ui.CallbackPanel;
 
 import java.awt.EventQueue;
@@ -94,6 +95,7 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                     getCallbackPanel());
             extensionHook.getHookView().addOptionPanel(
                     getOptionsCallbackPanel());
+            ExtensionHelp.enableHelpKey(getCallbackPanel(), "ui.tabs.callbacks");
         }
     }
 
