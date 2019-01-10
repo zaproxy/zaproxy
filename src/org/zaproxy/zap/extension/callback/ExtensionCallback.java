@@ -223,6 +223,10 @@ public class ExtensionCallback extends ExtensionAdaptor implements
     }
 
     private void addCallbacksFromDatabaseIntoCallbackPanel(Session session) {
+        if (session == null) {
+            return;
+        }
+
         try {
             List<Integer> historyIds = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
                     session.getSessionId(), HistoryReference.TYPE_CALLBACK);
