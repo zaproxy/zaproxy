@@ -52,9 +52,9 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 
 	private static String SDF_FORMAT = "yyyy-MM-dd";
 
-	private boolean checkOnStart;
+	private boolean checkOnStart = true;
 	private boolean downloadNewRelease = false;
-	private boolean checkAddonUpdates;
+	private boolean checkAddonUpdates = true;
 	private boolean installAddonUpdates = false;
 	private boolean installScannerRules = false;
 	private boolean reportReleaseAddons = false;
