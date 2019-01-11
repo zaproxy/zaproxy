@@ -68,15 +68,10 @@ public class Proxy {
 		proxyServer.setConnectionParam(model.getOptionsParam().getConnectionParam());
 
 		if (model.getOptionsParam().getProxyParam().isUseReverseProxy()) {
-
-//			proxyServer.setForwardPort(sslPort);
 		    
 			proxyServer.startServer(model.getOptionsParam().getProxyParam().getReverseProxyIp(), model.getOptionsParam().getProxyParam().getReverseProxyHttpPort(), false);
 		    
 		} else {
-
-//		    int sslPort = proxyServerSSL.startServer(model.getOptionsParam().getProxyParam().getProxyIp(), model.getOptionsParam().getProxyParam().getProxySSLPort(), true);
-//			proxyServer.setForwardPort(sslPort);
 
 			String proxyHost = null;
 		    int proxyPort = -1;
