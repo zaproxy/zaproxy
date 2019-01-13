@@ -47,6 +47,7 @@ and subject to their respective licenses.
 | commons-logging-1.2.jar       | Apache 2.0                |
 | commons-logging-api-1.1.1.jar | Apache 2.0                |
 | commons-text-1.3.jar          | Apache 2.0                |
+| commons-validator-1.6.jar     | Apache 2.0                |
 | diffutils-1.2.1.jar           | Apache 2.0                |
 | ezmorph-1.0.6.jar             | Apache 2.0                |
 | harlib-jackson-1.1.2.jar      | Apache 2.0                |

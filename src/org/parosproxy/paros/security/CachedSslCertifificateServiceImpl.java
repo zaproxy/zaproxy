@@ -48,18 +48,24 @@ public final class CachedSslCertifificateServiceImpl implements SslCertificateSe
 		delegate = SslCertificateServiceImpl.getService();
 	}
 
-	private Map<String, KeyStore> cache = new HashMap<>();
+	private Map<CertData, KeyStore> cache = new HashMap<>();
 
 	@Override
-	public synchronized KeyStore createCertForHost(String hostname)
+	public KeyStore createCertForHost(String hostname) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException, IOException {
+		return createCertForHost(new CertData(hostname));
+	}
+
+	@Override
+	public synchronized KeyStore createCertForHost(CertData certData)
 			throws NoSuchAlgorithmException, InvalidKeyException,
 			CertificateException, NoSuchProviderException, SignatureException,
 			KeyStoreException, IOException, UnrecoverableKeyException {
-		if (this.cache.containsKey(hostname)) {
-			return this.cache.get(hostname);
+
+		if (this.cache.containsKey(certData)) {
+			return this.cache.get(certData);
 		}
-		final KeyStore ks = delegate.createCertForHost(hostname);
-		this.cache.put(hostname, ks);
+		final KeyStore ks = delegate.createCertForHost(certData);
+		this.cache.put(certData, ks);
 		return ks;
 	}
 

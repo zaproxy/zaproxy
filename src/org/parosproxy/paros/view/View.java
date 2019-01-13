@@ -79,6 +79,7 @@
 // ZAP: 2018/03/30 Check if resource message exists (for changes in I18N).
 // ZAP: 2018/07/13 Added canGetFocus option
 // ZAP: 2018/07/17 Use getMenuShortcutKeyStroke.
+// ZAP: 2019/01/04 Keep Show Tab menu item in the position it was added.
 
 package org.parosproxy.paros.view;
 
@@ -362,12 +363,12 @@ public class View implements ViewDelegate {
     }
 
     public void refreshTabViewMenus() {
-        if (menuShowTabs != null) {
-            // Remove the old ones
-            mainFrame.getMainMenuBar().getMenuView().remove(menuShowTabs);
+        if (menuShowTabs == null) {
+            menuShowTabs = new JMenu(Constant.messages.getString("menu.view.showtab"));
+            mainFrame.getMainMenuBar().getMenuView().add(menuShowTabs);
+        } else {
+            menuShowTabs.removeAll();
         }
-        menuShowTabs = new JMenu(Constant.messages.getString("menu.view.showtab"));
-        mainFrame.getMainMenuBar().getMenuView().add(menuShowTabs);
 
         ExtensionKeyboard extKey = Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.class);
 

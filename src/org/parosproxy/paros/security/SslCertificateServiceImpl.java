@@ -62,7 +62,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 /**
  * This is a singleton class. Use {@link #getService()} method to
  * obtain a service bean. This implementation is totally unbuffered and creates
- * every time you call {@link #createCertForHost(String)} a new certificate.
+ * every time you call {@link SslCertificateService#createCertForHost(CertData)} a new certificate.
  * If you want to have a cached solution, have a look at {@link CachedSslCertifificateServiceImpl}.
  * This class is designed to be thread safe.
  *
@@ -110,23 +110,37 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 		}
 	}
 
-    @Override
-	public KeyStore createCertForHost(String hostname) throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, NoSuchProviderException, SignatureException, KeyStoreException, IOException, UnrecoverableKeyException {
+	@Override
+	public KeyStore createCertForHost(String hostname) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException, IOException {
+		return createCertForHost(new CertData(hostname));
+	}
 
-    	if (hostname == null) {
-    		throw new IllegalArgumentException("Error, 'hostname' is not allowed to be null!");
-    	}
+	@Override
+	public KeyStore createCertForHost(CertData certData) throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, NoSuchProviderException, SignatureException, KeyStoreException, IOException, UnrecoverableKeyException {
 
     	if (this.caCert == null || this.caPrivKey == null || this.caPubKey == null) {
     		throw new MissingRootCertificateException(this.getClass() + " wasn't initialized! Got to options 'Dynamic SSL Certs' and create one.");
     	}
 
+		CertData.Name[] certDataNames = certData.getSubjectAlternativeNames();
+    	GeneralName[] subjectAlternativeNames = new GeneralName[certDataNames.length];
+		for (int i = 0; i < certDataNames.length; i++) {
+			CertData.Name certDataName = certDataNames[i];
+			subjectAlternativeNames[i] = new GeneralName(certDataName.getType(), certDataName.getValue());
+		}
+
+		if (certData.getCommonName() == null && subjectAlternativeNames.length == 0) {
+			throw new IllegalArgumentException("commonName is null and no subjectAlternativeNames are specified");
+		}
+
         final KeyPair mykp = this.createKeyPair();
         final PrivateKey privKey = mykp.getPrivate();
         final PublicKey pubKey = mykp.getPublic();
 
-		X500NameBuilder namebld = new X500NameBuilder(BCStyle.INSTANCE); 
-		namebld.addRDN(BCStyle.CN, hostname);
+		X500NameBuilder namebld = new X500NameBuilder(BCStyle.INSTANCE);
+		if (certData.getCommonName() != null) {
+			namebld.addRDN(BCStyle.CN, certData.getCommonName());
+		}
 		namebld.addRDN(BCStyle.OU, "Zed Attack Proxy Project");
 		namebld.addRDN(BCStyle.O, "OWASP");
 		namebld.addRDN(BCStyle.C, "xx");
@@ -143,7 +157,10 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 
 		certGen.addExtension(Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifier(pubKey.getEncoded()));
 		certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
-		certGen.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(new GeneralName(GeneralName.dNSName, hostname)));
+
+		if(subjectAlternativeNames.length > 0){
+			certGen.addExtension(Extension.subjectAlternativeName, certData.isSubjectAlternativeNameIsCritical(), new GeneralNames(subjectAlternativeNames));
+		}
 
 		ContentSigner sigGen;
 		try {

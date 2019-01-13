@@ -55,6 +55,7 @@
 // ZAP: 2017/07/04 Notify when a HistoryReference is deleted.
 // ZAP: 2017/08/18 Add TYPE_FUZZER_TEMPORARY.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2019/01/09 Add TYPE_CALLBACK.
 
 package org.parosproxy.paros.model;
 
@@ -261,6 +262,13 @@ public class HistoryReference {
      * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
      */
     public static final int TYPE_FUZZER_TEMPORARY = 20;
+
+    /**
+     * A HTTP message received by the callback handler.
+     *
+     * @since TODO add version
+     */
+    public static final int TYPE_CALLBACK = 21;
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;

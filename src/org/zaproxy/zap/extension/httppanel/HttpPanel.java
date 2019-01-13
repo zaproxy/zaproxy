@@ -85,7 +85,8 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     
     private String baseConfigurationKey;
     private String componentsConfigurationKey;
-    
+
+    private List<DisplayedMessageChangedListener> displayedMessageChangedListeners = new ArrayList<>();
     private SwitchComponentItemListener switchComponentItemListener;
     private Hashtable<String, HttpPanelComponentInterface> components = new Hashtable<>();
     private List<HttpPanelComponentInterface> enabledComponents = new ArrayList<>();
@@ -214,9 +215,17 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         }
         return findAction;
     }
-    
+
+    public void addDisplayedMessageChangedListener(DisplayedMessageChangedListener messageChangedListener){
+        displayedMessageChangedListeners.add(messageChangedListener);
+    }
+
+    public void removeDisplayedMessageChangedListener(DisplayedMessageChangedListener messageChangedListener){
+        displayedMessageChangedListeners.remove(messageChangedListener);
+    }
     
     public void setMessage(Message msg) {
+        Message oldMessage = this.message;
         this.message = msg;
         
         for(Iterator<Entry<String, HttpPanelComponentInterface>> it = components.entrySet().iterator(); it.hasNext(); ) {
@@ -234,6 +243,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         if (enabledComponents.size() == 0) {
             currentComponent = null;
             switchEmptyComponent();
+            notifyDisplayedMessageChangedListeners(oldMessage, message);
             return;
         }
         
@@ -248,6 +258,13 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
             switchComponent(enabledComponents.get(0).getName());
         } else {
             updateContent();
+        }
+        notifyDisplayedMessageChangedListeners(oldMessage, message);
+    }
+
+    private void notifyDisplayedMessageChangedListeners(Message oldMessage, Message message) {
+        for (DisplayedMessageChangedListener changedListener : displayedMessageChangedListeners) {
+            changedListener.messageChanged(oldMessage, message);
         }
     }
 
