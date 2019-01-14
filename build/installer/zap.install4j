@@ -1181,12 +1181,6 @@ return true;</string>
                           </void>
                         </array>
                       </void>
-                      <void property="fragmentInsertMode">
-                        <object class="java.lang.Enum" method="valueOf">
-                          <class>com.install4j.runtime.beans.actions.xml.FragmentInsertMode</class>
-                          <string>REPLACE</string>
-                        </object>
-                      </void>
                       <void property="fragmentText">
                         <string>&lt;start&gt;
 	&lt;checkForUpdates&gt;${installer:cfu.checkForUpdates}&lt;/checkForUpdates&gt;
@@ -1200,7 +1194,7 @@ return true;</string>
 &lt;/start&gt;</string>
                       </void>
                       <void property="xpathExpression">
-                        <string>/config/start</string>
+                        <string>/config</string>
                       </void>
                     </object>
                   </java>
@@ -1220,12 +1214,6 @@ return true;</string>
                           </void>
                         </array>
                       </void>
-                      <void property="fragmentInsertMode">
-                        <object class="java.lang.Enum" method="valueOf">
-                          <class>com.install4j.runtime.beans.actions.xml.FragmentInsertMode</class>
-                          <string>REPLACE</string>
-                        </object>
-                      </void>
                       <void property="fragmentText">
                         <string>&lt;start&gt;
 	&lt;checkForUpdates&gt;${installer:cfu.checkForUpdates}&lt;/checkForUpdates&gt;
@@ -1239,7 +1227,7 @@ return true;</string>
 &lt;/start&gt;</string>
                       </void>
                       <void property="xpathExpression">
-                        <string>/config/start</string>
+                        <string>/config</string>
                       </void>
                     </object>
                   </java>
