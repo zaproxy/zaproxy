@@ -702,7 +702,6 @@ public final class Constant {
         XMLConfiguration newConfig = new ZapXmlConfiguration(getUrlDefaultConfigFile());
         newConfig.setAutoSave(false);
 
-        copyProperty(newConfig, config, "view.editorView");
         copyProperty(newConfig, config, "view.brkPanelView");
         copyProperty(newConfig, config, "view.showMainToolbar");
 	}
