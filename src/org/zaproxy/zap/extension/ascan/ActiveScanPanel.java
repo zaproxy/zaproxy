@@ -68,6 +68,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	public static final String MESSAGE_CONTAINER_NAME = "ActiveScanMessageContainer";
 
 	private static final String ZERO_REQUESTS_LABEL_TEXT = "0";
+ 	private static final String ZERO_NEW_ALERTS_LABEL_TEXT = "0";
 
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
 	
@@ -79,6 +80,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private JButton scanButton = null;
 	private JButton progressButton;
 	private JLabel numRequests;
+	private JLabel numNewAlerts;
 	private TableExportButton<HistoryReferencesTable> exportButton = null;
 
     /**
@@ -108,6 +110,10 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
 			panelToolbar.add(new JLabel(Constant.messages.getString("ascan.toolbar.requests.label")), getGBC(x++,0));
 			panelToolbar.add(getNumRequests(), getGBC(x++,0));
+			panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
+			panelToolbar.add(new JLabel(Constant.messages.getString("ascan.toolbar.newalerts.label")), getGBC(x++, 0));
+			panelToolbar.add(getNumNewAlerts(), getGBC(x++, 0));
+			panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
 			panelToolbar.add(getExportButton(), getGBC(x++,0));
 		}
 		return x;
@@ -237,6 +243,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 		if (scanner != null) {
 			getMessagesTable().setModel(scanner.getMessagesTableModel());
 			this.getNumRequests().setText(Integer.toString(scanner.getTotalRequests()));
+			this.getNumNewAlerts().setText(Integer.toString(scanner.getTotalNewAlerts()));
 			this.getProgressButton().setEnabled(true);
 			
 			if (scanner instanceof AttackScan) {
@@ -249,6 +256,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 		} else {
 			resetMessagesTable();
 		    this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
+ 		    this.getNumNewAlerts().setText(ZERO_NEW_ALERTS_LABEL_TEXT);
 		    this.getProgressButton().setEnabled(false);
 		}
 	}
@@ -276,6 +284,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	public void hostProgress(int id, String hostAndPort, String msg, int percentage) {
 		this.scanProgress(id, hostAndPort, percentage, 100);
 		updateRequestCount();
+ 		updateNewAlertCount();
 	}
 
 	@Override
@@ -294,6 +303,13 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	public void notifyNewMessage(HttpMessage msg) {
 	}
 
+	private void updateNewAlertCount() {
+		ActiveScan ac = this.getSelectedScanner();
+		if (ac != null) {
+			this.getNumNewAlerts().setText(Integer.toString(ac.getTotalNewAlerts()));
+		}
+	}
+
 	@Override
 	public void reset() {
 		super.reset();
@@ -305,4 +321,12 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	protected int getNumberOfScansToShow() {
 		return extension.getScannerParam().getMaxScansInUI();
 	}
+
+	private JLabel getNumNewAlerts() {
+		if (numNewAlerts== null) {
+			numNewAlerts = new JLabel(ZERO_NEW_ALERTS_LABEL_TEXT);
+		}
+		return numNewAlerts;
+	}
+
 }

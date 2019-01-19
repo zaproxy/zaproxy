@@ -977,4 +977,15 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     public boolean supportsLowMemory() {
     	return true;
     }
+
+    /**
+     * Check if an alert already exists in the alerts tree.
+     *
+     * @param alertToCheck
+     * @return true if new alert, false otherwise.
+     */
+    public boolean isNewAlert(Alert alertToCheck) {
+        return (getTreeModel().getAlertNode(alertToCheck) == null);
+    }
+
 }
