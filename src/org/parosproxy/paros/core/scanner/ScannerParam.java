@@ -134,7 +134,7 @@ public class ScannerParam extends AbstractParam {
 
     // Internal variables
     private int hostPerScan = 2;
-    private int threadPerHost = 1;
+    private int threadPerHost = 2;
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
     private int maxScansInUI = 5;
@@ -193,7 +193,7 @@ public class ScannerParam extends AbstractParam {
     protected void parse() {
         removeOldOptions();
 
-        this.threadPerHost = getInt(THREAD_PER_HOST, 1);
+        this.threadPerHost = getInt(THREAD_PER_HOST, 2);
 
         this.hostPerScan = getInt(HOST_PER_SCAN, 2);
 

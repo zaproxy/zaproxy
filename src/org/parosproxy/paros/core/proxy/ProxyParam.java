@@ -36,6 +36,7 @@
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2017/11/20 Use default value when reading "reverseProxy.ip".
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
+// ZAP: 2019/01/11 Remove unused proxySSLPort option.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -62,8 +63,6 @@ public class ProxyParam extends AbstractParam {
 
     private static final String PROXY_IP = "proxy.ip";
     private static final String PROXY_PORT = "proxy.port";
-    //	private static final String PROXY_SSL_IP = "proxy.SSLIp";
-    //	private static final String PROXY_SSL_PORT = "proxy.SSLPort";
 
     private static final String USE_REVERSE_PROXY = "proxy.reverseProxy.use";
     private static final String REVERSE_PROXY_IP = "proxy.reverseProxy.ip";
@@ -91,7 +90,6 @@ public class ProxyParam extends AbstractParam {
 
     private String proxyIp = "localhost";
     private int proxyPort = 8080;
-    private int proxySSLPort = 8443;
     private int useReverseProxy = 0;
     private String reverseProxyIp = "localhost";
     private int reverseProxyHttpPort = 80;
@@ -137,11 +135,6 @@ public class ProxyParam extends AbstractParam {
         determineProxyIpAnyLocalAddress();
         
         proxyPort = getInt(PROXY_PORT, 8080);
-
-        try {
-            proxySSLPort = 8443;	//getConfig().getInt(PROXY_SSL_PORT, 8443);
-        } catch (Exception e) {
-        }
 
         reverseProxyIp = getString(REVERSE_PROXY_IP, "localhost");
         if (reverseProxyIp.equalsIgnoreCase("localhost") || reverseProxyIp.equalsIgnoreCase("127.0.0.1")) {
@@ -206,14 +199,6 @@ public class ProxyParam extends AbstractParam {
         getConfig().setProperty(PROXY_PORT, Integer.toString(this.proxyPort));
     }
 
-    public int getProxySSLPort() {
-        return proxySSLPort;
-    }
-
-    //	public void setProxySSLPort(int proxySSLPort) {
-    //		this.proxySSLPort = proxySSLPort;
-    //		getConfig().setProperty(PROXY_SSL_PORT, Integer.toString(this.proxySSLPort));
-    //	}
     public String getReverseProxyIp() {
         return reverseProxyIp;
     }

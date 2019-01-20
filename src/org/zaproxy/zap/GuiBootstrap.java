@@ -182,7 +182,12 @@ public class GuiBootstrap extends ZapBootstrap {
         OptionsParam options = Model.getSingleton().getOptionsParam();
         OptionsParamView viewParam = options.getViewParam();
 
-        FontUtils.setDefaultFont(viewParam.getFontName(), viewParam.getFontSize());
+        for (FontUtils.FontType fontType: FontUtils.FontType.values()) {
+            FontUtils.setDefaultFont(
+                fontType,
+                viewParam.getFontName(fontType),
+                viewParam.getFontSize(fontType));
+        }
 
         setupLocale(options);
 

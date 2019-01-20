@@ -33,6 +33,7 @@ table{
 }
 td, th {
   padding: 3px 4px;
+  word-break: break-word;
 }
 th{
   font-weight: bold;

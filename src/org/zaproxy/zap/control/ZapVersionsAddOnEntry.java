@@ -29,6 +29,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  * <li>file;</li>
  * <li>size;</li>
  * <li>info;</li>
+ * <li>date;</li>
  * <li>hash.</li>
  * </ul>
  * 
@@ -39,11 +40,13 @@ public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {
     private static final String FILE = "file";
     private static final String SIZE = "size";
     private static final String INFO = "info";
+    private static final String DATE = "date";
     private static final String HASH = "hash";
 
     private String file;
     private long size;
     private String info;
+    private String date;
     private String hash;
 
     public ZapVersionsAddOnEntry(HierarchicalConfiguration node) {
@@ -55,6 +58,7 @@ public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {
         file = zapAddOnData.getString(FILE);
         size = zapAddOnData.getLong(SIZE);
         info = zapAddOnData.getString(INFO);
+        date = zapAddOnData.getString(DATE, null);
         hash = zapAddOnData.getString(HASH, null);
     }
 
@@ -83,6 +87,16 @@ public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {
      */
     public String getInfo() {
         return info;
+    }
+
+    /**
+     * Returns the release date of the add-on.
+     *
+     * @return the release date of the add-on, {@code null} if not present.
+     * @since TODO add version
+     */
+    public String getDate() {
+        return date;
     }
 
     /**

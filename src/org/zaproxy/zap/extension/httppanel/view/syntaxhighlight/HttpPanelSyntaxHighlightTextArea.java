@@ -19,7 +19,6 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -50,6 +49,7 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.SyntaxMenu
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.FontUtils.FontType;
 import org.zaproxy.zap.view.HighlightSearchEntry;
 import org.zaproxy.zap.view.HighlighterManager;
 
@@ -125,14 +125,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 		setCloseMarkupTags(false);
 		setClearWhitespaceLinesEnabled(false);
 		
-		Font font;
-		if (!FontUtils.isDefaultFontSet()) {
-			// Use default RSyntaxTextArea font instead but with correct font size.
-			font = FontUtils.getFont(this.getFont().getFontName());
-		} else {
-			font = FontUtils.getFont(Font.PLAIN);
-		}
-		this.setFont(font);
+		this.setFont(FontUtils.getFontWithFallback(FontType.workPanels, this.getFont().getFontName()));
 		
 		initHighlighter();
 	}

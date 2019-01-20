@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -34,10 +35,7 @@ public class DynamicFieldsPanel extends JPanel {
 	 * @see #setFields(String[])
 	 */
 	public DynamicFieldsPanel() {
-		this.requiredFields = NO_FIELDS;
-		this.optionalFields = NO_FIELDS;
-
-		this.textFields = Collections.emptyMap();
+		this(NO_FIELDS, NO_FIELDS);
 	}
 
 	public DynamicFieldsPanel(String[] requiredFields) {
@@ -93,26 +91,27 @@ public class DynamicFieldsPanel extends JPanel {
 
 		int fieldIndex = 0;
 		for (String fieldName : requiredFields) {
-			this.add(new JLabel("* " + fieldName + ": "), LayoutHelper.getGBC(0, fieldIndex, 1, 0.0d, 0.0d));
-
-			ZapTextField tf = new ZapTextField();
-			this.add(tf, LayoutHelper.getGBC(1, fieldIndex, 1, 1.0d, 0.0d));
-			textFields.put(fieldName, tf);
-
+			addField("* " + fieldName, fieldIndex);
 			fieldIndex++;
 		}
 
 		for (String fieldName : optionalFields) {
-			this.add(new JLabel(fieldName + ": "), LayoutHelper.getGBC(0, fieldIndex, 1, 0.0d, 0.0d));
-
-			ZapTextField tf = new ZapTextField();
-			this.add(tf, LayoutHelper.getGBC(1, fieldIndex, 1, 1.0d, 0.0d));
-			textFields.put(fieldName, tf);
-
+			addField(fieldName, fieldIndex);
 			fieldIndex++;
 		}
+		add(Box.createVerticalGlue(), LayoutHelper.getGBC(0, fieldIndex, 2, 0.0d, 1.0d));
 
 		validate();
+	}
+
+	private void addField(String fieldName, int fieldIndex) {
+		JLabel label = new JLabel(fieldName + ": ");
+		this.add(label, LayoutHelper.getGBC(0, fieldIndex, 1, 0.0d, 0.0d));
+
+		ZapTextField tf = new ZapTextField();
+		label.setLabelFor(tf);
+		this.add(tf, LayoutHelper.getGBC(1, fieldIndex, 1, 1.0d, 0.0d));
+		textFields.put(fieldName, tf);
 	}
 
 	/**
