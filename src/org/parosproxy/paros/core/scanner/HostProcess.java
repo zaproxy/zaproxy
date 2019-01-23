@@ -82,6 +82,7 @@
 // ZAP: 2017/12/29 Provide means to validate the redirections.
 // ZAP: 2018/01/01 Update initialisation of PluginStats.
 // ZAP: 2018/11/14 Log alert count when completed.
+// ZAP: 2019/01/19 Handle counting alerts raised by scan (Issue 3929).
 
 package org.parosproxy.paros.core.scanner;
 
@@ -99,12 +100,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
@@ -156,6 +159,11 @@ public class HostProcess implements Runnable {
      * The count of alerts raised during the scan.
      */
     private int alertCount;
+
+    /**
+     * New alerts found during the scan in the current session.
+     */
+    private int newAlertCount = 0;
 
     /**
      * The ID of the message to be scanned by {@link AbstractHostPlugin}s.
@@ -750,6 +758,11 @@ public class HostProcess implements Runnable {
     }
 
     public void alertFound(Alert alert) {
+        ExtensionAlert extensionAlertRef = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+        if (extensionAlertRef.isNewAlert(alert)) {
+            newAlertCount++;
+        }
+
         parentScanner.notifyAlertFound(alert);
 
         PluginStats pluginStats = mapPluginStats.get(alert.getPluginId());
@@ -757,6 +770,10 @@ public class HostProcess implements Runnable {
             pluginStats.incAlertCount();
         }
         alertCount++;
+    }
+
+    public int getNewAlertCount() {
+        return newAlertCount;
     }
 
     /**
