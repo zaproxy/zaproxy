@@ -103,6 +103,7 @@ def usage():
     print('    -n context_file   context file which will be loaded prior to scanning the target')
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
+    print('    -S                safe mode this will skip the active scan and perform a baseline scan')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
@@ -133,6 +134,7 @@ def main(argv):
     host_override = ''
     format = ''
     zap_alpha = False
+    baseline = False
     info_unspecified = False
     base_dir = ''
     zap_ip = 'localhost'
@@ -204,6 +206,8 @@ def main(argv):
             zap_options = arg
         elif opt == '-s':
             detailed_output = False
+        elif opt == '-S':
+            baseline = True
         elif opt == '-T':
             timeout = int(arg)
         elif opt == '-O':
@@ -417,7 +421,8 @@ def main(argv):
                     # Dont bother checking the result - this will fail for pscan rules
                     zap.ascan.set_scanner_alert_threshold(id=scanner, alertthreshold='OFF', scanpolicyname=scan_policy)
 
-        zap_active_scan(zap, target, scan_policy)
+        if not baseline:
+            zap_active_scan(zap, target, scan_policy)
 
         zap_wait_for_passive_scan(zap, timeout * 60)
 
