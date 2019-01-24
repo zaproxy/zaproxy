@@ -206,7 +206,7 @@ def main(argv):
             zap_options = arg
         elif opt == '-s':
             detailed_output = False
-        elif opt == '-S'
+        elif opt == '-S':
             baseline = True
         elif opt == '-T':
             timeout = int(arg)
