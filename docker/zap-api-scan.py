@@ -103,7 +103,7 @@ def usage():
     print('    -n context_file   context file which will be loaded prior to scanning the target')
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
-    print('    -S                safe mode; this will skip the active scan and perform a baseline scan )
+    print('    -S                safe mode this will skip the active scan and perform a baseline scan')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
