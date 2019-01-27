@@ -132,7 +132,15 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		}
 		return total;
 	}
-	
+
+	public int getTotalNewAlerts() {
+		int totalNewAlerts = 0;
+		for (HostProcess process : this.getHostProcesses()) {
+			totalNewAlerts += process.getNewAlertCount();
+		}
+		return totalNewAlerts;
+	}
+
 	public ResponseCountSnapshot getRequestHistory() {
 		if (this.rcHistory.size() > 0) {
 			try {

@@ -841,6 +841,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				map.put("state", scan.getState().name());
 				map.put("reqCount", Integer.toString(scan.getTotalRequests()));
 				map.put("alertCount", Integer.toString(scan.getAlertsIds().size()));
+				map.put("newAlertCount", Integer.toString(scan.getTotalNewAlerts()));
 				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
