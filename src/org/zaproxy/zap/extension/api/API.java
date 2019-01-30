@@ -315,11 +315,10 @@ public class API {
 		boolean error = false;
 		
 		try {
-			JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
 
 			if (shortcutImpl != null) {
 				if (!getOptionsParamApi().isDisableKey() && !getOptionsParamApi().isNoKeyForSafeOps()) {
-					if ( ! this.hasValidKey(requestHeader, params)) {
+					if ( ! this.hasValidKey(requestHeader, getParams(requestHeader))) {
 						throw new ApiException(ApiException.Type.BAD_API_KEY);
 					}
 				}
@@ -330,6 +329,7 @@ public class API {
 				response = callbackImpl.handleCallBack(msg);
 				impl = callbackImpl;
 			} else {
+				JSONObject params = getParams(requestHeader);
 			
 				// Parse the query:
 				// format of url is http://zap/format/component/reqtype/name/?params
@@ -726,6 +726,10 @@ public class API {
 		}
 	}
 
+	private static JSONObject getParams(HttpRequestHeader requestHeader) throws ApiException {
+		return getParams(requestHeader.getURI().getEscapedQuery());
+	}
+
 	public static JSONObject getParams (String params) throws ApiException {
 		JSONObject jp = new JSONObject();
 		if (params == null || params.length() == 0) {
@@ -848,7 +852,8 @@ public class API {
 	 */
 	public boolean hasValidKey(HttpMessage msg) {
 		try {
-			return this.hasValidKey(msg.getRequestHeader(), getParams(msg.getRequestHeader().getURI().getEscapedQuery()));
+			HttpRequestHeader requestHeader = msg.getRequestHeader();
+			return this.hasValidKey(requestHeader, getParams(requestHeader));
 		} catch (ApiException e) {
 			logger.error(e.getMessage(), e);
 			return false;
