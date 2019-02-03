@@ -342,16 +342,18 @@ public class ExtensionLoader {
 
     public void hookOverrideMessageProxyListener(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
-            for (OverrideMessageProxyListener listener : listenerList) {
-                try {
-                    if (listener != null) {
-                        proxy.addOverrideMessageProxyListener(listener);
-                    }
-                    
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+            hookOverrideMessageProxyListeners(proxy, hook.getOverrideMessageProxyListenerList());
+        }
+    }
+
+    private static void hookOverrideMessageProxyListeners(Proxy proxy, List<OverrideMessageProxyListener> listeners) {
+        for (OverrideMessageProxyListener listener : listeners) {
+            try {
+                if (listener != null) {
+                    proxy.addOverrideMessageProxyListener(listener);
                 }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -786,7 +788,7 @@ public class ExtensionLoader {
 
         Proxy proxy = Control.getSingleton().getProxy();
         hookProxyListeners(proxy, extHook.getProxyListenerList());
-
+        hookOverrideMessageProxyListeners(proxy, extHook.getOverrideMessageProxyListenerList());
         hookPersistentConnectionListeners(proxy, extHook.getPersistentConnectionListener());
         hookConnectRequestProxyListeners(proxy, extHook.getConnectRequestProxyListeners());
 

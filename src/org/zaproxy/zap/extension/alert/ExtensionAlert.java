@@ -39,6 +39,7 @@ import java.util.Vector;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -74,6 +75,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 		SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
+    private static final Logger logger = Logger.getLogger(ExtensionAlert.class);
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
     private AlertTreeModel filteredTreeModel = null;
@@ -84,7 +86,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements
     private PopupMenuAlertDelete popupMenuAlertDelete = null;
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
-    private Logger logger = Logger.getLogger(ExtensionAlert.class);
 	private AlertParam alertParam = null;
 	private OptionsAlertPanel optionsPanel = null;
 	private Properties alertOverrides = new Properties();
@@ -170,6 +171,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements
 	}
 
     public void alertFound(Alert alert, HistoryReference ref) {
+        if (isInvalid(alert)) {
+            return;
+        }
+
         try {
             logger.debug("alertFound " + alert.getName() + " " + alert.getUri());
             if (ref == null) {
@@ -222,6 +227,17 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    private static boolean isInvalid(Alert alert) {
+        if (alert.getUri().isEmpty() || alert.getMessage() == null) {
+            logger.error(
+                    "Attempting to raise an alert without URI and/or HTTP message, Plugin ID: " + alert.getPluginId()
+                            + " Alert Name:" + alert.getName() + "\n\t"
+                            + StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
+            return true;
+        }
+        return false;
     }
 
     /*

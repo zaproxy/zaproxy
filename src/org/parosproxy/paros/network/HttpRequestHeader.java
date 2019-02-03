@@ -49,6 +49,7 @@
 // ZAP: 2018/02/06 Make the upper case changes locale independent (Issue 4327).
 // ZAP: 2018/08/10 Allow to set the user agent used by default request headers (Issue 4846).
 // ZAP: 2018/11/16 Add Accept header.
+// ZAP: 2019/01/25 Add Origin header.
 
 package org.parosproxy.paros.network;
 
@@ -77,6 +78,13 @@ public class HttpRequestHeader extends HttpHeader {
      * @since TODO add version
      */
     public static final String ACCEPT = "Accept";
+
+    /**
+     * The {@code Origin} request header.
+     *
+     * @since TODO add version
+     */
+    public static final String ORIGIN = "Origin";
 
     private static final long serialVersionUID = 4156598327921777493L;
     private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
