@@ -43,6 +43,7 @@ public class Tech implements Comparable<Tech> {
     public static final Tech Lang = new Tech("Language", "technologies.lang");
     public static final Tech ASP = new Tech(Lang, "ASP");
     public static final Tech C= new Tech(Lang, "C");
+    public static final Tech JSP_SERVLET = new Tech(Lang, "JSP/Servlet");
     public static final Tech PHP = new Tech(Lang, "PHP");
     public static final Tech XML = new Tech(Lang, "XML");
 
@@ -63,7 +64,7 @@ public class Tech implements Comparable<Tech> {
     public static final Tech[] builtInTech = {
         Db, MySQL, PostgreSQL, MsSQL, Oracle, SQLite, Access, Firebird, MaxDB, Sybase, Db2, HypersonicSQL, MongoDB, 
         CouchDB, 
-        Lang, ASP, C, PHP, XML,
+        Lang, ASP, C, JSP_SERVLET, PHP, XML,
         OS, Linux, MacOS, Windows,
         SCM, Git, SVN,
         WS, Apache, IIS, Tomcat};
