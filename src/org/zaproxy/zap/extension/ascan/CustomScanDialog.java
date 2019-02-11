@@ -234,9 +234,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         setTechSet(techTreeState);
 
-        // Policy panel
-        policyPanel.resetAndSetPolicy(scanPolicy.getName());
-
         this.setCustomTabPanel(4, policyPanel);
         
         // add custom panels
@@ -685,6 +682,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         techTreeState = null;
 
         if (refreshUi) {
+            policyPanel.resetAndSetPolicy(scanPolicyName);
             init(target);
             repaint();
         }
