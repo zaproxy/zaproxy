@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.log4j;
 
+import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -24,8 +25,11 @@ import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -74,6 +78,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
 	    if (getView() != null) {	        
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuGarbageCollect());
+	        extensionHook.addSessionListener(new ResetCounterOnSessionChange(scanStatus));
 	    }
 
 	}
@@ -118,4 +123,51 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 	public boolean supportsDb(String type) {
 		return true;
 	}
+
+    private static class ResetCounterOnSessionChange implements SessionChangedListener {
+        /**
+         * Keep track of errors logged while the session changes.
+         */
+        private int previousCount;
+        /**
+         * Do not reset the counter if ZAP is starting.
+         */
+        private boolean starting;
+        private ScanStatus scanStatus;
+
+        public ResetCounterOnSessionChange(ScanStatus scanStatus) {
+            this.scanStatus = scanStatus;
+            this.starting = true;
+        }
+
+        @Override
+        public void sessionAboutToChange(Session session) {
+            EventQueue.invokeLater(() -> {
+                previousCount = scanStatus.getScanCount();
+            });
+        }
+
+        @Override
+        public void sessionChanged(Session session) {
+            if (starting) {
+                starting = false;
+                return;
+            }
+
+            EventQueue.invokeLater(() -> {
+                scanStatus.setScanCount(scanStatus.getScanCount() - previousCount);
+                previousCount = 0;
+            });
+        }
+
+        @Override
+        public void sessionScopeChanged(Session session) {
+            // Nothing to do.
+        }
+
+        @Override
+        public void sessionModeChanged(Mode mode) {
+            // Nothing to do.
+        }
+    }
 }
