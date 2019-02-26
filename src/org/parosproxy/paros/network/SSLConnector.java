@@ -34,6 +34,7 @@
 // ZAP: 2017/09/22 Rely on SNI if the domain is no known when creating the SSL/TLS tunnel.
 // ZAP: 2017/11/07 Pass the listeningIpAddress when creating the SSL/TLS tunnel. Check if hostname is an ipAddress when creating the SSL/TLS tunnel.
 // ZAP: 2018/06/08 Don't enable client cert if none set (Issue 4745).
+// ZAP: 2019/02/26 Disable TLS 1.3 by default as it currently fails with Java 11
 
 package org.parosproxy.paros.network;
 
@@ -108,7 +109,18 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		SECURITY_PROTOCOL_TLS_V1,
 		SECURITY_PROTOCOL_TLS_V1_1,
 		SECURITY_PROTOCOL_TLS_V1_2,
-		SECURITY_PROTOCOL_TLS_V1_3 };
+		SECURITY_PROTOCOL_TLS_V1_3 
+	};
+
+	private static final String[] DEFAULT_SERVER_ENABLED_PROTOCOLS = {
+		SECURITY_PROTOCOL_SSL_V3,
+		SECURITY_PROTOCOL_TLS_V1,
+		SECURITY_PROTOCOL_TLS_V1_1,
+		SECURITY_PROTOCOL_TLS_V1_2,
+		// Disable TLS 1.3 by default as it currently fails with Java 11
+		// TODO re-enable (or just use DEFAULT_ENABLED_PROTOCOLS) when Java 11 works with TLS 1.3
+		// SECURITY_PROTOCOL_TLS_V1_3 
+	};
 
 	private static final String[] FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS = { SECURITY_PROTOCOL_TLS_V1 };
 
@@ -336,7 +348,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	public static String[] getServerEnabledProtocols() {
 		if (serverEnabledProtocols == null) {
-			setServerEnabledProtocols(DEFAULT_ENABLED_PROTOCOLS);
+			setServerEnabledProtocols(DEFAULT_SERVER_ENABLED_PROTOCOLS);
 		}
 		return Arrays.copyOf(serverEnabledProtocols, serverEnabledProtocols.length);
 	}
