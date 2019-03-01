@@ -996,6 +996,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         return getLocalVersionInfo().getInstalledAddOns();
     }
 
+    protected List<AddOn> getLocalAddOns() {
+        return getLocalVersionInfo().getAddOns();
+    }
+
 	protected List<AddOn> getMarketplaceAddOns() {
         AddOnCollection aoc = this.getLatestVersionInfo();
         if (aoc != null) {
