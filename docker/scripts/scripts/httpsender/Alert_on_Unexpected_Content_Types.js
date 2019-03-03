@@ -10,6 +10,8 @@ var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExte
 var expectedTypes = [
 		"application/json",
 		"application/octet-stream",
+		"application/problem+json",
+		"application/problem+xml",
 		"application/soap+xml",
 		"application/xml",
 		"application/x-yaml",
