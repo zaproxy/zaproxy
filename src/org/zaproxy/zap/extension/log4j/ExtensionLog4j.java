@@ -78,7 +78,10 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
 	    if (getView() != null) {	        
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuGarbageCollect());
-	        extensionHook.addSessionListener(new ResetCounterOnSessionChange(scanStatus));
+
+	        if (scanStatus != null) {
+	            extensionHook.addSessionListener(new ResetCounterOnSessionChange(scanStatus));
+	        }
 	    }
 
 	}
