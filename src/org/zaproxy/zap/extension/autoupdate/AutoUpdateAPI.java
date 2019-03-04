@@ -53,6 +53,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 	private static final String VIEW_LATEST_VERSION_NUMBER = "latestVersionNumber";
 	private static final String VIEW_IS_LATEST_VERSION = "isLatestVersion";
 	private static final String VIEW_INSTALLED_ADDONS = "installedAddons";
+	private static final String VIEW_LOCAL_ADDONS = "localAddons";
 	private static final String VIEW_NEW_ADDONS = "newAddons";
 	private static final String VIEW_UPDATED_ADDONS = "updatedAddons";
 	private static final String VIEW_MARKETPLACE_ADDONS = "marketplaceAddons";
@@ -72,6 +73,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_LATEST_VERSION_NUMBER));
 		this.addApiView(new ApiView(VIEW_IS_LATEST_VERSION));
 		this.addApiView(new ApiView(VIEW_INSTALLED_ADDONS));
+		this.addApiView(new ApiView(VIEW_LOCAL_ADDONS));
 		this.addApiView(new ApiView(VIEW_NEW_ADDONS));
 		this.addApiView(new ApiView(VIEW_UPDATED_ADDONS));
 		this.addApiView(new ApiView(VIEW_MARKETPLACE_ADDONS));
@@ -149,36 +151,30 @@ public class AutoUpdateAPI extends ApiImplementor {
 		} else if (VIEW_IS_LATEST_VERSION.equals(name)) {
 			result = new ApiResponseElement(name, Boolean.toString(this.isLatestVersion()));
 		} else if (VIEW_INSTALLED_ADDONS.equals(name)) {
-			final ApiResponseList resultList = new ApiResponseList(name);
-			for (AddOn ao : extension.getInstalledAddOns()) {
-				resultList.addItem(addonToSet(ao));
-			}
-			result = resultList;
+			result = createResponseList(name, extension.getInstalledAddOns());
+		} else if (VIEW_LOCAL_ADDONS.equals(name)) {
+			result = createResponseList(name, extension.getLocalAddOns());
 		} else if (VIEW_NEW_ADDONS.equals(name)) {
-			final ApiResponseList resultList = new ApiResponseList(name);
-			for (AddOn ao : extension.getNewAddOns()) {
-				resultList.addItem(addonToSet(ao));
-			}
-			result = resultList;
+			result = createResponseList(name, extension.getNewAddOns());
 		} else if (VIEW_UPDATED_ADDONS.equals(name)) {
-			final ApiResponseList resultList = new ApiResponseList(name);
-			for (AddOn ao : extension.getUpdatedAddOns()) {
-				resultList.addItem(addonToSet(ao));
-			}
-			result = resultList;
+			result = createResponseList(name, extension.getUpdatedAddOns());
 		} else if (VIEW_MARKETPLACE_ADDONS.equals(name)) {
-			final ApiResponseList resultList = new ApiResponseList(name);
-			for (AddOn ao : extension.getMarketplaceAddOns()) {
-				resultList.addItem(addonToSet(ao));
-			}
-			result = resultList;
+			result = createResponseList(name, extension.getMarketplaceAddOns());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
 	}
 	
-	private ApiResponseSet<String> addonToSet(AddOn ao) {
+	private static ApiResponseList createResponseList(String name, List<AddOn> addOns) {
+		ApiResponseList response = new ApiResponseList(name);
+		for (AddOn ao : addOns) {
+			response.addItem(addonToSet(ao));
+		}
+		return response;
+	}
+
+	private static ApiResponseSet<String> addonToSet(AddOn ao) {
 		Map<String, String> map = new HashMap<>();
 		map.put("id", ao.getId());
 		map.put("name", ao.getName());
@@ -191,6 +187,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 		map.put("status", ao.getStatus().toString());
 		map.put("url", ObjectUtils.toString(ao.getUrl()));
 		map.put("version", ObjectUtils.toString(ao.getVersion()));
+		map.put("installationStatus", ObjectUtils.toString(ao.getInstallationStatus()));
 		return new ApiResponseSet<String>("addon", map);
 	}
 	
