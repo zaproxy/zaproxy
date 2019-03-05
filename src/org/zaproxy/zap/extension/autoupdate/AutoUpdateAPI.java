@@ -151,9 +151,9 @@ public class AutoUpdateAPI extends ApiImplementor {
 		} else if (VIEW_IS_LATEST_VERSION.equals(name)) {
 			result = new ApiResponseElement(name, Boolean.toString(this.isLatestVersion()));
 		} else if (VIEW_INSTALLED_ADDONS.equals(name)) {
-			result = createResponseList(name, extension.getInstalledAddOns());
+			result = createResponseList(name, extension.getInstalledAddOns(), true);
 		} else if (VIEW_LOCAL_ADDONS.equals(name)) {
-			result = createResponseList(name, extension.getLocalAddOns());
+			result = createResponseList(name, extension.getLocalAddOns(), true);
 		} else if (VIEW_NEW_ADDONS.equals(name)) {
 			result = createResponseList(name, extension.getNewAddOns());
 		} else if (VIEW_UPDATED_ADDONS.equals(name)) {
@@ -167,14 +167,18 @@ public class AutoUpdateAPI extends ApiImplementor {
 	}
 	
 	private static ApiResponseList createResponseList(String name, List<AddOn> addOns) {
+		return createResponseList(name, addOns, false);
+	}
+
+	private static ApiResponseList createResponseList(String name, List<AddOn> addOns, boolean localAddOns) {
 		ApiResponseList response = new ApiResponseList(name);
 		for (AddOn ao : addOns) {
-			response.addItem(addonToSet(ao));
+			response.addItem(addonToSet(ao, localAddOns));
 		}
 		return response;
 	}
 
-	private static ApiResponseSet<String> addonToSet(AddOn ao) {
+	private static ApiResponseSet<String> addonToSet(AddOn ao, boolean localAddOn) {
 		Map<String, String> map = new HashMap<>();
 		map.put("id", ao.getId());
 		map.put("name", ao.getName());
@@ -188,6 +192,9 @@ public class AutoUpdateAPI extends ApiImplementor {
 		map.put("url", ObjectUtils.toString(ao.getUrl()));
 		map.put("version", ObjectUtils.toString(ao.getVersion()));
 		map.put("installationStatus", ObjectUtils.toString(ao.getInstallationStatus()));
+		if (localAddOn) {
+			map.put("file", ao.getFile().toString());
+		}
 		return new ApiResponseSet<String>("addon", map);
 	}
 	
