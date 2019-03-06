@@ -50,6 +50,7 @@
 // ZAP: 2018/08/10 Allow to set the user agent used by default request headers (Issue 4846).
 // ZAP: 2018/11/16 Add Accept header.
 // ZAP: 2019/01/25 Add Origin header.
+// ZAP: 2019/03/06 Log or include the malformed data in the exception message.
 
 package org.parosproxy.paros.network;
 
@@ -283,7 +284,7 @@ public class HttpRequestHeader extends HttpHeader {
             throw e;
         
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("Failed to parse:\n" + data, e);
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException(e.getMessage());
         }
@@ -436,7 +437,7 @@ public class HttpRequestHeader extends HttpHeader {
         Matcher matcher = patternRequestLine.matcher(mStartLine);
         if (!matcher.find()) {
             mMalformedHeader = true;
-            throw new HttpMalformedHeaderException("Failed to find pattern: " + patternRequestLine);
+            throw new HttpMalformedHeaderException("Failed to find pattern " + patternRequestLine + " in: " + mStartLine);
         }
 
         mMethod = matcher.group(1);
