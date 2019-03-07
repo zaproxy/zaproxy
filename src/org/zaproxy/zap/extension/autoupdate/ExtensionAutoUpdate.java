@@ -278,6 +278,19 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			}
 		}
 
+		File addOnFile;
+		try {
+			addOnFile = copyAddOnFileToLocalPluginFolder(ao);
+		} catch (FileAlreadyExistsException e) {
+			logger.warn("Unable to copy add-on, a file with the same name already exists.", e);
+			return false;
+		} catch (IOException e) {
+			logger.warn("Unable to copy add-on to local plugin folder.", e);
+			return false;
+		}
+
+		ao.setFile(addOnFile);
+
 		return install(ao);
 	}
 	
