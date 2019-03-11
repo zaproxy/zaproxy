@@ -723,6 +723,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     }
     
     public void alertIfNewVersions() {
+        if (Constant.isDevMode()) {
+            return;
+        }
+
     	// Kicks off a thread and pops up a window if there are new versions.
     	// Depending on the options the user has chosen.
     	// Only expect this to be called on startup and in desktop mode
