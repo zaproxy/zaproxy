@@ -9,7 +9,6 @@
 	<property name="dist.lib.dir" location="../lib" />
 	<property name="javadocs.dir" location="../javadocs" />
 	<property name="lang.dir" value="${src}/lang" />
-	<property name="help.dir" value="../../zap-core-help/src/help" />
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
 	<property name="test.build" location="buildtest" />
@@ -46,9 +45,6 @@
 	<path id="build.classpath">
 		<fileset dir="${build.lib.dir}" includes="*.jar"/>
 	</path>
-
-	<!-- Ant task to generate JavaHelp jars -->
-	<taskdef name="generatejavahelpjars" classname="org.zaproxy.ant.javahelp.taskdefs.GenerateJavaHelpJars" classpathref="build.classpath" />
 
 	<!-- task to do conditionals -->
 	<taskdef classpathref="build.classpath" resource="net/sf/antcontrib/antlib.xml" />
@@ -230,47 +226,6 @@
 		<chmod perm="755" file="${dist}/zap.sh" />
 	</target>
 
-	<macrodef name="copy-help-to-addon" description="deploy the help file to the equivalent addon">
-		<attribute name="src"/>
-		<attribute name="ext"/>
-		<attribute name="lang"/>
-		<sequential>
-			<copy file="@{src}/zaphelp@{lang}.jar" 
-	        	todir="@{ext}/src/org/zaproxy/zap/extension/help@{lang}/lib"/>
-		</sequential>
-	</macrodef>
-
-	<target name="generate-help-jars" description="Generates all ZAP (core) help jars (default and i18n) and copies them to the right place (lib directory)">
-		<!-- Note that the translated languages currently supported are explicitly named - 
-    		most dont have enough content for an alpha release -->
-		<local name="wkdir" />
-		<property name="wkdir" location="${build}/HelpJars" />
-		<delete dir="${wkdir}" includeEmptyDirs="true" />
-		<mkdir dir="${wkdir}" />
-		<mkdir dir="${wkdir}/jars" />
-		<generatejavahelpjars jhalljar="${build.lib.dir}/jhall.jar" destdir="${wkdir}/jars" 
-            workingdir="${wkdir}" helpcontentsdirname="contents" helpsetfilename="helpset*.hs">
-			<dirset dir="${help.dir}">
-				<include name="zaphelp" />
-				<include name="zaphelp_bs_BA" />
-				<include name="zaphelp_es_ES" />
-				<include name="zaphelp_fr_FR" />
-				<include name="zaphelp_ja_JP" />
-				<include name="zaphelp_pt_BR" />
-			</dirset>
-		</generatejavahelpjars>
-		<!-- copy the jars to the right add-ons -->
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.trunk.dir}" lang=""/>
-		<!-- default en_GB -->
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_bs_BA"/>
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_es_ES"/>
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_fr_FR"/>
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_ja_JP"/>
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.trunk.dir}" lang="_pt_BR"/>
-
-		<delete dir="${wkdir}" includeEmptyDirs="true" />
-	</target>
-
 	<target name="generate-language-file" depends="setup" 
 			description="Generates the language file (note the X should be changed;)">
 		<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
@@ -382,7 +337,7 @@
 	</target>
 
 	
-	<target name="deploy-release-addons" depends="generate-help-jars">
+	<target name="deploy-release-addons">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
 		</delete>
@@ -392,7 +347,7 @@
 		<!--ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-release" inheritAll="false"/-->
 	</target>
 
-	<target name="deploy-weekly-addons" depends="generate-help-jars">
+	<target name="deploy-weekly-addons">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
 		</delete>
@@ -401,7 +356,7 @@
 		<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-weekly" inheritAll="false"/>
 	</target>
 
-	<target name="deploy-all-addons" depends="generate-help-jars">
+	<target name="deploy-all-addons">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
 		</delete>
@@ -670,7 +625,7 @@
 	<target name="full-release" depends="dist, package-linux, package-macosx"
 		description="Generates the distribution and Linux/MacOS X packages [default]" />
 
-	<target name="day-stamped-release" description="Generates the day-stamped package, as well as the distribution and help jars">
+	<target name="day-stamped-release" description="Generates the day-stamped package">
 		<tstamp>
 			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
 		</tstamp>
