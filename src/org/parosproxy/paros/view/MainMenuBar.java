@@ -71,6 +71,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenu menuEdit = null;
 	private javax.swing.JMenu menuTools = null;
 	private javax.swing.JMenu menuView = null;
+	private javax.swing.JMenu menuImport = null;
 	private ZapMenuItem menuToolsOptions = null;
 	private javax.swing.JMenu menuFile = null;
 	private ZapMenuItem menuFileNewSession = null;
@@ -89,7 +90,9 @@ public class MainMenuBar extends JMenuBar {
     private JMenu menuZapMode = null;
     private ButtonGroup menuZapModeGroup = null;
     private Map<Mode, JRadioButtonMenuItem> menuZapModeMap = null;
-    // ZAP: Added standard report menu
+
+
+	// ZAP: Added standard report menu
 	private JMenu menuReport = null;
 	private JMenu menuOnline = null;
 	/**
@@ -104,15 +107,16 @@ public class MainMenuBar extends JMenuBar {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.add(getMenuFile());
-        this.add(getMenuEdit());
-        this.add(getMenuView());
-        this.add(getMenuAnalyse());
-        this.add(getMenuReport());
-        this.add(getMenuTools());
-        this.add(getMenuOnline());
-        this.add(getMenuHelp());
-			
+		this.add(getMenuFile());
+		this.add(getMenuEdit());
+		this.add(getMenuView());
+		this.add(getMenuAnalyse());
+		this.add(getMenuReport());
+		this.add(getMenuTools());
+		this.add(getMenuImport());
+		this.add(getMenuOnline());
+		this.add(getMenuHelp());
+
 	}
 	/**
 
@@ -210,6 +214,25 @@ public class MainMenuBar extends JMenuBar {
 		}
 		return menuView;
 	}
+	/**
+
+	 * This method initializes menuImport
+
+	 *
+
+	 * @return javax.swing.JMenu
+
+	 */
+	public javax.swing.JMenu getMenuImport() {
+		if (menuImport == null) {
+			menuImport = new javax.swing.JMenu();
+			menuImport.setText(Constant.messages.getString("menu.import")); // ZAP: i18n
+			menuImport.setMnemonic(Constant.messages.getChar("menu.import.mnemonic"));
+		}
+		return menuImport;
+	}
+
+
 
 	/**
 

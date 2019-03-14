@@ -121,6 +121,16 @@ public class ExtensionHookMenu {
     private List<JMenuItem> toolsMenuItemList;
 
     /**
+     * The import menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     *
+     * @see #addImportMenuItemImpl(JMenuItem)
+     * @see #getImport()
+     */
+    private List<JMenuItem> importMenuItemList;
+
+    /**
      * The menus for the main context menu added to this extension hook.
      * <p>
      * Lazily initialised.
@@ -197,6 +207,8 @@ public class ExtensionHookMenu {
     List<JMenuItem> getTools() {
         return unmodifiableList(toolsMenuItemList);
     }
+
+    List<JMenuItem> getImport() { return unmodifiableList(importMenuItemList); }
     
 
     
@@ -310,7 +322,7 @@ public class ExtensionHookMenu {
         }
         toolsMenuItemList.add(menuItem);
     }
-    
+
     public void addFileMenuItem(ZapMenuItem menuItem) {
         addFileMenuItemImpl(menuItem);
     }
@@ -331,6 +343,14 @@ public class ExtensionHookMenu {
         addToolsMenuItemImpl(menuItem);
     }
 
+    public void addImportMenuItem(ZapMenuItem menuItem) { addImportMenuItemImpl(menuItem); }
+
+    private void addImportMenuItemImpl (JMenuItem menuItem) {
+        if (importMenuItemList == null) {
+            importMenuItemList = createList();
+        }
+        importMenuItemList.add(menuItem);
+    }
 
     public void addNewMenu(JMenu menu) {
         if (newMenuList == null) {
