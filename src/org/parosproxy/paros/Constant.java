@@ -80,6 +80,7 @@
 // ZAP: 2018/06/13 Correct install dir detection from JAR.
 // ZAP: 2018/06/29 Allow to check if in dev mode.
 // ZAP: 2018/07/19 Fallback to bundled config.xml and log4j.properties.
+// ZAP: 2019/03/14 Move and correct update of old options.
 
 package org.parosproxy.paros;
 
@@ -149,6 +150,7 @@ public final class Constant {
     private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
+    private static final long V_2_2_2_TAG = 2002002;
     private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
     private static final long V_2_0_0_TAG = 2000000;
@@ -585,6 +587,9 @@ public final class Constant {
 	            	if (ver <= V_2_2_0_TAG) {
 	            		upgradeFrom2_2_0(config);
 	            	}
+	            	if (ver <= V_2_2_2_TAG) {
+                        upgradeFrom2_2_2(config);
+	            	}
 	            	if (ver <= V_2_3_1_TAG) {
 	            		upgradeFrom2_3_1(config);
 	            	}
@@ -863,22 +868,23 @@ public final class Constant {
     }
 
     private void upgradeFrom2_2_0(XMLConfiguration config) {
-    	try {
-			if ( ! config.getBoolean(OptionsParamCheckForUpdates.CHECK_ON_START, false)) {
-				/*
-				 * Check-for-updates on start set to false - force another prompt to ask the user,
-				 * as this option can have been unset incorrectly before.
-				 * And we want to encourage users to use this ;)
-				 */
-				config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
-			}
-		} catch (Exception e) {
-			// At one stage this was an integer, which will cause an exception to be thrown
+		if ( config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 0) == 0) {
+			/*
+			 * Check-for-updates on start disabled - force another prompt to ask the user,
+			 * as this option can have been unset incorrectly before.
+			 * And we want to encourage users to use this ;)
+			 */
 			config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
 		}
 		// Clear the block list - addons were incorrectly added to this if an update failed
 		config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
     	
+    }
+
+    private void upgradeFrom2_2_2(XMLConfiguration config) {
+        // Change the type of the option from int to boolean.
+        int oldValue = config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 1);
+        config.setProperty(OptionsParamCheckForUpdates.CHECK_ON_START, oldValue != 0);
     }
 
     private void upgradeFrom2_3_1(XMLConfiguration config) {
