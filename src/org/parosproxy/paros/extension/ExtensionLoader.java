@@ -75,6 +75,7 @@
 // ZAP: 2018/07/18 Tweak logging.
 // ZAP: 2018/10/05 Get menu/view hooks without initialising them.
 // ZAP: 2018/10/09 Use managed ExtensionHook when removing extensions.
+// ZAP: 2019/03/15 Issue 3578: Added Helper options for Import menu
 
 package org.parosproxy.paros.extension;
 
@@ -986,6 +987,7 @@ public class ExtensionLoader {
         addMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         addMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
         addMenuHelper(menuBar.getMenuOnline(), hookMenu.getOnlineMenus());
+        addMenuHelper(menuBar.getMenuImport(), hookMenu.getImport());
 
         addMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
     }
@@ -1049,6 +1051,7 @@ public class ExtensionLoader {
         removeMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         removeMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
         removeMenuHelper(menuBar.getMenuOnline(), hookMenu.getOnlineMenus());
+        removeMenuHelper(menuBar.getMenuImport(), hookMenu.getImport());
 
         removeMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
 
@@ -1261,6 +1264,14 @@ public class ExtensionLoader {
         }
         
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools().remove(menuItem);
+    }
+
+    public void removeImportMenuItem(JMenuItem menuItem) {
+        if (!View.isInitialised()) {
+            return;
+        }
+
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuImport().remove(menuItem);
     }
 
     public void removeHelpMenuItem(JMenuItem menuItem) {

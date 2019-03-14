@@ -33,6 +33,7 @@
 // ZAP: 2017/06/27 Issue 2375: Added option to change ZAP mode in edit menu
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
+// ZAP: 2019/03/15 Issue 3578: Added new menu Import
 
 package org.parosproxy.paros.view;
 

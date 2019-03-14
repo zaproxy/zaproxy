@@ -28,6 +28,7 @@
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2016/09/26 JavaDoc tweaks
 // ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
+// ZAP: 2019/03/15 Issue 3578: Added the method addImportMenuItem(ZapMenuItem  menuitem)
 
 package org.parosproxy.paros.extension;
 
