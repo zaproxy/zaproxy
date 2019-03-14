@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConversionException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
@@ -74,8 +73,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 
     @Override
     protected void parse() {
-        updateOldOptions();
-        
 	    checkOnStart = getBoolean(CHECK_ON_START, true);
 	    dayLastChecked = getString(DAY_LAST_CHECKED, "");
 	    dayLastInstallWarned = getString(DAY_LAST_INSTALL_WARNED, "");
@@ -102,15 +99,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		}
 		setDownloadDirectory(new File(getString(DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN)), false);
     }
-
-	private void updateOldOptions() {
-		try {
-			int oldValue = getConfig().getInt(CHECK_ON_START, 0);
-			getConfig().setProperty(CHECK_ON_START, oldValue != 0);
-		} catch(ConversionException ignore) {
-			// Option already using boolean type.
-		}
-	}
 
 	/**
 	 * Sets whether or not the "check for updates on start up" is enabled.
