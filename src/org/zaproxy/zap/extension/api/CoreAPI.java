@@ -393,9 +393,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					} catch (InterruptedException e) {
 						// Ignore
 					}
-					Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-					logger.info(Constant.PROGRAM_TITLE + " terminated.");
-					System.exit(0);
+					try {
+						Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
+						logger.info(Constant.PROGRAM_TITLE + " terminated.");
+					} catch (Throwable e) {
+						logger.error("An error occurred while shutting down:", e);
+					} finally {
+						System.exit(0);
+					}
 				}
 			};
 			thread.start();

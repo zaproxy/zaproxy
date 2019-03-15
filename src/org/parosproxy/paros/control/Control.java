@@ -69,6 +69,7 @@
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
 // ZAP: 2018/01/04 Do not notify extensions if failed to change the session.
 // ZAP: 2018/01/12 Save configurations as last shutdown action.
+// ZAP: 2019/03/14 Improve error handling on shutdown
 
 package org.parosproxy.paros.control;
 
@@ -250,18 +251,23 @@ public class Control extends AbstractControl implements SessionListener {
 	        @Override
 	        public void run() {
 	            // ZAP: Changed to use the option compact database.
-	            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-	    	    log.info(Constant.PROGRAM_TITLE + " terminated.");
-	    	    
-	    	    if (openOnExit != null && Desktop.isDesktopSupported()) {
-					try {
-			    	    log.info("Openning file " + openOnExit.getAbsolutePath());
-						Desktop.getDesktop().open(openOnExit);
-					} catch (IOException e) {
-						log.error("Failed to open file " + openOnExit.getAbsolutePath(), e);
-					}
-	    	    }
-	    		System.exit(0);   
+                try {
+                    control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
+                    log.info(Constant.PROGRAM_TITLE + " terminated.");
+
+                    if (openOnExit != null && Desktop.isDesktopSupported()) {
+                        try {
+                            log.info("Openning file " + openOnExit.getAbsolutePath());
+                            Desktop.getDesktop().open(openOnExit);
+                        } catch (IOException e) {
+                            log.error("Failed to open file " + openOnExit.getAbsolutePath(), e);
+                        }
+                    }
+                } catch (Throwable e) {
+                    log.error("An error occurred while shutting down:", e);
+                } finally {
+                    System.exit(0);
+                }
 	        }
 	    }, "ZAP-Shutdown");
 
