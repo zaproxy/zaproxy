@@ -194,6 +194,8 @@ Scanners:
 100000  Client/Server HTTP Error Response Codes [Script]
 100001  Unexpected Content Types [Script]
 
+110000  Websocket Passive Scan scripts
+
 322420463 Retire.js
 
 ```
