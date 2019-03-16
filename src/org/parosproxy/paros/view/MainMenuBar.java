@@ -91,8 +91,6 @@ public class MainMenuBar extends JMenuBar {
     private JMenu menuZapMode = null;
     private ButtonGroup menuZapModeGroup = null;
     private Map<Mode, JRadioButtonMenuItem> menuZapModeMap = null;
-
-
 	// ZAP: Added standard report menu
 	private JMenu menuReport = null;
 	private JMenu menuOnline = null;
