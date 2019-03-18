@@ -63,7 +63,7 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	cd ../zaproxy && \
 	ant -f build/build.xml deploy-weekly-addons && \
 	cd ../zap-hud/ && \
-	./gradlew copyAddOn && \
+	./gradlew copyZapAddOn && \
 	cd ../zap-core-help/ && \
 	./gradlew copyWeeklyAddOns && \
 	cd ../zaproxy && \
