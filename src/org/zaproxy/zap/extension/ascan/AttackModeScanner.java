@@ -48,6 +48,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
 import org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ScanStatus;
 
 public class AttackModeScanner implements EventConsumer {
@@ -152,9 +153,21 @@ public class AttackModeScanner implements EventConsumer {
         		SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
+						boolean anyInScope = false;
+						for (Context ctx: Model.getSingleton().getSession().getContexts()) {
+							if (ctx.isInScope() && (ctx.getIncludeInContextRegexs() != null
+									&& !ctx.getIncludeInContextRegexs().isEmpty())) {
+								anyInScope = true;
+								break;
+							}
+						}
+						String promptMsg = anyInScope ? Constant.messages.getString("ascan.attack.prompt")
+								: Constant.messages.getString("ascan.attack.prompt")
+										+ Constant.messages.getString("ascan.attack.prompt.no.scope",
+												Constant.messages.getString("view.toolbar.mode.attack.select"));
 						int res = View.getSingleton().showYesNoRememberDialog(
 								View.getSingleton().getMainFrame(), 
-								Constant.messages.getString("ascan.attack.prompt"));
+								promptMsg);
 
 		        		if (View.getSingleton().isRememberLastDialogChosen()) {
 		        			extension.getScannerParam().setPromptInAttackMode(false);
