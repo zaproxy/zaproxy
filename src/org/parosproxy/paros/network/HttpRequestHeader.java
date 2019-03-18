@@ -449,29 +449,30 @@ public class HttpRequestHeader extends HttpHeader {
             throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
 
-        mUri = parseURI(sUri);
-
-        if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
-            mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
-        }
-
-        if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
-            mUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
-        }
-
-        if (mUri.getScheme().equalsIgnoreCase(HTTPS)) {
-            setSecure(true);
-        }
-
-        String hostHeader;
         if (mMethod.equalsIgnoreCase(CONNECT)) {
+            String hostHeader;
             hostHeader = sUri;
             parseHostName(hostHeader);
-            
+            mUri = parseURI(mHostName);
+
         } else {
+            mUri = parseURI(sUri);
+
+            if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
+                mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
+            }
+
+            if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
+                mUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
+            }
+
+            if (mUri.getScheme().equalsIgnoreCase(HTTPS)) {
+                setSecure(true);
+            }
             mHostName = mUri.getHost();
             setHostPort(mUri.getPort());
         }
+
     }
 
     private void parseHostName(String hostHeader) {
