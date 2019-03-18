@@ -28,6 +28,7 @@
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2016/09/26 JavaDoc tweaks
 // ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
+// ZAP: 2019/03/15 Issue 3578: Added the method addImportMenuItem(ZapMenuItem  menuitem)
 
 package org.parosproxy.paros.extension;
 
@@ -121,6 +122,17 @@ public class ExtensionHookMenu {
     private List<JMenuItem> toolsMenuItemList;
 
     /**
+     * The import menus added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     *
+     * @see #addImportMenuItem(ZapMenuItem)
+     * @see #getImport()
+     * @since TODO Add Version
+     */
+    private List<JMenuItem> importMenuItemList;
+
+    /**
      * The menus for the main context menu added to this extension hook.
      * <p>
      * Lazily initialised.
@@ -196,6 +208,10 @@ public class ExtensionHookMenu {
 
     List<JMenuItem> getTools() {
         return unmodifiableList(toolsMenuItemList);
+    }
+
+    List<JMenuItem> getImport() { 
+	return unmodifiableList(importMenuItemList); 
     }
     
 
@@ -310,7 +326,7 @@ public class ExtensionHookMenu {
         }
         toolsMenuItemList.add(menuItem);
     }
-    
+
     public void addFileMenuItem(ZapMenuItem menuItem) {
         addFileMenuItemImpl(menuItem);
     }
@@ -330,7 +346,15 @@ public class ExtensionHookMenu {
     public void addToolsMenuItem(ZapMenuItem menuItem) {
         addToolsMenuItemImpl(menuItem);
     }
-
+    /**
+     * @since TODO Add Version
+     */
+    public void addImportMenuItem(ZapMenuItem menuItem) { 
+	if (importMenuItemList == null) {
+            importMenuItemList = createList();
+        }
+        importMenuItemList.add(menuItem);
+    }
 
     public void addNewMenu(JMenu menu) {
         if (newMenuList == null) {

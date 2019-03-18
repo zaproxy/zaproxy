@@ -33,6 +33,7 @@
 // ZAP: 2017/06/27 Issue 2375: Added option to change ZAP mode in edit menu
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
+// ZAP: 2019/03/15 Issue 3578: Added new menu Import
 
 package org.parosproxy.paros.view;
 
@@ -71,6 +72,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenu menuEdit = null;
 	private javax.swing.JMenu menuTools = null;
 	private javax.swing.JMenu menuView = null;
+	private javax.swing.JMenu menuImport = null;
 	private ZapMenuItem menuToolsOptions = null;
 	private javax.swing.JMenu menuFile = null;
 	private ZapMenuItem menuFileNewSession = null;
@@ -89,7 +91,7 @@ public class MainMenuBar extends JMenuBar {
     private JMenu menuZapMode = null;
     private ButtonGroup menuZapModeGroup = null;
     private Map<Mode, JRadioButtonMenuItem> menuZapModeMap = null;
-    // ZAP: Added standard report menu
+	// ZAP: Added standard report menu
 	private JMenu menuReport = null;
 	private JMenu menuOnline = null;
 	/**
@@ -104,15 +106,16 @@ public class MainMenuBar extends JMenuBar {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.add(getMenuFile());
-        this.add(getMenuEdit());
-        this.add(getMenuView());
-        this.add(getMenuAnalyse());
-        this.add(getMenuReport());
-        this.add(getMenuTools());
-        this.add(getMenuOnline());
-        this.add(getMenuHelp());
-			
+		this.add(getMenuFile());
+		this.add(getMenuEdit());
+		this.add(getMenuView());
+		this.add(getMenuAnalyse());
+		this.add(getMenuReport());
+		this.add(getMenuTools());
+		this.add(getMenuImport());
+		this.add(getMenuOnline());
+		this.add(getMenuHelp());
+
 	}
 	/**
 
@@ -210,6 +213,23 @@ public class MainMenuBar extends JMenuBar {
 		}
 		return menuView;
 	}
+
+	/**
+	 * This method initializes menuImport
+	 *
+	 * @return javax.swing.JMenu
+	 * @since TODO Add Version
+	 */
+	public javax.swing.JMenu getMenuImport() {
+		if (menuImport == null) {
+			menuImport = new javax.swing.JMenu();
+			menuImport.setText(Constant.messages.getString("menu.import"));
+			menuImport.setMnemonic(Constant.messages.getChar("menu.import.mnemonic"));
+		}
+		return menuImport;
+	}
+
+
 
 	/**
 
