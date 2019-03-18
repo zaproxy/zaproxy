@@ -213,19 +213,17 @@ public class MainMenuBar extends JMenuBar {
 		}
 		return menuView;
 	}
+
 	/**
-
 	 * This method initializes menuImport
-
 	 *
-
 	 * @return javax.swing.JMenu
-
+	 * @since TODO Add Version
 	 */
 	public javax.swing.JMenu getMenuImport() {
 		if (menuImport == null) {
 			menuImport = new javax.swing.JMenu();
-			menuImport.setText(Constant.messages.getString("menu.import")); // ZAP: i18n
+			menuImport.setText(Constant.messages.getString("menu.import"));
 			menuImport.setMnemonic(Constant.messages.getChar("menu.import.mnemonic"));
 		}
 		return menuImport;

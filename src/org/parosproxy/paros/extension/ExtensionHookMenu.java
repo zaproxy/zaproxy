@@ -126,7 +126,7 @@ public class ExtensionHookMenu {
      * <p>
      * Lazily initialised.
      *
-     * @see #addImportMenuItemImpl(JMenuItem)
+     * @see #addImportMenuItem(ZapMenuItem)
      * @see #getImport()
      * @since TODO Add Version
      */
@@ -346,13 +346,11 @@ public class ExtensionHookMenu {
     public void addToolsMenuItem(ZapMenuItem menuItem) {
         addToolsMenuItemImpl(menuItem);
     }
-
+    /**
+     * @since TODO Add Version
+     */
     public void addImportMenuItem(ZapMenuItem menuItem) { 
-	addImportMenuItemImpl(menuItem);
-    }
-
-    private void addImportMenuItemImpl (JMenuItem menuItem) {
-        if (importMenuItemList == null) {
+	if (importMenuItemList == null) {
             importMenuItemList = createList();
         }
         importMenuItemList.add(menuItem);

@@ -1266,14 +1266,6 @@ public class ExtensionLoader {
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools().remove(menuItem);
     }
 
-    public void removeImportMenuItem(JMenuItem menuItem) {
-        if (!View.isInitialised()) {
-            return;
-        }
-
-        View.getSingleton().getMainFrame().getMainMenuBar().getMenuImport().remove(menuItem);
-    }
-
     public void removeHelpMenuItem(JMenuItem menuItem) {
         if (!View.isInitialised()) {
             return;
