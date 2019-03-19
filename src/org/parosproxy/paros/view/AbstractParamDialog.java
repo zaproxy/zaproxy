@@ -32,6 +32,7 @@
 // ZAP: 2016/11/17 Issue 2701 Added support for additional buttons to support Factory Reset
 // ZAP: 2018/01/08 Allow to expand the node of a param panel.
 // ZAP: 2018/04/12 Allow to check if a param panel is selected.
+// ZAP: 2019/03/19 Log the exception when validating/saving the AbstractParamPanels.
 
 package org.parosproxy.paros.view;
 
@@ -50,6 +51,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -58,6 +60,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class AbstractParamDialog extends AbstractDialog {
 
     private static final long serialVersionUID = -5223178126156052670L;
+    private static final Logger LOGGER = Logger.getLogger(AbstractParamDialog.class);
     
     private int exitResult = JOptionPane.CANCEL_OPTION;
     
@@ -191,6 +194,9 @@ public class AbstractParamDialog extends AbstractDialog {
                         AbstractParamDialog.this.setVisible(false);
 
                     } catch (Exception ex) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Failed to validate or save the panels: ", ex);
+                        }
                         View.getSingleton().showWarningDialog(
                                 Constant.messages.getString("options.dialog.save.error", ex.getMessage()));
                     }
