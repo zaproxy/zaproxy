@@ -406,7 +406,7 @@ public final class Constant {
     }
 
     private static void copyFileToHome(Path targetFile, String sourceFilePath, String fallbackResource) throws IOException {
-        Path defaultConfig = Paths.get(zapInstall, sourceFilePath);
+        Path defaultConfig = Paths.get(getZapInstall(), sourceFilePath);
         if (Files.exists(defaultConfig)) {
             Files.copy(defaultConfig, targetFile, StandardCopyOption.REPLACE_EXISTING);
         } else {
