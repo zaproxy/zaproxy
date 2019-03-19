@@ -450,8 +450,7 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         if (mMethod.equalsIgnoreCase(CONNECT)) {
-            String hostHeader;
-            hostHeader = sUri;
+            String hostHeader = sUri;
             parseHostName(hostHeader);
             mUri = parseURI(mHostName);
 
