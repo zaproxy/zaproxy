@@ -436,6 +436,25 @@ public class ExtensionAlert extends ExtensionAdaptor implements
         if (Constant.isLowMemoryOptionSet()) {
             return;
         }
+        
+        if (getView() == null || EventQueue.isDispatchThread()) {
+        	updateAlertInTreeEventHandler(originalAlert, alert);
+        }
+        else {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                    	updateAlertInTreeEventHandler(originalAlert, alert);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
+    private void updateAlertInTreeEventHandler(Alert originalAlert, Alert alert) {
         this.getTreeModel().updatePath(originalAlert, alert);
     	if (isInFilter(alert)) {
     		this.getFilteredTreeModel().updatePath(originalAlert, alert);
