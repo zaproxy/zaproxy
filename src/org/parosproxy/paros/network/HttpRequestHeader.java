@@ -51,6 +51,7 @@
 // ZAP: 2018/11/16 Add Accept header.
 // ZAP: 2019/01/25 Add Origin header.
 // ZAP: 2019/03/06 Log or include the malformed data in the exception message.
+// ZAP: 2019/03/19 Changed the parse method to only parse the authority on CONNECT requests
 
 package org.parosproxy.paros.network;
 
@@ -449,9 +450,9 @@ public class HttpRequestHeader extends HttpHeader {
             throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
 
+        // ZAP: Only parsing the authority on CONNECT requests. Required to handle URIs with underscore
         if (mMethod.equalsIgnoreCase(CONNECT)) {
-            String hostHeader = sUri;
-            parseHostName(hostHeader);
+            parseHostName(sUri);
             mUri = parseURI(mHostName);
 
         } else {
