@@ -75,7 +75,7 @@ function scan(as, msg, param, value) {
 		// confidence: 0: falsePositive, 1: low, 2: medium, 3: high, 4: confirmed
 		as.raiseAlert(1, 1, 'Active Vulnerability title', 'Full description', 
 		msg.getRequestHeader().getURI().toString(), 
-			param, 'Your attack', 'Any other info', 'The solution ', '', 0, 0, msg);
+			param, 'Your attack', 'Any other info', 'The solution ', '', 'References', 0, 0, msg);
 	}
 }
 
