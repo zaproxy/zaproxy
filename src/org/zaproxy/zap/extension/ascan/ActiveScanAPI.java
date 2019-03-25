@@ -753,11 +753,11 @@ public class ActiveScanAPI extends ApiImplementor {
 			try {
 				startURI = new URI(url, true);
 			} catch (URIException e) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
 			}
 			String scheme = startURI.getScheme();
 			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL + " does not have a scheme.");
 			}
 
 			try {
