@@ -225,6 +225,13 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 				otherInfo, solution, evidence, cweId, wascId, msg);
 	}
 
+	public void raiseAlert(int risk, int confidence, String name, String description, String uri,
+			String param, String attack, String otherInfo, String solution, String evidence,
+			String reference, int cweId, int wascId, HttpMessage msg) {
+		super.bingo(risk, confidence, name, description, uri, param, attack,
+				otherInfo, solution, evidence, reference, cweId, wascId, msg);
+	}
+
 	@Override
 	public int getRisk() {
 		return Alert.RISK_INFO;
