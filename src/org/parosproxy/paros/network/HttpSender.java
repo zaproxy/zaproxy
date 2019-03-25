@@ -75,6 +75,7 @@
 // ZAP: 2018/08/03 Added AUTHENTICATION_HELPER_INITIATOR.
 // ZAP: 2018/09/17 Set the user to messages created for redirections (Issue 2531).
 // ZAP: 2018/10/12 Deprecate getClient(), it exposes implementation details.
+// ZAP: 2019/03/24 Removed commented and unused sendAndReceive method.
 
 package org.parosproxy.paros.network;
 
@@ -388,25 +389,6 @@ public class HttpSender {
 	public void sendAndReceive(HttpMessage msg) throws IOException {
 		sendAndReceive(msg, followRedirect);
 	}
-
-	/**
-	 * Do not use this unless sure what is doing. This method works but proxy may skip the pipe
-	 * without properly handle the filter.
-	 * 
-	 * Made this method private as it doesnt appear to be used anywhere...
-	 * 
-	 * @param msg
-	 * @param pipe
-	 * @param buf
-	 * @throws HttpException
-	 * @throws IOException
-	 */
-	/*
-	 * private void sendAndReceive(HttpMessage msg, HttpOutputStream pipe, byte[] buf) throws
-	 * HttpException, IOException { sendAndReceive(msg, followRedirect, pipe, buf);
-	 * 
-	 * }
-	 */
 
 	/**
 	 * Send and receive a HttpMessage.
