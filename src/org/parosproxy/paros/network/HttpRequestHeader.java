@@ -51,6 +51,7 @@
 // ZAP: 2018/11/16 Add Accept header.
 // ZAP: 2019/01/25 Add Origin header.
 // ZAP: 2019/03/06 Log or include the malformed data in the exception message.
+// ZAP: 2019/03/19 Changed the parse method to only parse the authority on CONNECT requests
 
 package org.parosproxy.paros.network;
 
@@ -448,30 +449,29 @@ public class HttpRequestHeader extends HttpHeader {
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
-
-        mUri = parseURI(sUri);
-
-        if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
-            mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
-        }
-
-        if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
-            mUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
-        }
-
-        if (mUri.getScheme().equalsIgnoreCase(HTTPS)) {
-            setSecure(true);
-        }
-
-        String hostHeader;
+        
         if (mMethod.equalsIgnoreCase(CONNECT)) {
-            hostHeader = sUri;
-            parseHostName(hostHeader);
-            
+            parseHostName(sUri);
+            mUri = parseURI(mHostName);
+
         } else {
+            mUri = parseURI(sUri);
+
+            if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
+                mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
+            }
+
+            if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
+                mUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
+            }
+
+            if (mUri.getScheme().equalsIgnoreCase(HTTPS)) {
+                setSecure(true);
+            }
             mHostName = mUri.getHost();
             setHostPort(mUri.getPort());
         }
+
     }
 
     private void parseHostName(String hostHeader) {
