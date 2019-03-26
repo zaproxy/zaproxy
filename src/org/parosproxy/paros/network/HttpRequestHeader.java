@@ -449,8 +449,7 @@ public class HttpRequestHeader extends HttpHeader {
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
-
-        // ZAP: Only parsing the authority on CONNECT requests. Required to handle URIs with underscore
+        
         if (mMethod.equalsIgnoreCase(CONNECT)) {
             parseHostName(sUri);
             mUri = parseURI(mHostName);
