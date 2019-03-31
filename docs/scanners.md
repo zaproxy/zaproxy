@@ -78,6 +78,7 @@ Scanners:
 10060	Http Parameter Pollution (Server Side)
 10061   Server Leaks Information via "X-AspNet-Version"/"X-AspNetMvc-Version" HTTP Response Header Field(s)
 10062   Server Leaks PII in response body
+10063   Feature Policy Scanner
 10070   Use of SAML
 10094   Base64 Disclosure
 10095   Backup File Disclosure
@@ -157,6 +158,7 @@ Scanners:
 40032   .htaccess Scanner
 40033	NoSQL Injection MongoDB
 40034   .env File Scanner
+40035   Hidden File Scanner
 
 50000   Active Scan scripts
 50001   Passive Scan scripts

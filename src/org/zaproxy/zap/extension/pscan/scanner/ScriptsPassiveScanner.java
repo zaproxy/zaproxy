@@ -124,10 +124,18 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 			String param, String attack, String otherInfo, String solution, String evidence, 
 			int cweId, int wascId, HttpMessage msg) {
 		
+		raiseAlert(risk, confidence, name, description, uri, param, attack,
+				otherInfo, solution, evidence, null, cweId, wascId, msg);
+	}
+
+	public void raiseAlert(int risk, int confidence, String name, String description, String uri,
+			String param, String attack, String otherInfo, String solution, String evidence,
+			String reference, int cweId, int wascId, HttpMessage msg) {
+		
 		Alert alert = new Alert(getPluginId(), risk, confidence, name);
 		     
 		alert.setDetail(description, msg.getRequestHeader().getURI().toString(), 
-				param, attack, otherInfo, solution, null, evidence, cweId, wascId, msg);		// Left out reference to match ScriptsActiveScanner
+				param, attack, otherInfo, solution, reference, evidence, cweId, wascId, msg);
 
 		this.parent.raiseAlert(currentHRefId, alert);
 	}

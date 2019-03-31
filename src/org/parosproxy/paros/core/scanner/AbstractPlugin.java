@@ -59,6 +59,7 @@
 // ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
 // ZAP: 2018/02/02 Add helper method to check if any of several techs is in scope.
 // ZAP: 2018/08/15 Implemented hashCode
+// ZAP: 2019/03/22 Add bingo with references.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -464,6 +465,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     protected void bingo(int risk, int confidence, String name, String description, String uri,
             String param, String attack, String otherInfo, String solution,
             String evidence, int cweId, int wascId, HttpMessage msg) {
+        bingo(risk, confidence, name, description, uri, param, attack,
+                otherInfo, solution, evidence, this.getReference(), cweId, wascId, msg);
+    }
+
+    protected void bingo(int risk, int confidence, String name, String description, String uri,
+            String param, String attack, String otherInfo, String solution,
+            String evidence, String reference, int cweId, int wascId, HttpMessage msg) {
        
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
         Alert alert = new Alert(this.getId(), risk, confidence, name);
@@ -476,7 +484,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             param = "";
         }
         
-        alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(),
+        alert.setDetail(description, uri, param, attack, otherInfo, solution, reference,
                 evidence, cweId, wascId, msg);
         
         parent.alertFound(alert);
