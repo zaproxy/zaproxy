@@ -989,18 +989,15 @@ public final class Constant {
     }
 
 	public static File getContextsDir () {
-		File f = new File(Constant.getZapHome(), USER_CONTEXTS_DIR);
-		if (! f.exists()) {
-			f.mkdirs();
-		}
-		if (f.isDirectory() && f.canWrite()) {
-			return f;
-		}
-		return Model.getSingleton().getOptionsParam().getUserDirectory();
+		return getDir(USER_CONTEXTS_DIR);
 	}
 
 	public static File getPoliciesDir () {
-		File f = new File(Constant.getZapHome(), USER_POLICIES_DIR);
+		return getDir(USER_POLICIES_DIR);
+	}
+
+	public static File getDir(String directory) {
+		File f = new File(Constant.getZapHome(), directory);
 		if (! f.exists()) {
 			f.mkdirs();
 		}
