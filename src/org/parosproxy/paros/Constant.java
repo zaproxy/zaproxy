@@ -81,6 +81,7 @@
 // ZAP: 2018/06/29 Allow to check if in dev mode.
 // ZAP: 2018/07/19 Fallback to bundled config.xml and log4j.properties.
 // ZAP: 2019/03/14 Move and correct update of old options.
+// ZAP: 2019/04/01 Refactored getContextsDir, getPoliciesDir into getDir.
 
 package org.parosproxy.paros;
 
@@ -1086,18 +1087,15 @@ public final class Constant {
     }
 
 	public static File getContextsDir () {
-		File f = new File(Constant.getZapHome(), USER_CONTEXTS_DIR);
-		if (! f.exists()) {
-			f.mkdirs();
-		}
-		if (f.isDirectory() && f.canWrite()) {
-			return f;
-		}
-		return Model.getSingleton().getOptionsParam().getUserDirectory();
+		return getDir(USER_CONTEXTS_DIR);
 	}
 
 	public static File getPoliciesDir () {
-		File f = new File(Constant.getZapHome(), USER_POLICIES_DIR);
+		return getDir(USER_POLICIES_DIR);
+	}
+
+	public static File getDir (String directory) {
+		File f = new File(Constant.getZapHome(), directory);
 		if (! f.exists()) {
 			f.mkdirs();
 		}
