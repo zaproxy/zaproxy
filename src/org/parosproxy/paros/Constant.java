@@ -1087,15 +1087,15 @@ public final class Constant {
     }
 
 	public static File getContextsDir () {
-		return getDir(USER_CONTEXTS_DIR);
+		return getUserDir(USER_CONTEXTS_DIR);
 	}
 
 	public static File getPoliciesDir () {
-		return getDir(USER_POLICIES_DIR);
+		return getUserDir(USER_POLICIES_DIR);
 	}
 
-	public static File getDir (String directory) {
-		File f = new File(Constant.getZapHome(), directory);
+	public static File getUserDir (String subDir) {
+		File f = new File(Constant.getZapHome(), subDir);
 		if (! f.exists()) {
 			f.mkdirs();
 		}
