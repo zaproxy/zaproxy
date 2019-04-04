@@ -33,6 +33,7 @@
 // ZAP: 2018/01/08 Allow to expand the node of a param panel.
 // ZAP: 2018/04/12 Allow to check if a param panel is selected.
 // ZAP: 2019/03/19 Log the exception when validating/saving the AbstractParamPanels.
+// ZAP: 2019/04/04 Log NullPointerException as error when validating/saving the AbstractParamPanels.
 
 package org.parosproxy.paros.view;
 
@@ -193,18 +194,24 @@ public class AbstractParamDialog extends AbstractDialog {
 
                         AbstractParamDialog.this.setVisible(false);
 
+                    } catch (NullPointerException ex) {
+                        LOGGER.error("Failed to validate or save the panels: ", ex);
+                        showSaveErrorDialog(ex.getMessage());
                     } catch (Exception ex) {
                         if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Failed to validate or save the panels: ", ex);
                         }
-                        View.getSingleton().showWarningDialog(
-                                Constant.messages.getString("options.dialog.save.error", ex.getMessage()));
+                        showSaveErrorDialog(ex.getMessage());
                     }
                 }
             });
 
         }
         return btnOK;
+    }
+
+    private static void showSaveErrorDialog(String message) {
+        View.getSingleton().showWarningDialog(Constant.messages.getString("options.dialog.save.error", message));
     }
 
     /**
