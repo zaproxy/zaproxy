@@ -91,7 +91,7 @@ public class DynamicFieldsPanel extends JPanel {
 
 		int fieldIndex = 0;
 		for (String fieldName : requiredFields) {
-			addField("* " + fieldName, fieldIndex);
+			addRequiredField(fieldName, fieldIndex);
 			fieldIndex++;
 		}
 
@@ -104,8 +104,16 @@ public class DynamicFieldsPanel extends JPanel {
 		validate();
 	}
 
+	private void addRequiredField(String fieldName, int fieldIndex) {
+		addFieldImpl("* " + fieldName, fieldName, fieldIndex);
+	}
+
 	private void addField(String fieldName, int fieldIndex) {
-		JLabel label = new JLabel(fieldName + ": ");
+		addFieldImpl(fieldName, fieldName, fieldIndex);
+	}
+
+	private void addFieldImpl(String labelText, String fieldName, int fieldIndex) {
+		JLabel label = new JLabel(labelText + ": ");
 		this.add(label, LayoutHelper.getGBC(0, fieldIndex, 1, 0.0d, 0.0d));
 
 		ZapTextField tf = new ZapTextField();
