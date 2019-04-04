@@ -44,7 +44,7 @@ public class AntiCsrfParam extends AbstractParam {
     
     private static final String[] DEFAULT_TOKENS_NAMES = { "anticsrf",
             "CSRFToken", "__RequestVerificationToken", "csrfmiddlewaretoken", "authenticity_token", "OWASP_CSRFTOKEN", "anoncsrf",
-            "csrf_token", "_csrf", "_csrfSecret", "javax.faces.ViewState"};
+            "csrf_token", "_csrf", "_csrfSecret"};
 
     private List<AntiCsrfParamToken> tokens = null;
     private List<String> enabledTokensNames = null;
