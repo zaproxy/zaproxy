@@ -81,7 +81,7 @@
 // ZAP: 2018/06/29 Allow to check if in dev mode.
 // ZAP: 2018/07/19 Fallback to bundled config.xml and log4j.properties.
 // ZAP: 2019/03/14 Move and correct update of old options.
-// ZAP: 2019/04/01 Refactored getContextsDir, getPoliciesDir into getDir.
+// ZAP: 2019/04/01 Refactored to reduce code-duplication.
 
 package org.parosproxy.paros;
 
