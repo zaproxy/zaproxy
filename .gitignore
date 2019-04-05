@@ -1,3 +1,6 @@
+# Ignored files.
+*~
+
 # Intellij
 .idea/
 *.iml
