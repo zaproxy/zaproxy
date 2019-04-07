@@ -12,9 +12,7 @@
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
 	<property name="test.build" location="buildtest" />
-	<property name="zap.extensions.alpha.dir" location="../../zap-extensions_alpha/" />
-	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
-	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
+	<property name="zap.extensions.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
 	<property name="package" value="zaproxy" />
 
@@ -238,7 +236,7 @@
              excludes="**/.svn/**"
                 />
 		<copy file="${langfile}" 
-        	todir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/coreLang/files/lang"/>
+        	todir="${zap.extensions.dir}/addOns/coreLang/src/main/zapHomeFiles/lang/"/>
 	</target>
 
 	<target name="generate-javadocs" description="Generates the javadocs">
@@ -284,12 +282,6 @@
 		</java>
 	</target>
 
-    <target name="copy-jar-to-extension-projects" depends="dist">
-        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
-        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
-        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
-    </target>
-
 	<target name="test" depends="dist">
 		<!-- Copy test resources -->
         <echo message="Copying resources..." />
@@ -334,35 +326,6 @@
 		<!-- The 2.2 tests will fail as the add-ons are not backwards compatible
 		<antcall target="unit-test-2.2-start-stop"/>
 		--> 
-	</target>
-
-	
-	<target name="deploy-release-addons">
-		<delete includeEmptyDirs="false">
-			<fileset dir="${src}/plugin" includes="*.zap" />
-		</delete>
-		<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-release" inheritAll="false"/>
-		<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-release" inheritAll="false"/>
-		<!-- Alpha add-ons should typically _not_ be included in a full release -->
-		<!--ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-release" inheritAll="false"/-->
-	</target>
-
-	<target name="deploy-weekly-addons">
-		<delete includeEmptyDirs="false">
-			<fileset dir="${src}/plugin" includes="*.zap" />
-		</delete>
-		<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-weekly" inheritAll="false"/>
-		<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-weekly" inheritAll="false"/>
-		<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-weekly" inheritAll="false"/>
-	</target>
-
-	<target name="deploy-all-addons">
-		<delete includeEmptyDirs="false">
-			<fileset dir="${src}/plugin" includes="*.zap" />
-		</delete>
-		<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-all" inheritAll="false"/>
-		<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-all" inheritAll="false"/>
-		<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-all" inheritAll="false"/>
 	</target>
 
 	<!-- Package the cross-platform 'lite' release -->

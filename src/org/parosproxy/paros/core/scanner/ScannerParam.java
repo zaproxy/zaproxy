@@ -275,6 +275,7 @@ public class ScannerParam extends AbstractParam {
             addScannerParamFilter("__EVENTVALIDATION", NameValuePair.TYPE_POST_DATA, "*");
             addScannerParamFilter("__EVENTTARGET", NameValuePair.TYPE_POST_DATA, "*");
             addScannerParamFilter("__EVENTARGUMENT", NameValuePair.TYPE_POST_DATA, "*");
+            addScannerParamFilter("javax.faces.ViewState", NameValuePair.TYPE_POST_DATA, "*");
             addScannerParamFilter("(?i)jsessionid", NameValuePair.TYPE_UNDEFINED, "*");
             addScannerParamFilter("cfid", NameValuePair.TYPE_COOKIE, "*");
             addScannerParamFilter("cftoken", NameValuePair.TYPE_COOKIE, "*");
