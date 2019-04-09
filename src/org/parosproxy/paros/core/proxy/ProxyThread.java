@@ -75,6 +75,7 @@
 // ZAP: 2017/09/22 Check if first message received is a SSL/TLS handshake and tweak exception message.
 // ZAP: 2017/10/02 Improve error handling when checking if SSL/TLS handshake.
 // ZAP: 2018/01/29 Fix API issues with pconn connections
+// ZAP: 2019/04/08 Issue 5304: Check for UnknownHostException and include appropriate message if proxy chain might be the cause.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -88,6 +89,7 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -362,12 +364,12 @@ public class ProxyThread implements Runnable {
         }
     }
 
-    private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause)
+    private void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause)
             throws HttpMalformedHeaderException {
         setErrorResponse(msg, responseStatus, cause, "ZAP Error");
     }
 
-    private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause, String errorType)
+    private void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause, String errorType)
             throws HttpMalformedHeaderException {
         StringBuilder strBuilder = new StringBuilder();
 		
@@ -394,8 +396,13 @@ public class ProxyThread implements Runnable {
             .append(" [")
             .append(cause.getClass().getName())
             .append("]: ")
-            .append(cause.getLocalizedMessage())
-            .append("\n\nStack Trace:\n");
+            .append(cause.getLocalizedMessage()).append("\n");
+            if (cause instanceof UnknownHostException && 
+                    connectionParam.isUseProxyChain() && 
+                    connectionParam.getProxyChainName().equalsIgnoreCase(cause.getMessage())) {
+                strBuilder.append(Constant.messages.getString("conn.options.proxy.error.response.msg"));
+            }
+            strBuilder.append("\n\nStack Trace:\n");
             for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
                 strBuilder.append(stackTraceFrame).append('\n');
             }
