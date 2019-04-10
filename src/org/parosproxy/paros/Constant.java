@@ -1098,7 +1098,7 @@ public final class Constant {
 	    Path path = Paths.get(Constant.getZapHome(), subDir);
 	    
 	    try {
-		if (!Files.exists(path)) {
+		if (Files.notExists(path)) {
 		    Files.createDirectory(path);
 		}
 	    } catch (IOException e) {}
