@@ -1095,18 +1095,18 @@ public final class Constant {
 	}
 
 	private static File getFromHomeDir (String subDir) {
-		Path path = Paths.get(Constant.getZapHome(), subDir);
-
-        try {
-            if (!Files.exists(path)) {
-                Files.createDirectory(path);
-            }
-        } catch (IOException e) {}
-
-		if (Files.isDirectory(path) && Files.isWritable(path)) {
-			return path.toFile();
+	    Path path = Paths.get(Constant.getZapHome(), subDir);
+	    
+	    try {
+		if (!Files.exists(path)) {
+		    Files.createDirectory(path);
 		}
-		return Model.getSingleton().getOptionsParam().getUserDirectory();
+	    } catch (IOException e) {}
+	    
+	    if (Files.isDirectory(path) && Files.isWritable(path)) {
+		return path.toFile();
+	    }
+	    return Model.getSingleton().getOptionsParam().getUserDirectory();
 	}
 
     public static void setZapInstall (String dir) {
