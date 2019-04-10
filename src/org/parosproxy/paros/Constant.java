@@ -108,7 +108,6 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -1096,18 +1095,15 @@ public final class Constant {
 	}
 
 	private static File getFromHomeDir (String subDir) {
-		Function<Path, Boolean> createDirIfNotExists = path -> {
-			try {
-				if (!Files.exists(path)) Files.createDirectory(path);
-				return true;
-			} catch (IOException e) {}
-			return false;
-		};
-
 		Path path = Paths.get(Constant.getZapHome(), subDir);
-		Boolean pathExists = createDirIfNotExists.apply(path);
 
-		if (pathExists && Files.isDirectory(path) && Files.isWritable(path)) {
+        try {
+            if (!Files.exists(path)) {
+                Files.createDirectory(path);
+            }
+        } catch (IOException e) {}
+
+		if (Files.isDirectory(path) && Files.isWritable(path)) {
 			return path.toFile();
 		}
 		return Model.getSingleton().getOptionsParam().getUserDirectory();
