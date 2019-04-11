@@ -75,6 +75,10 @@ Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (one
 
 #### Guidelines for Pull Request (PR) submission and processing:
 
+##### Developer Certificate of Origin
+
+The Git commits must be [signed off] to indicate your agreement with [Developer Certificate of Origin].
+
 ##### What should you, the author of a pull request, expect from us (ZAP Team)?
 * How much time (maximum) until the first feedback? 1 week.
 * And following iterations? 1 week.
@@ -102,3 +106,7 @@ Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (one
 * The PR author can optionally specify any reviewer they would like to review their PR and any member of the Core Team can add themselves as a reviewer. This will effectively prevent the PR from being merged until they approve it.
 * Any member of the Core Team can merge a PR as long as the above conditions are met.
 * Reviews by people outside of the Core Team are still appreciated :)
+
+
+[signed off]: https://git-scm.com/docs/git-commit#Documentation/git-commit.txt--s
+[Developer Certificate of Origin]: https://developercertificate.org/
