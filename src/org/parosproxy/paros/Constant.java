@@ -81,6 +81,7 @@
 // ZAP: 2018/06/29 Allow to check if in dev mode.
 // ZAP: 2018/07/19 Fallback to bundled config.xml and log4j.properties.
 // ZAP: 2019/03/14 Move and correct update of old options.
+// ZAP: 2019/04/01 Refactored to reduce code-duplication.
 
 package org.parosproxy.paros;
 
@@ -1086,25 +1087,26 @@ public final class Constant {
     }
 
 	public static File getContextsDir () {
-		File f = new File(Constant.getZapHome(), USER_CONTEXTS_DIR);
-		if (! f.exists()) {
-			f.mkdirs();
-		}
-		if (f.isDirectory() && f.canWrite()) {
-			return f;
-		}
-		return Model.getSingleton().getOptionsParam().getUserDirectory();
+		return getFromHomeDir(USER_CONTEXTS_DIR);
 	}
 
 	public static File getPoliciesDir () {
-		File f = new File(Constant.getZapHome(), USER_POLICIES_DIR);
-		if (! f.exists()) {
-			f.mkdirs();
+		return getFromHomeDir(USER_POLICIES_DIR);
+	}
+
+	private static File getFromHomeDir (String subDir) {
+	    Path path = Paths.get(Constant.getZapHome(), subDir);
+	    
+	    try {
+		if (Files.notExists(path)) {
+		    Files.createDirectory(path);
 		}
-		if (f.isDirectory() && f.canWrite()) {
-			return f;
-		}
-		return Model.getSingleton().getOptionsParam().getUserDirectory();
+	    } catch (IOException e) {}
+	    
+	    if (Files.isDirectory(path) && Files.isWritable(path)) {
+		return path.toFile();
+	    }
+	    return Model.getSingleton().getOptionsParam().getUserDirectory();
 	}
 
     public static void setZapInstall (String dir) {
