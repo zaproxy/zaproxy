@@ -38,6 +38,7 @@
 // ZAP: 2017/02/17 Let core code remove/unhook the extension.
 // ZAP: 2017/05/22 Update for change in Extension.getDependencies().
 // ZAP: 2018/10/09 Remove instance variable hook and method getExtensionHook.
+// ZAP: 2018/04/17 Deprecate ExtensionAdaptor(String, Version) and remove getVersion() override.
 
 package org.parosproxy.paros.extension;
 
@@ -71,11 +72,6 @@ public abstract class ExtensionAdaptor implements Extension {
      */
     private AddOn addOn;
 
-    /**
-     * The version of the extension, might be {@code null} if not versioned.
-     */
-    private Version version;
-
     public ExtensionAdaptor() {
     }
 
@@ -86,7 +82,8 @@ public abstract class ExtensionAdaptor implements Extension {
      * @throws IllegalArgumentException if the given {@code name} is {@code null}.
      */
     public ExtensionAdaptor(String name) {
-        this(name, null);
+        validateNotNull(name, "name");
+        this.name = name;
     }
 
     private static void validateNotNull(Object parameter, String parameterName) {
@@ -95,11 +92,14 @@ public abstract class ExtensionAdaptor implements Extension {
         }
     }
 
+    /**
+     * @param name the name of the extension.
+     * @param version unused.
+     * @deprecated (TODO add version) Use {@link #ExtensionAdaptor(String)} instead, the version is not used.
+     */
+    @Deprecated
     protected ExtensionAdaptor(String name, Version version) {
-        validateNotNull(name, "name");
-
-        this.name = name;
-        this.version = version;
+        this(name);
     }
     
     @Override
@@ -119,11 +119,6 @@ public abstract class ExtensionAdaptor implements Extension {
         this.name = name;
     }
 
-    @Override
-    public Version getVersion() {
-        return version; 
-    }
-    
     /**
      * By default returns the name returned by {@code getName()}.
      * 

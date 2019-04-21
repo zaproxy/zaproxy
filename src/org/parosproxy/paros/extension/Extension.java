@@ -37,6 +37,7 @@
 // ZAP: 2017/05/25 Add JavaDoc to isEnabled/setEnabled.
 // ZAP: 2018/06/01 Add JavaDoc to getMessages/setMessages.
 // ZAP: 2018/10/09 Remove getExtensionHook and add JavaDoc to hook.
+// ZAP: 2018/04/17 Deprecate getVersion().
 
 package org.parosproxy.paros.extension;
 
@@ -98,8 +99,12 @@ public interface Extension {
      *
      * @return the version of the extension, or {@code null} if not versioned
      * @since 2.4.0
+     * @deprecated (TODO add version) Don't override, not used.
      */
-    Version getVersion();
+    @Deprecated
+    default Version getVersion() {
+        return null;
+    }
     
     /**
      * Initialize plugin during startup.  This phase is carried out before all others.
