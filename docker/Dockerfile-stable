@@ -64,6 +64,8 @@ ENV HOME /home/zap/
 COPY zap* /zap/
 COPY webswing.config /zap/webswing/
 COPY policies /home/zap/.ZAP/policies/
+# The scan script loads the scripts from dev home dir.
+COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
 
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
