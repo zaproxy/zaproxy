@@ -276,6 +276,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				logger.warn("An error occurred while checking the add-ons' files: " + e.getMessage(), e);
 				return false;
 			}
+
+			if (!uninstallAddOn(null, installedAddOn, true)) {
+				return false;
+			}
 		}
 
 		File addOnFile;
