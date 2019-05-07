@@ -1031,7 +1031,7 @@ class AddOnDependencyChecker {
             Extension extension = extensions.get(rowIndex);
             switch (columnIndex) {
             case 0:
-                return extension.getName();
+                return extension.getUIName();
             default:
                 return "";
             }
