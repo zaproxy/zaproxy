@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.search;
 
 import java.awt.CardLayout;
+import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
@@ -84,6 +85,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private JButton btnPrev = null;
 	private JCheckBox chkInverse = null;
 	private JLabel numberOfMatchesLabel;
+	private JLabel searchStatusLabel;
 	private JButton optionsButton;
 	private TableExportButton<SearchResultsTable> exportButton = null;
 	
@@ -238,8 +240,11 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			panelToolbar.add(getBtnPrev(), newGBC(7));
 			panelToolbar.add(new JToolBar.Separator(), newGBC(8));
 			panelToolbar.add(getNumberOfMatchesLabel(), newGBC(9));
+			panelToolbar.add(new JToolBar.Separator(), newGBC(10));
+			panelToolbar.add(getSearchStatusLabel(), newGBC(11));
+			panelToolbar.add(new JToolBar.Separator(), newGBC(12));
 			panelToolbar.add(t1, gridBagConstraintsX);
-			panelToolbar.add(getExportButton(), newGBC(10));
+			panelToolbar.add(getExportButton(), newGBC(13));
 			panelToolbar.add(getOptionsButton(), optionsGridBag);
 		}
 		return panelToolbar;
@@ -403,6 +408,8 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	public void resetSearchResults() {
 		setNumberOfMatches(0);
 		resultsModel.clear();
+		getSearchStatusLabel().setText("");
+		getBtnSearch().setEnabled(true);
 	}
 
 	@Override
@@ -640,8 +647,29 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
 
 	@Override
+	public void searchStarted() {
+		EventQueue.invokeLater(() -> {
+				getSearchStatusLabel().setText(Constant.messages.getString("search.toolbar.label.status.searching"));
+				getBtnSearch().setEnabled(false);
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		});
+	}
+
+	@Override
 	public void searchComplete() {
-		// Ignore
+		EventQueue.invokeLater(() -> {
+				getSearchStatusLabel().setText(Constant.messages.getString("search.toolbar.label.status.complete"));
+				getBtnSearch().setEnabled(true);
+				setCursor(Cursor.getDefaultCursor());
+		});
+	}
+
+
+	private JLabel getSearchStatusLabel() {
+		if (searchStatusLabel == null) {
+			searchStatusLabel = new JLabel("");
+		}
+		return searchStatusLabel;
 	}
 
     private static class SearchOption {
