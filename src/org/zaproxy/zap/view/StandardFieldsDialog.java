@@ -618,7 +618,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 *             <li>the dialogue has tabs;</li>
 	 *             <li>a field with the given label already exists.</li>
 	 *             </ul>
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addTextFieldReadOnly(int, String, String)
 	 * @see #addTextField(String, String)
 	 */
@@ -632,7 +632,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param tabIndex the index of the tab where the read-only text field should be added.
 	 * @param fieldLabel the name of the label of the read-only text field.
 	 * @param value the value of the field, might be {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @throws IllegalArgumentException if any of the following conditions is true:
 	 *             <ul>
 	 *             <li>the dialogue does not have tabs;</li>
@@ -1178,7 +1178,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param value the selected {@code Target} to show, can be null
 	 * @param editable whether the field showing selected {@code Target} is editable or not
 	 * @param allowRoot whether to allow root {@code SiteNode} to be selected as {@code Target} value or not
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addTargetSelectField(int, String, Target, boolean, boolean)
 	 */
 	public void addTargetSelectField(final String fieldLabel, final Target value,
@@ -1396,7 +1396,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * 
 	 * @param tabIndex the index of the tab to which the {@code Component} need to be added
 	 * @param component the {@code Component} to be added
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addCustomComponent(Component)
 	 * @see #addCustomComponent(String, Component)
 	 * @see #addCustomComponent(int, String, Component)
@@ -1421,7 +1421,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * Add a custom {@code Component} to a {@code StandardFieldsDialog} without any label.
 	 * 
 	 * @param component the {@code Component} to be added
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addCustomComponent(int, Component)
 	 * @see #addCustomComponent(String, Component)
 	 * @see #addCustomComponent(int, String, Component)
@@ -1446,7 +1446,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * @param tabIndex tabIndex the index of the tab to which the {@code Component} need to be added
 	 * @param componentLabel the {@code I18N} key for the component label, should not be null
 	 * @param component the {@code Component} to be added
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addCustomComponent(Component)
 	 * @see #addCustomComponent(int, Component)
 	 * @see #addCustomComponent(String, Component)
@@ -1463,7 +1463,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * 
 	 * @param componentLabel the {@code I18N} key for the component label, should not be null
 	 * @param component the {@code Component} to be added
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addCustomComponent(Component)
 	 * @see #addCustomComponent(int, Component)
 	 * @see #addCustomComponent(int, String, Component)
@@ -1736,7 +1736,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 *
 	 * @param fieldLabel the label of the field.
 	 * @param popup the pop up menu.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see JComponent#setComponentPopupMenu(JPopupMenu)
 	 */
 	public void setFieldPopupMenu(String fieldLabel, JPopupMenu popup) {
@@ -1757,7 +1757,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 * The same pop up menu instance is shared between all components.
 	 *
 	 * @param fieldLabel the label of the field.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #setFieldPopupMenu(String, JPopupMenu)
 	 */
 	public void setFieldMainPopupMenu(String fieldLabel) {

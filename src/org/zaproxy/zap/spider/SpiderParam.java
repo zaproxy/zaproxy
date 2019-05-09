@@ -38,7 +38,7 @@ public class SpiderParam extends AbstractParam {
 	/**
 	 * The value that indicates that the crawl depth is unlimited.
 	 * 
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #setMaxDepth(int)
 	 */
 	public static final int UNLIMITED_DEPTH = 0;

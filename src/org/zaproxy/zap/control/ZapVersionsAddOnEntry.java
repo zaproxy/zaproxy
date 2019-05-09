@@ -93,7 +93,7 @@ public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {
      * Returns the release date of the add-on.
      *
      * @return the release date of the add-on, {@code null} if not present.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getDate() {
         return date;

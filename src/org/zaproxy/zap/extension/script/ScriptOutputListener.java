@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.script;
 /**
  * A listener for scripts' output.
  *
- * @since TODO add version
+ * @since 2.8.0
  * @see ExtensionScript#addScriptOutputListener(ScriptOutputListener)
  */
 @FunctionalInterface

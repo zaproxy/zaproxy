@@ -303,7 +303,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	 * pinned} state of the panel.
 	 *
 	 * @param panel the panel to add.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addTab(AbstractPanel)
 	 * @see #setVisible(Component, boolean)
 	 */
@@ -321,7 +321,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	 * 
 	 * @param panel the panel for the added tab.
 	 * @param index the index at the tabbed pane.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public void addTab(AbstractPanel panel, int index) {
 		boolean visible = ! panel.isHideable() || this.isTabPinned(panel);
@@ -542,7 +542,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	 *
 	 * @see #setPanelsVisible(boolean)
 	 * @see #setVisiblePanels(List)
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public void hideAllTabs() {
 		hiddenTabs.clear();

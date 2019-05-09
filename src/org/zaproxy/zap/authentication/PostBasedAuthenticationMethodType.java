@@ -91,7 +91,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContextMenuFactory;
  * <p>
  * The actual format of the POST body is defined by extending classes.
  * 
- * @since TODO add version
+ * @since 2.8.0
  */
 public abstract class PostBasedAuthenticationMethodType extends AuthenticationMethodType {
 

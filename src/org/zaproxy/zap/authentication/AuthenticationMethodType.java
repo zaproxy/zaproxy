@@ -186,7 +186,7 @@ public abstract class AuthenticationMethodType {
 	 * Gets the type of the authentication credentials that this authentication method creates.
 	 *
 	 * @return the type of the authentication credentials, should not be {@code null}.
-	 * @since TODO version
+	 * @since 2.8.0
 	 */
 	public abstract Class<? extends AuthenticationCredentials> getAuthenticationCredentialsType();
 

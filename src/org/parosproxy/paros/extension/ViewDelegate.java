@@ -124,7 +124,7 @@ public interface ViewDelegate {
      * @param modifiers the key modifiers.
      * @param onKeyRelease {@code true} if on key release, {@code false} otherwise.
      * @return the KeyStroke.
-     * @since TODO add version
+     * @since 2.8.0
      * @see KeyStroke#getKeyStroke(int, int, boolean)
      */
     @SuppressWarnings("deprecation")

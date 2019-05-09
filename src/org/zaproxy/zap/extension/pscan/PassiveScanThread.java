@@ -346,7 +346,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * 
 	 * @param type
 	 *            the type to be added to the set of applicable history types
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static void addApplicableHistoryType(int type) {
 		optedInHistoryTypes.add(type);
@@ -359,7 +359,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * @param type
 	 *            the type to be removed from the set of applicable history
 	 *            types
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static void removeApplicableHistoryType(int type) {
 		optedInHistoryTypes.remove(type);
@@ -371,7 +371,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * 
 	 * @return a set of {@code Integer} representing all of the History Types
 	 *         which have "opted-in" for passive scanning.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static Set<Integer> getOptedInHistoryTypes() {
 		return Collections.unmodifiableSet(optedInHistoryTypes);
@@ -383,7 +383,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	 * 
 	 * @return a set of {@code Integer} representing all of the History Types
 	 *         which are applicable for passive scanning.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static Set<Integer> getApplicableHistoryTypes() {
 		Set<Integer> allApplicableTypes = new HashSet<Integer>();

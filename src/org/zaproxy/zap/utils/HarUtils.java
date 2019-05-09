@@ -76,28 +76,28 @@ public final class HarUtils {
     /**
      * The prefix for custom HAR fields produced by ZAP.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String CUSTOM_FIELD_PREFIX = "_zap";
 
     /**
      * The name of the custom field that contains the message ID.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String MESSAGE_ID_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageId";
 
     /**
      * The name of the custom field that contains the message type.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String MESSAGE_TYPE_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageType";
 
     /**
      * The name of the custom field that contains the message note.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String MESSAGE_NOTE_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageNote";
 
@@ -193,7 +193,7 @@ public final class HarUtils {
      * @param historyType the history type of the HTTP message.
      * @param httpMessage the HTTP message.
      * @return the {@code HarEntry}, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #createMessageHarCustomFields(int, int, String)
      */
     public static HarEntry createHarEntry(int historyId, int historyType, HttpMessage httpMessage) {
@@ -209,7 +209,7 @@ public final class HarUtils {
      * @param historyType the history type of the HTTP message.
      * @param messageNote the note of the HTTP message.
      * @return the {@code HarCustomFields}, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #createHarEntry(int, int, HttpMessage)
      */
     public static HarCustomFields createMessageHarCustomFields(int historyId, int historyType, String messageNote) {

@@ -38,7 +38,7 @@ import java.util.ResourceBundle;
  * <li><code>ji</code> to <code>yi</code></li>
  * </ul>
  *
- * @since TODO add version
+ * @since 2.8.0
  * @see Locale#Locale(String)
  */
 public class ZapResourceBundleControl extends ResourceBundle.Control {

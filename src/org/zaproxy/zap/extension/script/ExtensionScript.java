@@ -1646,7 +1646,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * Adds the given script output listener.
 	 *
 	 * @param listener the listener to add.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @throws NullPointerException if the given listener is {@code null}.
 	 * @see #removeScriptOutputListener(ScriptOutputListener)
 	 */
@@ -1658,7 +1658,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * Removes the given script output listener.
 	 *
 	 * @param listener the listener to remove.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @throws NullPointerException if the given listener is {@code null}.
 	 * @see #addScriptOutputListener(ScriptOutputListener)
 	 */

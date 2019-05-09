@@ -127,7 +127,7 @@ public class VariantCustom implements Variant {
      * Gets the current parameter being tested.
      * 
      * @return the parameter being tested, or {@code null} if none.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public NameValuePair getCurrentParam() {
         return currentParam;

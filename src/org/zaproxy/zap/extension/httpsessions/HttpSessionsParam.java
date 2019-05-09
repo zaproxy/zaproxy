@@ -175,7 +175,7 @@ public class HttpSessionsParam extends AbstractParam {
 	 * @param name the name of the session token.
 	 * @param enabled {@code true} if should be enabled, {@code false} otherwise.
 	 * @return {@code true} if the token did not exist, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public boolean addDefaultToken(String name, boolean enabled) {
 		String normalisedName = getNormalisedSessionTokenName(name);
@@ -207,7 +207,7 @@ public class HttpSessionsParam extends AbstractParam {
 	 * @param name the name of the session token.
 	 * @param enabled {@code true} if should be enabled, {@code false} otherwise.
 	 * @return {@code true} if the token's enabled state changed, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public boolean setDefaultTokenEnabled(String name, boolean enabled) {
 		Optional<HttpSessionToken> maybeToken = getDefaultToken(getNormalisedSessionTokenName(name));
@@ -245,7 +245,7 @@ public class HttpSessionsParam extends AbstractParam {
 	 *
 	 * @param name the name of the session token.
 	 * @return {@code true} if the token existed, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public boolean removeDefaultToken(String name) {
 		String normalisedName = getNormalisedSessionTokenName(name);

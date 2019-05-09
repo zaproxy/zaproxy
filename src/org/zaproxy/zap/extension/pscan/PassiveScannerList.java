@@ -91,7 +91,7 @@ public class PassiveScannerList {
      * Returns the PassiveScan rule with the given id 
      * @param pluginId
      * @return the PassiveScan rule with the given id, or null if not found
-     * @since TODO add version
+     * @since 2.8.0
      */
     public PassiveScanner getScanner(int pluginId) {
         for (PassiveScanner scanner : passiveScanners) {

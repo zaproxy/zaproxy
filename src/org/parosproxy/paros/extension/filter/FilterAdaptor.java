@@ -31,7 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 
 /**
- * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ * @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on.
  */
 @Deprecated
 public abstract class FilterAdaptor implements Filter {

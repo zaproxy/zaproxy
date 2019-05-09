@@ -67,7 +67,7 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 	 * 
 	 * @param in the input stream to load the configuration from.
 	 * @throws ConfigurationException if loading the configuration fails.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public ZapXmlConfiguration(InputStream in) throws ConfigurationException {
 		this();

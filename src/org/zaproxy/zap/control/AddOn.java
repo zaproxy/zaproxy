@@ -120,7 +120,7 @@ public class AddOn  {
 	/**
 	 * The result of checking if a file is a valid add-on.
 	 * 
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see AddOn#isValidAddOn(Path)
 	 */
 	public static class ValidationResult {
@@ -403,7 +403,7 @@ public class AddOn  {
 	 * 
 	 * @param file the file to be checked.
 	 * @return the result of the validation.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #isAddOn(Path)
 	 */
 	public static ValidationResult isValidAddOn(Path file) {
@@ -446,7 +446,7 @@ public class AddOn  {
 	 * 
 	 * @param file the file of the add-on.
 	 * @return a container with the {@code AddOn}, or empty if not valid or an error occurred while creating it.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static Optional<AddOn> createAddOn(Path file) {
 		try {
@@ -504,7 +504,7 @@ public class AddOn  {
 	 * The installation status of the add-on is 'not installed'.
 	 * 
 	 * @param file the file of the add-on
-	 * @throws InvalidAddOnException (since TODO add version) if the given {@code file} does not exist, does not have a valid
+	 * @throws InvalidAddOnException (since 2.8.0) if the given {@code file} does not exist, does not have a valid
 	 *             add-on file name, or an error occurred while reading the add-on manifest ({@value #MANIFEST_FILE_NAME}).
 	 * @throws IOException if an error occurred while reading/validating the file.
 	 * @see #isAddOn(Path)
@@ -755,7 +755,7 @@ public class AddOn  {
 	 * Gets the class loader of the add-on.
 	 *
 	 * @return the class loader of the add-on, {@code null} if the add-on is not installed.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -767,7 +767,7 @@ public class AddOn  {
 	 * <strong>Note:</strong> This method should be called only by bootstrap classes.
 	 *
 	 * @param classLoader the class loader of the add-on, might be {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public void setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
@@ -1540,7 +1540,7 @@ public class AddOn  {
 	 * Gets the data of the bundle declared in the manifest.
 	 *
 	 * @return the bundle data, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getResourceBundle()
 	 */
 	public BundleData getBundleData() {
@@ -1551,7 +1551,7 @@ public class AddOn  {
 	 * Gets the resource bundle of the add-on.
 	 *
 	 * @return the resource bundle, or {@code null} if none.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public ResourceBundle getResourceBundle() {
 		return resourceBundle;
@@ -1563,7 +1563,7 @@ public class AddOn  {
 	 * <strong>Note:</strong> This method should be called only by bootstrap classes.
 	 *
 	 * @param resourceBundle the resource bundle of the add-on, might be {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getBundleData()
 	 */
 	public void setResourceBundle(ResourceBundle resourceBundle) {
@@ -1574,7 +1574,7 @@ public class AddOn  {
 	 * Gets the data for the HelpSet, declared in the manifest.
 	 *
 	 * @return the HelpSet data, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public HelpSetData getHelpSetData() {
 		return helpSetData;
@@ -2003,7 +2003,7 @@ public class AddOn  {
 	 * <p>
 	 * Used to load a {@link ResourceBundle}.
 	 *
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static final class BundleData {
 
@@ -2057,7 +2057,7 @@ public class AddOn  {
 	 * <p>
 	 * Used to dynamically add/remove the help of the add-on.
 	 *
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static final class HelpSetData {
 
@@ -2108,7 +2108,7 @@ public class AddOn  {
 	/**
 	 * An {@link IOException} that indicates that a file is not a valid add-on.
 	 *
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getValidationResult()
 	 */
 	public static class InvalidAddOnException extends IOException {

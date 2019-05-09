@@ -106,7 +106,7 @@ public class ScannerParam extends AbstractParam {
     /**
      * Configuration key to write/read the {@code addQueryParam} flag.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      * @see #addQueryParam
      */
     private static final String SCAN_ADD_QUERY_PARAM = ACTIVE_SCAN_BASE_KEY + ".addQueryParam";
@@ -173,7 +173,7 @@ public class ScannerParam extends AbstractParam {
      * <p>
      * Default value is {@code false}.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      * @see #isAddQueryParam()
      * @see #setAddQueryParam(boolean)
      */
@@ -608,7 +608,7 @@ public class ScannerParam extends AbstractParam {
      * Tells whether ZAP should add a parameter to GET requests that don't have one.
      *
      * @return {@code true} if a GET parameter should be added, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.8.0
      * @see #setAddQueryParam(boolean)
      */
     public boolean isAddQueryParam() {
@@ -619,7 +619,7 @@ public class ScannerParam extends AbstractParam {
      * Sets whether or not ZAP should add a parameter to GET requests that don't have one.
      *
      * @param addQueryParam {@code true} if ZAP should add a parameter to GET requests that don't have one, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.8.0
      * @see #isAddQueryParam()
      */
     public void setAddQueryParam(boolean addQueryParam) {

@@ -34,7 +34,7 @@ public abstract class ScriptEngineWrapper {
 	 * Constructs a {@code ScriptEngineWrapper} with the given engine (to obtain a factory).
 	 *
 	 * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
-	 * @deprecated (TODO add version) Use {@link #ScriptEngineWrapper(ScriptEngineFactory)} instead.
+	 * @deprecated (2.8.0) Use {@link #ScriptEngineWrapper(ScriptEngineFactory)} instead.
 	 */
 	@Deprecated
 	public ScriptEngineWrapper(ScriptEngine engine) {
@@ -45,7 +45,7 @@ public abstract class ScriptEngineWrapper {
 	 * Constructs a {@code ScriptEngineWrapper} with the given engine factory.
 	 *
 	 * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for example, engine name, language).
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getEngine()
 	 */
 	public ScriptEngineWrapper(ScriptEngineFactory factory) {
@@ -88,7 +88,7 @@ public abstract class ScriptEngineWrapper {
 	 * Engines are visible by default.
 	 *
 	 * @return {@code true} if the engine should be visible to the user, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public boolean isVisible() {
 		// TODO remove the if statement once NullScriptEngineWrapper implements this method.

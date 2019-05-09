@@ -72,7 +72,7 @@ abstract class AbstractAPIGenerator {
      * @param directory the directory where the API client files should be generated
      * @param optional {@code true} if the API client files are optional, {@code false} otherwise
      * @param resourceBundle the {@code ResourceBundle} used for doc of the generated classes.
-     * @since TODO add version
+     * @since 2.8.0
      */
     protected AbstractAPIGenerator(String directory, boolean optional, ResourceBundle resourceBundle) {
         this.directory = Paths.get(directory);

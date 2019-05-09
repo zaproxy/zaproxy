@@ -131,7 +131,7 @@ public final class ScriptVars {
 	 * Iterations should be done in a synchronised block using the returned map.
 	 * 
 	 * @return an unmodifiable map containing the global variables, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static Map<String, String> getGlobalVars() {
 		return Collections.unmodifiableMap(globalVars);
@@ -195,7 +195,7 @@ public final class ScriptVars {
 	 *             <li>The {@code value}'s length is higher than the maximum allowed ({@value #MAX_VALUE_SIZE});</li>
 	 *             <li>The number of script variables is higher than the maximum allowed ({@value #MAX_SCRIPT_VARS});</li>
 	 *             </ul>
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static void setScriptVar(String scriptName, String key, String value) {
 		validateScriptName(scriptName);
@@ -257,7 +257,7 @@ public final class ScriptVars {
 	 * @param key the key of the variable.
 	 * @return the value of the variable, might be {@code null} if no value was previously set.
 	 * @throws IllegalArgumentException if the {@code scriptName} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static String getScriptVar(String scriptName, String key) {
 		validateScriptName(scriptName);
@@ -288,7 +288,7 @@ public final class ScriptVars {
 	 * 
 	 * @param scriptName the name of the script.
 	 * @return an unmodifiable map containing the script variables, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static Map<String, String> getScriptVars(String scriptName) {
 		return Collections.unmodifiableMap(scriptVars.getOrDefault(scriptName, Collections.emptyMap()));
@@ -297,7 +297,7 @@ public final class ScriptVars {
 	/**
 	 * Clears the global variables.
 	 * 
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #clear()
 	 * @see #clearScriptVars(String)
 	 */
@@ -309,7 +309,7 @@ public final class ScriptVars {
 	 * Clears the variables of the script with the given name.
 	 * 
 	 * @param scriptName the name of the script.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #clear()
 	 * @see #clearGlobalVars()
 	 */
@@ -320,7 +320,7 @@ public final class ScriptVars {
 	/**
 	 * Clears all variables, global and script.
 	 * 
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #clearGlobalVars()
 	 * @see #clearScriptVars(String)
 	 */

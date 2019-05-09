@@ -186,7 +186,7 @@ public class WorkbenchPanel extends JPanel {
 		/**
 		 * Request and response panels are shown, side-by-side, in the same tab.
 		 * 
-		 * @since TODO add version
+		 * @since 2.8.0
 		 */
 		TAB_SIDE_BY_SIDE
 	}

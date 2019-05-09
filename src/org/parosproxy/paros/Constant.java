@@ -188,7 +188,7 @@ public final class Constant {
      * The name of the directory for filter related files (the path should be built using {@link #getZapHome()} as the parent
      * directory).
      * 
-     * @deprecated (TODO add version) Should not be used, the filter functionality is deprecated (replaced by scripts and
+     * @deprecated (2.8.0) Should not be used, the filter functionality is deprecated (replaced by scripts and
      *             Replacer add-on).
      * @since 1.0.0
      */
@@ -1203,7 +1203,7 @@ public final class Constant {
      * Should be used to enable development related utilities/functionalities.
      * 
      * @return {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static boolean isDevMode() {
         return devMode || isDevBuild();

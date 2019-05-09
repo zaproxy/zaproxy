@@ -936,7 +936,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * 
      * @param techs the technologies that will be checked.
      * @return {@code true} if any of the technologies is enabled for the scan, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #inScope(Tech)
      * @see #targets(TechSet)
      */

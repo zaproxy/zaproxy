@@ -30,7 +30,7 @@ import org.zaproxy.zap.eventBus.EventPublisher;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
- * @since TODO add version
+ * @since 2.8.0
  */
 public class BreakEventPublisher implements EventPublisher {
 

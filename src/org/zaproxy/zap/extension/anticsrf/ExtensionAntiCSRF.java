@@ -311,7 +311,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	 *
 	 * @param msg from where the tokens should be extracted.
 	 * @return the extracted anti-csrf tokens.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public List<AntiCsrfToken> getTokensFromResponse(HttpMessage msg) {
 		return getTokensFromResponse(msg, new Source(msg.getResponseBody().toString()));

@@ -557,7 +557,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @param contentTypes the values to check.
      * @return {@code true} if any of the given values is contained in the (first) {@code Content-Type} header, {@code false}
      *         otherwise.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #getNormalisedContentTypeValue()
      */
     public boolean hasContentType(String... contentTypes) {
@@ -584,7 +584,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      * The normalisation is done by changing all characters to lower case.
      * 
      * @return the value normalised, might be {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #hasContentType(String...)
      */
     public String getNormalisedContentTypeValue() {

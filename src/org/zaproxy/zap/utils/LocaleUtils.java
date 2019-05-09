@@ -97,7 +97,7 @@ public final class LocaleUtils {
 	 * @param locale the target locale.
 	 * @param function the function that validates and returns the resource.
 	 * @return the resource, or {@code null} if none found.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static <R> R findResource(String fileName, String fileExtension, Locale locale, Function<String, R> function) {
 		return findResource(fileName, fileExtension, "", locale, function);
@@ -138,7 +138,7 @@ public final class LocaleUtils {
 	 * @param locale the target locale.
 	 * @param function the function that validates and returns the resource.
 	 * @return the resource, or {@code null} if none found.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static <R> R findResource(
 			ResourceBundle.Control control,
@@ -185,7 +185,7 @@ public final class LocaleUtils {
 	 * @param locale the target locale.
 	 * @param function the function that validates and returns the resource.
 	 * @return the resource, or {@code null} if none found.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static <R> R findResource(
 			String fileName,
@@ -234,7 +234,7 @@ public final class LocaleUtils {
 	 * @param locale the target locale.
 	 * @param function the function that validates and returns the resource.
 	 * @return the resource, or {@code null} if none found.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static <R> R findResource(
 			ResourceBundle.Control control,
