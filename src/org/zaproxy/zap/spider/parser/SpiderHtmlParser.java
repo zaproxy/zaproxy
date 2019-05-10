@@ -122,12 +122,14 @@ public class SpiderHtmlParser extends SpiderParser {
 		List<Element> elements = source.getAllElements(HTMLElementName.A);
 		for (Element el : elements) {
 			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "href");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "ping");
 		}
 
 		// Process AREA elements
 		elements = source.getAllElements(HTMLElementName.AREA);
 		for (Element el : elements) {
 			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "href");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "ping");
 		}
 
 		// Process Frame Elements
@@ -204,7 +206,15 @@ public class SpiderHtmlParser extends SpiderParser {
 			return false;
 		}
 
-		processURL(message, depth, localURL, baseURL);
+		if (!attributeName.equalsIgnoreCase("ping")) {
+			processURL(message, depth, localURL, baseURL);
+		} else {
+			for (String pingURL : localURL.split("\\s")) {
+				if (!pingURL.isEmpty()) {
+					processURL(message, depth, pingURL, baseURL);
+				}
+			}
+		}
 		return true;
 	}
 

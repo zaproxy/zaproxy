@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>A Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<a href="//a.example.com/base/scheme" ping="//ping.example.com/base/scheme">sub-domain using base scheme</a><br />
+<a href="http://a.example.com:8000/b" ping="http://ping.example.com:8000/b">sub-domain (http)</a><br />
+<a href="https://a.example.com/c?a=b#fragment" ping="https://ping.example.com/c?a=b#fragment">sub-domain (https)</a><br />
+<a href="a/relative" ping="a/relative/ping">relative</a><br />
+<a href="/a/absolute" ping="/a/absolute/ping">absolute</a><br />
+<a href="ftp://a.example.com/" ping="https://ping.example.com/ping">ftp</a><br />
+<a ping="https://ping.first.com/" href="http://b.example.com/">ping first</a><br />
+
+Ignored anchors but picked pings:<br />
+<a>no href</a><br />
+<a href="mailto:a@example.com" ping="http://ping.example.com/mailping">mailto:</a><br />
+<a href="javascript:hello();" ping="http://ping.example.com/jsping">javascript:</a><br />
+<a href="scheme://a.example.com/invalid" ping="http://ping.example.com/ping">scheme:</a>
+
+Ignored anchors and pings:<br />
+<a>no href</a><br />
+<a href="mailto:a@example.com" ping="mailto:fred@ping.com">mailto:</a><br />
+<a href="javascript:hello();" ping="javascript:function("ping.com")">javascript:</a><br />
+<a href="scheme://a.example.com/invalid" ping="scheme://ping.example.com">scheme:</a>
+
+Should find multiple ping URLs:<br />
+<a href="http://a.example.com/" ping="http://ping.example.com/  http://pong.example.com/">Multiple with spaces</a><br />
+<a href="http://a.example.com/" ping="http://ping.example.com/ 	 http://pong.example.com/">Multiple with spaces</a><br />
+
+
+</body>
+</html>
