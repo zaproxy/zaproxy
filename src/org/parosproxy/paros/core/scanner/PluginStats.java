@@ -49,7 +49,7 @@ public class PluginStats {
      * Gets the name of the plugin.
      *
      * @return the name of the plugin, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getPluginName() {
         return pluginName;

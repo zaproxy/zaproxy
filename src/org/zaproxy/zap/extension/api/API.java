@@ -163,7 +163,7 @@ public class API {
 	/**
 	 * Removes the given {@code ApiImplementor} from the ZAP API.
 	 * <p>
-	 * Since TODO add version, the callbacks previously created for the implementor are removed as well.
+	 * Since 2.8.0, the callbacks previously created for the implementor are removed as well.
 	 *
 	 * @param impl the implementor that will be removed
 	 * @since 2.1.0
@@ -792,7 +792,7 @@ public class API {
 	 * Removes the given callback URL.
 	 *
 	 * @param url the callback URL.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getCallBackUrl(ApiImplementor, String)
 	 * @see #removeCallBackUrls(ApiImplementor)
 	 * @see #removeApiImplementor(ApiImplementor)
@@ -807,7 +807,7 @@ public class API {
 	 *
 	 * @param impl the implementor to remove.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getCallBackUrl(ApiImplementor, String)
 	 * @see #removeCallBackUrl(String)
 	 * @see #removeApiImplementor(ApiImplementor)

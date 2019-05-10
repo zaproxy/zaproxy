@@ -27,7 +27,7 @@ package org.zaproxy.zap.extension.httppanel;
  * directly in a {@link org.zaproxy.zap.extension.httppanel.HttpPanel}
  *
  * @see org.zaproxy.zap.extension.httppanel.HttpPanel#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
- * @since TODO add version
+ * @since 2.8.0
  */
 public interface DisplayedMessageChangedListener {
 

@@ -56,7 +56,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
- * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ * @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on.
  */
 @Deprecated
 public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener {

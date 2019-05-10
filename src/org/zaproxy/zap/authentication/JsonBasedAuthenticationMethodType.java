@@ -38,7 +38,7 @@ import net.sf.json.JSONObject;
  * An {@link AuthenticationMethodType} where the Users are authenticated by posting a JSON object with its username and
  * password.
  * 
- * @since TODO add version
+ * @since 2.8.0
  */
 public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMethodType {
 

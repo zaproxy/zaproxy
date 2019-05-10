@@ -72,7 +72,7 @@ public class RuleConfigParam extends AbstractParam {
      * The name of the rule to obtain the string containing a comma separated list of URL regex patterns. Any URLs that match
      * the patterns will be considered trusted domains and the issues ignored.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String RULE_DOMAINS_TRUSTED = "rules.domains.trusted";
     

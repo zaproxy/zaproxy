@@ -103,7 +103,7 @@ public class ZapMenuItem extends JMenuItem {
 	 * Gets the identifier of the menu item.
 	 *
 	 * @return the identifier, might be {@code null}.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public String getIdentifier() {
 		return this.identifier;
@@ -113,7 +113,7 @@ public class ZapMenuItem extends JMenuItem {
 	 * Gets the identifier of the menu item.
 	 *
 	 * @return the identifier, might be {@code null}
-	 * @deprecated (TODO add version) Use {@link #getIdentifier()} instead.
+	 * @deprecated (2.8.0) Use {@link #getIdentifier()} instead.
 	 */
 	@Deprecated
 	public String getIdenfifier() {

@@ -254,7 +254,7 @@ public class ExtensionLoader {
      * Adds the given proxy server, to be automatically updated with proxy related listeners.
      *
      * @param proxyServer the proxy server to add, must not be null.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #removeProxyServer(ProxyServer)
      */
     public void addProxyServer(ProxyServer proxyServer) {
@@ -287,7 +287,7 @@ public class ExtensionLoader {
      * Removes the given proxy server.
      *
      * @param proxyServer the proxy server to remove, must not be null.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #addProxyServer(ProxyServer)
      */
     public void removeProxyServer(ProxyServer proxyServer) {
@@ -1376,7 +1376,7 @@ public class ExtensionLoader {
      * <strong>Note:</strong> This method should be called only by bootstrap classes.
      * 
      * @param extension the extension to remove.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public void removeExtension(Extension extension) {
         extensionList.remove(extension);

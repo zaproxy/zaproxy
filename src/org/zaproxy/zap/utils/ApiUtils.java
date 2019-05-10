@@ -64,7 +64,7 @@ public final class ApiUtils {
 	 * @throws ApiException if the parameter is missing
 	 *             ({@link org.zaproxy.zap.extension.api.ApiException.Type#MISSING_PARAMETER MISSING_PARAMETER}) or not a
 	 *             boolean ({@link org.zaproxy.zap.extension.api.ApiException.Type#ILLEGAL_PARAMETER ILLEGAL_PARAMETER}).
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static boolean getBooleanParam(JSONObject params, String paramName) throws ApiException {
 		if (!params.containsKey(paramName)) {

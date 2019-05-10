@@ -79,7 +79,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * The (default) file name of a HelpSet.
 	 * 
 	 * @see HelpSet
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static final String HELP_SET_FILE_NAME = "helpset";
 
@@ -87,7 +87,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * The file extension of a HelpSet.
 	 * 
 	 * @see HelpSet
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static final String HELP_SET_FILE_EXTENSION = "hs";
  

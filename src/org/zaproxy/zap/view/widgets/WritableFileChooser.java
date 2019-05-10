@@ -72,7 +72,7 @@ public class WritableFileChooser extends JFileChooser {
 	 *
 	 * @param message the error message.
 	 * @param title the title of the dialogue.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	protected void showErrorDialog(String message, String title) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);

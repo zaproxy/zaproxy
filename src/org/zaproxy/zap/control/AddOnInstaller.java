@@ -128,7 +128,7 @@ public final class AddOnInstaller {
      * @see Extension
      * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
-     * @deprecated (TODO add version) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
+     * @deprecated (2.8.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
      */
     @Deprecated
     public static boolean uninstall(AddOn addOn, AddOnUninstallationProgressCallback callback) {
@@ -153,7 +153,7 @@ public final class AddOnInstaller {
      * @param installedAddOns the add-ons currently installed.
      * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
      * @see Extension
      * @see PassiveScanner
@@ -219,7 +219,7 @@ public final class AddOnInstaller {
      *
      * @param addOnClassLoader the ClassLoader of the add-on.
      * @param addOn the add-on.
-     * @since TODO add version
+     * @since 2.8.0
      * @see AddOn#getBundleData()
      */
     static void installResourceBundle(AddOnClassLoader addOnClassLoader, AddOn addOn) {
@@ -484,7 +484,7 @@ public final class AddOnInstaller {
      * @param callback the callback for notification of progress
      * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
-     * @deprecated (TODO add version) Use {@link #uninstallAddOnFiles(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
+     * @deprecated (2.8.0) Use {@link #uninstallAddOnFiles(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
      */
     @Deprecated
     public static boolean uninstallAddOnFiles(AddOn addOn, AddOnUninstallationProgressCallback callback) {
@@ -501,7 +501,7 @@ public final class AddOnInstaller {
      * @param installedAddOns the add-ons currently installed (to check if the files can be safely uninstalled).
      * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static boolean uninstallAddOnFiles(
             AddOn addOn,

@@ -84,7 +84,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
      * Gets the base name of the bundle.
      *
      * @return the base name of the bundle, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getBundleBaseName() {
         return bundleBaseName;
@@ -94,7 +94,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
      * Gets the prefix of the bundle.
      *
      * @return the prefix of the bundle, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getBundlePrefix() {
         return bundlePrefix;
@@ -104,7 +104,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
      * Gets the base name of the HelpSet file.
      *
      * @return the base name of the HelpSet file, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getHelpSetBaseName() {
         return helpSetBaseName;
@@ -114,7 +114,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
      * Gets the locale token for the HelpSet file.
      *
      * @return the locale token for the HelpSet file, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getHelpSetLocaleToken() {
         return helpSetLocaleToken;

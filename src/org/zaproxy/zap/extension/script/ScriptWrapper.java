@@ -305,7 +305,7 @@ public class ScriptWrapper {
 	/**
 	 * Reloads the script. It should only be called if the script has already been loaded via {@link #loadScript(Charset)}
 	 * @throws IOException
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public void reloadScript() throws IOException {
 		this.loadScript(charset);
@@ -315,7 +315,7 @@ public class ScriptWrapper {
 	 * Loads the script from the configured file.
 	 * @param charset
 	 * @throws IOException
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	void loadScript(Charset charset) throws IOException {
 		this.charset = charset;
@@ -335,7 +335,7 @@ public class ScriptWrapper {
 	/**
 	 * Saves the latest contents into the configured file
 	 * @throws IOException
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	void saveScript() throws IOException {
 		// We'll always try to read it in with the default next time its loaded
@@ -349,7 +349,7 @@ public class ScriptWrapper {
 	/**
 	 * Returns true if the script has changed on disk since it was loaded into this class
 	 * @return true if the script has changed on disk since it was loaded into this class
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public boolean hasChangedOnDisk () {
 		return this.file != null && file.lastModified() > this.lastModified;

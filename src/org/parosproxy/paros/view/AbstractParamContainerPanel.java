@@ -603,7 +603,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * Expands the node of the param panel with the given name.
      *
      * @param panelName the name of the panel whose node should be expanded, should not be {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public void expandParamPanelNode(String panelName) {
         DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
@@ -617,7 +617,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      *
      * @param panelName the name of the panel to check if it is selected, should not be {@code null}.
      * @return {@code true} if the panel is selected, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #isParamPanelOrChildSelected(String)
      */
     public boolean isParamPanelSelected(String panelName) {
@@ -633,7 +633,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      *
      * @param panelName the name of the panel to check, should not be {@code null}.
      * @return {@code true} if the panel or one of its child panels is selected, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #isParamPanelSelected(String)
      */
     public boolean isParamPanelOrChildSelected(String panelName) {

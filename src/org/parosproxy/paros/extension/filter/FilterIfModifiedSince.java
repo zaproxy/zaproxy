@@ -30,7 +30,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
- * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ * @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on.
  */
 @Deprecated
 public class FilterIfModifiedSince extends FilterAdaptor {

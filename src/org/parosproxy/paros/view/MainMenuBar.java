@@ -218,7 +218,7 @@ public class MainMenuBar extends JMenuBar {
 	 * This method initializes menuImport
 	 *
 	 * @return javax.swing.JMenu
-	 * @since TODO Add Version
+	 * @since 2.8.0
 	 */
 	public javax.swing.JMenu getMenuImport() {
 		if (menuImport == null) {

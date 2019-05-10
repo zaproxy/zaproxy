@@ -863,7 +863,7 @@ public class AddOnLoader extends URLClassLoader {
 	 * @param packageName the name of the package that the classes must be in.
 	 * @param classType the type of the classes.
 	 * @return a list with the classes that implement the given type, never {@code null}.
-	 * @deprecated (TODO add version) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
+	 * @deprecated (2.8.0) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
 	 *             it's preferable to provide means to register/declare the required classes instead of searching "everywhere".
 	 */
 	@Deprecated
@@ -881,7 +881,7 @@ public class AddOnLoader extends URLClassLoader {
 	 * @param packageName the name of the package that the classes must be in.
 	 * @param classType the type of the classes.
 	 * @return a list with the classes that implement the given type, never {@code null}.
-	 * @deprecated (TODO add version) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
+	 * @deprecated (2.8.0) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
 	 *             it's preferable to provide means to register/declare the required classes instead of searching "everywhere".
 	 */
 	@Deprecated

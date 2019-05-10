@@ -473,7 +473,7 @@ public class OptionsParamView extends AbstractParam {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #getFontSize(org.zaproxy.zap.utils.FontUtils.FontType)}.
+	 * @deprecated (2.8.0) Replaced by {@link #getFontSize(org.zaproxy.zap.utils.FontUtils.FontType)}.
 	 */
 	@Deprecated
 	public int getFontSize() {
@@ -485,7 +485,7 @@ public class OptionsParamView extends AbstractParam {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #setFontSize(org.zaproxy.zap.utils.FontUtils.FontType, int)}.
+	 * @deprecated (2.8.0) Replaced by {@link #setFontSize(org.zaproxy.zap.utils.FontUtils.FontType, int)}.
 	 */
 	@Deprecated
 	public void setFontSize(int fontSize) {
@@ -498,7 +498,7 @@ public class OptionsParamView extends AbstractParam {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #getFontName(org.zaproxy.zap.utils.FontUtils.FontType)}.
+	 * @deprecated (2.8.0) Replaced by {@link #getFontName(org.zaproxy.zap.utils.FontUtils.FontType)}.
 	 */
 	@Deprecated
 	public String getFontName() {
@@ -510,7 +510,7 @@ public class OptionsParamView extends AbstractParam {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #setFontName(org.zaproxy.zap.utils.FontUtils.FontType, String)}.
+	 * @deprecated (2.8.0) Replaced by {@link #setFontName(org.zaproxy.zap.utils.FontUtils.FontType, String)}.
 	 */
 	@Deprecated
 	public void setFontName(String fontName) {

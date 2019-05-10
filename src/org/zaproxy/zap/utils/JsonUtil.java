@@ -30,7 +30,7 @@ import net.sf.json.util.JSONUtils;
 /**
  * Utilities to workaround "quirks" of {@link JSONObject} and related classes.
  *
- * @since TODO add version
+ * @since 2.8.0
  */
 public final class JsonUtil {
 	

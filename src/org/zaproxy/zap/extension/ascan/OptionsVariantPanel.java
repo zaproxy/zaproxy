@@ -385,7 +385,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
      * Sets the reason to show when the the variants are disabled.
      *
      * @param reason the reason that indicates why the variants are disabled.
-     * @since TODO add version
+     * @since 2.8.0
      * @throws NullPointerException if the given {@code reason} is {@code null}.
      * @see #setAllInjectableAndRPC(boolean)
      */

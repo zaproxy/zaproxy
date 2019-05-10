@@ -35,7 +35,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  * See <a href="https://github.com/zaproxy/zaproxy/issues/68">Issue 68</a>
  * 
  * @author MaWoKi
- * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ * @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on.
  */
 @Deprecated
 public class FilterZapRequestId extends FilterAdaptor {

@@ -249,7 +249,7 @@ public class HttpSender {
 	 * Refer to {@link #HttpSender(ConnectionParam, boolean, int)} for details on how the global state is used.
 	 *
 	 * @param enableGlobalState {@code true} if the global state should be used, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public void setUseGlobalState(boolean enableGlobalState) {
 		if (enableGlobalState) {
@@ -784,7 +784,7 @@ public class HttpSender {
 	
 	/**
 	 * @return the HTTP client implementation.
-	 * @deprecated (TODO add version) Do not use, this exposes implementation details which might change without warning. It
+	 * @deprecated (2.8.0) Do not use, this exposes implementation details which might change without warning. It
 	 *             will be removed in a following version.
 	 */
 	@Deprecated

@@ -896,7 +896,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
 	/**
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public HistoryReferencesTable getHistoryReferencesTable() {
 		return logPanel.getHistoryReferenceTable();

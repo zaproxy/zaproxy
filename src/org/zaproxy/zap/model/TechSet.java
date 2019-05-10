@@ -81,7 +81,7 @@ public class TechSet {
 	 * 
 	 * @param techs the technologies that will be checked.
 	 * @return {@code true} if any of the technologies is included, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #includes(Tech)
 	 */
 	public boolean includesAny(Tech... techs) {

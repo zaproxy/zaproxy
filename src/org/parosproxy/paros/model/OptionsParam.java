@@ -263,7 +263,7 @@ public class OptionsParam extends AbstractParam {
 	 * Gets the anti-csrf extension's options.
 	 *
 	 * @return the anti-csrf options.
-	 * @deprecated (TODO add version) Use {@link org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF ExtensionAntiCSRF} to
+	 * @deprecated (2.8.0) Use {@link org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF ExtensionAntiCSRF} to
 	 *             manage the tokens, if the {@code AntiCsrfParam} is really needed use {@link #getParamSet(Class)} instead.
 	 */
 	@Deprecated

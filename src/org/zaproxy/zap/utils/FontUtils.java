@@ -247,7 +247,7 @@ public class FontUtils {
 	 * {@link FontType}.
 	 *
 	 * @return {@code true} if a custom font was set, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getSystemDefaultFont()
 	 */
 	public static boolean isDefaultFontSet(FontType fontType) {
