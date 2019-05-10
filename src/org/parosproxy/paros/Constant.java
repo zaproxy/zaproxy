@@ -82,6 +82,7 @@
 // ZAP: 2018/07/19 Fallback to bundled config.xml and log4j.properties.
 // ZAP: 2019/03/14 Move and correct update of old options.
 // ZAP: 2019/04/01 Refactored to reduce code-duplication.
+// ZAP: 2019/05/10 Apply installer config options on update.
 
 package org.parosproxy.paros;
 
@@ -603,6 +604,10 @@ public final class Constant {
                     if (ver <= V_2_7_0_TAG) {
                         upgradeFrom2_7_0(config);
                     }
+
+                    // Execute always to pick installer choices.
+                    updateCfuFromDefaultConfig(config);
+
 	            	LOG.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -955,6 +960,37 @@ public final class Constant {
     private static void upgradeFrom2_7_0(XMLConfiguration config) {
         // Remove options from SNI Terminator.
         config.clearTree("sniterm");
+    }
+
+    private static void updateCfuFromDefaultConfig(XMLConfiguration config) {
+        Path path = getPathDefaultConfigFile();
+        if (!Files.exists(path)) {
+            return;
+        }
+
+        ZapXmlConfiguration defaultConfig;
+        try {
+            defaultConfig = new ZapXmlConfiguration(path.toFile());
+        } catch (ConfigurationException e) {
+            logAndPrintError("Failed to read default configuration file " + path, e);
+            return;
+        }
+
+        copyPropertyIfSet(defaultConfig, config, "start.checkForUpdates");
+        copyPropertyIfSet(defaultConfig, config, "start.downloadNewRelease");
+        copyPropertyIfSet(defaultConfig, config, "start.checkAddonUpdates");
+        copyPropertyIfSet(defaultConfig, config, "start.installAddonUpdates");
+        copyPropertyIfSet(defaultConfig, config, "start.installScannerRules");
+        copyPropertyIfSet(defaultConfig, config, "start.reportReleaseAddons");
+        copyPropertyIfSet(defaultConfig, config, "start.reportBetaAddons");
+        copyPropertyIfSet(defaultConfig, config, "start.reportAlphaAddons");
+    }
+
+    private static void copyPropertyIfSet(XMLConfiguration from, XMLConfiguration to, String key) {
+        Object value = from.getProperty(key);
+        if (value != null) {
+            to.setProperty(key, value);
+        }
     }
 
 	public static void setLocale (String loc) {
