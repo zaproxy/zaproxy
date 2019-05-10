@@ -83,6 +83,7 @@
 // ZAP: 2019/03/14 Move and correct update of old options.
 // ZAP: 2019/04/01 Refactored to reduce code-duplication.
 // ZAP: 2019/05/10 Apply installer config options on update.
+//                 Fix exceptions during config update.
 
 package org.parosproxy.paros;
 
@@ -720,12 +721,11 @@ public final class Constant {
     private void upgradeFrom1_4_1(XMLConfiguration config) {
 		// As the POST_FORM option for the spider has been updated from int to boolean, keep
 		// compatibility for old versions
-		if (!config.getProperty("spider.postform").toString().equals("0")) {
-			config.setProperty("spider.postform", "true");
-			config.setProperty("spider.processform", "true");
-		} else {
-			config.setProperty("spider.postform", "false");
-			config.setProperty("spider.processform", "false");
+		Object postForm = config.getProperty("spider.postform");
+		if (postForm != null) {
+			boolean enabled = !"0".equals(postForm.toString());
+			config.setProperty("spider.postform", enabled);
+			config.setProperty("spider.processform", enabled);
 		}
 
 		
@@ -874,13 +874,17 @@ public final class Constant {
     }
 
     private void upgradeFrom2_2_0(XMLConfiguration config) {
-		if ( config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 0) == 0) {
-			/*
-			 * Check-for-updates on start disabled - force another prompt to ask the user,
-			 * as this option can have been unset incorrectly before.
-			 * And we want to encourage users to use this ;)
-			 */
-			config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
+		try {
+			if ( config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 0) == 0) {
+				/*
+				 * Check-for-updates on start disabled - force another prompt to ask the user,
+				 * as this option can have been unset incorrectly before.
+				 * And we want to encourage users to use this ;)
+				 */
+				config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
+			}
+		} catch (ConversionException e) {
+			LOG.debug("The option " + OptionsParamCheckForUpdates.CHECK_ON_START + " is not an int.", e);
 		}
 		// Clear the block list - addons were incorrectly added to this if an update failed
 		config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
@@ -888,9 +892,13 @@ public final class Constant {
     }
 
     private void upgradeFrom2_2_2(XMLConfiguration config) {
-        // Change the type of the option from int to boolean.
-        int oldValue = config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 1);
-        config.setProperty(OptionsParamCheckForUpdates.CHECK_ON_START, oldValue != 0);
+        try {
+            // Change the type of the option from int to boolean.
+            int oldValue = config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 1);
+            config.setProperty(OptionsParamCheckForUpdates.CHECK_ON_START, oldValue != 0);
+        } catch (ConversionException e) {
+            LOG.debug("The option " + OptionsParamCheckForUpdates.CHECK_ON_START + " is no longer an int.", e);
+        }
     }
 
     private void upgradeFrom2_3_1(XMLConfiguration config) {
