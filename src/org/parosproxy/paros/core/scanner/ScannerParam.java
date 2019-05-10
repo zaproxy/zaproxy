@@ -46,6 +46,7 @@
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
+// ZAP: 2019/05/10 Enable custom (script) input vectors by default.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -129,7 +130,7 @@ public class ScannerParam extends AbstractParam {
 
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
-    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR;
+    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR | RPC_CUSTOM;
     private static final int DEFAULT_MAX_CHART_TIME_IN_MINS = 10;
 
     // Internal variables
