@@ -42,7 +42,7 @@ public class Target {
 	/**
 	 * Constructs a {@code Target} with no start node.
 	 *
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #setStartNode(StructuralNode)
 	 */
 	public Target() {
@@ -140,7 +140,7 @@ public class Target {
 	 * Start nodes previously set are discarded.
 	 * 
 	 * @param startNode the start node.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public void setStartNode(StructuralNode startNode) {
 		this.startNodes = new ArrayList<>();

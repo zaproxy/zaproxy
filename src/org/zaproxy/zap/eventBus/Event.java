@@ -48,7 +48,7 @@ public class Event {
 	 * @param eventType the type of event.
 	 * @param target the target, might be {@code null}.
 	 * @param parameters the parameters of the event.
-	 * @throws NullPointerException (since TODO add version) if the given parameters are {@code null}.
+	 * @throws NullPointerException (since 2.8.0) if the given parameters are {@code null}.
 	 */
 	public Event(EventPublisher publisher, String eventType, Target target,
 			Map<String, String> parameters) {
@@ -72,7 +72,7 @@ public class Event {
 	/**
 	 * Gets the parameters of the event.
 	 *
-	 * @return the parameters, never {@code null} (since TODO add version).
+	 * @return the parameters, never {@code null} (since 2.8.0).
 	 */
 	public Map<String, String> getParameters() {
 		return parameters;
@@ -91,7 +91,7 @@ public class Event {
 	 * Sets the parameters of the event.
 	 *
 	 * @param parameters the parameters for the event.
-	 * @throws NullPointerException (since TODO add version) if the given parameters are {@code null}.
+	 * @throws NullPointerException (since 2.8.0) if the given parameters are {@code null}.
 	 */
 	public void setParameters(Map<String, String> parameters) {
 		this.parameters = Objects.requireNonNull(parameters);

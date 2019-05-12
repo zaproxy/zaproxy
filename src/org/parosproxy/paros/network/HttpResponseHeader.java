@@ -56,35 +56,35 @@ public class HttpResponseHeader extends HttpHeader {
     /**
      * The {@code Content-Security-Policy} response header.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String CSP = "Content-Security-Policy";
 
     /**
      * The {@code Content-Security-Policy-Report-Only} response header.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String CSP_REPORT_ONLY = "Content-Security-Policy-Report-Only";
 
     /**
      * The {@code X-Content-Security-Policy} response header.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String XCSP = "X-Content-Security-Policy";
 
     /**
      * The {@code X-WebKit-CSP} response header.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String WEBKIT_CSP = "X-WebKit-CSP";
 
     /**
      * The {@code Server} response header.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String SERVER = "Server";
 

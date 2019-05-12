@@ -285,7 +285,7 @@ public class ExtensionHook {
      * Gets the hook for menus, without initialising it.
      *
      * @return the hook for menus, might be {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     ExtensionHookMenu getHookMenuNoInit() {
         return hookMenu;
@@ -307,7 +307,7 @@ public class ExtensionHook {
      * Gets the hook for view components, without initialising it.
      *
      * @return the hook for view components, might be {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     ExtensionHookView getHookViewNoInit() {
         return hookView;

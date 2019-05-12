@@ -100,7 +100,7 @@ public class CommandLine {
      * using a dev build.
      * 
      * @see #isDevMode()
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String DEV_MODE = "-dev";
 
@@ -507,7 +507,7 @@ public class CommandLine {
      * Tells whether or not the "dev mode" should be enabled.
      *
      * @return {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #DEV_MODE
      */
     public boolean isDevMode() {

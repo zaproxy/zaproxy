@@ -244,7 +244,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	 * Returns {@code true} by default.
 	 * 
 	 * @return {@code true} if the panel's tool bar should have an options button, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addToolBarElements(JToolBar, Location, int)
 	 */
 	protected boolean hasOptionsButton() {

@@ -563,7 +563,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 
 	/**
-	 * @deprecated (TODO add version) No longer used/needed.
+	 * @deprecated (2.8.0) No longer used/needed.
 	 *
 	 */
 	@Deprecated

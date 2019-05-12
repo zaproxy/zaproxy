@@ -189,7 +189,7 @@ public class HttpMessage implements Message {
 	 * @param uri the request target.
 	 * @param params unused.
 	 * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
-	 * @deprecated (TODO add version) Use {@link #HttpMessage(URI)} instead.
+	 * @deprecated (2.8.0) Use {@link #HttpMessage(URI)} instead.
 	 * @since 2.4.2
 	 */
 	@Deprecated
@@ -256,7 +256,7 @@ public class HttpMessage implements Message {
 	 * </ul>
 	 *
 	 * @param message the message to copy.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public HttpMessage(HttpMessage message) {
 		if (message == null) {
@@ -1059,7 +1059,7 @@ public class HttpMessage implements Message {
     
     /**
      * Returns a map of data suitable for including in an {@link Event}
-     * @since TODO add version
+     * @since 2.8.0
      */
     @Override
     public Map<String, String> toEventData() { 
@@ -1076,7 +1076,7 @@ public class HttpMessage implements Message {
     
     /**
      * Returns "HTTP"
-     * @since TODO add version
+     * @since 2.8.0
      */
     public String getType() {
         return MESSAGE_TYPE;

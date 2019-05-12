@@ -37,31 +37,31 @@ public class NameValuePair {
     /**
      * A "normal" (non-file) multipart/form-data parameter
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_PARAM = 33;
     /**
      * A file (content) multipart/form-data file parameter
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_PARAM = 34;
     /**
      * The filename portion of a multipart/form-data file parameter
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_NAME = 35;
     /**
      * The content-type portion of a multipart/form-data file parameter
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_CONTENTTYPE = 36;
     /**
      * The application/json content-type of a web application
      * 
-     * @since TODO add version
+     * @since 2.8.0
      */   
     public static final int TYPE_JSON = 37;
     

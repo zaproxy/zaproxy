@@ -832,7 +832,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * Shows the spider dialogue with the given target, if not already visible.
 	 *
 	 * @param target the target, might be {@code null}.
-	 * @since TODO add version.
+	 * @since 2.8.0.
 	 */
 	public void showSpiderDialog(Target target) {
 		if (spiderDialog == null) {

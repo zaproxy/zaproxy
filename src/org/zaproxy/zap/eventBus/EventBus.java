@@ -58,7 +58,7 @@ public interface EventBus {
 	/**
 	 * Unregister the consumer from all publishers
 	 * @param consumer the consumer of events
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	void unregisterConsumer(EventConsumer consumer);
 	

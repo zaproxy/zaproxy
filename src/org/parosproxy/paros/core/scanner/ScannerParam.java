@@ -46,6 +46,7 @@
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
+// ZAP: 2019/05/10 Enable custom (script) input vectors by default.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -106,7 +107,7 @@ public class ScannerParam extends AbstractParam {
     /**
      * Configuration key to write/read the {@code addQueryParam} flag.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      * @see #addQueryParam
      */
     private static final String SCAN_ADD_QUERY_PARAM = ACTIVE_SCAN_BASE_KEY + ".addQueryParam";
@@ -129,7 +130,7 @@ public class ScannerParam extends AbstractParam {
 
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
-    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR;
+    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR | RPC_CUSTOM;
     private static final int DEFAULT_MAX_CHART_TIME_IN_MINS = 10;
 
     // Internal variables
@@ -173,7 +174,7 @@ public class ScannerParam extends AbstractParam {
      * <p>
      * Default value is {@code false}.
      * 
-     * @since TODO add version
+     * @since 2.8.0
      * @see #isAddQueryParam()
      * @see #setAddQueryParam(boolean)
      */
@@ -608,7 +609,7 @@ public class ScannerParam extends AbstractParam {
      * Tells whether ZAP should add a parameter to GET requests that don't have one.
      *
      * @return {@code true} if a GET parameter should be added, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.8.0
      * @see #setAddQueryParam(boolean)
      */
     public boolean isAddQueryParam() {
@@ -619,7 +620,7 @@ public class ScannerParam extends AbstractParam {
      * Sets whether or not ZAP should add a parameter to GET requests that don't have one.
      *
      * @param addQueryParam {@code true} if ZAP should add a parameter to GET requests that don't have one, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.8.0
      * @see #isAddQueryParam()
      */
     public void setAddQueryParam(boolean addQueryParam) {

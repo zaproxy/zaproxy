@@ -29,7 +29,7 @@ import org.zaproxy.zap.eventBus.EventPublisher;
 
 /**
  * A {@link EventPublisher} of {@link ProxyListenerLog} events.
- * @since TODO add version
+ * @since 2.8.0
  */
 public final class ProxyListenerLogEventPublisher implements EventPublisher {
 

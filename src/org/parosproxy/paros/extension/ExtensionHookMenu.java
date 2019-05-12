@@ -128,7 +128,7 @@ public class ExtensionHookMenu {
      *
      * @see #addImportMenuItem(ZapMenuItem)
      * @see #getImport()
-     * @since TODO Add Version
+     * @since 2.8.0
      */
     private List<JMenuItem> importMenuItemList;
 
@@ -347,7 +347,7 @@ public class ExtensionHookMenu {
         addToolsMenuItemImpl(menuItem);
     }
     /**
-     * @since TODO Add Version
+     * @since 2.8.0
      */
     public void addImportMenuItem(ZapMenuItem menuItem) { 
 	if (importMenuItemList == null) {

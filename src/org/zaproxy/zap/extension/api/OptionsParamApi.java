@@ -359,7 +359,7 @@ public class OptionsParamApi extends AbstractParam {
      * Tells whether or not the removal of a permitted address needs confirmation.
      * 
      * @return {@code true} if the removal needs confirmation, {@code false} otherwise.
-     * @since TODO 
+     * @since 2.6.0
      */
     @ZapApiIgnore
     public boolean isConfirmRemovePermittedAddress() {
@@ -370,7 +370,7 @@ public class OptionsParamApi extends AbstractParam {
      * Sets whether or not the removal of a permitted address needs confirmation.
      * 
      * @param confirmRemove {@code true} if the removal needs confirmation, {@code false} otherwise.
-     * @since TODO
+     * @since 2.6.0
      */
     @ZapApiIgnore
     public void setConfirmRemovePermittedAddress(boolean confirmRemove) {

@@ -96,6 +96,7 @@ public class SearchThread extends Thread {
 	@Override
 	public void run() {
 		try {
+			this.searchListenner.searchStarted();
 			search();
 		} finally {
 			this.searchListenner.searchComplete();

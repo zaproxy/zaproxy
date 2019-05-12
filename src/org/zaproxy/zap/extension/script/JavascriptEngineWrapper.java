@@ -42,7 +42,7 @@ public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 	 * Constructs a {@code JavascriptEngineWrapper} with the given engine (to obtain a factory).
 	 *
 	 * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
-	 * @deprecated (TODO add version) Use {@link #JavascriptEngineWrapper(ScriptEngineFactory)} instead.
+	 * @deprecated (2.8.0) Use {@link #JavascriptEngineWrapper(ScriptEngineFactory)} instead.
 	 */
 	@Deprecated
 	public JavascriptEngineWrapper(ScriptEngine engine) {
@@ -53,7 +53,7 @@ public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 	 * Constructs a {@code JavascriptEngineWrapper} with the given engine factory.
 	 *
 	 * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for example, engine name, language).
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #getEngine()
 	 */
 	public JavascriptEngineWrapper(ScriptEngineFactory factory) {

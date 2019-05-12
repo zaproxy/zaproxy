@@ -95,7 +95,7 @@ public abstract class ExtensionAdaptor implements Extension {
     /**
      * @param name the name of the extension.
      * @param version unused.
-     * @deprecated (TODO add version) Use {@link #ExtensionAdaptor(String)} instead, the version is not used.
+     * @deprecated (2.8.0) Use {@link #ExtensionAdaptor(String)} instead, the version is not used.
      */
     @Deprecated
     protected ExtensionAdaptor(String name, Version version) {

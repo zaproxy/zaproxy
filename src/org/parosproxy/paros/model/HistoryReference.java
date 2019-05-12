@@ -266,7 +266,7 @@ public class HistoryReference {
     /**
      * A HTTP message received by the callback handler.
      *
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final int TYPE_CALLBACK = 21;
 

@@ -802,7 +802,7 @@ public class HostProcess implements Runnable {
      * Gets the HTTP request configuration that ensures the followed redirections are in scan's scope.
      *
      * @return the HTTP request configuration, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #getRedirectionValidator()
      */
     HttpRequestConfig getRedirectRequestConfig() {
@@ -816,7 +816,7 @@ public class HostProcess implements Runnable {
      * Gets the redirection validator that ensures the followed redirections are in scan's scope.
      *
      * @return the redirection validator, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      * @see #getRedirectRequestConfig()
      */
     HttpRedirectionValidator getRedirectionValidator() {

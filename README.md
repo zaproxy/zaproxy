@@ -17,14 +17,14 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
 
 #### Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/1-k-vcj_sSxlil6XLxCFade-m-IQVeE2h9gduA-2ZPPA/viewform)!
 
-For general information about ZAP:
+### For general information about ZAP:
   * [Home page](https://www.owasp.org/index.php/ZAP) - the official ZAP page on the OWASP wiki (includes a donate button;)
   * [Twitter](https://twitter.com/zaproxy)	- official ZAP announcements (low volume)
   * [Blog](https://zaproxy.blogspot.com/)	- official ZAP blog
   * [Monthly Newsletters](https://github.com/zaproxy/zaproxy/wiki/Newsletters) - ZAP news, tutorials, 3rd party tools and featured contributors
   * [Swag!](https://github.com/zaproxy/zap-swag) - official ZAP swag that you can buy, as well as all of the original artwork released under the CC License
 
-For help using ZAP:
+### For help using ZAP:
   * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.7.0/ZAPGettingStartedGuide-2.7.pdf) - an introductory guide you can print
   * [Tutorial Videos](https://www.youtube.com/playlist?list=PLEBitBW-Hlsv8cEIUntAO8st2UGhmrjUB)
   * [Articles](https://github.com/zaproxy/zaproxy/wiki/ZAP-Articles) - that go into ZAP features in more depth
@@ -35,13 +35,13 @@ For help using ZAP:
   * [Add-ons](https://github.com/zaproxy/zap-extensions/wiki) - help for the optional add-ons you can install
   * [StackOverflow](https://stackoverflow.com/questions/tagged/zap) - because some people use this for everything ;)
 
-Information about the official ZAP Jenkins plugin:
+### Information about the official ZAP Jenkins plugin:
   * [Wiki](https://wiki.jenkins-ci.org/display/JENKINS/zap+plugin)
   * [Group](https://groups.google.com/forum/#%21forum/zaproxy-jenkins)
   * [Issue tracker](https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20zap-plugin)
   * [Source code](https://github.com/jenkinsci/zap-plugin)
 
-To learn more about ZAP development:
+### To learn more about ZAP development:
   * [Source Code](https://github.com/zaproxy) - for all of the ZAP related projects
   * [Wiki](https://github.com/zaproxy/zaproxy/wiki/Introduction) - lots of detailed info
   * [Developer Group](https://groups.google.com/group/zaproxy-develop) - ask questions about the ZAP internals

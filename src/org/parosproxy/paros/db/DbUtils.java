@@ -238,7 +238,7 @@ public class DbUtils {
      *             {@code preparedStatement}
      * @see PreparedStatement#close()
      * @see PreparedStatement#execute()
-     * @deprecated (TODO add version) replaced by {@link #execute}
+     * @deprecated (2.8.0) replaced by {@link #execute}
      */
     @Deprecated
     public static void executeAndClose(final PreparedStatement preparedStatement) throws SQLException {
@@ -264,7 +264,7 @@ public class DbUtils {
      *            the sql statement to run
      * @throws SQLException
      *             if error occurred while executing the given {@code sql}
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static void execute(final Connection connection, final String sql) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
@@ -279,7 +279,7 @@ public class DbUtils {
      * @throws SQLException if error occurred while executing the given {@code preparedStatement}
      * @see PreparedStatement#close()
      * @see PreparedStatement#executeUpdate()
-     * @deprecated (TODO add version) replaced by {@link #executeUpdate}
+     * @deprecated (2.8.0) replaced by {@link #executeUpdate}
      */
     @Deprecated
     public static void executeUpdateAndClose(PreparedStatement preparedStatement) throws SQLException {
@@ -305,7 +305,7 @@ public class DbUtils {
      * @param sql
      *            the sql statement to run
      * @throws SQLException if error occurred while executing the given {@code sql}
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static void executeUpdate(final Connection connection, final String sql) throws SQLException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){

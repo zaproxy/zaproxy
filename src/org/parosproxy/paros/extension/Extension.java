@@ -99,7 +99,7 @@ public interface Extension {
      *
      * @return the version of the extension, or {@code null} if not versioned
      * @since 2.4.0
-     * @deprecated (TODO add version) Don't override, not used.
+     * @deprecated (2.8.0) Don't override, not used.
      */
     @Deprecated
     default Version getVersion() {

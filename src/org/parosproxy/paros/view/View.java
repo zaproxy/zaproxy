@@ -1052,7 +1052,7 @@ public class View implements ViewDelegate {
     /**
      * If true then the UI can request focus from other applications, if false then it should not
      * @return true if the UI can request focus from other applications
-     * @since TODO add version
+     * @since 2.8.0
      */
     public boolean isCanGetFocus() {
         return canGetFocus;
@@ -1061,7 +1061,7 @@ public class View implements ViewDelegate {
     /**
      * Set whether the UI can request focus from other applications
      * @param canGetFocus if true then the UI can request focus from other applications, otherwise it should not
-     * @since TODO add version
+     * @since 2.8.0
      */
     public void setCanGetFocus(boolean canGetFocus) {
         this.canGetFocus = canGetFocus;

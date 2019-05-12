@@ -77,14 +77,14 @@ public class HttpRequestHeader extends HttpHeader {
     /**
      * The {@code Accept} request header.
      *
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String ACCEPT = "Accept";
 
     /**
      * The {@code Origin} request header.
      *
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static final String ORIGIN = "Origin";
 
@@ -253,7 +253,7 @@ public class HttpRequestHeader extends HttpHeader {
      * @param version the version, for example, {@code HTTP/1.1}.
      * @param params unused.
      * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
-     * @deprecated (TODO add version) Use {@link #HttpRequestHeader(String, URI, String)} instead.
+     * @deprecated (2.8.0) Use {@link #HttpRequestHeader(String, URI, String)} instead.
      * @since 2.4.2
      */
     @Deprecated
@@ -862,7 +862,7 @@ public class HttpRequestHeader extends HttpHeader {
      * This is expected to be called only by core code, when the corresponding option is changed.
      *
      * @param defaultUserAgent the default user agent.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static void setDefaultUserAgent(String defaultUserAgent) {
         HttpRequestHeader.defaultUserAgent = defaultUserAgent;
@@ -872,7 +872,7 @@ public class HttpRequestHeader extends HttpHeader {
      * Gets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
      *
      * @return the default user agent.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public static String getDefaultUserAgent() {
         return defaultUserAgent;

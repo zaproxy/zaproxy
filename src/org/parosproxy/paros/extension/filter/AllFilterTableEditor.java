@@ -33,7 +33,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
 /**
- * @deprecated (TODO add version) Filters were superseded by scripts and Replacer add-on.
+ * @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on.
  */
 @Deprecated
 class AllFilterTableEditor extends AbstractCellEditor implements TableCellEditor {

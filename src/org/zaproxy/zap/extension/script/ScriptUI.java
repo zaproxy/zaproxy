@@ -52,7 +52,7 @@ public interface ScriptUI {
 	 * Adds the given tree selection listener.
 	 *
 	 * @param tsl the tree selection listener to be added.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #removeSelectionListener(TreeSelectionListener)
 	 * @see #getSelectedNode()
 	 * @see #getSelectedNodes()
@@ -65,7 +65,7 @@ public interface ScriptUI {
 	 * Removes the given tree selection listener.
 	 *
 	 * @param tsl the tree selection listener to remove.
-	 * @since TODO add version
+	 * @since 2.8.0
 	 * @see #addSelectionListener(TreeSelectionListener)
 	 */
 	default void removeSelectionListener(TreeSelectionListener tsl) {

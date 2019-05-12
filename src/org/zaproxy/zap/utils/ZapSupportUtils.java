@@ -65,7 +65,7 @@ public final class ZapSupportUtils {
 	 * Gets the installation directory (preceded with the corresponding label).
 	 *
 	 * @return the installation directory
-	 * @since TODO add version
+	 * @since 2.8.0
 	 */
 	public static String getZapInstallDirectory() {
 		return Constant.messages.getString("support.install.directory.label") + " " + Constant.getZapInstall();

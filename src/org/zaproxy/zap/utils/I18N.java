@@ -105,7 +105,7 @@ public class I18N {
      * The message will be obtained either from the core {@link ResourceBundle} or a {@code ResourceBundle} of an add-on
      * (depending on the prefix of the key).
      * <p>
-     * <strong>Note:</strong> Since TODO add version this method no longer throws a {@code MissingResourceException} if the key
+     * <strong>Note:</strong> Since 2.8.0 this method no longer throws a {@code MissingResourceException} if the key
      * does not exist, instead it logs an error and returns the key itself. This avoids breaking ZAP when a resource message is
      * accidentally missing. Use {@link #containsKey(String)} instead to know if a message exists or not.
      *

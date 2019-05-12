@@ -309,7 +309,7 @@ public class ExtensionHookView {
      *
      * @see org.zaproxy.zap.extension.httppanel.HttpPanelRequest#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
      * @param messageChangedListener the listener for the request panel.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public void addRequestPanelDisplayedMessageChangedListener(DisplayedMessageChangedListener messageChangedListener){
         if (requestPanelDisplayedMessageChangedListener == null) {
@@ -322,7 +322,7 @@ public class ExtensionHookView {
      * Gets the {@link DisplayedMessageChangedListener}s added to this hook, for the RequestPanel.
      *
      * @return an unmodifiable {@code List} containing the added {@code DisplayedMessageChangedListener}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     List<DisplayedMessageChangedListener> getRequestPanelDisplayedMessageChangedListeners(){
         return unmodifiableList(requestPanelDisplayedMessageChangedListener);
@@ -334,7 +334,7 @@ public class ExtensionHookView {
      *
      * @see org.zaproxy.zap.extension.httppanel.HttpPanelResponse#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
      * @param messageChangedListener the listener for the response panel.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public void addResponsePanelDisplayedMessageChangedListener(DisplayedMessageChangedListener messageChangedListener){
         if (responsePanelDisplayedMessageChangedListener == null) {
@@ -347,7 +347,7 @@ public class ExtensionHookView {
      * Gets the {@link DisplayedMessageChangedListener}s added to this hook, for the ResponsePanel.
      *
      * @return an unmodifiable {@code List} containing the added {@code DisplayedMessageChangedListener}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.8.0
      */
     List<DisplayedMessageChangedListener> getResponsePanelDisplayedMessageChangedListeners(){
         return unmodifiableList(responsePanelDisplayedMessageChangedListener);

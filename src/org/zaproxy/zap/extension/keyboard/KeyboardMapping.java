@@ -67,7 +67,7 @@ class KeyboardMapping {
      * Gets the default accelerator of the menu item.
      *
      * @return the default accelerator.
-     * @since TODO add version
+     * @since 2.8.0
      */
     public KeyStroke getDefaultKeyStroke() {
         if (this.menuItem != null) {

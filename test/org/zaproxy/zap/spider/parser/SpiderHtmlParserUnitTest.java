@@ -166,6 +166,99 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    public void shouldFindUrlsInAnchorPingElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("AElementsWithPingSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(23)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        // a URLs followed by ping URLs
+                        "http://a.example.com/base/scheme",
+                        "http://ping.example.com/base/scheme",
+                        "http://a.example.com:8000/b",
+                        "http://ping.example.com:8000/b",
+                        "https://a.example.com/c?a=b",
+                        "https://ping.example.com/c?a=b",
+                        "http://example.com/sample/a/relative",
+                        "http://example.com/sample/a/relative/ping",
+                        "http://example.com/a/absolute",
+                        "http://example.com/a/absolute/ping",
+                        "ftp://a.example.com/",
+                        "https://ping.example.com/ping",
+                        //Ping first, is parsed href before ping
+                        "http://b.example.com/",
+                        "https://ping.first.com/",
+                        //Ignored anchors but picked pings
+                        "http://ping.example.com/mailping",
+                        "http://ping.example.com/jsping",
+                        "http://ping.example.com/ping",
+                        //Multiple ping URLs
+                        "http://a.example.com/",
+                        "http://ping.example.com/",
+                        "http://pong.example.com/",
+                        //Mutiple ping URLs with tab in the middle
+                        "http://a.example.com/",
+                        "http://ping.example.com/",
+                        "http://pong.example.com/"));//Trailing slash is added on host
+    }
+
+    @Test
+    public void shouldFindUrlsInAreaPingElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("AreaElementsWithPingSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(23)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        // area URLs followed by ping URLs
+                        "http://a.example.com/base/scheme",
+                        "http://ping.example.com/base/scheme",
+                        "http://a.example.com:8000/b",
+                        "http://ping.example.com:8000/b",
+                        "https://a.example.com/c?a=b",
+                        "https://ping.example.com/c?a=b",
+                        "http://example.com/sample/a/relative",
+                        "http://example.com/sample/a/relative/ping",
+                        "http://example.com/a/absolute",
+                        "http://example.com/a/absolute/ping",
+                        "ftp://a.example.com/",
+                        "https://ping.example.com/ping",
+                        //Ping first, is parsed href before ping
+                        "http://b.example.com/",
+                        "https://ping.first.com/",
+                        //Ignored anchors but picked pings
+                        "http://ping.example.com/mailping",
+                        "http://ping.example.com/jsping",
+                        "http://ping.example.com/ping",
+                        //Multiple ping URLs
+                        "http://a.example.com/",
+                        "http://ping.example.com/",
+                        "http://pong.example.com/",
+                        //Mutiple ping URLs with tab in the middle
+                        "http://a.example.com/",
+                        "http://ping.example.com/",
+                        "http://pong.example.com/"));//Trailing slash is added on host
+    }
+
+
+    @Test
     public void shouldUseMessageUriIfNoBaseElement() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
