@@ -740,6 +740,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
             }
         }
 
+    	if (Constant.isSilent()) {
+    		// Never make unsolicited requests in silent mode
+    		logger.info("Shh! No check-for-update - silent mode enabled");
+    		return;
+    	}
+    	
 		if (! options.checkOnStart()) {
 			// Top level option not set, dont do anything, unless already downloaded last release
 			if (View.isInitialised() && this.getPreviousVersionInfo() != null) {

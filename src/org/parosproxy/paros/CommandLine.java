@@ -80,6 +80,7 @@ public class CommandLine {
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
     public static final String SUPPORT_INFO = "-suppinfo";
+    public static final String SILENT = "-silent";
 
     /**
      * Command line option to disable the default logging through standard output.
@@ -112,6 +113,7 @@ public class CommandLine {
     private boolean displaySupportInfo = false;
     private boolean lowMem = false;
     private boolean experimentalDb = false;
+    private boolean silent = false;
     private int port = -1;
     private String host = null;
     private String[] args;
@@ -347,6 +349,9 @@ public class CommandLine {
         } else if (checkSwitch(args, DEV_MODE, i)) {
             devMode = true;
             Constant.setDevMode(true);
+        } else if (checkSwitch(args, SILENT, i)) {
+            silent = true;
+            Constant.setSilent(true);
         }
 
         return result;
@@ -501,6 +506,14 @@ public class CommandLine {
      */
     public boolean isNoStdOutLog() {
         return noStdOutLog;
+    }
+    
+    /**
+     * Returns true if ZAP should not make any unsolicited requests, eg check-for-updates etc
+     * @since 2.8.0
+     */
+    public boolean isSilent() {
+        return silent;
     }
 
     /**
