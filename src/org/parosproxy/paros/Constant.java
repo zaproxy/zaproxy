@@ -85,6 +85,7 @@
 // ZAP: 2019/05/10 Apply installer config options on update.
 //                 Fix exceptions during config update.
 // ZAP: 2019/05/14 Added silent option
+// ZAP: 2019/05/17 Update cert option to boolean.
 
 package org.parosproxy.paros;
 
@@ -971,6 +972,15 @@ public final class Constant {
     private static void upgradeFrom2_7_0(XMLConfiguration config) {
         // Remove options from SNI Terminator.
         config.clearTree("sniterm");
+
+        String certUseKey = "certificate.use";
+        try {
+            // Change the type of the option from int to boolean.
+            int oldValue = config.getInt(certUseKey, 0);
+            config.setProperty(certUseKey, oldValue != 0);
+        } catch (ConversionException e) {
+            LOG.debug("The option " + certUseKey + " is no longer an int.", e);
+        }
     }
 
     private static void updateCfuFromDefaultConfig(XMLConfiguration config) {
