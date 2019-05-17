@@ -34,7 +34,7 @@ import org.zaproxy.zap.utils.I18N;
  * 
  * @since 2.6.0
  */
-abstract class AbstractAPIGenerator {
+public abstract class AbstractAPIGenerator {
 
     protected static final String OPTIONAL_MESSAGE = "This component is optional and therefore the API will only work if it is installed";
 
