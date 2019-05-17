@@ -53,7 +53,7 @@ public interface TableHistory extends DatabaseListener {
 	 * Gets the history record IDs of the given session starting at the specified historyId (inclusive).
 	 *
 	 * @param sessionId the ID of session of the history records to be returned
-	 * @param startAtHistoryId filters historyIds with >= startAtHistoryId
+	 * @param startAtHistoryId filters historyIds with &ge; startAtHistoryId
 	 * @return a {@code List} with the history IDs of the given session starting at the specified historyId (inclusive), never {@code null}
 	 * @throws DatabaseException if an error occurred while getting the history IDs
 	 * @since 2.8.0
@@ -79,7 +79,7 @@ public interface TableHistory extends DatabaseListener {
 	 * Gets the history record IDs of the given session and with the given history types starting at the specified historyId (inclusive).
 	 *
 	 * @param sessionId the ID of session of the history records
-	 * @param startAtHistoryId filters historyIds with >= startAtHistoryId
+	 * @param startAtHistoryId filters historyIds with &ge; startAtHistoryId
 	 * @param histTypes the history types of the history records that should be returned
 	 * @return a {@code List} with all the history IDs of the given session and history types starting at the specified historyId (inclusive), never {@code null}
 	 * @throws DatabaseException if an error occurred while getting the history IDs
@@ -105,7 +105,7 @@ public interface TableHistory extends DatabaseListener {
 	 * Returns the history record IDs of the given session except the ones with the given history types starting at the specified historyId (inclusive).
 	 **
 	 * @param sessionId the ID of session of the history records
-	 * @param startAtHistoryId filters historyIds with >= startAtHistoryId
+	 * @param startAtHistoryId filters historyIds with &ge; startAtHistoryId
 	 * @param histTypes the history types of the history records that should be excluded
 	 * @return a {@code List} with all the history IDs of the given session and history types starting at the specified historyId (inclusive), never {@code null}
 	 * @throws DatabaseException if an error occurred while getting the history IDs
