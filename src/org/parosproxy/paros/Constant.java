@@ -84,6 +84,8 @@
 // ZAP: 2019/04/01 Refactored to reduce code-duplication.
 // ZAP: 2019/05/10 Apply installer config options on update.
 //                 Fix exceptions during config update.
+// ZAP: 2019/05/14 Added silent option
+// ZAP: 2019/05/17 Update cert option to boolean.
 
 package org.parosproxy.paros;
 
@@ -313,6 +315,8 @@ public final class Constant {
      * @see #isDevMode()
      */
     private static boolean devMode;
+    
+    private static boolean silent;
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";
@@ -968,6 +972,15 @@ public final class Constant {
     private static void upgradeFrom2_7_0(XMLConfiguration config) {
         // Remove options from SNI Terminator.
         config.clearTree("sniterm");
+
+        String certUseKey = "certificate.use";
+        try {
+            // Change the type of the option from int to boolean.
+            int oldValue = config.getInt(certUseKey, 0);
+            config.setProperty(certUseKey, oldValue != 0);
+        } catch (ConversionException e) {
+            LOG.debug("The option " + certUseKey + " is no longer an int.", e);
+        }
     }
 
     private static void updateCfuFromDefaultConfig(XMLConfiguration config) {
@@ -1265,6 +1278,18 @@ public final class Constant {
     }
     
     /**
+     * Sets whether or not ZAP should be 'silent' ie not make any unsolicited requests.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap classes.
+     * 
+     * @param silent  {@code true} if ZAP should be silent, {@code false} otherwise.
+     * @since 2.8.0
+     */
+    public static void setSilent(boolean silent) {
+        Constant.silent = silent;
+    }
+    
+    /**
      * Tells whether or not ZAP is running from a dev build.
      *
      * @return {@code true} if it's a dev build, {@code false} otherwise.
@@ -1288,6 +1313,15 @@ public final class Constant {
     	return isDailyBuild(PROGRAM_VERSION);
     }
 
+    /**
+     * If true then ZAP should not make any unsolicited requests, eg check-for-updates
+     * @return true if ZAP should not make any unsolicited requests, eg check-for-updates
+     * @since 2.8.0
+     */
+    public static boolean isSilent() {
+        return silent;
+    }
+    
     public static void setLowMemoryOption(boolean lowMem) {
     	if (lowMemoryOption != null) {
     		throw new InvalidParameterException("Low memory option already set to " + lowMemoryOption);

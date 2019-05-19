@@ -19,18 +19,35 @@
  */
 package org.zaproxy.zap.extension.dynssl;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
+import org.bouncycastle.util.io.pem.PemWriter;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.CommandLineArgument;
+import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
@@ -42,12 +59,17 @@ import org.parosproxy.paros.view.View;
  *
  * @author MaWoKi
  */
-public class ExtensionDynSSL extends ExtensionAdaptor {
+public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineListener {
 
 	public static final String EXTENSION_ID = "ExtensionDynSSL";
 	
 	private DynSSLParam params;
 	private DynamicSSLPanel optionsPanel;
+
+    private CommandLineArgument[] arguments = new CommandLineArgument[3];
+    private static final int ARG_CERT_LOAD = 0;
+    private static final int ARG_CERT_PUB_DUMP = 1;
+    private static final int ARG_CERT_FULL_DUMP = 2;
 
 	private final Logger logger = Logger.getLogger(ExtensionDynSSL.class);
 
@@ -68,6 +90,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	    if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
 	    }
+        extensionHook.addCommandLine(getCommandLineArguments());
         extensionHook.addOptionsParamSet(getParams());
 	}
 	
@@ -89,7 +112,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 			logger.error("Couldn't initialize Root CA", e);
 		}
 		if (isCertExpired(getRootCaCertificate())) {
-			warnRooCaCertExpired();
+			warnRootCaCertExpired();
 		}
 	}
 	
@@ -175,6 +198,124 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	}
 	
 	/**
+	 * Writes the Root CA public certificate to the specified file in pem format, suitable for importing into browsers
+	 * @param path the path the Root CA certificate will be written to
+	 * @throws IOException
+	 * @throws KeyStoreException
+	 * @since 2.8.0
+	 */
+	public void writeRootPubCaCertificateToFile(Path path) throws IOException, KeyStoreException {
+		KeyStore ks = this.getParams().getRootca();
+		if (ks != null) {
+			final Certificate cert = ks.getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
+			try (final Writer w = Files.newBufferedWriter(path, StandardCharsets.US_ASCII);
+					final PemWriter pw = new PemWriter(w)) {
+				pw.writeObject(new JcaMiscPEMGenerator(cert));
+				pw.flush();
+			}
+		}
+	}
+
+	/**
+	 * Writes the Root CA full certificate to the specified file in pem format, suitable for importing into ZAP
+	 * @param path the path the Root CA certificate will be written to
+	 * @throws IOException
+	 * @throws KeyStoreException
+	 * @throws NoSuchAlgorithmException
+	 * @throws CertificateException
+	 * @throws UnrecoverableKeyException
+	 * @since 2.8.0
+	 */
+	public void writeRootFullCaCertificateToFile(Path path) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
+		KeyStore ks = this.getParams().getRootca();
+		if (ks != null) {
+			final Certificate cert = ks.getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
+			try (final Writer w = Files.newBufferedWriter(path, StandardCharsets.US_ASCII);
+					final PemWriter pw = new PemWriter(w)) {
+				pw.writeObject(new JcaMiscPEMGenerator(cert));
+				pw.flush();
+
+				w.write(SslCertificateUtils.BEGIN_PRIVATE_KEY_TOKEN + "\n");
+				Key key = ks.getKey(SslCertificateService.ZAPROXY_JKS_ALIAS, SslCertificateService.PASSPHRASE);
+				PrivateKey pk = (PrivateKey) key;
+				w.write(Base64.getMimeEncoder().encodeToString(pk.getEncoded()));
+				w.write("\n" + SslCertificateUtils.END_PRIVATE_KEY_TOKEN + "\n");
+			}
+		}
+	}
+	
+	private static void writeCert(String path, CertWriter writer) {
+		File file = new File(path);
+		if (file.exists() && ! file.canWrite()) {
+			CommandLine.error(Constant.messages.getString("dynssl.cmdline.error.nowrite", file.getAbsolutePath()));
+		} else {
+			try {
+				writer.write(file.toPath());
+				CommandLine
+						.info(Constant.messages.getString("dynssl.cmdline.certdump.done", file.getAbsolutePath()));
+			} catch (Exception e) {
+				CommandLine.error(Constant.messages.getString("dynssl.cmdline.error.write", file.getAbsolutePath()),
+						e);
+			}
+		}
+	}
+	
+	private interface CertWriter { void write(Path path) throws Exception; }
+
+	/**
+	 * Imports the root CA certificate from the specified file
+	 * 
+	 * @param pemFile
+	 *            the pem file containing the certificate
+	 * @return null on success, otherwise the localised error message
+	 * @since 2.8.0
+	 */
+	public String importRootCaCertificate(File pemFile) {
+		String pem;
+		try {
+			pem = FileUtils.readFileToString(pemFile, StandardCharsets.US_ASCII);
+		} catch (IOException e) {
+			return Constant.messages.getString("dynssl.importpem.failedreadfile", e.getLocalizedMessage());
+		}
+
+		byte[] cert;
+		try {
+			cert = SslCertificateUtils.extractCertificate(pem);
+			if (cert.length == 0) {
+				return Constant.messages.getString(
+						"dynssl.importpem.nocertsection",
+						SslCertificateUtils.BEGIN_CERTIFICATE_TOKEN,
+						SslCertificateUtils.END_CERTIFICATE_TOKEN);
+			}
+		} catch (IllegalArgumentException e) {
+			return Constant.messages.getString("dynssl.importpem.certnobase64");
+		}
+
+		byte[] key;
+		try {
+			key = SslCertificateUtils.extractPrivateKey(pem);
+			if (key.length == 0) {
+				return Constant.messages.getString(
+						"dynssl.importpem.noprivkeysection",
+						SslCertificateUtils.BEGIN_PRIVATE_KEY_TOKEN,
+						SslCertificateUtils.END_PRIVATE_KEY_TOKEN);
+			}
+		} catch (IllegalArgumentException e) {
+			return Constant.messages.getString("dynssl.importpem.privkeynobase64");
+		}
+
+		try {
+			KeyStore ks = SslCertificateUtils.pem2KeyStore(cert, key);
+			this.setRootCa(ks);
+			this.getParams().setRootca(ks);
+			return null;
+			
+		} catch (Exception e) {
+			return Constant.messages.getString("dynssl.importpem.failedkeystore", e.getLocalizedMessage());
+		}
+	}
+
+	/**
 	 * Returns true if the certificate expired before the current date, otherwise false.
 	 * 
 	 * @param cert the X.509 certificate for which expiration should be checked.
@@ -192,7 +333,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	 * 
 	 * @see #isCertExpired(X509Certificate)
 	 */
-	private void warnRooCaCertExpired() {
+	private void warnRootCaCertExpired() {
 		X509Certificate cert = getRootCaCertificate();
 		if (cert == null) {
 			return;
@@ -203,5 +344,51 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 			getView().showWarningDialog(warnMsg);
 		}
 		logger.warn(warnMsg);
+	}
+
+	@Override
+	public void execute(CommandLineArgument[] args) {
+		if (arguments[ARG_CERT_LOAD].isEnabled()) {
+			File file = new File(arguments[ARG_CERT_LOAD].getArguments().firstElement());
+			if (!file.canRead()) {
+				CommandLine.error(Constant.messages.getString("dynssl.cmdline.error.noread", file.getAbsolutePath()));
+			} else {
+				String error = importRootCaCertificate(file);
+				if (error == null) {
+					CommandLine
+							.info(Constant.messages.getString("dynssl.cmdline.certload.done", file.getAbsolutePath()));
+				} else {
+					CommandLine.error(error);
+				}
+			}
+		}
+		if (arguments[ARG_CERT_PUB_DUMP].isEnabled()) {
+			writeCert(arguments[ARG_CERT_PUB_DUMP].getArguments().firstElement(), this::writeRootPubCaCertificateToFile);
+		}
+		if (arguments[ARG_CERT_FULL_DUMP].isEnabled()) {
+			writeCert(arguments[ARG_CERT_FULL_DUMP].getArguments().firstElement(), this::writeRootFullCaCertificateToFile);
+		}
+	}
+
+	private CommandLineArgument[] getCommandLineArguments() {
+		arguments[ARG_CERT_LOAD] = new CommandLineArgument("-certload", 1, null, "",
+				"-certload <path>         " + Constant.messages.getString("dynssl.cmdline.certload"));
+		arguments[ARG_CERT_PUB_DUMP] = new CommandLineArgument("-certpubdump", 1, null, "",
+				"-certpubdump <path>      " + Constant.messages.getString("dynssl.cmdline.certpubdump"));
+		arguments[ARG_CERT_FULL_DUMP] = new CommandLineArgument("-certfulldump", 1, null, "",
+				"-certfulldump <path>     " + Constant.messages.getString("dynssl.cmdline.certfulldump"));
+		return arguments;
+	}
+
+	@Override
+	public boolean handleFile(File file) {
+		// Not supported
+		return false;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// Not supported
+		return null;
 	}
 }
