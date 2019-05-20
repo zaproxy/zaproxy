@@ -27,6 +27,14 @@ public class I18N {
 	 */
 
     private ResourceBundle stdMessages = null;
+    /**
+     * Fallback resource bundle for when a resource is missing in the file system resource bundle.
+     * <p>
+     * It uses the resource bundled in the JAR.
+     * 
+     * @see #loadBundledResourceBundle(ZapResourceBundleControl)
+     */
+    private ResourceBundle fallbackStdMessages;
     private Locale locale = null;
     private Map<String, ResourceBundle> addonMessages = new HashMap<>();
 
@@ -148,7 +156,14 @@ public class I18N {
     			return bundle.getString(key);
     		}
     	}
-    	return this.stdMessages.getString(key);
+        try {
+            return this.stdMessages.getString(key);
+        } catch (MissingResourceException e) {
+            if (fallbackStdMessages != null) {
+                return fallbackStdMessages.getString(key);
+            }
+            throw e;
+        }
     }
 
     /**
@@ -200,8 +215,13 @@ public class I18N {
         if (fsRb != null) {
             this.stdMessages = fsRb;
             logger.debug("Using file system Messages resource bundle.");
+            try {
+                this.fallbackStdMessages = loadBundledResourceBundle(rbc);
+            } catch (MissingResourceException e) {
+                logger.warn("Failed to find bundled Messages resource bundle.");
+            }
         } else {
-            this.stdMessages = loadResourceBundle("org.zaproxy.zap.resources." + Constant.MESSAGES_PREFIX, rbc);
+            this.stdMessages = loadBundledResourceBundle(rbc);
             logger.debug("Using bundled Messages resource bundle.");
         }
     }
@@ -218,6 +238,10 @@ public class I18N {
             logger.debug("Failed to load file system Messages resource bundle.", e);
         }
         return null;
+    }
+
+    private ResourceBundle loadBundledResourceBundle(ZapResourceBundleControl rbc) {
+        return loadResourceBundle("org.zaproxy.zap.resources." + Constant.MESSAGES_PREFIX, rbc);
     }
 
     private ResourceBundle loadResourceBundle(String path, ZapResourceBundleControl rbc) {
