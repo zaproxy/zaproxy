@@ -19,55 +19,71 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jdesktop.swingx.JXDatePicker;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.history.HistoryFilter;
+import org.parosproxy.paros.extension.history.LogPanel;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpStatusCode;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ZapLabel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.extension.history.HistoryFilter;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.network.HttpStatusCode;
-import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.utils.ZapLabel;
-import org.zaproxy.zap.view.LayoutHelper;
+import javax.swing.SpinnerDateModel;
+import javax.swing.text.DateFormatter;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
+import java.awt.Insets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class HistoryFilterPlusDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	private static ImageIcon ICON_ADD_HISTORY_FILTER = new ImageIcon(LogPanel.class.getResource("/resource/icon/16/funnel--plus.png"));
 	private JPanel jPanel = null;
 	private JButton btnApply = null;
 	private JButton btnCancel = null;
+	private JButton btnSaveAsHistoryFilter = null;
 	private JPanel jPanel1 = null;
 	private int exitResult = JOptionPane.CANCEL_OPTION;
 	private HistoryFilter filter = new HistoryFilter();
 
 	private JButton btnReset = null;
 	private JPanel jPanel2 = null;
-	
+
 	private JList<String> methodList = null;
 	private JList<Integer> codeList = null;
 	private JList<String> riskList = null;
@@ -75,9 +91,9 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JList<String> tagList = null;
 	private JTextArea regexInc = null;
 	private JTextArea regexExc = null;
-	
+
 	private DefaultListModel<String> tagModel = null;
-	
+
 	private JScrollPane methodScroller = null;
 	private JScrollPane codeScroller = null;
 	private JScrollPane tagScroller = null;
@@ -86,7 +102,13 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JComboBox<String> notesComboBox = null;
 	private JScrollPane urlRegxIncScroller = null;
 	private JScrollPane urlRegxExcScroller = null;
-	
+	private ExtensionHistory extensionHistory;
+	private JXDatePicker startDatePicker = null;
+	private JSpinner startTimeSpinner = null;
+	private JCheckBox startDateTimeCheckbox = null;
+	private SpinnerDateModel startTimeModel = null;
+
+
 	/**
 	 *      +----------------------------------------------------------------------+
 	 *      | Methods      Codes   Tags          Alerts            Inc URL Regexes |
@@ -108,23 +130,16 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	 *      +----------------------------------------------------------------------+
 	 *
 	 */
-	
-    /**
-     * @throws HeadlessException
-     */
-    public HistoryFilterPlusDialog() throws HeadlessException {
-        super();
- 		initialize();
-    }
 
     /**
-     * @param arg0
-     * @param arg1
+     * @param frame
+     * @param modal
      * @throws HeadlessException
      */
-    public HistoryFilterPlusDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
-        initialize();
+    public HistoryFilterPlusDialog(Frame frame, boolean modal, ExtensionHistory extensionHistory) throws HeadlessException {
+        super(frame, modal);
+		this.extensionHistory = extensionHistory;
+		initialize();
     }
 
 	/**
@@ -141,12 +156,12 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         this.getRootPane().setDefaultButton(btnApply);
         this.pack();
 	}
-	
+
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel() {
 		if (jPanel == null) {
 			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
@@ -158,7 +173,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			descLabel.setLineWrap(true);
 			descLabel.setWrapStyleWord(true);
 			descLabel.setText(Constant.messages.getString("history.filter.label.desc"));
-			
+
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 
@@ -192,44 +207,37 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		return jPanel;
 	}
 	/**
-	 * This method initializes btnApply	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnApply
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnApply() {
 		if (btnApply == null) {
 			btnApply = new JButton();
 			btnApply.setText(Constant.messages.getString("history.filter.button.apply"));
-			btnApply.addActionListener(new java.awt.event.ActionListener() { 
+			btnApply.addActionListener(new java.awt.event.ActionListener() {
 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+
 					try {
-						filter.setMethods(methodList.getSelectedValuesList());
-						filter.setCodes(codeList.getSelectedValuesList());
-						filter.setTags(tagList.getSelectedValuesList());
-						filter.setRisks(riskList.getSelectedValuesList());
-						filter.setReliabilities(confidenceList.getSelectedValuesList());
-						filter.setNote(notesComboBox.getSelectedItem());
-						filter.setUrlIncPatternList(strToRegexList(regexInc.getText()));
-						filter.setUrlExcPatternList(strToRegexList(regexExc.getText()));
+						updateFilterFromDialog(filter);
 						exitResult = JOptionPane.OK_OPTION;
 						HistoryFilterPlusDialog.this.dispose();
 					} catch (PatternSyntaxException e1) {
 						// Invalid regex
 						View.getSingleton().showWarningDialog(
-										Constant.messages.getString("history.filter.badregex.warning", e1.getMessage())); 
+										Constant.messages.getString("history.filter.badregex.warning", e1.getMessage()));
 
 					}
-					
+
 				}
 			});
 
 		}
 		return btnApply;
 	}
-	
+
 	private List<Pattern> strToRegexList(String str) throws PatternSyntaxException {
 		List<Pattern> list = new ArrayList<>();
 		for (String s : str.split("\n")) {
@@ -239,17 +247,17 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		}
 		return list;
 	}
-	
+
 	/**
-	 * This method initializes btnCancel	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnCancel
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnCancel() {
 		if (btnCancel == null) {
 			btnCancel = new JButton();
 			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
-			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
+			btnCancel.addActionListener(new java.awt.event.ActionListener() {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -263,51 +271,101 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		}
 		return btnCancel;
 	}
+
+	private JButton getBtnSaveAsHistoryFilter() {
+		if (btnSaveAsHistoryFilter == null) {
+			btnSaveAsHistoryFilter = new JButton();
+
+			btnSaveAsHistoryFilter.setIcon(ICON_ADD_HISTORY_FILTER);
+			btnSaveAsHistoryFilter.setToolTipText(Constant.messages.getString("history.filter.save.button"));
+			DisplayUtils.scaleIcon(btnSaveAsHistoryFilter);
+
+			btnSaveAsHistoryFilter.addActionListener(new java.awt.event.ActionListener() {
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+
+					String name = (String)JOptionPane.showInputDialog(
+							HistoryFilterPlusDialog.this,
+							Constant.messages.getString("history.filter.save.dialog.name"),
+							Constant.messages.getString("history.filter.save.dialog.title"),
+							JOptionPane.PLAIN_MESSAGE,
+							ICON_ADD_HISTORY_FILTER,
+							null,
+							"");
+
+                    if(StringUtils.isBlank(name)){
+                        JOptionPane.showMessageDialog(
+                                HistoryFilterPlusDialog.this,
+                                Constant.messages.getString("history.filter.save.dialog.nameempty"),
+                                Constant.messages.getString("history.filter.save.dialog.title"),
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    if(extensionHistory.getFilterNames().contains(name)){
+                        JOptionPane.showMessageDialog(
+                                HistoryFilterPlusDialog.this,
+                                Constant.messages.getString("history.filter.save.dialog.duplicatedname"),
+                                Constant.messages.getString("history.filter.save.dialog.title"),
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    HistoryFilter newFilter = getNewFilterFromDialog();
+                    newFilter.setName(name);
+                    newFilter.setEnabled(true);
+
+                    extensionHistory.addFilter(newFilter);
+				}
+			});
+
+		}
+		return btnSaveAsHistoryFilter;
+	}
+
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel1
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
 			jPanel1 = new JPanel();
 			jPanel1.add(getBtnCancel(), null);
 			jPanel1.add(getBtnReset(), null);
 			jPanel1.add(getBtnApply(), null);
+			if(extensionHistory != null){
+				jPanel1.add(getBtnSaveAsHistoryFilter(), null);
+			}
 		}
 		return jPanel1;
 	}
+
 	public int showDialog() {
 	    this.setVisible(true);
 	    return exitResult;
 	}
-	
+
+	public void reset() {
+		filter = new HistoryFilter();
+		updateDialogFromFilter(filter);
+	}
 
 	/**
-	 * This method initializes btnReset	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
+	 * This method initializes btnReset
+	 *
+	 * @return javax.swing.JButton
+	 */
 	private JButton getBtnReset() {
 		if (btnReset == null) {
 			btnReset = new JButton();
 			btnReset.setText(Constant.messages.getString("history.filter.button.clear"));
-			btnReset.addActionListener(new java.awt.event.ActionListener() { 
+			btnReset.addActionListener(new java.awt.event.ActionListener() {
 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-					exitResult = JOptionPane.NO_OPTION;
-					// Unset everything
-					methodList.setSelectedIndices(new int[0]);
-					codeList.setSelectedIndices(new int[0]);
-					tagList.setSelectedIndices(new int[0]);
-					riskList.setSelectedIndices(new int[0]);
-					confidenceList.setSelectedIndices(new int[0]);
-					notesComboBox.setSelectedItem(HistoryFilter.NOTES_IGNORE);
-					regexInc.setText("");
-					regexExc.setText("");
-					filter.reset();
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					reset();
 				}
 			});
 
@@ -318,10 +376,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		return new Insets(5,5,1,5);
 	}
 	/**
-	 * This method initializes jPanel2	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
+	 * This method initializes jPanel2
+	 *
+	 * @return javax.swing.JPanel
+	 */
 	private JPanel getJPanel2() {
 		if (jPanel2 == null) {
 			jPanel2 = new JPanel();
@@ -333,23 +391,23 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			GridBagConstraints gbc03 = LayoutHelper.getGBC(3, 0, 1, 1.0, stdInset());
 			GridBagConstraints gbc04 = LayoutHelper.getGBC(4, 0, 1, 1.0, stdInset());
 
-			GridBagConstraints gbc10 = LayoutHelper.getGBC(0, 1, 1, 3, 1.0, 1.0, 
+			GridBagConstraints gbc10 = LayoutHelper.getGBC(0, 1, 1, 3, 1.0, 1.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
-			GridBagConstraints gbc11 = LayoutHelper.getGBC(1, 1, 1, 3, 1.0, 1.0, 
+			GridBagConstraints gbc11 = LayoutHelper.getGBC(1, 1, 1, 3, 1.0, 1.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
-			GridBagConstraints gbc12 = LayoutHelper.getGBC(2, 1, 1, 3, 1.0, 1.0, 
+			GridBagConstraints gbc12 = LayoutHelper.getGBC(2, 1, 1, 3, 1.0, 1.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
-			GridBagConstraints gbc13 = LayoutHelper.getGBC(3, 1, 1, 2, 1.0, 1.0, 
+			GridBagConstraints gbc13 = LayoutHelper.getGBC(3, 1, 1, 2, 1.0, 1.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
-			GridBagConstraints gbc14 = LayoutHelper.getGBC(4, 1, 1, 1, 1.0, 1.0, 
+			GridBagConstraints gbc14 = LayoutHelper.getGBC(4, 1, 1, 1, 1.0, 1.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
 
-			GridBagConstraints gbc24 = LayoutHelper.getGBC(4, 2, 1, 1, 0.0, 0.0, 
+			GridBagConstraints gbc24 = LayoutHelper.getGBC(4, 2, 1, 1, 0.0, 0.0,
 					GridBagConstraints.NONE, GridBagConstraints.NORTHWEST, stdInset());
 
-			GridBagConstraints gbc33 = LayoutHelper.getGBC(3, 3, 1, 1, 1.0, 1.0, 
+			GridBagConstraints gbc33 = LayoutHelper.getGBC(3, 3, 1, 1, 1.0, 1.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
-			GridBagConstraints gbc34 = LayoutHelper.getGBC(4, 3, 1, 1, 0.0, 0.0, 
+			GridBagConstraints gbc34 = LayoutHelper.getGBC(4, 3, 1, 1, 0.0, 0.0,
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
 
 			GridBagConstraints gbc30 = LayoutHelper.getGBC(0, 4, 2, 1.0, stdInset());
@@ -359,7 +417,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.tags")), gbc02);
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.alerts")), gbc03);
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.urlincregex")), gbc04);
-			
+
 			jPanel2.add(getMethodScroller(), gbc10);
 			jPanel2.add(getCodeScroller(), gbc11);
 			jPanel2.add(getTagScroller(), gbc12);
@@ -376,12 +434,55 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			jPanel3.setLayout(new BoxLayout(jPanel3, BoxLayout.X_AXIS));
 			jPanel3.add(new JLabel(Constant.messages.getString("history.filter.label.notes")));
 			jPanel3.add(getNotesComboBox());
+
+			jPanel3.add(new JLabel(Constant.messages.getString("history.filter.label.startfrom")));
+			jPanel3.add(getStartDateTimeCheckbox());
+			jPanel3.add(getStartDatePicker());
+			jPanel3.add(getStartTimeSpinner());
 			jPanel2.add(jPanel3, gbc30);
 
 		}
 		return jPanel2;
 	}
-	
+
+	private JCheckBox getStartDateTimeCheckbox() {
+		if(startDateTimeCheckbox == null){
+			startDateTimeCheckbox = new JCheckBox();
+		}
+		return startDateTimeCheckbox;
+	}
+
+	private JSpinner getStartTimeSpinner() {
+		if(startTimeSpinner == null) {
+			SpinnerDateModel model = getStartTimeModel();
+			model.setValue(new Date());
+			JSpinner spinner = new JSpinner(model);
+			spinner.getEditor();
+			JSpinner.DateEditor editor = (JSpinner.DateEditor) spinner.getEditor();
+			SimpleDateFormat format = editor.getFormat();
+			format.applyPattern("HH:mm:ss");
+			DateFormatter formatter = (DateFormatter) editor.getTextField().getFormatter();
+			formatter.setAllowsInvalid(false);
+			formatter.setOverwriteMode(true);
+			startTimeSpinner = spinner;
+		}
+		return startTimeSpinner;
+	}
+
+	private SpinnerDateModel getStartTimeModel() {
+		if(startTimeModel == null){
+			startTimeModel = new SpinnerDateModel();
+		}
+		return startTimeModel;
+	}
+
+	private JXDatePicker getStartDatePicker() {
+		if(startDatePicker == null){
+			startDatePicker = new JXDatePicker(new Date());
+		}
+		return startDatePicker;
+	}
+
 	private JScrollPane getMethodScroller() {
 		if (methodScroller == null) {
 			methodList = new JList<>(HttpRequestHeader.METHODS);
@@ -431,20 +532,32 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	private JScrollPane getUrlRegxIncScroller() {
 		if (urlRegxIncScroller == null) {
-			regexInc = new JTextArea();
-			regexInc.setRows(4);
-			urlRegxIncScroller = new JScrollPane(regexInc);
+			urlRegxIncScroller = new JScrollPane(getRegexIncArea());
 		}
 		return urlRegxIncScroller;
+	}
+
+	private JTextArea getRegexIncArea(){
+		if (regexInc == null) {
+			regexInc = new JTextArea();
+			regexInc.setRows(4);
+		}
+		return regexInc;
 	}
 	
 	private JScrollPane getUrlRegxExcScroller() {
 		if (urlRegxExcScroller == null) {
-			regexExc = new JTextArea();
-			regexExc.setRows(5);
-			urlRegxExcScroller = new JScrollPane(regexExc);
+			urlRegxExcScroller = new JScrollPane(getRegexExcTextArea());
 		}
 		return urlRegxExcScroller;
+	}
+
+	private JTextArea getRegexExcTextArea(){
+		if (regexExc == null) {
+			regexExc = new JTextArea();
+			regexExc.setRows(5);
+		}
+		return regexExc;
 	}
 	
 	private DefaultListModel<String> getTagModel() {
@@ -493,5 +606,110 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	
 	public HistoryFilter getFilter() {
 		return this.filter;
+	}
+
+	public HistoryFilter getNewFilterFromDialog() {
+		HistoryFilter newHistoryFilter = new HistoryFilter();
+		updateFilterFromDialog(newHistoryFilter);
+		return newHistoryFilter;
+	}
+
+	private void updateFilterFromDialog(HistoryFilter filter) {
+
+	    String note = null;
+        if (notesComboBox.getSelectedItem() != null) {
+            note = notesComboBox.getSelectedItem().toString();
+        }
+
+		filter.setMethods(methodList.getSelectedValuesList());
+		filter.setCodes(codeList.getSelectedValuesList());
+		filter.setTags(tagList.getSelectedValuesList());
+		filter.setRisks(riskList.getSelectedValuesList());
+		filter.setReliabilities(confidenceList.getSelectedValuesList());
+		filter.setNote(note);
+		filter.setUrlIncPatternList(strToRegexList(regexInc.getText()));
+		filter.setUrlExcPatternList(strToRegexList(regexExc.getText()));
+		filter.setStartTimeSentInMs(getStartDateTime());
+	}
+
+	public void setFilter(HistoryFilter filter) {
+		updateDialogFromFilter(filter);
+		this.filter = getNewFilterFromDialog();
+	}
+
+	private void updateDialogFromFilter(HistoryFilter filter) {
+		notesComboBox.setSelectedItem(filter.getNote());
+		getRegexIncArea().setText(convertPatternToString(filter.getUrlIncPatternList()));
+		getRegexExcTextArea().setText(convertPatternToString(filter.getUrlExcPatternList()));
+		select(this.methodList, filter.getMethodList());
+		select(this.confidenceList, filter.getConfidenceList());
+		select(this.riskList, filter.getRiskList());
+		select(this.tagList, filter.getTagList());
+		select(this.codeList, filter.getCodeList());
+		setStartDateTime(filter.getStartTimeSentInMs());
+	}
+
+	private void setStartDateTime(Optional<Long> dateTimeInMs){
+		getStartDateTimeCheckbox().setSelected(dateTimeInMs.isPresent());
+		Date date = new Date();
+		if(dateTimeInMs.isPresent()){
+			date = new Date(dateTimeInMs.get());
+		}
+
+		getStartDatePicker().setDate(date);
+		getStartTimeModel().setValue(date);
+	}
+
+	private Optional<Long> getStartDateTime(){
+		if(!getStartDateTimeCheckbox().isSelected()){
+			return Optional.empty();
+		}
+
+		Date date = getStartDatePicker().getDate();
+		Date time = getStartTimeModel().getDate();
+
+		Calendar calDate = Calendar.getInstance();
+		calDate.setTime(date);
+
+		Calendar calTime = Calendar.getInstance();
+		calTime.setTime(time);
+
+		calDate.set(Calendar.HOUR_OF_DAY, calTime.get(Calendar.HOUR_OF_DAY));
+		calDate.set(Calendar.MINUTE, calTime.get(Calendar.MINUTE));
+		calDate.set(Calendar.SECOND, calTime.get(Calendar.SECOND));
+		calDate.set(Calendar.MILLISECOND, 0);
+
+		return Optional.of(calDate.getTime().getTime());
+	}
+
+	private <T> void select(JList<T> list, List<T> values) {
+		int[] selected = getIndicesOf(list, values);
+		list.setSelectedIndices(selected);
+	}
+
+	private<T> int[] getIndicesOf(JList<T> list, List<T> values) {
+		return values.stream()
+				.mapToInt(m -> getIndexOf(list, m))
+				.filter(i -> i >= 0)
+				.toArray();
+	}
+
+	private <T> int getIndexOf(JList<T> list, T value){
+		for (int i = 0; i < list.getModel().getSize(); i++) {
+			T valueAtIndex = list.getModel().getElementAt(i);
+			if(ObjectUtils.equals(value, valueAtIndex)){
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private String convertPatternToString(List<Pattern> urlExcPatternList) {
+		StringBuilder regEx = new StringBuilder();
+		for (Pattern pattern : urlExcPatternList) {
+			regEx.append(pattern.pattern());
+			regEx.append("\n");
+		}
+		return regEx.toString();
 	}
 }

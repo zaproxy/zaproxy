@@ -90,12 +90,18 @@ package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -108,12 +114,14 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
+import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -137,7 +145,7 @@ import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
-public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
+public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener, OptionsChangedListener {
 
 	public static final String NAME = "ExtensionHistory";
 
@@ -146,7 +154,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private LogPanel logPanel = null;  //  @jve:decl-index=0:visual-constraint="161,134"
 	private ProxyListenerLog proxyListener = null;
 	private HistoryTableModel historyTableModel;
-    
+
+	private HistoryFilterParam historyFilterParam;
+	private OptionsHistoryFilterPanel optionsHistoryFilterPanel;
+
 	// ZAP: added filter plus dialog
 	private HistoryFilterPlusDialog filterPlusDialog = null;
 	
@@ -168,6 +179,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private boolean showJustInScope = false;
 	private boolean linkWithSitesTree;
 	private String linkWithSitesTreeBaseUri;
+
+	private Map<String, HistoryFilterFactory> specialFilters = new HashMap<>();
 	
 	// Used to cache hrefs not added into the historyList
 	@SuppressWarnings("unchecked")
@@ -190,8 +203,16 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         super(NAME);
         this.setOrder(16);
 
+		String nowFilterName = Constant.messages.getString("history.filter.special.now.name");
+		specialFilters.put(nowFilterName, () -> createFromNowFilter());
 	}
-    
+
+	private HistoryFilter createFromNowFilter(){
+		HistoryFilter filter = getFilterPlusDialog().getNewFilterFromDialog();
+		filter.setStartTimeSentInMs(Optional.of(new Date().getTime()));
+    	return filter;
+	}
+
     @Override
     public String getUIName() {
     	return Constant.messages.getString("history.name");
@@ -249,10 +270,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(getProxyListenerLog());
         extensionHook.addConnectionRequestProxyListener(getProxyListenerLog());
+		extensionHook.addOptionsParamSet(getParams());
 
 	    if (getView() != null) {
 		    ExtensionHookView pv = extensionHook.getHookView();
 		    pv.addStatusPanel(getLogPanel());
+			extensionHook.getHookView().addOptionPanel(getOptionsHistoryFilterPanel());
+			extensionHook.addOptionsChangedListener(this);
 		    
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
@@ -278,13 +302,26 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 	    }
-
 	}
 	
 	@Override
 	public void sessionChanged(final Session session)  {
 		sessionChanging = false;
 		sessionChanged();
+	}
+
+	private OptionsHistoryFilterPanel getOptionsHistoryFilterPanel() {
+		if (optionsHistoryFilterPanel == null) {
+			optionsHistoryFilterPanel = new OptionsHistoryFilterPanel();
+		}
+		return optionsHistoryFilterPanel;
+	}
+
+	protected HistoryFilterParam getParams() {
+		if (historyFilterParam == null) {
+			historyFilterParam = new HistoryFilterParam();
+		}
+		return historyFilterParam;
 	}
 	
 	private ProxyListenerLog getProxyListenerLog() {
@@ -522,7 +559,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private HistoryFilterPlusDialog getFilterPlusDialog() {
 		if (filterPlusDialog == null) {
 			filterPlusDialog = 
-				new HistoryFilterPlusDialog(getView().getMainFrame(), true);
+				new HistoryFilterPlusDialog(getView().getMainFrame(), true, this);
 		}
 		return filterPlusDialog;
 	}
@@ -540,19 +577,80 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		int result = 0;		// cancel, state unchanged
 		HistoryFilter historyFilter = dialog.getFilter();
 		if (exit == JOptionPane.OK_OPTION) {
-		    searchHistory(historyFilter);
-		    logPanel.setFilterStatus(historyFilter);
+			applyAsCurrentFilter(historyFilter);
 		    result = 1;		// applied
 		    
 		} else if (exit == JOptionPane.NO_OPTION) {
-		    searchHistory(historyFilter);
-		    logPanel.setFilterStatus(historyFilter);
+			applyAsCurrentFilter(historyFilter);
 		    result = -1;	// reset
 		}
 		
 		return result;
 	}
-	
+
+	public List<String> getFilterNames(){
+		List<String> filters = specialFilters
+				.keySet()
+				.stream()
+				.collect(Collectors.toList());
+
+		filters.addAll(getParams().getFilterNames());
+
+		return filters;
+	}
+
+	public void applyAsCurrentFilter(HistoryFilter filter){
+    	if(filter == null){
+			filter = new HistoryFilter();
+		}
+
+		getFilterPlusDialog().setFilter(filter);
+		searchHistory(filter);
+		getLogPanel().setFilterStatus(filter);
+	}
+
+	public void addFilter(HistoryFilter filter) {
+    	getParams().addFilter(filter);
+		refreshFiltersInLogPanel();
+	}
+
+	public void refreshFiltersInLogPanel() {
+		List<String> filters = specialFilters.keySet().stream().collect(Collectors.toList());
+		filters.addAll(getParams().getEnabledFilterNames());
+
+		List<String> orderedFilters = filters
+				.stream()
+				.sorted((s1, s2) -> StringUtils.compareIgnoreCase(s1, s2))
+				.collect(Collectors.toList());
+
+		logPanel.setFilters(orderedFilters);
+	}
+
+	public boolean removeFilter(String name) {
+		boolean removed = getParams().removeFilter(name);
+		refreshFiltersInLogPanel();
+		return removed;
+	}
+
+	public boolean applyAsCurrentFilter(String name) {
+		HistoryFilter historyFilter = null;
+		if(specialFilters.containsKey(name)){
+			historyFilter = specialFilters.get(name).create();
+		}
+
+		if(getParams().getFilterNames().contains(name)){
+			historyFilter = getParams().getFilter(name);
+		}
+
+		if(historyFilter != null){
+			applyAsCurrentFilter(historyFilter);
+			refreshFiltersInLogPanel();
+			return true;
+		}
+
+		return false;
+	}
+
 	private PopupMenuPurgeHistory getPopupMenuPurgeHistory() {
 		if (popupMenuPurgeHistory == null) {
 			popupMenuPurgeHistory = new PopupMenuPurgeHistory(this);
@@ -902,7 +1000,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return logPanel.getHistoryReferenceTable();
 	}
 
-    private class EventConsumerImpl implements EventConsumer {
+	@Override
+	public void optionsLoaded() {
+		refreshFiltersInLogPanel();
+	}
+
+	@Override
+	public void optionsChanged(OptionsParam optionsParam) {
+		refreshFiltersInLogPanel();
+	}
+
+	private class EventConsumerImpl implements EventConsumer {
 
         @Override
         public void eventReceived(Event event) {
