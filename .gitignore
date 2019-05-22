@@ -3,6 +3,7 @@
 .gradle
 /build
 /buildSrc/build
+/zap/build
 
 # IDEA
 # ----
@@ -17,6 +18,7 @@
 /buildSrc/*.iws
 /buildSrc/out
 /out
+/zap/out
 
 # Eclipse
 # -------
@@ -25,8 +27,13 @@
 *.settings
 /bin
 /buildSrc/bin
+/zap/bin
 
 # NetBeans
 # --------
 .nb-gradle
 .nb-gradle-properties
+
+# ZAP
+# ---
+*.zap

@@ -1,5 +1,7 @@
 rootProject.name = "zaproxy"
 
+include("zap")
+
 rootProject.children.forEach { project -> setUpProject(settingsDir, project) }
 
 fun setUpProject(parentDir: File, project: ProjectDescriptor) {
