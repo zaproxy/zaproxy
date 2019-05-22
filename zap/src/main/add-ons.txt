@@ -1,0 +1,6 @@
+# List of add-ons to include in main releases (non-SNAPSHOT),
+# automatically downloaded when the distributions are built.
+# Not all add-ons are included in all distributions, for example,
+# OS specific add-ons are included only in the respective OS distribution.
+#
+# The URLs should be followed by the checksum (SHA-256).

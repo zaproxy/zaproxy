@@ -3,12 +3,14 @@ import java.util.stream.Collectors
 
 plugins {
     `java-library`
+    org.zaproxy.zap.distributions
 }
 
 group = "org.zaproxy"
 version = "2.8.0-SNAPSHOT"
 
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
+val distDir = file("src/main/dist/")
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -63,22 +65,25 @@ tasks.register<JavaExec>("run") {
 
     main = "org.zaproxy.zap.ZAP"
     classpath = sourceSets["main"].runtimeClasspath
+    workingDir = distDir
 }
 
-tasks.named<Jar>("jar") {
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-    dirMode = "0755".toIntOrNull(8)
-    fileMode = "0644".toIntOrNull(8)
+listOf("jar", "jarDaily").forEach {
+    tasks.named<Jar>(it) {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+        dirMode = "0755".toIntOrNull(8)
+        fileMode = "0644".toIntOrNull(8)
 
-    val attrs = mapOf(
-            "Main-Class" to "org.zaproxy.zap.ZAP",
-            "Implementation-Version" to ToString({ archiveVersion.get() }),
-            "Create-Date" to creationDate,
-            "Class-Path" to ToString({ configurations.runtimeClasspath.get().files.stream().map { file -> "lib/${file.name}" }.sorted().collect(Collectors.joining(" ")) }))
+        val attrs = mapOf(
+                "Main-Class" to "org.zaproxy.zap.ZAP",
+                "Implementation-Version" to ToString({ archiveVersion.get() }),
+                "Create-Date" to creationDate,
+                "Class-Path" to ToString({ configurations.runtimeClasspath.get().files.stream().map { file -> "lib/${file.name}" }.sorted().collect(Collectors.joining(" ")) }))
 
-    manifest {
-        attributes(attrs)
+        manifest {
+            attributes(attrs)
+        }
     }
 }
 

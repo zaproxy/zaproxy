@@ -17,21 +17,21 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>_SHORT_VERSION_STRING_</string>
+	<string>@SHORT_VERSION_STRING@</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>_VERSION_STRING_</string>
+	<string>@VERSION_STRING@</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>JVMInfo</key>
 	<dict>
 		<key>JRE</key>
-		<string>_JREDIR_</string>
+		<string>@JREDIR@</string>
 		<key>MainClass</key>
 		<string>org.zaproxy.zap.ZAP</string>
 		<key>ClassPath</key>
-		<string>$JAVAROOT/_ZAPJAR_</string>	
+		<string>$JAVAROOT/@ZAPJAR@</string>
 		<key>Arguments</key>
         <array/>
         <key>Properties</key>

@@ -1,8 +1,0 @@
-# Ignore the build directory
-build
-zap
-ZAP*.dmg
-ZAP*.tar.gz
-zap*.deb
-# Used for dmg and installer
-zap-mac
