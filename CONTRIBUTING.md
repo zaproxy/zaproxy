@@ -48,6 +48,7 @@ The following resources may assist you to that end:
 ## Coding
 
 There's always lots of coding to be done! So much so that we've split it into different categories.
+Refer to [BUILDING] on how to build and run ZAP.
 
 All code should follow the [Development Rules and Guidelines](https://github.com/zaproxy/zaproxy/wiki/DevGuidelines).
 
@@ -107,6 +108,6 @@ The Git commits must be [signed off] to indicate your agreement with [Developer 
 * Any member of the Core Team can merge a PR as long as the above conditions are met.
 * Reviews by people outside of the Core Team are still appreciated :)
 
-
+​[BUILDING]: BUILDING.md
 [signed off]: https://git-scm.com/docs/git-commit#Documentation/git-commit.txt--s
 [Developer Certificate of Origin]: https://developercertificate.org/
