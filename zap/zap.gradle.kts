@@ -11,6 +11,7 @@ plugins {
 group = "org.zaproxy"
 version = "2.8.0-SNAPSHOT"
 
+val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
 val distDir = file("src/main/dist/")
 
@@ -106,6 +107,30 @@ tasks.named<Javadoc>("javadoc") {
         encoding = "UTF-8"
         source("${java.targetCompatibility}")
     }
+}
+
+val langPack by tasks.registering(Zip::class) {
+    group = LifecycleBasePlugin.BUILD_GROUP
+    description = "Assembles the language pack for the Core Language Files add-on."
+
+    archiveFileName.set("$buildDir/langpack/ZAP_${project.version}_language_pack.$versionLangFile.zaplang")
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+
+    into("lang") {
+        from(File(distDir, "lang"))
+        from("src/main/resources/org/zaproxy/zap/resources") {
+            include("Messages.properties", "vulnerabilities.xml")
+        }
+    }
+}
+
+tasks.register<Copy>("copyLangPack") {
+    group = "ZAP Misc"
+    description = "Copies the language pack into the Core Language Files add-on (assumes zap-extensions repo is in same directory as zaproxy)."
+
+    from(langPack)
+    into("$rootDir/../zap-extensions/addOns/coreLang/src/main/zapHomeFiles/lang/")
 }
 
 launch4j {
