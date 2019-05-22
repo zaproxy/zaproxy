@@ -133,6 +133,33 @@ tasks.register<Copy>("copyLangPack") {
     into("$rootDir/../zap-extensions/addOns/coreLang/src/main/zapHomeFiles/lang/")
 }
 
+val generateAllApiEndpoints by tasks.registering {
+    group = "ZAP Misc"
+    description = "Generates (and copies) the ZAP API endpoints for all languages."
+}
+
+listOf(
+    "org.zaproxy.zap.extension.api.JavaAPIGenerator",
+    "org.zaproxy.zap.extension.api.PythonAPIGenerator",
+    "org.zaproxy.zap.extension.api.NodeJSAPIGenerator",
+    "org.zaproxy.zap.extension.api.PhpAPIGenerator",
+    "org.zaproxy.zap.extension.api.GoAPIGenerator"
+).forEach {
+    val langName = it.removePrefix("org.zaproxy.zap.extension.api.").removeSuffix("APIGenerator")
+    val task = tasks.register<JavaExec>("generate${langName}ApiEndpoints") {
+        group = "ZAP Misc"
+        description = "Generates (and copies) the ZAP API endpoints for $langName."
+
+        main = it
+        classpath = sourceSets["main"].runtimeClasspath
+        workingDir = file("$rootDir")
+    }
+
+    generateAllApiEndpoints {
+        dependsOn(task)
+    }
+}
+
 launch4j {
     jar = tasks.named<Jar>("jar").get().archiveFileName.get()
 }

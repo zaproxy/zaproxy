@@ -78,13 +78,8 @@ public abstract class AbstractAPIGenerator {
         this.directory = Paths.get(directory);
         this.optional = optional;
 
-        messages = resourceBundle != null
-                ? resourceBundle
-                : ResourceBundle.getBundle(
-                        "lang." + Constant.MESSAGES_PREFIX,
-                        Locale.ENGLISH,
-                        ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
         Constant.messages = new I18N(Locale.ENGLISH);
+        messages = resourceBundle != null ? resourceBundle : Constant.messages.getCoreResourceBundle();
     }
 
     /**
