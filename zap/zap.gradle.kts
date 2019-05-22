@@ -4,6 +4,7 @@ import java.util.stream.Collectors
 plugins {
     `java-library`
     org.zaproxy.zap.distributions
+    org.zaproxy.zap.installers
 }
 
 group = "org.zaproxy"
@@ -104,6 +105,10 @@ tasks.named<Javadoc>("javadoc") {
         encoding = "UTF-8"
         source("${java.targetCompatibility}")
     }
+}
+
+launch4j {
+    jar = tasks.named<Jar>("jar").get().archiveFileName.get()
 }
 
 class ToString(private val callable: Callable<String>) {

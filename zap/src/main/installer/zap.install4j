@@ -33,16 +33,35 @@
     <codeSigning macEnabled="false" macPkcs12File="" windowsEnabled="false" windowsKeySource="pkcs12" windowsPvkFile="" windowsSpcFile="" windowsPkcs12File="" />
   </application>
   <files keepModificationTimes="false" missingFilesStrategy="error" globalExcludeSuffixes="" defaultOverwriteMode="4" defaultUninstallMode="0" launcherOverwriteMode="3" defaultFileMode="644" defaultDirMode="755">
-    <filesets />
-    <roots />
+    <filesets>
+      <fileset name="Win32" id="671" customizedId="" />
+      <fileset name="Win64" id="679" customizedId="" />
+      <fileset name="Linux" id="674" customizedId="" />
+    </filesets>
+    <roots>
+      <root id="672" fileset="671" location="" />
+      <root id="680" fileset="679" location="" />
+      <root id="675" fileset="674" location="" />
+    </roots>
     <mountPoints>
       <mountPoint id="22" root="" location="" mode="755" />
+      <mountPoint id="676" root="672" location="" mode="755" />
+      <mountPoint id="681" root="680" location="" mode="755" />
+      <mountPoint id="677" root="675" location="" mode="755" />
     </mountPoints>
     <entries>
-      <dirEntry mountPoint="22" file="./../zap" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="22" file="../../../build/installerData/common" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="common" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <fileEntry mountPoint="22" file="../../src/resource/zap1024x1024.png" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="676" file="../../../build/installerData/win32/" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="681" file="../../../build/installerData/win64/" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="677" file="../../../build/installerData/linux/" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="direct" subDirectory="" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
     </entries>
     <components />
   </files>
@@ -58,29 +77,29 @@
       <customAttributes />
     </autoUpdate>
     <applications>
-      <application name="" id="installer" customizedId="" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="../../src/resource/ZAP.icns" customIcoFile="../zap/zap.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
+      <application name="" id="installer" customizedId="" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="../resources/resource/ZAP.icns" customIcoFile="../resources/resource/zap.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
             <object class="com.install4j.runtime.beans.applications.InstallerApplication" id="InstallerApplication0">
               <void property="customIconImageFiles">
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap16x16.png</string>
+                    <string>../resources/resource/zap16x16.png</string>
                   </object>
                 </void>
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap32x32.png</string>
+                    <string>../resources/resource/zap32x32.png</string>
                   </object>
                 </void>
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap48x48.png</string>
+                    <string>../resources/resource/zap48x48.png</string>
                   </object>
                 </void>
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap128x128.png</string>
+                    <string>../resources/resource/zap128x128.png</string>
                   </object>
                 </void>
               </void>
@@ -291,7 +310,7 @@ return true;</string>
                       <void method="put">
                         <string>en</string>
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../zap/license/ApacheLicense-2.0.txt</string>
+                          <string>../resources/org/zaproxy/zap/resources/ApacheLicense-2.0.txt</string>
                         </object>
                       </void>
                     </void>
@@ -918,7 +937,7 @@ return;</preActivation>
                           <object class="com.install4j.runtime.beans.screens.components.ProgramGroupUrlConfig">
                             <void property="iconFile">
                               <object class="com.install4j.api.beans.ExternalFile">
-                                <string>../../src/resource/zap.ico</string>
+                                <string>../resources/resource/zap.ico</string>
                               </object>
                             </void>
                             <void property="name">
@@ -955,12 +974,12 @@ return;</preActivation>
                       </void>
                       <void property="unixIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../../src/resource/zap1024x1024.png</string>
+                          <string>../resources/resource/zap1024x1024.png</string>
                         </object>
                       </void>
                       <void property="winIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../zap/zap.ico</string>
+                          <string>../resources/resource/zap.ico</string>
                         </object>
                       </void>
                     </object>
@@ -982,7 +1001,7 @@ return;</preActivation>
                       </void>
                       <void property="icon">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../zap/zap.ico</string>
+                          <string>../resources/resource/zap.ico</string>
                         </object>
                       </void>
                     </object>
@@ -1102,29 +1121,29 @@ return;</preActivation>
           </screen>
         </screens>
       </application>
-      <application name="" id="uninstaller" customizedId="" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="../../src/resource/ZAP.icns" customIcoFile="../../src/resource/zap.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
+      <application name="" id="uninstaller" customizedId="" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="../resources/resource/ZAP.icns" customIcoFile="../resources/resource/zap.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
             <object class="com.install4j.runtime.beans.applications.UninstallerApplication" id="UninstallerApplication0">
               <void property="customIconImageFiles">
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap16x16.png</string>
+                    <string>../resources/resource/zap16x16.png</string>
                   </object>
                 </void>
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap32x32.png</string>
+                    <string>../resources/resource/zap32x32.png</string>
                   </object>
                 </void>
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap48x48.png</string>
+                    <string>../resources/resource/zap48x48.png</string>
                   </object>
                 </void>
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../../src/resource/zap128x128.png</string>
+                    <string>../resources/resource/zap128x128.png</string>
                   </object>
                 </void>
               </void>
@@ -1264,11 +1283,8 @@ return;</preActivation>
       </excludedBeans>
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="plugin/webdriverwindows-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserwindows-alpha-5.zap" fileType="regular" />
-        <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-5.zap" fileType="regular" />
-        <entry location=".i4j_fileset_544" fileType="regular" />
+        <entry location=".i4j_fileset_671" fileType="regular" />
+        <entry location=".i4j_fileset_679" fileType="regular" />
       </exclude>
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
@@ -1288,14 +1304,8 @@ return;</preActivation>
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="plugin/jxbrowser-alpha-7.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserwindows-alpha-5.zap" fileType="regular" />
-        <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-5.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux64-alpha-5.zap" fileType="regular" />
-        <entry location="plugin/webdriverlinux-beta-4.zap" fileType="regular" />
-        <entry location="zap1024x1024.png" fileType="regular" />
-        <entry location=".i4j_fileset_544" fileType="regular" />
+        <entry location=".i4j_fileset_679" fileType="regular" />
+        <entry location=".i4j_fileset_674" fileType="regular" />
       </exclude>
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
@@ -1312,12 +1322,8 @@ return;</preActivation>
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="plugin/webdrivermacos-beta-4.zap" fileType="regular" />
-        <entry location="plugin/jxbrowsermacos-alpha-5.zap" fileType="regular" />
-        <entry location="plugin/jxbrowserlinux64-alpha-5.zap" fileType="regular" />
-        <entry location="plugin/webdriverlinux-beta-4.zap" fileType="regular" />
-        <entry location="zap1024x1024.png" fileType="regular" />
-        <entry location=".i4j_fileset_544" fileType="regular" />
+        <entry location=".i4j_fileset_671" fileType="regular" />
+        <entry location=".i4j_fileset_674" fileType="regular" />
       </exclude>
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">

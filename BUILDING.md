@@ -56,7 +56,21 @@ To build it run the task `:zap:distMac`.
 
 **NOTE:** Needs to be executed on macOS, it requires `hdiutils`.
 
+## Installers
+The installers for Linux and Windows are built with [install4j]. The Windows executable is built with the [launch4j], invoked with Gradle plugin [gradle-launch4j].
+
+To build the installers run the task `:zap:installers`.
+
+Once the build is finished the installers will be located in the directory `zap/build/install4j/`.
+
+**NOTE:** The following properties must be defined (e.g. in file `GRADLE_HOME/gradle.properties` ) to successfully and properly build the installers:
+ - `install4jHomeDir` - install4j installation directory;
+ - `install4jLicense` - install4j license key.
+
 [Gradle]: https://gradle.org/
 [Gradle Wrapper]: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 [zap/src/main/dist/plugin/]: zap/src/main/dist/plugin/
 [predefined list of add-ons]: zap/src/main/dist/add-ons.txt
+[install4j]: https://www.ej-technologies.com/products/install4j/overview.html
+[launch4j]: http://launch4j.sourceforge.net/
+[gradle-launch4j]: https://github.com/TheBoegl/gradle-launch4j

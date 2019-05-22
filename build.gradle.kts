@@ -1,5 +1,3 @@
-buildDir = file("buildGradle")
-
 apply(from = "$rootDir/gradle/travis-ci.gradle.kts")
 
 allprojects {
