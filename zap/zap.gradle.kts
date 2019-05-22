@@ -5,6 +5,7 @@ plugins {
     `java-library`
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
+    org.zaproxy.zap.publish
 }
 
 group = "org.zaproxy"
