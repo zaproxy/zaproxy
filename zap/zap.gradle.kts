@@ -57,6 +57,12 @@ dependencies {
     runtimeOnly("com.io7m.xom:xom:1.2.10") {
         setTransitive(false)
     }
+
+    testImplementation("junit:junit:4.11")
+    testImplementation("org.hamcrest:hamcrest-all:1.3")
+    testImplementation("org.mockito:mockito-all:1.10.8")
+
+    testRuntimeOnly(files(distDir))
 }
 
 tasks.register<JavaExec>("run") {

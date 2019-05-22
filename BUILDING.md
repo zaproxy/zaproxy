@@ -11,6 +11,9 @@ To run ZAP directly from the source run the task `:zap:run`. It will use any add
 
 **NOTE:** No add-on is included in the repository, they need to be built/copied separately into the `plugin` directory.
 
+### Tests
+To execute the tests run the task `:zap:test`.
+
 ## Distributions
 The distributions bundle ZAP and its dependencies, all necessary to run ZAP standalone. By default the distributions of development
 versions (SNAPSHOT) bundle the add-ons present in the dist `plugin` directory, main versions (non-SNAPSHOT) bundle a [predefined

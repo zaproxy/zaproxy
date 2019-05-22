@@ -32,6 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.zaproxy.zap.control.AddOnCollection.Platform;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
 
 import java.io.StringReader;
 import java.util.List;
@@ -40,9 +41,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AddOnCollectionUnitTest extends TestUtils {
-
-    private static final Path DIRECTORY = getResourcePath("", AddOnCollectionUnitTest.class);
+public class AddOnCollectionUnitTest {
 
 	private ZapXmlConfiguration configA;
 	private ZapXmlConfiguration configB;
@@ -219,7 +218,7 @@ public class AddOnCollectionUnitTest extends TestUtils {
 	@Test
 	public void shouldAcceptAddOnsWithoutDependencyIssues() throws Exception {
 		// Given
-		ZapXmlConfiguration zapVersions = new ZapXmlConfiguration(DIRECTORY.resolve("ZapVersions-deps.xml").toFile());
+		ZapXmlConfiguration zapVersions = createConfiguration("ZapVersions-deps.xml");
 		// When
 		AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
 		// Then
@@ -238,7 +237,7 @@ public class AddOnCollectionUnitTest extends TestUtils {
 	@Test
 	public void shouldRejectAddOnsWithCircularDependencies() throws Exception {
 		// Given
-		ZapXmlConfiguration zapVersions = new ZapXmlConfiguration(DIRECTORY.resolve("ZapVersions-cyclic-deps.xml").toFile());
+		ZapXmlConfiguration zapVersions = createConfiguration("ZapVersions-cyclic-deps.xml");
 		// When
 		AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
 		// Then
@@ -252,7 +251,7 @@ public class AddOnCollectionUnitTest extends TestUtils {
 	@Test
 	public void shouldRejectAddOnsWithMissingDependencies() throws Exception {
 		// Given
-		ZapXmlConfiguration zapVersions = new ZapXmlConfiguration(DIRECTORY.resolve("ZapVersions-missing-deps.xml").toFile());
+		ZapXmlConfiguration zapVersions = createConfiguration("ZapVersions-missing-deps.xml");
 		// When
 		AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
 		// Then
@@ -260,5 +259,9 @@ public class AddOnCollectionUnitTest extends TestUtils {
 		assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
 		assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
 		assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+	}
+
+	private ZapXmlConfiguration createConfiguration(String file) throws ConfigurationException {
+		return new ZapXmlConfiguration(getClass().getResource(file));
 	}
 }

@@ -57,12 +57,12 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
     @Test
     public void shouldLoadAllVulnerabilitiesFilesAvailable() {
         // Given
-        Map<String, Vulnerability> mainVulns = loadFile(SOURCE_FILE);
+        Map<String, Vulnerability> mainVulns = loadFile(getResourcePath("/org/zaproxy/zap/resources/" + SOURCE_FILE));
         List<String> translations = loader.getListOfVulnerabilitiesFiles();
         translations.remove(SOURCE_FILE);
         // When
         for (String file : translations) {
-            Map<String, Vulnerability> vulns = loadFile(file);
+            Map<String, Vulnerability> vulns = loadFile(DIRECTORY.resolve(file));
             // Then
             assertThat(file, vulns.values(), hasSize(mainVulns.size()));
             mainVulns.forEach((k, v) -> {
@@ -76,9 +76,9 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
         }
     }
 
-    private Map<String, Vulnerability> loadFile(String fileName) {
-        List<Vulnerability> vulnerabilities = loader.loadVulnerabilitiesFile(DIRECTORY.resolve(fileName));
-        assertThat("File " + fileName + " is not wellformed.", vulnerabilities, is(notNullValue()));
+    private Map<String, Vulnerability> loadFile(Path file) {
+        List<Vulnerability> vulnerabilities = loader.loadVulnerabilitiesFile(file);
+        assertThat("File " + file + " is not wellformed.", vulnerabilities, is(notNullValue()));
 
         Map<String, Vulnerability> map = new HashMap<>();
         for (Vulnerability vulnerability : vulnerabilities) {
