@@ -46,19 +46,19 @@
 		<name>CSPid - Windows (x64)</name>
 		<path>C:\Windows\SysWow64\cspid.dll</path>
 		<slot>1</slot>
-		<slotIndex>0</slotIndex>
+		<slotListIndex>0</slotListIndex>
 	</driver>
 	<driver>
 		<name>CSPid - Windows (x86)</name>
 		<path>C:\Windows\System32\cspid.dll</path>
 		<slot>1</slot>
-		<slotIndex>0</slotIndex>
+		<slotListIndex>0</slotListIndex>
 	</driver>
 	<driver>
 		<name>CSPid - Linux</name>
 		<path>/opt/cspid/libcspid.so</path>
 		<slot>1</slot>
-		<slotIndex>0</slotIndex>
+		<slotListIndex>0</slotListIndex>
 	</driver>
 	<driver>
 		<name>Portuguese Cartão de Cidadão - Windows (x86)</name>

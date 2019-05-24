@@ -43,7 +43,6 @@ dependencies {
     api("org.bouncycastle:bcprov-jdk15on:1.52")
     api("org.bouncycastle:bcpkix-jdk15on:1.52")
     api("org.hsqldb:hsqldb:2.3.4")
-    api("org.jdom:jdom:1.1.3")
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.4")
@@ -54,6 +53,11 @@ dependencies {
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
+
+    // The following is no longer used by core, remove once
+    // all (known) add-ons are updated accordingly.
+    runtimeOnly("org.jdom:jdom:1.1.3")
+    // -----------------------
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
