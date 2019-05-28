@@ -23,7 +23,6 @@ java {
 dependencies {
     api("com.fifesoft:rsyntaxtextarea:2.5.8")
     api("com.github.zafarkhaja:java-semver:0.8.0")
-    api("com.googlecode.java-diff-utils:diffutils:1.2.1")
     api("commons-beanutils:commons-beanutils:1.8.3")
     api("commons-codec:commons-codec:1.9")
     api("commons-collections:commons-collections:3.2.2")
@@ -54,8 +53,9 @@ dependencies {
         setTransitive(false)
     }
 
-    // The following is no longer used by core, remove once
+    // The following are no longer used by core, remove once
     // all (known) add-ons are updated accordingly.
+    runtimeOnly("com.googlecode.java-diff-utils:diffutils:1.2.1")
     runtimeOnly("org.jdom:jdom:1.1.3")
     // -----------------------
 
