@@ -143,11 +143,12 @@ val generateAllApiEndpoints by tasks.registering {
 }
 
 listOf(
+    "org.zaproxy.zap.extension.api.GoAPIGenerator",
     "org.zaproxy.zap.extension.api.JavaAPIGenerator",
-    "org.zaproxy.zap.extension.api.PythonAPIGenerator",
     "org.zaproxy.zap.extension.api.NodeJSAPIGenerator",
     "org.zaproxy.zap.extension.api.PhpAPIGenerator",
-    "org.zaproxy.zap.extension.api.GoAPIGenerator"
+    "org.zaproxy.zap.extension.api.PythonAPIGenerator",
+    "org.zaproxy.zap.extension.api.RustAPIGenerator"
 ).forEach {
     val langName = it.removePrefix("org.zaproxy.zap.extension.api.").removeSuffix("APIGenerator")
     val task = tasks.register<JavaExec>("generate${langName}ApiEndpoints") {
