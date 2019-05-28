@@ -97,8 +97,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
     
-    private static final String ZAP_VERSIONS_REL_XML_SHORT = "https://bit.ly/owaspzap-2-7-0";
-    private static final String ZAP_VERSIONS_REL_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.7.xml";
+    private static final String ZAP_VERSIONS_REL_XML_SHORT = "https://bit.ly/owaspzap-2-8-0";
+    private static final String ZAP_VERSIONS_REL_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.8.xml";
     
     private static final String ZAP_VERSIONS_DEV_XML_SHORT = "https://bit.ly/owaspzap-dev";
     private static final String ZAP_VERSIONS_DEV_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml";
