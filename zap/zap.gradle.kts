@@ -35,7 +35,7 @@ dependencies {
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
     api("log4j:log4j:1.2.17")
-    api("net.htmlparser.jericho:jericho-html:3.1")
+    api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.6")
     api("org.bouncycastle:bcmail-jdk15on:1.61")

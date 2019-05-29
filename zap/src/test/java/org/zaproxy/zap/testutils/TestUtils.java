@@ -24,10 +24,19 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.zaproxy.zap.ZAP;
+
+import net.htmlparser.jericho.Config;
+
 /**
  * Class with utility/helper methods for general tests.
  */
 public class TestUtils {
+
+    static {
+        // Initialise this earlier as possible.
+        Config.LoggerProvider = ZAP.JERICHO_LOGGER_PROVIDER;
+    }
 
     /**
      * Gets the (file system) path to the given resource.
