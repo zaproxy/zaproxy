@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -31,7 +32,7 @@ public class FileCopierUnitTest {
 	public void shouldCopyFileViaPreJava7IO() throws Exception {
 		// Given
 		File source = tempFolder.newFile();
-		FileUtils.writeStringToFile(source, "Test");
+		FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
 		File target = tempFolder.newFile();
 		// When
 		fileCopier.copyLegacy(source, target);
@@ -43,7 +44,7 @@ public class FileCopierUnitTest {
 	public void shouldCopyFileViaNIO() throws Exception {
 		// Given
 		File source = tempFolder.newFile();
-		FileUtils.writeStringToFile(source, "Test");
+		FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
 		File target = tempFolder.newFile();
 		// When
 		fileCopier.copyNIO(source, target);
@@ -57,7 +58,7 @@ public class FileCopierUnitTest {
 		FileCopier fileCopierStub = Mockito.spy(fileCopier);
 		doThrow(IOException.class).when(fileCopierStub).copyNIO(any(File.class), any(File.class));
 		File source = tempFolder.newFile();
-		FileUtils.writeStringToFile(source, "Test");
+		FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
 		File target = tempFolder.newFile();
 		// When
 		fileCopierStub.copy(source, target);
