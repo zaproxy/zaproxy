@@ -27,7 +27,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.utils.Stats;
 
 import net.htmlparser.jericho.MasonTagTypes;
-import net.htmlparser.jericho.MicrosoftTagTypes;
+import net.htmlparser.jericho.MicrosoftConditionalCommentTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
 import net.htmlparser.jericho.Source;
 
@@ -97,7 +97,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		
 		this.scannerList = passiveScannerList;
 		
-		MicrosoftTagTypes.register();
+		MicrosoftConditionalCommentTagTypes.register();
 		PHPTagTypes.register();
 		PHPTagTypes.PHP_SHORT.deregister(); // remove PHP short tags otherwise they override processing instructions
 		MasonTagTypes.register();
