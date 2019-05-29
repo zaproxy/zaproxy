@@ -25,6 +25,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.zaproxy.zap.Version;
 
@@ -195,6 +197,19 @@ public class VersionUnitTest {
         boolean matchResult = version.matches(rangeVersion);
         // Then
         assertThat(matchResult, is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldMatchAllVersionsWithWildcardRange() {
+        // Given
+        List<Version> versions = Arrays.asList(new Version("0.0.1"), new Version("0.2.0"), new Version("3.0.0"));
+        String rangeVersion = "*";
+        for (Version version : versions) {
+            // When
+            boolean matchResult = version.matches(rangeVersion);
+            // Then
+            assertThat(matchResult, is(equalTo(true)));
+        }
     }
 
     @Test
