@@ -1,5 +1,6 @@
 import java.time.LocalDate
 import java.util.stream.Collectors
+import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 
 plugins {
     `java-library`
@@ -135,6 +136,23 @@ tasks.register<Copy>("copyLangPack") {
 
     from(langPack)
     into("$rootDir/../zap-extensions/addOns/coreLang/src/main/zapHomeFiles/lang/")
+}
+
+val copyWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
+    group = "ZAP Misc"
+    description = "Copies the weekly add-ons into plugin dir, built from local repos."
+
+    repositoriesDirectory.set(rootDir.parentFile)
+    repositoriesDataFile.set(file("src/main/weekly-add-ons.json"))
+    cloneRepositories.set(false)
+    updateRepositories.set(false)
+
+    val outputDir = file("src/main/dist/plugin/")
+    tasks {
+        register("copyZapAddOn") {
+            args.set(listOf("--into=$outputDir"))
+        }
+    }
 }
 
 val generateAllApiEndpoints by tasks.registering {
