@@ -177,7 +177,6 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                         spec -> {
                             spec.setWorkingDir(repoDir);
                             spec.setExecutable(gradleWrapper());
-                            spec.setEnvironment(Collections.emptyMap());
                             spec.args(execArgs);
                         })
                 .assertNormalExitValue();
