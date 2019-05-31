@@ -23,11 +23,20 @@ The distributions are built into `zap/build/distributions/`.
 
 ### Daily
 A zip package with a day stamped version, does not target any specific OS, it bundles all add-ons present in the `plugin` directory always.
-This distribution is used for weekly releases.
 
 To build it run the task `:zap:distDaily`.
 
 (This distribution is built by default, it is a dependency of `assemble` task.)
+
+### Weekly
+A zip package with a day stamped version, does not target any specific OS, it bundles only [weekly add-ons] (built automatically from
+source when the distribution is built).
+This distribution is used for weekly releases.
+
+To build it run the task `:zap:distWeekly`.
+
+The build also provides the task `:zap:copyWeeklyAddOns` which builds and copies the weekly add-ons into the plugin directory,
+using existing repositories in the file system at the same level as zaproxy.
 
 ### Cross Platform
 A zip package, does not target any specific OS.
@@ -70,7 +79,8 @@ Once the build is finished the installers will be located in the directory `zap/
 [Gradle]: https://gradle.org/
 [Gradle Wrapper]: https://docs.gradle.org/current/userguide/gradle_wrapper.html
 [zap/src/main/dist/plugin/]: zap/src/main/dist/plugin/
-[predefined list of add-ons]: zap/src/main/dist/add-ons.txt
+[predefined list of add-ons]: zap/src/main/add-ons.txt
+[weekly add-ons]: zap/src/main/weekly-add-ons.json
 [install4j]: https://www.ej-technologies.com/products/install4j/overview.html
 [launch4j]: http://launch4j.sourceforge.net/
 [gradle-launch4j]: https://github.com/TheBoegl/gradle-launch4j
