@@ -13,6 +13,7 @@ dependencies {
     val jgitVersion = "5.3.1.201904271842-r"
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")
+    implementation("org.kohsuke:github-api:1.95")
     // Gradle Plugins
     implementation("com.netflix.nebula:gradle-ospackage-plugin:6.2.0")
     implementation("de.undercouch:gradle-download-task:3.4.3")

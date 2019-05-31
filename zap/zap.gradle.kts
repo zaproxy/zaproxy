@@ -6,6 +6,7 @@ plugins {
     `java-library`
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
+    org.zaproxy.zap.`github-releases`
     org.zaproxy.zap.publish
 }
 
