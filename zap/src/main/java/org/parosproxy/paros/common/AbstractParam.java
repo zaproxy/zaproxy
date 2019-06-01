@@ -30,7 +30,7 @@
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/03/26 Obtain configs in the order specified
 // ZAP: 2017/06/02 Add helper methods.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.common;
 
 import java.util.Map.Entry;

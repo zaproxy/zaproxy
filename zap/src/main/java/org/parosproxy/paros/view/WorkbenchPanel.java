@@ -35,7 +35,7 @@
 // ZAP: 2017/08/30 Add tool tip to response tab.
 // ZAP: 2018/02/14 Add new layout ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
 // ZAP: 2018/04/03 Update for behavioural changes in TabbedPanel2.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;

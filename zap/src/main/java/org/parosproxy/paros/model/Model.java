@@ -44,7 +44,7 @@
 // ZAP: 2018/03/27 Validate that context and configurations for ContextDataFactory are not null.
 // ZAP: 2018/07/19 Fallback to bundled zapdb.script file.
 // ZAP: 2018/08/15 Deprecated addSessionListener
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.io.File;

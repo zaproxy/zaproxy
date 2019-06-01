@@ -23,7 +23,7 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.db;
 
 

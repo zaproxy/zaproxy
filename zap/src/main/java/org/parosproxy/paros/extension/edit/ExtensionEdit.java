@@ -30,7 +30,7 @@
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 // ZAP: 2017/10/18 Use Window for parent of invoked component.
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Window;

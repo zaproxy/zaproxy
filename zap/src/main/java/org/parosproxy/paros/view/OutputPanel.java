@@ -29,7 +29,7 @@
 // ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
 // ZAP: 2017/09/02 Use KeyEvent instead of Event (deprecated in Java 9).
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 

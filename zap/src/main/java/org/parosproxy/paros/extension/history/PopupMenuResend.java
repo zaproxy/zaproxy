@@ -26,7 +26,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;

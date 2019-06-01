@@ -70,7 +70,7 @@
 // ZAP: 2018/01/04 Do not notify extensions if failed to change the session.
 // ZAP: 2018/01/12 Save configurations as last shutdown action.
 // ZAP: 2019/03/14 Improve error handling on shutdown
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;

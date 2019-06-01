@@ -26,6 +26,7 @@
 // ZAP: 2012/07/09 Added 10 more pixels to the dialog's height.
 // Changed visibility of getJPanel1().
 // ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;

@@ -38,7 +38,7 @@
 // ZAP: 2016/05/27 Change to use HistoryReference to obtain the temporary types
 // ZAP: 2016/08/30 Issue 2836: Change to delete temporary history types in batches to prevent out-of-memory-exception(s)
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.db.paros;
 
 import java.nio.charset.StandardCharsets;

@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/04/23 Removed unnecessary cast.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.util.Vector;

@@ -30,7 +30,7 @@
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
 // ZAP: 2018/03/29 Use FileNameExtensionFilter.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedWriter;

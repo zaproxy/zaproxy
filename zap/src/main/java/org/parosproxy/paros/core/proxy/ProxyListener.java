@@ -23,6 +23,7 @@
 // ZAP: 2012/06/17 Documented the interface.
 // ZAP: 2012/12/27 Extend from ArrangeableListener.
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.proxy;
 
 import org.parosproxy.paros.network.HttpMessage;

@@ -41,7 +41,7 @@
 // ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually exclusive).
 // ZAP: 2017/12/26 Remove unused command line arg SP.
 // ZAP: 2018/06/29 Add command line to run ZAP in dev mode.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros;
 
 import java.io.File;

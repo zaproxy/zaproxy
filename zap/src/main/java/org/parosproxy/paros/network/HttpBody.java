@@ -24,7 +24,7 @@
 // ZAP: 2016/05/18 Always use charset set when changing the HTTP body
 // ZAP: 2016/10/18 Attempt to determine the charset when setting a String with unknown charset
 // ZAP: 2017/02/01 Allow to set whether or not the charset should be determined.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.nio.charset.Charset;

@@ -46,7 +46,7 @@
 // ZAP: 2017/10/20 Add action/shortcut to delete history entries (Issue 3626).
 // ZAP: 2018/01/29 Make getHistoryReferenceTable protected (Issue 4000).
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;

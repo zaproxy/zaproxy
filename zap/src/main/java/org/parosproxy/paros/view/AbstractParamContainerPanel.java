@@ -28,7 +28,7 @@
 // ZAP: 2018/01/08 Allow to expand the node of a param panel.
 // ZAP: 2018/03/26 Ensure node of selected panel is visible.
 // ZAP: 2018/04/12 Allow to check if a param panel is selected.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;

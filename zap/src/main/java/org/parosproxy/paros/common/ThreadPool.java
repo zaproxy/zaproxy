@@ -20,6 +20,7 @@
  */
 // ZAP: 2014/04/01 Changed to allow to set a name to created threads.
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.common;
 
 

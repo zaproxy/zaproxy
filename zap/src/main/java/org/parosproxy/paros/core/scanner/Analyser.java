@@ -38,7 +38,7 @@
 // ZAP: 2017/03/27 Use HttpRequestConfig.
 // ZAP: 2017/06/15 Allow to obtain the running time of the analysis.
 // ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;

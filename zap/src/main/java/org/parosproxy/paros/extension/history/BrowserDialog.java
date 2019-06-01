@@ -23,7 +23,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;

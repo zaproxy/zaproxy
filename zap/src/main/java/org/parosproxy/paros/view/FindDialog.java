@@ -26,7 +26,7 @@
 // ZAP: 2017/07/17: Prevent opening multiple dialogs per parent.
 // ZAP: 2017/10/18 Do not allow to obtain the FindDialog with a null parent.
 // ZAP: 2018/08/17 Show a message if the string was not found (Issue 4935).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;

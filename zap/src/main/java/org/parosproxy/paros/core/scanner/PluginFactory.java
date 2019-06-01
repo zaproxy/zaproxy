@@ -51,7 +51,7 @@
 // ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status comparison.
 // ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;

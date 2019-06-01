@@ -75,7 +75,7 @@
 // ZAP: 2018/01/25 Do not save session file if not file based.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;

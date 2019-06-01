@@ -24,7 +24,7 @@
 //              as introduced with version 3.1 of HttpClient
 // ZAP: 2016/09/20 JavaDoc tweaks
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.TreeMap;

@@ -23,6 +23,7 @@
 // ZAP: 2016/04/08 Allow to add ContextPanelFactory
 // ZAP: 2017/02/19 Allow to add components to the main tool bar.
 // ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;

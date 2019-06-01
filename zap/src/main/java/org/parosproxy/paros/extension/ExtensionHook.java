@@ -31,7 +31,7 @@
 // ZAP: 2016/08/18 Allow to add ApiImplementor
 // ZAP: 2017/07/25 Allow to add HttpSenderListener.
 // ZAP: 2017/11/23 Add an add method for OverrideMessageProxyListener.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;

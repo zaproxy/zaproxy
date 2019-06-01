@@ -52,7 +52,7 @@
 // ZAP: 2019/01/25 Add Origin header.
 // ZAP: 2019/03/06 Log or include the malformed data in the exception message.
 // ZAP: 2019/03/19 Changed the parse method to only parse the authority on CONNECT requests
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;

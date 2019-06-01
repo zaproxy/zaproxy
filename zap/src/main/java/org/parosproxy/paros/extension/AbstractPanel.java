@@ -26,7 +26,7 @@
 // ZAP: 2014/08/14 Issue 1301: AbstractPanel leak through TabbedPanel2
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2018/02/22 Focus the tab of ancestor AbstractPanel.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;

@@ -56,7 +56,7 @@
 // ZAP: 2017/08/18 Add TYPE_FUZZER_TEMPORARY.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/01/09 Add TYPE_CALLBACK.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;

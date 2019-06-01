@@ -35,7 +35,7 @@
 // ZAP: 2017/11/07 Pass the listeningIpAddress when creating the SSL/TLS tunnel. Check if hostname is an ipAddress when creating the SSL/TLS tunnel.
 // ZAP: 2018/06/08 Don't enable client cert if none set (Issue 4745).
 // ZAP: 2019/02/26 Disable TLS 1.3 by default as it currently fails with Java 11
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;

@@ -24,7 +24,7 @@
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2016/01/26 Fixed findbugs warning (tag field no longer used in history table)
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.db;
 
 import org.parosproxy.paros.model.HistoryReference;

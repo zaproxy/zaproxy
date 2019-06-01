@@ -39,7 +39,7 @@
 // ZAP: 2017/05/22 Update for change in Extension.getDependencies().
 // ZAP: 2018/10/09 Remove instance variable hook and method getExtensionHook.
 // ZAP: 2018/04/17 Deprecate ExtensionAdaptor(String, Version) and remove getVersion() override.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.net.URL;

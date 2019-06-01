@@ -22,7 +22,7 @@
 // ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/01/09 Add default implementations to some methods.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
