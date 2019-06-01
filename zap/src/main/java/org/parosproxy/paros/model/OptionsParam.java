@@ -39,7 +39,7 @@
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2016/12/06 Add ExtensionParam
 // ZAP: 2018/08/15 Move AntiCsrfParam to ExtensionAntiCSRF
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.io.File;

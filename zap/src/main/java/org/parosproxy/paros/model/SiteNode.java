@@ -53,7 +53,7 @@
 // ZAP: 2017/07/09: Issue 3727: Add getName() function, returning the node name without HTTP method (verb)
 // ZAP: 2018/01/24 Clear highest alert when all deleted.
 // ZAP: 2018/05/29 Allow to use add-on icons in SiteNode.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;

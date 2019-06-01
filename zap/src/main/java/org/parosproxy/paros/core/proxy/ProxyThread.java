@@ -76,7 +76,7 @@
 // ZAP: 2017/10/02 Improve error handling when checking if SSL/TLS handshake.
 // ZAP: 2018/01/29 Fix API issues with pconn connections
 // ZAP: 2019/04/08 Issue 5304: Check for UnknownHostException and include appropriate message if proxy chain might be the cause.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;

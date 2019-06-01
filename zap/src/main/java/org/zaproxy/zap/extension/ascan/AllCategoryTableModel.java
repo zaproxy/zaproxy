@@ -26,6 +26,7 @@
 // ZAP: 2016/07/25 Change constructor's parameter to PluginFactory
 // ZAP: 2017/06/05 Take into account the enabled state of the plugin when showing the AlertThreshold of the category.
 // ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
+// ZAP: 2019/06/01 Normalise line endings.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.HashMap;

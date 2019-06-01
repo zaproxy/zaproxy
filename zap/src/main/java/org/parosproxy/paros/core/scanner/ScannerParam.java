@@ -47,7 +47,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
 // ZAP: 2019/05/10 Enable custom (script) input vectors by default.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;

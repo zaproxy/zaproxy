@@ -31,7 +31,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2018/03/14 Publish event when href added
 // ZAP: 2018/04/11 Log the message synchronously to avoid following listeners to change it before being persisted.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
  
 import java.awt.EventQueue;

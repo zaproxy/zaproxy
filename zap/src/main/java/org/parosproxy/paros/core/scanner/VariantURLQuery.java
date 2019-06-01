@@ -25,7 +25,7 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
 // ZAP: 2016/05/04 Changed to use setParameters(int, List<NameValuePair>)
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;

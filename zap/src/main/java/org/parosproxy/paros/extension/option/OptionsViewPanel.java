@@ -32,7 +32,7 @@
 // ZAP: 2018/02/27 Add option for Look And Feel and a scrollbar.
 // ZAP: 2018/03/01 Remove the name from a panel and use BorderLayout.
 // ZAP: 2018/06/11 Added options for Work Panels Font.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;

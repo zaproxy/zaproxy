@@ -80,7 +80,7 @@
 // ZAP: 2018/07/13 Added canGetFocus option
 // ZAP: 2018/07/17 Use getMenuShortcutKeyStroke.
 // ZAP: 2019/01/04 Keep Show Tab menu item in the position it was added.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;

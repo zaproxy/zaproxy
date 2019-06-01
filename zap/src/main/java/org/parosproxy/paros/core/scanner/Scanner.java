@@ -44,7 +44,7 @@
 // ZAP: 2017/06/29 Remove code duplication in scan()
 // ZAP: 2018/02/09 Check also its excluded URLs when scanning a context (Issue 4368).
 // ZAP: 2018/04/19 Added support for publishing events
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;

@@ -24,6 +24,7 @@
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
 // ZAP: 2017/11/06 Marked as Deprecated
 //
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;

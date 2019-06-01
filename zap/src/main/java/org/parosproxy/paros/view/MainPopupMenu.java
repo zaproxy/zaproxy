@@ -42,7 +42,7 @@
 // ZAP: 2014/03/23 Issue 1088: Deprecate the method ExtensionPopupMenu#prepareShow
 // ZAP: 2014/08/14 Issue 1302: Context menu item action might not get executed
 // ZAP: 2015/01/22 Use ExtensionPopupMenu for super menus
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;

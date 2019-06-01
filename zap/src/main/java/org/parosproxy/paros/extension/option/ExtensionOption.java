@@ -31,7 +31,7 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/11/06 Moved options panel to new proxies extension (Issue 3983)
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.option;
 
 import javax.swing.JCheckBoxMenuItem;

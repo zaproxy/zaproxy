@@ -24,7 +24,7 @@
 // ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
 // position changed
 // ZAP: 2016/04/06 Fix layouts' issues
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import javax.swing.JTabbedPane;

@@ -34,7 +34,7 @@
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/05/02 Removed Menu Item 'Session tracking'
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.state;
 
 import org.apache.commons.httpclient.HttpState;

@@ -24,6 +24,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.control;
 
 import javax.swing.JOptionPane;

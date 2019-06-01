@@ -83,7 +83,7 @@
 // ZAP: 2018/01/01 Update initialisation of PluginStats.
 // ZAP: 2018/11/14 Log alert count when completed.
 // ZAP: 2019/01/19 Handle counting alerts raised by scan (Issue 3929).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;

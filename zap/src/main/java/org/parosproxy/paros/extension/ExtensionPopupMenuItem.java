@@ -31,7 +31,7 @@
 // ZAP: 2014/03/23 Issue 1095: Replace main pop up sub menus with ExtensionPopupMenu when appropriate
 // ZAP: 2014/08/14 Issue 1302: Context menu item action might not get executed
 // ZAP: 2017/06/01 Add more constructors.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;

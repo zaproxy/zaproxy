@@ -76,7 +76,7 @@
 // ZAP: 2018/10/05 Get menu/view hooks without initialising them.
 // ZAP: 2018/10/09 Use managed ExtensionHook when removing extensions.
 // ZAP: 2019/03/15 Issue 3578: Added Helper options for Import menu
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;

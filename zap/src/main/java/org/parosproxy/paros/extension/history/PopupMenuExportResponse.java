@@ -26,7 +26,7 @@
 // ZAP: 2014/03/23 Changed to a JMenuItem.
 // ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
 // ZAP: 2018/08/15 Added null check
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedOutputStream;

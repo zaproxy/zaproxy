@@ -40,7 +40,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/02/27 Added support for selecting the look and feel.
 // ZAP: 2018/06/11 Added options for Work Panels Font.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;

@@ -27,7 +27,7 @@
 // ZAP: 2017/07/22 Leverage KeyStroke constant for consistency with other FindDialog usage
 // ZAP: 2017/08/10 Issue 3798: java.awt.Toolkit initialised in daemon mode
 // ZAP: 2017/10/18 Drop support of JFrame as parent (that might not be the case, e.g. parentless JDialog).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Component;

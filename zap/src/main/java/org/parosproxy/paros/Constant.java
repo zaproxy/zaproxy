@@ -87,7 +87,7 @@
 // ZAP: 2019/05/14 Added silent option
 // ZAP: 2019/05/17 Update cert option to boolean.
 // ZAP: 2019/05/29 Update Jericho log configuration.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros;
 
 import java.io.File;

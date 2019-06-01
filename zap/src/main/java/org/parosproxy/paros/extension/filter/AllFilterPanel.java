@@ -28,7 +28,7 @@
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2017/01/09 Remove method no longer needed.
 // ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.filter;
 
 import java.awt.Dimension;

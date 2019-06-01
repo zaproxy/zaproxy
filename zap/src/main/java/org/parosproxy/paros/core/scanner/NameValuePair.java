@@ -24,6 +24,7 @@
 // ZAP: 2016/02/22 Add hashCode, equals and toString methods. Remove redundant instance variable initialisations.
 // ZAP: 2018/01/03 Added type constants for revised multipart/form-data handling
 // ZAP: 2018/02/19 Added type constants for application/json handling
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {

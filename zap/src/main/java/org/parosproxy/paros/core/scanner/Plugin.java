@@ -31,7 +31,7 @@
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 // ZAP: 2017/07/12 and 2017/09/21 JavaDoc tweaks.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Date;

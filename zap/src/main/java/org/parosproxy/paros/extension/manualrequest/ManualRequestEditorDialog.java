@@ -35,7 +35,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;

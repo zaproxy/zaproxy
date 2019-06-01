@@ -23,6 +23,7 @@
 // ZAP: 2012/05/02 Changed the "listenerList" to List, changed the
 // initialisation from Vector to ArrayList and set the initial capacity.
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.proxy;
 
 import java.util.ArrayList;

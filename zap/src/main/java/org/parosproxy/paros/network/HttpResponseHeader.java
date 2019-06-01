@@ -35,7 +35,7 @@
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
 // ZAP: 2018/07/23 Add CSP headers.
 // ZAP: 2018/08/15 Add Server header.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;

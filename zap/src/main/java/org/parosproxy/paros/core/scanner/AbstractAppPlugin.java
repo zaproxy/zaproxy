@@ -22,7 +22,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/06/26 Added the possibility to evaluate the current plugin/process progress
 // ZAP: 2016/04/21 Remove manual progress change, HostProcess takes care of that
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 /**

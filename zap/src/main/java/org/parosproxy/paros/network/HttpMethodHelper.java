@@ -29,6 +29,7 @@
 // ZAP: 2016/10/13 Include URI in exception's message
 // ZAP: 2017/04/20 Remove unused code
 // ZAP: 2017/06/19 Allow to create a method with custom parameters.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;

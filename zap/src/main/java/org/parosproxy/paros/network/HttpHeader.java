@@ -38,7 +38,7 @@
 // ZAP: 2017/03/02 Issue 3226: Added API Key and Nonce headers
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
 // ZAP: 2018/04/24 Add JSON Content-Type.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;

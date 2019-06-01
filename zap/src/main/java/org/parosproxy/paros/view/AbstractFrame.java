@@ -23,7 +23,7 @@
 // ZAP: 2014/10/17 Issue 1308: Updated for latest icons
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/09/07 Move icon loading to a utility class
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;

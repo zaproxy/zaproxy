@@ -37,7 +37,7 @@
 // ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 // ZAP: 2016/04/22 Issue 2428: Memory leak on session creation/loading
 // ZAP: 2016/05/24 Add implementation of Database.discardSession(long)
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;

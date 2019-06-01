@@ -85,7 +85,7 @@
 // ZAP: 2018/01/29 Add getter to expose historyReferencesTable of History tab (Issue 4000).
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/03/12 Use the same help page in request editors.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;

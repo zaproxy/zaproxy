@@ -28,7 +28,7 @@
 // ZAP: 2017/01/09 Remove method no longer needed.
 // ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
 // ZAP: 2017/06/07 Don't close the Session when changing session's name/description.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;

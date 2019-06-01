@@ -20,6 +20,7 @@
  */
 // ZAP: 2013/01/03 Code Cleanup: Introduced Java7 try-with-resource statements
 // ZAP: 2013/01/03 Code Cleanup: Removed redundant and generated comments
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.io.BufferedInputStream;
