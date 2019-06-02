@@ -60,7 +60,7 @@
 // ZAP: 2018/02/02 Add helper method to check if any of several techs is in scope.
 // ZAP: 2018/08/15 Implemented hashCode
 // ZAP: 2019/03/22 Add bingo with references.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;

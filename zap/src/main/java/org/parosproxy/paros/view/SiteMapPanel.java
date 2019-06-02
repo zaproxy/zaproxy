@@ -47,7 +47,7 @@
 // ZAP: 2018/03/26 Expand node of selected context.
 // ZAP: 2018/04/12 Keep panel of selected context selected.
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;

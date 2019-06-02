@@ -34,7 +34,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.db.paros;
 
 import java.sql.CallableStatement;

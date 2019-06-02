@@ -24,6 +24,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2015/08/19 Deprecated; Issue 1804: Disable processing of XML external entities by default
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.common;
 
 import java.io.File;

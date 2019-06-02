@@ -23,7 +23,7 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2017/01/09 Remove method no longer needed.
 // ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;

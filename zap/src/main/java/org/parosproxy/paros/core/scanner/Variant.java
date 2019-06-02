@@ -21,6 +21,7 @@
 // ZAP: 2013/07/02 Changed Vector to generic List
 // ZAP: 2013/07/02 Changed API to public for future extensible Variant model
 // ZAP: 2016/05/04 Add JavaDoc to getParamList()
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.List;

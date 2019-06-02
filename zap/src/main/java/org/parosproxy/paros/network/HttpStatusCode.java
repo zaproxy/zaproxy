@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2018/07/27 Address JavaDoc warns.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 public final class HttpStatusCode {

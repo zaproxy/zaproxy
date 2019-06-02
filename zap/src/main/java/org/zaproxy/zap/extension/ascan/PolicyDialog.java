@@ -21,6 +21,7 @@
 // ZAP: 2012/03/14 Changed to use the internationalised string.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+// ZAP: 2019/06/01 Normalise line endings.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.HeadlessException;

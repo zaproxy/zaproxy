@@ -39,7 +39,7 @@
 // ZAP: 2016/06/28 Do not start the timer thread if no filter is enabled
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.filter;
 
 import java.util.List;

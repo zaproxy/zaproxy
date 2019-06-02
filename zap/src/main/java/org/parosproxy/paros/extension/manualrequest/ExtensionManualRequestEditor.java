@@ -42,7 +42,7 @@
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/06/06 Clear dialogues in EDT.
 // ZAP: 2018/02/23 Issue 1161: Fix Session Tracking button sync
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.EventQueue;

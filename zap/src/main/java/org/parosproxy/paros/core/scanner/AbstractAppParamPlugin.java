@@ -34,6 +34,7 @@
 // ZAP: 2016/06/15 Add VariantHeader based on the current scan options
 // ZAP: 2017/10/31 Use ExtensionLoader.getExtension(Class).
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;

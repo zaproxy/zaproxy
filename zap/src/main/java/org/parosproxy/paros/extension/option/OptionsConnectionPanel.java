@@ -35,7 +35,7 @@
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 // ZAP: 2017/05/02 Checkbox to Enable / Disable HTTP State
 // ZAP: 2017/06/19 Use ZapNumberSpinner for connection timeout.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;

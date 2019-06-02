@@ -1,10 +1,12 @@
 import java.time.LocalDate
 import java.util.stream.Collectors
+import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 
 plugins {
     `java-library`
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
+    org.zaproxy.zap.`github-releases`
     org.zaproxy.zap.publish
 }
 
@@ -21,39 +23,43 @@ java {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:2.5.8")
-    api("com.github.zafarkhaja:java-semver:0.8.0")
-    api("com.googlecode.java-diff-utils:diffutils:1.2.1")
-    api("commons-beanutils:commons-beanutils:1.8.3")
-    api("commons-codec:commons-codec:1.9")
+    api("com.fifesoft:rsyntaxtextarea:3.0.3")
+    api("com.github.zafarkhaja:java-semver:0.9.0")
+    api("commons-beanutils:commons-beanutils:1.9.3")
+    api("commons-codec:commons-codec:1.12")
     api("commons-collections:commons-collections:3.2.2")
-    api("commons-configuration:commons-configuration:1.9")
+    api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.4")
+    api("commons-io:commons-io:2.6")
     api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.7")
-    api("org.apache.commons:commons-text:1.3")
+    api("org.apache.commons:commons-lang3:3.9")
+    api("org.apache.commons:commons-text:1.6")
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
     api("log4j:log4j:1.2.17")
-    api("net.htmlparser.jericho:jericho-html:3.1")
+    api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.1")
-    api("org.bouncycastle:bcmail-jdk15on:1.52")
-    api("org.bouncycastle:bcprov-jdk15on:1.52")
-    api("org.bouncycastle:bcpkix-jdk15on:1.52")
-    api("org.hsqldb:hsqldb:2.3.4")
-    api("org.jdom:jdom:1.1.3")
+    api("org.apache.commons:commons-csv:1.6")
+    api("org.bouncycastle:bcmail-jdk15on:1.61")
+    api("org.bouncycastle:bcprov-jdk15on:1.61")
+    api("org.bouncycastle:bcpkix-jdk15on:1.61")
+    api("org.hsqldb:hsqldb:2.4.1")
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
-    api("org.swinglabs.swingx:swingx-all:1.6.4")
-    api("org.xerial:sqlite-jdbc:3.8.11.1")
+    api("org.swinglabs.swingx:swingx-all:1.6.5-1")
+    api("org.xerial:sqlite-jdbc:3.27.2.1")
 
     implementation("commons-validator:commons-validator:1.6")
     // Don't need its dependencies, for now.
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
+
+    // The following are no longer used by core, remove once
+    // all (known) add-ons are updated accordingly.
+    runtimeOnly("com.googlecode.java-diff-utils:diffutils:1.2.1")
+    runtimeOnly("org.jdom:jdom:1.1.3")
+    // -----------------------
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -133,17 +139,35 @@ tasks.register<Copy>("copyLangPack") {
     into("$rootDir/../zap-extensions/addOns/coreLang/src/main/zapHomeFiles/lang/")
 }
 
+val copyWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
+    group = "ZAP Misc"
+    description = "Copies the weekly add-ons into plugin dir, built from local repos."
+
+    repositoriesDirectory.set(rootDir.parentFile)
+    repositoriesDataFile.set(file("src/main/weekly-add-ons.json"))
+    cloneRepositories.set(false)
+    updateRepositories.set(false)
+
+    val outputDir = file("src/main/dist/plugin/")
+    tasks {
+        register("copyZapAddOn") {
+            args.set(listOf("--into=$outputDir"))
+        }
+    }
+}
+
 val generateAllApiEndpoints by tasks.registering {
     group = "ZAP Misc"
     description = "Generates (and copies) the ZAP API endpoints for all languages."
 }
 
 listOf(
+    "org.zaproxy.zap.extension.api.GoAPIGenerator",
     "org.zaproxy.zap.extension.api.JavaAPIGenerator",
-    "org.zaproxy.zap.extension.api.PythonAPIGenerator",
     "org.zaproxy.zap.extension.api.NodeJSAPIGenerator",
     "org.zaproxy.zap.extension.api.PhpAPIGenerator",
-    "org.zaproxy.zap.extension.api.GoAPIGenerator"
+    "org.zaproxy.zap.extension.api.PythonAPIGenerator",
+    "org.zaproxy.zap.extension.api.RustAPIGenerator"
 ).forEach {
     val langName = it.removePrefix("org.zaproxy.zap.extension.api.").removeSuffix("APIGenerator")
     val task = tasks.register<JavaExec>("generate${langName}ApiEndpoints") {

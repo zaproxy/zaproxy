@@ -49,7 +49,7 @@
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 // ZAP: 2017/08/30: Issue 1984: Ensure element setters set empty string if passed a null value
 // ZAP: 2017/09/15 Initialise the source from the RecordAlert always.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;

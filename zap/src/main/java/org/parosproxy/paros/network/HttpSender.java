@@ -76,7 +76,7 @@
 // ZAP: 2018/09/17 Set the user to messages created for redirections (Issue 2531).
 // ZAP: 2018/10/12 Deprecate getClient(), it exposes implementation details.
 // ZAP: 2019/03/24 Removed commented and unused sendAndReceive method.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;

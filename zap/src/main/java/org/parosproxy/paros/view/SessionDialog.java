@@ -23,7 +23,7 @@
 // ZAP: 2013/08/21 Introduced support for shared UI Contexts for Context Property panels
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 // ZAP: 2016/10/26 Initialise the panels when added to the dialogue, if shown
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;

@@ -37,7 +37,7 @@
 // ZAP: 2018/03/29 Use FileNameExtensionFilter.
 // ZAP: 2018/07/12 Fallback to bundled drivers.xml file.
 // ZAP: 2018/09/19 GUI support for setting client certificate from CLI
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.option;
 
 //TODO: Buttons should be gray

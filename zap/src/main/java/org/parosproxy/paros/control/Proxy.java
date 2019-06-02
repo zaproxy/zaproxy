@@ -30,7 +30,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2017/03/15 Enable API
 // ZAP: 2017/11/06 Removed ProxyServerSSL (Issue 3983)
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.control;
  
 import java.util.List;

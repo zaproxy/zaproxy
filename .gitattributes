@@ -1,0 +1,58 @@
+# Set the default behavior.
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized.
+*.config text
+COPYING text
+*.css text
+Dockerfile* text
+*.desktop text
+*.dtd text
+*.flex text
+*.gradle text
+gradlew text
+*.html text
+*.htm text
+*.ini text
+*.java text
+*.js text
+*.json text
+*.jsp text
+*.kt text
+*.kts text
+*.md text
+*.php text
+*.pl text
+*.plist text
+*.policy text
+*.properties text
+*.py text
+README text
+*.rst text
+*.schema text
+*.script text
+*.sh text
+*.svg text
+*.txt text
+*.weekly text
+wrapper text
+*.xml text
+*.xml2 text
+*.xsl text
+*.yaml text
+*.yml text
+
+# Declare files that will always have CRLF line endings on checkout.
+*.bat eol=crlf
+*.install4j eol=crlf
+
+# Denote all files that are truly binary and should not be modified.
+*.icns binary
+*.ico binary
+*.jar binary
+*.jpg binary
+PkgInfo binary
+*.png binary
+*.rtf binary
+*.ttf binary
+*.zip binary

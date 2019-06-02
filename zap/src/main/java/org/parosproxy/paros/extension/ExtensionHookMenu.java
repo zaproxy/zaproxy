@@ -29,7 +29,7 @@
 // ZAP: 2016/09/26 JavaDoc tweaks
 // ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
 // ZAP: 2019/03/15 Issue 3578: Added the method addImportMenuItem(ZapMenuItem  menuitem)
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 

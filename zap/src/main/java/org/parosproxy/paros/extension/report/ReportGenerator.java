@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
 // ZAP: 2018/07/04 Allow to use a custom StreamSource for the XSL.
 // ZAP: 2018/12/27 Use always an array for sites in JSON format (Issue 5162).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.report;
 
 import java.io.BufferedReader;

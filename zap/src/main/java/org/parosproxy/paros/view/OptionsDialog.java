@@ -20,7 +20,7 @@
  */
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 // ZAP: 2017/04/14 Improve error handling when resetting the panels
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;

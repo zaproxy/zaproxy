@@ -25,6 +25,7 @@
 // ZAP: 2016/07/25 Use new AllCategoryTableModel's constructor
 // ZAP: 2017/06/22 Focus the component that contains validation errors.
 // ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
+// ZAP: 2019/06/01 Normalise line endings.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;

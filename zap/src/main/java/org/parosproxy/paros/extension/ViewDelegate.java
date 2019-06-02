@@ -27,7 +27,7 @@
 // ZAP: 2016/04/14 Allow to display a message
 // ZAP: 2017/10/20 Allow to obtain default delete keyboard shortcut (Issue 3626).
 // ZAP: 2018/07/17 Allow to obtain a KeyStroke with menu shortcut key mask.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.awt.Toolkit;

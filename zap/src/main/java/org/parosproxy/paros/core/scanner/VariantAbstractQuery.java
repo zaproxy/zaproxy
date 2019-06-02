@@ -32,7 +32,7 @@
 // ZAP: 2016/09/13 Issue 2863: Attack query string even if not originally specified
 // ZAP: 2017/11/06 Use indexed names for array parameters (Issue 2496).
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URLEncoder;

@@ -23,6 +23,7 @@
 // with tables instead of lists
 // ZAP: 2014/03/23 Issue 1106: HistoryList's mapping of history ID to list 
 // indexes not updated when history entry is deleted
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 

@@ -28,26 +28,19 @@
 
 package ch.csnc.extension.util;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class DriverConfiguration {
 	private File file = null;
@@ -80,55 +73,34 @@ public class DriverConfiguration {
 		slotListIndexes = new Vector<Integer>();
 
 		try {
-			SAXBuilder builder = new SAXBuilder();
-			final Document doc = file != null ? builder.build(file) : builder.build(url);
-			final Element root = doc.getRootElement();
-			for (final Object o : root.getChildren("driver")) {
-				final Element nameElement = ((Element) o).getChild("name");
-				names.add(nameElement.getValue());
-
-				final Element pathElement = ((Element) o).getChild("path");
-				paths.add(pathElement.getValue());
-
-				final Element slotElement = ((Element) o).getChild("slot");
-				slots.add(getIntValue(slotElement));
-
-				final Element slotListIndex = ((Element) o).getChild("slotListIndex");
-				slotListIndexes.add(getIntValue(slotListIndex));
+			ZapXmlConfiguration configuration = file != null ? new ZapXmlConfiguration(file) : new ZapXmlConfiguration(url);
+			List<HierarchicalConfiguration> drivers = configuration.configurationsAt("driver");
+			for (HierarchicalConfiguration driver : drivers) {
+				names.add(driver.getString("name", ""));
+				paths.add(driver.getString("path", ""));
+				slots.add(getInt(driver.getString("slot")));
+				slotListIndexes.add(getInt(driver.getString("slotListIndex")));
 			}
 
-		} catch (final JDOMException e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					"Error accessing key store: ", e.toString() }, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			logger.error(e.getMessage(), e);
-		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					"Error accessing key store: ", e.toString() }, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			logger.error(e.getMessage(), e);
-		} catch (final NumberFormatException e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					"Error slot or slot list index is not a number: ", e.toString() }, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			logger.error(e.getMessage(), e);
+		} catch (ConfigurationException e) {
+			logger.error("Failed to read the configuration from " + (file != null ? file : url), e);
 		}
 	}
 
 	/**
-	 * Gets an integer from the given element.
+	 * Gets an integer from the given string.
 	 * <p>
-	 * If the given element is {@code null} or does not have an integer, zero is returned.
+	 * If the given string is {@code null} or does not have an integer, zero is returned.
 	 *
-	 * @param element the element with the integer value
+	 * @param string the string with the integer value
 	 * @return an integer
 	 */
-	private int getIntValue(Element element) {
-		if (element != null) {
+	private int getInt(String string) {
+		if (string != null) {
 			try {
-				return Integer.parseInt(element.getValue());
+				return Integer.parseInt(string);
 			} catch (NumberFormatException e) {
-				logger.error("Failed to extract an integer from: " + element.getValue());
+				logger.error("Failed to extract an integer from: " + string);
 			}
 		}
 		return 0;
@@ -140,45 +112,21 @@ public class DriverConfiguration {
 			return;
 		}
 
-		final Document doc = new Document();
-		final Element root = new Element("driverConfiguration");
-		doc.addContent(root);
+		ZapXmlConfiguration configuration = new ZapXmlConfiguration();
+		configuration.setRootElementName("driverConfiguration");
 
 		for (int i = 0; i < names.size(); i++) {
-
-			final Element driver = new Element("driver");
-			root.addContent(driver);
-
-			final Element name = new Element("name");
-			driver.addContent(name);
-			name.addContent(names.get(i));
-
-			final Element path = new Element("path");
-			driver.addContent(path);
-			path.addContent(paths.get(i));
-
-			final Element slot = new Element("slot");
-			driver.addContent(slot);
-			slot.addContent(slots.get(i).toString());
-
-			final Element slotListIndex = new Element("slotListIndex");
-			driver.addContent(slotListIndex);
-			slotListIndex.addContent(slotListIndexes.get(i).toString());
+			String baseKey = "driver(" + i + ").";
+			configuration.setProperty(baseKey + "name", names.get(i));
+			configuration.setProperty(baseKey + "path", paths.get(i));
+			configuration.setProperty(baseKey + "slot", slots.get(i).toString());
+			configuration.setProperty(baseKey + "slotListIndex", slotListIndexes.get(i).toString());
 		}
 
-		try (OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(file))) {
-			final XMLOutputter out = new XMLOutputter();
-			out.output(doc, fileOutputStream);
-		} catch (final FileNotFoundException e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					"Error accessing key store: ", e.toString() }, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			logger.error(e.getMessage(), e);
-		} catch (final IOException e) {
-			JOptionPane.showMessageDialog(null, new String[] {
-					"Error accessing key store: ", e.toString() }, "Error",
-					JOptionPane.ERROR_MESSAGE);
-			logger.error(e.getMessage(), e);
+		try {
+			configuration.save(file);
+		} catch (ConfigurationException e) {
+			logger.error("Failed to save driver configuration to " + file, e);
 		}
 		
 		fireStateChanged();

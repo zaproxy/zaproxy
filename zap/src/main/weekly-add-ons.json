@@ -1,0 +1,58 @@
+[
+  {
+    "cloneUrl": "https://github.com/zaproxy/zap-extensions.git",
+    "branch": "master",
+    "projects": [
+      ":addOns:accessControl",
+      ":addOns:alertFilters",
+      ":addOns:ascanrules",
+      ":addOns:ascanrulesBeta",
+      ":addOns:bruteforce",
+      ":addOns:coreLang",
+      ":addOns:diff",
+      ":addOns:directorylistv1",
+      ":addOns:formhandler",
+      ":addOns:fuzz",
+      ":addOns:gettingStarted",
+      ":addOns:importurls",
+      ":addOns:invoke",
+      ":addOns:jxbrowsers:jxbrowser",
+      ":addOns:jxbrowsers:jxbrowserlinux64",
+      ":addOns:jxbrowsers:jxbrowsermacos",
+      ":addOns:jxbrowsers:jxbrowserwindows",
+      ":addOns:jxbrowsers:jxbrowserwindows64",
+      ":addOns:onlineMenu",
+      ":addOns:openapi",
+      ":addOns:portscan",
+      ":addOns:plugnhack",
+      ":addOns:pscanrules",
+      ":addOns:pscanrulesBeta",
+      ":addOns:quickstart",
+      ":addOns:replacer",
+      ":addOns:reveal",
+      ":addOns:saverawmessage",
+      ":addOns:savexmlmessage",
+      ":addOns:sequence",
+      ":addOns:scripts",
+      ":addOns:selenium",
+      ":addOns:spiderAjax",
+      ":addOns:tips",
+      ":addOns:webdrivers:webdriverlinux",
+      ":addOns:webdrivers:webdrivermacos",
+      ":addOns:webdrivers:webdriverwindows",
+      ":addOns:websocket",
+      ":addOns:zest"
+    ]
+  },
+  {
+    "cloneUrl": "https://github.com/zaproxy/zap-core-help.git",
+    "branch": "master",
+    "projects": [
+        ":addOns:help"
+    ]
+  },
+  {
+    "cloneUrl": "https://github.com/zaproxy/zap-hud.git",
+    "branch": "develop"
+  }
+]

@@ -31,7 +31,7 @@
 // ZAP: 2016/09/22 Issue 2886: Support Markdown format
 // ZAP: 2017/04/07 Added getUIName()
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;

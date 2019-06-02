@@ -34,7 +34,7 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/08 Tweak how exception's message is checked to show a specific error/info message
 // ZAP: 2017/03/15 Disable API by default and allow thread name to be set
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;

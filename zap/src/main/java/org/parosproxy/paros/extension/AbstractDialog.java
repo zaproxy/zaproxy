@@ -26,7 +26,7 @@
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/09/07 Move icon loading to a utility class
 // ZAP: 2017/07/13 Centre the dialogue on parent window.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 

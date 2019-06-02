@@ -86,7 +86,8 @@
 //                 Fix exceptions during config update.
 // ZAP: 2019/05/14 Added silent option
 // ZAP: 2019/05/17 Update cert option to boolean.
-
+// ZAP: 2019/05/29 Update Jericho log configuration.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -95,6 +96,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -656,14 +658,47 @@ public final class Constant {
         messages = new I18N(locale);
     }
 
-    private static void setUpLogging() throws IOException {
+    private void setUpLogging() throws IOException {
         String fileName = "log4j.properties";
         File logFile = new File(zapHome, fileName);
         if (!logFile.exists()) {
             copyFileToHome(logFile.toPath(), "xml/" + fileName, "/org/zaproxy/zap/resources/" + fileName);
+        } else {
+            updateLog4jProperties();
         }
         System.setProperty("log4j.configuration", logFile.getAbsolutePath());
         PropertyConfigurator.configure(logFile.getAbsolutePath());
+    }
+
+    private void updateLog4jProperties() {
+        // Update only if config version <= 2.7.0
+        if (Files.notExists(Paths.get(FILE_CONFIG))) {
+            return;
+        }
+
+        try {
+            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
+            if (config.getLong("version") > V_2_7_0_TAG) {
+                return;
+            }
+        } catch (Exception ignore) {
+            // Version unknown, don't update.
+            return;
+        }
+
+        try {
+            Path log4jProperties = Paths.get(zapHome, "log4j.properties");
+            String fileContents =
+                    new String(Files.readAllBytes(log4jProperties), StandardCharsets.UTF_8);
+            fileContents =
+                    fileContents.replace(
+                            "log4j.logger.net.htmlparser.jericho=ERROR",
+                            "# Disable Jericho log, it logs HTML parsing issues as errors.\n"
+                                    + "log4j.logger.net.htmlparser.jericho=OFF");
+            Files.write(log4jProperties, fileContents.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            System.err.println("An error occured while updating the log4j.properties: " + e.getMessage());
+        }
     }
     
     private void handleMalformedConfigFile(Exception e) throws IOException {

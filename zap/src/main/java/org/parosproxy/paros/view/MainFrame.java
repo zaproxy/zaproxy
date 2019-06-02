@@ -29,7 +29,7 @@
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2017/06/01 Issue 3555: setTitle() functionality moved in order to ensure consistent application
 // ZAP: 2018/02/14 Add button for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;

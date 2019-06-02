@@ -38,7 +38,7 @@
 // ZAP: 2018/06/01 Add JavaDoc to getMessages/setMessages.
 // ZAP: 2018/10/09 Remove getExtensionHook and add JavaDoc to hook.
 // ZAP: 2018/04/17 Deprecate getVersion().
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension;
 
 import java.net.URL;

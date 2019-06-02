@@ -26,7 +26,7 @@
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/08/01 Added support for setting and persisting client cert from CLI
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.option;
 
 import java.io.File;

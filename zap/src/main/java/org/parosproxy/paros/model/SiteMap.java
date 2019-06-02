@@ -58,7 +58,7 @@
 // ZAP: 2018/02/07 Set the HistoryReference into the temp node before adding it to the tree (Issue 4356).
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/07/09 Override getRoot method
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;

@@ -24,10 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * Support utility able to manage multiple string/regex occurrence
@@ -39,7 +38,7 @@ public class ContentMatcher {
 
     private static final String TAG_PATTERNS = "Patterns";
     private static final String TAG_PATTERN = "Pattern";
-    private static final String TAG_PATTERN_TYPE = "type";
+    private static final String ATTRIBUTE_TYPE = "[@type]";
     private static final String TAG_PATTERN_TYPE_STRING = "string";
     private static final String TAG_PATTERN_TYPE_REGEX = "regex";
     
@@ -60,7 +59,7 @@ public class ContentMatcher {
         try {
             cm.loadXMLPatternDefinitions(cm.getClass().getResourceAsStream(xmlFileName));
             
-        } catch (JDOMException | IOException ex) {
+        } catch (ConfigurationException ex) {
             throw new IllegalArgumentException("Failed to initialize the ContentMatcher object using: " + xmlFileName, ex);
         }
         
@@ -79,7 +78,7 @@ public class ContentMatcher {
         try {
             cm.loadXMLPatternDefinitions(xmlInputStream);
             
-        } catch (JDOMException | IOException ex) {
+        } catch (ConfigurationException ex) {
             throw new IllegalArgumentException("Failed to initialize the ContentMatcher object using that stream", ex);
         }
         
@@ -92,34 +91,20 @@ public class ContentMatcher {
      * defined as {@code <Pattern type="xxx"></Pattern>}. Use "regex" to define
      * a Regex formatted pattern or "string" for an exact matching pattern.
      * @param xmlInputStream the {@code InputStream} used to read the patterns
-     * @throws JDOMException if an error occurred while parsing
-     * @throws IOException if an I/O error occurred while reading the {@code InputStream}
+     * @throws ConfigurationException if an error occurred while reading the {@code InputStream}
      */
-    protected void loadXMLPatternDefinitions(InputStream xmlInputStream) throws JDOMException, IOException {
+    protected void loadXMLPatternDefinitions(InputStream xmlInputStream) throws ConfigurationException {
         strings = new ArrayList<BoyerMooreMatcher>();
         patterns = new ArrayList<Pattern>();
-        
-        SAXBuilder builder = new SAXBuilder();
-        Document doc = builder.build(xmlInputStream);
-        Element el = doc.getRootElement();
-        String value;
-        
-        // now we have the <root> tag indexed so we can
-        // go ahead for boundaries and tests
-        for (Object obj : el.getChildren(TAG_PATTERN)) {
-            el = (Element)obj;
-            value = el.getText();
-            
-            // Check if the pattern has been set to null
-            if (value != null && !value.isEmpty()) {
-            
-                // Check if a regex expression has been set
-                if (el.getAttributeValue(TAG_PATTERN_TYPE).equalsIgnoreCase(TAG_PATTERN_TYPE_REGEX)) {
-                    patterns.add(Pattern.compile(el.getText()));
-                
-                // Otherwise it's by default an exact match model
+
+        ZapXmlConfiguration configuration = new ZapXmlConfiguration(xmlInputStream);
+        for (HierarchicalConfiguration entry : configuration.configurationsAt(TAG_PATTERN)) {
+            String value = entry.getString("", "");
+            if (!value.isEmpty()) {
+                if (TAG_PATTERN_TYPE_REGEX.equalsIgnoreCase(entry.getString(ATTRIBUTE_TYPE))) {
+                    patterns.add(Pattern.compile(value));
                 } else {
-                    strings.add(new BoyerMooreMatcher(el.getText()));
+                    strings.add(new BoyerMooreMatcher(value));
                 }
             }
         }
@@ -176,5 +161,15 @@ public class ContentMatcher {
         }
         
         return results;
+    }
+
+    // Provided for tests.
+    List<Pattern> getPatterns() {
+        return patterns;
+    }
+
+    // Provided for tests.
+    List<BoyerMooreMatcher> getStrings() {
+        return strings;
     }
 }

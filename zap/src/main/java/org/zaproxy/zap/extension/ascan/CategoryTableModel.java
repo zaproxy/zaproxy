@@ -28,7 +28,7 @@
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 // ZAP: 2017/06/05 Return AlertThreshold.OFF if the plugin is disabled.
 // ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;

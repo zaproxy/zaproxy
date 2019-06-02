@@ -37,7 +37,7 @@
 // ZAP: 2017/11/20 Use default value when reading "reverseProxy.ip".
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/01/11 Remove unused proxySSLPort option.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;

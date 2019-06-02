@@ -21,7 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2014/05/16 Issue 81: ZAP changes request data (while switching views)
 // ZAP: 2017/05/31 Added multi-catch in a specific handler. 
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.zaproxy.zap.extension.httppanel.view.posttable;
 
 import java.io.UnsupportedEncodingException;

@@ -23,7 +23,7 @@
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.db.paros;
 
 import java.sql.CallableStatement;

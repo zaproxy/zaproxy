@@ -50,7 +50,7 @@
 // ZAP: 2018/03/13 Added toEventData()
 // ZAP: 2018/04/04 Add a copy constructor.
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;

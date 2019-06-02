@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.log4j.Appender;
+import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
@@ -36,7 +37,13 @@ import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
 
+import net.htmlparser.jericho.Config;
+import net.htmlparser.jericho.LoggerProvider;
+
 public class ZAP {
+
+    /** Not part of the public API. */
+    public static final LoggerProvider JERICHO_LOGGER_PROVIDER = new LoggerProviderLog4j();
 
     /**
      * ZAP can be run in 4 different ways:
@@ -69,6 +76,9 @@ public class ZAP {
             Protocol.registerProtocol("https", new Protocol("https",
                     (ProtocolSocketFactory) new SSLConnector(), 443));
         }
+
+        // Initialise this earlier as possible.
+        Config.LoggerProvider = JERICHO_LOGGER_PROVIDER;
     }
 
     /**
@@ -380,4 +390,74 @@ public class ZAP {
             return this;
         }
     }
+
+	// This class is a copy of Jericho's Log4j 2.x implementation but changed for Log4j 1.2.
+	private static class LoggerProviderLog4j implements LoggerProvider {
+
+		private static volatile net.htmlparser.jericho.Logger sourceLogger = null;
+
+		private LoggerProviderLog4j() {
+		}
+
+		@Override
+		public net.htmlparser.jericho.Logger getLogger(final String name) {
+			return new Log4JLogger(LogManager.getLogger(name));
+		}
+
+		@Override
+		public net.htmlparser.jericho.Logger getSourceLogger() {
+			if (sourceLogger == null) {
+				sourceLogger = getLogger("net.htmlparser.jericho");
+			}
+			return sourceLogger;
+		}
+
+		private static class Log4JLogger implements net.htmlparser.jericho.Logger {
+			private final Logger log4JLogger;
+
+			public Log4JLogger(final Logger log4JLogger) {
+				this.log4JLogger = log4JLogger;
+			}
+
+			@Override
+			public void error(final String message) {
+				log4JLogger.error(message);
+			}
+
+			@Override
+			public void warn(final String message) {
+				log4JLogger.warn(message);
+			}
+
+			@Override
+			public void info(final String message) {
+				log4JLogger.info(message);
+			}
+
+			@Override
+			public void debug(final String message) {
+				log4JLogger.debug(message);
+			}
+
+			@Override
+			public boolean isErrorEnabled() {
+				return log4JLogger.isEnabledFor(Level.ERROR);
+			}
+
+			@Override
+			public boolean isWarnEnabled() {
+				return log4JLogger.isEnabledFor(Level.WARN);
+			}
+
+			@Override
+			public boolean isInfoEnabled() {
+				return log4JLogger.isEnabledFor(Level.INFO);
+			}
+
+			@Override
+			public boolean isDebugEnabled() {
+				return log4JLogger.isEnabledFor(Level.DEBUG);
+			}
+		}
+	}
 }

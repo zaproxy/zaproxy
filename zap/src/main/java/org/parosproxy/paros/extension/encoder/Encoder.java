@@ -25,7 +25,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/03 Issue 1012: Support HTML and JavaScript encoding
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.extension.encoder;
 
 import org.apache.commons.lang.StringEscapeUtils;

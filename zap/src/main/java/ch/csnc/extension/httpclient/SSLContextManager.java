@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -382,7 +383,7 @@ public class SSLContextManager {
 				Method configure = provider.getClass().getMethod("configure", String.class);
 				File configFile = File.createTempFile("pkcs11", ".cfg");
 				configFile.deleteOnExit();
-				FileUtils.write(configFile, configuration.toString());
+				FileUtils.write(configFile, configuration.toString(), StandardCharsets.UTF_8);
 				pkcs11 = (Provider) configure.invoke(provider, configFile.getAbsolutePath());
 			} else {
 				pkcs11 = createInstance(SUN_PKCS11_CANONICAL_CLASS_NAME, InputStream.class, configuration.toInpuStream());

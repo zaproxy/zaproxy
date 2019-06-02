@@ -50,7 +50,7 @@
 // ZAP: 2017/11/22 Do not allow to snapshot the session with active actions (Issue 3711).
 // ZAP: 2017/12/15 Confirm when overwriting session file (Issue 4153). 
 // ZAP: 2018/01/01 Prevent the selection of the current session on save/snapshot.
-
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.control;
  
 import java.awt.EventQueue;

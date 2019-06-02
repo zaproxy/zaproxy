@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
+// ZAP: 2019/06/01 Normalise line endings.
 package org.parosproxy.paros.network;
 
 import java.io.BufferedOutputStream;
