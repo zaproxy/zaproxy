@@ -18,7 +18,7 @@ action "Build and Release Main Version" {
   uses = "docker://openjdk:8"
   needs = ["Actor Filter Main Version"]
   runs = "./gradlew"
-  args = ["-Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m", ":zap:createMainReleaseFromGitHubRef"]
+  args = ["-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m", ":zap:createMainReleaseFromGitHubRef"]
   secrets = ["GITHUB_TOKEN", "INSTALL4J_LICENSE"]
 }
 
@@ -42,6 +42,6 @@ action "Build and Release Weekly" {
   uses = "docker://openjdk:8"
   needs = ["Actor Filter Weekly"]
   runs = "./gradlew"
-  args = ["-Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m", ":zap:createWeeklyReleaseFromGitHubRef"]
+  args = ["-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m", ":zap:createWeeklyReleaseFromGitHubRef"]
   secrets = ["GITHUB_TOKEN"]
 }
