@@ -24,26 +24,22 @@ import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
-
 public class PopupMenuResendMessage extends PopupMenuItemHttpMessageContainer {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private final ExtensionHistory extension;
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuResendMessage(String label, ExtensionHistory extension) {
         super(label);
         this.extension = extension;
     }
-    
-	@Override
-	public void performAction(HttpMessage msg) {
-	    ManualRequestEditorDialog dialog = extension.getResendDialog();
-	    
+
+    @Override
+    public void performAction(HttpMessage msg) {
+        ManualRequestEditorDialog dialog = extension.getResendDialog();
+
         dialog.setMessage(msg.cloneRequest());
         dialog.setVisible(true);
-	}
-
+    }
 }

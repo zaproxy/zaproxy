@@ -22,20 +22,16 @@ package org.parosproxy.paros.db;
 import java.util.List;
 
 /**
- * This interface was extracted from the previous Paros class of the same name.
- * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * This interface was extracted from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ *
  * @author psiinon
  */
-
-
 public interface TableSession extends DatabaseListener {
 
-	void insert(long sessionId, String sessionName)
-			throws DatabaseException;
+    void insert(long sessionId, String sessionName) throws DatabaseException;
 
-	void update(long sessionId, String sessionName)
-			throws DatabaseException;
+    void update(long sessionId, String sessionName) throws DatabaseException;
 
-	List<RecordSession> listSessions() throws DatabaseException;
-
+    List<RecordSession> listSessions() throws DatabaseException;
 }

@@ -24,50 +24,49 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public interface BreakpointManagementInterface {
 
-	boolean isBreakRequest();
+    boolean isBreakRequest();
 
-	boolean isBreakResponse();
+    boolean isBreakResponse();
 
-	boolean isBreakAll();
+    boolean isBreakAll();
 
-	void breakpointHit();
+    void breakpointHit();
 
-	boolean isHoldMessage(Message aMessage);
+    boolean isHoldMessage(Message aMessage);
 
-	boolean isStepping();
+    boolean isStepping();
 
-	boolean isToBeDropped();
+    boolean isToBeDropped();
 
-	Message getMessage();
+    Message getMessage();
 
-	void setMessage(Message aMessage, boolean isRequest);
+    void setMessage(Message aMessage, boolean isRequest);
 
-	boolean isRequest();
-	
-	void saveMessage(boolean isRequest);
+    boolean isRequest();
 
-	void clearAndDisableRequest();
+    void saveMessage(boolean isRequest);
 
-	void clearAndDisableResponse();
+    void clearAndDisableRequest();
 
-	void init();
+    void clearAndDisableResponse();
 
-	void reset();
+    void init();
 
-	void sessionModeChanged(Mode mode);
+    void reset();
 
-	void setBreakAllRequests(boolean brk);
+    void sessionModeChanged(Mode mode);
 
-	void setBreakAllResponses(boolean brk);
+    void setBreakAllRequests(boolean brk);
 
-	void setBreakAll(boolean brk);
+    void setBreakAllResponses(boolean brk);
 
-	void step();
+    void setBreakAll(boolean brk);
 
-	void cont();
+    void step();
 
-	void drop();
+    void cont();
 
-	void breakpointDisplayed();
+    void drop();
 
+    void breakpointDisplayed();
 }

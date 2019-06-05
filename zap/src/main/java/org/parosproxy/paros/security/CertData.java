@@ -34,7 +34,7 @@ public class CertData {
     public CertData(String commonName) {
         this();
         this.commonName = commonName;
-        if(commonName != null){
+        if (commonName != null) {
             addSubjectAlternativeName(new Name(Name.DNS, commonName));
         }
     }
@@ -43,7 +43,7 @@ public class CertData {
         return commonName;
     }
 
-    public void addSubjectAlternativeName(Name subjectAlternativeName){
+    public void addSubjectAlternativeName(Name subjectAlternativeName) {
         subjectAlternativeNames.add(subjectAlternativeName);
     }
 
@@ -59,7 +59,11 @@ public class CertData {
     @Override
     public int hashCode() {
         int result = commonName != null ? commonName.hashCode() : 0;
-        result = 31 * result + (subjectAlternativeNames != null ? subjectAlternativeNames.hashCode() : 0);
+        result =
+                31 * result
+                        + (subjectAlternativeNames != null
+                                ? subjectAlternativeNames.hashCode()
+                                : 0);
         return result;
     }
 
@@ -68,8 +72,8 @@ public class CertData {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         CertData certData = (CertData) obj;
-        return Objects.equals(commonName, certData.commonName) &&
-               Objects.equals(subjectAlternativeNames, certData.subjectAlternativeNames);
+        return Objects.equals(commonName, certData.commonName)
+                && Objects.equals(subjectAlternativeNames, certData.subjectAlternativeNames);
     }
 
     public static class Name {
@@ -100,7 +104,9 @@ public class CertData {
             Name name = (Name) o;
 
             if (getType() != name.getType()) return false;
-            return getValue() != null ? getValue().equals(name.getValue()) : name.getValue() == null;
+            return getValue() != null
+                    ? getValue().equals(name.getValue())
+                    : name.getValue() == null;
         }
 
         @Override

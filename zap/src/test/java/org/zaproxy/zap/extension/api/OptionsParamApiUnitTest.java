@@ -31,9 +31,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.junit.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- * Unit test for {@link OptionsParamApi}.
- */
+/** Unit test for {@link OptionsParamApi}. */
 public class OptionsParamApiUnitTest {
 
     private static final String API_ENABLED_KEY = "api.enabled";
@@ -43,8 +41,8 @@ public class OptionsParamApiUnitTest {
     private static final String API_INCERRORDETAILS_KEY = "api.incerrordetails";
     private static final String API_AUTOFILLKEY_KEY = "api.autofillkey";
     private static final String API_ENABLEJSONP_KEY = "api.enablejsonp";
-	private static final String API_NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
-	private static final String API_REPORT_PERM_ERRORS = "api.reportpermerrors";
+    private static final String API_NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
+    private static final String API_REPORT_PERM_ERRORS = "api.reportpermerrors";
 
     @Test
     public void shouldNotHaveConfigByDefault() {
@@ -469,5 +467,4 @@ public class OptionsParamApiUnitTest {
             return saved;
         }
     }
-
 }

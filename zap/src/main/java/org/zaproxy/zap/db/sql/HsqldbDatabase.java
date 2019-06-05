@@ -22,63 +22,62 @@ package org.zaproxy.zap.db.sql;
 import java.io.File;
 
 public class HsqldbDatabase extends SqlDatabase {
-	
-	public HsqldbDatabase() {
-		super();
-	}
+
+    public HsqldbDatabase() {
+        super();
+    }
 
     /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.DatabaseIF#deleteSession(java.lang.String)
-	 */
+     * @see org.parosproxy.paros.db.DatabaseIF#deleteSession(java.lang.String)
+     */
     @Override
-	public void deleteSession(String sessionName) {
-    	super.deleteSession(sessionName);
-		logger.debug("deleteSession " + sessionName);
+    public void deleteSession(String sessionName) {
+        super.deleteSession(sessionName);
+        logger.debug("deleteSession " + sessionName);
 
-		deleteDbFile(new File(sessionName));
+        deleteDbFile(new File(sessionName));
         deleteDbFile(new File(sessionName + ".data"));
         deleteDbFile(new File(sessionName + ".script"));
         deleteDbFile(new File(sessionName + ".properties"));
         deleteDbFile(new File(sessionName + ".backup"));
         deleteDbFile(new File(sessionName + ".lobs"));
     }
-    
-    private void deleteDbFile (File file) {
-    	logger.debug("Deleting " + file.getAbsolutePath());
-		if (file.exists()) {
-			if (! file.delete()) {
-	            logger.error("Failed to delete " + file.getAbsolutePath());
-			}
-		}
+
+    private void deleteDbFile(File file) {
+        logger.debug("Deleting " + file.getAbsolutePath());
+        if (file.exists()) {
+            if (!file.delete()) {
+                logger.error("Failed to delete " + file.getAbsolutePath());
+            }
+        }
     }
 
-	@Override
-	protected SqlDatabaseServer createDatabaseServer(String path) throws Exception {
-	    return new HsqldbDatabaseServer(path);
-	}
+    @Override
+    protected SqlDatabaseServer createDatabaseServer(String path) throws Exception {
+        return new HsqldbDatabaseServer(path);
+    }
 
     /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.DatabaseIF#close(boolean, boolean)
-	 */
-	@Override
-	public void close(boolean compact, boolean cleanup) {
-		logger.debug("close");
-		super.close(compact, cleanup);
-	    if (this.getDatabaseServer() == null) {
-	    	return;
-	    }
-	    
-	    try {
-	        // shutdown
-	    	((HsqldbDatabaseServer)this.getDatabaseServer()).shutdown(compact);
+     * @see org.parosproxy.paros.db.DatabaseIF#close(boolean, boolean)
+     */
+    @Override
+    public void close(boolean compact, boolean cleanup) {
+        logger.debug("close");
+        super.close(compact, cleanup);
+        if (this.getDatabaseServer() == null) {
+            return;
+        }
+
+        try {
+            // shutdown
+            ((HsqldbDatabaseServer) this.getDatabaseServer()).shutdown(compact);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-	}
-	
-	@Override
-	public boolean isFileBased () {
-		return true;
-	}
-	
+    }
+
+    @Override
+    public boolean isFileBased() {
+        return true;
+    }
 }

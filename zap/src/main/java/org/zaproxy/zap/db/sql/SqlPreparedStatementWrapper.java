@@ -24,41 +24,40 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-
 public class SqlPreparedStatementWrapper {
 
-	private String key;
-	private PreparedStatement ps;
-	private PreparedStatement psLastInsert;
-	private Date created;
+    private String key;
+    private PreparedStatement ps;
+    private PreparedStatement psLastInsert;
+    private Date created;
 
-	public SqlPreparedStatementWrapper(String key, PreparedStatement ps) {
-		super();
-		this.key = key;
-		this.ps = ps;
-		this.created = new Date();
-	}
-	
-	public String getKey() {
-		return key;
-	}
-	
-	public PreparedStatement getPs() {
-		return ps;
-	}
-	
-	public ResultSet getLastInsertedId() throws SQLException {
-		if (psLastInsert == null) {
-			psLastInsert = ps.getConnection().prepareStatement(DbSQL.getSQL("table.ps.lastinsert"));
-		}
-		return psLastInsert.executeQuery();
-	}
-	
-	public void close() throws SQLException {
-		ps.getConnection().close();
-	}
-	
-	public long getTimeTaken () {
-		return (new Date().getTime()) - this.created.getTime();
-	}
+    public SqlPreparedStatementWrapper(String key, PreparedStatement ps) {
+        super();
+        this.key = key;
+        this.ps = ps;
+        this.created = new Date();
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public PreparedStatement getPs() {
+        return ps;
+    }
+
+    public ResultSet getLastInsertedId() throws SQLException {
+        if (psLastInsert == null) {
+            psLastInsert = ps.getConnection().prepareStatement(DbSQL.getSQL("table.ps.lastinsert"));
+        }
+        return psLastInsert.executeQuery();
+    }
+
+    public void close() throws SQLException {
+        ps.getConnection().close();
+    }
+
+    public long getTimeTaken() {
+        return (new Date().getTime()) - this.created.getTime();
+    }
 }

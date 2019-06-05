@@ -23,22 +23,21 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class ParamAddinUrlencode implements ParamAddinInterface {
-	
-	private static final String URL_ENCODE = "URLEncode";
 
-	@Override
-	public String convertData(String data) throws UnsupportedEncodingException {
-		return URLEncoder.encode(data, "UTF-8");
-	}
+    private static final String URL_ENCODE = "URLEncode";
 
-	@Override
-	public String getName() {
-		return URL_ENCODE;
-	}
+    @Override
+    public String convertData(String data) throws UnsupportedEncodingException {
+        return URLEncoder.encode(data, "UTF-8");
+    }
 
-	@Override
-	public String toString() {
-		return URL_ENCODE;
-	}
+    @Override
+    public String getName() {
+        return URL_ENCODE;
+    }
 
+    @Override
+    public String toString() {
+        return URL_ENCODE;
+    }
 }

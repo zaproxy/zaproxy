@@ -22,13 +22,12 @@ package org.parosproxy.paros.core.proxy;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * A listener that will be notified when a new request is ready to be forwarded to the server and when a new response is ready
- * to be forwarded to the client.
- * <p>
- * It can override a message by returning a response without forwarding the request to the target server. Or override the
- * response from the server without notifying any other listener.
- * </p>
- * 
+ * A listener that will be notified when a new request is ready to be forwarded to the server and
+ * when a new response is ready to be forwarded to the client.
+ *
+ * <p>It can override a message by returning a response without forwarding the request to the target
+ * server. Or override the response from the server without notifying any other listener.
+ *
  * @since 2.3.0
  * @see ProxyListener
  * @see ConnectRequestProxyListener
@@ -36,44 +35,51 @@ import org.parosproxy.paros.network.HttpMessage;
 public interface OverrideMessageProxyListener extends ArrangeableProxyListener {
 
     /**
-     * Notifies the listener that a new request was received from the client and is ready to be forwarded to the server.
-     * <p>
-     * The {@code HttpMessage} {@code msg} can be modified (preferably only when overriding the request). If the return value is
-     * {@code true} the message <i>will not</i> be forwarded to the server, no more listeners will be notified and the response
-     * set to the {@code msg} will be returned to the client. If the value is {@code false} the message <i>may be</i> forward
-     * and the following listeners will be notified.
-     * </p>
-     * <p>
-     * <strong>Note:</strong> In the presence of more than one listener there are <i>no</i> guarantees that:
+     * Notifies the listener that a new request was received from the client and is ready to be
+     * forwarded to the server.
+     *
+     * <p>The {@code HttpMessage} {@code msg} can be modified (preferably only when overriding the
+     * request). If the return value is {@code true} the message <i>will not</i> be forwarded to the
+     * server, no more listeners will be notified and the response set to the {@code msg} will be
+     * returned to the client. If the value is {@code false} the message <i>may be</i> forward and
+     * the following listeners will be notified.
+     *
+     * <p><strong>Note:</strong> In the presence of more than one listener there are <i>no</i>
+     * guarantees that:
+     *
      * <ul>
-     * <li>the message will really be forwarded to the server, even if the return value is {@code false}, as the following
-     * {@code ProxyListener}s may drop it.</li>
+     *   <li>the message will really be forwarded to the server, even if the return value is {@code
+     *       false}, as the following {@code ProxyListener}s may drop it.
      * </ul>
-     * 
+     *
      * @param msg the {@code HttpMessage} that may be overridden and not forwarded to the server
-     * @return {@code true} if the message should be overridden and not forward to the server, {@code false} otherwise
+     * @return {@code true} if the message should be overridden and not forward to the server,
+     *     {@code false} otherwise
      * @see ProxyListener#onHttpRequestSend(HttpMessage)
      */
     boolean onHttpRequestSend(HttpMessage msg);
 
     /**
-     * Notifies the listener that a new response was received from the server and is ready to be forwarded to the client.
-     * <p>
-     * The {@code HttpMessage} {@code msg} can be modified (preferably only when overriding the response). If the return value
-     * is {@code true} the message <i>will</i> be forwarded to the client and no more listeners will be notified. If the value
-     * is {@code false} the message <i>may be</i> forwarded and the following listeners will be notified.
-     * </p>
-     * <p>
-     * <strong>Note:</strong> In the presence of more than one listener there are <i>no</i> guarantees that:
+     * Notifies the listener that a new response was received from the server and is ready to be
+     * forwarded to the client.
+     *
+     * <p>The {@code HttpMessage} {@code msg} can be modified (preferably only when overriding the
+     * response). If the return value is {@code true} the message <i>will</i> be forwarded to the
+     * client and no more listeners will be notified. If the value is {@code false} the message
+     * <i>may be</i> forwarded and the following listeners will be notified.
+     *
+     * <p><strong>Note:</strong> In the presence of more than one listener there are <i>no</i>
+     * guarantees that:
+     *
      * <ul>
-     * <li>the message will really be forwarded to the client, even if the return value is {@code false}, as the following
-     * {@code ProxyListener}s may drop it.</li>
+     *   <li>the message will really be forwarded to the client, even if the return value is {@code
+     *       false}, as the following {@code ProxyListener}s may drop it.
      * </ul>
-     * 
+     *
      * @param msg the {@code HttpMessage} that may be forwarded to the client
-     * @return {@code true} if the message should be forwarded to the client, {@code false} otherwise
+     * @return {@code true} if the message should be forwarded to the client, {@code false}
+     *     otherwise
      * @see ProxyListener#onHttpResponseReceive(HttpMessage)
      */
     boolean onHttpResponseReceived(HttpMessage msg);
-
 }

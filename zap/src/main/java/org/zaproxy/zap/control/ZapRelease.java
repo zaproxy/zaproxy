@@ -22,92 +22,97 @@ package org.zaproxy.zap.control;
 import java.net.URL;
 
 public class ZapRelease {
-	private String version;
-	private URL url;
-	private String fileName;
-	private long size;
-	private String releaseNotes;
-	private URL releaseNotesUrl;
-	private String hash;
+    private String version;
+    private URL url;
+    private String fileName;
+    private long size;
+    private String releaseNotes;
+    private URL releaseNotesUrl;
+    private String hash;
 
-	public ZapRelease() {
-	}
-	
-	public ZapRelease(String version) {
-		this.version = version;
-	}
-	
-	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes, URL releaseNotesUrl, String hash) {
-		super();
-		this.version = version;
-		this.url = url;
-		this.fileName = fileName;
-		this.size = size;
-		this.releaseNotes = releaseNotes;
-		this.releaseNotesUrl = releaseNotesUrl;
-		this.hash = hash;
-	}
+    public ZapRelease() {}
 
-	public String getVersion() {
-		return version;
-	}
+    public ZapRelease(String version) {
+        this.version = version;
+    }
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    public ZapRelease(
+            String version,
+            URL url,
+            String fileName,
+            long size,
+            String releaseNotes,
+            URL releaseNotesUrl,
+            String hash) {
+        super();
+        this.version = version;
+        this.url = url;
+        this.fileName = fileName;
+        this.size = size;
+        this.releaseNotes = releaseNotes;
+        this.releaseNotesUrl = releaseNotesUrl;
+        this.hash = hash;
+    }
 
-	public URL getUrl() {
-		return url;
-	}
+    public String getVersion() {
+        return version;
+    }
 
-	public void setUrl(URL url) {
-		this.url = url;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	public URL getReleaseNotesUrl() {
-		return releaseNotesUrl;
-	}
+    public URL getUrl() {
+        return url;
+    }
 
-	public void setReleaseNotesUrl(URL releaseNotesUrl) {
-		this.releaseNotesUrl = releaseNotesUrl;
-	}
+    public void setUrl(URL url) {
+        this.url = url;
+    }
 
-	public String getFileName() {
-		return fileName;
-	}
+    public URL getReleaseNotesUrl() {
+        return releaseNotesUrl;
+    }
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
+    public void setReleaseNotesUrl(URL releaseNotesUrl) {
+        this.releaseNotesUrl = releaseNotesUrl;
+    }
 
-	public long getSize() {
-		return size;
-	}
+    public String getFileName() {
+        return fileName;
+    }
 
-	public void setSize(long size) {
-		this.size = size;
-	}
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
-	public String getReleaseNotes() {
-		return releaseNotes;
-	}
+    public long getSize() {
+        return size;
+    }
 
-	public void setReleaseNotes(String releaseNotes) {
-		this.releaseNotes = releaseNotes;
-	}
-	
-	public boolean isNewerThan (String otherVersion) {
-		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
-		return zrc.compare(this, new ZapRelease(otherVersion)) > 0;
-	}
-	
-	public boolean isOlderThan (String otherVersion) {
-		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
-		return zrc.compare(this, new ZapRelease(otherVersion)) < 0;
-	}
+    public void setSize(long size) {
+        this.size = size;
+    }
 
-	public String getHash() {
-		return hash;
-	}
-	
+    public String getReleaseNotes() {
+        return releaseNotes;
+    }
+
+    public void setReleaseNotes(String releaseNotes) {
+        this.releaseNotes = releaseNotes;
+    }
+
+    public boolean isNewerThan(String otherVersion) {
+        ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+        return zrc.compare(this, new ZapRelease(otherVersion)) > 0;
+    }
+
+    public boolean isOlderThan(String otherVersion) {
+        ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+        return zrc.compare(this, new ZapRelease(otherVersion)) < 0;
+    }
+
+    public String getHash() {
+        return hash;
+    }
 }

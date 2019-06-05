@@ -27,75 +27,80 @@ import org.zaproxy.zap.model.Target;
 
 /**
  * A 'dummy' ActiveScan class just used for recording the Attack mode scan results.
- * @author simon
  *
+ * @author simon
  */
 public class AttackScan extends ActiveScan {
 
-	private final AttackModeScannerThread attackModeScannerThread;
+    private final AttackModeScannerThread attackModeScannerThread;
 
-	public AttackScan(String displayName, ScannerParam scannerParam, 
-			ConnectionParam param, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
-		this(displayName, scannerParam, param, scanPolicy, ruleConfigParam, null);
-	}
-
-	AttackScan(String displayName, ScannerParam scannerParam,
-			ConnectionParam param, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam,
-			AttackModeScannerThread attackModeScannerThread) {
-		super(displayName, scannerParam, param, scanPolicy, ruleConfigParam);
-		this.attackModeScannerThread = attackModeScannerThread;
-	}
-	
-	@Override
-    public void start(Target target) {
-		// Do nothing	
+    public AttackScan(
+            String displayName,
+            ScannerParam scannerParam,
+            ConnectionParam param,
+            ScanPolicy scanPolicy,
+            RuleConfigParam ruleConfigParam) {
+        this(displayName, scannerParam, param, scanPolicy, ruleConfigParam, null);
     }
 
-	@Override
-    public void stopScan() {
-		
-	}
+    AttackScan(
+            String displayName,
+            ScannerParam scannerParam,
+            ConnectionParam param,
+            ScanPolicy scanPolicy,
+            RuleConfigParam ruleConfigParam,
+            AttackModeScannerThread attackModeScannerThread) {
+        super(displayName, scannerParam, param, scanPolicy, ruleConfigParam);
+        this.attackModeScannerThread = attackModeScannerThread;
+    }
 
-	@Override
+    @Override
+    public void start(Target target) {
+        // Do nothing
+    }
+
+    @Override
+    public void stopScan() {}
+
+    @Override
     public boolean isStopped() {
-		return false;
-	}
+        return false;
+    }
 
-	@Override
+    @Override
     public int getProgress() {
-		return 0;
-	}
+        return 0;
+    }
 
-	@Override
+    @Override
     public int getMaximum() {
-		return 100;
-	}
+        return 100;
+    }
 
-	@Override
+    @Override
     public void pauseScan() {
-		// Do nothing	
-	}
+        // Do nothing
+    }
 
-	@Override
+    @Override
     public void resumeScan() {
-		// Do nothing	
-	}
+        // Do nothing
+    }
 
-	@Override
+    @Override
     public boolean isPaused() {
-		return false;
-	}
+        return false;
+    }
 
-	@Override
+    @Override
     public boolean isRunning() {
-		return true;
-	}
+        return true;
+    }
 
-	boolean isDone() {
-		if (attackModeScannerThread == null) {
-			return false;
-		}
-		return !attackModeScannerThread.isRunning() || !attackModeScannerThread.isActive();
-	}
-
+    boolean isDone() {
+        if (attackModeScannerThread == null) {
+            return false;
+        }
+        return !attackModeScannerThread.isRunning() || !attackModeScannerThread.isActive();
+    }
 }

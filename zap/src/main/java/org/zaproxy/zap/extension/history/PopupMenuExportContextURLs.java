@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.io.File;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
@@ -34,50 +33,51 @@ import org.zaproxy.zap.model.Context;
 
 public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
 
-	private static final long serialVersionUID = -4426560452505908380L;
-	
-	private static Logger LOG = Logger.getLogger(PopupMenuExportURLs.class);
+    private static final long serialVersionUID = -4426560452505908380L;
 
-	public PopupMenuExportContextURLs(String menuItem, Extension extension) {
-		super(menuItem, extension);
-	}
-	
-	@Override
-	public boolean isEnableForComponent(Component invoker) {
-		if (SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
-			Context ctx = View.getSingleton().getSiteTreePanel().getSelectedContext();
-			if (ctx != null) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private static Logger LOG = Logger.getLogger(PopupMenuExportURLs.class);
 
-	@Override
-	protected void performAction() {
-		Context ctx = extension.getView().getSiteTreePanel().getSelectedContext(); 
-		if (ctx == null) {
-			View.getSingleton().showWarningDialog(Constant.messages.getString("exportUrls.popup.context.error"));
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("No context selected, when trying to export URLs for a context.");
-			}
-			return;
-		}
-		
-		File file = super.getOutputFile();
-		if (file == null) {
-			return;
-		}
-		super.writeURLs(file, this.getOutputSet(ctx));
-	}
+    public PopupMenuExportContextURLs(String menuItem, Extension extension) {
+        super(menuItem, extension);
+    }
 
-	private SortedSet<String> getOutputSet(Context ctx) {
-		SortedSet<String> outputSet = new TreeSet<String>();
+    @Override
+    public boolean isEnableForComponent(Component invoker) {
+        if (SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
+            Context ctx = View.getSingleton().getSiteTreePanel().getSelectedContext();
+            if (ctx != null) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-		for (SiteNode node : ctx.getNodesInContextFromSiteTree()) {
-			outputSet.add(node.getHistoryReference().getURI().toString());
-		}
-		return outputSet;
-	}
+    @Override
+    protected void performAction() {
+        Context ctx = extension.getView().getSiteTreePanel().getSelectedContext();
+        if (ctx == null) {
+            View.getSingleton()
+                    .showWarningDialog(
+                            Constant.messages.getString("exportUrls.popup.context.error"));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No context selected, when trying to export URLs for a context.");
+            }
+            return;
+        }
 
+        File file = super.getOutputFile();
+        if (file == null) {
+            return;
+        }
+        super.writeURLs(file, this.getOutputSet(ctx));
+    }
+
+    private SortedSet<String> getOutputSet(Context ctx) {
+        SortedSet<String> outputSet = new TreeSet<String>();
+
+        for (SiteNode node : ctx.getNodesInContextFromSiteTree()) {
+            outputSet.add(node.getHistoryReference().getURI().toString());
+        }
+        return outputSet;
+    }
 }

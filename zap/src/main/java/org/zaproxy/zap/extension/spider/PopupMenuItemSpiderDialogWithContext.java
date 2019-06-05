@@ -25,8 +25,9 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 
 /**
- * A {@code PopupContextTreeMenu} that allows to show the Spider dialogue for a selected {@link Context}.
- * 
+ * A {@code PopupContextTreeMenu} that allows to show the Spider dialogue for a selected {@link
+ * Context}.
+ *
  * @see ExtensionSpider#showSpiderDialog(Target)
  */
 public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
@@ -39,9 +40,10 @@ public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
         this.setText(extension.getMessages().getString("spider.custom.popup"));
         this.setIcon(extension.getIcon());
 
-        this.addActionListener(e -> {
-            Context context = Model.getSingleton().getSession().getContext(getContextId());
-            extension.showSpiderDialog(new Target(context));
-        });
+        this.addActionListener(
+                e -> {
+                    Context context = Model.getSingleton().getSession().getContext(getContextId());
+                    extension.showSpiderDialog(new Target(context));
+                });
     }
 }

@@ -20,20 +20,16 @@
 package org.parosproxy.paros.db;
 
 /**
- * This interface was extracted from the previous Paros class of the same name.
- * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * This interface was extracted from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ *
  * @author psiinon
  */
-
-
-
 public interface TableScan extends DatabaseListener {
 
-	RecordScan getLatestScan() throws DatabaseException;
+    RecordScan getLatestScan() throws DatabaseException;
 
-	RecordScan read(int scanId) throws DatabaseException;
+    RecordScan read(int scanId) throws DatabaseException;
 
-	RecordScan insert(long sessionId, String scanName)
-			throws DatabaseException;
-
+    RecordScan insert(long sessionId, String scanName) throws DatabaseException;
 }

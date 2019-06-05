@@ -21,58 +21,66 @@ package org.zaproxy.zap.eventBus;
 
 /**
  * Interface for the event bus used to publish events in ZAP
- * @author simon
  *
+ * @author simon
  */
 public interface EventBus {
 
-	/**
-	 * Register a publisher - only registered publishers can publish events
-	 * @param publisher the publisher
-	 * @param eventTypes the full set of event types the publisher can publish
-	 */
-	void registerPublisher(EventPublisher publisher, String... eventTypes);
-	
-	/**
-	 * Unregister the publisher
-	 * @param publisher the publisher
-	 */
-	void unregisterPublisher(EventPublisher publisher);
-	
-	/**
-	 * Register the consumer for the specified publisher - this consumer will receive all events from the publisher 
-	 * @param consumer the consumer of events
-	 * @param publisherName the name of the publisher
-	 */
-	void registerConsumer (EventConsumer consumer, String publisherName);
-	
-	/**
-	 * Register the consumer for the specified publisher - this consumer will only receive the 
-	 * specified events from the publisher 
-	 * @param consumer the consumer of events
-	 * @param publisherName the name of the publisher
-	 * @param eventTypes the event types
-	 */
-	void registerConsumer (EventConsumer consumer, String publisherName, String... eventTypes);
-	
-	/**
-	 * Unregister the consumer from all publishers
-	 * @param consumer the consumer of events
-	 * @since 2.8.0
-	 */
-	void unregisterConsumer(EventConsumer consumer);
-	
-	/**
-	 * Unregister the consumer from the specified publisher
-	 * @param consumer the consumer of events
-	 * @param publisherName the name of the publisher
-	 */
-	void unregisterConsumer(EventConsumer consumer, String publisherName);
-	
-	/**
-	 * Publish the specified event synchronously
-	 * @param publisher the publisher
-	 * @param event the event
-	 */
-	void publishSyncEvent(EventPublisher publisher, Event event);
+    /**
+     * Register a publisher - only registered publishers can publish events
+     *
+     * @param publisher the publisher
+     * @param eventTypes the full set of event types the publisher can publish
+     */
+    void registerPublisher(EventPublisher publisher, String... eventTypes);
+
+    /**
+     * Unregister the publisher
+     *
+     * @param publisher the publisher
+     */
+    void unregisterPublisher(EventPublisher publisher);
+
+    /**
+     * Register the consumer for the specified publisher - this consumer will receive all events
+     * from the publisher
+     *
+     * @param consumer the consumer of events
+     * @param publisherName the name of the publisher
+     */
+    void registerConsumer(EventConsumer consumer, String publisherName);
+
+    /**
+     * Register the consumer for the specified publisher - this consumer will only receive the
+     * specified events from the publisher
+     *
+     * @param consumer the consumer of events
+     * @param publisherName the name of the publisher
+     * @param eventTypes the event types
+     */
+    void registerConsumer(EventConsumer consumer, String publisherName, String... eventTypes);
+
+    /**
+     * Unregister the consumer from all publishers
+     *
+     * @param consumer the consumer of events
+     * @since 2.8.0
+     */
+    void unregisterConsumer(EventConsumer consumer);
+
+    /**
+     * Unregister the consumer from the specified publisher
+     *
+     * @param consumer the consumer of events
+     * @param publisherName the name of the publisher
+     */
+    void unregisterConsumer(EventConsumer consumer, String publisherName);
+
+    /**
+     * Publish the specified event synchronously
+     *
+     * @param publisher the publisher
+     * @param event the event
+     */
+    void publishSyncEvent(EventPublisher publisher, Event event);
 }

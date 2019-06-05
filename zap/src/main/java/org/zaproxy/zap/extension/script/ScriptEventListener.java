@@ -21,22 +21,21 @@ package org.zaproxy.zap.extension.script;
 
 public interface ScriptEventListener {
 
-	void refreshScript(ScriptWrapper script);
+    void refreshScript(ScriptWrapper script);
 
-	void scriptAdded(ScriptWrapper script, boolean display);
+    void scriptAdded(ScriptWrapper script, boolean display);
 
-	void scriptRemoved(ScriptWrapper script);
+    void scriptRemoved(ScriptWrapper script);
 
-	void preInvoke(ScriptWrapper script);
+    void preInvoke(ScriptWrapper script);
 
-	void scriptChanged(ScriptWrapper script);
+    void scriptChanged(ScriptWrapper script);
 
-	void scriptError(ScriptWrapper script);
+    void scriptError(ScriptWrapper script);
 
-	void scriptSaved(ScriptWrapper script);
+    void scriptSaved(ScriptWrapper script);
 
-	void templateAdded(ScriptWrapper script, boolean display);
+    void templateAdded(ScriptWrapper script, boolean display);
 
-	void templateRemoved(ScriptWrapper script);
-
+    void templateRemoved(ScriptWrapper script);
 }

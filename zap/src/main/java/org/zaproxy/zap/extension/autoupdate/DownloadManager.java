@@ -27,160 +27,171 @@ import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.View;
 
 public class DownloadManager extends Thread {
-	private static final Logger logger = Logger.getLogger(DownloadManager.class);
-	private List<Downloader> currentDownloads = new ArrayList<>();
-	private List<Downloader> completedDownloads = new ArrayList<>();
-	private boolean shutdown = false;
-	private boolean cancelDownloads = false;
-	private ConnectionParam connectionParam;
+    private static final Logger logger = Logger.getLogger(DownloadManager.class);
+    private List<Downloader> currentDownloads = new ArrayList<>();
+    private List<Downloader> completedDownloads = new ArrayList<>();
+    private boolean shutdown = false;
+    private boolean cancelDownloads = false;
+    private ConnectionParam connectionParam;
 
-	public DownloadManager (ConnectionParam connectionParam) {
-		super("ZAP-DownloadManager");
-		this.connectionParam = connectionParam;
-		setDaemon(true);
-		
-		// TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
-		Authenticator.setDefault(new ZapProxyAuthenticator());
-	}
-	
-	public Downloader downloadFile (URL url, File targetFile, long size, String hash) {
-		logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
-		
-		Proxy proxy;
-		if (connectionParam.isUseProxy(url.getHost())) {
-			InetSocketAddress scoketAddress = new InetSocketAddress(connectionParam.getProxyChainName(), connectionParam.getProxyChainPort());
-			proxy = new Proxy(Proxy.Type.HTTP, scoketAddress);
-		} else {
-			proxy = Proxy.NO_PROXY;
-		}
-		
-		Downloader dl = new Downloader(url, proxy, targetFile, size, hash);
-		dl.start();
-		this.currentDownloads.add(dl);
-		return dl;
-	}
-	
-	@Override
-	public void run () {
-		while (getCurrentDownloadCount() > 0 || !shutdown) {
-			//logger.debug("# downloads " + this.currentDownloads.size() + " shutdown " + shutdown);
-			List<Downloader> finishedDownloads = new ArrayList<>();
-			for (Downloader dl : this.currentDownloads) {
-				if (!dl.isAlive()) {
-				    if (dl.getException() != null) {
-				        logger.debug("Download failed " + dl.getTargetFile().getAbsolutePath());
-				    } else if (dl.isValidated()) {
-						logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
-					} else if (dl.isCancelled()) {
-						logger.debug("Download cancelled " + dl.getTargetFile().getAbsolutePath());
-					} else {
-						// Corrupt or corrupted file? Pretty bad anyway
-						logger.error("Validation failed " + dl.getTargetFile().getAbsolutePath());
-						dl.cancelDownload();
-						if (View.isInitialised()) {
-							View.getSingleton().showWarningDialog(
-									Constant.messages.getString("cfu.warn.badhash", dl.getTargetFile().getName()));
-						}
-					}
-					finishedDownloads.add(dl);
-				} else if (this.cancelDownloads){
-					logger.debug("Cancelling download " + dl.getTargetFile().getAbsolutePath());
-					dl.cancelDownload();
-				} else {
-					logger.debug("Still downloading " + dl.getTargetFile().getAbsolutePath() + " progress % " + dl.getProgressPercent());
-				}
-			}
-			for (Downloader dl : finishedDownloads) {
-				this.completedDownloads.add(dl);
-				this.currentDownloads.remove(dl);
-			}
-			try {
-				if (getCurrentDownloadCount() > 0) {
-					sleep(200);
-				} else {
-					sleep(1000);
-				}
-			} catch (InterruptedException e) {
-				// Ignore
-			}
-		}
-		logger.debug("Shutdown");
-	}
-	
-	public int getCurrentDownloadCount() {
-		return this.currentDownloads.size();
-	}
-	
-	public void shutdown(boolean cancelDownloads) {
-		this.shutdown = true;
-		this.cancelDownloads = cancelDownloads;
-	}
-	
-	public int getProgressPercent(URL url) throws Exception {
-		for (Downloader dl : this.currentDownloads) {
-			if (dl.getUrl().equals(url)) {
-				if (dl.getException() != null) {
-					throw dl.getException();
-				}
-				return dl.getProgressPercent();
-			}
-		}
-		for (Downloader dl : this.completedDownloads) {
-			if (dl.getUrl().equals(url)) {
-				if (dl.getException() != null) {
-					throw dl.getException();
-				}
-				return 100;
-			}
-		}
-		return -1;
-	}
-	
-	public List<Downloader> getProgress() {
-		List<Downloader> allDownloads = new ArrayList<>();
-		for (Downloader d : this.currentDownloads) {
-			allDownloads.add(d);
-		}
-		for (Downloader d : this.completedDownloads) {
-			allDownloads.add(d);
-		}
-		return allDownloads;
-	}
+    public DownloadManager(ConnectionParam connectionParam) {
+        super("ZAP-DownloadManager");
+        this.connectionParam = connectionParam;
+        setDaemon(true);
 
-	// TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
-	private final class ZapProxyAuthenticator extends Authenticator {
+        // TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
+        Authenticator.setDefault(new ZapProxyAuthenticator());
+    }
 
-		@Override
-		protected PasswordAuthentication getPasswordAuthentication() {
-			if (getRequestorType() != RequestorType.PROXY) {
-				return null;
-			}
+    public Downloader downloadFile(URL url, File targetFile, long size, String hash) {
+        logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
 
-			if (getRequestingURL() == null) {
-				return null;
-			}
+        Proxy proxy;
+        if (connectionParam.isUseProxy(url.getHost())) {
+            InetSocketAddress scoketAddress =
+                    new InetSocketAddress(
+                            connectionParam.getProxyChainName(),
+                            connectionParam.getProxyChainPort());
+            proxy = new Proxy(Proxy.Type.HTTP, scoketAddress);
+        } else {
+            proxy = Proxy.NO_PROXY;
+        }
 
-			if (!connectionParam.isUseProxy(getRequestingURL().getHost())) {
-				return null;
-			}
+        Downloader dl = new Downloader(url, proxy, targetFile, size, hash);
+        dl.start();
+        this.currentDownloads.add(dl);
+        return dl;
+    }
 
-			if (connectionParam.getProxyChainPort() != getRequestingPort()) {
-				return null;
-			}
+    @Override
+    public void run() {
+        while (getCurrentDownloadCount() > 0 || !shutdown) {
+            // logger.debug("# downloads " + this.currentDownloads.size() + " shutdown " +
+            // shutdown);
+            List<Downloader> finishedDownloads = new ArrayList<>();
+            for (Downloader dl : this.currentDownloads) {
+                if (!dl.isAlive()) {
+                    if (dl.getException() != null) {
+                        logger.debug("Download failed " + dl.getTargetFile().getAbsolutePath());
+                    } else if (dl.isValidated()) {
+                        logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
+                    } else if (dl.isCancelled()) {
+                        logger.debug("Download cancelled " + dl.getTargetFile().getAbsolutePath());
+                    } else {
+                        // Corrupt or corrupted file? Pretty bad anyway
+                        logger.error("Validation failed " + dl.getTargetFile().getAbsolutePath());
+                        dl.cancelDownload();
+                        if (View.isInitialised()) {
+                            View.getSingleton()
+                                    .showWarningDialog(
+                                            Constant.messages.getString(
+                                                    "cfu.warn.badhash",
+                                                    dl.getTargetFile().getName()));
+                        }
+                    }
+                    finishedDownloads.add(dl);
+                } else if (this.cancelDownloads) {
+                    logger.debug("Cancelling download " + dl.getTargetFile().getAbsolutePath());
+                    dl.cancelDownload();
+                } else {
+                    logger.debug(
+                            "Still downloading "
+                                    + dl.getTargetFile().getAbsolutePath()
+                                    + " progress % "
+                                    + dl.getProgressPercent());
+                }
+            }
+            for (Downloader dl : finishedDownloads) {
+                this.completedDownloads.add(dl);
+                this.currentDownloads.remove(dl);
+            }
+            try {
+                if (getCurrentDownloadCount() > 0) {
+                    sleep(200);
+                } else {
+                    sleep(1000);
+                }
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
+        logger.debug("Shutdown");
+    }
 
-			if (!connectionParam.getProxyChainName().equals(getRequestingHost())) {
-				return null;
-			}
+    public int getCurrentDownloadCount() {
+        return this.currentDownloads.size();
+    }
 
-			return new PasswordAuthentication(connectionParam.getProxyChainUserName(), connectionParam.getProxyChainPassword()
-					.toCharArray());
-		}
-	}
+    public void shutdown(boolean cancelDownloads) {
+        this.shutdown = true;
+        this.cancelDownloads = cancelDownloads;
+    }
+
+    public int getProgressPercent(URL url) throws Exception {
+        for (Downloader dl : this.currentDownloads) {
+            if (dl.getUrl().equals(url)) {
+                if (dl.getException() != null) {
+                    throw dl.getException();
+                }
+                return dl.getProgressPercent();
+            }
+        }
+        for (Downloader dl : this.completedDownloads) {
+            if (dl.getUrl().equals(url)) {
+                if (dl.getException() != null) {
+                    throw dl.getException();
+                }
+                return 100;
+            }
+        }
+        return -1;
+    }
+
+    public List<Downloader> getProgress() {
+        List<Downloader> allDownloads = new ArrayList<>();
+        for (Downloader d : this.currentDownloads) {
+            allDownloads.add(d);
+        }
+        for (Downloader d : this.completedDownloads) {
+            allDownloads.add(d);
+        }
+        return allDownloads;
+    }
+
+    // TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
+    private final class ZapProxyAuthenticator extends Authenticator {
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            if (getRequestorType() != RequestorType.PROXY) {
+                return null;
+            }
+
+            if (getRequestingURL() == null) {
+                return null;
+            }
+
+            if (!connectionParam.isUseProxy(getRequestingURL().getHost())) {
+                return null;
+            }
+
+            if (connectionParam.getProxyChainPort() != getRequestingPort()) {
+                return null;
+            }
+
+            if (!connectionParam.getProxyChainName().equals(getRequestingHost())) {
+                return null;
+            }
+
+            return new PasswordAuthentication(
+                    connectionParam.getProxyChainUserName(),
+                    connectionParam.getProxyChainPassword().toCharArray());
+        }
+    }
 }

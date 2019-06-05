@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.brk;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -30,15 +29,15 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public class BreakpointMessageHandler2 {
 
     private static final Logger LOGGER = Logger.getLogger(BreakpointMessageHandler2.class);
-    
+
     protected static final Object SEMAPHORE = new Object();
-    
+
     protected final BreakpointManagementInterface breakMgmt;
-    
+
     protected List<BreakpointMessageInterface> enabledBreakpoints;
-    
+
     private List<String> enabledKeyBreakpoints = new ArrayList<>();
-    
+
     public List<String> getEnabledKeyBreakpoints() {
         return enabledKeyBreakpoints;
     }
@@ -50,29 +49,30 @@ public class BreakpointMessageHandler2 {
     public BreakpointMessageHandler2(BreakpointManagementInterface aBreakPanel) {
         this.breakMgmt = aBreakPanel;
     }
-    
+
     public void setEnabledBreakpoints(List<BreakpointMessageInterface> breakpoints) {
         this.enabledBreakpoints = breakpoints;
     }
-    
+
     /**
      * Do not call if in {@link Mode#safe}.
-     * 
+     *
      * @param aMessage
      * @param onlyIfInScope
      * @return False if message should be dropped.
      */
     public boolean handleMessageReceivedFromClient(Message aMessage, boolean onlyIfInScope) {
-        if ( ! isBreakpoint(aMessage, true, onlyIfInScope)) {
+        if (!isBreakpoint(aMessage, true, onlyIfInScope)) {
             return true;
         }
-        
-        // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
+
+        // Do this outside of the semaphore loop so that the 'continue' button can apply to all
+        // queued break points
         // but be reset when the next break point is hit
         breakMgmt.breakpointHit();
         BreakEventPublisher.getPublisher().publishHitEvent(aMessage);
 
-        synchronized(SEMAPHORE) {
+        synchronized (SEMAPHORE) {
             if (breakMgmt.isHoldMessage(aMessage)) {
                 BreakEventPublisher.getPublisher().publishActiveEvent(aMessage);
                 setBreakDisplay(aMessage, true);
@@ -81,27 +81,28 @@ public class BreakpointMessageHandler2 {
             }
         }
         breakMgmt.clearAndDisableRequest();
-        return ! breakMgmt.isToBeDropped();
+        return !breakMgmt.isToBeDropped();
     }
-    
+
     /**
      * Do not call if in {@link Mode#safe}.
-     * 
+     *
      * @param aMessage
      * @param onlyIfInScope
      * @return False if message should be dropped.
      */
     public boolean handleMessageReceivedFromServer(Message aMessage, boolean onlyIfInScope) {
-        if (! isBreakpoint(aMessage, false, onlyIfInScope)) {
+        if (!isBreakpoint(aMessage, false, onlyIfInScope)) {
             return true;
         }
-        
-        // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
+
+        // Do this outside of the semaphore loop so that the 'continue' button can apply to all
+        // queued break points
         // but be reset when the next break point is hit
         breakMgmt.breakpointHit();
         BreakEventPublisher.getPublisher().publishHitEvent(aMessage);
 
-        synchronized(SEMAPHORE) {
+        synchronized (SEMAPHORE) {
             if (breakMgmt.isHoldMessage(aMessage)) {
                 BreakEventPublisher.getPublisher().publishActiveEvent(aMessage);
                 setBreakDisplay(aMessage, false);
@@ -110,14 +111,14 @@ public class BreakpointMessageHandler2 {
             }
         }
         breakMgmt.clearAndDisableResponse();
-        return ! breakMgmt.isToBeDropped();
+        return !breakMgmt.isToBeDropped();
     }
-    
+
     private void setBreakDisplay(final Message msg, boolean isRequest) {
         breakMgmt.setMessage(msg, isRequest);
         breakMgmt.breakpointDisplayed();
     }
-    
+
     private void waitUntilContinue(Message aMessage, final boolean isRequest) {
         // Note that multiple requests and responses can get built up, so pressing continue only
         // releases the current break, not all of them.
@@ -133,7 +134,7 @@ public class BreakpointMessageHandler2 {
 
     /**
      * You have to handle {@link Mode#safe} outside.
-     * 
+     *
      * @param aMessage
      * @param isRequest
      * @param onlyIfInScope
@@ -144,11 +145,11 @@ public class BreakpointMessageHandler2 {
             // The browser told us to do it Your Honour
             return true;
         }
-        
-        if (onlyIfInScope && ! aMessage.isInScope()) {
+
+        if (onlyIfInScope && !aMessage.isInScope()) {
             return false;
         }
-        
+
         if (isBreakOnAllRequests(aMessage, isRequest)) {
             // Break on all requests
             return true;
@@ -159,14 +160,14 @@ public class BreakpointMessageHandler2 {
             // Stopping through all requests and responses
             return true;
         }
-        
+
         return isBreakOnEnabledBreakpoint(aMessage, isRequest, onlyIfInScope);
     }
 
     protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
         return isRequest && breakMgmt.isBreakRequest();
     }
-    
+
     protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
         return !isRequest && breakMgmt.isBreakResponse();
     }
@@ -175,19 +176,20 @@ public class BreakpointMessageHandler2 {
         return breakMgmt.isStepping();
     }
 
-    protected boolean isBreakOnEnabledBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+    protected boolean isBreakOnEnabledBreakpoint(
+            Message aMessage, boolean isRequest, boolean onlyIfInScope) {
         if (enabledBreakpoints.isEmpty()) {
             // No break points
             return false;
         }
-        
+
         // match against the break points
         synchronized (enabledBreakpoints) {
             Iterator<BreakpointMessageInterface> it = enabledBreakpoints.iterator();
-            
-            while(it.hasNext()) {
+
+            while (it.hasNext()) {
                 BreakpointMessageInterface breakpoint = it.next();
-                
+
                 if (breakpoint.match(aMessage, isRequest, onlyIfInScope)) {
                     return true;
                 }

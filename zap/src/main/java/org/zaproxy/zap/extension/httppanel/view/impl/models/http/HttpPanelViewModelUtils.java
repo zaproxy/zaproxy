@@ -23,8 +23,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public final class HttpPanelViewModelUtils {
 
-    private HttpPanelViewModelUtils() {
-    }
+    private HttpPanelViewModelUtils() {}
 
     public static void updateRequestContentLength(HttpMessage message) {
         message.getRequestHeader().setContentLength(message.getRequestBody().length());

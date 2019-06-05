@@ -20,23 +20,23 @@
 package org.zaproxy.zap.authentication;
 
 /**
- * An interface that allows to manipulate the state (content, enabled and tool tip) of fields showing the logged in/out
- * indicators.
- * 
+ * An interface that allows to manipulate the state (content, enabled and tool tip) of fields
+ * showing the logged in/out indicators.
+ *
  * @since 2.5.0
  */
 public interface AuthenticationIndicatorsPanel {
 
     /**
      * Gets the logged in indicator pattern.
-     * 
+     *
      * @return the logged in indicator pattern
      */
     String getLoggedInIndicatorPattern();
 
     /**
      * Sets the logged in indicator pattern.
-     * 
+     *
      * @param loggedInIndicatorPattern the new logged in indicator pattern
      */
     void setLoggedInIndicatorPattern(String loggedInIndicatorPattern);
@@ -44,7 +44,8 @@ public interface AuthenticationIndicatorsPanel {
     /**
      * Sets whether or not the field of the logged in indicator should be enabled.
      *
-     * @param enabled {@code true} if the logged in indicator should be enabled, {@code false} otherwise
+     * @param enabled {@code true} if the logged in indicator should be enabled, {@code false}
+     *     otherwise
      */
     void setLoggedInIndicatorEnabled(boolean enabled);
 
@@ -57,14 +58,14 @@ public interface AuthenticationIndicatorsPanel {
 
     /**
      * Gets the logged out indicator pattern.
-     * 
+     *
      * @return the logged out indicator pattern
      */
     String getLoggedOutIndicatorPattern();
 
     /**
      * Sets the logged out indicator pattern.
-     * 
+     *
      * @param loggedOutIndicatorPattern the new logged out indicator pattern
      */
     void setLoggedOutIndicatorPattern(String loggedOutIndicatorPattern);
@@ -72,7 +73,8 @@ public interface AuthenticationIndicatorsPanel {
     /**
      * Sets whether or not the field of the logged out indicator should be enabled.
      *
-     * @param enabled {@code true} if the logged out indicator should be enabled, {@code false} otherwise
+     * @param enabled {@code true} if the logged out indicator should be enabled, {@code false}
+     *     otherwise
      */
     void setLoggedOutIndicatorEnabled(boolean enabled);
 
@@ -82,5 +84,4 @@ public interface AuthenticationIndicatorsPanel {
      * @param toolTip the tool tip of the logged out indicator, {@code null} to disable it
      */
     void setLoggedOutIndicatorToolTip(String toolTip);
-
 }

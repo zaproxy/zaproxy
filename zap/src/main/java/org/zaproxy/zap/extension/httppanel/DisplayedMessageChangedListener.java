@@ -20,18 +20,21 @@
 package org.zaproxy.zap.extension.httppanel;
 
 /**
- * Provides the ability to track changes of the displayed Message inside of the {@link org.zaproxy.zap.extension.httppanel.HttpPanel}.
- * <p>
- * It can be registered in the {@link org.parosproxy.paros.extension.ExtensionHookView} or
+ * Provides the ability to track changes of the displayed Message inside of the {@link
+ * org.zaproxy.zap.extension.httppanel.HttpPanel}.
+ *
+ * <p>It can be registered in the {@link org.parosproxy.paros.extension.ExtensionHookView} or
  * directly in a {@link org.zaproxy.zap.extension.httppanel.HttpPanel}
  *
- * @see org.zaproxy.zap.extension.httppanel.HttpPanel#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
+ * @see
+ *     org.zaproxy.zap.extension.httppanel.HttpPanel#addDisplayedMessageChangedListener(DisplayedMessageChangedListener)
  * @since 2.8.0
  */
 public interface DisplayedMessageChangedListener {
 
     /**
-     * Is called when the displayed message of the {@link org.zaproxy.zap.extension.httppanel.HttpPanel} changes
+     * Is called when the displayed message of the {@link
+     * org.zaproxy.zap.extension.httppanel.HttpPanel} changes
      *
      * @param oldMessage can be {@code null} (i.e. when there was no message displayed in the panel)
      * @param newMessage can be {@code null} (i.e. when the panel is cleared)

@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
@@ -31,9 +30,10 @@ public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableMo
     private static final long serialVersionUID = -5411351965957264957L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("api.options.addr.table.header.enabled"),
-            Constant.messages.getString("api.options.addr.table.header.regex"),
-            Constant.messages.getString("api.options.addr.table.header.value") };
+        Constant.messages.getString("api.options.addr.table.header.enabled"),
+        Constant.messages.getString("api.options.addr.table.header.regex"),
+        Constant.messages.getString("api.options.addr.table.header.value")
+    };
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
@@ -66,12 +66,12 @@ public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableMo
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-        case 0:
-            return getElement(rowIndex).isEnabled();
-        case 1:
-            return getElement(rowIndex).isRegex();
-        case 2:
-            return getElement(rowIndex).getValue();
+            case 0:
+                return getElement(rowIndex).isEnabled();
+            case 1:
+                return getElement(rowIndex).isRegex();
+            case 2:
+                return getElement(rowIndex).getValue();
         }
         return null;
     }

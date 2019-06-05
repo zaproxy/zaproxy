@@ -22,25 +22,21 @@ package org.zaproxy.zap.network;
 import org.apache.commons.httpclient.URI;
 
 /**
- * Default implementation of {@link HttpRedirectionValidator}, all redirections are considered valid and notifications of new
- * messages are simply ignored.
- * 
+ * Default implementation of {@link HttpRedirectionValidator}, all redirections are considered valid
+ * and notifications of new messages are simply ignored.
+ *
  * @since 2.6.0
  * @see #INSTANCE
  */
 public class DefaultHttpRedirectionValidator implements HttpRedirectionValidator {
 
-    /**
-     * The instance of {@code DefaultHttpRedirectionValidator}.
-     */
-    public static final DefaultHttpRedirectionValidator INSTANCE = new DefaultHttpRedirectionValidator();
+    /** The instance of {@code DefaultHttpRedirectionValidator}. */
+    public static final DefaultHttpRedirectionValidator INSTANCE =
+            new DefaultHttpRedirectionValidator();
 
-    private DefaultHttpRedirectionValidator() {
-    }
+    private DefaultHttpRedirectionValidator() {}
 
-    /**
-     * Returns {@code true}, always.
-     */
+    /** Returns {@code true}, always. */
     @Override
     public boolean isValid(URI redirection) {
         return true;

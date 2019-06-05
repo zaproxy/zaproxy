@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.httppanel;
 
 import java.util.EventObject;
-
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 
 public class MessageViewSelectedEvent extends EventObject {
@@ -30,7 +29,8 @@ public class MessageViewSelectedEvent extends EventObject {
     private final HttpPanelView previousView;
     private final HttpPanelView currentView;
 
-    public MessageViewSelectedEvent(Object source, HttpPanelView previousView, HttpPanelView currentView) {
+    public MessageViewSelectedEvent(
+            Object source, HttpPanelView previousView, HttpPanelView currentView) {
         super(source);
 
         this.previousView = previousView;
@@ -44,5 +44,4 @@ public class MessageViewSelectedEvent extends EventObject {
     public HttpPanelView getCurrentView() {
         return currentView;
     }
-
 }

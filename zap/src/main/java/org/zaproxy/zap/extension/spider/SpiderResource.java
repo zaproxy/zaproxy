@@ -21,64 +21,62 @@ package org.zaproxy.zap.extension.spider;
 
 /**
  * A resource (e.g. webpage) found while spidering.
- * <p>
- * Contains the HTTP method used to fetch the resource, status code and reason, URI and the ID of the corresponding
- * (persisted) HTTP message.
+ *
+ * <p>Contains the HTTP method used to fetch the resource, status code and reason, URI and the ID of
+ * the corresponding (persisted) HTTP message.
  */
-
 public class SpiderResource {
-	
-	private final int historyId;
-	private final String method;
-	private final String uri;
-	private final int statusCode;
-	private final String statusReason;
-	private final boolean processed;
-	private final String reasonNotProcessed;
 
-	public SpiderResource(
-			int historyId,
-			String method,
-			String uri,
-			int statusCode,
-			String statusReason,
-			boolean processed,
-			String reasonNotProcessed) {
-		this.historyId = historyId;
-		this.method = method;
-		this.uri = uri;
-		this.statusCode = statusCode;
-		this.statusReason = statusReason;
-		this.processed = processed;
-		this.reasonNotProcessed = reasonNotProcessed == null ? "" : reasonNotProcessed;
-	}
+    private final int historyId;
+    private final String method;
+    private final String uri;
+    private final int statusCode;
+    private final String statusReason;
+    private final boolean processed;
+    private final String reasonNotProcessed;
 
-	public int getHistoryId() {
-		return historyId;
-	}
+    public SpiderResource(
+            int historyId,
+            String method,
+            String uri,
+            int statusCode,
+            String statusReason,
+            boolean processed,
+            String reasonNotProcessed) {
+        this.historyId = historyId;
+        this.method = method;
+        this.uri = uri;
+        this.statusCode = statusCode;
+        this.statusReason = statusReason;
+        this.processed = processed;
+        this.reasonNotProcessed = reasonNotProcessed == null ? "" : reasonNotProcessed;
+    }
 
-	public String getMethod() {
-		return method;
-	}
+    public int getHistoryId() {
+        return historyId;
+    }
 
-	public String getUri() {
-		return uri;
-	}
+    public String getMethod() {
+        return method;
+    }
 
-	public int getStatusCode() {
-		return statusCode;
-	}
+    public String getUri() {
+        return uri;
+    }
 
-	public String getStatusReason() {
-		return statusReason;
-	}
+    public int getStatusCode() {
+        return statusCode;
+    }
 
-	public boolean isProcessed() {
-		return processed;
-	}
+    public String getStatusReason() {
+        return statusReason;
+    }
 
-	public String getReasonNotProcessed() {
-		return reasonNotProcessed;
-	}
+    public boolean isProcessed() {
+        return processed;
+    }
 
+    public String getReasonNotProcessed() {
+        return reasonNotProcessed;
+    }
 }

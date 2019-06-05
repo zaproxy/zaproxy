@@ -22,9 +22,7 @@ package org.zaproxy.zap.extension.log4j;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import javax.swing.ImageIcon;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -37,107 +35,106 @@ import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
- * This class adds a count of the number of log4j errors encountered and outputs the details
- * to the Output tab.
- * It will only be enabled in a developer build.
- * @author Psiinon
+ * This class adds a count of the number of log4j errors encountered and outputs the details to the
+ * Output tab. It will only be enabled in a developer build.
  *
+ * @author Psiinon
  */
 public class ExtensionLog4j extends ExtensionAdaptor {
 
-	private static final String NAME = "ExtensionLog4j";
-	
+    private static final String NAME = "ExtensionLog4j";
+
     private ZapMenuItem menuGarbageCollect = null;
 
-	private ScanStatus scanStatus;
-	
+    private ScanStatus scanStatus;
+
     public ExtensionLog4j() {
         super(NAME);
         this.setOrder(56);
 
-		if (Constant.isDevMode() && View.isInitialised()) {
-			// Only enable if this is a developer build, ie build from source, or explicitly enabled
-        
-	        scanStatus = new ScanStatus(
-					new ImageIcon(
-							ExtensionLog4j.class.getResource("/resource/icon/fugue/bug.png")),
-						Constant.messages.getString("log4j.icon.title"));
-	
-	        Logger.getRootLogger().addAppender(new ZapOutputWriter(scanStatus));
-	
-			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
-		}
-	}
-	
+        if (Constant.isDevMode() && View.isInitialised()) {
+            // Only enable if this is a developer build, ie build from source, or explicitly enabled
+
+            scanStatus =
+                    new ScanStatus(
+                            new ImageIcon(
+                                    ExtensionLog4j.class.getResource(
+                                            "/resource/icon/fugue/bug.png")),
+                            Constant.messages.getString("log4j.icon.title"));
+
+            Logger.getRootLogger().addAppender(new ZapOutputWriter(scanStatus));
+
+            View.getSingleton()
+                    .getMainFrame()
+                    .getMainFooterPanel()
+                    .addFooterToolbarRightLabel(scanStatus.getCountLabel());
+        }
+    }
+
     @Override
     public String getUIName() {
-    	return Constant.messages.getString("log4j.name");
+        return Constant.messages.getString("log4j.name");
     }
-    
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
 
-	    if (getView() != null) {	        
-	        extensionHook.getHookMenu().addToolsMenuItem(getMenuGarbageCollect());
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
 
-	        if (scanStatus != null) {
-	            extensionHook.addSessionListener(new ResetCounterOnSessionChange(scanStatus));
-	        }
-	    }
+        if (getView() != null) {
+            extensionHook.getHookMenu().addToolsMenuItem(getMenuGarbageCollect());
 
-	}
+            if (scanStatus != null) {
+                extensionHook.addSessionListener(new ResetCounterOnSessionChange(scanStatus));
+            }
+        }
+    }
 
-	private ZapMenuItem getMenuGarbageCollect() {
+    private ZapMenuItem getMenuGarbageCollect() {
         if (menuGarbageCollect == null) {
-        	menuGarbageCollect = new ZapMenuItem("log4j.tools.menu.gc");
+            menuGarbageCollect = new ZapMenuItem("log4j.tools.menu.gc");
 
-        	menuGarbageCollect.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                	Runtime.getRuntime().gc();
-                }
-            });
+            menuGarbageCollect.addActionListener(
+                    new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            Runtime.getRuntime().gc();
+                        }
+                    });
         }
         return menuGarbageCollect;
     }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	@Override
-	public String getDescription() {
-		return Constant.messages.getString("log4j.desc");
-	}
+    @Override
+    public String getDescription() {
+        return Constant.messages.getString("log4j.desc");
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 
     private static class ResetCounterOnSessionChange implements SessionChangedListener {
-        /**
-         * Keep track of errors logged while the session changes.
-         */
+        /** Keep track of errors logged while the session changes. */
         private int previousCount;
-        /**
-         * Do not reset the counter if ZAP is starting.
-         */
+        /** Do not reset the counter if ZAP is starting. */
         private boolean starting;
+
         private ScanStatus scanStatus;
 
         public ResetCounterOnSessionChange(ScanStatus scanStatus) {
@@ -147,9 +144,10 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
         @Override
         public void sessionAboutToChange(Session session) {
-            EventQueue.invokeLater(() -> {
-                previousCount = scanStatus.getScanCount();
-            });
+            EventQueue.invokeLater(
+                    () -> {
+                        previousCount = scanStatus.getScanCount();
+                    });
         }
 
         @Override
@@ -159,10 +157,11 @@ public class ExtensionLog4j extends ExtensionAdaptor {
                 return;
             }
 
-            EventQueue.invokeLater(() -> {
-                scanStatus.setScanCount(scanStatus.getScanCount() - previousCount);
-                previousCount = 0;
-            });
+            EventQueue.invokeLater(
+                    () -> {
+                        scanStatus.setScanCount(scanStatus.getScanCount() - previousCount);
+                        previousCount = 0;
+                    });
         }
 
         @Override

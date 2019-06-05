@@ -29,10 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -47,831 +45,838 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.ValueGenerator;
-import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
-import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
+import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-/**
- * The ExtensionSpider is the Extension that controls the Spider.
- */
-public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ScanController<SpiderScan> {
+/** The ExtensionSpider is the Extension that controls the Spider. */
+public class ExtensionSpider extends ExtensionAdaptor
+        implements SessionChangedListener, ScanController<SpiderScan> {
 
-	private ValueGenerator generator = new DefaultValueGenerator();
+    private ValueGenerator generator = new DefaultValueGenerator();
 
-	public static final int EXTENSION_ORDER = 30;
-	
-	/** The Constant logger. */
-	private static final Logger log = Logger.getLogger(ExtensionSpider.class);
+    public static final int EXTENSION_ORDER = 30;
 
-	/** The Constant defining the NAME of the extension. */
-	public static final String NAME = "ExtensionSpider";
+    /** The Constant logger. */
+    private static final Logger log = Logger.getLogger(ExtensionSpider.class);
 
-	/** The spider panel. */
-	private SpiderPanel spiderPanel = null;
+    /** The Constant defining the NAME of the extension. */
+    public static final String NAME = "ExtensionSpider";
 
-	SpiderDialog spiderDialog = null;
+    /** The spider panel. */
+    private SpiderPanel spiderPanel = null;
 
-	private PopupMenuItemSpiderDialog popupMenuItemSpiderDialog;
+    SpiderDialog spiderDialog = null;
 
-	private PopupMenuItemSpiderDialogWithContext popupMenuItemSpiderDialogWithContext;
+    private PopupMenuItemSpiderDialog popupMenuItemSpiderDialog;
 
-	/** The options spider panel. */
-	private OptionsSpiderPanel optionsSpiderPanel = null;
+    private PopupMenuItemSpiderDialogWithContext popupMenuItemSpiderDialogWithContext;
 
-	/** The params for the spider. */
-	private SpiderParam params = null;
-	
-	private List<SpiderParser> customParsers;
-	private List<FetchFilter> customFetchFilters;
-	private List<ParseFilter> customParseFilters;
+    /** The options spider panel. */
+    private OptionsSpiderPanel optionsSpiderPanel = null;
 
-	private SpiderAPI spiderApi;
-	
-	private SpiderScanController scanController = null;
+    /** The params for the spider. */
+    private SpiderParam params = null;
 
-	private Icon icon;
+    private List<SpiderParser> customParsers;
+    private List<FetchFilter> customFetchFilters;
+    private List<ParseFilter> customParseFilters;
 
-	/**
-	 * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
-	 * Popup Menu.
-	 */
-	private List<String> excludeList = Collections.emptyList();
+    private SpiderAPI spiderApi;
 
-	private ZapMenuItem menuItemCustomScan = null;
+    private SpiderScanController scanController = null;
 
-	/**
-	 * Instantiates a new spider extension.
-	 */
-	public ExtensionSpider() {
-		super(NAME);
-		initialize();
-	}
+    private Icon icon;
 
-	/**
-	 * This method initializes this extension.
-	 */
-	private void initialize() {
-		this.setOrder(EXTENSION_ORDER);
-		this.customParsers = new LinkedList<>();
-		this.customFetchFilters = new LinkedList<>();
-		this.customParseFilters = new LinkedList<>();
-		this.scanController = new SpiderScanController(this);
-	}
+    /**
+     * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
+     * Popup Menu.
+     */
+    private List<String> excludeList = Collections.emptyList();
 
-	public void setValueGenerator (ValueGenerator generator) {
-		if (generator == null){
-			throw new IllegalArgumentException("Parameter generator must not be null.");
-		}
-		this.generator = generator;
-	}
+    private ZapMenuItem menuItemCustomScan = null;
 
-	public ValueGenerator getValueGenerator() {
-		return generator;
-	}
+    /** Instantiates a new spider extension. */
+    public ExtensionSpider() {
+        super(NAME);
+        initialize();
+    }
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("spider.name");
-	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
-		// Register for listeners
-		extensionHook.addSessionListener(this);
+    /** This method initializes this extension. */
+    private void initialize() {
+        this.setOrder(EXTENSION_ORDER);
+        this.customParsers = new LinkedList<>();
+        this.customFetchFilters = new LinkedList<>();
+        this.customParseFilters = new LinkedList<>();
+        this.scanController = new SpiderScanController(this);
+    }
 
-		// Initialize views
-		if (getView() != null) {
-			extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
-			extensionHook.getHookView().addStatusPanel(getSpiderPanel());
-			extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemSpiderDialog());
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemSpiderDialogWithContext());
-			ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
-		}
+    public void setValueGenerator(ValueGenerator generator) {
+        if (generator == null) {
+            throw new IllegalArgumentException("Parameter generator must not be null.");
+        }
+        this.generator = generator;
+    }
 
-		// Register the params
-		extensionHook.addOptionsParamSet(getSpiderParam());
+    public ValueGenerator getValueGenerator() {
+        return generator;
+    }
 
-		// Register as an API implementor
-		spiderApi = new SpiderAPI(this);
-		spiderApi.addApiOptions(getSpiderParam());
-		extensionHook.addApiImplementor(spiderApi);
-	}
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("spider.name");
+    }
 
-	private PopupMenuItemSpiderDialog getPopupMenuItemSpiderDialog() {
-		if (popupMenuItemSpiderDialog == null) {
-			popupMenuItemSpiderDialog = new PopupMenuItemSpiderDialog(this);
-		}
-		return popupMenuItemSpiderDialog;
-	}
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        // Register for listeners
+        extensionHook.addSessionListener(this);
 
-	private PopupMenuItemSpiderDialogWithContext getPopupMenuItemSpiderDialogWithContext() {
-		if (popupMenuItemSpiderDialogWithContext == null) {
-			popupMenuItemSpiderDialogWithContext = new PopupMenuItemSpiderDialogWithContext(this);
-		}
-		return popupMenuItemSpiderDialogWithContext;
-	}
+        // Initialize views
+        if (getView() != null) {
+            extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
+            extensionHook.getHookView().addStatusPanel(getSpiderPanel());
+            extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemSpiderDialog());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemSpiderDialogWithContext());
+            ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
+        }
 
-	@Override
-	public List<String> getActiveActions() {
-		List<SpiderScan> activeSpiders = scanController.getActiveScans();
-		if (activeSpiders.isEmpty()) {
-			return null;
-		}
+        // Register the params
+        extensionHook.addOptionsParamSet(getSpiderParam());
 
-		String spiderActionPrefix = Constant.messages.getString("spider.activeActionPrefix");
-		List<String> activeActions = new ArrayList<>(activeSpiders.size());
-		for (SpiderScan activeSpider : activeSpiders) {
-			activeActions.add(MessageFormat.format(spiderActionPrefix, activeSpider.getDisplayName()));
-		}
-		return activeActions;
-	}
+        // Register as an API implementor
+        spiderApi = new SpiderAPI(this);
+        spiderApi.addApiOptions(getSpiderParam());
+        extensionHook.addApiImplementor(spiderApi);
+    }
 
-	/**
-	 * Gets the spider parameters (options).
-	 * 
-	 * @return the spider parameters
-	 */
-	protected SpiderParam getSpiderParam() {
-		if (params == null) {
-			params = new SpiderParam();
-		}
-		return params;
-	}
+    private PopupMenuItemSpiderDialog getPopupMenuItemSpiderDialog() {
+        if (popupMenuItemSpiderDialog == null) {
+            popupMenuItemSpiderDialog = new PopupMenuItemSpiderDialog(this);
+        }
+        return popupMenuItemSpiderDialog;
+    }
 
-	/**
-	 * Gets the spider panel.
-	 * 
-	 * @return the spider panel
-	 */
-	protected SpiderPanel getSpiderPanel() {
-		if (spiderPanel == null) {
-			spiderPanel = new SpiderPanel(this, getSpiderParam());
-		}
-		return spiderPanel;
-	}
-	
-	@Override
-	public void sessionAboutToChange(Session session) {
-		// Shut all of the scans down and remove them
-		this.scanController.reset();
-		if (View.isInitialised()) {
-			this.getSpiderPanel().reset();
-			if (spiderDialog != null) {
-				spiderDialog.reset();
-			}
-		}
-	}
+    private PopupMenuItemSpiderDialogWithContext getPopupMenuItemSpiderDialogWithContext() {
+        if (popupMenuItemSpiderDialogWithContext == null) {
+            popupMenuItemSpiderDialogWithContext = new PopupMenuItemSpiderDialogWithContext(this);
+        }
+        return popupMenuItemSpiderDialogWithContext;
+    }
 
-	@Override
-	public void sessionChanged(final Session session) {
-		if (EventQueue.isDispatchThread()) {
-			sessionChangedEventHandler(session);
-		} else {
-			try {
-				EventQueue.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						sessionChangedEventHandler(session);
-					}
-				});
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
+    @Override
+    public List<String> getActiveActions() {
+        List<SpiderScan> activeSpiders = scanController.getActiveScans();
+        if (activeSpiders.isEmpty()) {
+            return null;
+        }
 
-	/**
-	 * Session changed event handler.
-	 * 
-	 * @param session the session
-	 */
-	private void sessionChangedEventHandler(Session session) {
-		// Clear all scans
-		if (View.isInitialised()) {
-			this.getSpiderPanel().reset();
-		}
-		if (session == null) {
-			// Closedown
-			return;
-		}
-	}
+        String spiderActionPrefix = Constant.messages.getString("spider.activeActionPrefix");
+        List<String> activeActions = new ArrayList<>(activeSpiders.size());
+        for (SpiderScan activeSpider : activeSpiders) {
+            activeActions.add(
+                    MessageFormat.format(spiderActionPrefix, activeSpider.getDisplayName()));
+        }
+        return activeActions;
+    }
 
-	/**
-	 * Gets the options spider panel.
-	 * 
-	 * @return the options spider panel
-	 */
-	private OptionsSpiderPanel getOptionsSpiderPanel() {
-		if (optionsSpiderPanel == null) {
-			optionsSpiderPanel = new OptionsSpiderPanel();
-		}
-		return optionsSpiderPanel;
-	}
+    /**
+     * Gets the spider parameters (options).
+     *
+     * @return the spider parameters
+     */
+    protected SpiderParam getSpiderParam() {
+        if (params == null) {
+            params = new SpiderParam();
+        }
+        return params;
+    }
 
-	/**
-	 * Sets the exclude list.
-	 * 
-	 * @param ignoredRegexs the new exclude list
-	 */
-	public void setExcludeList(List<String> ignoredRegexs) {
-		if (ignoredRegexs == null || ignoredRegexs.isEmpty()) {
-			excludeList = Collections.emptyList();
-			return;
-		}
+    /**
+     * Gets the spider panel.
+     *
+     * @return the spider panel
+     */
+    protected SpiderPanel getSpiderPanel() {
+        if (spiderPanel == null) {
+            spiderPanel = new SpiderPanel(this, getSpiderParam());
+        }
+        return spiderPanel;
+    }
 
-		this.excludeList = ignoredRegexs;
-	}
+    @Override
+    public void sessionAboutToChange(Session session) {
+        // Shut all of the scans down and remove them
+        this.scanController.reset();
+        if (View.isInitialised()) {
+            this.getSpiderPanel().reset();
+            if (spiderDialog != null) {
+                spiderDialog.reset();
+            }
+        }
+    }
 
-	/**
-	 * Gets the exclude list.
-	 * 
-	 * @return the exclude list
-	 */
-	public List<String> getExcludeList() {
-		return excludeList;
-	}
+    @Override
+    public void sessionChanged(final Session session) {
+        if (EventQueue.isDispatchThread()) {
+            sessionChangedEventHandler(session);
+        } else {
+            try {
+                EventQueue.invokeAndWait(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                sessionChangedEventHandler(session);
+                            }
+                        });
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
 
+    /**
+     * Session changed event handler.
+     *
+     * @param session the session
+     */
+    private void sessionChangedEventHandler(Session session) {
+        // Clear all scans
+        if (View.isInitialised()) {
+            this.getSpiderPanel().reset();
+        }
+        if (session == null) {
+            // Closedown
+            return;
+        }
+    }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    /**
+     * Gets the options spider panel.
+     *
+     * @return the options spider panel
+     */
+    private OptionsSpiderPanel getOptionsSpiderPanel() {
+        if (optionsSpiderPanel == null) {
+            optionsSpiderPanel = new OptionsSpiderPanel();
+        }
+        return optionsSpiderPanel;
+    }
 
-	@Override
-	public String getDescription() {
-		return Constant.messages.getString("spider.desc");
-	}
+    /**
+     * Sets the exclude list.
+     *
+     * @param ignoredRegexs the new exclude list
+     */
+    public void setExcludeList(List<String> ignoredRegexs) {
+        if (ignoredRegexs == null || ignoredRegexs.isEmpty()) {
+            excludeList = Collections.emptyList();
+            return;
+        }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+        this.excludeList = ignoredRegexs;
+    }
 
-	@Override
-	public void sessionScopeChanged(Session session) {
-		if (View.isInitialised()) {
-			this.getSpiderPanel().sessionScopeChanged(session);
-		}
-	}
+    /**
+     * Gets the exclude list.
+     *
+     * @return the exclude list
+     */
+    public List<String> getExcludeList() {
+        return excludeList;
+    }
 
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		if (Mode.safe.equals(mode)) {
-			this.scanController.stopAllScans();
-		}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-		if (View.isInitialised()) {
-			this.getSpiderPanel().sessionModeChanged(mode);
-			getMenuItemCustomScan().setEnabled( ! Mode.safe.equals(mode));
-		}
-	}
+    @Override
+    public String getDescription() {
+        return Constant.messages.getString("spider.desc");
+    }
 
-	/**
-	 * Start scan node.
-	 * 
-	 * @param node the node
-	 */
-	public void startScanNode(SiteNode node) {
-		Target target = new Target(node);
-		target.setRecurse(true);
-		this.startScan(target, null, null);
-	}
-	
-	/**
-	 * Start the scan of an URL (Node) from the POV of a User.
-	 * 
-	 * @param node the node
-	 */
-	public void startScanNode(SiteNode node, User user) {
-		Target target = new Target(node);
-		target.setRecurse(true);
-		this.startScan(target, user, null);
-	}
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * Start scan all in scope.
-	 */
-	public void startScanAllInScope() {
-		Target target = new Target(true);
-		target.setRecurse(true);
-		this.startScan(target, null, null);
-	}
+    @Override
+    public void sessionScopeChanged(Session session) {
+        if (View.isInitialised()) {
+            this.getSpiderPanel().sessionScopeChanged(session);
+        }
+    }
 
-	/**
-	 * Start scan.
-	 * 
-	 * @param startNode the start node
-	 */
-	public void startScan(SiteNode startNode) {
-		Target target = new Target(startNode);
-		target.setRecurse(true);
-		this.startScan(target, null, null);
-	}
+    @Override
+    public void sessionModeChanged(Mode mode) {
+        if (Mode.safe.equals(mode)) {
+            this.scanController.stopAllScans();
+        }
 
-	/**
-	 * Start scan all in context, from the POV of an User.
-	 */
-	public void startScanAllInContext(Context context, User user) {
-		Target target = new Target(context);
-		target.setRecurse(true);
-		this.startScan(target, user, null);
-	}
-	
-	
-	@Override
+        if (View.isInitialised()) {
+            this.getSpiderPanel().sessionModeChanged(mode);
+            getMenuItemCustomScan().setEnabled(!Mode.safe.equals(mode));
+        }
+    }
+
+    /**
+     * Start scan node.
+     *
+     * @param node the node
+     */
+    public void startScanNode(SiteNode node) {
+        Target target = new Target(node);
+        target.setRecurse(true);
+        this.startScan(target, null, null);
+    }
+
+    /**
+     * Start the scan of an URL (Node) from the POV of a User.
+     *
+     * @param node the node
+     */
+    public void startScanNode(SiteNode node, User user) {
+        Target target = new Target(node);
+        target.setRecurse(true);
+        this.startScan(target, user, null);
+    }
+
+    /** Start scan all in scope. */
+    public void startScanAllInScope() {
+        Target target = new Target(true);
+        target.setRecurse(true);
+        this.startScan(target, null, null);
+    }
+
+    /**
+     * Start scan.
+     *
+     * @param startNode the start node
+     */
+    public void startScan(SiteNode startNode) {
+        Target target = new Target(startNode);
+        target.setRecurse(true);
+        this.startScan(target, null, null);
+    }
+
+    /** Start scan all in context, from the POV of an User. */
+    public void startScanAllInContext(Context context, User user) {
+        Target target = new Target(context);
+        target.setRecurse(true);
+        this.startScan(target, user, null);
+    }
+
+    @Override
     public void destroy() {
-		// Shut all of the scans down
-		this.stopAllScans();
-		if (View.isInitialised()) {
-			this.getSpiderPanel().reset();
-		}
-	}
+        // Shut all of the scans down
+        this.stopAllScans();
+        if (View.isInitialised()) {
+            this.getSpiderPanel().reset();
+        }
+    }
 
-	/**
-	 * Gets the custom parsers loaded.
-	 *
-	 * @return the custom parsers
-	 */
-	public List<SpiderParser> getCustomParsers() {
-		return customParsers;
-	}
-	
-	/**
-	 * Gets the custom fetch filters loaded.
-	 *
-	 * @return the custom fetch filters
-	 */
-	public List<FetchFilter> getCustomFetchFilters() {
-		return customFetchFilters;
-	}
+    /**
+     * Gets the custom parsers loaded.
+     *
+     * @return the custom parsers
+     */
+    public List<SpiderParser> getCustomParsers() {
+        return customParsers;
+    }
 
-	/**
-	 * Gets the custom parse filters loaded.
-	 *
-	 * @return the custom parse filters
-	 */
-	public List<ParseFilter> getCustomParseFilters() {
-		return customParseFilters;
-	}
+    /**
+     * Gets the custom fetch filters loaded.
+     *
+     * @return the custom fetch filters
+     */
+    public List<FetchFilter> getCustomFetchFilters() {
+        return customFetchFilters;
+    }
 
-	/**
-	 * Adds a new custom Spider Parser. The parser is added at the beginning of the parsers list so
-	 * it will be processed before other already loaded parsers and before the default parsers.
-	 * <p/>
-	 * This method should be used to customize the Spider from any other extension of ZAP. The
-	 * parsers added will be loaded whenever starting any scan.
-	 * 
-	 * @param parser the parser
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @see #removeCustomParser(SpiderParser)
-	 */
-	public void addCustomParser(SpiderParser parser) {
-		validateParameterNonNull(parser, "parser");
-		this.customParsers.add(parser);
-	}
+    /**
+     * Gets the custom parse filters loaded.
+     *
+     * @return the custom parse filters
+     */
+    public List<ParseFilter> getCustomParseFilters() {
+        return customParseFilters;
+    }
 
-	private static void validateParameterNonNull(Object object, String name) {
-		if (object == null) {
-			throw new IllegalArgumentException("Parameter " + name + " must not be null.");
-		}
-	}
+    /**
+     * Adds a new custom Spider Parser. The parser is added at the beginning of the parsers list so
+     * it will be processed before other already loaded parsers and before the default parsers.
+     *
+     * <p>This method should be used to customize the Spider from any other extension of ZAP. The
+     * parsers added will be loaded whenever starting any scan.
+     *
+     * @param parser the parser
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @see #removeCustomParser(SpiderParser)
+     */
+    public void addCustomParser(SpiderParser parser) {
+        validateParameterNonNull(parser, "parser");
+        this.customParsers.add(parser);
+    }
 
-	/**
-	 * Removes the given spider parser.
-	 * <p>
-	 * Nothing happens if the given parser was not previously added.
-	 * 
-	 * @param parser the parser
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since 2.6.0
-	 * @see #addCustomParser(SpiderParser)
-	 */
-	public void removeCustomParser(SpiderParser parser) {
-		validateParameterNonNull(parser, "parser");
-		this.customParsers.remove(parser);
-	}
+    private static void validateParameterNonNull(Object object, String name) {
+        if (object == null) {
+            throw new IllegalArgumentException("Parameter " + name + " must not be null.");
+        }
+    }
 
-	/**
-	 * Adds a custom fetch filter that would be used during the spidering.
-	 * <p/>
-	 * This method should be used to customize the Spider from any other extension of ZAP. The
-	 * filters added will be loaded whenever starting any scan.
-	 * 
-	 * @param filter the filter
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @see #removeCustomFetchFilter(FetchFilter)
-	 */
-	public void addCustomFetchFilter(FetchFilter filter) {
-		validateParameterNonNull(filter, "filter");
-		this.customFetchFilters.add(filter);
-	}
+    /**
+     * Removes the given spider parser.
+     *
+     * <p>Nothing happens if the given parser was not previously added.
+     *
+     * @param parser the parser
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @since 2.6.0
+     * @see #addCustomParser(SpiderParser)
+     */
+    public void removeCustomParser(SpiderParser parser) {
+        validateParameterNonNull(parser, "parser");
+        this.customParsers.remove(parser);
+    }
 
-	/**
-	 * Removes the given fetch filter.
-	 * <p>
-	 * Nothing happens if the given filter was not previously added.
-	 * 
-	 * @param filter the filter
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since 2.6.0
-	 * @see #addCustomFetchFilter(FetchFilter)
-	 */
-	public void removeCustomFetchFilter(FetchFilter filter) {
-		validateParameterNonNull(filter, "filter");
-		this.customFetchFilters.remove(filter);
-	}
+    /**
+     * Adds a custom fetch filter that would be used during the spidering.
+     *
+     * <p>This method should be used to customize the Spider from any other extension of ZAP. The
+     * filters added will be loaded whenever starting any scan.
+     *
+     * @param filter the filter
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @see #removeCustomFetchFilter(FetchFilter)
+     */
+    public void addCustomFetchFilter(FetchFilter filter) {
+        validateParameterNonNull(filter, "filter");
+        this.customFetchFilters.add(filter);
+    }
 
-	/**
-	 * Adds a custom parse filter that would be used during the spidering.
-	 * <p/>
-	 * This method should be used to customize the Spider from any other extension of ZAP. The
-	 * filters added will be loaded whenever starting any scan.
-	 * 
-	 * @param filter the filter
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @see #removeCustomParseFilter(ParseFilter)
-	 */
-	public void addCustomParseFilter(ParseFilter filter) {
-		validateParameterNonNull(filter, "filter");
-		this.customParseFilters.add(filter);
-	}
+    /**
+     * Removes the given fetch filter.
+     *
+     * <p>Nothing happens if the given filter was not previously added.
+     *
+     * @param filter the filter
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @since 2.6.0
+     * @see #addCustomFetchFilter(FetchFilter)
+     */
+    public void removeCustomFetchFilter(FetchFilter filter) {
+        validateParameterNonNull(filter, "filter");
+        this.customFetchFilters.remove(filter);
+    }
 
-	/**
-	 * Removes the given parse filter.
-	 * <p>
-	 * Nothing happens if the given filter was not previously added.
-	 * 
-	 * @param filter the filter
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since 2.6.0
-	 * @see #addCustomParseFilter(ParseFilter)
-	 */
-	public void removeCustomParseFilter(ParseFilter filter) {
-		validateParameterNonNull(filter, "filter");
-		this.customParseFilters.remove(filter);
-	}
+    /**
+     * Adds a custom parse filter that would be used during the spidering.
+     *
+     * <p>This method should be used to customize the Spider from any other extension of ZAP. The
+     * filters added will be loaded whenever starting any scan.
+     *
+     * @param filter the filter
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @see #removeCustomParseFilter(ParseFilter)
+     */
+    public void addCustomParseFilter(ParseFilter filter) {
+        validateParameterNonNull(filter, "filter");
+        this.customParseFilters.add(filter);
+    }
 
-	/**
-	 * Starts a new spider scan using the given target and, optionally, spidering from the perspective of a user and with custom
-	 * configurations.
-	 * <p>
-	 * The spider scan will use the most appropriate display name created from the given target, user and custom configurations.
-	 *
-	 * @param target the target that will be spidered
-	 * @param user the user that will be used to spider, might be {@code null}
-	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
-	 * @return the ID of the spider scan
-	 * @since 2.5.0
-	 * @see #startScan(String, Target, User, Object[])
-	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
-	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
-	 */
-	public int startScan(Target target, User user, Object[] customConfigurations) {
-		return startScan(createDisplayName(target, customConfigurations), target, user, customConfigurations);
-	}
+    /**
+     * Removes the given parse filter.
+     *
+     * <p>Nothing happens if the given filter was not previously added.
+     *
+     * @param filter the filter
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @since 2.6.0
+     * @see #addCustomParseFilter(ParseFilter)
+     */
+    public void removeCustomParseFilter(ParseFilter filter) {
+        validateParameterNonNull(filter, "filter");
+        this.customParseFilters.remove(filter);
+    }
 
-	/**
-	 * Creates the display name for the given target and, optionally, the given custom configurations.
-	 *
-	 * @param target the target that will be spidered
-	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
-	 * @return a {@code String} containing the display name, never {@code null}
-	 */
-	private String createDisplayName(Target target, Object[] customConfigurations) {
-		HttpPrefixFetchFilter subtreeFecthFilter = getUriPrefixFecthFilter(customConfigurations);
-		if (subtreeFecthFilter != null) {
-			return abbreviateDisplayName(subtreeFecthFilter.getNormalisedPrefix());
-		}
+    /**
+     * Starts a new spider scan using the given target and, optionally, spidering from the
+     * perspective of a user and with custom configurations.
+     *
+     * <p>The spider scan will use the most appropriate display name created from the given target,
+     * user and custom configurations.
+     *
+     * @param target the target that will be spidered
+     * @param user the user that will be used to spider, might be {@code null}
+     * @param customConfigurations other custom configurations for the spider, might be {@code null}
+     * @return the ID of the spider scan
+     * @since 2.5.0
+     * @see #startScan(String, Target, User, Object[])
+     * @throws IllegalStateException if the target or custom configurations are not allowed in the
+     *     current {@link org.parosproxy.paros.control.Control.Mode mode}.
+     */
+    public int startScan(Target target, User user, Object[] customConfigurations) {
+        return startScan(
+                createDisplayName(target, customConfigurations),
+                target,
+                user,
+                customConfigurations);
+    }
 
-		if (target.getContext() != null) {
-			return Constant.messages.getString("context.prefixName", target.getContext().getName());
-		} else if (target.isInScopeOnly()) {
-			return Constant.messages.getString("target.allInScope");
-		} else if (target.getStartNode() == null) {
-			if (customConfigurations != null) {
-				for (Object customConfiguration : customConfigurations) {
-					if (customConfiguration instanceof URI) {
-						return abbreviateDisplayName(((URI) customConfiguration).toString());
-					}
-				}
-			}
-			return Constant.messages.getString("target.empty");
-		}
-		return abbreviateDisplayName(target.getStartNode().getHierarchicNodeName(false));
-	}
+    /**
+     * Creates the display name for the given target and, optionally, the given custom
+     * configurations.
+     *
+     * @param target the target that will be spidered
+     * @param customConfigurations other custom configurations for the spider, might be {@code null}
+     * @return a {@code String} containing the display name, never {@code null}
+     */
+    private String createDisplayName(Target target, Object[] customConfigurations) {
+        HttpPrefixFetchFilter subtreeFecthFilter = getUriPrefixFecthFilter(customConfigurations);
+        if (subtreeFecthFilter != null) {
+            return abbreviateDisplayName(subtreeFecthFilter.getNormalisedPrefix());
+        }
 
-	/**
-	 * Gets the {@code HttpPrefixFetchFilter} from the given {@code customConfigurations}.
-	 *
-	 * @param customConfigurations the custom configurations of the spider
-	 * @return the {@code HttpPrefixFetchFilter} found, {@code null} otherwise.
-	 */
-	private HttpPrefixFetchFilter getUriPrefixFecthFilter(Object[] customConfigurations) {
-		if (customConfigurations != null) {
-			for (Object customConfiguration : customConfigurations) {
-				if (customConfiguration instanceof HttpPrefixFetchFilter) {
-					return (HttpPrefixFetchFilter) customConfiguration;
-				}
-			}
-		}
-		return null;
-	}
+        if (target.getContext() != null) {
+            return Constant.messages.getString("context.prefixName", target.getContext().getName());
+        } else if (target.isInScopeOnly()) {
+            return Constant.messages.getString("target.allInScope");
+        } else if (target.getStartNode() == null) {
+            if (customConfigurations != null) {
+                for (Object customConfiguration : customConfigurations) {
+                    if (customConfiguration instanceof URI) {
+                        return abbreviateDisplayName(((URI) customConfiguration).toString());
+                    }
+                }
+            }
+            return Constant.messages.getString("target.empty");
+        }
+        return abbreviateDisplayName(target.getStartNode().getHierarchicNodeName(false));
+    }
 
-	/**
-	 * Abbreviates (the middle of) the given display name if greater than 30 characters.
-	 *
-	 * @param displayName the display name that might be abbreviated
-	 * @return the, possibly, abbreviated display name
-	 */
-	private static String abbreviateDisplayName(String displayName) {
-		return StringUtils.abbreviateMiddle(displayName, "..", 30);
-	}
+    /**
+     * Gets the {@code HttpPrefixFetchFilter} from the given {@code customConfigurations}.
+     *
+     * @param customConfigurations the custom configurations of the spider
+     * @return the {@code HttpPrefixFetchFilter} found, {@code null} otherwise.
+     */
+    private HttpPrefixFetchFilter getUriPrefixFecthFilter(Object[] customConfigurations) {
+        if (customConfigurations != null) {
+            for (Object customConfiguration : customConfigurations) {
+                if (customConfiguration instanceof HttpPrefixFetchFilter) {
+                    return (HttpPrefixFetchFilter) customConfiguration;
+                }
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * Starts a new spider scan, with the given display name, using the given target and, optionally, spidering from the
-	 * perspective of a user and with custom configurations.
-	 * <p>
-	 * <strong>Note:</strong> The preferred method to start the scan is with {@link #startScan(Target, User, Object[])}, unless
-	 * a custom display name is really needed.
-	 * 
-	 * @param target the target that will be spidered
-	 * @param user the user that will be used to spider, might be {@code null}
-	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
-	 * @return the ID of the spider scan
-	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
-	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
-	 */
-	@SuppressWarnings({"fallthrough"})
-	@Override
-	public int startScan(String displayName, Target target, User user, Object[] customConfigurations) {
-		switch (Control.getSingleton().getMode()) {
-		case safe:
-			throw new IllegalStateException("Scans are not allowed in Safe mode");
-		case protect:
-			String uri = getTargetUriOutOfScope(target, customConfigurations);
-			if (uri != null) {
-				throw new IllegalStateException("Scans are not allowed on targets not in scope when in Protected mode: " + uri);
-			}
-			//$FALL-THROUGH$
-		case standard:
-		case attack:
-			// No problem
-			break;
-		}
+    /**
+     * Abbreviates (the middle of) the given display name if greater than 30 characters.
+     *
+     * @param displayName the display name that might be abbreviated
+     * @return the, possibly, abbreviated display name
+     */
+    private static String abbreviateDisplayName(String displayName) {
+        return StringUtils.abbreviateMiddle(displayName, "..", 30);
+    }
 
-		int id = this.scanController.startScan(displayName, target, user, customConfigurations);
-    	if (View.isInitialised()) {
-    		addScanToUi(this.scanController.getScan(id));
-    	}
-    	return id;
-	}
+    /**
+     * Starts a new spider scan, with the given display name, using the given target and,
+     * optionally, spidering from the perspective of a user and with custom configurations.
+     *
+     * <p><strong>Note:</strong> The preferred method to start the scan is with {@link
+     * #startScan(Target, User, Object[])}, unless a custom display name is really needed.
+     *
+     * @param target the target that will be spidered
+     * @param user the user that will be used to spider, might be {@code null}
+     * @param customConfigurations other custom configurations for the spider, might be {@code null}
+     * @return the ID of the spider scan
+     * @throws IllegalStateException if the target or custom configurations are not allowed in the
+     *     current {@link org.parosproxy.paros.control.Control.Mode mode}.
+     */
+    @SuppressWarnings({"fallthrough"})
+    @Override
+    public int startScan(
+            String displayName, Target target, User user, Object[] customConfigurations) {
+        switch (Control.getSingleton().getMode()) {
+            case safe:
+                throw new IllegalStateException("Scans are not allowed in Safe mode");
+            case protect:
+                String uri = getTargetUriOutOfScope(target, customConfigurations);
+                if (uri != null) {
+                    throw new IllegalStateException(
+                            "Scans are not allowed on targets not in scope when in Protected mode: "
+                                    + uri);
+                }
+                // $FALL-THROUGH$
+            case standard:
+            case attack:
+                // No problem
+                break;
+        }
 
-	private void addScanToUi(final SpiderScan scan) {
-		if (!EventQueue.isDispatchThread()) {
-			EventQueue.invokeLater(new Runnable() {
+        int id = this.scanController.startScan(displayName, target, user, customConfigurations);
+        if (View.isInitialised()) {
+            addScanToUi(this.scanController.getScan(id));
+        }
+        return id;
+    }
 
-				@Override
-				public void run() {
-					addScanToUi(scan);
-				}
-			});
-			return;
-		}
+    private void addScanToUi(final SpiderScan scan) {
+        if (!EventQueue.isDispatchThread()) {
+            EventQueue.invokeLater(
+                    new Runnable() {
 
-		this.getSpiderPanel().scannerStarted(scan);
-		scan.setListener(getSpiderPanel()); // So the UI gets updated
-		this.getSpiderPanel().switchView(scan);
-		this.getSpiderPanel().setTabFocus();
-	}
+                        @Override
+                        public void run() {
+                            addScanToUi(scan);
+                        }
+                    });
+            return;
+        }
 
-	/**
-	 * Returns the first URI that is out of scope in the given {@code target}.
-	 *
-	 * @param target the target that will be checked
-	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
-	 * @since 2.5.0
-	 * @see Session#isInScope(String)
-	 */
-	protected String getTargetUriOutOfScope(Target target) {
-		return getTargetUriOutOfScope(target, null);
-	}
+        this.getSpiderPanel().scannerStarted(scan);
+        scan.setListener(getSpiderPanel()); // So the UI gets updated
+        this.getSpiderPanel().switchView(scan);
+        this.getSpiderPanel().setTabFocus();
+    }
 
-	/**
-	 * Returns the first URI that is out of scope in the given {@code target} or {@code contextSpecificObjects}.
-	 *
-	 * @param target the target that will be checked
-	 * @param contextSpecificObjects other {@code Objects} used to enhance the target
-	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
-	 * @since 2.5.0
-	 * @see Session#isInScope(String)
-	 */
-	protected String getTargetUriOutOfScope(Target target, Object[] contextSpecificObjects) {
-		List<StructuralNode> nodes = target.getStartNodes();
-		if (nodes != null) {
-			for (StructuralNode node : nodes) {
-				if (node == null) {
-					continue;
-				}
-				if (node instanceof StructuralSiteNode) {
-					SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
-					if (!siteNode.isIncludedInScope()) {
-						return node.getURI().toString();
-					}
-				} else {
-					String uri = node.getURI().toString();
-					if (!isTargetUriInScope(uri)) {
-						return uri;
-					}
-				}
-			}
-		}
-		if (contextSpecificObjects != null) {
-			for (Object obj : contextSpecificObjects) {
-				if (obj instanceof URI) {
-					String uri = ((URI) obj).toString();
-					if (!isTargetUriInScope(uri)) {
-						return uri;
-					}
-				}
-			}
-		}
-		return null;
-	}
+    /**
+     * Returns the first URI that is out of scope in the given {@code target}.
+     *
+     * @param target the target that will be checked
+     * @return a {@code String} with the first URI out of scope, {@code null} if none found
+     * @since 2.5.0
+     * @see Session#isInScope(String)
+     */
+    protected String getTargetUriOutOfScope(Target target) {
+        return getTargetUriOutOfScope(target, null);
+    }
 
-	/**
-	 * Tells whether or not the given {@code uri} is in scope.
-	 *
-	 * @param uri the uri that will be checked
-	 * @return {@code true} if the {@code uri} is in scope, {@code false} otherwise
-	 * @since 2.5.0
-	 * @see Session#isInScope(String)
-	 */
-	protected boolean isTargetUriInScope(String uri) {
-		if (uri == null) {
-			return false;
-		}
-		return getModel().getSession().isInScope(uri);
-	}
+    /**
+     * Returns the first URI that is out of scope in the given {@code target} or {@code
+     * contextSpecificObjects}.
+     *
+     * @param target the target that will be checked
+     * @param contextSpecificObjects other {@code Objects} used to enhance the target
+     * @return a {@code String} with the first URI out of scope, {@code null} if none found
+     * @since 2.5.0
+     * @see Session#isInScope(String)
+     */
+    protected String getTargetUriOutOfScope(Target target, Object[] contextSpecificObjects) {
+        List<StructuralNode> nodes = target.getStartNodes();
+        if (nodes != null) {
+            for (StructuralNode node : nodes) {
+                if (node == null) {
+                    continue;
+                }
+                if (node instanceof StructuralSiteNode) {
+                    SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
+                    if (!siteNode.isIncludedInScope()) {
+                        return node.getURI().toString();
+                    }
+                } else {
+                    String uri = node.getURI().toString();
+                    if (!isTargetUriInScope(uri)) {
+                        return uri;
+                    }
+                }
+            }
+        }
+        if (contextSpecificObjects != null) {
+            for (Object obj : contextSpecificObjects) {
+                if (obj instanceof URI) {
+                    String uri = ((URI) obj).toString();
+                    if (!isTargetUriInScope(uri)) {
+                        return uri;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public List<SpiderScan> getAllScans() {
-		return this.scanController.getAllScans();
-	}
+    /**
+     * Tells whether or not the given {@code uri} is in scope.
+     *
+     * @param uri the uri that will be checked
+     * @return {@code true} if the {@code uri} is in scope, {@code false} otherwise
+     * @since 2.5.0
+     * @see Session#isInScope(String)
+     */
+    protected boolean isTargetUriInScope(String uri) {
+        if (uri == null) {
+            return false;
+        }
+        return getModel().getSession().isInScope(uri);
+    }
 
-	@Override
-	public List<SpiderScan> getActiveScans() {
-		return this.scanController.getActiveScans();
-	}
+    @Override
+    public List<SpiderScan> getAllScans() {
+        return this.scanController.getAllScans();
+    }
 
-	@Override
-	public SpiderScan getScan(int id) {
-		return this.scanController.getScan(id);
-	}
+    @Override
+    public List<SpiderScan> getActiveScans() {
+        return this.scanController.getActiveScans();
+    }
 
-	@Override
-	public void stopScan(int id) {
-		this.scanController.stopScan(id);
-	}
+    @Override
+    public SpiderScan getScan(int id) {
+        return this.scanController.getScan(id);
+    }
 
-	@Override
-	public void stopAllScans() {
-		this.scanController.stopAllScans();		
-	}
+    @Override
+    public void stopScan(int id) {
+        this.scanController.stopScan(id);
+    }
 
-	@Override
-	public void pauseScan(int id) {
-		this.scanController.pauseScan(id);		
-		if (View.isInitialised()) {
-			// Update the UI in case this was initiated from the API
-			this.getSpiderPanel().updateScannerUI();
-		}
-	}
+    @Override
+    public void stopAllScans() {
+        this.scanController.stopAllScans();
+    }
 
-	@Override
-	public void pauseAllScans() {
-		this.scanController.pauseAllScans();		
-		if (View.isInitialised()) {
-			// Update the UI in case this was initiated from the API
-			this.getSpiderPanel().updateScannerUI();
-		}
-	}
+    @Override
+    public void pauseScan(int id) {
+        this.scanController.pauseScan(id);
+        if (View.isInitialised()) {
+            // Update the UI in case this was initiated from the API
+            this.getSpiderPanel().updateScannerUI();
+        }
+    }
 
-	@Override
-	public void resumeScan(int id) {
-		this.scanController.resumeScan(id);		
-		if (View.isInitialised()) {
-			// Update the UI in case this was initiated from the API
-			this.getSpiderPanel().updateScannerUI();
-		}
-	}
+    @Override
+    public void pauseAllScans() {
+        this.scanController.pauseAllScans();
+        if (View.isInitialised()) {
+            // Update the UI in case this was initiated from the API
+            this.getSpiderPanel().updateScannerUI();
+        }
+    }
 
-	@Override
-	public void resumeAllScans() {
-		this.scanController.resumeAllScans();
-		if (View.isInitialised()) {
-			// Update the UI in case this was initiated from the API
-			this.getSpiderPanel().updateScannerUI();
-		}
-	}
+    @Override
+    public void resumeScan(int id) {
+        this.scanController.resumeScan(id);
+        if (View.isInitialised()) {
+            // Update the UI in case this was initiated from the API
+            this.getSpiderPanel().updateScannerUI();
+        }
+    }
 
-	@Override
-	public SpiderScan removeScan(int id) {
-		return this.scanController.removeScan(id);
-	}
+    @Override
+    public void resumeAllScans() {
+        this.scanController.resumeAllScans();
+        if (View.isInitialised()) {
+            // Update the UI in case this was initiated from the API
+            this.getSpiderPanel().updateScannerUI();
+        }
+    }
 
-	@Override
-	public int removeAllScans() {
-		return this.scanController.removeAllScans();
-	}
+    @Override
+    public SpiderScan removeScan(int id) {
+        return this.scanController.removeScan(id);
+    }
 
-	@Override
-	public int removeFinishedScans() {
-		return this.scanController.removeFinishedScans();
-	}
+    @Override
+    public int removeAllScans() {
+        return this.scanController.removeAllScans();
+    }
 
-	@Override
-	public SpiderScan getLastScan() {
-		return this.scanController.getLastScan();
-	}
+    @Override
+    public int removeFinishedScans() {
+        return this.scanController.removeFinishedScans();
+    }
+
+    @Override
+    public SpiderScan getLastScan() {
+        return this.scanController.getLastScan();
+    }
 
     private ZapMenuItem getMenuItemCustomScan() {
-        if (menuItemCustomScan  == null) {
-            menuItemCustomScan = new ZapMenuItem("menu.tools.spider",
-                    getView().getMenuShortcutKeyStroke(KeyEvent.VK_S, KeyEvent.ALT_DOWN_MASK, false));
+        if (menuItemCustomScan == null) {
+            menuItemCustomScan =
+                    new ZapMenuItem(
+                            "menu.tools.spider",
+                            getView()
+                                    .getMenuShortcutKeyStroke(
+                                            KeyEvent.VK_S, KeyEvent.ALT_DOWN_MASK, false));
             menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(e -> showSpiderDialog((Target) null));
         }
-        
+
         return menuItemCustomScan;
     }
 
-	public void showSpiderDialog(SiteNode node) {
-		showSpiderDialog(node != null ? new Target(node) : null);
-	}
-
-	/**
-	 * Shows the spider dialogue with the given target, if not already visible.
-	 *
-	 * @param target the target, might be {@code null}.
-	 * @since 2.8.0.
-	 */
-	public void showSpiderDialog(Target target) {
-		if (spiderDialog == null) {
-			spiderDialog = new SpiderDialog(this, View.getSingleton().getMainFrame(), new Dimension(700, 430));
-		}
-		if (spiderDialog.isVisible()) {
-			// Its behind you! Actually not needed no the window is alwaysOnTop, but keeping in case we change that ;)
-			spiderDialog.toFront();
-			return;
-		}
-		if (target != null) {
-			spiderDialog.init(target);
-		} else {
-			// Keep the previous target
-			spiderDialog.init(null);
-		}
-		spiderDialog.setVisible(true);
-	}
-	
-    @Override
-    public boolean supportsLowMemory() {
-    	return true;
+    public void showSpiderDialog(SiteNode node) {
+        showSpiderDialog(node != null ? new Target(node) : null);
     }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    /**
+     * Shows the spider dialogue with the given target, if not already visible.
+     *
+     * @param target the target, might be {@code null}.
+     * @since 2.8.0.
+     */
+    public void showSpiderDialog(Target target) {
+        if (spiderDialog == null) {
+            spiderDialog =
+                    new SpiderDialog(
+                            this, View.getSingleton().getMainFrame(), new Dimension(700, 430));
+        }
+        if (spiderDialog.isVisible()) {
+            // Its behind you! Actually not needed no the window is alwaysOnTop, but keeping in case
+            // we change that ;)
+            spiderDialog.toFront();
+            return;
+        }
+        if (target != null) {
+            spiderDialog.init(target);
+        } else {
+            // Keep the previous target
+            spiderDialog.init(null);
+        }
+        spiderDialog.setVisible(true);
+    }
 
-	/**
-	 * Gets the icon for spider related functionality.
-	 *
-	 * @return the icon
-	 */
-	public Icon getIcon() {
-		if (icon == null) {
-			icon = new ImageIcon(ExtensionSpider.class.getResource("/resource/icon/16/spider.png"));
-		}
-		return icon;
-	}
+    @Override
+    public boolean supportsLowMemory() {
+        return true;
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
+
+    /**
+     * Gets the icon for spider related functionality.
+     *
+     * @return the icon
+     */
+    public Icon getIcon() {
+        if (icon == null) {
+            icon = new ImageIcon(ExtensionSpider.class.getResource("/resource/icon/16/spider.png"));
+        }
+        return icon;
+    }
 }

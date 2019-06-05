@@ -20,33 +20,30 @@
 package org.zaproxy.zap.spider.parser;
 
 import net.htmlparser.jericho.Source;
-
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
-/**
- * The Class SpiderRedirectParser is used for parsing of HTTP Redirection messages.
- */
+/** The Class SpiderRedirectParser is used for parsing of HTTP Redirection messages. */
 public class SpiderRedirectParser extends SpiderParser {
 
-	@Override
-	public boolean parseResource(HttpMessage message, Source source, int depth) {
-		log.debug("Parsing an HTTP redirection resource...");
+    @Override
+    public boolean parseResource(HttpMessage message, Source source, int depth) {
+        log.debug("Parsing an HTTP redirection resource...");
 
-		String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
-		if (location != null && !location.isEmpty()) {
-			// Include the base url as well as some applications send relative URLs instead of
-			// absolute ones
-			String baseURL = message.getRequestHeader().getURI().toString();
-			processURL(message, depth, location, baseURL);
-		}
-		// We consider the message fully parsed
-		return true;
-	}
+        String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
+        if (location != null && !location.isEmpty()) {
+            // Include the base url as well as some applications send relative URLs instead of
+            // absolute ones
+            String baseURL = message.getRequestHeader().getURI().toString();
+            processURL(message, depth, location, baseURL);
+        }
+        // We consider the message fully parsed
+        return true;
+    }
 
-	@Override
-	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
-		return HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode());
-	}
+    @Override
+    public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+        return HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode());
+    }
 }

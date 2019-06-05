@@ -21,67 +21,63 @@ package org.zaproxy.zap.extension.siterefresh;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 
 public class ExtensionSitesRefresh extends ExtensionAdaptor {
-	
-	private static final String NAME = "ExtensionSitesRefresh";
 
-	private PopupMenuSitesRefresh popupMenuSitesRefresh = null;
+    private static final String NAME = "ExtensionSitesRefresh";
+
+    private PopupMenuSitesRefresh popupMenuSitesRefresh = null;
 
     public ExtensionSitesRefresh() {
         super(NAME);
-        this.setOrder(1000);	// Want this to be as low as possible :)
-	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-	    if (getView() != null) {
+        this.setOrder(1000); // Want this to be as low as possible :)
+    }
+
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        if (getView() != null) {
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSitesRefresh());
-	    }
-	}
-	
-	private PopupMenuSitesRefresh getPopupMenuSitesRefresh() {
-		if (popupMenuSitesRefresh == null) {
-			popupMenuSitesRefresh = new PopupMenuSitesRefresh();
-		}
-		return popupMenuSitesRefresh;
-		
-	}
+        }
+    }
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("siterefresh.name");
-	}
-	
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    private PopupMenuSitesRefresh getPopupMenuSitesRefresh() {
+        if (popupMenuSitesRefresh == null) {
+            popupMenuSitesRefresh = new PopupMenuSitesRefresh();
+        }
+        return popupMenuSitesRefresh;
+    }
 
-	@Override
-	public String getDescription() {
-		return Constant.messages.getString("siterefresh.desc");
-	}
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("siterefresh.name");
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    @Override
+    public String getDescription() {
+        return Constant.messages.getString("siterefresh.desc");
+    }
+
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }

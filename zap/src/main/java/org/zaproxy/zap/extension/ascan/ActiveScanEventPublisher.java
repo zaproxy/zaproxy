@@ -55,5 +55,4 @@ public class ActiveScanEventPublisher extends ScanEventPublisher {
         ActiveScanEventPublisher publisher = getPublisher();
         publisher.publishScanProgressEvent(publisher, scanId, scanProgress);
     }
-
 }

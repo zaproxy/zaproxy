@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.search;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -33,31 +32,35 @@ import org.zaproxy.zap.view.table.AbstractCustomColumnHistoryReferencesTableMode
 import org.zaproxy.zap.view.table.AbstractHistoryReferencesTableEntry;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
-public class SearchResultsTableModel extends
-        AbstractCustomColumnHistoryReferencesTableModel<SearchResultsTableModel.SearchResultTableEntry> {
+public class SearchResultsTableModel
+        extends AbstractCustomColumnHistoryReferencesTableModel<
+                SearchResultsTableModel.SearchResultTableEntry> {
 
     private static final long serialVersionUID = 5732679524771190690L;
 
-    private static final String MATCH_COLUMN_NAME = Constant.messages.getString("search.results.table.header.match");
+    private static final String MATCH_COLUMN_NAME =
+            Constant.messages.getString("search.results.table.header.match");
 
-    private static final Column[] COLUMNS = new Column[] {
-            Column.HREF_ID,
-            Column.REQUEST_TIMESTAMP,
-            Column.RESPONSE_TIMESTAMP,
-            Column.METHOD,
-            Column.URL,
-            Column.STATUS_CODE,
-            Column.STATUS_REASON,
-            Column.RTT,
-            Column.SIZE_REQUEST_HEADER,
-            Column.SIZE_REQUEST_BODY,
-            Column.SIZE_RESPONSE_HEADER,
-            Column.SIZE_RESPONSE_BODY,
-            Column.HIGHEST_ALERT,
-            Column.NOTE,
-            Column.TAGS,
-            Column.CUSTOM };
-    
+    private static final Column[] COLUMNS =
+            new Column[] {
+                Column.HREF_ID,
+                Column.REQUEST_TIMESTAMP,
+                Column.RESPONSE_TIMESTAMP,
+                Column.METHOD,
+                Column.URL,
+                Column.STATUS_CODE,
+                Column.STATUS_REASON,
+                Column.RTT,
+                Column.SIZE_REQUEST_HEADER,
+                Column.SIZE_REQUEST_BODY,
+                Column.SIZE_RESPONSE_HEADER,
+                Column.SIZE_RESPONSE_BODY,
+                Column.HIGHEST_ALERT,
+                Column.NOTE,
+                Column.TAGS,
+                Column.CUSTOM
+            };
+
     private List<SearchResultTableEntry> results = new ArrayList<>();
 
     public SearchResultsTableModel() {
@@ -73,7 +76,8 @@ public class SearchResultsTableModel extends
         fireTableRowsInserted(results.size() - 1, results.size() - 1);
     }
 
-    private static SearchResultTableEntry createSearchResultTableEntry(SearchResult sr, SearchResultTableEntry previousResult) {
+    private static SearchResultTableEntry createSearchResultTableEntry(
+            SearchResult sr, SearchResultTableEntry previousResult) {
         HistoryReference hRef = sr.getMessage().getHistoryRef();
         String stringFound = null;
         if (previousResult != null) {
@@ -90,16 +94,13 @@ public class SearchResultsTableModel extends
     }
 
     @Override
-    public void addEntry(SearchResultTableEntry entry) {
-    }
+    public void addEntry(SearchResultTableEntry entry) {}
 
     @Override
-    public void refreshEntryRow(int historyReferenceId) {
-    }
+    public void refreshEntryRow(int historyReferenceId) {}
 
     @Override
-    public void removeEntry(int historyReferenceId) {
-    }
+    public void removeEntry(int historyReferenceId) {}
 
     @Override
     public SearchResultTableEntry getEntry(int rowIndex) {
@@ -166,9 +167,7 @@ public class SearchResultsTableModel extends
         private final SearchResult sr;
 
         public SearchResultTableEntry(
-                HistoryReference historyReference,
-                String stringFound,
-                SearchResult sr) {
+                HistoryReference historyReference, String stringFound, SearchResult sr) {
             super(historyReference, COLUMNS);
 
             String temp;
@@ -257,7 +256,11 @@ public class SearchResultsTableModel extends
         private class CachedSearchMatch extends SearchMatch {
 
             public CachedSearchMatch(SearchMatch searchMatch) {
-                super(null, searchMatch.getLocation(), searchMatch.getStart(), searchMatch.getEnd());
+                super(
+                        null,
+                        searchMatch.getLocation(),
+                        searchMatch.getStart(),
+                        searchMatch.getEnd());
             }
 
             @Override
@@ -269,7 +272,6 @@ public class SearchResultsTableModel extends
                     return null;
                 }
             }
-
         }
     }
 }

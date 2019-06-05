@@ -24,7 +24,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 
 import java.util.Locale;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -44,11 +43,11 @@ public abstract class WithConfigsTest extends TestUtils {
 
     /**
      * A temporary directory where ZAP home/installation dirs are created.
-     * <p>
-     * Can be used for other temporary files/dirs.
+     *
+     * <p>Can be used for other temporary files/dirs.
      */
-    @ClassRule
-    public static TemporaryFolder tempDir = new TemporaryFolder();
+    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
+
     private static String zapInstallDir;
     private static String zapHomeDir;
 
@@ -59,8 +58,8 @@ public abstract class WithConfigsTest extends TestUtils {
     }
 
     /**
-     * Sets up ZAP, by initialising the home/installation dirs and core classes (for example, {@link Constant}, {@link Control},
-     * {@link Model}).
+     * Sets up ZAP, by initialising the home/installation dirs and core classes (for example, {@link
+     * Constant}, {@link Control}, {@link Model}).
      *
      * @throws Exception if an error occurred while setting up the dirs or core classes.
      */
@@ -71,7 +70,7 @@ public abstract class WithConfigsTest extends TestUtils {
 
         ExtensionLoader extLoader = Mockito.mock(ExtensionLoader.class);
         Control control = Mockito.mock(Control.class);
-        Mockito.when (control.getExtensionLoader()).thenReturn(extLoader);
+        Mockito.when(control.getExtensionLoader()).thenReturn(extLoader);
 
         // Init all the things
         Constant.getInstance();

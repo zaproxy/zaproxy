@@ -25,79 +25,76 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
-/**
- * The PopupMenu corresponding to a User valid in a Context.
- */
+/** The PopupMenu corresponding to a User valid in a Context. */
 public abstract class PopupUserMenu extends PopupMenuItemSiteNodeContainer {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1608127089952566119L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1608127089952566119L;
 
-	/** The user. */
-	private User user;
+    /** The user. */
+    private User user;
 
-	/** The parent menu name. */
-	private String parentMenuName;
+    /** The parent menu name. */
+    private String parentMenuName;
 
-	/** The context. */
-	private Context context;
+    /** The context. */
+    private Context context;
 
-	public PopupUserMenu(Context context, User user, String parentMenu) {
-		super(context.getName() + ": " + user.getName(), true);
-		this.user = user;
-		this.parentMenuName = parentMenu;
-		this.context = context;
-		if (!user.isEnabled())
-			this.setText(this.getText() + " (disabled)");
-	}
+    public PopupUserMenu(Context context, User user, String parentMenu) {
+        super(context.getName() + ": " + user.getName(), true);
+        this.user = user;
+        this.parentMenuName = parentMenu;
+        this.context = context;
+        if (!user.isEnabled()) this.setText(this.getText() + " (disabled)");
+    }
 
-	@Override
-	protected boolean isButtonEnabledForSiteNode(SiteNode siteNode) {
-		return this.user.isEnabled() && context.isInContext(siteNode);
-	}
+    @Override
+    protected boolean isButtonEnabledForSiteNode(SiteNode siteNode) {
+        return this.user.isEnabled() && context.isInContext(siteNode);
+    }
 
-	@Override
-	public String getParentMenuName() {
-		return parentMenuName;
-	}
+    @Override
+    public String getParentMenuName() {
+        return parentMenuName;
+    }
 
-	@Override
-	public boolean isSubMenu() {
-		return true;
-	}
+    @Override
+    public boolean isSubMenu() {
+        return true;
+    }
 
-	@Override
-	protected boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		switch (invoker) {
-		case ALERTS_PANEL:
-		case ACTIVE_SCANNER_PANEL:
-		case FORCED_BROWSE_PANEL:
-		case FUZZER_PANEL:
-			return false;
-		case HISTORY_PANEL:
-		case SITES_PANEL:
-		case SEARCH_PANEL:
-		default:
-			return true;
-		}
-	}
+    @Override
+    protected boolean isEnableForInvoker(
+            Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        switch (invoker) {
+            case ALERTS_PANEL:
+            case ACTIVE_SCANNER_PANEL:
+            case FORCED_BROWSE_PANEL:
+            case FUZZER_PANEL:
+                return false;
+            case HISTORY_PANEL:
+            case SITES_PANEL:
+            case SEARCH_PANEL:
+            default:
+                return true;
+        }
+    }
 
-	@Override
-	public boolean isSafe() {
-		return true;
-	}
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 
-	/**
-	 * Gets the user.
-	 * 
-	 * @return the user
-	 */
-	public User getUser() {
-		return user;
-	}
+    /**
+     * Gets the user.
+     *
+     * @return the user
+     */
+    public User getUser() {
+        return user;
+    }
 
-	public Context getContext() {
-		return context;
-	}
-
+    public Context getContext() {
+        return context;
+    }
 }

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.httppanel;
 
 import java.util.EventObject;
-
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 
 public class ComponentChangedEvent extends EventObject {
@@ -47,5 +46,4 @@ public class ComponentChangedEvent extends EventObject {
     public HttpPanelComponentInterface getNewComponent() {
         return newComponent;
     }
-
 }

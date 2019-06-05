@@ -24,12 +24,11 @@ import org.zaproxy.zap.view.messagecontainer.SelectableMessagesContainer;
 
 /**
  * A {@code SelectableMessagesContainer} of {@code HttpMessage}s.
- * 
+ *
  * @see HttpMessage
  * @see HttpMessageContainer
  * @see SelectableMessagesContainer
  * @since 2.3.0
  */
-public interface SelectableHttpMessagesContainer extends SelectableMessagesContainer<HttpMessage>,
-        MultipleHttpMessagesContainer {
-}
+public interface SelectableHttpMessagesContainer
+        extends SelectableMessagesContainer<HttpMessage>, MultipleHttpMessagesContainer {}

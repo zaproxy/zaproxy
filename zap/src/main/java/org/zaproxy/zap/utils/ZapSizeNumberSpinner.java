@@ -21,17 +21,17 @@ package org.zaproxy.zap.utils;
 
 /**
  * a class to represent a 'size' number spinner, which can only contain zero or positive values
- * @author 70pointer@gmail.com
  *
+ * @author 70pointer@gmail.com
  */
 public class ZapSizeNumberSpinner extends ZapNumberSpinner {
 
-	private static final long serialVersionUID = -3475263553345335482L;
-	
-	private static final int MIN_SIZE = 0;
-	private static final int MAX_SIZE = Integer.MAX_VALUE;
+    private static final long serialVersionUID = -3475263553345335482L;
 
-	public ZapSizeNumberSpinner(int defaultSize) {
-		super(MIN_SIZE,0, MAX_SIZE);
-	}
+    private static final int MIN_SIZE = 0;
+    private static final int MAX_SIZE = Integer.MAX_VALUE;
+
+    public ZapSizeNumberSpinner(int defaultSize) {
+        super(MIN_SIZE, 0, MAX_SIZE);
+    }
 }

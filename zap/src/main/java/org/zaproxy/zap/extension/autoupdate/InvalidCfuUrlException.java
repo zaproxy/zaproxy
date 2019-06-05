@@ -21,9 +21,9 @@ package org.zaproxy.zap.extension.autoupdate;
 
 public class InvalidCfuUrlException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public InvalidCfuUrlException(String url) {
-		super(url);
-	}
+    public InvalidCfuUrlException(String url) {
+        super(url);
+    }
 }

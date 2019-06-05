@@ -22,7 +22,6 @@ package org.zaproxy.zap.model;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventPublisher;
@@ -42,8 +41,14 @@ public abstract class ScanEventPublisher implements EventPublisher {
     public static final String USER_ID = "userId";
     public static final String USER_NAME = "userName";
 
-    private static final String[] EVENTS = { SCAN_STARTED_EVENT, SCAN_STOPPED_EVENT, SCAN_PAUSED_EVENT,
-            SCAN_RESUMED_EVENT, SCAN_COMPLETED_EVENT, SCAN_PROGRESS_EVENT };
+    private static final String[] EVENTS = {
+        SCAN_STARTED_EVENT,
+        SCAN_STOPPED_EVENT,
+        SCAN_PAUSED_EVENT,
+        SCAN_RESUMED_EVENT,
+        SCAN_COMPLETED_EVENT,
+        SCAN_PROGRESS_EVENT
+    };
 
     /**
      * Returns a new array with all events.
@@ -63,7 +68,8 @@ public abstract class ScanEventPublisher implements EventPublisher {
         this.publishScanEvent(publisher, event, scanId, null, null);
     }
 
-    public void publishScanEvent(EventPublisher publisher, String event, int scanId, Target target, User user) {
+    public void publishScanEvent(
+            EventPublisher publisher, String event, int scanId, Target target, User user) {
         Map<String, String> map = new HashMap<>();
         map.put(SCAN_ID, Integer.toString(scanId));
         if (user != null) {
@@ -77,6 +83,7 @@ public abstract class ScanEventPublisher implements EventPublisher {
         Map<String, String> map = new HashMap<>();
         map.put(SCAN_ID, Integer.toString(scanId));
         map.put(SCAN_PROGRESS, Integer.toString(scanProgress));
-        ZAP.getEventBus().publishSyncEvent(publisher, new Event(publisher, SCAN_PROGRESS_EVENT, null, map));
+        ZAP.getEventBus()
+                .publishSyncEvent(publisher, new Event(publisher, SCAN_PROGRESS_EVENT, null, map));
     }
 }

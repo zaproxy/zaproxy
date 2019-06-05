@@ -21,50 +21,47 @@ package org.zaproxy.zap.authentication;
 
 import org.zaproxy.zap.extension.api.ApiResponse;
 
-
 /**
  * The Credentials is an entity, corresponding to an Authentication Method, that has all the
  * information required to create a new authenticated WebSession in a web application , for one of
  * the web application's 'users'.
- * <p>
- * For example, in the case of form based authentication, the AuthenticationMethod 'knows' which is
- * the login URL, which are the names of the fields it has to submit for user and password, while
+ *
+ * <p>For example, in the case of form based authentication, the AuthenticationMethod 'knows' which
+ * is the login URL, which are the names of the fields it has to submit for user and password, while
  * the Authenticator is an 'instance' corresponding to an user, which knows it's password and
  * username.
- * </p>
- * 
  */
 public interface AuthenticationCredentials {
 
-	/**
-	 * Checks if the credentials object is fully configured.
-	 * 
-	 * @return true, if is configured
-	 */
-	boolean isConfigured();
+    /**
+     * Checks if the credentials object is fully configured.
+     *
+     * @return true, if is configured
+     */
+    boolean isConfigured();
 
-	/**
-	 * Encodes the Credentials in a String. Fields that contain strings should not contain the
-	 * {@code parentFieldSeparator}. Should be consistent with {@link #decode(String)}.
-	 * 
-	 * @param parentFieldSeparator the parent field separator
-	 * @return the string
-	 */
-	String encode(String parentFieldSeparator);
+    /**
+     * Encodes the Credentials in a String. Fields that contain strings should not contain the
+     * {@code parentFieldSeparator}. Should be consistent with {@link #decode(String)}.
+     *
+     * @param parentFieldSeparator the parent field separator
+     * @return the string
+     */
+    String encode(String parentFieldSeparator);
 
-	/**
-	 * Decodes the internal values of the Authentication Credentials from an encoded string and
-	 * fills in the current object. The string provided as input should have been obtained through
-	 * calls to {@link #encode(String)}.
-	 * 
-	 * @param encodedCredentials the encoded credentials
-	 */
-	void decode(String encodedCredentials);
-	
-	/**
-	 * Gets an api response that represents the Credentials.
-	 * 
-	 * @return the api response representation
-	 */
-	public abstract ApiResponse getApiResponseRepresentation();
+    /**
+     * Decodes the internal values of the Authentication Credentials from an encoded string and
+     * fills in the current object. The string provided as input should have been obtained through
+     * calls to {@link #encode(String)}.
+     *
+     * @param encodedCredentials the encoded credentials
+     */
+    void decode(String encodedCredentials);
+
+    /**
+     * Gets an api response that represents the Credentials.
+     *
+     * @return the api response representation
+     */
+    public abstract ApiResponse getApiResponseRepresentation();
 }

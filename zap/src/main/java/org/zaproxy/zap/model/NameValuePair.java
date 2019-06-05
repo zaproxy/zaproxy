@@ -21,9 +21,10 @@ package org.zaproxy.zap.model;
 
 /**
  * A name/value pair.
- * <p>
- * How {@code null} name and/or value are handled is at the discretion of implementations, for example, some implementations
- * might choose to require a name, but not a value (thus being {@code null}).
+ *
+ * <p>How {@code null} name and/or value are handled is at the discretion of implementations, for
+ * example, some implementations might choose to require a name, but not a value (thus being {@code
+ * null}).
  *
  * @since 2.5.0
  */

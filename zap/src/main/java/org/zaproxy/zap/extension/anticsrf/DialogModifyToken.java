@@ -20,17 +20,18 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 
 class DialogModifyToken extends DialogAddToken {
 
     private static final long serialVersionUID = 6675509994290748494L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("options.acsrf.dialog.token.modify.title");
-    
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("options.acsrf.dialog.token.modify.button.confirm");
-    
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("options.acsrf.dialog.token.modify.title");
+
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("options.acsrf.dialog.token.modify.button.confirm");
+
     protected DialogModifyToken(Dialog owner) {
         super(owner, DIALOG_TITLE);
     }
@@ -43,7 +44,7 @@ class DialogModifyToken extends DialogAddToken {
     public void setToken(AntiCsrfParamToken token) {
         this.token = token;
     }
-    
+
     @Override
     protected boolean validateFields() {
         if (token.getName().equals(getNameTextField().getText())) {
@@ -59,5 +60,4 @@ class DialogModifyToken extends DialogAddToken {
 
         getEnabledCheckBox().setSelected(token.isEnabled());
     }
-
 }

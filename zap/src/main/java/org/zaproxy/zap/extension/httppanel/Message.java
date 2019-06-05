@@ -21,25 +21,30 @@ package org.zaproxy.zap.extension.httppanel;
 
 import java.util.Collections;
 import java.util.Map;
-
 import org.zaproxy.zap.eventBus.Event;
 
 public interface Message {
-	boolean isInScope();
-	
-	boolean isForceIntercept();
-	
-	/**
-	 * Returns a map of data suitable for including in an {@link Event}
-	 * @since 2.8.0
-	 */
-	default Map<String, String> toEventData() { return Collections.emptyMap(); }
+    boolean isInScope();
 
-	/**
-	 * Returns the type of the message. By default this is the implementing class name, 
-	 * but ideally this should be replaced with a more readable string.
-	 * @since 2.8.0
-	 * @return the type of the message
-	 */
-	default String getType() { return this.getClass().getCanonicalName(); }
+    boolean isForceIntercept();
+
+    /**
+     * Returns a map of data suitable for including in an {@link Event}
+     *
+     * @since 2.8.0
+     */
+    default Map<String, String> toEventData() {
+        return Collections.emptyMap();
+    }
+
+    /**
+     * Returns the type of the message. By default this is the implementing class name, but ideally
+     * this should be replaced with a more readable string.
+     *
+     * @since 2.8.0
+     * @return the type of the message
+     */
+    default String getType() {
+        return this.getClass().getCanonicalName();
+    }
 }

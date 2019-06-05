@@ -25,16 +25,15 @@ import java.util.Objects;
 
 /**
  * A class that allows to query if a classname can be loaded.
- * <p>
- * The classnames can be allowed or restricted.
- * 
+ *
+ * <p>The classnames can be allowed or restricted.
+ *
  * @since 2.4.3
  */
 final class AddOnClassnames {
 
-    public static final AddOnClassnames ALL_ALLOWED = new AddOnClassnames(
-            Collections.<String> emptyList(),
-            Collections.<String> emptyList());
+    public static final AddOnClassnames ALL_ALLOWED =
+            new AddOnClassnames(Collections.<String>emptyList(), Collections.<String>emptyList());
 
     private final List<String> allowedClassnames;
     private final List<String> restrictedClassnames;

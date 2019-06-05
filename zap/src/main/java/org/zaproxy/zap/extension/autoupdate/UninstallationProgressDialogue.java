@@ -27,14 +27,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.GroupLayout;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
@@ -43,10 +41,10 @@ import org.zaproxy.zap.control.AddOnUninstallationProgressCallback;
 
 /**
  * Progress dialogue for uninstallation of add-ons.
- * <p>
- * It shows a progress bar, the current add-on being uninstalled and the current and number of components (e.g. extensions,
- * files...) uninstalled.
- * 
+ *
+ * <p>It shows a progress bar, the current add-on being uninstalled and the current and number of
+ * components (e.g. extensions, files...) uninstalled.
+ *
  * @since 2.4.0
  */
 class UninstallationProgressDialogue extends AbstractDialog {
@@ -108,19 +106,28 @@ class UninstallationProgressDialogue extends AbstractDialog {
         layout.setAutoCreateContainerGaps(true);
         layout.setHonorsVisibility(false);
 
-        JLabel messageLabel = new JLabel(Constant.messages.getString("cfu.uninstallation.progress.dialogue.uninstalling"));
+        JLabel messageLabel =
+                new JLabel(
+                        Constant.messages.getString(
+                                "cfu.uninstallation.progress.dialogue.uninstalling"));
 
-        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(messageLabel)
-                .addComponent(getStatusLabel())
-                .addComponent(getProgressBar(), 200, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE)
-                .addComponent(getCustomLabel()));
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addComponent(messageLabel)
+                        .addComponent(getStatusLabel())
+                        .addComponent(
+                                getProgressBar(),
+                                200,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.DEFAULT_SIZE)
+                        .addComponent(getCustomLabel()));
 
-        layout.setVerticalGroup(layout.createSequentialGroup()
-                .addComponent(messageLabel)
-                .addComponent(getStatusLabel())
-                .addComponent(getProgressBar())
-                .addComponent(getCustomLabel()));
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
+                        .addComponent(messageLabel)
+                        .addComponent(getStatusLabel())
+                        .addComponent(getProgressBar())
+                        .addComponent(getCustomLabel()));
 
         setContentPane(panel);
         pack();
@@ -154,9 +161,12 @@ class UninstallationProgressDialogue extends AbstractDialog {
 
     private void setCurrentAddOn(AddOn addOn) {
         currentAddOn = addOn;
-        getStatusLabel().setText(
-                Constant.messages
-                        .getString("cfu.uninstallation.progress.dialogue.currentAddOn", addOn.getName(), addOn.getVersion()));
+        getStatusLabel()
+                .setText(
+                        Constant.messages.getString(
+                                "cfu.uninstallation.progress.dialogue.currentAddOn",
+                                addOn.getName(),
+                                addOn.getVersion()));
     }
 
     private void setCustomMessage(String message) {
@@ -172,8 +182,8 @@ class UninstallationProgressDialogue extends AbstractDialog {
 
     /**
      * Binds the given uninstallation worker to this dialogue.
-     * <p>
-     * The dialogue is disposed once the worker finishes the uninstallation.
+     *
+     * <p>The dialogue is disposed once the worker finishes the uninstallation.
      *
      * @param worker the uninstallation worker
      */
@@ -183,12 +193,14 @@ class UninstallationProgressDialogue extends AbstractDialog {
 
     /**
      * Sets whether or not the dialogue should be shown synchronously.
-     * <p>
-     * If the dialogue is not shown synchronously the dialogue is only shown immediately if the calculated uninstallations will
-     * take some time otherwise it will not be shown unless it passed a given time. It might happen that the dialogue is not
-     * shown at all if the uninstallation finishes in a given threshold.
      *
-     * @param synchronous {@code true} if the dialogue should be shown synchronously, {@code false} otherwise
+     * <p>If the dialogue is not shown synchronously the dialogue is only shown immediately if the
+     * calculated uninstallations will take some time otherwise it will not be shown unless it
+     * passed a given time. It might happen that the dialogue is not shown at all if the
+     * uninstallation finishes in a given threshold.
+     *
+     * @param synchronous {@code true} if the dialogue should be shown synchronously, {@code false}
+     *     otherwise
      */
     public void setSynchronous(boolean synchronous) {
         this.synchronous = synchronous;
@@ -216,15 +228,16 @@ class UninstallationProgressDialogue extends AbstractDialog {
             if ((System.currentTimeMillis() - startTime) >= MS_TO_WAIT_BEFORE_SHOW) {
                 if (!done && !setVisibleInvoked) {
                     setVisibleInvoked = true;
-                    EventQueue.invokeLater(new Runnable() {
+                    EventQueue.invokeLater(
+                            new Runnable() {
 
-                        @Override
-                        public void run() {
-                            if (!done) {
-                                UninstallationProgressDialogue.super.setVisible(true);
-                            }
-                        }
-                    });
+                                @Override
+                                public void run() {
+                                    if (!done) {
+                                        UninstallationProgressDialogue.super.setVisible(true);
+                                    }
+                                }
+                            });
                 }
             }
         }
@@ -263,21 +276,21 @@ class UninstallationProgressDialogue extends AbstractDialog {
         if (currentType != last.getType()) {
             String keyMessage;
             switch (last.getType()) {
-            case FILE:
-                keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingFile";
-                break;
-            case ACTIVE_RULE:
-                keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingActiveScanner";
-                break;
-            case PASSIVE_RULE:
-                keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingPassiveScanner";
-                break;
-            case EXTENSION:
-                keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingExtension";
-                break;
-            default:
-                keyMessage = "";
-                break;
+                case FILE:
+                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingFile";
+                    break;
+                case ACTIVE_RULE:
+                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingActiveScanner";
+                    break;
+                case PASSIVE_RULE:
+                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingPassiveScanner";
+                    break;
+                case EXTENSION:
+                    keyMessage = "cfu.uninstallation.progress.dialogue.uninstallingExtension";
+                    break;
+                default:
+                    keyMessage = "";
+                    break;
             }
             currentType = last.getType();
             keyBaseStatusMessage = keyMessage;
@@ -287,14 +300,12 @@ class UninstallationProgressDialogue extends AbstractDialog {
             setCustomMessage("");
         } else {
             setCustomMessage(
-                    Constant.messages
-                            .getString(keyBaseStatusMessage, last.getValue(), last.getMax()));
+                    Constant.messages.getString(
+                            keyBaseStatusMessage, last.getValue(), last.getMax()));
         }
     }
 
-    /**
-     * A progress uninstallation event.
-     */
+    /** A progress uninstallation event. */
     static final class UninstallationProgressEvent {
 
         private enum Type {
@@ -373,7 +384,8 @@ class UninstallationProgressDialogue extends AbstractDialog {
         }
     }
 
-    public static abstract class UninstallationProgressHandler implements AddOnUninstallationProgressCallback {
+    public abstract static class UninstallationProgressHandler
+            implements AddOnUninstallationProgressCallback {
 
         protected abstract void publishEvent(UninstallationProgressEvent event);
 
@@ -426,7 +438,6 @@ class UninstallationProgressDialogue extends AbstractDialog {
         @Override
         public void fileRemoved() {
             publish();
-
         }
 
         @Override
@@ -456,13 +467,16 @@ class UninstallationProgressDialogue extends AbstractDialog {
 
         @Override
         public void propertyChange(PropertyChangeEvent event) {
-            if ("state".equals(event.getPropertyName()) && SwingWorker.StateValue.DONE == event.getNewValue()) {
+            if ("state".equals(event.getPropertyName())
+                    && SwingWorker.StateValue.DONE == event.getNewValue()) {
                 setVisible(false);
                 dispose();
                 done = true;
 
                 if (failedUninstallations) {
-                    View.getSingleton().showWarningDialog(getOwner(), Constant.messages.getString("cfu.unintall.failed"));
+                    View.getSingleton()
+                            .showWarningDialog(
+                                    getOwner(), Constant.messages.getString("cfu.unintall.failed"));
                 }
             }
         }

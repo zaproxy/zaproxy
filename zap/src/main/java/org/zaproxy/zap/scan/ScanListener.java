@@ -21,31 +21,31 @@ package org.zaproxy.zap.scan;
 
 /**
  * A listener interface for events related to Scanner Threads on Contexts.
- * 
+ *
  * @see BaseContextScannerThread
  */
 public interface ScanListener {
 
-	/**
-	 * Callback method called when the scan has started.
-	 *
-	 * @param contextId the context id
-	 */
-	void scanStarted(int contextId);
+    /**
+     * Callback method called when the scan has started.
+     *
+     * @param contextId the context id
+     */
+    void scanStarted(int contextId);
 
-	/**
-	 * Callback method called when the scan has finished.
-	 *
-	 * @param contextId the context id
-	 */
-	void scanFinished(int contextId);
+    /**
+     * Callback method called when the scan has finished.
+     *
+     * @param contextId the context id
+     */
+    void scanFinished(int contextId);
 
-	/**
-	 * Callback method called when the scan has changes its progress.
-	 *
-	 * @param contextId the context id
-	 * @param progress the progress
-	 * @param maximumProgress the maximum
-	 */
-	void scanProgress(int contextId, int progress, int maximumProgress);
+    /**
+     * Callback method called when the scan has changes its progress.
+     *
+     * @param contextId the context id
+     * @param progress the progress
+     * @param maximumProgress the maximum
+     */
+    void scanProgress(int contextId, int progress, int maximumProgress);
 }

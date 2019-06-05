@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.httppanel.component.split.response;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
@@ -30,39 +29,40 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseBodyPanelTextView extends HttpPanelTextView {
 
-	public HttpResponseBodyPanelTextView(ResponseBodyStringHttpPanelViewModel model) {
-		super(model);
-	}
-	
-	@Override
-	protected HttpPanelTextArea createHttpPanelTextArea() {
-		return new HttpResponseBodyPanelTextArea();
-	}
-	
-	private static class HttpResponseBodyPanelTextArea extends HttpPanelTextArea {
+    public HttpResponseBodyPanelTextView(ResponseBodyStringHttpPanelViewModel model) {
+        super(model);
+    }
 
-		private static final long serialVersionUID = -3732558325150729623L;
+    @Override
+    protected HttpPanelTextArea createHttpPanelTextArea() {
+        return new HttpResponseBodyPanelTextArea();
+    }
 
-		@Override
-		public void search(Pattern p, List<SearchMatch> matches) {
-			Matcher m = p.matcher(getText());
-			while (m.find()) {
-				matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_BODY, m.start(), m.end()));
-			}
-		}
-		
-		@Override
-		public void highlight(SearchMatch sm) {
-			if (!SearchMatch.Location.RESPONSE_BODY.equals(sm.getLocation())) {
-				return;
-			}
-			
-			int len = getText().length();
-			if (sm.getStart() > len || sm.getEnd() > len) {
-				return;
-			}
-			
-			highlight(sm.getStart(), sm.getEnd());
-		}
-	}
+    private static class HttpResponseBodyPanelTextArea extends HttpPanelTextArea {
+
+        private static final long serialVersionUID = -3732558325150729623L;
+
+        @Override
+        public void search(Pattern p, List<SearchMatch> matches) {
+            Matcher m = p.matcher(getText());
+            while (m.find()) {
+                matches.add(
+                        new SearchMatch(SearchMatch.Location.RESPONSE_BODY, m.start(), m.end()));
+            }
+        }
+
+        @Override
+        public void highlight(SearchMatch sm) {
+            if (!SearchMatch.Location.RESPONSE_BODY.equals(sm.getLocation())) {
+                return;
+            }
+
+            int len = getText().length();
+            if (sm.getStart() > len || sm.getEnd() > len) {
+                return;
+            }
+
+            highlight(sm.getStart(), sm.getEnd());
+        }
+    }
 }

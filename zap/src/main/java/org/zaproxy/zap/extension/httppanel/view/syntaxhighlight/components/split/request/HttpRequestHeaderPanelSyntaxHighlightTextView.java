@@ -24,12 +24,8 @@ import java.awt.Component;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
-import org.zaproxy.zap.model.HttpMessageLocation;
-import org.zaproxy.zap.model.TextHttpMessageLocation;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
@@ -37,7 +33,10 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxH
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
+import org.zaproxy.zap.model.HttpMessageLocation;
 import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.model.TextHttpMessageLocation;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableContentHttpMessageContainer;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightsManager;
@@ -46,112 +45,127 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListener
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager;
 
-public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView implements SelectableContentHttpMessageContainer {
+public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView
+        implements SelectableContentHttpMessageContainer {
 
-	public static final String NAME = "HttpRequestHeaderSyntaxTextView";
+    public static final String NAME = "HttpRequestHeaderSyntaxTextView";
 
-	private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
+    private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
 
-	public HttpRequestHeaderPanelSyntaxHighlightTextView(RequestHeaderStringHttpPanelViewModel model) {
-		super(model);
+    public HttpRequestHeaderPanelSyntaxHighlightTextView(
+            RequestHeaderStringHttpPanelViewModel model) {
+        super(model);
 
-		getHttpPanelTextArea().setComponentPopupMenu(new CustomPopupMenu() {
+        getHttpPanelTextArea()
+                .setComponentPopupMenu(
+                        new CustomPopupMenu() {
 
-			private static final long serialVersionUID = -426000345249750052L;
+                            private static final long serialVersionUID = -426000345249750052L;
 
-			@Override
-			public void show(Component invoker, int x, int y) {
-				if (!getHttpPanelTextArea().isFocusOwner()) {
-					getHttpPanelTextArea().requestFocusInWindow();
-				}
+                            @Override
+                            public void show(Component invoker, int x, int y) {
+                                if (!getHttpPanelTextArea().isFocusOwner()) {
+                                    getHttpPanelTextArea().requestFocusInWindow();
+                                }
 
-				View.getSingleton().getPopupMenu().show(HttpRequestHeaderPanelSyntaxHighlightTextView.this, x, y);
-			};
-		});
-	}
-	
-	@Override
-	protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-		return new HttpRequestHeaderPanelSyntaxHighlightTextArea();
-	}
-	
+                                View.getSingleton()
+                                        .getPopupMenu()
+                                        .show(
+                                                HttpRequestHeaderPanelSyntaxHighlightTextView.this,
+                                                x,
+                                                y);
+                            };
+                        });
+    }
+
+    @Override
+    protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
+        return new HttpRequestHeaderPanelSyntaxHighlightTextArea();
+    }
+
     @Override
     protected HttpRequestHeaderPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
         return (HttpRequestHeaderPanelSyntaxHighlightTextArea) super.getHttpPanelTextArea();
     }
 
-	private static class HttpRequestHeaderPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea {
+    private static class HttpRequestHeaderPanelSyntaxHighlightTextArea
+            extends HttpPanelSyntaxHighlightTextArea {
 
-		private static final long serialVersionUID = -4532294585338584747L;
-		
-		//private static final String HTTP_REQUEST_HEADER = "HTTP Request Header";
-		
-		//private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER = "text/http-request-header";
+        private static final long serialVersionUID = -4532294585338584747L;
 
-		private static RequestHeaderTokenMakerFactory tokenMakerFactory = null;
-		
-		private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
-		
-		public HttpRequestHeaderPanelSyntaxHighlightTextArea() {
-			//addSyntaxStyle(HTTP_REQUEST_HEADER, SYNTAX_STYLE_HTTP_REQUEST_HEADER);
-			
-			//setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_REQUEST_HEADER);
-			
-			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
-		}
-		
-		@Override
-		public String getName() {
-		    return NAME;
-		}
-		
-		@Override
-		public HttpMessage getMessage() {
-			return (HttpMessage) super.getMessage();
-		}
-		
-		@Override
-		public void setMessage(Message aMessage) {
-			super.setMessage(aMessage);
-			
-			caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
-		}
+        // private static final String HTTP_REQUEST_HEADER = "HTTP Request Header";
 
-		protected MessageLocation getSelection() {
-			int[] position = HttpTextViewUtils.getViewToHeaderPosition(this, getSelectionStart(), getSelectionEnd());
-			if (position.length == 0) {
-				return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, 0);
-			}
+        // private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER =
+        // "text/http-request-header";
 
-			int start = position[0];
-			int end = position[1];
-			if (start == end) {
-				return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, start);
-			}
+        private static RequestHeaderTokenMakerFactory tokenMakerFactory = null;
 
-			return new DefaultTextHttpMessageLocation(
-					HttpMessageLocation.Location.REQUEST_HEADER,
-					start,
-					end,
-					getMessage().getRequestHeader().toString().substring(start, end));
-		}
+        private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
 
-		protected MessageLocationHighlightsManager create() {
+        public HttpRequestHeaderPanelSyntaxHighlightTextArea() {
+            // addSyntaxStyle(HTTP_REQUEST_HEADER, SYNTAX_STYLE_HTTP_REQUEST_HEADER);
+
+            // setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_REQUEST_HEADER);
+
+            caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+        }
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public HttpMessage getMessage() {
+            return (HttpMessage) super.getMessage();
+        }
+
+        @Override
+        public void setMessage(Message aMessage) {
+            super.setMessage(aMessage);
+
+            caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
+        }
+
+        protected MessageLocation getSelection() {
+            int[] position =
+                    HttpTextViewUtils.getViewToHeaderPosition(
+                            this, getSelectionStart(), getSelectionEnd());
+            if (position.length == 0) {
+                return new DefaultTextHttpMessageLocation(
+                        HttpMessageLocation.Location.REQUEST_HEADER, 0);
+            }
+
+            int start = position[0];
+            int end = position[1];
+            if (start == end) {
+                return new DefaultTextHttpMessageLocation(
+                        HttpMessageLocation.Location.REQUEST_HEADER, start);
+            }
+
+            return new DefaultTextHttpMessageLocation(
+                    HttpMessageLocation.Location.REQUEST_HEADER,
+                    start,
+                    end,
+                    getMessage().getRequestHeader().toString().substring(start, end));
+        }
+
+        protected MessageLocationHighlightsManager create() {
             return new TextMessageLocationHighlightsManager();
         }
 
         protected MessageLocationHighlight highlightImpl(
-                TextHttpMessageLocation textLocation,
-                TextMessageLocationHighlight textHighlight) {
+                TextHttpMessageLocation textLocation, TextMessageLocationHighlight textHighlight) {
             if (getMessage() == null) {
                 return null;
             }
 
-            int[] pos = HttpTextViewUtils.getHeaderToViewPosition(
-                    this,
-                    getMessage().getRequestHeader().toString(),
-                    textLocation.getStart(),
-                    textLocation.getEnd());
+            int[] pos =
+                    HttpTextViewUtils.getHeaderToViewPosition(
+                            this,
+                            getMessage().getRequestHeader().toString(),
+                            textLocation.getStart(),
+                            textLocation.getEnd());
             if (pos.length == 0) {
                 return null;
             }
@@ -160,55 +174,60 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
             return textHighlight;
         }
 
-		@Override
-		public void search(Pattern p, List<SearchMatch> matches) {
-			Matcher m = p.matcher(getText());
-			while (m.find()) {
+        @Override
+        public void search(Pattern p, List<SearchMatch> matches) {
+            Matcher m = p.matcher(getText());
+            while (m.find()) {
 
-				int[] position = HttpTextViewUtils.getViewToHeaderPosition(this, m.start(), m.end());
-				if (position.length == 0) {
-					return;
-				}
-				
-				matches.add(new SearchMatch(SearchMatch.Location.REQUEST_HEAD, position[0], position[1]));
-			}
-		}
-		
-		@Override
-		public void highlight(SearchMatch sm) {
-			if (!SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation())) {
-				return;
-			}
-			
-			int[] pos = HttpTextViewUtils.getHeaderToViewPosition(
-					this,
-					sm.getMessage().getRequestHeader().toString(),
-					sm.getStart(),
-					sm.getEnd());
-			if (pos.length == 0) {
-				return;
-			}
-			highlight(pos[0], pos[1]);
-		}
-		
-		@Override
-		protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
-			if (tokenMakerFactory == null) {
-				tokenMakerFactory = new RequestHeaderTokenMakerFactory();
-			}
-			return tokenMakerFactory;
-		}
-		
-		private static class RequestHeaderTokenMakerFactory extends CustomTokenMakerFactory {
-			
-			public RequestHeaderTokenMakerFactory() {
-				//String pkg = "org.zaproxy.zap.extension.httppanel.view.text.lexers.";
-				
-				//putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER, pkg + "HttpRequestHeaderTokenMaker");
-			}
-		}
-	}
-	
+                int[] position =
+                        HttpTextViewUtils.getViewToHeaderPosition(this, m.start(), m.end());
+                if (position.length == 0) {
+                    return;
+                }
+
+                matches.add(
+                        new SearchMatch(
+                                SearchMatch.Location.REQUEST_HEAD, position[0], position[1]));
+            }
+        }
+
+        @Override
+        public void highlight(SearchMatch sm) {
+            if (!SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation())) {
+                return;
+            }
+
+            int[] pos =
+                    HttpTextViewUtils.getHeaderToViewPosition(
+                            this,
+                            sm.getMessage().getRequestHeader().toString(),
+                            sm.getStart(),
+                            sm.getEnd());
+            if (pos.length == 0) {
+                return;
+            }
+            highlight(pos[0], pos[1]);
+        }
+
+        @Override
+        protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
+            if (tokenMakerFactory == null) {
+                tokenMakerFactory = new RequestHeaderTokenMakerFactory();
+            }
+            return tokenMakerFactory;
+        }
+
+        private static class RequestHeaderTokenMakerFactory extends CustomTokenMakerFactory {
+
+            public RequestHeaderTokenMakerFactory() {
+                // String pkg = "org.zaproxy.zap.extension.httppanel.view.text.lexers.";
+
+                // putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER, pkg +
+                // "HttpRequestHeaderTokenMaker");
+            }
+        }
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -241,11 +260,13 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         }
         TextHttpMessageLocation textLocation = (TextHttpMessageLocation) location;
 
-        return getHttpPanelTextArea().highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
+        return getHttpPanelTextArea()
+                .highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
     }
 
     @Override
-    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+    public MessageLocationHighlight highlight(
+            MessageLocation location, MessageLocationHighlight highlight) {
         if (!supports(location) || !(highlight instanceof TextMessageLocationHighlight)) {
             return null;
         }
@@ -256,11 +277,15 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
     }
 
     @Override
-    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+    public void removeHighlight(
+            MessageLocation location, MessageLocationHighlight highlightReference) {
         if (!(highlightReference instanceof TextMessageLocationHighlight)) {
             return;
         }
-        getHttpPanelTextArea().removeHighlight(((TextMessageLocationHighlight) highlightReference).getHighlightReference());
+        getHttpPanelTextArea()
+                .removeHighlight(
+                        ((TextMessageLocationHighlight) highlightReference)
+                                .getHighlightReference());
     }
 
     @Override
@@ -268,7 +293,8 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         if (!(location instanceof TextHttpMessageLocation)) {
             return false;
         }
-        return ((TextHttpMessageLocation) location).getLocation() == TextHttpMessageLocation.Location.REQUEST_HEADER;
+        return ((TextHttpMessageLocation) location).getLocation()
+                == TextHttpMessageLocation.Location.REQUEST_HEADER;
     }
 
     @Override
@@ -313,6 +339,4 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         }
         return focusListenerAdapter;
     }
-
 }
-

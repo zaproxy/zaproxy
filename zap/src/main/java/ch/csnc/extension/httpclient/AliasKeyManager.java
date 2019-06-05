@@ -35,22 +35,23 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-
 import javax.net.ssl.X509KeyManager;
 
 /**
- * A KeyManager implementation that only ever selects a single alias,
- * rather than considering the "best" alias for the circumstances
+ * A KeyManager implementation that only ever selects a single alias, rather than considering the
+ * "best" alias for the circumstances
+ *
  * @author rdawes
  */
 public class AliasKeyManager implements X509KeyManager {
-    
+
     private KeyStore _ks;
     private String _alias;
     private String _keyPassword;
-    
+
     /**
      * Creates a new instance of AliasKeyManager
+     *
      * @param ks The KeyStore that contains the keypair to use
      * @param alias the alias of the certificate to use
      * @param keyPassword the password for the key (not the keystore)
@@ -60,7 +61,7 @@ public class AliasKeyManager implements X509KeyManager {
         _alias = alias;
         _keyPassword = keyPassword;
     }
-    
+
     public String chooseClientAlias(String[] str, Principal[] principal, Socket socket) {
         return _alias;
     }
@@ -74,8 +75,8 @@ public class AliasKeyManager implements X509KeyManager {
             Certificate[] certs = _ks.getCertificateChain(alias);
             if (certs == null) return null;
             X509Certificate[] x509certs = new X509Certificate[certs.length];
-            for (int i=0; i<certs.length; i++) {
-                x509certs[i]=(X509Certificate) certs[i];
+            for (int i = 0; i < certs.length; i++) {
+                x509certs[i] = (X509Certificate) certs[i];
             }
             return x509certs;
         } catch (KeyStoreException kse) {
@@ -85,7 +86,7 @@ public class AliasKeyManager implements X509KeyManager {
     }
 
     public String[] getClientAliases(String str, Principal[] principal) {
-        return new String[] { _alias };
+        return new String[] {_alias};
     }
 
     public PrivateKey getPrivateKey(String alias) {
@@ -104,7 +105,6 @@ public class AliasKeyManager implements X509KeyManager {
     }
 
     public String[] getServerAliases(String str, Principal[] principal) {
-        return new String[] { _alias };
+        return new String[] {_alias};
     }
-    
 }

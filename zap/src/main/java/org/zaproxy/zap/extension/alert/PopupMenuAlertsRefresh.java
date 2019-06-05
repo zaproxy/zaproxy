@@ -21,26 +21,24 @@ package org.zaproxy.zap.extension.alert;
 
 import java.awt.Component;
 import java.util.Set;
-
 import javax.swing.tree.DefaultTreeModel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
-
 /**
- * A {@link PopupMenuItemAlert} that allows to refresh the Alerts tree (the UI tree is rebuilt from the model already set).
- * 
+ * A {@link PopupMenuItemAlert} that allows to refresh the Alerts tree (the UI tree is rebuilt from
+ * the model already set).
+ *
  * @since 1.4.0
  */
 public class PopupMenuAlertsRefresh extends PopupMenuItemAlert {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public PopupMenuAlertsRefresh() {
         super(Constant.messages.getString("alerts.refresh.popup"), true);
-	}
-	
+    }
+
     @Override
     protected void performActions(Set<Alert> alerts) {
         ((DefaultTreeModel) getExtensionAlert().getAlertPanel().getTreeAlert().getModel()).reload();
@@ -54,7 +52,7 @@ public class PopupMenuAlertsRefresh extends PopupMenuItemAlert {
         }
         return false;
     }
-    
+
     @Override
     protected void performAction(Alert alert) {
         // Nothing to do.

@@ -22,49 +22,50 @@ package org.zaproxy.zap.view.table;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 
 /**
- * An abstract implementation of {@code HistoryReferencesTableModel}. It contains basic implementation of all the methods except
- * the ones that access the data. the names of all the columns and has
- * 
+ * An abstract implementation of {@code HistoryReferencesTableModel}. It contains basic
+ * implementation of all the methods except the ones that access the data. the names of all the
+ * columns and has
+ *
  * @param <T> the type of table model entries
  */
-public abstract class AbstractHistoryReferencesTableModel<T extends HistoryReferencesTableEntry> extends AbstractTableModel
-        implements HistoryReferencesTableModel<T> {
+public abstract class AbstractHistoryReferencesTableModel<T extends HistoryReferencesTableEntry>
+        extends AbstractTableModel implements HistoryReferencesTableModel<T> {
 
     private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("view.href.table.header.hrefid"),
-            Constant.messages.getString("view.href.table.header.timestamp.request"),
-            Constant.messages.getString("view.href.table.header.timestamp.response"),
-            Constant.messages.getString("view.href.table.header.hreftype"),
-            Constant.messages.getString("view.href.table.header.method"),
-            Constant.messages.getString("view.href.table.header.url"),
-            Constant.messages.getString("view.href.table.header.code"),
-            Constant.messages.getString("view.href.table.header.reason"),
-            Constant.messages.getString("view.href.table.header.rtt"),
-            Constant.messages.getString("view.href.table.header.size.message"),
-            Constant.messages.getString("view.href.table.header.size.requestheader"),
-            Constant.messages.getString("view.href.table.header.size.requestbody"),
-            Constant.messages.getString("view.href.table.header.size.responseheader"),
-            Constant.messages.getString("view.href.table.header.size.responsebody"),
-            Constant.messages.getString("view.href.table.header.sessionid"),
-            Constant.messages.getString("view.href.table.header.highestalert"),
-            Constant.messages.getString("view.href.table.header.note"),
-            Constant.messages.getString("view.href.table.header.tags") };
+        Constant.messages.getString("view.href.table.header.hrefid"),
+        Constant.messages.getString("view.href.table.header.timestamp.request"),
+        Constant.messages.getString("view.href.table.header.timestamp.response"),
+        Constant.messages.getString("view.href.table.header.hreftype"),
+        Constant.messages.getString("view.href.table.header.method"),
+        Constant.messages.getString("view.href.table.header.url"),
+        Constant.messages.getString("view.href.table.header.code"),
+        Constant.messages.getString("view.href.table.header.reason"),
+        Constant.messages.getString("view.href.table.header.rtt"),
+        Constant.messages.getString("view.href.table.header.size.message"),
+        Constant.messages.getString("view.href.table.header.size.requestheader"),
+        Constant.messages.getString("view.href.table.header.size.requestbody"),
+        Constant.messages.getString("view.href.table.header.size.responseheader"),
+        Constant.messages.getString("view.href.table.header.size.responsebody"),
+        Constant.messages.getString("view.href.table.header.sessionid"),
+        Constant.messages.getString("view.href.table.header.highestalert"),
+        Constant.messages.getString("view.href.table.header.note"),
+        Constant.messages.getString("view.href.table.header.tags")
+    };
 
     private final Column[] columns;
 
     private final Map<Column, Integer> cacheColumnToColumnIdx;
 
     /**
-     * Constructs an {@code AbstractHistoryReferencesTableModel} with the specified columns (in the specified order).
-     * 
+     * Constructs an {@code AbstractHistoryReferencesTableModel} with the specified columns (in the
+     * specified order).
+     *
      * @param columns the columns that will have the model
      * @throws IllegalArgumentException if {@code columns} is null or empty.
      */
@@ -89,7 +90,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
 
     /**
      * Tells whether or not the given column index is a custom column.
-     * 
+     *
      * @param columnIndex the column index
      * @return {@code true} if it is a custom column, {@code false} otherwise.
      * @see HistoryReferencesTableModel.Column#CUSTOM
@@ -100,7 +101,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
 
     /**
      * Returns the {@code Class} of the given column.
-     * 
+     *
      * @param columnIndex the column being queried
      * @return the {@code Class} of the column
      */
@@ -148,7 +149,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
 
     /**
      * Tells whether or not the given column index in the given columns is a custom column.
-     * 
+     *
      * @param columns the columns that will checked
      * @param columnIndex the column index
      * @return {@code true} if it is a custom column, {@code false} otherwise.
@@ -156,5 +157,4 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
     protected static boolean isCustomColumn(final Column[] columns, final int columnIndex) {
         return (columns[columnIndex] == Column.CUSTOM);
     }
-
 }

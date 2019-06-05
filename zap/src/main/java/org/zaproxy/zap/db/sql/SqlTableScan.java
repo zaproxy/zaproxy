@@ -22,98 +22,97 @@ package org.zaproxy.zap.db.sql;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordScan;
 import org.parosproxy.paros.db.TableScan;
 
 public class SqlTableScan extends SqlAbstractTable implements TableScan {
-    
-    private static final String SCANID 		= DbSQL.getSQL("scan.field.scanid");
-    private static final String SCANNAME	= DbSQL.getSQL("scan.field.scanname");
-    private static final String SCANTIME 	= DbSQL.getSQL("scan.field.scantime");
 
-    public SqlTableScan() {
-    }
-        
+    private static final String SCANID = DbSQL.getSQL("scan.field.scanid");
+    private static final String SCANNAME = DbSQL.getSQL("scan.field.scanname");
+    private static final String SCANTIME = DbSQL.getSQL("scan.field.scantime");
+
+    public SqlTableScan() {}
+
     @Override
-    protected void reconnect(Connection conn) throws DatabaseException {
-    }
-    
+    protected void reconnect(Connection conn) throws DatabaseException {}
+
     /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableScan#getLatestScan()
-	 */
+     * @see org.parosproxy.paros.db.paros.TableScan#getLatestScan()
+     */
     @Override
-	public synchronized RecordScan getLatestScan() throws DatabaseException {
-    	SqlPreparedStatementWrapper psGetLatestScan = null;
+    public synchronized RecordScan getLatestScan() throws DatabaseException {
+        SqlPreparedStatementWrapper psGetLatestScan = null;
         try {
-        	psGetLatestScan = DbSQL.getSingleton().getPreparedStatement("scan.ps.getlatestscan");
-			try (ResultSet rs = psGetLatestScan.getPs().executeQuery()) {
-				return build(rs);
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psGetLatestScan);
-		}
+            psGetLatestScan = DbSQL.getSingleton().getPreparedStatement("scan.ps.getlatestscan");
+            try (ResultSet rs = psGetLatestScan.getPs().executeQuery()) {
+                return build(rs);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psGetLatestScan);
+        }
     }
-    
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableScan#read(int)
-	 */
-	@Override
-	public synchronized RecordScan read(int scanId) throws DatabaseException {
-    	SqlPreparedStatementWrapper psRead = null;
-        try {
-        	psRead = DbSQL.getSingleton().getPreparedStatement("scan.ps.read");
-			psRead.getPs().setInt(1, scanId);
-			
-			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				return build(rs);
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psRead);
-		}
-	}
-	
+
     /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableScan#insert(long, java.lang.String)
-	 */
+     * @see org.parosproxy.paros.db.paros.TableScan#read(int)
+     */
     @Override
-	public synchronized RecordScan insert(long sessionId, String scanName) throws DatabaseException {
-    	SqlPreparedStatementWrapper psInsert = null;
+    public synchronized RecordScan read(int scanId) throws DatabaseException {
+        SqlPreparedStatementWrapper psRead = null;
         try {
-        	psInsert = DbSQL.getSingleton().getPreparedStatement("scan.ps.insert");
-			psInsert.getPs().setLong(1, sessionId);
-			psInsert.getPs().setString(2, scanName);
-			psInsert.getPs().executeUpdate();
-			
-			int id;
-			try (ResultSet rs = psInsert.getLastInsertedId()) {
-				rs.next();
-				id = rs.getInt(1);
-			}
-			return read(id);
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psInsert);
-		}
+            psRead = DbSQL.getSingleton().getPreparedStatement("scan.ps.read");
+            psRead.getPs().setInt(1, scanId);
+
+            try (ResultSet rs = psRead.getPs().executeQuery()) {
+                return build(rs);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psRead);
+        }
     }
-        
+
+    /* (non-Javadoc)
+     * @see org.parosproxy.paros.db.paros.TableScan#insert(long, java.lang.String)
+     */
+    @Override
+    public synchronized RecordScan insert(long sessionId, String scanName)
+            throws DatabaseException {
+        SqlPreparedStatementWrapper psInsert = null;
+        try {
+            psInsert = DbSQL.getSingleton().getPreparedStatement("scan.ps.insert");
+            psInsert.getPs().setLong(1, sessionId);
+            psInsert.getPs().setString(2, scanName);
+            psInsert.getPs().executeUpdate();
+
+            int id;
+            try (ResultSet rs = psInsert.getLastInsertedId()) {
+                rs.next();
+                id = rs.getInt(1);
+            }
+            return read(id);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psInsert);
+        }
+    }
+
     private RecordScan build(ResultSet rs) throws DatabaseException {
         try {
-			RecordScan scan = null;
-			if (rs.next()) {
-			    scan = new RecordScan(rs.getInt(SCANID), rs.getString(SCANNAME), rs.getDate(SCANTIME));            
-			}
-			rs.close();
-			return scan;
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
-    }    
-    
+            RecordScan scan = null;
+            if (rs.next()) {
+                scan =
+                        new RecordScan(
+                                rs.getInt(SCANID), rs.getString(SCANNAME), rs.getDate(SCANTIME));
+            }
+            rs.close();
+            return scan;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }

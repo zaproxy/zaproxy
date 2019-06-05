@@ -22,10 +22,8 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -34,101 +32,106 @@ import org.parosproxy.paros.view.View;
 
 public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 
-	public static final String PANEL_NAME = Constant.messages.getString("session.proxy.exclude.title"); 
-	private static final long serialVersionUID = -8337361808959321380L;
-	
-	private JPanel panelSession = null;
-	private MultipleRegexesOptionsPanel regexesPanel;
-	
+    public static final String PANEL_NAME =
+            Constant.messages.getString("session.proxy.exclude.title");
+    private static final long serialVersionUID = -8337361808959321380L;
+
+    private JPanel panelSession = null;
+    private MultipleRegexesOptionsPanel regexesPanel;
+
     public SessionExcludeFromProxyPanel() {
         super();
- 		initialize();
-	}
-    
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
+        initialize();
+    }
+
+    /** This method initializes this */
+    private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(PANEL_NAME);
         regexesPanel = new MultipleRegexesOptionsPanel(View.getSingleton().getSessionDialog());
         this.add(getPanelSession(), getPanelSession().getName());
-	}
-	
-	/**
-	 * This method initializes panelSession	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getPanelSession() {
-		if (panelSession == null) {
+    }
 
-			panelSession = new JPanel();
-			panelSession.setLayout(new GridBagLayout());
-			panelSession.setName("Ignoreproxy");
+    /**
+     * This method initializes panelSession
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getPanelSession() {
+        if (panelSession == null) {
 
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-	        GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+            panelSession = new JPanel();
+            panelSession.setLayout(new GridBagLayout());
+            panelSession.setName("Ignoreproxy");
 
-	        javax.swing.JLabel jLabel = new JLabel();
+            java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 
-	        jLabel.setText(Constant.messages.getString("session.proxy.label.ignore"));
-	        gridBagConstraints1.gridx = 0;
-	        gridBagConstraints1.gridy = 0;
-	        gridBagConstraints1.gridheight = 1;
-	        gridBagConstraints1.insets = new java.awt.Insets(10,0,5,0);
-	        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-	        gridBagConstraints1.weightx = 0.0D;
+            javax.swing.JLabel jLabel = new JLabel();
 
-	        gridBagConstraints2.gridx = 0;
-	        gridBagConstraints2.gridy = 1;
-	        gridBagConstraints2.weightx = 1.0;
-	        gridBagConstraints2.weighty = 1.0;
-	        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-	        gridBagConstraints2.ipadx = 0;
-	        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-	        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            jLabel.setText(Constant.messages.getString("session.proxy.label.ignore"));
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = 0;
+            gridBagConstraints1.gridheight = 1;
+            gridBagConstraints1.insets = new java.awt.Insets(10, 0, 5, 0);
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints1.weightx = 0.0D;
 
-	        JLabel noteLabel = new JLabel();
-	        noteLabel.setText(Constant.messages.getString("options.globalexcludeurl.seeglobalconfig"));
+            gridBagConstraints2.gridx = 0;
+            gridBagConstraints2.gridy = 1;
+            gridBagConstraints2.weightx = 1.0;
+            gridBagConstraints2.weighty = 1.0;
+            gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints2.ipadx = 0;
+            gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
+            gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
 
-	        gridBagConstraints3.gridx = 0;
-	        gridBagConstraints3.gridy = 2;
-	        gridBagConstraints3.gridheight = 1;
-	        gridBagConstraints3.weightx = 1.0;
-	        gridBagConstraints3.weighty = 0.0;
-	        gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
-	        gridBagConstraints3.ipadx = 0;
-	        gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
-	        gridBagConstraints3.anchor = java.awt.GridBagConstraints.SOUTH;
+            JLabel noteLabel = new JLabel();
+            noteLabel.setText(
+                    Constant.messages.getString("options.globalexcludeurl.seeglobalconfig"));
 
-	        panelSession.add(jLabel, gridBagConstraints1);
-	        panelSession.add(regexesPanel, gridBagConstraints2);
-	        panelSession.add(noteLabel, gridBagConstraints3);
-		}
-		return panelSession;
-	}
-	
-	@Override
-	public void initParam(Object obj) {
-	    Session session = (Session) obj;
-	    regexesPanel.setRegexes(session.getExcludeFromProxyRegexs());
-	    regexesPanel.setRemoveWithoutConfirmation(
-	            !Model.getSingleton().getOptionsParam().getViewParam().isConfirmRemoveProxyExcludeRegex());
-	}
-	
-	@Override
-	public void saveParam (Object obj) throws Exception {
-	    Session session = (Session) obj;
-	    session.setExcludeFromProxyRegexs(regexesPanel.getRegexes());
-	    Model.getSingleton().getOptionsParam().getViewParam().setConfirmRemoveProxyExcludeRegex(
-	            !regexesPanel.isRemoveWithoutConfirmation());
-	}
-	
-	@Override
-	public String getHelpIndex() {
-		return "ui.dialogs.sessprop";
-	}
+            gridBagConstraints3.gridx = 0;
+            gridBagConstraints3.gridy = 2;
+            gridBagConstraints3.gridheight = 1;
+            gridBagConstraints3.weightx = 1.0;
+            gridBagConstraints3.weighty = 0.0;
+            gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints3.ipadx = 0;
+            gridBagConstraints3.insets = new java.awt.Insets(0, 0, 0, 0);
+            gridBagConstraints3.anchor = java.awt.GridBagConstraints.SOUTH;
+
+            panelSession.add(jLabel, gridBagConstraints1);
+            panelSession.add(regexesPanel, gridBagConstraints2);
+            panelSession.add(noteLabel, gridBagConstraints3);
+        }
+        return panelSession;
+    }
+
+    @Override
+    public void initParam(Object obj) {
+        Session session = (Session) obj;
+        regexesPanel.setRegexes(session.getExcludeFromProxyRegexs());
+        regexesPanel.setRemoveWithoutConfirmation(
+                !Model.getSingleton()
+                        .getOptionsParam()
+                        .getViewParam()
+                        .isConfirmRemoveProxyExcludeRegex());
+    }
+
+    @Override
+    public void saveParam(Object obj) throws Exception {
+        Session session = (Session) obj;
+        session.setExcludeFromProxyRegexs(regexesPanel.getRegexes());
+        Model.getSingleton()
+                .getOptionsParam()
+                .getViewParam()
+                .setConfirmRemoveProxyExcludeRegex(!regexesPanel.isRemoveWithoutConfirmation());
+    }
+
+    @Override
+    public String getHelpIndex() {
+        return "ui.dialogs.sessprop";
+    }
 }

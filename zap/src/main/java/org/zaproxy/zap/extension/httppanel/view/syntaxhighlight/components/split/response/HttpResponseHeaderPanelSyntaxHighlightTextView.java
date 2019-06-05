@@ -22,87 +22,93 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.spli
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
-public class HttpResponseHeaderPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
+public class HttpResponseHeaderPanelSyntaxHighlightTextView
+        extends HttpPanelSyntaxHighlightTextView {
 
-	public HttpResponseHeaderPanelSyntaxHighlightTextView(ResponseHeaderStringHttpPanelViewModel model) {
-		super(model);
-	}
-	
-	@Override
-	protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-		return new HttpResponseHeaderPanelSyntaxHighlightTextArea();
-	}
-	
-	private static class HttpResponseHeaderPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea {
+    public HttpResponseHeaderPanelSyntaxHighlightTextView(
+            ResponseHeaderStringHttpPanelViewModel model) {
+        super(model);
+    }
 
-		private static final long serialVersionUID = 6197189781594557597L;
-		
-		//private static final String HTTP_RESPONSE_HEADER = "HTTP Response Header";
-		
-		//private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER = "text/http-response-header";
-		
-		private static ResponseHeaderTokenMakerFactory tokenMakerFactory = null;
-		
-		public HttpResponseHeaderPanelSyntaxHighlightTextArea() {
-			//addSyntaxStyle(HTTP_RESPONSE_HEADER, SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
-			
-			//setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
-		}
-		
-		@Override
-		public void search(Pattern p, List<SearchMatch> matches) {
-			Matcher m = p.matcher(getText());
-			while (m.find()) {
+    @Override
+    protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
+        return new HttpResponseHeaderPanelSyntaxHighlightTextArea();
+    }
 
-				int[] position = HttpTextViewUtils.getViewToHeaderPosition(this, m.start(), m.end());
-				if (position.length == 0) {
-					return;
-				}
-				
-				matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_HEAD, position[0], position[1]));
-			}
-		}
-		
-		@Override
-		public void highlight(SearchMatch sm) {
-			if (!SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation())) {
-				return;
-			}
-			
-			int[] pos = HttpTextViewUtils.getHeaderToViewPosition(
-					this,
-					sm.getMessage().getResponseHeader().toString(),
-					sm.getStart(),
-					sm.getEnd());
-			if (pos.length == 0) {
-				return;
-			}
-			highlight(pos[0], pos[1]);
-		}
+    private static class HttpResponseHeaderPanelSyntaxHighlightTextArea
+            extends HttpPanelSyntaxHighlightTextArea {
 
-		@Override
-		protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
-			if (tokenMakerFactory == null) {
-				tokenMakerFactory = new ResponseHeaderTokenMakerFactory();
-			}
-			return tokenMakerFactory;
-		}
-		
-		private static class ResponseHeaderTokenMakerFactory extends CustomTokenMakerFactory {
-			
-			public ResponseHeaderTokenMakerFactory() {
-				//String pkg = "";
-				
-				//putMapping(SYNTAX_STYLE_HTTP_RESPONSE_HEADER, pkg + "HttpResponseTokenMaker");
-			}
-		}
-	}
+        private static final long serialVersionUID = 6197189781594557597L;
+
+        // private static final String HTTP_RESPONSE_HEADER = "HTTP Response Header";
+
+        // private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER =
+        // "text/http-response-header";
+
+        private static ResponseHeaderTokenMakerFactory tokenMakerFactory = null;
+
+        public HttpResponseHeaderPanelSyntaxHighlightTextArea() {
+            // addSyntaxStyle(HTTP_RESPONSE_HEADER, SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
+
+            // setSyntaxEditingStyle(SYNTAX_STYLE_HTTP_RESPONSE_HEADER);
+        }
+
+        @Override
+        public void search(Pattern p, List<SearchMatch> matches) {
+            Matcher m = p.matcher(getText());
+            while (m.find()) {
+
+                int[] position =
+                        HttpTextViewUtils.getViewToHeaderPosition(this, m.start(), m.end());
+                if (position.length == 0) {
+                    return;
+                }
+
+                matches.add(
+                        new SearchMatch(
+                                SearchMatch.Location.RESPONSE_HEAD, position[0], position[1]));
+            }
+        }
+
+        @Override
+        public void highlight(SearchMatch sm) {
+            if (!SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation())) {
+                return;
+            }
+
+            int[] pos =
+                    HttpTextViewUtils.getHeaderToViewPosition(
+                            this,
+                            sm.getMessage().getResponseHeader().toString(),
+                            sm.getStart(),
+                            sm.getEnd());
+            if (pos.length == 0) {
+                return;
+            }
+            highlight(pos[0], pos[1]);
+        }
+
+        @Override
+        protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
+            if (tokenMakerFactory == null) {
+                tokenMakerFactory = new ResponseHeaderTokenMakerFactory();
+            }
+            return tokenMakerFactory;
+        }
+
+        private static class ResponseHeaderTokenMakerFactory extends CustomTokenMakerFactory {
+
+            public ResponseHeaderTokenMakerFactory() {
+                // String pkg = "";
+
+                // putMapping(SYNTAX_STYLE_HTTP_RESPONSE_HEADER, pkg + "HttpResponseTokenMaker");
+            }
+        }
+    }
 }
-

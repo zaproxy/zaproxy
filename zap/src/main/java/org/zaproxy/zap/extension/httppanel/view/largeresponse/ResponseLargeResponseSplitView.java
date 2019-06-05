@@ -20,11 +20,9 @@
 package org.zaproxy.zap.extension.httppanel.view.largeresponse;
 
 import java.awt.BorderLayout;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -36,110 +34,108 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStr
 
 public class ResponseLargeResponseSplitView implements HttpPanelView, HttpPanelViewModelListener {
 
-	public static final String NAME = "ResponseLargeResponseSplitView";
-	
-	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name");
-	
-	private JPanel mainPanel;
-	private JLabel label;
+    public static final String NAME = "ResponseLargeResponseSplitView";
 
-	private AbstractHttpStringHttpPanelViewModel model;
-	
-	public ResponseLargeResponseSplitView() {
-		label = new JLabel();
-		mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(label);
+    public static final String CAPTION_NAME =
+            Constant.messages.getString("http.panel.view.largeresponse.name");
 
-		model = new AbstractHttpStringHttpPanelViewModel() {
+    private JPanel mainPanel;
+    private JLabel label;
 
-			@Override
-			public String getData() {
-				return Constant.messages
-						.getString("http.panel.view.largeresponse.split.warning", httpMessage.getResponseBody().length());
-			}
+    private AbstractHttpStringHttpPanelViewModel model;
 
-			@Override
-			public void setData(String data) {
-				// Nothing to do, the view is immutable.
-			}
-		};
-		model.addHttpPanelViewModelListener(this);
-	}
-	
-	@Override
-	public void save() {
-	}
+    public ResponseLargeResponseSplitView() {
+        label = new JLabel();
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(label);
 
-	@Override
-	public void setSelected(boolean selected) {
-		if (selected) {
-			mainPanel.requestFocusInWindow();
-		}
-	}
+        model =
+                new AbstractHttpStringHttpPanelViewModel() {
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+                    @Override
+                    public String getData() {
+                        return Constant.messages.getString(
+                                "http.panel.view.largeresponse.split.warning",
+                                httpMessage.getResponseBody().length());
+                    }
 
-	@Override
-	public String getCaptionName() {
-		return CAPTION_NAME;
-	}
-	
-	@Override
-	public String getTargetViewName() {
-		return "";
-	}
-	
-	@Override
-	public int getPosition() {
-		return 1;
-	}
+                    @Override
+                    public void setData(String data) {
+                        // Nothing to do, the view is immutable.
+                    }
+                };
+        model.addHttpPanelViewModelListener(this);
+    }
 
-	@Override
-	public boolean isEnabled(Message message) {
-		return LargeResponseUtil.isLargeResponse(message);
-	}
+    @Override
+    public void save() {}
 
-	@Override
-	public boolean hasChanged() {
-		return false;
-	}
+    @Override
+    public void setSelected(boolean selected) {
+        if (selected) {
+            mainPanel.requestFocusInWindow();
+        }
+    }
 
-	@Override
-	public JComponent getPane() {
-		return mainPanel;
-	}
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
-	@Override
-	public boolean isEditable() {
-		return false;
-	}
+    @Override
+    public String getCaptionName() {
+        return CAPTION_NAME;
+    }
 
-	@Override
-	public void setEditable(boolean editable) {
-	}
-	
-	@Override
-	public void setParentConfigurationKey(String configurationKey) {
-	}
-	
-	@Override
-	public void loadConfiguration(FileConfiguration fileConfiguration) {
-	}
-	
-	@Override
-	public void saveConfiguration(FileConfiguration fileConfiguration) {
-	}
+    @Override
+    public String getTargetViewName() {
+        return "";
+    }
 
-	@Override
-	public HttpPanelViewModel getModel() {
-		return model;
-	}
-	
-	@Override
-	public void dataChanged(HttpPanelViewModelEvent e) {
-		label.setText(model.getData());
-	}
+    @Override
+    public int getPosition() {
+        return 1;
+    }
+
+    @Override
+    public boolean isEnabled(Message message) {
+        return LargeResponseUtil.isLargeResponse(message);
+    }
+
+    @Override
+    public boolean hasChanged() {
+        return false;
+    }
+
+    @Override
+    public JComponent getPane() {
+        return mainPanel;
+    }
+
+    @Override
+    public boolean isEditable() {
+        return false;
+    }
+
+    @Override
+    public void setEditable(boolean editable) {}
+
+    @Override
+    public void setParentConfigurationKey(String configurationKey) {}
+
+    @Override
+    public void loadConfiguration(FileConfiguration fileConfiguration) {}
+
+    @Override
+    public void saveConfiguration(FileConfiguration fileConfiguration) {}
+
+    @Override
+    public HttpPanelViewModel getModel() {
+        return model;
+    }
+
+    @Override
+    public void dataChanged(HttpPanelViewModelEvent e) {
+        label.setText(model.getData());
+    }
 }

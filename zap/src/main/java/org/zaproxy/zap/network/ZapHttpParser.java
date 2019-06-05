@@ -22,7 +22,6 @@ package org.zaproxy.zap.network;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpParser;
@@ -30,30 +29,28 @@ import org.apache.log4j.Logger;
 
 /**
  * A utility class to parse HTTP response headers.
- * <p>
- * Used to override the {@code HttpClient} behaviour to accept HTTP responses which contain malformed HTTP header lines.
- * </p>
- * 
- * <strong>Note:</strong> Malformed HTTP header lines are ignored (instead of throwing an exception).
+ *
+ * <p>Used to override the {@code HttpClient} behaviour to accept HTTP responses which contain
+ * malformed HTTP header lines. <strong>Note:</strong> Malformed HTTP header lines are ignored
+ * (instead of throwing an exception).
  */
 public class ZapHttpParser {
 
     private static final Logger logger = Logger.getLogger(ZapHttpParser.class);
 
-    private ZapHttpParser() {
-
-    }
+    private ZapHttpParser() {}
 
     /*
      * Implementation copied from HttpParser#parseHeaders(InputStream, String) except that no exception is thrown in case of
      * malformed HTTP header lines.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked", "null" })
-    public static Header[] parseHeaders(InputStream is, String charset) throws IOException, HttpException {
+    @SuppressWarnings({"rawtypes", "unchecked", "null"})
+    public static Header[] parseHeaders(InputStream is, String charset)
+            throws IOException, HttpException {
         ArrayList headers = new ArrayList();
         String name = null;
         StringBuffer value = null;
-        for (;;) {
+        for (; ; ) {
             String line = HttpParser.readLine(is, charset);
             if ((line == null) || (line.trim().length() < 1)) {
                 break;
@@ -90,7 +87,6 @@ public class ZapHttpParser {
                     value = new StringBuffer(line.substring(colon + 1).trim());
                 }
             }
-
         }
 
         // make sure we save the last name,value pair if present

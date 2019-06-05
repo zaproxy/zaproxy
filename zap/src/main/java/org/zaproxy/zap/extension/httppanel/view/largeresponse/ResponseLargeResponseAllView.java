@@ -25,46 +25,45 @@ import org.zaproxy.zap.extension.httppanel.component.all.response.HttpResponseAl
 
 public class ResponseLargeResponseAllView extends HttpResponseAllPanelTextView {
 
-	public static final String NAME = "ResponseLargeResponseAllView";
-	
-	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largeresponse.name");
-	
-	public ResponseLargeResponseAllView(LargeResponseStringHttpPanelViewModel model) {
-		super (model);
-	}
-	
-	@Override
-	public String getName() {
-		return NAME;
-	}
-	
-	@Override
-	public String getCaptionName() {
-		return CAPTION_NAME;
-	}
+    public static final String NAME = "ResponseLargeResponseAllView";
 
-	@Override
-	public int getPosition() {
-		return 1;
-	}
+    public static final String CAPTION_NAME =
+            Constant.messages.getString("http.panel.view.largeresponse.name");
 
-	@Override
-	public boolean isEnabled(Message message) {
-		return LargeResponseUtil.isLargeResponse(message);
-	}
+    public ResponseLargeResponseAllView(LargeResponseStringHttpPanelViewModel model) {
+        super(model);
+    }
 
-	@Override
-	public boolean hasChanged() {
-		return false;
-	}
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
-	@Override
-	public boolean isEditable() {
-		return false;
-	}
+    @Override
+    public String getCaptionName() {
+        return CAPTION_NAME;
+    }
 
-	@Override
-	public void setEditable(boolean editable) {
-	}
+    @Override
+    public int getPosition() {
+        return 1;
+    }
 
+    @Override
+    public boolean isEnabled(Message message) {
+        return LargeResponseUtil.isLargeResponse(message);
+    }
+
+    @Override
+    public boolean hasChanged() {
+        return false;
+    }
+
+    @Override
+    public boolean isEditable() {
+        return false;
+    }
+
+    @Override
+    public void setEditable(boolean editable) {}
 }

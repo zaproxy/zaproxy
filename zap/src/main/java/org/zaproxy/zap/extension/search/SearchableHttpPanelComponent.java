@@ -22,13 +22,13 @@ package org.zaproxy.zap.extension.search;
 import java.util.List;
 import java.util.regex.Pattern;
 
-
 public interface SearchableHttpPanelComponent {
 
-	void searchHeader(Pattern p, List<SearchMatch> matches);
-	void searchBody(Pattern p, List<SearchMatch> matches);
+    void searchHeader(Pattern p, List<SearchMatch> matches);
 
-	void highlightHeader(SearchMatch sm);
-	void highlightBody(SearchMatch sm);
-	
+    void searchBody(Pattern p, List<SearchMatch> matches);
+
+    void highlightHeader(SearchMatch sm);
+
+    void highlightBody(SearchMatch sm);
 }

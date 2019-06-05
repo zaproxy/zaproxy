@@ -20,7 +20,6 @@
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 
@@ -28,9 +27,11 @@ class DialogModifyProxyExcludedDomain extends DialogAddProxyExcludedDomain {
 
     private static final long serialVersionUID = -4031122965844883255L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("conn.options.proxy.excluded.domain.modify.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("conn.options.proxy.excluded.domain.modify.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("conn.options.proxy.excluded.domain.modify.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("conn.options.proxy.excluded.domain.modify.button.confirm");
 
     protected DialogModifyProxyExcludedDomain(Dialog owner) {
         super(owner, DIALOG_TITLE);
@@ -54,5 +55,4 @@ class DialogModifyProxyExcludedDomain extends DialogAddProxyExcludedDomain {
 
         getEnabledCheckBox().setSelected(proxyExcludedDomain.isEnabled());
     }
-
 }

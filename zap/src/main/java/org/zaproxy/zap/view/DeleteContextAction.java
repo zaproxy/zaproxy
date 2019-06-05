@@ -20,10 +20,8 @@
 package org.zaproxy.zap.view;
 
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
@@ -31,24 +29,19 @@ import org.zaproxy.zap.model.Context;
 
 /**
  * An {@link AbstractAction} that allows to delete a {@link Context}.
- * <p>
- * The (default) accelerator for the action is given by {@link View#getDefaultDeleteKeyStroke()}.
- * 
+ *
+ * <p>The (default) accelerator for the action is given by {@link View#getDefaultDeleteKeyStroke()}.
+ *
  * @since 2.7.0
  */
 public abstract class DeleteContextAction extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * The name of the action.
-     */
+    /** The name of the action. */
     public static final String ACTION_NAME = "zap.delete.context";
 
-    /**
-     * Constructs a {@code DeleteContextAction}.
-     *
-     */
+    /** Constructs a {@code DeleteContextAction}. */
     public DeleteContextAction() {
         super(ACTION_NAME);
 
@@ -63,7 +56,8 @@ public abstract class DeleteContextAction extends AbstractAction {
         }
 
         if (View.getSingleton()
-                .showConfirmDialog(Constant.messages.getString("context.delete.warning")) == JOptionPane.OK_OPTION) {
+                        .showConfirmDialog(Constant.messages.getString("context.delete.warning"))
+                == JOptionPane.OK_OPTION) {
             Model.getSingleton().getSession().deleteContext(context);
         }
     }

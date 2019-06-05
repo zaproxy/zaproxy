@@ -23,34 +23,33 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.ImageIcon;
 
 /**
  * Class ripped off, er, I mean inspired by https://www.java.net//node/678566
- * @author psiinon
  *
+ * @author psiinon
  */
 public class OverlayIcon extends ImageIcon {
-	private static final long serialVersionUID = 1L;
-	private ImageIcon base;
-	private List<ImageIcon> overlays;
-	
-	public OverlayIcon(ImageIcon base) {
-		super(base.getImage());
-		this.base = base;
-		this.overlays = new ArrayList<>();
-	}
-	
-	public void add(ImageIcon overlay) {
-		overlays.add(overlay);
-	}
-	
-	@Override
-	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-		base.paintIcon(c, g, x, y);
-		for (ImageIcon icon: overlays) {
-			icon.paintIcon(c, g, x, y);
-		}
-	}
+    private static final long serialVersionUID = 1L;
+    private ImageIcon base;
+    private List<ImageIcon> overlays;
+
+    public OverlayIcon(ImageIcon base) {
+        super(base.getImage());
+        this.base = base;
+        this.overlays = new ArrayList<>();
+    }
+
+    public void add(ImageIcon overlay) {
+        overlays.add(overlay);
+    }
+
+    @Override
+    public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
+        base.paintIcon(c, g, x, y);
+        for (ImageIcon icon : overlays) {
+            icon.paintIcon(c, g, x, y);
+        }
+    }
 }

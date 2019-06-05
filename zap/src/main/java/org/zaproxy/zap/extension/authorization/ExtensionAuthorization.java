@@ -24,7 +24,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -43,141 +42,142 @@ import org.zaproxy.zap.view.ContextPanelFactory;
  * The Authorization Extension allows ZAP users to define how authorized/unauthorized requests to
  * web applications are identified.
  */
-public class ExtensionAuthorization extends ExtensionAdaptor implements ContextPanelFactory,
-		ContextDataFactory {
+public class ExtensionAuthorization extends ExtensionAdaptor
+        implements ContextPanelFactory, ContextDataFactory {
 
-	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(ExtensionAuthorization.class);
+    /** The Constant log. */
+    private static final Logger log = Logger.getLogger(ExtensionAuthorization.class);
 
-	/** The NAME of the extension. */
-	public static final String NAME = "ExtensionAuthorization";
+    /** The NAME of the extension. */
+    public static final String NAME = "ExtensionAuthorization";
 
-	/** The map of context panels. */
-	private Map<Integer, ContextAuthorizationPanel> contextPanelsMap = new HashMap<>();
+    /** The map of context panels. */
+    private Map<Integer, ContextAuthorizationPanel> contextPanelsMap = new HashMap<>();
 
-	/**
-	 * Instantiates the extension.
-	 */
-	public ExtensionAuthorization() {
-		super();
-		initialize();
-	}
+    /** Instantiates the extension. */
+    public ExtensionAuthorization() {
+        super();
+        initialize();
+    }
 
-	/**
-	 * Initialize the extension.
-	 */
-	private void initialize() {
-		this.setName(NAME);
-		this.setOrder(205);
-	}
+    /** Initialize the extension. */
+    private void initialize() {
+        this.setName(NAME);
+        this.setOrder(205);
+    }
 
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("autorization.name");
-	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("autorization.name");
+    }
 
-		// Register this where needed
-		extensionHook.addContextDataFactory(this);
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
 
-		if (getView() != null) {
-			// Factory for generating Session Context UserAuth panels
-			extensionHook.getHookView().addContextPanelFactory(this);
-		}
+        // Register this where needed
+        extensionHook.addContextDataFactory(this);
 
-		extensionHook.addApiImplementor(new AuthorizationAPI());
-	}
+        if (getView() != null) {
+            // Factory for generating Session Context UserAuth panels
+            extensionHook.getHookView().addContextPanelFactory(this);
+        }
 
-	@Override
-	public AbstractContextPropertiesPanel getContextPanel(Context context) {
-		ContextAuthorizationPanel panel = this.contextPanelsMap.get(context.getIndex());
-		if (panel == null) {
-			panel = new ContextAuthorizationPanel(this, context.getIndex());
-			this.contextPanelsMap.put(context.getIndex(), panel);
-		}
-		return panel;
-	}
+        extensionHook.addApiImplementor(new AuthorizationAPI());
+    }
 
-	@Override
-	public void discardContexts() {
-		this.contextPanelsMap.clear();
-	}
+    @Override
+    public AbstractContextPropertiesPanel getContextPanel(Context context) {
+        ContextAuthorizationPanel panel = this.contextPanelsMap.get(context.getIndex());
+        if (panel == null) {
+            panel = new ContextAuthorizationPanel(this, context.getIndex());
+            this.contextPanelsMap.put(context.getIndex(), panel);
+        }
+        return panel;
+    }
 
-	@Override
-	public void discardContext(Context ctx) {
-		this.contextPanelsMap.remove(ctx.getIndex());
-	}
+    @Override
+    public void discardContexts() {
+        this.contextPanelsMap.clear();
+    }
 
-	@Override
-	public void loadContextData(Session session, Context context) {
-		try {
-			List<String> loadedData = session.getContextDataStrings(context.getIndex(),
-					RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE);
-			if (loadedData != null && loadedData.size() > 0) {
-				int type = Integer.parseInt(loadedData.get(0));
-				// Based on the type, call the appropriate method loader
-				switch (type) {
-				case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
-					context.setAuthorizationDetectionMethod(BasicAuthorizationDetectionMethod
-							.loadMethodFromSession(session, context.getIndex()));
-					break;
-				}
-			}
-		} catch (DatabaseException e) {
-			log.error("Unable to load Authorization Detection method.", e);
-		}
-	}
+    @Override
+    public void discardContext(Context ctx) {
+        this.contextPanelsMap.remove(ctx.getIndex());
+    }
 
-	@Override
-	public void persistContextData(Session session, Context context) {
-		try {
-			// Persist the method type first and then the method data itself
-			int type = context.getAuthorizationDetectionMethod().getMethodUniqueIdentifier();
-			session.setContextData(context.getIndex(), RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE,
-					Integer.toString(type));
-			context.getAuthorizationDetectionMethod().persistMethodToSession(session, context.getIndex());
-		} catch (DatabaseException e) {
-			log.error("Unable to persist Authorization Detection method.", e);
-		}
-	}
+    @Override
+    public void loadContextData(Session session, Context context) {
+        try {
+            List<String> loadedData =
+                    session.getContextDataStrings(
+                            context.getIndex(), RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE);
+            if (loadedData != null && loadedData.size() > 0) {
+                int type = Integer.parseInt(loadedData.get(0));
+                // Based on the type, call the appropriate method loader
+                switch (type) {
+                    case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
+                        context.setAuthorizationDetectionMethod(
+                                BasicAuthorizationDetectionMethod.loadMethodFromSession(
+                                        session, context.getIndex()));
+                        break;
+                }
+            }
+        } catch (DatabaseException e) {
+            log.error("Unable to load Authorization Detection method.", e);
+        }
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+    @Override
+    public void persistContextData(Session session, Context context) {
+        try {
+            // Persist the method type first and then the method data itself
+            int type = context.getAuthorizationDetectionMethod().getMethodUniqueIdentifier();
+            session.setContextData(
+                    context.getIndex(),
+                    RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE,
+                    Integer.toString(type));
+            context.getAuthorizationDetectionMethod()
+                    .persistMethodToSession(session, context.getIndex());
+        } catch (DatabaseException e) {
+            log.error("Unable to persist Authorization Detection method.", e);
+        }
+    }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	@Override
-	public void exportContextData(Context ctx, Configuration config) {
-		config.setProperty(AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE, ctx
-				.getAuthorizationDetectionMethod().getMethodUniqueIdentifier());
-		ctx.getAuthorizationDetectionMethod().exportMethodData(config);
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	@Override
-	public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-		int type = config.getInt(AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE);
-		switch (type) {
-		case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
-			ctx.setAuthorizationDetectionMethod(new BasicAuthorizationDetectionMethod(config));
-			break;
-		}
-	}
+    @Override
+    public void exportContextData(Context ctx, Configuration config) {
+        config.setProperty(
+                AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE,
+                ctx.getAuthorizationDetectionMethod().getMethodUniqueIdentifier());
+        ctx.getAuthorizationDetectionMethod().exportMethodData(config);
+    }
 
+    @Override
+    public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
+        int type = config.getInt(AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE);
+        switch (type) {
+            case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
+                ctx.setAuthorizationDetectionMethod(new BasicAuthorizationDetectionMethod(config));
+                break;
+        }
+    }
 }

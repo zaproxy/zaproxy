@@ -20,35 +20,32 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.Component;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.network.HtmlParameter;
 
-
 public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private ExtensionParams extension;
 
     public PopupMenuRemoveSession() {
         super(Constant.messages.getString("params.session.remove.popup"));
-        this.addActionListener(new java.awt.event.ActionListener() { 
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
 
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        		
-        		extension.removeSessionToken();
-        	}
-        });
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
 
-			
-	}
+                        extension.removeSessionToken();
+                    }
+                });
+    }
 
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
+    public void setExtension(ExtensionParams extension) {
+        this.extension = extension;
+    }
 
     @Override
     public boolean isEnableForComponent(Component invoker) {
@@ -56,19 +53,18 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
             if (!extension.getParamsPanel().isOnlyOneParamSelected()) {
                 return false;
             }
-        	
-        	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
-        	if (item != null && item.getFlags().contains(HtmlParameter.Flags.session.name())) {
-        		this.setEnabled(true);
+
+            HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
+            if (item != null && item.getFlags().contains(HtmlParameter.Flags.session.name())) {
+                this.setEnabled(true);
                 return true;
-        	}
+            }
         }
         return false;
     }
-    
 
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

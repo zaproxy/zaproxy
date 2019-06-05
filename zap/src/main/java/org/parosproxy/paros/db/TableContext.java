@@ -20,39 +20,30 @@
 package org.parosproxy.paros.db;
 
 /**
- * This interface was extracted from the previous Paros class of the same name.
- * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * This interface was extracted from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ *
  * @author psiinon
  */
-
 import java.util.List;
-
 
 public interface TableContext extends DatabaseListener {
 
-	RecordContext read(long dataId) throws DatabaseException;
+    RecordContext read(long dataId) throws DatabaseException;
 
-	RecordContext insert(int contextId, int type, String url)
-			throws DatabaseException;
+    RecordContext insert(int contextId, int type, String url) throws DatabaseException;
 
-	void delete(int contextId, int type, String data)
-			throws DatabaseException;
+    void delete(int contextId, int type, String data) throws DatabaseException;
 
-	void deleteAllDataForContextAndType(int contextId, int type)
-			throws DatabaseException;
+    void deleteAllDataForContextAndType(int contextId, int type) throws DatabaseException;
 
-	void deleteAllDataForContext(int contextId)
-			throws DatabaseException;
+    void deleteAllDataForContext(int contextId) throws DatabaseException;
 
-	List<RecordContext> getAllData() throws DatabaseException;
+    List<RecordContext> getAllData() throws DatabaseException;
 
-	List<RecordContext> getDataForContext(int contextId)
-			throws DatabaseException;
+    List<RecordContext> getDataForContext(int contextId) throws DatabaseException;
 
-	List<RecordContext> getDataForContextAndType(int contextId,
-			int type) throws DatabaseException;
+    List<RecordContext> getDataForContextAndType(int contextId, int type) throws DatabaseException;
 
-	void setData(int contextId, int type, List<String> dataList)
-			throws DatabaseException;
-
+    void setData(int contextId, int type, List<String> dataList) throws DatabaseException;
 }

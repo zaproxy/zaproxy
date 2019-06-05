@@ -21,7 +21,6 @@ package org.zaproxy.zap.model;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.parosproxy.paros.Constant;
 
 /**
@@ -33,14 +32,15 @@ public final class SessionUtils {
 
     public static final String SESSION_EXTENSION = ".session";
 
-    private SessionUtils() {
-    }
+    private SessionUtils() {}
 
     public static Path getSessionPath(String session) {
         String normalisedSession = getNormalisedSessionName(session);
         Path sessionPath = Paths.get(normalisedSession);
         if (!sessionPath.isAbsolute()) {
-            sessionPath = Paths.get(Constant.getZapHome(), Constant.FOLDER_SESSION_DEFAULT).resolve(sessionPath);
+            sessionPath =
+                    Paths.get(Constant.getZapHome(), Constant.FOLDER_SESSION_DEFAULT)
+                            .resolve(sessionPath);
         }
         return sessionPath;
     }

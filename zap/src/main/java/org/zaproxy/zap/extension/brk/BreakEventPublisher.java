@@ -22,31 +22,24 @@ package org.zaproxy.zap.extension.brk;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventPublisher;
 import org.zaproxy.zap.extension.httppanel.Message;
 
-/**
- * @since 2.8.0
- */
+/** @since 2.8.0 */
 public class BreakEventPublisher implements EventPublisher {
 
     private static BreakEventPublisher publisher = null;
-    /**
-     * Indicates that a message hit a breakpoint.
-     */
+    /** Indicates that a message hit a breakpoint. */
     public static final String BREAK_POINT_HIT = "break.hit";
     /**
      * Indicates the message currently being changed (active).
-     * <p>
-     * Only one message can be active at the same time.
+     *
+     * <p>Only one message can be active at the same time.
      */
     public static final String BREAK_POINT_ACTIVE = "break.active";
-    /**
-     * Indicates that the active message no longer is, it might have been dropped or forwarded.
-     */
+    /** Indicates that the active message no longer is, it might have been dropped or forwarded. */
     public static final String BREAK_POINT_INACTIVE = "break.inactive";
 
     public static final String MESSAGE_TYPE = "messageType";
@@ -59,7 +52,9 @@ public class BreakEventPublisher implements EventPublisher {
     public static synchronized BreakEventPublisher getPublisher() {
         if (publisher == null) {
             publisher = new BreakEventPublisher();
-            ZAP.getEventBus().registerPublisher(publisher, BREAK_POINT_HIT, BREAK_POINT_ACTIVE, BREAK_POINT_INACTIVE);
+            ZAP.getEventBus()
+                    .registerPublisher(
+                            publisher, BREAK_POINT_HIT, BREAK_POINT_ACTIVE, BREAK_POINT_INACTIVE);
         }
         return publisher;
     }
@@ -81,8 +76,7 @@ public class BreakEventPublisher implements EventPublisher {
         map.putAll(parameters); // Could be an empty map
         map.put(MESSAGE_TYPE, msg.getType());
 
-        ZAP.getEventBus().publishSyncEvent(
-                getPublisher(),
-                new Event(getPublisher(), event, null, map));
+        ZAP.getEventBus()
+                .publishSyncEvent(getPublisher(), new Event(getPublisher(), event, null, map));
     }
 }

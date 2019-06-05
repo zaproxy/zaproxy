@@ -25,29 +25,33 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
 
 public class ResponseHeaderStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
-	
-	private static final Logger logger = Logger.getLogger(ResponseHeaderStringHttpPanelViewModel.class);
-	
-	@Override
-	public String getData() {
-		if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
-			return "";
-		}
 
-		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
-	}
+    private static final Logger logger =
+            Logger.getLogger(ResponseHeaderStringHttpPanelViewModel.class);
 
-	@Override
-	public void setData(String data) {
-		if (httpMessage == null) {
-			return ;
-		}
-		
-		String header = data.replaceAll("(?<!\r)\n", HttpHeader.CRLF);
-		try {
-			httpMessage.setResponseHeader(header);
-		} catch (HttpMalformedHeaderException e) {
-			logger.warn("Could not Save Header: " + header, e);
-		}
-	}
+    @Override
+    public String getData() {
+        if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
+            return "";
+        }
+
+        return httpMessage
+                .getResponseHeader()
+                .toString()
+                .replaceAll(HttpHeader.CRLF, HttpHeader.LF);
+    }
+
+    @Override
+    public void setData(String data) {
+        if (httpMessage == null) {
+            return;
+        }
+
+        String header = data.replaceAll("(?<!\r)\n", HttpHeader.CRLF);
+        try {
+            httpMessage.setResponseHeader(header);
+        } catch (HttpMalformedHeaderException e) {
+            logger.warn("Could not Save Header: " + header, e);
+        }
+    }
 }

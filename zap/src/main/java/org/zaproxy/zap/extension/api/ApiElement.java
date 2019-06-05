@@ -24,154 +24,156 @@ import java.util.List;
 
 public class ApiElement {
 
-	private String name = null;
-	private String descriptionTag = null;
-	private List<String> mandatoryParamNames = new ArrayList<>();
-	private List<String> optionalParamNames = new ArrayList<>();
+    private String name = null;
+    private String descriptionTag = null;
+    private List<String> mandatoryParamNames = new ArrayList<>();
+    private List<String> optionalParamNames = new ArrayList<>();
 
-	/**
-	 * Flag that indicates whether or not the API element is deprecated.
-	 * 
-	 * @see #deprecatedDescription
-	 */
-	private boolean deprecated;
+    /**
+     * Flag that indicates whether or not the API element is deprecated.
+     *
+     * @see #deprecatedDescription
+     */
+    private boolean deprecated;
 
-	/**
-	 * The description for the deprecation.
-	 * 
-	 * @see #deprecated
-	 */
-	private String deprecatedDescription;
+    /**
+     * The description for the deprecation.
+     *
+     * @see #deprecated
+     */
+    private String deprecatedDescription;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public ApiElement(String name) {
-		super();
-		this.name = name;
-	}
-	
-	public ApiElement(String name, List<String> mandatoryParamNames) {
-		this(name, mandatoryParamNames, null);
-	}
-	
-	public ApiElement(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
-		super();
-		this.name = name;
-		if (this.mandatoryParamNames != null) {
-			this.mandatoryParamNames = mandatoryParamNames;
-		}
-		if (this.optionalParamNames != null) {
-			this.optionalParamNames = optionalParamNames;
-		}
-	}
-	
-	public ApiElement(String name, String[] mandatoryParamNames) {
-		this(name, mandatoryParamNames, null);
-	}
-	
-	public ApiElement(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
-		super();
-		this.name = name;
-		this.setMandatoryParamNames(mandatoryParamNames);
-		this.setOptionalParamNames(optionalParamNames);
-	}
-	
-	public void setMandatoryParamNames(String[] paramNames) {
-		if (paramNames != null) {
-			this.mandatoryParamNames = new ArrayList<>(paramNames.length);
-			for (String param : paramNames) {
-				this.mandatoryParamNames.add(param);
-			}
-		}
-	}
-	
-	public void setMandatoryParamNames(List<String> paramNames) {
-		this.mandatoryParamNames = paramNames;
-	}
+    public ApiElement(String name) {
+        super();
+        this.name = name;
+    }
 
-	public List<String> getMandatoryParamNames() {
-		return mandatoryParamNames;
-	}
+    public ApiElement(String name, List<String> mandatoryParamNames) {
+        this(name, mandatoryParamNames, null);
+    }
 
-	public String getDescriptionTag() {
-		return descriptionTag;
-	}
+    public ApiElement(
+            String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
+        super();
+        this.name = name;
+        if (this.mandatoryParamNames != null) {
+            this.mandatoryParamNames = mandatoryParamNames;
+        }
+        if (this.optionalParamNames != null) {
+            this.optionalParamNames = optionalParamNames;
+        }
+    }
 
-	public void setDescriptionTag(String descriptionTag) {
-		this.descriptionTag = descriptionTag;
-	}
+    public ApiElement(String name, String[] mandatoryParamNames) {
+        this(name, mandatoryParamNames, null);
+    }
 
-	public List<String> getOptionalParamNames() {
-		return optionalParamNames;
-	}
-	
-	public void setOptionalParamNames(String[] optionalParamNames) {
-		if (optionalParamNames != null) {
-			this.optionalParamNames = new ArrayList<>(optionalParamNames.length);
-			for (String param : optionalParamNames) {
-				this.optionalParamNames.add(param);
-			}
-		}
-	}
+    public ApiElement(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+        super();
+        this.name = name;
+        this.setMandatoryParamNames(mandatoryParamNames);
+        this.setOptionalParamNames(optionalParamNames);
+    }
 
-	public void setOptionalParamNames(List<String> optionalParamNames) {
-		this.optionalParamNames = optionalParamNames;
-	}
+    public void setMandatoryParamNames(String[] paramNames) {
+        if (paramNames != null) {
+            this.mandatoryParamNames = new ArrayList<>(paramNames.length);
+            for (String param : paramNames) {
+                this.mandatoryParamNames.add(param);
+            }
+        }
+    }
 
-	/**
-	 * Tells whether or not the API element is deprecated.
-	 *
-	 * @return {@code true} if the API element is deprecated, {@code false} otherwise.
-	 * @since 2.6.0
-	 * @see #getDeprecatedDescription()
-	 */
-	public boolean isDeprecated() {
-		return deprecated;
-	}
+    public void setMandatoryParamNames(List<String> paramNames) {
+        this.mandatoryParamNames = paramNames;
+    }
 
-	/**
-	 * Sets whether or not the API element is deprecated.
-	 * <p>
-	 * Deprecated elements are shown in the {@link WebUI} with a note that they are deprecated and their use is discouraged. The
-	 * API generators might also mark the elements as deprecated.
-	 * 
-	 * @param deprecated {@code true} if the API element is deprecated, {@code false} otherwise.
-	 * @since 2.6.0
-	 * @see #setDeprecatedDescription(String)
-	 */
-	public void setDeprecated(boolean deprecated) {
-		this.deprecated = deprecated;
-	}
+    public List<String> getMandatoryParamNames() {
+        return mandatoryParamNames;
+    }
 
-	/**
-	 * Gets the description of the deprecation.
-	 *
-	 * @return the description of the deprecation, might be {@code null}.
-	 * @since 2.6.0
-	 * @see #isDeprecated()
-	 */
-	public String getDeprecatedDescription() {
-		return deprecatedDescription;
-	}
+    public String getDescriptionTag() {
+        return descriptionTag;
+    }
 
-	/**
-	 * Sets the (concise) description of the deprecation.
-	 * <p>
-	 * The description should explain why it was deprecated and what are the alternative endpoints that should be used, if any.
-	 * <p>
-	 * <strong>Note:</strong> It should be in plain text (i.e. no HTML tags).
-	 *
-	 * @param description the description of the deprecation.
-	 * @since 2.6.0
-	 * @see #setDeprecated(boolean)
-	 */
-	public void setDeprecatedDescription(String description) {
-		this.deprecatedDescription = description;
-	}
+    public void setDescriptionTag(String descriptionTag) {
+        this.descriptionTag = descriptionTag;
+    }
+
+    public List<String> getOptionalParamNames() {
+        return optionalParamNames;
+    }
+
+    public void setOptionalParamNames(String[] optionalParamNames) {
+        if (optionalParamNames != null) {
+            this.optionalParamNames = new ArrayList<>(optionalParamNames.length);
+            for (String param : optionalParamNames) {
+                this.optionalParamNames.add(param);
+            }
+        }
+    }
+
+    public void setOptionalParamNames(List<String> optionalParamNames) {
+        this.optionalParamNames = optionalParamNames;
+    }
+
+    /**
+     * Tells whether or not the API element is deprecated.
+     *
+     * @return {@code true} if the API element is deprecated, {@code false} otherwise.
+     * @since 2.6.0
+     * @see #getDeprecatedDescription()
+     */
+    public boolean isDeprecated() {
+        return deprecated;
+    }
+
+    /**
+     * Sets whether or not the API element is deprecated.
+     *
+     * <p>Deprecated elements are shown in the {@link WebUI} with a note that they are deprecated
+     * and their use is discouraged. The API generators might also mark the elements as deprecated.
+     *
+     * @param deprecated {@code true} if the API element is deprecated, {@code false} otherwise.
+     * @since 2.6.0
+     * @see #setDeprecatedDescription(String)
+     */
+    public void setDeprecated(boolean deprecated) {
+        this.deprecated = deprecated;
+    }
+
+    /**
+     * Gets the description of the deprecation.
+     *
+     * @return the description of the deprecation, might be {@code null}.
+     * @since 2.6.0
+     * @see #isDeprecated()
+     */
+    public String getDeprecatedDescription() {
+        return deprecatedDescription;
+    }
+
+    /**
+     * Sets the (concise) description of the deprecation.
+     *
+     * <p>The description should explain why it was deprecated and what are the alternative
+     * endpoints that should be used, if any.
+     *
+     * <p><strong>Note:</strong> It should be in plain text (i.e. no HTML tags).
+     *
+     * @param description the description of the deprecation.
+     * @since 2.6.0
+     * @see #setDeprecated(boolean)
+     */
+    public void setDeprecatedDescription(String description) {
+        this.deprecatedDescription = description;
+    }
 }

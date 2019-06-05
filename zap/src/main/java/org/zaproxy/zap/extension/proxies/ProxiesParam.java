@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.proxies;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
@@ -51,14 +50,13 @@ public class ProxiesParam extends AbstractParam {
     private List<ProxiesParamProxy> proxies = null;
     private boolean confirmRemoveProxy = true;
 
-    public ProxiesParam() {
-    }
+    public ProxiesParam() {}
 
     @Override
     protected void parse() {
         try {
-            List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig())
-                    .configurationsAt(ALL_PROXIES_KEY);
+            List<HierarchicalConfiguration> fields =
+                    ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_PROXIES_KEY);
             this.proxies = new ArrayList<>(fields.size() + 1);
 
             for (HierarchicalConfiguration sub : fields) {
@@ -81,7 +79,9 @@ public class ProxiesParam extends AbstractParam {
 
     public ProxiesParamProxy getMainProxy() {
         ProxyParam mainProxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-        ProxiesParamProxy mainProxy = new ProxiesParamProxy(mainProxyParam.getRawProxyIP(), mainProxyParam.getProxyPort(), true);
+        ProxiesParamProxy mainProxy =
+                new ProxiesParamProxy(
+                        mainProxyParam.getRawProxyIP(), mainProxyParam.getProxyPort(), true);
         mainProxy.setAlwaysDecodeGzip(mainProxyParam.isAlwaysDecodeGzip());
         mainProxy.setBehindNat(mainProxyParam.isBehindNat());
         mainProxy.setProxyIpAnyLocalAddress(mainProxyParam.isProxyIpAnyLocalAddress());
@@ -94,7 +94,10 @@ public class ProxiesParam extends AbstractParam {
     }
 
     public void setSecurityProtocolsEnabled(String[] protocols) {
-        Model.getSingleton().getOptionsParam().getProxyParam().setSecurityProtocolsEnabled(protocols);
+        Model.getSingleton()
+                .getOptionsParam()
+                .getProxyParam()
+                .setSecurityProtocolsEnabled(protocols);
     }
 
     public List<ProxiesParamProxy> getProxies() {
@@ -126,9 +129,13 @@ public class ProxiesParam extends AbstractParam {
             getConfig().setProperty(elementBaseKey + PROXY_ADDRESS_KEY, proxy.getAddress());
             getConfig().setProperty(elementBaseKey + PROXY_PORT_KEY, proxy.getPort());
             getConfig().setProperty(elementBaseKey + PROXY_ENABLED_KEY, proxy.isEnabled());
-            getConfig().setProperty(elementBaseKey + PROXY_ANY_LOCAL_KEY, proxy.isProxyIpAnyLocalAddress());
             getConfig()
-                    .setProperty(elementBaseKey + PROXY_REM_UNSUPPORTED, proxy.isRemoveUnsupportedEncodings());
+                    .setProperty(
+                            elementBaseKey + PROXY_ANY_LOCAL_KEY, proxy.isProxyIpAnyLocalAddress());
+            getConfig()
+                    .setProperty(
+                            elementBaseKey + PROXY_REM_UNSUPPORTED,
+                            proxy.isRemoveUnsupportedEncodings());
             getConfig().setProperty(elementBaseKey + PROXY_DECODE_KEY, proxy.isAlwaysDecodeGzip());
             getConfig().setProperty(elementBaseKey + PROXY_BEHIND_NAT_KEY, proxy.isBehindNat());
         }
@@ -145,7 +152,7 @@ public class ProxiesParam extends AbstractParam {
             return;
         }
 
-        for (Iterator<ProxiesParamProxy> it = proxies.iterator(); it.hasNext();) {
+        for (Iterator<ProxiesParamProxy> it = proxies.iterator(); it.hasNext(); ) {
             ProxiesParamProxy proxy = it.next();
             if (address.equals(proxy.getAddress()) && proxy.getPort() == port) {
                 it.remove();
@@ -164,5 +171,4 @@ public class ProxiesParam extends AbstractParam {
         this.confirmRemoveProxy = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_PROXY_KEY, confirmRemoveProxy);
     }
-
 }

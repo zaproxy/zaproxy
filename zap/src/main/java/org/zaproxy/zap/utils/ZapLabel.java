@@ -20,39 +20,47 @@
 package org.zaproxy.zap.utils;
 
 import java.awt.Color;
-
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultCaret;
 
 /**
- * An alternative to JLabel which disables HTML and supports wrapping.
- * Use this class instead of JLabel where the text could include HTML that you
- * do not want to render.
+ * An alternative to JLabel which disables HTML and supports wrapping. Use this class instead of
+ * JLabel where the text could include HTML that you do not want to render.
+ *
  * @author psiinon
  * @since 2.6.0
- *
  */
 public class ZapLabel extends JTextArea {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public ZapLabel() {
-		setDefaults();
-	}
+    public ZapLabel() {
+        setDefaults();
+    }
 
-	public ZapLabel(String text) {
-		super(text);
-		setDefaults();
-	}
+    public ZapLabel(String text) {
+        super(text);
+        setDefaults();
+    }
 
-	private void setDefaults() {
-		this.setEditable(false);
-		this.setCursor(null);  
-		this.setBorder(null);
-		this.setBackground(new Color(UIManager.getLookAndFeel().getDefaults().getColor("Label.background").getRGB()));
-		this.setForeground(new Color(UIManager.getLookAndFeel().getDefaults().getColor("Label.foreground").getRGB()));
-	
-		((DefaultCaret) getCaret()).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-	}
+    private void setDefaults() {
+        this.setEditable(false);
+        this.setCursor(null);
+        this.setBorder(null);
+        this.setBackground(
+                new Color(
+                        UIManager.getLookAndFeel()
+                                .getDefaults()
+                                .getColor("Label.background")
+                                .getRGB()));
+        this.setForeground(
+                new Color(
+                        UIManager.getLookAndFeel()
+                                .getDefaults()
+                                .getColor("Label.foreground")
+                                .getRGB()));
+
+        ((DefaultCaret) getCaret()).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+    }
 }

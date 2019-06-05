@@ -23,25 +23,27 @@ import org.zaproxy.zap.utils.Orderable;
 
 /**
  * An {@code AbstractMultipleOptionsBaseTableModel} that allows its elements to be ordered.
- * <p>
- * Allows to move the elements to top, up and down one position and to bottom. The order of the elements starts with number one.
- * <p>
- * <strong>Note:</strong> No validations are done prior moving the elements, which might or not lead to {@code Exception}s. The
- * move methods should be called only when the move is known to be valid.
- * 
+ *
+ * <p>Allows to move the elements to top, up and down one position and to bottom. The order of the
+ * elements starts with number one.
+ *
+ * <p><strong>Note:</strong> No validations are done prior moving the elements, which might or not
+ * lead to {@code Exception}s. The move methods should be called only when the move is known to be
+ * valid.
+ *
  * @param <E> the type of elements of this table model
  * @see Orderable
  * @since 2.4.0
  */
-public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Orderable> extends
-        AbstractMultipleOptionsBaseTableModel<E> {
+public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Orderable>
+        extends AbstractMultipleOptionsBaseTableModel<E> {
 
     private static final long serialVersionUID = 8139923613612787185L;
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to update the order of the elements after the removed element.
+     *
+     * <p>Overridden to update the order of the elements after the removed element.
      */
     @Override
     public void removeElement(int row) {
@@ -56,10 +58,11 @@ public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Ord
     }
 
     /**
-     * Moves the element at the given {@code row} to the top of the elements, thus occupying the first position.
-     * <p>
-     * The order of all elements is updated and all listeners notified.
-     * 
+     * Moves the element at the given {@code row} to the top of the elements, thus occupying the
+     * first position.
+     *
+     * <p>The order of all elements is updated and all listeners notified.
+     *
      * @param row the row of the element that should be moved to the top
      * @see #updateOrdersAndFireNotification(int)
      */
@@ -72,9 +75,10 @@ public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Ord
     }
 
     /**
-     * Moves the element at the given {@code row} one position up, effectively switching position with the previous element.
-     * <p>
-     * The order of both elements is updated accordingly and all listeners notified.
+     * Moves the element at the given {@code row} one position up, effectively switching position
+     * with the previous element.
+     *
+     * <p>The order of both elements is updated accordingly and all listeners notified.
      *
      * @param row the row of the element that should be moved one position up
      */
@@ -92,9 +96,10 @@ public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Ord
     }
 
     /**
-     * Moves the element at the given {@code row} one position down, effectively switching position with the following element.
-     * <p>
-     * The order of both elements is updated accordingly and all listeners notified.
+     * Moves the element at the given {@code row} one position down, effectively switching position
+     * with the following element.
+     *
+     * <p>The order of both elements is updated accordingly and all listeners notified.
      *
      * @param row the row of the element that should be moved one position down
      */
@@ -103,10 +108,11 @@ public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Ord
     }
 
     /**
-     * Moves the element at the given {@code row} to the bottom of the elements, thus occupying the last position.
-     * <p>
-     * The order of all elements is updated and all listeners notified.
-     * 
+     * Moves the element at the given {@code row} to the bottom of the elements, thus occupying the
+     * last position.
+     *
+     * <p>The order of all elements is updated and all listeners notified.
+     *
      * @param row the row of the element that should be moved to the bottom
      * @see #updateOrdersAndFireNotification(int)
      */
@@ -119,9 +125,9 @@ public abstract class AbstractMultipleOrderedOptionsBaseTableModel<E extends Ord
     }
 
     /**
-     * Updates the order of all the elements, whose row index is equal or greater to {@code startingRow}, and notifies all
-     * listeners of the changes.
-     * 
+     * Updates the order of all the elements, whose row index is equal or greater to {@code
+     * startingRow}, and notifies all listeners of the changes.
+     *
      * @param startingRow the row index at which the update of the order should start
      * @see #fireTableDataChanged()
      */

@@ -24,10 +24,10 @@ import java.awt.Container;
 
 /**
  * A utility class to maximise a (non-direct) child {@code Component} of a {@code Container}.
- * <p>
- * Adds the component being maximised directly to the container, making it occupy the whole container. The previous state of the
- * container is preserved internally by this class, any changes done to the container should be done only after unmaximising the
- * component.
+ *
+ * <p>Adds the component being maximised directly to the container, making it occupy the whole
+ * container. The previous state of the container is preserved internally by this class, any changes
+ * done to the container should be done only after unmaximising the component.
  *
  * @since 2.5.0
  * @see #maximiseComponent(Component)
@@ -35,14 +35,12 @@ import java.awt.Container;
  */
 public class ComponentMaximiser {
 
-    /**
-     * The container that has the components that can be maximised. Never {@code null}.
-     */
+    /** The container that has the components that can be maximised. Never {@code null}. */
     private final Container container;
 
     /**
-     * The child component of the container which holds the (sub-)components that can be maximised, {@code null} when no
-     * component is maximised.
+     * The child component of the container which holds the (sub-)components that can be maximised,
+     * {@code null} when no component is maximised.
      */
     private Component containerChild;
 
@@ -53,9 +51,10 @@ public class ComponentMaximiser {
 
     /**
      * The (currently) maximised component, {@code null} if none.
-     * <p>
-     * A maximised component occupies the whole {@code container}, that is, is the only child component.
-     * 
+     *
+     * <p>A maximised component occupies the whole {@code container}, that is, is the only child
+     * component.
+     *
      * @see #container
      * @see #maximiseComponent(Component)
      * @see #unmaximiseComponent()
@@ -77,10 +76,10 @@ public class ComponentMaximiser {
 
     /**
      * Maximises the given component, to occupy the whole container.
-     * <p>
-     * The maximisation is done by adding the component directly to the container. If another component is already maximised it
-     * does nothing.
-     * 
+     *
+     * <p>The maximisation is done by adding the component directly to the container. If another
+     * component is already maximised it does nothing.
+     *
      * @param component the component to maximise
      * @throws IllegalArgumentException if the given {@code component} is {@code null}.
      * @see #unmaximiseComponent()
@@ -108,8 +107,8 @@ public class ComponentMaximiser {
 
     /**
      * Unmaximises the current maximised component.
-     * <p>
-     * It does nothing if no component is maximised.
+     *
+     * <p>It does nothing if no component is maximised.
      *
      * @see #maximiseComponent(Component)
      */

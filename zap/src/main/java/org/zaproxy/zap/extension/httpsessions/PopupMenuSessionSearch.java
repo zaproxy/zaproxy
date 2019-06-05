@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.Component;
 import java.util.regex.Pattern;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -29,43 +28,49 @@ import org.zaproxy.zap.extension.search.ExtensionSearch;
 
 public class PopupMenuSessionSearch extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private ExtensionSearch extSearch = null;
-	private HttpSessionsPanel httpSessionsPanel = null;
+    private ExtensionSearch extSearch = null;
+    private HttpSessionsPanel httpSessionsPanel = null;
 
-	public PopupMenuSessionSearch(final HttpSessionsPanel httpSessionsPanel) {
-		super(Constant.messages.getString("httpsessions.popup.find"));
-		this.httpSessionsPanel = httpSessionsPanel;
-		this.addActionListener(ae -> {
-			Pattern pattern = Pattern
-					.compile(httpSessionsPanel.getSelectedSession().getTokenValuesString().replaceAll(";", "|"));
-			search(pattern);
-		});
-	}
+    public PopupMenuSessionSearch(final HttpSessionsPanel httpSessionsPanel) {
+        super(Constant.messages.getString("httpsessions.popup.find"));
+        this.httpSessionsPanel = httpSessionsPanel;
+        this.addActionListener(
+                ae -> {
+                    Pattern pattern =
+                            Pattern.compile(
+                                    httpSessionsPanel
+                                            .getSelectedSession()
+                                            .getTokenValuesString()
+                                            .replaceAll(";", "|"));
+                    search(pattern);
+                });
+    }
 
-	@Override
-	public boolean isEnableForComponent(Component invoker) {
-		if (HttpSessionsPanel.PANEL_NAME.equals(invoker.getName())) {
-			this.setEnabled(httpSessionsPanel.getSelectedSession() != null);
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean isEnableForComponent(Component invoker) {
+        if (HttpSessionsPanel.PANEL_NAME.equals(invoker.getName())) {
+            this.setEnabled(httpSessionsPanel.getSelectedSession() != null);
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public boolean isSafe() {
-		return true;
-	}
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 
-	private ExtensionSearch getExtensionSearch() {
-		if (extSearch == null) {
-			extSearch = Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.class);
-		}
-		return extSearch;
-	}
+    private ExtensionSearch getExtensionSearch() {
+        if (extSearch == null) {
+            extSearch =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionSearch.class);
+        }
+        return extSearch;
+    }
 
-	private  void search (Pattern p) {
-		getExtensionSearch().search(p.pattern(), ExtensionSearch.Type.All, true, false);
-	}
+    private void search(Pattern p) {
+        getExtensionSearch().search(p.pattern(), ExtensionSearch.Type.All, true, false);
+    }
 }

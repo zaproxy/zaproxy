@@ -80,6 +80,13 @@ Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (one
 
 The Git commits must be [signed off] to indicate your agreement with [Developer Certificate of Origin].
 
+##### Format/Style Java Code
+
+The Java code is formatted according to Google Java Style (AOSP variant). The build automatically checks
+that the code conforms to the style (using [Spotless], which delegates to [google-java-format]), it can
+also be used to format the code (with the Gradle task `spotlessApply`) if the IDE/editor in use
+does not support it.
+
 ##### What should you, the author of a pull request, expect from us (ZAP Team)?
 * How much time (maximum) until the first feedback? 1 week.
 * And following iterations? 1 week.
@@ -111,3 +118,5 @@ The Git commits must be [signed off] to indicate your agreement with [Developer 
 ​[BUILDING]: BUILDING.md
 [signed off]: https://git-scm.com/docs/git-commit#Documentation/git-commit.txt--s
 [Developer Certificate of Origin]: https://developercertificate.org/
+[Spotless]: https://github.com/diffplug/spotless
+[google-java-format]: https://github.com/google/google-java-format

@@ -21,7 +21,6 @@ package org.zaproxy.zap.view.messagelocation;
 
 import java.awt.Color;
 import java.awt.Component;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -29,8 +28,9 @@ import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * A {@code TableCellRenderer} for {@code TextMessageLocationHighlight}s that shows its colour in a table cell.
- * 
+ * A {@code TableCellRenderer} for {@code TextMessageLocationHighlight}s that shows its colour in a
+ * table cell.
+ *
  * @since 2.4.0
  * @see TextMessageLocationHighlight
  * @see TextMessageLocationHighlightEditor
@@ -48,23 +48,20 @@ public class TextMessageLocationHighlightRenderer extends JLabel implements Tabl
 
     @Override
     public Component getTableCellRendererComponent(
-            JTable table,
-            Object color,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            JTable table, Object color, boolean isSelected, boolean hasFocus, int row, int column) {
         Color newColor = ((TextMessageLocationHighlight) color).getColor();
         setBackground(newColor);
 
         if (isSelected) {
             if (selectedBorder == null) {
-                selectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getSelectionBackground());
+                selectedBorder =
+                        BorderFactory.createMatteBorder(2, 5, 2, 5, table.getSelectionBackground());
             }
             setBorder(selectedBorder);
         } else {
             if (unselectedBorder == null) {
-                unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getBackground());
+                unselectedBorder =
+                        BorderFactory.createMatteBorder(2, 5, 2, 5, table.getBackground());
             }
             setBorder(unselectedBorder);
         }

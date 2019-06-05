@@ -20,27 +20,25 @@
 package org.zaproxy.zap.utils;
 
 /**
- * This class provides the implementation of Hirschberg's
- * algorithm that solves the Longest Common Subsequence (LCS) problem.
- * With some shortcut methods useful to calculate LCS between two strings
- * or the similarity ratio between two strings.
- * This implementation is using Hirschber's algorithm B and algorithm C.
+ * This class provides the implementation of Hirschberg's algorithm that solves the Longest Common
+ * Subsequence (LCS) problem. With some shortcut methods useful to calculate LCS between two strings
+ * or the similarity ratio between two strings. This implementation is using Hirschber's algorithm B
+ * and algorithm C.
  *
- * @see <a href="https://code.google.com/archive/p/algorithm800/source/default/source">Hirschberg's algorithm implementation of
- *      project algorithm800</a>
- *
+ * @see <a href="https://code.google.com/archive/p/algorithm800/source/default/source">Hirschberg's
+ *     algorithm implementation of project algorithm800</a>
  * @author Valentinos Georgiades
  * @author Minh Nguyen
  */
-//ZAP
+// ZAP
 public class HirshbergMatcher {
-    
+
     // Minimum value for comparison ratio
     public static final double MIN_RATIO = 0.0;
 
     // Maximum value for comparison ratio
     public static final double MAX_RATIO = 1.0;
-    
+
     private static int[] algB(int m, int n, String a, String b) {
         // Step 1
         int[][] k = new int[2][n + 1];
@@ -65,9 +63,8 @@ public class HirshbergMatcher {
             }
         }
 
-        //Step 5
+        // Step 5
         return k[1];
-
     }
 
     private static void algC(StringBuilder sb, int m, int n, String a, String b) {
@@ -85,9 +82,9 @@ public class HirshbergMatcher {
                 }
             }
 
-        // Step 2
+            // Step 2
         } else {
-            i = (int)Math.floor(((double) m) / 2);
+            i = (int) Math.floor(((double) m) / 2);
 
             // Step 3
             int[] l1 = algB(i, n, a.substring(0, i), b);
@@ -104,7 +101,7 @@ public class HirshbergMatcher {
 
     /**
      * This method takes a string as input reverses it and returns the result
-     * 
+     *
      * @param in the string to be reversed
      * @return the reversed string
      */
@@ -128,9 +125,9 @@ public class HirshbergMatcher {
     }
 
     /**
-     * Gets the Longest Common Subsequence of two strings, using Dynamic
-     * programming techniques, and minimal memory
-     * 
+     * Gets the Longest Common Subsequence of two strings, using Dynamic programming techniques, and
+     * minimal memory
+     *
      * @param strA the first String
      * @param strB the second String
      * @return the Longest Common Subsequence of strA and strB
@@ -144,30 +141,30 @@ public class HirshbergMatcher {
         algC(sb, strA.length(), strB.length(), strA, strB);
         return sb.toString();
     }
-    
+
     /**
      * Calculate the ratio of similarity between 2 strings using LCS
-     * 
+     *
      * @param strA the first String
      * @param strB the second String
-     * @return the percentage  double number
+     * @return the percentage double number
      */
     public double getMatchRatio(String strA, String strB) {
         if (strA == null && strB == null) {
             return MAX_RATIO;
-            
+
         } else if (strA == null || strB == null) {
             return MIN_RATIO;
         }
-        
+
         if (strA.isEmpty() && strB.isEmpty()) {
             return MAX_RATIO;
-            
+
         } else if (strA.isEmpty() || strB.isEmpty()) {
             return MIN_RATIO;
         }
-                
-        //get the percentage match against the longer of the 2 strings
-        return (double)getLCS(strA, strB).length() / Math.max(strA.length(), strB.length());
-    }    
+
+        // get the percentage match against the longer of the 2 strings
+        return (double) getLCS(strA, strB).length() / Math.max(strA.length(), strB.length());
+    }
 }

@@ -20,15 +20,13 @@
 package org.zaproxy.zap.network;
 
 import java.util.regex.Pattern;
-
 import org.zaproxy.zap.utils.Enableable;
 
 /**
  * Class that contains rules to match domains.
- * <p>
- * It supports both plain text and regular expression checks.
- * </p>
- * 
+ *
+ * <p>It supports both plain text and regular expression checks.
+ *
  * @since 2.6.0
  * @see #matches(String)
  */
@@ -84,7 +82,7 @@ public class DomainMatcher extends Enableable {
 
     /**
      * Tells whether or not the given domain matches.
-     * 
+     *
      * @param domain the domain that will be checked
      * @return {@code true} if the domain matches, {@code false} otherwise.
      */
@@ -137,5 +135,4 @@ public class DomainMatcher extends Enableable {
     public static Pattern createPattern(String regex) {
         return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
-
 }

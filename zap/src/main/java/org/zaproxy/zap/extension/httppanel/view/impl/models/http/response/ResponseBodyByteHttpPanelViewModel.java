@@ -28,68 +28,71 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
 import org.parosproxy.paros.network.HttpHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class ResponseBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
-	@Override
-	public byte[] getData() {
-		if (httpMessage == null) {
-			return new byte[0];
-		}
-		
-		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-			// Uncompress gziped content
-			try {
-				ByteArrayInputStream bais = new ByteArrayInputStream(httpMessage.getResponseBody().getBytes());
-				GZIPInputStream gis = new GZIPInputStream(bais);
-				InputStreamReader isr = new InputStreamReader(gis);
-				BufferedReader br = new BufferedReader(isr);
-				StringBuilder sb = new StringBuilder();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					sb.append(line);
-				}
-				br.close();
-				isr.close();
-				gis.close();
-				bais.close();
-				return sb.toString().getBytes();
-			} catch (IOException e) {
-				//this.log.error(e.getMessage(), e);
-				System.out.println(e);
-			}
-		}
-		
-		return httpMessage.getResponseBody().getBytes();
-	}
+    @Override
+    public byte[] getData() {
+        if (httpMessage == null) {
+            return new byte[0];
+        }
 
-	@Override
-	public void setData(byte[] data) {
-		if (httpMessage == null) {
-			return ;
-		}
-		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-			// Uncompress gziped content
-			try {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				GZIPOutputStream gis = new GZIPOutputStream(baos);
-				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
-				bw.append(new String(data));
-				bw.close();
-				gis.close();
-				baos.close();
-				httpMessage.getResponseBody().setBody(baos.toByteArray());
-				HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
-			} catch (IOException e) {
-				//this.log.error(e.getMessage(), e);
-				System.out.println(e);
-			}
-		} else {
-			httpMessage.getResponseBody().setBody(data);
-			HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);		}
-	}
+        if (HttpHeader.GZIP.equals(
+                httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+            // Uncompress gziped content
+            try {
+                ByteArrayInputStream bais =
+                        new ByteArrayInputStream(httpMessage.getResponseBody().getBytes());
+                GZIPInputStream gis = new GZIPInputStream(bais);
+                InputStreamReader isr = new InputStreamReader(gis);
+                BufferedReader br = new BufferedReader(isr);
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                br.close();
+                isr.close();
+                gis.close();
+                bais.close();
+                return sb.toString().getBytes();
+            } catch (IOException e) {
+                // this.log.error(e.getMessage(), e);
+                System.out.println(e);
+            }
+        }
+
+        return httpMessage.getResponseBody().getBytes();
+    }
+
+    @Override
+    public void setData(byte[] data) {
+        if (httpMessage == null) {
+            return;
+        }
+        if (HttpHeader.GZIP.equals(
+                httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+            // Uncompress gziped content
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                GZIPOutputStream gis = new GZIPOutputStream(baos);
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
+                bw.append(new String(data));
+                bw.close();
+                gis.close();
+                baos.close();
+                httpMessage.getResponseBody().setBody(baos.toByteArray());
+                HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+            } catch (IOException e) {
+                // this.log.error(e.getMessage(), e);
+                System.out.println(e);
+            }
+        } else {
+            httpMessage.getResponseBody().setBody(data);
+            HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+        }
+    }
 }

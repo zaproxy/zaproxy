@@ -27,7 +27,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -35,9 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- * Unit test for {@link ExtensionParam}.
- */
+/** Unit test for {@link ExtensionParam}. */
 public class ExtensionParamUnitTest {
 
     @BeforeClass
@@ -118,7 +115,7 @@ public class ExtensionParamUnitTest {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
-        param.setExtensionsState(Collections.<String, Boolean> emptyMap());
+        param.setExtensionsState(Collections.<String, Boolean>emptyMap());
         // Then = NullPointerException
     }
 

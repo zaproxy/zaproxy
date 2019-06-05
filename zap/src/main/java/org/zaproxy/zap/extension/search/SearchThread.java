@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -35,78 +34,142 @@ import org.zaproxy.zap.extension.search.ExtensionSearch.Type;
 
 public class SearchThread extends Thread {
 
-	private static final String THREAD_NAME = "ZAP-SearchThread";
+    private static final String THREAD_NAME = "ZAP-SearchThread";
 
-	private String filter;
-	private Pattern pattern;
-	private Type reqType;
-	private SearchListenner searchListenner;
-	private boolean stopSearch = false;
-	private boolean inverse = false;
-	private boolean searchJustInScope = false;
-	private String baseUrl;
-	private PaginationConstraintsChecker pcc;
+    private String filter;
+    private Pattern pattern;
+    private Type reqType;
+    private SearchListenner searchListenner;
+    private boolean stopSearch = false;
+    private boolean inverse = false;
+    private boolean searchJustInScope = false;
+    private String baseUrl;
+    private PaginationConstraintsChecker pcc;
 
-	private Map<String, HttpSearcher> searchers;
-	private String customSearcherName;
-	
+    private Map<String, HttpSearcher> searchers;
+    private String customSearcherName;
+
     private boolean searchAllOccurrences;
 
     private static Logger log = Logger.getLogger(SearchThread.class);
-	
-    public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
-    		String baseUrl, int start, int count) {
-        this(filter, reqType, searchListenner, inverse, searchJustInScope, baseUrl, start, count, true);
+
+    public SearchThread(
+            String filter,
+            Type reqType,
+            SearchListenner searchListenner,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count) {
+        this(
+                filter,
+                reqType,
+                searchListenner,
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                true);
     }
 
-    public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
-    		String baseUrl, int start, int count, boolean searchAllOccurrences) {
-        this(filter, reqType, searchListenner, inverse, searchJustInScope, baseUrl, start, count, searchAllOccurrences, -1);
+    public SearchThread(
+            String filter,
+            Type reqType,
+            SearchListenner searchListenner,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences) {
+        this(
+                filter,
+                reqType,
+                searchListenner,
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                -1);
     }
 
-    public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
-                String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences) {
-        this(filter, reqType, null, searchListenner, inverse, searchJustInScope, baseUrl, start, count, searchAllOccurrences, maxOccurrences);
+    public SearchThread(
+            String filter,
+            Type reqType,
+            SearchListenner searchListenner,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences,
+            int maxOccurrences) {
+        this(
+                filter,
+                reqType,
+                null,
+                searchListenner,
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                maxOccurrences);
     }
 
-    public SearchThread(String filter, Type reqType, String customSearcherName, SearchListenner searchListenner, boolean inverse,
-            boolean searchJustInScope, String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences) {
-		super(THREAD_NAME);
-		this.filter = filter;
-		this.pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
-		this.reqType = reqType;
-		this.customSearcherName = customSearcherName;
-		this.searchListenner = searchListenner;
-		this.inverse = inverse;
-		this.searchJustInScope = searchJustInScope;
-		this.baseUrl = baseUrl;
-		pcc = new PaginationConstraintsChecker(start, count, maxOccurrences);
-		
-		this.searchAllOccurrences = searchAllOccurrences;
-	}
+    public SearchThread(
+            String filter,
+            Type reqType,
+            String customSearcherName,
+            SearchListenner searchListenner,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences,
+            int maxOccurrences) {
+        super(THREAD_NAME);
+        this.filter = filter;
+        this.pattern = Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+        this.reqType = reqType;
+        this.customSearcherName = customSearcherName;
+        this.searchListenner = searchListenner;
+        this.inverse = inverse;
+        this.searchJustInScope = searchJustInScope;
+        this.baseUrl = baseUrl;
+        pcc = new PaginationConstraintsChecker(start, count, maxOccurrences);
+
+        this.searchAllOccurrences = searchAllOccurrences;
+    }
 
     public void setCustomSearchers(Map<String, HttpSearcher> searchers) {
         this.searchers = searchers;
     }
 
     public void stopSearch() {
-    	this.stopSearch = true;
+        this.stopSearch = true;
     }
 
-	@Override
-	public void run() {
-		try {
-			this.searchListenner.searchStarted();
-			search();
-		} finally {
-			this.searchListenner.searchComplete();
-		}
-	}
+    @Override
+    public void run() {
+        try {
+            this.searchListenner.searchStarted();
+            search();
+        } finally {
+            this.searchListenner.searchComplete();
+        }
+    }
 
-	private void search() {
-	    Session session = Model.getSingleton().getSession();
-		Matcher matcher = null;
-		
+    private void search() {
+        Session session = Model.getSingleton().getSession();
+        Matcher matcher = null;
+
         try {
 
             if (Type.Custom.equals(reqType)) {
@@ -118,7 +181,6 @@ public class SearchThread extends Thread {
                             results = searcher.search(pattern, inverse, pcc.getMaximumMatches());
                         } else {
                             results = searcher.search(pattern, inverse);
-
                         }
                         for (SearchResult sr : results) {
                             searchListenner.addSearchResult(sr);
@@ -128,258 +190,329 @@ public class SearchThread extends Thread {
                 return;
             }
 
-			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryIdsOfHistType(session.getSessionId(),
-							HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER, HistoryReference.TYPE_SPIDER,
-							HistoryReference.TYPE_SPIDER_AJAX);
-			int last = list.size();
-			int currentRecordId = 0;
-			for (int index=0;index < last;index++){
-				if (stopSearch) {
-					break;
-				}
-			    int historyId = list.get(index);
-			    try {
-			            currentRecordId = index;
-			        	// Create the href to ensure the msg is set up correctly
-			        	HistoryReference href = new HistoryReference(historyId);
-			        	HttpMessage message = href.getHttpMessage();
-			        	if (searchJustInScope && ! session.isInScope(message.getRequestHeader().getURI().toString())) {
-			        		// Not in scope, so ignore
-			        		continue;
-			        	}
-			        	if (this.baseUrl != null && ! message.getRequestHeader().getURI().toString().startsWith(baseUrl)) {
-			        		// doesn't start with the specified baseurl
-			        		continue;
-			        	}
-				
-				        if (Type.URL.equals(reqType)) {
-				            // URL
-				            String url = message.getRequestHeader().getURI().toString();
-				            matcher = pattern.matcher(url);
-				            if (inverse && !pcc.allMatchesProcessed()) {
-					            if (! matcher.find()) {
-							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
-					            }
-				            } else {
-					            int urlStartPos = message.getRequestHeader().getPrimeHeader().indexOf(url);
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
-							        						urlStartPos + matcher.start(), urlStartPos + matcher.end()); 
-					            	
-							        if (!searchAllOccurrences) {
-							            break;
-							        }
-					            }
-				            }
-						}
-				        if (Type.Header.equals(reqType)) {
-				            // Header
-				        	// Request header
-				            matcher = pattern.matcher(message.getRequestHeader().toString());
-				            if (inverse && !pcc.allMatchesProcessed()) {
-					            if (! matcher.find()) {
-							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
-					            }
-				            } else {
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
-							        						matcher.start(), matcher.end()); 
-								    if (!searchAllOccurrences) {
-								    	break;
-								    }
-					            }
-				            }
-				        	// Response header
-				            matcher = pattern.matcher(message.getResponseHeader().toString());
-				            if (inverse && !pcc.allMatchesProcessed()) {
-					            if (! matcher.find()) {
-							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.RESPONSE_HEAD); 
-					            }
-				            } else {
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
-							        						matcher.start(), matcher.end()); 
-								    if (!searchAllOccurrences) {
-								    	break;
-								    }
-					            }
-				            }
-						}
-				        if (Type.Request.equals(reqType) ||
-				        		Type.All.equals(reqType)) {
-				            if (inverse && !pcc.allMatchesProcessed()) {
-					            // Check for no matches in either Request Header or Body 
-					            if (! pattern.matcher(message.getRequestHeader().toString()).find() && 
-					            		! pattern.matcher(message.getRequestBody().toString()).find()) {    
-							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
-					            }
-				            } else {
-					            // Request Header 
-					            matcher = pattern.matcher(message.getRequestHeader().toString());    
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
-							        						matcher.start(), matcher.end()); 
-								    if (!searchAllOccurrences) {
-								    	break;
-								    }
-					            }
-					            // Request Body
-					            matcher = pattern.matcher(message.getRequestBody().toString());    
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_BODY, 
-							        						matcher.start(), matcher.end()); 
-								    if (!searchAllOccurrences) {
-								    	break;
-								    }
-					            }
-				            }
-				        }
-				        if (Type.Response.equals(reqType) ||
-				        		Type.All.equals(reqType)) {
-				            if (inverse && !pcc.allMatchesProcessed()) {
-					            // Check for no matches in either Response Header or Body 
-					            if (! pattern.matcher(message.getResponseHeader().toString()).find() && 
-					            		! pattern.matcher(message.getResponseBody().toString()).find()) {    
-							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.RESPONSE_HEAD); 
-					            }
-				            } else {
-					            // Response header
-					            matcher = pattern.matcher(message.getResponseHeader().toString());    
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
-							        						matcher.start(), matcher.end()); 
-								    if (!searchAllOccurrences) {
-								    	break;
-								    }
-					            }
-					            // Response body
-					            matcher = pattern.matcher(message.getResponseBody().toString());    
-					            while (matcher.find() && !pcc.allMatchesProcessed()) {
-							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.RESPONSE_BODY, 
-							        						matcher.start(), matcher.end()); 
-								    if (!searchAllOccurrences) {
-								    	break;
-								    }
-					            }
-				            }
-				        }
-			        
-			    } catch (HttpMalformedHeaderException e1) {
-			        log.error(e1.getMessage(), e1);
-			    }
-			    if (pcc.hasPageEnded()) {
-			    	break;
-			    }
-			}	            
-		} catch (DatabaseException e) {
-	        log.error(e.getMessage(), e);
-		}
-	}
+            List<Integer> list =
+                    Model.getSingleton()
+                            .getDb()
+                            .getTableHistory()
+                            .getHistoryIdsOfHistType(
+                                    session.getSessionId(),
+                                    HistoryReference.TYPE_PROXIED,
+                                    HistoryReference.TYPE_ZAP_USER,
+                                    HistoryReference.TYPE_SPIDER,
+                                    HistoryReference.TYPE_SPIDER_AJAX);
+            int last = list.size();
+            int currentRecordId = 0;
+            for (int index = 0; index < last; index++) {
+                if (stopSearch) {
+                    break;
+                }
+                int historyId = list.get(index);
+                try {
+                    currentRecordId = index;
+                    // Create the href to ensure the msg is set up correctly
+                    HistoryReference href = new HistoryReference(historyId);
+                    HttpMessage message = href.getHttpMessage();
+                    if (searchJustInScope
+                            && !session.isInScope(message.getRequestHeader().getURI().toString())) {
+                        // Not in scope, so ignore
+                        continue;
+                    }
+                    if (this.baseUrl != null
+                            && !message.getRequestHeader()
+                                    .getURI()
+                                    .toString()
+                                    .startsWith(baseUrl)) {
+                        // doesn't start with the specified baseurl
+                        continue;
+                    }
 
-	private void notifyInverseMatchFound(int currentRecordId, HttpMessage message, SearchMatch.Location location) {
-		notifyMatchFound(currentRecordId, "", message, location, 0, 0);
-	}
+                    if (Type.URL.equals(reqType)) {
+                        // URL
+                        String url = message.getRequestHeader().getURI().toString();
+                        matcher = pattern.matcher(url);
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            if (!matcher.find()) {
+                                notifyInverseMatchFound(
+                                        currentRecordId,
+                                        message,
+                                        SearchMatch.Location.REQUEST_HEAD);
+                            }
+                        } else {
+                            int urlStartPos =
+                                    message.getRequestHeader().getPrimeHeader().indexOf(url);
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.REQUEST_HEAD,
+                                        urlStartPos + matcher.start(),
+                                        urlStartPos + matcher.end());
 
-	private void notifyMatchFound(int currentRecordId, String stringFound, HttpMessage message, SearchMatch.Location location, int start, int end) {
-	    pcc.recordProcessed(currentRecordId);
-		if (!pcc.hasPageStarted()) {
-			// Before the specified start
-			return;
-		}
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (Type.Header.equals(reqType)) {
+                        // Header
+                        // Request header
+                        matcher = pattern.matcher(message.getRequestHeader().toString());
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            if (!matcher.find()) {
+                                notifyInverseMatchFound(
+                                        currentRecordId,
+                                        message,
+                                        SearchMatch.Location.REQUEST_HEAD);
+                            }
+                        } else {
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.REQUEST_HEAD,
+                                        matcher.start(),
+                                        matcher.end());
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                        }
+                        // Response header
+                        matcher = pattern.matcher(message.getResponseHeader().toString());
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            if (!matcher.find()) {
+                                notifyInverseMatchFound(
+                                        currentRecordId,
+                                        message,
+                                        SearchMatch.Location.RESPONSE_HEAD);
+                            }
+                        } else {
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.RESPONSE_HEAD,
+                                        matcher.start(),
+                                        matcher.end());
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (Type.Request.equals(reqType) || Type.All.equals(reqType)) {
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            // Check for no matches in either Request Header or Body
+                            if (!pattern.matcher(message.getRequestHeader().toString()).find()
+                                    && !pattern.matcher(message.getRequestBody().toString())
+                                            .find()) {
+                                notifyInverseMatchFound(
+                                        currentRecordId,
+                                        message,
+                                        SearchMatch.Location.REQUEST_HEAD);
+                            }
+                        } else {
+                            // Request Header
+                            matcher = pattern.matcher(message.getRequestHeader().toString());
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.REQUEST_HEAD,
+                                        matcher.start(),
+                                        matcher.end());
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                            // Request Body
+                            matcher = pattern.matcher(message.getRequestBody().toString());
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.REQUEST_BODY,
+                                        matcher.start(),
+                                        matcher.end());
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (Type.Response.equals(reqType) || Type.All.equals(reqType)) {
+                        if (inverse && !pcc.allMatchesProcessed()) {
+                            // Check for no matches in either Response Header or Body
+                            if (!pattern.matcher(message.getResponseHeader().toString()).find()
+                                    && !pattern.matcher(message.getResponseBody().toString())
+                                            .find()) {
+                                notifyInverseMatchFound(
+                                        currentRecordId,
+                                        message,
+                                        SearchMatch.Location.RESPONSE_HEAD);
+                            }
+                        } else {
+                            // Response header
+                            matcher = pattern.matcher(message.getResponseHeader().toString());
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.RESPONSE_HEAD,
+                                        matcher.start(),
+                                        matcher.end());
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                            // Response body
+                            matcher = pattern.matcher(message.getResponseBody().toString());
+                            while (matcher.find() && !pcc.allMatchesProcessed()) {
+                                notifyMatchFound(
+                                        currentRecordId,
+                                        matcher.group(),
+                                        message,
+                                        SearchMatch.Location.RESPONSE_BODY,
+                                        matcher.start(),
+                                        matcher.end());
+                                if (!searchAllOccurrences) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
-		pcc.matchProcessed();
-		searchListenner.addSearchResult(new SearchResult(reqType, filter, stringFound, new SearchMatch(
-				message,
-				location,
-				start,
-				end)));
-	}
+                } catch (HttpMalformedHeaderException e1) {
+                    log.error(e1.getMessage(), e1);
+                }
+                if (pcc.hasPageEnded()) {
+                    break;
+                }
+            }
+        } catch (DatabaseException e) {
+            log.error(e.getMessage(), e);
+        }
+    }
 
-	private static class PaginationConstraintsChecker {
+    private void notifyInverseMatchFound(
+            int currentRecordId, HttpMessage message, SearchMatch.Location location) {
+        notifyMatchFound(currentRecordId, "", message, location, 0, 0);
+    }
 
-		private boolean pageStarted;
-		private boolean pageEnded;
-		private final int startRecord;
-		private final boolean hasEnd;
-		private final int finalRecord;
-		private int recordsProcessed;
-		private int currentRecordId;
+    private void notifyMatchFound(
+            int currentRecordId,
+            String stringFound,
+            HttpMessage message,
+            SearchMatch.Location location,
+            int start,
+            int end) {
+        pcc.recordProcessed(currentRecordId);
+        if (!pcc.hasPageStarted()) {
+            // Before the specified start
+            return;
+        }
 
-		private final int maximumMatches;
-		private final boolean hasMaximumMatches;
-		private boolean allMatchesProcessed;
-		private int matchesProcessed;
+        pcc.matchProcessed();
+        searchListenner.addSearchResult(
+                new SearchResult(
+                        reqType,
+                        filter,
+                        stringFound,
+                        new SearchMatch(message, location, start, end)));
+    }
 
-		public PaginationConstraintsChecker(int start, int count, int matches) {
-			recordsProcessed = 0;
-			matchesProcessed = 0;
-			currentRecordId = -1;
+    private static class PaginationConstraintsChecker {
 
-			if (start > 0) {
-				pageStarted = false;
-				startRecord = start;
-			} else {
-				pageStarted = true;
-				startRecord = 0;
-			}
+        private boolean pageStarted;
+        private boolean pageEnded;
+        private final int startRecord;
+        private final boolean hasEnd;
+        private final int finalRecord;
+        private int recordsProcessed;
+        private int currentRecordId;
 
-			if (count > 0) {
-				hasEnd = true;
-				finalRecord = !pageStarted ? start + count - 1 : count;
-			} else {
-				hasEnd = false;
-				finalRecord = 0;
-			}
-			pageEnded = false;
-			allMatchesProcessed = false;
-			maximumMatches = matches;
-			hasMaximumMatches = maximumMatches > 0;
-		}
+        private final int maximumMatches;
+        private final boolean hasMaximumMatches;
+        private boolean allMatchesProcessed;
+        private int matchesProcessed;
 
-		public boolean hasMaximumMatches() {
-			return hasMaximumMatches;
-		}
+        public PaginationConstraintsChecker(int start, int count, int matches) {
+            recordsProcessed = 0;
+            matchesProcessed = 0;
+            currentRecordId = -1;
 
-		public int getMaximumMatches() {
-			return maximumMatches;
-		}
+            if (start > 0) {
+                pageStarted = false;
+                startRecord = start;
+            } else {
+                pageStarted = true;
+                startRecord = 0;
+            }
 
-		public void recordProcessed(int recordId) {
-			if (currentRecordId == recordId) {
-				return;
-			}
-			currentRecordId = recordId;
+            if (count > 0) {
+                hasEnd = true;
+                finalRecord = !pageStarted ? start + count - 1 : count;
+            } else {
+                hasEnd = false;
+                finalRecord = 0;
+            }
+            pageEnded = false;
+            allMatchesProcessed = false;
+            maximumMatches = matches;
+            hasMaximumMatches = maximumMatches > 0;
+        }
 
-			++recordsProcessed;
+        public boolean hasMaximumMatches() {
+            return hasMaximumMatches;
+        }
 
-			if (!pageStarted) {
-				pageStarted = recordsProcessed >= startRecord;
-			}
+        public int getMaximumMatches() {
+            return maximumMatches;
+        }
 
-			if (hasEnd && !pageEnded) {
-				pageEnded = recordsProcessed >= finalRecord;
-			}
-		}
+        public void recordProcessed(int recordId) {
+            if (currentRecordId == recordId) {
+                return;
+            }
+            currentRecordId = recordId;
 
-		public void matchProcessed() {
-			++matchesProcessed;
+            ++recordsProcessed;
 
-			if (hasMaximumMatches && matchesProcessed >= maximumMatches) {
-				allMatchesProcessed = true;
-				pageEnded = true;
-			}
-		}
+            if (!pageStarted) {
+                pageStarted = recordsProcessed >= startRecord;
+            }
 
-		public boolean hasPageStarted() {
-			return pageStarted;
-		}
+            if (hasEnd && !pageEnded) {
+                pageEnded = recordsProcessed >= finalRecord;
+            }
+        }
 
-		public boolean hasPageEnded() {
-			return pageEnded;
-		}
+        public void matchProcessed() {
+            ++matchesProcessed;
 
-		public boolean allMatchesProcessed() {
-			return allMatchesProcessed;
-		}
-	}
+            if (hasMaximumMatches && matchesProcessed >= maximumMatches) {
+                allMatchesProcessed = true;
+                pageEnded = true;
+            }
+        }
+
+        public boolean hasPageStarted() {
+            return pageStarted;
+        }
+
+        public boolean hasPageEnded() {
+            return pageEnded;
+        }
+
+        public boolean allMatchesProcessed() {
+            return allMatchesProcessed;
+        }
+    }
 }

@@ -20,7 +20,6 @@
 package org.parosproxy.paros.model;
 
 import java.lang.ref.WeakReference;
-
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -114,5 +113,4 @@ public class HttpMessageCachedData {
         this.wrRequestBody.clear();
         this.wrRequestBody = new WeakReference<>(requestBody);
     }
-
 }

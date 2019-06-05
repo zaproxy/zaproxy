@@ -27,7 +27,8 @@ public class RequestLargeRequestAllView extends HttpRequestAllPanelTextView {
 
     public static final String NAME = "RequestLargeRequestAllView";
 
-    public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largerequest.name");
+    public static final String CAPTION_NAME =
+            Constant.messages.getString("http.panel.view.largerequest.name");
 
     public RequestLargeRequestAllView(LargeRequestStringHttpPanelViewModel model) {
         super(model);
@@ -64,7 +65,5 @@ public class RequestLargeRequestAllView extends HttpRequestAllPanelTextView {
     }
 
     @Override
-    public void setEditable(boolean editable) {
-    }
-
+    public void setEditable(boolean editable) {}
 }

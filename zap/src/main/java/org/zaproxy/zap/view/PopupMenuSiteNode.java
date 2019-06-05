@@ -25,57 +25,55 @@ import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 /**
- * @deprecated (2.3.0) Superseded by {@link PopupMenuItemSiteNodeContainer}. It will be removed in a future release.
+ * @deprecated (2.3.0) Superseded by {@link PopupMenuItemSiteNodeContainer}. It will be removed in a
+ *     future release.
  */
 @Deprecated
 public abstract class PopupMenuSiteNode extends PopupMenuHistoryReference {
 
-	public PopupMenuSiteNode(String label) {
-		super(label);
-	}
+    public PopupMenuSiteNode(String label) {
+        super(label);
+    }
 
-	public PopupMenuSiteNode(String label, boolean multiSelect) {
-		super(label, multiSelect);
-	}
+    public PopupMenuSiteNode(String label, boolean multiSelect) {
+        super(label, multiSelect);
+    }
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    private SiteNode getSiteNode (HistoryReference href) {
-    	if (href == null) {
-    		return null;
-    	}
-		SiteNode sn = href.getSiteNode();
-		if (sn == null) {
-			sn = Model.getSingleton().getSession().getSiteTree().getSiteNode(href.getHistoryId());
-		}
-		return sn;
+    private SiteNode getSiteNode(HistoryReference href) {
+        if (href == null) {
+            return null;
+        }
+        SiteNode sn = href.getSiteNode();
+        if (sn == null) {
+            sn = Model.getSingleton().getSession().getSiteTree().getSiteNode(href.getHistoryId());
+        }
+        return sn;
     }
 
     @Override
-    public boolean isEnabledForHistoryReference (HistoryReference href) {
-		SiteNode sn = this.getSiteNode(href);
-		if (sn != null) {
-			return this.isEnabledForSiteNode(sn);
-		}
-		return false;
+    public boolean isEnabledForHistoryReference(HistoryReference href) {
+        SiteNode sn = this.getSiteNode(href);
+        if (sn != null) {
+            return this.isEnabledForSiteNode(sn);
+        }
+        return false;
     }
-    
-    /**
-	 * @param sn
-	 */
-    public boolean isEnabledForSiteNode (SiteNode sn) {
-    	// Can Override if required 
-    	return true;
+
+    /** @param sn */
+    public boolean isEnabledForSiteNode(SiteNode sn) {
+        // Can Override if required
+        return true;
     }
-    
+
     @Override
-    public void performAction (HistoryReference href) throws Exception {
-		SiteNode sn = this.getSiteNode(href);
-		if (sn != null) {
-			this.performAction(sn);
-		}
+    public void performAction(HistoryReference href) throws Exception {
+        SiteNode sn = this.getSiteNode(href);
+        if (sn != null) {
+            this.performAction(sn);
+        }
     }
 
-    public abstract void performAction (SiteNode sn) throws Exception;
-
+    public abstract void performAction(SiteNode sn) throws Exception;
 }

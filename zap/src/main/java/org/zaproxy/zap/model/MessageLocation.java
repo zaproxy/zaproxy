@@ -22,8 +22,9 @@ package org.zaproxy.zap.model;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
- * A location in a {@code Message}. Either a value (for example, a string, a number...) or a single (insertion) point.
- * 
+ * A location in a {@code Message}. Either a value (for example, a string, a number...) or a single
+ * (insertion) point.
+ *
  * @since 2.4.0
  * @see Message
  */
@@ -33,35 +34,42 @@ public interface MessageLocation extends Comparable<MessageLocation> {
 
     /**
      * Gets the description of this location in the message.
-     * <p>
-     * Should be internationalised as it might be shown in GUI components.
-     * <p>
-     * Examples, of possible descriptions:
-     * <p>
-     * Example 1: This message location represents a POST parameter, in an HTTP message, it could return: <blockquote>
-     * 
+     *
+     * <p>Should be internationalised as it might be shown in GUI components.
+     *
+     * <p>Examples, of possible descriptions:
+     *
+     * <p>Example 1: This message location represents a POST parameter, in an HTTP message, it could
+     * return:
+     *
+     * <blockquote>
+     *
      * <pre>
      * POST parameter
      * </pre>
-     * 
+     *
      * </blockquote>
-     * <p>
-     * Example 2: It's manually selected a value of a HTTP request header, it could return: <blockquote>
-     * 
+     *
+     * <p>Example 2: It's manually selected a value of a HTTP request header, it could return:
+     *
+     * <blockquote>
+     *
      * <pre>
      * Header [start index, end index]
      * </pre>
-     * 
+     *
      * </blockquote>
-     * <p>
-     * For text selections is advised to return the coordinates of the selected content or position.
-     * 
+     *
+     * <p>For text selections is advised to return the coordinates of the selected content or
+     * position.
+     *
      * @return the description of the location in the message
      */
     String getDescription();
 
     /**
-     * Gets the value represented by this location. It might be empty if it represents an insertion position.
+     * Gets the value represented by this location. It might be empty if it represents an insertion
+     * position.
      *
      * @return the value represented by this location, empty if a position
      */
@@ -69,12 +77,12 @@ public interface MessageLocation extends Comparable<MessageLocation> {
 
     /**
      * Tells whether or not the given location overlaps with this location.
-     * <p>
-     * Locations of non compatible types (for example, text and AMF) should return {@code true}.
+     *
+     * <p>Locations of non compatible types (for example, text and AMF) should return {@code true}.
      *
      * @param otherLocation other location to test for overlapping
-     * @return {@code true} if the {@code otherLocation} overlaps with this one, {@code false} otherwise.
+     * @return {@code true} if the {@code otherLocation} overlaps with this one, {@code false}
+     *     otherwise.
      */
     boolean overlaps(MessageLocation otherLocation);
-
 }

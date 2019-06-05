@@ -31,18 +31,14 @@ public class IllegalContextNameException extends IllegalArgumentException {
 
     /**
      * The reason why a context's name is illegal.
-     * 
+     *
      * @see IllegalContextNameException#getReason()
      */
     public enum Reason {
-        /**
-         * The name is {@code null} or empty.
-         */
+        /** The name is {@code null} or empty. */
         EMPTY_NAME,
 
-        /**
-         * It's a duplicated name.
-         */
+        /** It's a duplicated name. */
         DUPLICATED_NAME
     }
 

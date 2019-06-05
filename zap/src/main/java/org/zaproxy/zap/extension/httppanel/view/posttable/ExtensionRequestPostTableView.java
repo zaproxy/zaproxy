@@ -30,72 +30,76 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 
 public class ExtensionRequestPostTableView extends ExtensionAdaptor {
 
-	public static final String NAME = "ExtensionRequestPostTableView";
-	
-	public ExtensionRequestPostTableView() {
-		super(NAME);
+    public static final String NAME = "ExtensionRequestPostTableView";
 
-		setOrder(80);
-	}
-	
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("http.panel.view.posttable.ext.name");
-	}
+    public ExtensionRequestPostTableView() {
+        super(NAME);
 
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-		if (getView() != null) {
-			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new RequestPostTableViewFactory());
-		}
-	}
-	
-	@Override
-	public boolean canUnload() {
-		// Do not allow the unload until moved to an add-on.
-		return false;
-	}
-	
-	@Override
-	public void unload() {
-		if (getView() != null) {
-			HttpPanelManager panelManager = HttpPanelManager.getInstance();
-			panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestPostTableViewFactory.NAME);
-			panelManager.removeRequestViews(RequestSplitComponent.NAME, RequestPostTableView.NAME, RequestSplitComponent.ViewComponent.BODY);
-		}
-	}
-	
-	private static final class RequestPostTableViewFactory implements HttpPanelViewFactory {
-		
-		public static final String NAME = "RequestPostTableViewFactory";
-		
-		@Override
-		public String getName() {
-			return NAME;
-		}
-		
-		@Override
-		public HttpPanelView getNewView() {
-			return new RequestPostTableView(new RequestBodyStringHttpPanelViewModel());
-		}
+        setOrder(80);
+    }
 
-		@Override
-		public Object getOptions() {
-			return RequestSplitComponent.ViewComponent.BODY;
-		}
-	}
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("http.panel.view.posttable.ext.name");
+    }
 
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        if (getView() != null) {
+            HttpPanelManager.getInstance()
+                    .addRequestViewFactory(
+                            RequestSplitComponent.NAME, new RequestPostTableViewFactory());
+        }
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    @Override
+    public boolean canUnload() {
+        // Do not allow the unload until moved to an add-on.
+        return false;
+    }
+
+    @Override
+    public void unload() {
+        if (getView() != null) {
+            HttpPanelManager panelManager = HttpPanelManager.getInstance();
+            panelManager.removeRequestViewFactory(
+                    RequestSplitComponent.NAME, RequestPostTableViewFactory.NAME);
+            panelManager.removeRequestViews(
+                    RequestSplitComponent.NAME,
+                    RequestPostTableView.NAME,
+                    RequestSplitComponent.ViewComponent.BODY);
+        }
+    }
+
+    private static final class RequestPostTableViewFactory implements HttpPanelViewFactory {
+
+        public static final String NAME = "RequestPostTableViewFactory";
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public HttpPanelView getNewView() {
+            return new RequestPostTableView(new RequestBodyStringHttpPanelViewModel());
+        }
+
+        @Override
+        public Object getOptions() {
+            return RequestSplitComponent.ViewComponent.BODY;
+        }
+    }
+
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }

@@ -27,10 +27,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.encoder.Encoder;
@@ -39,14 +37,10 @@ import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 
-/**
- * An {@code AbstractTableModel} for add-ons.
- */
+/** An {@code AbstractTableModel} for add-ons. */
 public abstract class AddOnsTableModel extends AbstractTableModel {
 
-    /**
-     * The column in the table model that allows to get the {@code AddOnWrapper} of a given row.
-     */
+    /** The column in the table model that allows to get the {@code AddOnWrapper} of a given row. */
     public static final int COLUMN_ADD_ON_WRAPPER = -1;
 
     private static final long serialVersionUID = -5240438485136881299L;
@@ -63,11 +57,15 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
     private AddOnSearcher addOnSeacher;
 
-	/**
-	 * @deprecated (2.5.0) Replaced by {@link #AddOnsTableModel(AddOnCollection, int)}. It will be removed in a future release.
-	 */
+    /**
+     * @deprecated (2.5.0) Replaced by {@link #AddOnsTableModel(AddOnCollection, int)}. It will be
+     *     removed in a future release.
+     */
     @Deprecated
-    public AddOnsTableModel(Comparator<AddOnWrapper> comparator, AddOnCollection addOnCollection, int progressColumn) {
+    public AddOnsTableModel(
+            Comparator<AddOnWrapper> comparator,
+            AddOnCollection addOnCollection,
+            int progressColumn) {
         super();
 
         this.comparator = comparator;
@@ -86,7 +84,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
         this.addOnCollection = addOnCollection;
     }
-    
+
     public void setAddOnCollection(AddOnCollection addOnCollection) {
         this.addOnCollection = addOnCollection;
     }
@@ -123,16 +121,16 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     protected void addAddOnWrapper(AddOn addOn, AddOnWrapper.Status status) {
         AddOnWrapper aow = createAddOnWrapper(addOn, status);
         int idx = 0;
-    	if (comparator != null) {
-    		for (; idx < getAddOnWrappers().size(); idx++) {
-        		if (comparator.compare(aow, getAddOnWrappers().get(idx)) < 0) {
-        			break;
-        		}
+        if (comparator != null) {
+            for (; idx < getAddOnWrappers().size(); idx++) {
+                if (comparator.compare(aow, getAddOnWrappers().get(idx)) < 0) {
+                    break;
+                }
                 getAddOnWrappers().add(idx, aow);
-        	}
+            }
         } else {
-        	idx = getAddOnWrappers().size();
-        	getAddOnWrappers().add(aow);
+            idx = getAddOnWrappers().size();
+            getAddOnWrappers().add(aow);
         }
 
         fireTableRowsInserted(idx, idx);
@@ -249,13 +247,14 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
                     setFailed(aow, addOn);
                     try {
                         final int row = idx;
-                        EventQueue.invokeAndWait(new Runnable() {
+                        EventQueue.invokeAndWait(
+                                new Runnable() {
 
-                            @Override
-                            public void run() {
-                                fireTableRowsUpdated(row, row);
-                            }
-                        });
+                                    @Override
+                                    public void run() {
+                                        fireTableRowsUpdated(row, row);
+                                    }
+                                });
                     } catch (InvocationTargetException | InterruptedException ignore) {
                     }
                 }
@@ -264,15 +263,16 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
         if (!rows.isEmpty()) {
             try {
-                EventQueue.invokeAndWait(new Runnable() {
+                EventQueue.invokeAndWait(
+                        new Runnable() {
 
-                    @Override
-                    public void run() {
-                        for (Integer row : rows) {
-                            fireTableCellUpdated(row, progressColumn);
-                        }
-                    }
-                });
+                            @Override
+                            public void run() {
+                                for (Integer row : rows) {
+                                    fireTableCellUpdated(row, progressColumn);
+                                }
+                            }
+                        });
             } catch (InvocationTargetException | InterruptedException e) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Failed to update all the progresses: ", e);
@@ -284,7 +284,8 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     protected abstract void restoreInstallationStatusFailedDownload(AddOnWrapper aow);
 
     protected void fireTableColumnUpdated(int firstRow, int lastRow, int column) {
-        fireTableChanged(new TableModelEvent(this, firstRow, lastRow, column, TableModelEvent.UPDATE));
+        fireTableChanged(
+                new TableModelEvent(this, firstRow, lastRow, column, TableModelEvent.UPDATE));
     }
 
     protected AddOnWrapper createAddOnWrapper(AddOn addOn, AddOnWrapper.Status status) {
@@ -298,7 +299,8 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     }
 
     protected boolean refreshRunningIssues(AddOnWrapper aow, int row) {
-        AddOnRunRequirements reqs = aow.getAddOn().calculateRunRequirements(addOnCollection.getAddOns());
+        AddOnRunRequirements reqs =
+                aow.getAddOn().calculateRunRequirements(addOnCollection.getAddOns());
         String issues = getAddOnRunningIssues(reqs);
         aow.setRunningIssues(issues, !reqs.hasExtensionsWithRunningIssues());
 
@@ -306,23 +308,31 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     }
 
     protected String getAddOnRunningIssues(AddOnRunRequirements reqs) {
-        List<String> extractedIssues = AddOnRunIssuesUtils.getUiRunningIssues(reqs, getAddOnSearcher());
+        List<String> extractedIssues =
+                AddOnRunIssuesUtils.getUiRunningIssues(reqs, getAddOnSearcher());
         if (extractedIssues.isEmpty()) {
-            List<String> extensionsIssues = AddOnRunIssuesUtils.getUiExtensionsRunningIssues(reqs, getAddOnSearcher());
+            List<String> extensionsIssues =
+                    AddOnRunIssuesUtils.getUiExtensionsRunningIssues(reqs, getAddOnSearcher());
             if (!extensionsIssues.isEmpty()) {
                 return getHtmlFromIssues(
-                        Constant.messages.getString("cfu.warn.addon.with.extensions.with.missing.requirements"),
+                        Constant.messages.getString(
+                                "cfu.warn.addon.with.extensions.with.missing.requirements"),
                         extensionsIssues);
             }
             return "";
         }
-        return getHtmlFromIssues(Constant.messages.getString("cfu.warn.addon.with.missing.requirements"), extractedIssues);
+        return getHtmlFromIssues(
+                Constant.messages.getString("cfu.warn.addon.with.missing.requirements"),
+                extractedIssues);
     }
 
     private static String getHtmlFromIssues(String title, List<String> issues) {
         StringBuilder strBuilder = new StringBuilder(150);
         Encoder encoder = new Encoder();
-        strBuilder.append("<html><strong>").append(encoder.getHTMLString(title)).append("</strong><ul>");
+        strBuilder
+                .append("<html><strong>")
+                .append(encoder.getHTMLString(title))
+                .append("</strong><ul>");
         for (String issue : issues) {
             strBuilder.append("<li>").append(encoder.getHTMLString(issue)).append("</li>");
         }

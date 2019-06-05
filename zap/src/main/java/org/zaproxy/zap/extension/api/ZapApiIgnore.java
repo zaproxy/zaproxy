@@ -26,15 +26,14 @@ import java.lang.annotation.Target;
 
 /**
  * Indicates that the method must be ignored by the ZAP API.
- * <p>
- * <strong>Note:</strong> Currently honoured only for API options (the only ones that are dynamically generated from
- * {@code AbstractParam}s set to {@code ApiImplementor}s).
- * 
+ *
+ * <p><strong>Note:</strong> Currently honoured only for API options (the only ones that are
+ * dynamically generated from {@code AbstractParam}s set to {@code ApiImplementor}s).
+ *
  * @see org.parosproxy.paros.common.AbstractParam
  * @see ApiImplementor
  * @see ApiImplementor#addApiOptions(org.parosproxy.paros.common.AbstractParam)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface ZapApiIgnore {
-}
+public @interface ZapApiIgnore {}

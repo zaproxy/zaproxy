@@ -23,24 +23,24 @@ import java.util.List;
 
 public class ApiAction extends ApiElement {
 
-	public ApiAction(String name) {
-		super(name);
-	}
-	
-	public ApiAction(String name, List<String> mandatoryParamNames) {
-		super(name, mandatoryParamNames);
-	}
-	
-	public ApiAction(String name, String[] mandatoryParamNames) {
-		super(name, mandatoryParamNames);
-	}
-	
-	public ApiAction(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
-		super(name, mandatoryParamNames, optionalParamNames);
-	}
-	
-	public ApiAction(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
-		super(name, mandatoryParamNames, optionalParamNames);
-	}
-	
+    public ApiAction(String name) {
+        super(name);
+    }
+
+    public ApiAction(String name, List<String> mandatoryParamNames) {
+        super(name, mandatoryParamNames);
+    }
+
+    public ApiAction(String name, String[] mandatoryParamNames) {
+        super(name, mandatoryParamNames);
+    }
+
+    public ApiAction(
+            String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
+        super(name, mandatoryParamNames, optionalParamNames);
+    }
+
+    public ApiAction(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+        super(name, mandatoryParamNames, optionalParamNames);
+    }
 }

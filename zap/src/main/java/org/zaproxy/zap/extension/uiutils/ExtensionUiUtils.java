@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.uiutils;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -33,117 +32,111 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 
 /**
- * This extension was introduced so that the session persist and snapshot menu item and buttons
- * can be enabled and disabled when appropriate.
- * It much easier doing this in an extension rather than the UI components. 
- * @author psiinon
+ * This extension was introduced so that the session persist and snapshot menu item and buttons can
+ * be enabled and disabled when appropriate. It much easier doing this in an extension rather than
+ * the UI components.
  *
+ * @author psiinon
  */
 public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChangedListener {
 
-	public static final String NAME = "ExtensionUiUtils"; 
-	
+    public static final String NAME = "ExtensionUiUtils";
+
     private static final Logger LOGGER = Logger.getLogger(ExtensionUiUtils.class);
-    
+
     public ExtensionUiUtils() {
         super(NAME);
         this.setOrder(200);
+    }
 
-	}
-	
     @Override
     public String getUIName() {
-    	return Constant.messages.getString("uiutils.name");
+        return Constant.messages.getString("uiutils.name");
     }
-    
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
 
-		if (getView() != null) {
-			extensionHook.addSessionListener(this);
-		}
-	}
-	
-	
-	@Override
-	public void sessionChanged(final Session session)  {
-	    if (EventQueue.isDispatchThread()) {
-		    sessionChangedEventHandler(session);
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
 
-	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	        		    sessionChangedEventHandler(session);
-	                }
-	            });
-	        } catch (Exception e) {
-	            LOGGER.error(e.getMessage(), e);
-	        }
-	    }
-	}
-	
-	private void sessionChangedEventHandler(Session session) {
-		View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
-		View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
-		View.getSingleton().getMainFrame().setTitle(session);
-	}
+        if (getView() != null) {
+            extensionHook.addSessionListener(this);
+        }
+    }
 
+    @Override
+    public void sessionChanged(final Session session) {
+        if (EventQueue.isDispatchThread()) {
+            sessionChangedEventHandler(session);
 
-	@Override
-	public void sessionAboutToChange(Session session) {
-	}
+        } else {
+            try {
+                EventQueue.invokeAndWait(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                sessionChangedEventHandler(session);
+                            }
+                        });
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	@Override
-	public void sessionScopeChanged(Session session) {
-	}
+    private void sessionChangedEventHandler(Session session) {
+        View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
+        View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
+        View.getSingleton().getMainFrame().setTitle(session);
+    }
 
-	@Override
-	public void sessionPropertiesChanged(Session session) {
-		if (EventQueue.isDispatchThread()) {
-			View.getSingleton().getMainFrame().setTitle(session);
-			return;
-		}
+    @Override
+    public void sessionAboutToChange(Session session) {}
 
-		EventQueue.invokeLater(() -> sessionPropertiesChanged(session));
-	}
+    @Override
+    public void sessionScopeChanged(Session session) {}
 
-	@Override
-	public boolean isCore() {
-		return true;
-	}
+    @Override
+    public void sessionPropertiesChanged(Session session) {
+        if (EventQueue.isDispatchThread()) {
+            View.getSingleton().getMainFrame().setTitle(session);
+            return;
+        }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+        EventQueue.invokeLater(() -> sessionPropertiesChanged(session));
+    }
 
-	@Override
-	public String getDescription() {
-		return Constant.messages.getString("uiutils.desc");
-	}
+    @Override
+    public boolean isCore() {
+        return true;
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
-	
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		// Ignore
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    @Override
+    public String getDescription() {
+        return Constant.messages.getString("uiutils.desc");
+    }
+
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void sessionModeChanged(Mode mode) {
+        // Ignore
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }

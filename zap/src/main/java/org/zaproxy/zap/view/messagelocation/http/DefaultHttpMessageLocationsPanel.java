@@ -22,7 +22,6 @@ package org.zaproxy.zap.view.messagelocation.http;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.view.messagelocation.AbstractMessageLocationsPanel;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
@@ -31,18 +30,21 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationsTableModel;
 import org.zaproxy.zap.view.messagelocation.SelectMessageLocationsPanel;
 
 /**
- * Default implementation of an {@code AbstractMessageLocationsPanel} for locations in an {HttpMessage}.
+ * Default implementation of an {@code AbstractMessageLocationsPanel} for locations in an
+ * {HttpMessage}.
  *
  * @since 2.4.0
  * @see AbstractMessageLocationsPanel
  * @see MessageLocationsTableModel
  */
-public class DefaultHttpMessageLocationsPanel extends
-        AbstractMessageLocationsPanel<MessageLocationTableEntry, MessageLocationsTableModel<MessageLocationTableEntry>> {
+public class DefaultHttpMessageLocationsPanel
+        extends AbstractMessageLocationsPanel<
+                MessageLocationTableEntry, MessageLocationsTableModel<MessageLocationTableEntry>> {
 
     private static final long serialVersionUID = -1897228805775451356L;
 
-    protected DefaultHttpMessageLocationsPanel(Component parent, SelectMessageLocationsPanel selectMessageLocationsPanel) {
+    protected DefaultHttpMessageLocationsPanel(
+            Component parent, SelectMessageLocationsPanel selectMessageLocationsPanel) {
         super(parent, selectMessageLocationsPanel, new MessageLocationsTableModel<>(), false);
     }
 

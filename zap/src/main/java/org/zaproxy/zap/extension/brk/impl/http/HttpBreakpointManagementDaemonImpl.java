@@ -27,189 +27,188 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public class HttpBreakpointManagementDaemonImpl implements BreakpointManagementInterface {
 
-	private boolean breakRequest;
-	private boolean breakResponse;
-	private boolean request;
-	private HttpMessage msg;
-	private boolean step;
-	private boolean stepping;
-	private boolean drop;
-	
-	@Override
-	public boolean isBreakRequest() {
-		return breakRequest;
-	}
+    private boolean breakRequest;
+    private boolean breakResponse;
+    private boolean request;
+    private HttpMessage msg;
+    private boolean step;
+    private boolean stepping;
+    private boolean drop;
 
-	@Override
-	public boolean isBreakResponse() {
-		return breakResponse;
-	}
+    @Override
+    public boolean isBreakRequest() {
+        return breakRequest;
+    }
 
-	@Override
-	public boolean isBreakAll() {
-		return (breakRequest && breakResponse);
-	}
+    @Override
+    public boolean isBreakResponse() {
+        return breakResponse;
+    }
 
-	@Override
-	public void breakpointHit() {
-		// Ignore
-	}
+    @Override
+    public boolean isBreakAll() {
+        return (breakRequest && breakResponse);
+    }
 
-	@Override
-	public boolean isHoldMessage(Message aMessage) {
-		if (step) {
-			step = false;
-			return false;
-		}
-		if (stepping) {
-			return true;
-		}
-		if (drop) {
-			return false;
-		}
-		if (aMessage instanceof HttpMessage) {
-			HttpMessage msg = (HttpMessage)aMessage;
-			if (msg.getResponseHeader().isEmpty()) {
-				// Its a request
-				if (this.isBreakRequest()) {
-					return true;
-				}
-			} else if (this.isBreakResponse()) {
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public void breakpointHit() {
+        // Ignore
+    }
 
-	@Override
-	public boolean isStepping() {
-		return stepping;
-	}
+    @Override
+    public boolean isHoldMessage(Message aMessage) {
+        if (step) {
+            step = false;
+            return false;
+        }
+        if (stepping) {
+            return true;
+        }
+        if (drop) {
+            return false;
+        }
+        if (aMessage instanceof HttpMessage) {
+            HttpMessage msg = (HttpMessage) aMessage;
+            if (msg.getResponseHeader().isEmpty()) {
+                // Its a request
+                if (this.isBreakRequest()) {
+                    return true;
+                }
+            } else if (this.isBreakResponse()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public boolean isToBeDropped() {
-		if (drop) {
-			drop = false;
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean isStepping() {
+        return stepping;
+    }
 
-	@Override
-	public void setMessage(Message msg, boolean isRequest) {
-		if (msg instanceof HttpMessage) {
-			switch (Control.getSingleton().getMode()) {
-			case safe:
-				throw new IllegalStateException("Not allowed in safe mode");
-			case protect:
-				if (! msg.isInScope()) {
-					throw new IllegalStateException("Not allowed in protected mode for out of scope message");
-				}
-				break;
-			case standard:
-				break;
-			case attack:
-				break;
-			}
-			HttpMessage httpMsg = (HttpMessage) msg;
-			if (this.msg == null) {
-				this.msg = httpMsg;
-				this.request = isRequest;
-			} else {
-				if (isRequest) {
-					this.msg.setRequestHeader(httpMsg.getRequestHeader());
-					this.msg.setRequestBody(httpMsg.getRequestBody());
-				} else {
-					this.msg.setResponseHeader(httpMsg.getResponseHeader());
-					this.msg.setResponseBody(httpMsg.getResponseBody());
-				}
-			}
-		} else {
-			throw new IllegalArgumentException("Not an HttpMessage");
-		}
-	}
-	
-	public boolean isRequest() {
-		return this.request;
-	}
+    @Override
+    public boolean isToBeDropped() {
+        if (drop) {
+            drop = false;
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public Message getMessage() {
-		return this.msg;
-	}
+    @Override
+    public void setMessage(Message msg, boolean isRequest) {
+        if (msg instanceof HttpMessage) {
+            switch (Control.getSingleton().getMode()) {
+                case safe:
+                    throw new IllegalStateException("Not allowed in safe mode");
+                case protect:
+                    if (!msg.isInScope()) {
+                        throw new IllegalStateException(
+                                "Not allowed in protected mode for out of scope message");
+                    }
+                    break;
+                case standard:
+                    break;
+                case attack:
+                    break;
+            }
+            HttpMessage httpMsg = (HttpMessage) msg;
+            if (this.msg == null) {
+                this.msg = httpMsg;
+                this.request = isRequest;
+            } else {
+                if (isRequest) {
+                    this.msg.setRequestHeader(httpMsg.getRequestHeader());
+                    this.msg.setRequestBody(httpMsg.getRequestBody());
+                } else {
+                    this.msg.setResponseHeader(httpMsg.getResponseHeader());
+                    this.msg.setResponseBody(httpMsg.getResponseBody());
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Not an HttpMessage");
+        }
+    }
 
-	@Override
-	public void saveMessage(boolean isRequest) {
-		// Ignore
-	}
+    public boolean isRequest() {
+        return this.request;
+    }
 
-	@Override
-	public void clearAndDisableRequest() {
-		this.msg = null;
-	}
+    @Override
+    public Message getMessage() {
+        return this.msg;
+    }
 
-	@Override
-	public void clearAndDisableResponse() {
-		this.msg = null;
-	}
+    @Override
+    public void saveMessage(boolean isRequest) {
+        // Ignore
+    }
 
-	@Override
-	public void init() {
-	}
+    @Override
+    public void clearAndDisableRequest() {
+        this.msg = null;
+    }
 
-	@Override
-	public void reset() {
-		// Ignore
-	}
+    @Override
+    public void clearAndDisableResponse() {
+        this.msg = null;
+    }
 
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		breakRequest = false;
-		breakResponse = false;
-		msg = null;
-		step = false;
-		stepping = false;
-		drop = false;
-	}
+    @Override
+    public void init() {}
 
-	@Override
-	public void setBreakAllRequests(boolean brk) {
-		this.breakRequest = brk;
-	}
+    @Override
+    public void reset() {
+        // Ignore
+    }
 
-	@Override
-	public void setBreakAllResponses(boolean brk) {
-		this.breakResponse = brk;
-	}
+    @Override
+    public void sessionModeChanged(Mode mode) {
+        breakRequest = false;
+        breakResponse = false;
+        msg = null;
+        step = false;
+        stepping = false;
+        drop = false;
+    }
 
-	@Override
-	public void setBreakAll(boolean brk) {
-		this.setBreakAllRequests(brk);
-		this.setBreakAllResponses(brk);
-	}
+    @Override
+    public void setBreakAllRequests(boolean brk) {
+        this.breakRequest = brk;
+    }
 
-	@Override
-	public void step() {
-		this.step = true;
-		this.stepping = true;
-	}
+    @Override
+    public void setBreakAllResponses(boolean brk) {
+        this.breakResponse = brk;
+    }
 
-	@Override
-	public void cont() {
-		this.setBreakAllRequests(false);
-		this.setBreakAllResponses(false);
-		this.step = false;
-		this.stepping = false;
-	}
+    @Override
+    public void setBreakAll(boolean brk) {
+        this.setBreakAllRequests(brk);
+        this.setBreakAllResponses(brk);
+    }
 
-	@Override
-	public void drop() {
-		this.drop = true;
-	}
+    @Override
+    public void step() {
+        this.step = true;
+        this.stepping = true;
+    }
 
-	@Override
-	public void breakpointDisplayed() {
-		// Ignore
-	}
+    @Override
+    public void cont() {
+        this.setBreakAllRequests(false);
+        this.setBreakAllResponses(false);
+        this.step = false;
+        this.stepping = false;
+    }
 
+    @Override
+    public void drop() {
+        this.drop = true;
+    }
+
+    @Override
+    public void breakpointDisplayed() {
+        // Ignore
+    }
 }

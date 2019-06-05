@@ -22,29 +22,28 @@ package org.zaproxy.zap.extension.autoupdate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.Icon;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.view.StatusUI;
 
-
 public class UninstalledAddOnsTableModel extends AddOnsTableModel {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final String[] COLUMN_NAMES = {
-		"", // Column for warning of running issues (e.g. incorrect Java version, missing dependency...)
-		Constant.messages.getString("cfu.table.header.status"),
-		Constant.messages.getString("cfu.table.header.name"),
-		Constant.messages.getString("cfu.table.header.desc"),
-		Constant.messages.getString("cfu.table.header.update"),
-		""};
-    
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+    private static final String[] COLUMN_NAMES = {
+        "", // Column for warning of running issues (e.g. incorrect Java version, missing
+        // dependency...)
+        Constant.messages.getString("cfu.table.header.status"),
+        Constant.messages.getString("cfu.table.header.name"),
+        Constant.messages.getString("cfu.table.header.desc"),
+        Constant.messages.getString("cfu.table.header.update"),
+        ""
+    };
+
+    private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
     public UninstalledAddOnsTableModel(AddOnCollection installedAddOns) {
         super(installedAddOns, 4);
@@ -57,7 +56,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
 
     @Override
     public String getColumnName(int col) {
-   		return COLUMN_NAMES[col];
+        return COLUMN_NAMES[col];
     }
 
     @Override
@@ -67,11 +66,11 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 0) {//Icon
+        if (columnIndex == 0) { // Icon
             return Icon.class;
-        } else if (columnIndex == 1) {//Status (Quality)
-        	return StatusUI.class;
-        } else if (columnIndex == 5) {//update
+        } else if (columnIndex == 1) { // Status (Quality)
+            return StatusUI.class;
+        } else if (columnIndex == 5) { // update
             return Boolean.class;
         }
         return String.class;
@@ -80,65 +79,68 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-        case COLUMN_ADD_ON_WRAPPER:
-            return getAddOnWrapper(rowIndex);
-        case 0:
-            return getAddOnWrapper(rowIndex).hasRunningIssues();
-        case 1:
-        	return View.getSingleton().getStatusUI(getAddOnWrapper(rowIndex).getAddOn().getStatus());
-        case 2:
-            return getAddOnWrapper(rowIndex).getAddOn().getName();
-        case 3:
-            return getAddOnWrapper(rowIndex).getAddOn().getDescription();
-        case 4:
-        	int progress = getAddOnWrapper(rowIndex).getProgress();
-        	if (getAddOnWrapper(rowIndex).isFailed()) {
-        		return Constant.messages.getString("cfu.download.failed");
-        	} else if (progress > 0) {
-        		return progress + "%";
-        	} else if (AddOnWrapper.Status.newAddon == getAddOnWrapper(rowIndex).getStatus()) {
-        		return Constant.messages.getString("cfu.table.label.new");
-        	} else {
-        		// TODO change to date ??
-        		return getAddOnWrapper(rowIndex).getAddOn().getVersion();
-        	}
-        case 5:
-            return getAddOnWrapper(rowIndex).isEnabled();
+            case COLUMN_ADD_ON_WRAPPER:
+                return getAddOnWrapper(rowIndex);
+            case 0:
+                return getAddOnWrapper(rowIndex).hasRunningIssues();
+            case 1:
+                return View.getSingleton()
+                        .getStatusUI(getAddOnWrapper(rowIndex).getAddOn().getStatus());
+            case 2:
+                return getAddOnWrapper(rowIndex).getAddOn().getName();
+            case 3:
+                return getAddOnWrapper(rowIndex).getAddOn().getDescription();
+            case 4:
+                int progress = getAddOnWrapper(rowIndex).getProgress();
+                if (getAddOnWrapper(rowIndex).isFailed()) {
+                    return Constant.messages.getString("cfu.download.failed");
+                } else if (progress > 0) {
+                    return progress + "%";
+                } else if (AddOnWrapper.Status.newAddon == getAddOnWrapper(rowIndex).getStatus()) {
+                    return Constant.messages.getString("cfu.table.label.new");
+                } else {
+                    // TODO change to date ??
+                    return getAddOnWrapper(rowIndex).getAddOn().getVersion();
+                }
+            case 5:
+                return getAddOnWrapper(rowIndex).isEnabled();
         }
         return null;
     }
-    
+
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 5
-                && getAddOnWrapper(rowIndex).getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
+                && getAddOnWrapper(rowIndex).getInstallationStatus()
+                        != AddOn.InstallationStatus.DOWNLOADING) {
             if (aValue instanceof Boolean) {
                 getAddOnWrapper(rowIndex).setEnabled((Boolean) aValue);
                 this.fireTableCellUpdated(rowIndex, columnIndex);
             }
         }
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 5
-                && getAddOnWrapper(rowIndex).getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
-    		// Its the 'enabled' checkbox, and no download is in progress
-    		return true;
-    	}
+                && getAddOnWrapper(rowIndex).getInstallationStatus()
+                        != AddOn.InstallationStatus.DOWNLOADING) {
+            // Its the 'enabled' checkbox, and no download is in progress
+            return true;
+        }
         return false;
     }
 
-	public boolean canIinstallSelected() {
-    	boolean enable = false;
-    	for (AddOnWrapper addon : getAddOnWrappers()) {
-    		if (addon.isEnabled()) {
-   				return true;
-    		}
-    	}
-    	return enable;
-	}
-	
+    public boolean canIinstallSelected() {
+        boolean enable = false;
+        for (AddOnWrapper addon : getAddOnWrappers()) {
+            if (addon.isEnabled()) {
+                return true;
+            }
+        }
+        return enable;
+    }
+
     public Set<AddOn> getAvailableAddOns() {
         Set<AddOn> addOns = new HashSet<>();
         for (AddOnWrapper aow : getAddOnWrappers()) {
@@ -157,7 +159,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
         }
         return false;
     }
-    
+
     public void addAddOn(AddOn addOn) {
         addAddOnWrapper(addOn, null);
     }

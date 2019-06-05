@@ -20,10 +20,8 @@
 package org.zaproxy.zap.extension.pscan;
 
 import java.awt.GridBagLayout;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.I18N;
@@ -32,12 +30,14 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * The GUI panel for options of the passive scanner.
- * <p>
- * It allows to change the following options:
+ *
+ * <p>It allows to change the following options:
+ *
  * <ul>
- * <li>Scan only in scope - allows to set if the passive scan should be performed only on messages that are in scope.</li>
+ *   <li>Scan only in scope - allows to set if the passive scan should be performed only on messages
+ *       that are in scope.
  * </ul>
- * 
+ *
  * @since 2.6.0
  */
 class PassiveScannerOptionsPanel extends AbstractParamPanel {
@@ -51,16 +51,19 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
     public PassiveScannerOptionsPanel(I18N messages) {
         setName(messages.getString("pscan.options.main.name"));
 
-        scanOnlyInScopeCheckBox = new JCheckBox(messages.getString("pscan.options.main.label.scanOnlyInScope"));
-        scanFuzzerMessagesCheckBox = new JCheckBox(messages.getString("pscan.options.main.label.scanFuzzerMessages"));
+        scanOnlyInScopeCheckBox =
+                new JCheckBox(messages.getString("pscan.options.main.label.scanOnlyInScope"));
+        scanFuzzerMessagesCheckBox =
+                new JCheckBox(messages.getString("pscan.options.main.label.scanFuzzerMessages"));
         maxAlertsPerRule = new ZapNumberSpinner();
 
         this.setLayout(new GridBagLayout());
-        
+
         int y = 0;
         this.add(scanOnlyInScopeCheckBox, LayoutHelper.getGBC(0, ++y, 2, 1.0));
         this.add(scanFuzzerMessagesCheckBox, LayoutHelper.getGBC(0, ++y, 2, 1.0));
-        JLabel maxAlertsLabel = new JLabel(messages.getString("pscan.options.main.label.maxAlertsPerRule"));
+        JLabel maxAlertsLabel =
+                new JLabel(messages.getString("pscan.options.main.label.maxAlertsPerRule"));
         maxAlertsLabel.setLabelFor(maxAlertsPerRule);
         this.add(maxAlertsLabel, LayoutHelper.getGBC(0, ++y, 1, 1.0));
         this.add(maxAlertsPerRule, LayoutHelper.getGBC(1, y, 1, 1.0));

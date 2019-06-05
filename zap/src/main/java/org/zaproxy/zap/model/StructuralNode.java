@@ -20,36 +20,35 @@
 package org.zaproxy.zap.model;
 
 import java.util.Iterator;
-
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 
 public interface StructuralNode {
 
-	StructuralNode getParent() throws DatabaseException;
-	
-	Iterator<StructuralNode> getChildIterator();
-	
-	long getChildNodeCount() throws DatabaseException;
-	
-	HistoryReference getHistoryReference();
-	
-	String getName();
-	
-	String getRegexPattern() throws DatabaseException;
+    StructuralNode getParent() throws DatabaseException;
 
-	String getRegexPattern(boolean incChildren) throws DatabaseException;
+    Iterator<StructuralNode> getChildIterator();
 
-	URI getURI();
-	
-	String getMethod();
-	
-	boolean isRoot();
-	
-	boolean isLeaf();
-	
-	boolean isDataDriven();
-	
-	boolean isSameAs (StructuralNode node);
+    long getChildNodeCount() throws DatabaseException;
+
+    HistoryReference getHistoryReference();
+
+    String getName();
+
+    String getRegexPattern() throws DatabaseException;
+
+    String getRegexPattern(boolean incChildren) throws DatabaseException;
+
+    URI getURI();
+
+    String getMethod();
+
+    boolean isRoot();
+
+    boolean isLeaf();
+
+    boolean isDataDriven();
+
+    boolean isSameAs(StructuralNode node);
 }

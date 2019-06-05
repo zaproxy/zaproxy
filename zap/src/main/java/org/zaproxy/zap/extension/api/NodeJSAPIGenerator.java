@@ -33,37 +33,36 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class NodeJSAPIGenerator extends AbstractAPIGenerator {
-    
-    /**
-	 * Default output directory in zap-api-nodejs project.
-	 */
+
+    /** Default output directory in zap-api-nodejs project. */
     private static final String DEFAULT_OUTPUT_DIR = "../zap-api-nodejs/src/";
 
-    private final String HEADER = 
-            "/* Zed Attack Proxy (ZAP) and its related class files.\n" +
-            " *\n" +
-            " * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
-            " *\n" +
-            " * Copyright " + Year.now() + " the ZAP development team\n" +
-            " *\n" +
-            " * Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-            " * you may not use this file except in compliance with the License.\n" +
-            " * You may obtain a copy of the License at\n" +
-            " *\n" +
-            " *   http://www.apache.org/licenses/LICENSE-2.0\n" +
-            " *\n" +
-            " * Unless required by applicable law or agreed to in writing, software\n" +
-            " * distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-            " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-            " * See the License for the specific language governing permissions and\n" +
-            " * limitations under the License.\n" +
-            " */\n" +
-            "\n\n";
+    private final String HEADER =
+            "/* Zed Attack Proxy (ZAP) and its related class files.\n"
+                    + " *\n"
+                    + " * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n"
+                    + " *\n"
+                    + " * Copyright "
+                    + Year.now()
+                    + " the ZAP development team\n"
+                    + " *\n"
+                    + " * Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+                    + " * you may not use this file except in compliance with the License.\n"
+                    + " * You may obtain a copy of the License at\n"
+                    + " *\n"
+                    + " *   http://www.apache.org/licenses/LICENSE-2.0\n"
+                    + " *\n"
+                    + " * Unless required by applicable law or agreed to in writing, software\n"
+                    + " * distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+                    + " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
+                    + " * See the License for the specific language governing permissions and\n"
+                    + " * limitations under the License.\n"
+                    + " */\n"
+                    + "\n\n";
 
-    /**
-     * Map any names which are reserved in java to something legal
-     */
+    /** Map any names which are reserved in java to something legal */
     private static final Map<String, String> nameMap;
+
     static {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
@@ -73,11 +72,11 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     }
 
     public NodeJSAPIGenerator() {
-    	super(DEFAULT_OUTPUT_DIR);
+        super(DEFAULT_OUTPUT_DIR);
     }
 
     public NodeJSAPIGenerator(String path, boolean optional) {
-    	super(path, optional);
+        super(path, optional);
     }
 
     public NodeJSAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
@@ -96,15 +95,16 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         this.generateAPIFiles(implementors);
     }
 
-    private void generateNodeJSElement(ApiElement element, String component, 
-            String type, Writer out) throws IOException {
+    private void generateNodeJSElement(
+            ApiElement element, String component, String type, Writer out) throws IOException {
         String className = createClassName(component);
         boolean hasParams = false;
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
         if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if required
+            // This is the default, but it can be overriden by the getDescriptionTag method if
+            // required
             descTag = component + ".api." + type + "." + element.getName();
         }
         try {
@@ -125,11 +125,12 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             }
         }
 
-        out.write(className + ".prototype." + createMethodName(element.getName()) + " = function (");
+        out.write(
+                className + ".prototype." + createMethodName(element.getName()) + " = function (");
 
         if (element.getMandatoryParamNames() != null) {
             for (String param : element.getMandatoryParamNames()) {
-                if (! hasParams) {
+                if (!hasParams) {
                     hasParams = true;
                 } else {
                     out.write(", ");
@@ -139,7 +140,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         }
         if (element.getOptionalParamNames() != null) {
             for (String param : element.getOptionalParamNames()) {
-                if (! hasParams) {
+                if (!hasParams) {
                     hasParams = true;
                 } else {
                     out.write(", ");
@@ -169,26 +170,46 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             }
             reqParams.append("}");
 
-            if (element.getOptionalParamNames() != null && !element.getOptionalParamNames().isEmpty()) {
+            if (element.getOptionalParamNames() != null
+                    && !element.getOptionalParamNames().isEmpty()) {
                 out.write("  const params = ");
                 out.write(reqParams.toString());
                 out.write(";\n");
                 reqParams.replace(0, reqParams.length(), "params");
 
                 for (String param : element.getOptionalParamNames()) {
-                    out.write("  if ("+safeName(param.toLowerCase())+" && "+safeName(param.toLowerCase())+" !== null) {\n");
-                    out.write("    params['" + param + "'] = " + safeName(param.toLowerCase())+";\n");
+                    out.write(
+                            "  if ("
+                                    + safeName(param.toLowerCase())
+                                    + " && "
+                                    + safeName(param.toLowerCase())
+                                    + " !== null) {\n");
+                    out.write(
+                            "    params['"
+                                    + param
+                                    + "'] = "
+                                    + safeName(param.toLowerCase())
+                                    + ";\n");
                     out.write("  }\n");
                 }
             }
         }
-        
+
         String methodCb = (type.equals(OTHER_ENDPOINT)) ? "requestOther" : "request";
         String methodP = (type.equals(OTHER_ENDPOINT)) ? "requestPromiseOther" : "requestPromise";
 
         // Is the consumer in callback or promise mode
         out.write("  if (typeof callback === 'function') {\n");
-        out.write("    this.api." + methodCb + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+        out.write(
+                "    this.api."
+                        + methodCb
+                        + "('/"
+                        + component
+                        + "/"
+                        + type
+                        + "/"
+                        + element.getName()
+                        + "/'");
         if (hasParams) {
             out.write(", ");
             out.write(reqParams.toString());
@@ -196,24 +217,32 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         out.write(", callback);\n");
         out.write("    return;\n");
         out.write("  }\n");
-        out.write("  return this.api." + methodP + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+        out.write(
+                "  return this.api."
+                        + methodP
+                        + "('/"
+                        + component
+                        + "/"
+                        + type
+                        + "/"
+                        + element.getName()
+                        + "/'");
         if (hasParams) {
             out.write(", ");
             out.write(reqParams.toString());
         }
         out.write(");\n");
-	
+
         out.write("};\n\n");
-        
     }
 
-    private static String safeName (String name) {
+    private static String safeName(String name) {
         if (nameMap.containsKey(name)) {
             return nameMap.get(name);
         }
         return name;
     }
-    
+
     private static String createFileName(String name) {
         return safeName(name) + ".js";
     }
@@ -233,13 +262,13 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     @Override
     protected void generateAPIFiles(ApiImplementor imp) throws IOException {
         String className = createClassName(imp.getPrefix());
-    
+
         Path file = getDirectory().resolve(createFileName(imp.getPrefix()));
         System.out.println("Generating " + file.toAbsolutePath());
         try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             out.write(HEADER);
             out.write("'use strict';\n\n");
-            
+
             out.write("/**\n");
             out.write(" * This file was automatically generated.\n");
             out.write(" */\n");
@@ -262,10 +291,8 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
 
     public static void main(String[] args) throws Exception {
         // Command for generating a nodejs version of the ZAP API
-        
+
         NodeJSAPIGenerator wapi = new NodeJSAPIGenerator();
         wapi.generateCoreAPIFiles();
-        
     }
-
 }

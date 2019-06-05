@@ -25,125 +25,112 @@
  */
 package ch.csnc.extension.ui;
 
-import java.util.Vector;
-
-import javax.swing.table.AbstractTableModel;
-
 import ch.csnc.extension.util.DriverConfiguration;
+import java.util.Vector;
+import javax.swing.table.AbstractTableModel;
 
 public class DriverTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = -9114670362713975727L;
+    private static final long serialVersionUID = -9114670362713975727L;
 
-	private DriverConfiguration driverConfig;
-	private Vector<String> names;
-	private Vector<String> paths;
-	private Vector<Integer> slots;
-	private Vector<Integer> slotListIndexes;
+    private DriverConfiguration driverConfig;
+    private Vector<String> names;
+    private Vector<String> paths;
+    private Vector<Integer> slots;
+    private Vector<Integer> slotListIndexes;
 
+    public DriverTableModel(DriverConfiguration driverConfig) {
+        this.driverConfig = driverConfig;
+        this.driverConfig.addChangeListener(e -> fireTableDataChanged());
 
-	public DriverTableModel(DriverConfiguration driverConfig){
-		this.driverConfig = driverConfig;
-		this.driverConfig.addChangeListener(e -> fireTableDataChanged());
+        names = driverConfig.getNames();
+        paths = driverConfig.getPaths();
+        slots = driverConfig.getSlots();
+        slotListIndexes = driverConfig.getSlotIndexes();
+    }
 
-		names = driverConfig.getNames();
-		paths = driverConfig.getPaths();
-		slots = driverConfig.getSlots();
-		slotListIndexes = driverConfig.getSlotIndexes();
+    @Override
+    public int getColumnCount() {
+        return 4;
+    }
 
-	}
+    @Override
+    public int getRowCount() {
+        return names.size();
+    }
 
-	@Override
-	public int getColumnCount() {
-		return 4;
-	}
+    @Override
+    public Object getValueAt(int row, int column) {
+        if (column == 0) {
+            return names.get(row);
+        }
+        if (column == 1) {
+            return paths.get(row);
+        }
+        if (column == 2) {
+            return slots.get(row);
+        }
+        if (column == 3) {
+            return slotListIndexes.get(row);
+        }
 
-	@Override
-	public int getRowCount() {
-		return names.size();
-	}
+        return "";
+    }
 
-	@Override
-	public Object getValueAt(int row, int column) {
-		if(column == 0) {
-			return names.get(row);
-		}
-		if(column == 1) {
-			return paths.get(row);
-		}
-		if(column == 2) {
-			return slots.get(row);
-		}
-		if(column == 3) {
-			return slotListIndexes.get(row);
-		}
+    /*default*/ int getPreferredWith(int column) {
+        if (column == 0) {
+            return 75;
+        }
+        if (column == 1) {
+            return 300;
+        }
+        if (column == 2) {
+            return 15;
+        }
+        if (column == 3) {
+            return 15;
+        }
+        return 0;
+    }
 
-		return "";
-	}
+    /* default */ void addDriver(String name, String path, int slot, int slotListIndex) {
+        names.add(name);
+        paths.add(path);
+        slots.add(slot);
+        slotListIndexes.add(slotListIndex);
 
-	/*default*/ int getPreferredWith(int column) {
-		if(column == 0) {
-			return 75;
-		}
-		if(column == 1) {
-			return 300;
-		}
-		if(column == 2) {
-			return 15;
-		}
-		if(column == 3) {
-			return 15;
-		}
-		return 0;
-	}
+        updateConfiguration();
+    }
 
-	/* default */ void addDriver(String name, String path, int slot, int slotListIndex) {
-		names.add(name);
-		paths.add(path);
-		slots.add(slot);
-		slotListIndexes.add(slotListIndex);
+    /* default */ void deleteDriver(int index) {
+        names.remove(index);
+        paths.remove(index);
+        slots.remove(index);
+        slotListIndexes.remove(index);
 
-		updateConfiguration();
-	}
+        updateConfiguration();
+    }
 
+    private void updateConfiguration() {
+        driverConfig.setNames(names);
+        driverConfig.setPaths(paths);
+        driverConfig.setSlots(slots);
+        driverConfig.setSlotListIndexes(slotListIndexes);
+        driverConfig.write();
+    }
 
-
-	/* default */ void deleteDriver(int index) {
-		names.remove(index);
-		paths.remove(index);
-		slots.remove(index);
-		slotListIndexes.remove(index);
-
-		updateConfiguration();
-
-	}
-
-
-	private void updateConfiguration() {
-		driverConfig.setNames(names);
-		driverConfig.setPaths(paths);
-		driverConfig.setSlots(slots);
-		driverConfig.setSlotListIndexes(slotListIndexes);
-		driverConfig.write();
-	}
-
-	@Override
-	public String getColumnName(int columnNumber) {
-		if(columnNumber == 0) {
-			return "Name";
-		}
-		else if (columnNumber == 1) {
-			return "Path";
-		}
-		else if (columnNumber == 2) {
-			return "Slot";
-		}
-		else if (columnNumber == 3) {
-			return "SlotListIndex";
-		}
-		else {
-			throw new IllegalArgumentException("Invalid column number: " + columnNumber);
-		}
-	}
-
+    @Override
+    public String getColumnName(int columnNumber) {
+        if (columnNumber == 0) {
+            return "Name";
+        } else if (columnNumber == 1) {
+            return "Path";
+        } else if (columnNumber == 2) {
+            return "Slot";
+        } else if (columnNumber == 3) {
+            return "SlotListIndex";
+        } else {
+            throw new IllegalArgumentException("Invalid column number: " + columnNumber);
+        }
+    }
 }

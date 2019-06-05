@@ -20,14 +20,13 @@
 package org.zaproxy.zap.extension.help;
 
 import java.util.Locale;
-
 import javax.help.HelpSet;
 import javax.help.Map.ID;
 import javax.help.TOCItem;
 
 /**
  * A {@code TOCItem} that has the value of "tocid" attribute of a "tocitem" element.
- * 
+ *
  * @see TOCItem
  * @see ZapTocMerger
  * @see ZapTocView

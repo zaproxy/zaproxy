@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.control.Control;
@@ -73,16 +72,21 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
      * @return {@code true} if the arguments were handled successfully, {@code false} otherwise.
      */
     protected boolean handleCmdLineSessionArgsSynchronously(Control control) {
-        if (getArgs().isEnabled(CommandLine.SESSION) && getArgs().isEnabled(CommandLine.NEW_SESSION)) {
+        if (getArgs().isEnabled(CommandLine.SESSION)
+                && getArgs().isEnabled(CommandLine.NEW_SESSION)) {
             System.err.println(
-                    "Error: Invalid command line options: option '" + CommandLine.SESSION + "' not allowed with option '"
-                            + CommandLine.NEW_SESSION + "'");
+                    "Error: Invalid command line options: option '"
+                            + CommandLine.SESSION
+                            + "' not allowed with option '"
+                            + CommandLine.NEW_SESSION
+                            + "'");
 
             return false;
         }
 
         if (getArgs().isEnabled(CommandLine.SESSION)) {
-            Path sessionPath = SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.SESSION));
+            Path sessionPath =
+                    SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.SESSION));
 
             String absolutePath = sessionPath.toAbsolutePath().toString();
             try {
@@ -96,11 +100,13 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
             }
 
         } else if (getArgs().isEnabled(CommandLine.NEW_SESSION)) {
-            Path sessionPath = SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.NEW_SESSION));
+            Path sessionPath =
+                    SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.NEW_SESSION));
 
             String absolutePath = sessionPath.toAbsolutePath().toString();
             if (Files.exists(sessionPath)) {
-                System.err.println("Failed to create a new session, file already exists: " + absolutePath);
+                System.err.println(
+                        "Failed to create a new session, file already exists: " + absolutePath);
                 return false;
             }
 
@@ -119,11 +125,13 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Warns, through logging, about add-ons and extensions that are no longer runnable because of changes in its dependencies.
+     * Warns, through logging, about add-ons and extensions that are no longer runnable because of
+     * changes in its dependencies.
      */
     protected void warnAddOnsAndExtensionsNoLongerRunnable() {
         final AddOnLoader addOnLoader = ExtensionFactory.getAddOnLoader();
-        List<String> idsAddOnsNoLongerRunning = addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun();
+        List<String> idsAddOnsNoLongerRunning =
+                addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun();
         if (idsAddOnsNoLongerRunning.isEmpty()) {
             return;
         }
@@ -134,16 +142,19 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
         }
 
         for (AddOn addOn : addOnsNoLongerRunning) {
-            AddOn.AddOnRunRequirements requirements = addOn
-                    .calculateRunRequirements(addOnLoader.getAddOnCollection().getAddOns());
+            AddOn.AddOnRunRequirements requirements =
+                    addOn.calculateRunRequirements(addOnLoader.getAddOnCollection().getAddOns());
             List<String> issues = AddOnRunIssuesUtils.getRunningIssues(requirements);
             if (issues.isEmpty()) {
                 issues = AddOnRunIssuesUtils.getExtensionsRunningIssues(requirements);
             }
 
-            getLogger().warn(
-                    "Add-on \"" + addOn.getId()
-                            + "\" or its extensions will no longer be run until its requirements are restored: " + issues);
+            getLogger()
+                    .warn(
+                            "Add-on \""
+                                    + addOn.getId()
+                                    + "\" or its extensions will no longer be run until its requirements are restored: "
+                                    + issues);
         }
     }
 }

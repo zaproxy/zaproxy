@@ -21,22 +21,22 @@ package org.parosproxy.paros.db;
 
 /**
  * A generic database exception
- * @author psiinon
  *
+ * @author psiinon
  */
 public class DatabaseException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public DatabaseException (Exception cause) {
-		super(cause);
-	}
-	
-	public DatabaseException (String message, Exception cause) {
-		super(message, cause);
-	}
+    public DatabaseException(Exception cause) {
+        super(cause);
+    }
 
-	public DatabaseException (String message) {
-		super(message);
-	}
+    public DatabaseException(String message, Exception cause) {
+        super(message, cause);
+    }
+
+    public DatabaseException(String message) {
+        super(message);
+    }
 }

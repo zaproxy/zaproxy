@@ -20,12 +20,11 @@
 package org.zaproxy.zap.view.messagecontainer;
 
 import java.util.List;
-
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
  * A {@code MessageContainer} that can contain multiple messages.
- * 
+ *
  * @param <T> the type of messages in this container
  * @see MessageContainer
  * @see SelectableMessagesContainer
@@ -36,31 +35,30 @@ public interface MultipleMessagesContainer<T extends Message> extends SingleMess
 
     /**
      * {@inheritDoc}
-     * <p>
-     * If multiple messages are present the first one is returned.
+     *
+     * <p>If multiple messages are present the first one is returned.
      */
     @Override
     T getMessage();
 
     /**
      * Returns the number of contained messages.
-     * 
+     *
      * @return the number of messages.
      */
     int getNumberOfMessages();
 
     /**
      * Returns all the contained messages or an empty {@code List} if none.
-     * <p>
-     * No assumptions should be made on the actual implementation type of the {@code List} returned by this method (for example,
-     * it might be unmodifiable or its elements lazy loaded).
-     * <p>
-     * <strong>Note:</strong> Extra care should be taken when getting the messages from the list since it might return
-     * {@code null} which indicates that an error occurred while getting a message (for example, failed to read a persisted
-     * message).
-     * 
+     *
+     * <p>No assumptions should be made on the actual implementation type of the {@code List}
+     * returned by this method (for example, it might be unmodifiable or its elements lazy loaded).
+     *
+     * <p><strong>Note:</strong> Extra care should be taken when getting the messages from the list
+     * since it might return {@code null} which indicates that an error occurred while getting a
+     * message (for example, failed to read a persisted message).
+     *
      * @return a {@code List} with all the contained messages, never {@code null}.
      */
     List<T> getMessages();
-
 }

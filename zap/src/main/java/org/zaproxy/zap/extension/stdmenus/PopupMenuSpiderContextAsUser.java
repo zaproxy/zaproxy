@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import javax.swing.ImageIcon;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
@@ -30,54 +29,57 @@ import org.zaproxy.zap.users.User;
 
 /**
  * The Popup Menu used to Spider a Context As an User.
- * 
+ *
  * @deprecated (2.6.0) Superseded by {@link PopupMenuSpiderDialog}.
  */
 @Deprecated
 public class PopupMenuSpiderContextAsUser extends PopupUserMenuItemHolder {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 7007308539824098245L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 7007308539824098245L;
 
-	/** The extension. */
-	private ExtensionSpider extension = null;
+    /** The extension. */
+    private ExtensionSpider extension = null;
 
-	/**
-	 * Instantiates a new popup menu spider url as user.
-	 * 
-	 * @param label the label
-	 */
-	public PopupMenuSpiderContextAsUser(String label) {
-		super(label, Constant.messages.getString("attack.site.popup"));
-		this.setIcon(new ImageIcon(PopupMenuSpiderContextAsUser.class.getResource("/resource/icon/16/spider.png")));
-	}
+    /**
+     * Instantiates a new popup menu spider url as user.
+     *
+     * @param label the label
+     */
+    public PopupMenuSpiderContextAsUser(String label) {
+        super(label, Constant.messages.getString("attack.site.popup"));
+        this.setIcon(
+                new ImageIcon(
+                        PopupMenuSpiderContextAsUser.class.getResource(
+                                "/resource/icon/16/spider.png")));
+    }
 
-	/**
-	 * Gets the extension spider.
-	 * 
-	 * @return the extension spider
-	 */
-	private ExtensionSpider getExtensionSpider() {
-		if (extension == null) {
-			extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.class);
-		}
-		return extension;
-	}
+    /**
+     * Gets the extension spider.
+     *
+     * @return the extension spider
+     */
+    private ExtensionSpider getExtensionSpider() {
+        if (extension == null) {
+            extension =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.class);
+        }
+        return extension;
+    }
 
-	@Override
-	public PopupUserMenu getPopupUserMenu(Context context, User user, String parentName) {
-		return new PopupUserMenu(context, user, parentName) {
+    @Override
+    public PopupUserMenu getPopupUserMenu(Context context, User user, String parentName) {
+        return new PopupUserMenu(context, user, parentName) {
 
-			/** The Constant serialVersionUID. */
-			private static final long serialVersionUID = 3914042295666599416L;
+            /** The Constant serialVersionUID. */
+            private static final long serialVersionUID = 3914042295666599416L;
 
-			@Override
-			public void performAction(SiteNode sn) {
-				if (sn != null) {
-					getExtensionSpider().startScanAllInContext(getContext(), getUser());
-				}
-			}
-		};
-	}
-
+            @Override
+            public void performAction(SiteNode sn) {
+                if (sn != null) {
+                    getExtensionSpider().startScanAllInContext(getContext(), getUser());
+                }
+            }
+        };
+    }
 }

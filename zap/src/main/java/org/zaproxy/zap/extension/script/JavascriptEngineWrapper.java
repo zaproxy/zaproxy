@@ -22,74 +22,75 @@ package org.zaproxy.zap.extension.script;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.swing.ImageIcon;
-
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.view.View;
 
 public class JavascriptEngineWrapper extends DefaultEngineWrapper {
 
-	/**
-	 * The icon of the engine.
-	 * <p>
-	 * Lazily initialised.
-	 * 
-	 * @see #getIcon()
-	 */
-	private static ImageIcon icon;
+    /**
+     * The icon of the engine.
+     *
+     * <p>Lazily initialised.
+     *
+     * @see #getIcon()
+     */
+    private static ImageIcon icon;
 
-	/**
-	 * Constructs a {@code JavascriptEngineWrapper} with the given engine (to obtain a factory).
-	 *
-	 * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
-	 * @deprecated (2.8.0) Use {@link #JavascriptEngineWrapper(ScriptEngineFactory)} instead.
-	 */
-	@Deprecated
-	public JavascriptEngineWrapper(ScriptEngine engine) {
-		super(engine);
-	}
+    /**
+     * Constructs a {@code JavascriptEngineWrapper} with the given engine (to obtain a factory).
+     *
+     * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
+     * @deprecated (2.8.0) Use {@link #JavascriptEngineWrapper(ScriptEngineFactory)} instead.
+     */
+    @Deprecated
+    public JavascriptEngineWrapper(ScriptEngine engine) {
+        super(engine);
+    }
 
-	/**
-	 * Constructs a {@code JavascriptEngineWrapper} with the given engine factory.
-	 *
-	 * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for example, engine name, language).
-	 * @since 2.8.0
-	 * @see #getEngine()
-	 */
-	public JavascriptEngineWrapper(ScriptEngineFactory factory) {
-		super(factory);
-	}
+    /**
+     * Constructs a {@code JavascriptEngineWrapper} with the given engine factory.
+     *
+     * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for
+     *     example, engine name, language).
+     * @since 2.8.0
+     * @see #getEngine()
+     */
+    public JavascriptEngineWrapper(ScriptEngineFactory factory) {
+        super(factory);
+    }
 
-	@Override
-	public ImageIcon getIcon() {
-		if (!View.isInitialised()) {
-			return null;
-		}
+    @Override
+    public ImageIcon getIcon() {
+        if (!View.isInitialised()) {
+            return null;
+        }
 
-		if (icon == null) {
-			createIcon();
-		}
-		return icon;
-	}
+        if (icon == null) {
+            createIcon();
+        }
+        return icon;
+    }
 
-	private static synchronized void createIcon() {
-		if (icon == null) {
-			icon = new ImageIcon(JavascriptEngineWrapper.class.getResource("/resource/icon/16/cup.png"));
-		}
-	}
+    private static synchronized void createIcon() {
+        if (icon == null) {
+            icon =
+                    new ImageIcon(
+                            JavascriptEngineWrapper.class.getResource("/resource/icon/16/cup.png"));
+        }
+    }
 
-	@Override
-	public String getSyntaxStyle() {
-		return SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
-	}
+    @Override
+    public String getSyntaxStyle() {
+        return SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
+    }
 
-	@Override
-	public boolean isTextBased() {
-		return true;
-	}
+    @Override
+    public boolean isTextBased() {
+        return true;
+    }
 
-	@Override
-	public boolean isRawEngine() {
-		return false;
-	}
-
+    @Override
+    public boolean isRawEngine() {
+        return false;
+    }
 }

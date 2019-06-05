@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.log4j;
 
 import javax.swing.SwingUtilities;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
@@ -29,47 +28,53 @@ import org.zaproxy.zap.view.ScanStatus;
 
 public class ZapOutputWriter extends WriterAppender {
 
-	private final static char NEWLINE = '\n';
-	private ScanStatus scanStatus = null;
-	
-	public ZapOutputWriter(ScanStatus scanStatus) {
-		if (!View.isInitialised()) {
-			throw new IllegalStateException("View must be initialised.");
-		}
-		if (scanStatus == null) {
-			throw new IllegalArgumentException("The parameter scanStatus must not be null.");
-		}
-		this.scanStatus = scanStatus;
-	}
+    private static final char NEWLINE = '\n';
+    private ScanStatus scanStatus = null;
 
-	@Override
-	public void append(final LoggingEvent event) {
-		if (event.getLevel().equals(Level.ERROR)) {
-			if (! SwingUtilities.isEventDispatchThread()) {
-				SwingUtilities.invokeLater(new Runnable(){
-					@Override
-					public void run() {
-						append(event);
-					}});
-				return;
-			}
+    public ZapOutputWriter(ScanStatus scanStatus) {
+        if (!View.isInitialised()) {
+            throw new IllegalStateException("View must be initialised.");
+        }
+        if (scanStatus == null) {
+            throw new IllegalArgumentException("The parameter scanStatus must not be null.");
+        }
+        this.scanStatus = scanStatus;
+    }
 
-			scanStatus.incScanCount();
-			
-			String renderedmessage=event.getRenderedMessage();
-			if (renderedmessage!=null) {
-				View.getSingleton().getOutputPanel().append(new StringBuilder(renderedmessage).append(NEWLINE).toString());
-			}
+    @Override
+    public void append(final LoggingEvent event) {
+        if (event.getLevel().equals(Level.ERROR)) {
+            if (!SwingUtilities.isEventDispatchThread()) {
+                SwingUtilities.invokeLater(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                append(event);
+                            }
+                        });
+                return;
+            }
 
-			String [] tsr = event.getThrowableStrRep();			
-			if (tsr != null) {
-				StringBuilder eventThrowableStrRep = new StringBuilder(tsr.length*75);//Capacity is guessed, but more than 16 for sure
-				for (String str : tsr) {
-					eventThrowableStrRep.append(str).append(NEWLINE);
-				}
-				//Send it as a single string
-				View.getSingleton().getOutputPanel().append(eventThrowableStrRep.toString());
-			}
-		}
-	}
+            scanStatus.incScanCount();
+
+            String renderedmessage = event.getRenderedMessage();
+            if (renderedmessage != null) {
+                View.getSingleton()
+                        .getOutputPanel()
+                        .append(new StringBuilder(renderedmessage).append(NEWLINE).toString());
+            }
+
+            String[] tsr = event.getThrowableStrRep();
+            if (tsr != null) {
+                StringBuilder eventThrowableStrRep =
+                        new StringBuilder(
+                                tsr.length * 75); // Capacity is guessed, but more than 16 for sure
+                for (String str : tsr) {
+                    eventThrowableStrRep.append(str).append(NEWLINE);
+                }
+                // Send it as a single string
+                View.getSingleton().getOutputPanel().append(eventThrowableStrRep.toString());
+            }
+        }
+    }
 }

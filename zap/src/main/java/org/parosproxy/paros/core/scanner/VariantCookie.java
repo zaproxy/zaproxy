@@ -23,13 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A {@code Variant} for Cookie headers, allowing to attack the names and values of the cookies.
- * 
+ *
  * @author andy
  * @see Variant
  */
@@ -37,9 +36,7 @@ public class VariantCookie implements Variant {
 
     private List<NameValuePair> params = Collections.emptyList();
 
-    /**
-     * @throws IllegalArgumentException if {@code message} is {@code null}.
-     */
+    /** @throws IllegalArgumentException if {@code message} is {@code null}. */
     @Override
     public void setMessage(HttpMessage message) {
         if (message == null) {
@@ -63,8 +60,14 @@ public class VariantCookie implements Variant {
                 String[] nameValuePair = cookie.split("=", 2);
                 boolean hasNameValuePair = nameValuePair.length == 2;
                 String name = hasNameValuePair ? nameValuePair[0] : null;
-                String value = getUnescapedValue(!hasNameValuePair ? nameValuePair[0] : nameValuePair[1]);
-                extractedParameters.add(new NameValuePair(NameValuePair.TYPE_COOKIE, name, value, extractedParameters.size()));
+                String value =
+                        getUnescapedValue(!hasNameValuePair ? nameValuePair[0] : nameValuePair[1]);
+                extractedParameters.add(
+                        new NameValuePair(
+                                NameValuePair.TYPE_COOKIE,
+                                name,
+                                value,
+                                extractedParameters.size()));
             }
         }
 
@@ -78,27 +81,28 @@ public class VariantCookie implements Variant {
 
     /**
      * Encodes the given {@code value}.
-     * 
+     *
      * @param value the value that needs to be encoded, must not be {@code null}.
      * @return the encoded value
      */
     private static String getEscapedValue(String value) {
         return AbstractPlugin.getURLEncode(value);
     }
-    
+
     /**
      * Decodes the given {@code value}.
-     * 
+     *
      * @param value the value that needs to be decoded, must not be {@code null}.
      * @return the decoded value
      */
     private String getUnescapedValue(String value) {
         return AbstractPlugin.getURLDecode(value);
     }
-    
+
     /**
-     * Gets the list of parameters (that is, cookies) extracted from the request header of the message.
-     * 
+     * Gets the list of parameters (that is, cookies) extracted from the request header of the
+     * message.
+     *
      * @return an unmodifiable {@code List} containing the extracted parameters, never {@code null}.
      */
     @Override
@@ -107,41 +111,45 @@ public class VariantCookie implements Variant {
     }
 
     /**
-     * 
      * @param msg
      * @param originalPair
      * @param name
      * @param value
-     * @return 
+     * @return
      */
     @Override
-    public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return setParameter(msg, originalPair, name, value, false);
+    public String setParameter(
+            HttpMessage msg, NameValuePair originalPair, String name, String value) {
+        return setParameter(msg, originalPair, name, value, false);
     }
-    
+
     /**
-     * 
      * @param msg
      * @param originalPair
      * @param name
      * @param value
-     * @return 
+     * @return
      */
     @Override
-    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return setParameter(msg, originalPair, name, value, true);
+    public String setEscapedParameter(
+            HttpMessage msg, NameValuePair originalPair, String name, String value) {
+        return setParameter(msg, originalPair, name, value, true);
     }
-    
+
     /**
-     * 
      * @param msg
      * @param originalPair
      * @param name
      * @param value
      * @param escaped
-     * @return 
+     * @return
      */
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
+    private String setParameter(
+            HttpMessage msg,
+            NameValuePair originalPair,
+            String name,
+            String value,
+            boolean escaped) {
         String escapedValue = value == null ? null : escaped ? value : getEscapedValue(value);
         StringBuilder cookieString = new StringBuilder();
         for (int idx = 0; idx < params.size(); idx++) {
@@ -163,7 +171,8 @@ public class VariantCookie implements Variant {
                 }
             }
 
-            if (cookieString.length() != 0 && !((cookieName == null || cookieName.isEmpty()) && cookieValue == null)) {
+            if (cookieString.length() != 0
+                    && !((cookieName == null || cookieName.isEmpty()) && cookieValue == null)) {
                 cookieString.append("; ");
             }
 
@@ -194,5 +203,5 @@ public class VariantCookie implements Variant {
         }
 
         return name + "=" + escapedValue;
-    }    
+    }
 }

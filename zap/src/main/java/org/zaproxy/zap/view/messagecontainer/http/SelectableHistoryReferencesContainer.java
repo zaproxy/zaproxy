@@ -20,36 +20,39 @@
 package org.zaproxy.zap.view.messagecontainer.http;
 
 import java.util.List;
-
 import org.parosproxy.paros.model.HistoryReference;
 
 /**
- * A {@code SelectableHttpMessagesContainer} that exposes the {@code HistoryReference}s of the container.
- * 
+ * A {@code SelectableHttpMessagesContainer} that exposes the {@code HistoryReference}s of the
+ * container.
+ *
  * @see HistoryReference
  * @see SelectableHttpMessagesContainer
  * @since 2.3.0
  */
-public interface SelectableHistoryReferencesContainer extends SelectableHttpMessagesContainer,
-        MultipleHistoryReferencesContainer {
+public interface SelectableHistoryReferencesContainer
+        extends SelectableHttpMessagesContainer, MultipleHistoryReferencesContainer {
 
     /**
-     * Returns the {@code HistoryReference} associated with the selected message or {@code null} if none.
-     * <p>
-     * If multiple messages are selected the {@code HistoryReference} of the first one is returned.
-     * 
+     * Returns the {@code HistoryReference} associated with the selected message or {@code null} if
+     * none.
+     *
+     * <p>If multiple messages are selected the {@code HistoryReference} of the first one is
+     * returned.
+     *
      * @return the selected message or {@code null} if none.
      */
     HistoryReference getSelectedHistoryReference();
 
     /**
      * Returns all the {@code HistoryReference}s associated with the selected messages.
-     * <p>
-     * No assumptions should be made on the actual implementation type of the {@code List} returned by this method.
-     * 
-     * @return a {@code List} with all the {@code HistoryReference}s associated with the selected messages, never {@code null}.
+     *
+     * <p>No assumptions should be made on the actual implementation type of the {@code List}
+     * returned by this method.
+     *
+     * @return a {@code List} with all the {@code HistoryReference}s associated with the selected
+     *     messages, never {@code null}.
      * @see #getNumberOfSelectedMessages()
      */
     List<HistoryReference> getSelectedHistoryReferences();
-
 }

@@ -25,15 +25,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
-import org.zaproxy.zap.model.HttpMessageLocation;
-import org.zaproxy.zap.model.TextHttpMessageLocation;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
@@ -41,7 +37,10 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxH
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
+import org.zaproxy.zap.model.HttpMessageLocation;
 import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.model.TextHttpMessageLocation;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableContentHttpMessageContainer;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightsManager;
@@ -50,90 +49,105 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListener
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager;
 
-public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView implements SelectableContentHttpMessageContainer {
+public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView
+        implements SelectableContentHttpMessageContainer {
 
     public static final String NAME = "HttpRequestBodySyntaxTextView";
 
     private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
 
-	public HttpRequestBodyPanelSyntaxHighlightTextView(RequestBodyStringHttpPanelViewModel model) {
-		super(model);
+    public HttpRequestBodyPanelSyntaxHighlightTextView(RequestBodyStringHttpPanelViewModel model) {
+        super(model);
 
-		getHttpPanelTextArea().setComponentPopupMenu(new CustomPopupMenu() {
+        getHttpPanelTextArea()
+                .setComponentPopupMenu(
+                        new CustomPopupMenu() {
 
-			private static final long serialVersionUID = -426000345249750052L;
+                            private static final long serialVersionUID = -426000345249750052L;
 
-			@Override
-			public void show(Component invoker, int x, int y) {
-				if (!getHttpPanelTextArea().isFocusOwner()) {
-					getHttpPanelTextArea().requestFocusInWindow();
-				}
+                            @Override
+                            public void show(Component invoker, int x, int y) {
+                                if (!getHttpPanelTextArea().isFocusOwner()) {
+                                    getHttpPanelTextArea().requestFocusInWindow();
+                                }
 
-				View.getSingleton().getPopupMenu().show(HttpRequestBodyPanelSyntaxHighlightTextView.this, x, y);
-			};
-		});
-	}
+                                View.getSingleton()
+                                        .getPopupMenu()
+                                        .show(
+                                                HttpRequestBodyPanelSyntaxHighlightTextView.this,
+                                                x,
+                                                y);
+                            };
+                        });
+    }
 
     @Override
     protected HttpRequestBodyPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
         return (HttpRequestBodyPanelSyntaxHighlightTextArea) super.getHttpPanelTextArea();
     }
-	
-	@Override
-	protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-		return new HttpRequestBodyPanelSyntaxHighlightTextArea();
-	}
-	
-	private static class HttpRequestBodyPanelSyntaxHighlightTextArea extends AutoDetectSyntaxHttpPanelTextArea {
 
-		private static final long serialVersionUID = -2102275261139781996L;
+    @Override
+    protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
+        return new HttpRequestBodyPanelSyntaxHighlightTextArea();
+    }
 
-		private static final String X_WWW_FORM_URLENCODED = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xWwwFormUrlencoded");
-		private static final String JAVASCRIPT = Constant.messages.getString("http.panel.view.syntaxtext.syntax.javascript");
-		private static final String JSON = Constant.messages.getString("http.panel.view.syntaxtext.syntax.json");
-		private static final String XML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
-		
-		private static final String SYNTAX_STYLE_X_WWW_FORM = "application/x-www-form-urlencoded";
-		
-		private static RequestBodyTokenMakerFactory tokenMakerFactory = null;
+    private static class HttpRequestBodyPanelSyntaxHighlightTextArea
+            extends AutoDetectSyntaxHttpPanelTextArea {
 
-		private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
-		
-		public HttpRequestBodyPanelSyntaxHighlightTextArea() {
-			addSyntaxStyle(X_WWW_FORM_URLENCODED, SYNTAX_STYLE_X_WWW_FORM);
-			addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
-			addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
-			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
-			
-			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+        private static final long serialVersionUID = -2102275261139781996L;
 
-			setCodeFoldingAllowed(true);
-		}
-		
+        private static final String X_WWW_FORM_URLENCODED =
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.xWwwFormUrlencoded");
+        private static final String JAVASCRIPT =
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.javascript");
+        private static final String JSON =
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.json");
+        private static final String XML =
+                Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
+
+        private static final String SYNTAX_STYLE_X_WWW_FORM = "application/x-www-form-urlencoded";
+
+        private static RequestBodyTokenMakerFactory tokenMakerFactory = null;
+
+        private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
+
+        public HttpRequestBodyPanelSyntaxHighlightTextArea() {
+            addSyntaxStyle(X_WWW_FORM_URLENCODED, SYNTAX_STYLE_X_WWW_FORM);
+            addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+            addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
+            addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
+
+            caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+
+            setCodeFoldingAllowed(true);
+        }
+
         @Override
         public String getName() {
             return NAME;
-		}
-        
+        }
+
         @Override
         public HttpMessage getMessage() {
             return (HttpMessage) super.getMessage();
         }
-		
-		@Override
-		public void setMessage(Message aMessage) {
-			super.setMessage(aMessage);
-			
-			caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
-		}
+
+        @Override
+        public void setMessage(Message aMessage) {
+            super.setMessage(aMessage);
+
+            caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
+        }
 
         protected MessageLocation getSelection() {
             int start = getSelectionStart();
             int end = getSelectionEnd();
             if (start == end) {
-                return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_BODY, start);
+                return new DefaultTextHttpMessageLocation(
+                        HttpMessageLocation.Location.REQUEST_BODY, start);
             }
-            return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_BODY, start, end, getSelectedText());
+            return new DefaultTextHttpMessageLocation(
+                    HttpMessageLocation.Location.REQUEST_BODY, start, end, getSelectedText());
         }
 
         protected MessageLocationHighlightsManager create() {
@@ -141,82 +155,83 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
         }
 
         protected MessageLocationHighlight highlightImpl(
-                TextHttpMessageLocation textLocation,
-                TextMessageLocationHighlight textHighlight) {
-            textHighlight.setHighlightReference(highlight(textLocation.getStart(), textLocation.getEnd(), textHighlight));
+                TextHttpMessageLocation textLocation, TextMessageLocationHighlight textHighlight) {
+            textHighlight.setHighlightReference(
+                    highlight(textLocation.getStart(), textLocation.getEnd(), textHighlight));
 
             return textHighlight;
         }
 
-		@Override
-		public void search(Pattern p, List<SearchMatch> matches) {
-			Matcher m = p.matcher(getText());
-			while (m.find()) {
-				matches.add(new SearchMatch(SearchMatch.Location.REQUEST_BODY, m.start(), m.end()));
-			}
-		}
-		
-		@Override
-		public void highlight(SearchMatch sm) {
-			if (!SearchMatch.Location.REQUEST_BODY.equals(sm.getLocation())) {
-				return;
-			}
-			
-			int len = getText().length();
-			if (sm.getStart() > len || sm.getEnd() > len) {
-				return;
-			}
-			
-			highlight(sm.getStart(), sm.getEnd());
-		}
-		
-		@Override
-		protected String detectSyntax(HttpMessage httpMessage) {
-			String syntax = null;
-			if (httpMessage != null) {
-				String contentType = httpMessage.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-				if(contentType != null && !contentType.isEmpty()) {
-					contentType = contentType.toLowerCase(Locale.ENGLISH);
-					final int pos = contentType.indexOf(';');
-					if (pos != -1) {
-						contentType = contentType.substring(0, pos).trim();
-					}
-					if (contentType.contains("javascript")) {
-						syntax = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
-					} else if(contentType.contains("json")) {
-						syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
-					} else if (contentType.contains("xml")) {
-						syntax = SyntaxConstants.SYNTAX_STYLE_XML;
-					} else {
-						syntax = contentType;
-					}
-				}
-			}
-			return syntax;
-		}
-		
-		@Override
-		protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
-			if (tokenMakerFactory == null) {
-				tokenMakerFactory = new RequestBodyTokenMakerFactory();
-			}
-			return tokenMakerFactory;
-		}
-		
-		private static class RequestBodyTokenMakerFactory extends CustomTokenMakerFactory {
-			
-			public RequestBodyTokenMakerFactory() {
-				String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
-				
-				putMapping(SYNTAX_STYLE_X_WWW_FORM, pkg + "WwwFormTokenMaker");
-				
-				pkg = "org.fife.ui.rsyntaxtextarea.modes.";
-				putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
-				putMapping(SYNTAX_STYLE_JSON, pkg + "JsonTokenMaker");
-				putMapping(SYNTAX_STYLE_XML, pkg + "XMLTokenMaker");
-			}
-		}
-	}
+        @Override
+        public void search(Pattern p, List<SearchMatch> matches) {
+            Matcher m = p.matcher(getText());
+            while (m.find()) {
+                matches.add(new SearchMatch(SearchMatch.Location.REQUEST_BODY, m.start(), m.end()));
+            }
+        }
+
+        @Override
+        public void highlight(SearchMatch sm) {
+            if (!SearchMatch.Location.REQUEST_BODY.equals(sm.getLocation())) {
+                return;
+            }
+
+            int len = getText().length();
+            if (sm.getStart() > len || sm.getEnd() > len) {
+                return;
+            }
+
+            highlight(sm.getStart(), sm.getEnd());
+        }
+
+        @Override
+        protected String detectSyntax(HttpMessage httpMessage) {
+            String syntax = null;
+            if (httpMessage != null) {
+                String contentType =
+                        httpMessage.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
+                if (contentType != null && !contentType.isEmpty()) {
+                    contentType = contentType.toLowerCase(Locale.ENGLISH);
+                    final int pos = contentType.indexOf(';');
+                    if (pos != -1) {
+                        contentType = contentType.substring(0, pos).trim();
+                    }
+                    if (contentType.contains("javascript")) {
+                        syntax = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
+                    } else if (contentType.contains("json")) {
+                        syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
+                    } else if (contentType.contains("xml")) {
+                        syntax = SyntaxConstants.SYNTAX_STYLE_XML;
+                    } else {
+                        syntax = contentType;
+                    }
+                }
+            }
+            return syntax;
+        }
+
+        @Override
+        protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
+            if (tokenMakerFactory == null) {
+                tokenMakerFactory = new RequestBodyTokenMakerFactory();
+            }
+            return tokenMakerFactory;
+        }
+
+        private static class RequestBodyTokenMakerFactory extends CustomTokenMakerFactory {
+
+            public RequestBodyTokenMakerFactory() {
+                String pkg = "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers.";
+
+                putMapping(SYNTAX_STYLE_X_WWW_FORM, pkg + "WwwFormTokenMaker");
+
+                pkg = "org.fife.ui.rsyntaxtextarea.modes.";
+                putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
+                putMapping(SYNTAX_STYLE_JSON, pkg + "JsonTokenMaker");
+                putMapping(SYNTAX_STYLE_XML, pkg + "XMLTokenMaker");
+            }
+        }
+    }
 
     @Override
     public String getName() {
@@ -250,11 +265,13 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
         }
         TextHttpMessageLocation textLocation = (TextHttpMessageLocation) location;
 
-        return getHttpPanelTextArea().highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
+        return getHttpPanelTextArea()
+                .highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
     }
 
     @Override
-    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+    public MessageLocationHighlight highlight(
+            MessageLocation location, MessageLocationHighlight highlight) {
         if (!supports(location) || !(highlight instanceof TextMessageLocationHighlight)) {
             return null;
         }
@@ -265,11 +282,15 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
     }
 
     @Override
-    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+    public void removeHighlight(
+            MessageLocation location, MessageLocationHighlight highlightReference) {
         if (!(highlightReference instanceof TextMessageLocationHighlight)) {
             return;
         }
-        getHttpPanelTextArea().removeHighlight(((TextMessageLocationHighlight) highlightReference).getHighlightReference());
+        getHttpPanelTextArea()
+                .removeHighlight(
+                        ((TextMessageLocationHighlight) highlightReference)
+                                .getHighlightReference());
     }
 
     @Override
@@ -277,7 +298,8 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
         if (!(location instanceof TextHttpMessageLocation)) {
             return false;
         }
-        return ((TextHttpMessageLocation) location).getLocation() == TextHttpMessageLocation.Location.REQUEST_BODY;
+        return ((TextHttpMessageLocation) location).getLocation()
+                == TextHttpMessageLocation.Location.REQUEST_BODY;
     }
 
     @Override
@@ -323,4 +345,3 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
         return focusListenerAdapter;
     }
 }
-

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.pscan.scanner;
 
 import net.htmlparser.jericho.Source;
-
 import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
@@ -31,54 +30,54 @@ import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
 
 public class StatsPassiveScanner extends PluginPassiveScanner {
-	
-	public static final String CODE_STATS_PREFIX = "stats.code.";
-	public static final String CONTENT_TYPE_STATS_PREFIX = "stats.contentType.";
-	public static final String RESPONSE_TIME_STATS_PREFIX = "stats.responseTime.";
 
-	public StatsPassiveScanner() {
-	}
-	
-	@Override
-	public String getName() {
-		return Constant.messages.getString("pscan.stats.passivescanner.title");
-	}
+    public static final String CODE_STATS_PREFIX = "stats.code.";
+    public static final String CONTENT_TYPE_STATS_PREFIX = "stats.contentType.";
+    public static final String RESPONSE_TIME_STATS_PREFIX = "stats.responseTime.";
 
-	@Override
-	public int getPluginId () {
-		return 50003;
-	}
-	
-	@Override
-	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		// Ignore
-	}
+    public StatsPassiveScanner() {}
 
-	@Override
-	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		try {
-			String site = SessionStructure.getHostName(msg);
-			Stats.incCounter(site, CODE_STATS_PREFIX + msg.getResponseHeader().getStatusCode());
-			String contentType = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
-			if (contentType != null) {
-				Stats.incCounter(site, CONTENT_TYPE_STATS_PREFIX + contentType);
-			}
-			// Multiply by 2 so we inc the 'next highest' stat
-			Stats.incCounter(site, RESPONSE_TIME_STATS_PREFIX + 
-					(Integer.highestOneBit(msg.getTimeElapsedMillis()) * 2));
-		} catch (URIException e) {
-			// Ignore
-		}
-	}
+    @Override
+    public String getName() {
+        return Constant.messages.getString("pscan.stats.passivescanner.title");
+    }
 
-	@Override
-	public boolean appliesToHistoryType(int historyType) {
-		return true;
-	}
+    @Override
+    public int getPluginId() {
+        return 50003;
+    }
 
-	@Override
-	public void setParent(PassiveScanThread parent) {
-		// Ignore
-	}
+    @Override
+    public void scanHttpRequestSend(HttpMessage msg, int id) {
+        // Ignore
+    }
 
+    @Override
+    public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
+        try {
+            String site = SessionStructure.getHostName(msg);
+            Stats.incCounter(site, CODE_STATS_PREFIX + msg.getResponseHeader().getStatusCode());
+            String contentType = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
+            if (contentType != null) {
+                Stats.incCounter(site, CONTENT_TYPE_STATS_PREFIX + contentType);
+            }
+            // Multiply by 2 so we inc the 'next highest' stat
+            Stats.incCounter(
+                    site,
+                    RESPONSE_TIME_STATS_PREFIX
+                            + (Integer.highestOneBit(msg.getTimeElapsedMillis()) * 2));
+        } catch (URIException e) {
+            // Ignore
+        }
+    }
+
+    @Override
+    public boolean appliesToHistoryType(int historyType) {
+        return true;
+    }
+
+    @Override
+    public void setParent(PassiveScanThread parent) {
+        // Ignore
+    }
 }

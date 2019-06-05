@@ -19,6 +19,12 @@
  */
 package org.zaproxy.zap.extension.callback;
 
+import java.awt.EventQueue;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -38,19 +44,12 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.callback.ui.CallbackPanel;
 import org.zaproxy.zap.extension.callback.ui.CallbackRequest;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.callback.ui.CallbackPanel;
 
-import java.awt.EventQueue;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-public class ExtensionCallback extends ExtensionAdaptor implements
-        OptionsChangedListener, SessionChangedListener {
+public class ExtensionCallback extends ExtensionAdaptor
+        implements OptionsChangedListener, SessionChangedListener {
 
     private static final String TEST_PREFIX = "ZapTest";
     private static final String NAME = "ExtensionCallback";
@@ -64,14 +63,12 @@ public class ExtensionCallback extends ExtensionAdaptor implements
     private String currentConfigLocalAddress;
     private int currentConfigPort;
 
-    private static final Logger LOGGER = Logger
-            .getLogger(ExtensionCallback.class);
+    private static final Logger LOGGER = Logger.getLogger(ExtensionCallback.class);
     private CallbackPanel callbackPanel;
 
     public ExtensionCallback() {
         proxyServer = new ProxyServer("ZAP-CallbackServer");
-        proxyServer
-                .addOverrideMessageProxyListener(new CallbackProxyListener());
+        proxyServer.addOverrideMessageProxyListener(new CallbackProxyListener());
     }
 
     @Override
@@ -81,9 +78,9 @@ public class ExtensionCallback extends ExtensionAdaptor implements
 
     @Override
     public String getUIName() {
-    	return Constant.messages.getString("callback.name");
+        return Constant.messages.getString("callback.name");
     }
-    
+
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
@@ -91,18 +88,15 @@ public class ExtensionCallback extends ExtensionAdaptor implements
         extensionHook.addOptionsChangedListener(this);
         extensionHook.addSessionListener(this);
         if (View.isInitialised()) {
-            extensionHook.getHookView().addStatusPanel(
-                    getCallbackPanel());
-            extensionHook.getHookView().addOptionPanel(
-                    getOptionsCallbackPanel());
+            extensionHook.getHookView().addStatusPanel(getCallbackPanel());
+            extensionHook.getHookView().addOptionPanel(getOptionsCallbackPanel());
             ExtensionHelp.enableHelpKey(getCallbackPanel(), "ui.tabs.callbacks");
         }
     }
 
     @Override
     public void optionsLoaded() {
-        proxyServer.setConnectionParam(getModel().getOptionsParam()
-                .getConnectionParam());
+        proxyServer.setConnectionParam(getModel().getOptionsParam().getConnectionParam());
         currentConfigLocalAddress = this.getCallbackParam().getLocalAddress();
         currentConfigPort = this.getCallbackParam().getPort();
     }
@@ -114,10 +108,12 @@ public class ExtensionCallback extends ExtensionAdaptor implements
 
     private void restartServer(int port) {
         // this will close the previous listener (if there was one)
-        actualPort = proxyServer.startServer(this.getCallbackParam()
-                .getLocalAddress(), port, true);
-        LOGGER.info("Started callback server on "
-                + this.getCallbackParam().getLocalAddress() + ":" + actualPort);
+        actualPort = proxyServer.startServer(this.getCallbackParam().getLocalAddress(), port, true);
+        LOGGER.info(
+                "Started callback server on "
+                        + this.getCallbackParam().getLocalAddress()
+                        + ":"
+                        + actualPort);
     }
 
     public String getCallbackAddress() {
@@ -192,8 +188,7 @@ public class ExtensionCallback extends ExtensionAdaptor implements
 
     @Override
     public void optionsChanged(OptionsParam optionsParam) {
-        if (!currentConfigLocalAddress.equals(this.getCallbackParam()
-                .getLocalAddress())
+        if (!currentConfigLocalAddress.equals(this.getCallbackParam().getLocalAddress())
                 || currentConfigPort != this.getCallbackParam().getPort()) {
             // Somethings changed, reuse the port if its still a random one
             int port = actualPort;
@@ -203,23 +198,23 @@ public class ExtensionCallback extends ExtensionAdaptor implements
             this.restartServer(port);
 
             // Save the new ones for next time
-            currentConfigLocalAddress = this.getCallbackParam()
-                    .getLocalAddress();
+            currentConfigLocalAddress = this.getCallbackParam().getLocalAddress();
             currentConfigPort = this.getCallbackParam().getPort();
         }
     }
 
     @Override
     public void sessionChanged(Session session) {
-        invokeIfRequiredAndViewIsInitialised(new Runnable() {
-            @Override
-            public void run() {
-                sessionChangedEventHandler(session);
-            }
-        });
+        invokeIfRequiredAndViewIsInitialised(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        sessionChangedEventHandler(session);
+                    }
+                });
     }
 
-    private void sessionChangedEventHandler(Session session){
+    private void sessionChangedEventHandler(Session session) {
         getCallbackPanel().clearCallbackRequests();
         addCallbacksFromDatabaseIntoCallbackPanel(session);
     }
@@ -230,8 +225,12 @@ public class ExtensionCallback extends ExtensionAdaptor implements
         }
 
         try {
-            List<Integer> historyIds = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
-                    session.getSessionId(), HistoryReference.TYPE_CALLBACK);
+            List<Integer> historyIds =
+                    getModel()
+                            .getDb()
+                            .getTableHistory()
+                            .getHistoryIdsOfHistType(
+                                    session.getSessionId(), HistoryReference.TYPE_CALLBACK);
 
             for (int historyId : historyIds) {
                 HistoryReference historyReference = new HistoryReference(historyId);
@@ -245,17 +244,22 @@ public class ExtensionCallback extends ExtensionAdaptor implements
 
     public void deleteCallbacks() {
         deleteCallbacksFromDatabase();
-        invokeIfRequiredAndViewIsInitialised(new Runnable() {
-            @Override
-            public void run() {
-                getCallbackPanel().clearCallbackRequests();
-            }
-        });
+        invokeIfRequiredAndViewIsInitialised(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        getCallbackPanel().clearCallbackRequests();
+                    }
+                });
     }
 
     private void deleteCallbacksFromDatabase() {
         try {
-            getModel().getDb().getTableHistory().deleteHistoryType(getModel().getSession().getSessionId(), HistoryReference.TYPE_CALLBACK);
+            getModel()
+                    .getDb()
+                    .getTableHistory()
+                    .deleteHistoryType(
+                            getModel().getSession().getSessionId(), HistoryReference.TYPE_CALLBACK);
         } catch (DatabaseException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -276,19 +280,13 @@ public class ExtensionCallback extends ExtensionAdaptor implements
     }
 
     @Override
-    public void sessionAboutToChange(Session session) {
-
-    }
+    public void sessionAboutToChange(Session session) {}
 
     @Override
-    public void sessionScopeChanged(Session session) {
-
-    }
+    public void sessionScopeChanged(Session session) {}
 
     @Override
-    public void sessionModeChanged(Control.Mode mode) {
-
-    }
+    public void sessionModeChanged(Control.Mode mode) {}
 
     private class CallbackProxyListener implements OverrideMessageProxyListener {
 
@@ -303,22 +301,28 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                 msg.setTimeSentMillis(new Date().getTime());
                 String url = msg.getRequestHeader().getURI().toString();
                 String path = msg.getRequestHeader().getURI().getPath();
-                LOGGER.debug("Callback received for URL : " + url + " path : "
-                        + path + " from "
-                        + msg.getRequestHeader().getSenderAddress());
+                LOGGER.debug(
+                        "Callback received for URL : "
+                                + url
+                                + " path : "
+                                + path
+                                + " from "
+                                + msg.getRequestHeader().getSenderAddress());
 
                 msg.setResponseHeader(HttpHeader.HTTP11 + " " + HttpStatusCode.OK);
 
                 if (path.startsWith("/" + TEST_PREFIX)) {
-                    String str = Constant.messages.getString(
-                            "callback.test.msg", url, msg.getRequestHeader()
-                                    .getSenderAddress().toString());
+                    String str =
+                            Constant.messages.getString(
+                                    "callback.test.msg",
+                                    url,
+                                    msg.getRequestHeader().getSenderAddress().toString());
                     if (View.isInitialised()) {
-                        View.getSingleton().getOutputPanel()
-                                .appendAsync(str + "\n");
+                        View.getSingleton().getOutputPanel().appendAsync(str + "\n");
                     }
                     LOGGER.info(str);
-                    callbackReceived(Constant.messages.getString("callback.handler.test.name"), msg);
+                    callbackReceived(
+                            Constant.messages.getString("callback.handler.test.name"), msg);
                     return true;
                 } else if (path.startsWith("/favicon.ico")) {
                     // Just ignore - its automatically requested by browsers
@@ -326,8 +330,7 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                     return true;
                 }
 
-                for (Entry<String, CallbackImplementor> callback : callbacks
-                        .entrySet()) {
+                for (Entry<String, CallbackImplementor> callback : callbacks.entrySet()) {
                     if (path.startsWith(callback.getKey())) {
                         // Copy the message so that CallbackImplementors cant
                         // return anything to the sender
@@ -339,8 +342,11 @@ public class ExtensionCallback extends ExtensionAdaptor implements
                 }
 
                 callbackReceived(Constant.messages.getString("callback.handler.none.name"), msg);
-                LOGGER.error("No callback handler for URL : " + url + " from "
-                        + msg.getRequestHeader().getSenderAddress());
+                LOGGER.error(
+                        "No callback handler for URL : "
+                                + url
+                                + " from "
+                                + msg.getRequestHeader().getSenderAddress());
             } catch (URIException | HttpMalformedHeaderException e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -353,17 +359,18 @@ public class ExtensionCallback extends ExtensionAdaptor implements
         }
     }
 
-    private void callbackReceived(String handler, HttpMessage httpMessage){
-        invokeIfRequiredAndViewIsInitialised(new Runnable() {
-            @Override
-            public void run() {
-                callbackReceivedHandler(handler, httpMessage);
-            }
-        });
+    private void callbackReceived(String handler, HttpMessage httpMessage) {
+        invokeIfRequiredAndViewIsInitialised(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        callbackReceivedHandler(handler, httpMessage);
+                    }
+                });
     }
 
     private void callbackReceivedHandler(String handler, HttpMessage httpMessage) {
-        try{
+        try {
             CallbackRequest request = CallbackRequest.create(handler, httpMessage);
             getCallbackPanel().addCallbackRequest(request);
         } catch (HttpMalformedHeaderException | DatabaseException e) {

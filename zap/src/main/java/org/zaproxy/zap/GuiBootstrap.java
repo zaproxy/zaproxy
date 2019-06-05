@@ -31,12 +31,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
@@ -69,11 +67,11 @@ import org.zaproxy.zap.view.ProxyDialog;
  */
 public class GuiBootstrap extends ZapBootstrap {
 
-    private final static Logger logger = Logger.getLogger(GuiBootstrap.class);
+    private static final Logger logger = Logger.getLogger(GuiBootstrap.class);
 
     /**
      * Flag that indicates whether or not the look and feel was already set.
-     * 
+     *
      * @see #setupLookAndFeel()
      */
     private boolean lookAndFeelSet;
@@ -96,19 +94,21 @@ public class GuiBootstrap extends ZapBootstrap {
         logger.info(getStartingMessage());
 
         if (GraphicsEnvironment.isHeadless()) {
-            String headlessMessage = Constant.messages.getString("start.gui.headless", CommandLine.HELP);
+            String headlessMessage =
+                    Constant.messages.getString("start.gui.headless", CommandLine.HELP);
             logger.fatal(headlessMessage);
             System.err.println(headlessMessage);
             return 1;
         }
 
-        EventQueue.invokeLater(new Runnable() {
+        EventQueue.invokeLater(
+                new Runnable() {
 
-            @Override
-            public void run() {
-                startImpl();
-            }
-        });
+                    @Override
+                    public void run() {
+                        startImpl();
+                    }
+                });
         return 0;
     }
 
@@ -159,7 +159,8 @@ public class GuiBootstrap extends ZapBootstrap {
     /**
      * Initialises the {@code Model}, {@code View} and {@code Control}.
      *
-     * @param firstTime {@code true} if it's the first time ZAP is being started, {@code false} otherwise
+     * @param firstTime {@code true} if it's the first time ZAP is being started, {@code false}
+     *     otherwise
      */
     private void init(final boolean firstTime) {
         try {
@@ -182,11 +183,9 @@ public class GuiBootstrap extends ZapBootstrap {
         OptionsParam options = Model.getSingleton().getOptionsParam();
         OptionsParamView viewParam = options.getViewParam();
 
-        for (FontUtils.FontType fontType: FontUtils.FontType.values()) {
+        for (FontUtils.FontType fontType : FontUtils.FontType.values()) {
             FontUtils.setDefaultFont(
-                fontType,
-                viewParam.getFontName(fontType),
-                viewParam.getFontSize(fontType));
+                    fontType, viewParam.getFontName(fontType), viewParam.getFontSize(fontType));
         }
 
         setupLocale(options);
@@ -199,55 +198,62 @@ public class GuiBootstrap extends ZapBootstrap {
 
         promptForProxyDetailsIfNeeded(options);
 
-        Thread bootstrap = new Thread(new Runnable() {
+        Thread bootstrap =
+                new Thread(
+                        new Runnable() {
 
-            @Override
-            public void run() {
-                try {
-                    initControlAndPostViewInit();
+                            @Override
+                            public void run() {
+                                try {
+                                    initControlAndPostViewInit();
 
-                } catch (Throwable e) {
-                    if (!Constant.isDevMode()) {
-                        ErrorInfo errorInfo = new ErrorInfo(
-                                Constant.messages.getString("start.gui.dialog.fatal.error.title"),
-                                Constant.messages.getString("start.gui.dialog.fatal.error.message"),
-                                null,
-                                null,
-                                e,
-                                null,
-                                null);
-                        JXErrorPane errorPane = new JXErrorPane();
-                        errorPane.setErrorInfo(errorInfo);
-                        JXErrorPane.showDialog(View.getSingleton().getSplashScreen(), errorPane);
-                    }
-                    View.getSingleton().hideSplashScreen();
+                                } catch (Throwable e) {
+                                    if (!Constant.isDevMode()) {
+                                        ErrorInfo errorInfo =
+                                                new ErrorInfo(
+                                                        Constant.messages.getString(
+                                                                "start.gui.dialog.fatal.error.title"),
+                                                        Constant.messages.getString(
+                                                                "start.gui.dialog.fatal.error.message"),
+                                                        null,
+                                                        null,
+                                                        e,
+                                                        null,
+                                                        null);
+                                        JXErrorPane errorPane = new JXErrorPane();
+                                        errorPane.setErrorInfo(errorInfo);
+                                        JXErrorPane.showDialog(
+                                                View.getSingleton().getSplashScreen(), errorPane);
+                                    }
+                                    View.getSingleton().hideSplashScreen();
 
-                    logger.fatal("Failed to initialise GUI: ", e);
+                                    logger.fatal("Failed to initialise GUI: ", e);
 
-                    // We must exit otherwise EDT would keep ZAP running.
-                    System.exit(1);
-                }
+                                    // We must exit otherwise EDT would keep ZAP running.
+                                    System.exit(1);
+                                }
 
-                warnAddOnsAndExtensionsNoLongerRunnable();
+                                warnAddOnsAndExtensionsNoLongerRunnable();
 
-                if (firstTime) {
-                    // Disabled for now - we have too many popups occurring when you
-                    // first start up
-                    // be nice to have a clean start up wizard...
-                    // ExtensionHelp.showHelp();
+                                if (firstTime) {
+                                    // Disabled for now - we have too many popups occurring when you
+                                    // first start up
+                                    // be nice to have a clean start up wizard...
+                                    // ExtensionHelp.showHelp();
 
-                } else {
-                    // Don't auto check for updates the first time, no chance of any
-                    // proxy having been set
-                    final ExtensionAutoUpdate eau = Control.getSingleton()
-                            .getExtensionLoader().getExtension(ExtensionAutoUpdate.class);
-                    if (eau != null) {
-                        eau.alertIfNewVersions();
-                    }
-                }
-
-            }
-        });
+                                } else {
+                                    // Don't auto check for updates the first time, no chance of any
+                                    // proxy having been set
+                                    final ExtensionAutoUpdate eau =
+                                            Control.getSingleton()
+                                                    .getExtensionLoader()
+                                                    .getExtension(ExtensionAutoUpdate.class);
+                                    if (eau != null) {
+                                        eau.alertIfNewVersions();
+                                    }
+                                }
+                            }
+                        });
         bootstrap.setName("ZAP-BootstrapGUI");
         bootstrap.setDaemon(false);
         bootstrap.start();
@@ -266,56 +272,73 @@ public class GuiBootstrap extends ZapBootstrap {
         final Control control = Control.getSingleton();
         final View view = View.getSingleton();
 
-        EventQueue.invokeAndWait(new Runnable() {
+        EventQueue.invokeAndWait(
+                new Runnable() {
 
-            @Override
-            public void run() {
-                view.postInit();
-                view.getMainFrame().setVisible(true);
+                    @Override
+                    public void run() {
+                        view.postInit();
+                        view.getMainFrame().setVisible(true);
 
-                boolean createNewSession = true;
-                if (getArgs().isEnabled(CommandLine.SESSION) && getArgs().isEnabled(CommandLine.NEW_SESSION)) {
-                    view.showWarningDialog(
-                            Constant.messages.getString(
-                                    "start.gui.cmdline.invalid.session.options",
-                                    CommandLine.SESSION,
-                                    CommandLine.NEW_SESSION,
-                                    Constant.getZapHome()));
+                        boolean createNewSession = true;
+                        if (getArgs().isEnabled(CommandLine.SESSION)
+                                && getArgs().isEnabled(CommandLine.NEW_SESSION)) {
+                            view.showWarningDialog(
+                                    Constant.messages.getString(
+                                            "start.gui.cmdline.invalid.session.options",
+                                            CommandLine.SESSION,
+                                            CommandLine.NEW_SESSION,
+                                            Constant.getZapHome()));
 
-                } else if (getArgs().isEnabled(CommandLine.SESSION)) {
-                    Path sessionPath = SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.SESSION));
-                    if (!Files.exists(sessionPath)) {
-                        view.showWarningDialog(
-                                Constant.messages.getString("start.gui.cmdline.session.does.not.exist", Constant.getZapHome()));
+                        } else if (getArgs().isEnabled(CommandLine.SESSION)) {
+                            Path sessionPath =
+                                    SessionUtils.getSessionPath(
+                                            getArgs().getArgument(CommandLine.SESSION));
+                            if (!Files.exists(sessionPath)) {
+                                view.showWarningDialog(
+                                        Constant.messages.getString(
+                                                "start.gui.cmdline.session.does.not.exist",
+                                                Constant.getZapHome()));
 
-                    } else {
-                        createNewSession = !control.getMenuFileControl().openSession(sessionPath.toAbsolutePath().toString());
+                            } else {
+                                createNewSession =
+                                        !control.getMenuFileControl()
+                                                .openSession(
+                                                        sessionPath.toAbsolutePath().toString());
+                            }
+
+                        } else if (getArgs().isEnabled(CommandLine.NEW_SESSION)) {
+                            Path sessionPath =
+                                    SessionUtils.getSessionPath(
+                                            getArgs().getArgument(CommandLine.NEW_SESSION));
+                            if (Files.exists(sessionPath)) {
+                                view.showWarningDialog(
+                                        Constant.messages.getString(
+                                                "start.gui.cmdline.newsession.already.exist",
+                                                Constant.getZapHome()));
+
+                            } else {
+                                createNewSession =
+                                        !control.getMenuFileControl()
+                                                .newSession(
+                                                        sessionPath.toAbsolutePath().toString());
+                            }
+                        }
+                        view.hideSplashScreen();
+
+                        if (createNewSession) {
+                            try {
+                                control.getMenuFileControl().newSession(false);
+                            } catch (Exception e) {
+                                logger.error(e.getMessage(), e);
+                                View.getSingleton()
+                                        .showWarningDialog(
+                                                Constant.messages.getString(
+                                                        "menu.file.newSession.error"));
+                            }
+                        }
                     }
-
-                } else if (getArgs().isEnabled(CommandLine.NEW_SESSION)) {
-                    Path sessionPath = SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.NEW_SESSION));
-                    if (Files.exists(sessionPath)) {
-                        view.showWarningDialog(
-                                Constant.messages
-                                        .getString("start.gui.cmdline.newsession.already.exist", Constant.getZapHome()));
-
-                    } else {
-                        createNewSession = !control.getMenuFileControl().newSession(sessionPath.toAbsolutePath().toString());
-                    }
-                }
-                view.hideSplashScreen();
-
-                if (createNewSession) {
-                    try {
-                        control.getMenuFileControl().newSession(false);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                        View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.newSession.error"));
-                    }
-                }
-
-            }
-        });
+                });
 
         try {
             // Allow extensions to pick up command line args in GUI mode
@@ -324,13 +347,14 @@ public class GuiBootstrap extends ZapBootstrap {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
-            EventQueue.invokeLater(new Runnable() {
+            EventQueue.invokeLater(
+                    new Runnable() {
 
-                @Override
-                public void run() {
-                    view.showWarningDialog(e.getMessage());
-                }
-            });
+                        @Override
+                        public void run() {
+                            view.showWarningDialog(e.getMessage());
+                        }
+                    });
         }
     }
 
@@ -346,10 +370,11 @@ public class GuiBootstrap extends ZapBootstrap {
 
     /**
      * Setups Swing's look and feel.
-     * <p>
-     * <strong>Note:</strong> Should be called only after calling {@link #initModel()}, if not initialising ZAP for the
-     * {@link #isFirstTime() first time}. The look and feel set up might initialise some network classes (e.g.
-     * {@link java.net.InetAddress InetAddress}) preventing some ZAP options from being correctly applied.
+     *
+     * <p><strong>Note:</strong> Should be called only after calling {@link #initModel()}, if not
+     * initialising ZAP for the {@link #isFirstTime() first time}. The look and feel set up might
+     * initialise some network classes (e.g. {@link java.net.InetAddress InetAddress}) preventing
+     * some ZAP options from being correctly applied.
      */
     private void setupLookAndFeel() {
         if (lookAndFeelSet) {
@@ -394,9 +419,9 @@ public class GuiBootstrap extends ZapBootstrap {
                 UIManager.setLookAndFeel(lookAndFeelClassname);
                 return true;
             } catch (final UnsupportedLookAndFeelException
-                           | ClassNotFoundException
-                           | InstantiationException
-                           | IllegalAccessException e) {
+                    | ClassNotFoundException
+                    | InstantiationException
+                    | IllegalAccessException e) {
                 logger.warn("Failed to set the look and feel: " + e.getMessage());
             }
         }
@@ -404,10 +429,11 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Setups ZAP's and GUI {@code Locale}, if not previously defined. Otherwise it's determined automatically or, if not
-     * possible, by asking the user to choose one of the supported locales.
+     * Setups ZAP's and GUI {@code Locale}, if not previously defined. Otherwise it's determined
+     * automatically or, if not possible, by asking the user to choose one of the supported locales.
      *
-     * @param options ZAP's options, used to check if a locale was already defined and save it if not.
+     * @param options ZAP's options, used to check if a locale was already defined and save it if
+     *     not.
      * @see #setDefaultViewLocale(Locale)
      * @see Constant#setLocale(String)
      */
@@ -444,10 +470,12 @@ public class GuiBootstrap extends ZapBootstrap {
 
     /**
      * Determines the {@link Locale} of the current user's system.
-     * <p>
-     * It will match the {@link Constant#getSystemsLocale()} with the available locales from ZAP's translation files.
-     * <p>
-     * It may return {@code null}, if the user's system locale is not in the list of available translations of ZAP.
+     *
+     * <p>It will match the {@link Constant#getSystemsLocale()} with the available locales from
+     * ZAP's translation files.
+     *
+     * <p>It may return {@code null}, if the user's system locale is not in the list of available
+     * translations of ZAP.
      *
      * @return the {@code Locale} that best matches the user's locale, or {@code null} if none found
      */
@@ -465,14 +493,16 @@ public class GuiBootstrap extends ZapBootstrap {
             }
 
             if (langArray.length == 2) {
-                if (systloc.getLanguage().equals(langArray[0]) && systloc.getCountry().equals(langArray[1])) {
+                if (systloc.getLanguage().equals(langArray[0])
+                        && systloc.getCountry().equals(langArray[1])) {
                     userloc = systloc;
                     break;
                 }
             }
 
             if (langArray.length == 3) {
-                if (systloc.getLanguage().equals(langArray[0]) && systloc.getCountry().equals(langArray[1])
+                if (systloc.getLanguage().equals(langArray[0])
+                        && systloc.getCountry().equals(langArray[1])
                         && systloc.getVariant().equals(langArray[2])) {
                     userloc = systloc;
                     break;
@@ -522,40 +552,43 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Shows license dialogue, asynchronously (the method returns immediately after/while showing the dialogue).
-     * <p>
-     * It continues the bootstrap process, by calling {@code init(true)} if the license is accepted. Aborts the bootstrap
-     * process if the license is not accepted.
-     * 
+     * Shows license dialogue, asynchronously (the method returns immediately after/while showing
+     * the dialogue).
+     *
+     * <p>It continues the bootstrap process, by calling {@code init(true)} if the license is
+     * accepted. Aborts the bootstrap process if the license is not accepted.
+     *
      * @see #init(boolean)
      */
     private void showLicense() {
         final LicenseFrame license = new LicenseFrame();
-        license.setPostTask(new Runnable() {
+        license.setPostTask(
+                new Runnable() {
 
-            @Override
-            public void run() {
-                license.dispose();
+                    @Override
+                    public void run() {
+                        license.dispose();
 
-                if (!license.isAccepted()) {
-                    return;
-                }
+                        if (!license.isAccepted()) {
+                            return;
+                        }
 
-                createAcceptedLicenseFile();
+                        createAcceptedLicenseFile();
 
-                init(true);
-            }
-        });
+                        init(true);
+                    }
+                });
         license.setVisible(true);
     }
 
     /**
-     * Warns, through a dialogue, about add-ons and extensions that are no longer runnable because of changes in its
-     * dependencies.
+     * Warns, through a dialogue, about add-ons and extensions that are no longer runnable because
+     * of changes in its dependencies.
      */
     private static void warnAddOnsAndExtensionsNoLongerRunnable() {
         final AddOnLoader addOnLoader = ExtensionFactory.getAddOnLoader();
-        List<String> idsAddOnsNoLongerRunning = addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun();
+        List<String> idsAddOnsNoLongerRunning =
+                addOnLoader.getIdsAddOnsWithRunningIssuesSinceLastRun();
         if (idsAddOnsNoLongerRunning.isEmpty()) {
             return;
         }
@@ -572,10 +605,12 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Tells whether or not ZAP license should be shown, if the license was already accepted it does not need to be shown again.
-     * <p>
-     * The license is considered accepted if a file named {@link Constant#ACCEPTED_LICENSE_DEFAULT AcceptedLicense} exists in
-     * the installation and/or home directory, or if running ZAP in "dev mode".
+     * Tells whether or not ZAP license should be shown, if the license was already accepted it does
+     * not need to be shown again.
+     *
+     * <p>The license is considered accepted if a file named {@link
+     * Constant#ACCEPTED_LICENSE_DEFAULT AcceptedLicense} exists in the installation and/or home
+     * directory, or if running ZAP in "dev mode".
      *
      * @return {@code true} if the license should be shown, {@code false} otherwise.
      */
@@ -584,7 +619,9 @@ public class GuiBootstrap extends ZapBootstrap {
             return false;
         }
 
-        Path acceptedLicenseFile = Paths.get(Constant.getZapInstall(), Constant.getInstance().ACCEPTED_LICENSE_DEFAULT);
+        Path acceptedLicenseFile =
+                Paths.get(
+                        Constant.getZapInstall(), Constant.getInstance().ACCEPTED_LICENSE_DEFAULT);
         if (Files.exists(acceptedLicenseFile)) {
             return false;
         }
@@ -592,8 +629,8 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Tells whether or not ZAP is being started for first time. It does so by checking if the license was not yet been
-     * accepted.
+     * Tells whether or not ZAP is being started for first time. It does so by checking if the
+     * license was not yet been accepted.
      *
      * @return {@code true} if it's the first time, {@code false} otherwise.
      * @see Constant#ACCEPTED_LICENSE

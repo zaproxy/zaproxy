@@ -21,9 +21,7 @@ package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JMenuItem;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -44,137 +42,139 @@ import org.zaproxy.zap.view.popup.ExtensionPopupMenuMessageContainer;
  */
 public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageContainer {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 4454384312614225721L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 4454384312614225721L;
 
-	/** The parent's name. */
-	private String parentName;
+    /** The parent's name. */
+    private String parentName;
 
-	/**
-	 * The sub menus. Used only in the case it is not visible itself, to keep a reference to what
-	 * popup menus it has added in the parent, so it can dynamically update them before each show.
-	 */
-	private List<ExtensionPopupMenuItem> subMenuItems = null;
+    /**
+     * The sub menus. Used only in the case it is not visible itself, to keep a reference to what
+     * popup menus it has added in the parent, so it can dynamically update them before each show.
+     */
+    private List<ExtensionPopupMenuItem> subMenuItems = null;
 
-	/** Whether it is visible itself. */
-	private boolean visibleItself;
+    /** Whether it is visible itself. */
+    private boolean visibleItself;
 
-	/** The user authentication extension. */
-	private ExtensionUserManagement extensionUserAuth;
+    /** The user authentication extension. */
+    private ExtensionUserManagement extensionUserAuth;
 
-	/**
-	 * Instantiates a new popup user menu item holder. This initializes the holder so that the Popup
-	 * Menus for each User are shown as submenus of this Holder.
-	 * 
-	 * @param label the label
-	 * @param parentName the parent menu's name
-	 */
-	public PopupUserMenuItemHolder(String label, String parentName) {
-		super(label);
-		this.parentName = parentName;
-		this.visibleItself = true;
-		// Check whether the User Authentication extension is enabled
-		extensionUserAuth = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
-		if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
-			Logger.getLogger(PopupUserMenuItemHolder.class).warn(
-					ExtensionUserManagement.class
-							+ " is not enabled but is required for getting info about Users.");
-			extensionUserAuth = null;
-		}
-	}
+    /**
+     * Instantiates a new popup user menu item holder. This initializes the holder so that the Popup
+     * Menus for each User are shown as submenus of this Holder.
+     *
+     * @param label the label
+     * @param parentName the parent menu's name
+     */
+    public PopupUserMenuItemHolder(String label, String parentName) {
+        super(label);
+        this.parentName = parentName;
+        this.visibleItself = true;
+        // Check whether the User Authentication extension is enabled
+        extensionUserAuth =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionUserManagement.class);
+        if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
+            Logger.getLogger(PopupUserMenuItemHolder.class)
+                    .warn(
+                            ExtensionUserManagement.class
+                                    + " is not enabled but is required for getting info about Users.");
+            extensionUserAuth = null;
+        }
+    }
 
-	/**
-	 * Instantiates a new popup user menu item holder. This initializes the holder so that the Popup
-	 * Menus for each User are shown as submenus of the parent, the holder not being visible.
-	 * 
-	 * @param parentName the parent menu's name
-	 */
-	public PopupUserMenuItemHolder(String parentName) {
-		super("UserMenuItemHolder");
-		this.parentName = parentName;
-		this.visibleItself = false;
-	}
+    /**
+     * Instantiates a new popup user menu item holder. This initializes the holder so that the Popup
+     * Menus for each User are shown as submenus of the parent, the holder not being visible.
+     *
+     * @param parentName the parent menu's name
+     */
+    public PopupUserMenuItemHolder(String parentName) {
+        super("UserMenuItemHolder");
+        this.parentName = parentName;
+        this.visibleItself = false;
+    }
 
-	@Override
-	public String getParentMenuName() {
-		return this.parentName;
-	}
+    @Override
+    public String getParentMenuName() {
+        return this.parentName;
+    }
 
-	@Override
-	public int getParentMenuIndex() {
-		return 0;
-	}
+    @Override
+    public int getParentMenuIndex() {
+        return 0;
+    }
 
-	@Override
-	public boolean isSubMenu() {
-		return true;
-	}
+    @Override
+    public boolean isSubMenu() {
+        return true;
+    }
 
-	/**
-	 * Gets the submenu items.
-	 * 
-	 * @return the submenu items
-	 */
-	private List<ExtensionPopupMenuItem> getSubmenuItems() {
-		if (subMenuItems == null)
-			subMenuItems = new ArrayList<>();
-		return subMenuItems;
-	}
+    /**
+     * Gets the submenu items.
+     *
+     * @return the submenu items
+     */
+    private List<ExtensionPopupMenuItem> getSubmenuItems() {
+        if (subMenuItems == null) subMenuItems = new ArrayList<>();
+        return subMenuItems;
+    }
 
-	@Override
-	public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
-		resetMenu();
+    @Override
+    public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
+        resetMenu();
 
-		if (extensionUserAuth == null) {
-			return false;
-		}
-		if (visibleItself) {
-			return super.isEnableForMessageContainer(invoker);
-		}
-		return false;
-	}
+        if (extensionUserAuth == null) {
+            return false;
+        }
+        if (visibleItself) {
+            return super.isEnableForMessageContainer(invoker);
+        }
+        return false;
+    }
 
-	private void resetMenu() {
-		final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
-		// Remove existing popup menu items
-		if (visibleItself)
-			this.removeAll();
-		else {
-			for (ExtensionPopupMenuItem menu : getSubmenuItems()) {
-				mainPopupMenuItems.remove(menu);
+    private void resetMenu() {
+        final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
+        // Remove existing popup menu items
+        if (visibleItself) this.removeAll();
+        else {
+            for (ExtensionPopupMenuItem menu : getSubmenuItems()) {
+                mainPopupMenuItems.remove(menu);
+            }
+            subMenuItems.clear();
+        }
 
-			}
-			subMenuItems.clear();
-		}
+        // Add a popup menu item for each existing users
+        Session session = Model.getSingleton().getSession();
+        List<Context> contexts = session.getContexts();
+        for (Context context : contexts) {
+            ContextUserAuthManager manager =
+                    extensionUserAuth.getContextUserAuthManager(context.getIndex());
 
-		// Add a popup menu item for each existing users
-		Session session = Model.getSingleton().getSession();
-		List<Context> contexts = session.getContexts();
-		for (Context context : contexts) {
-			ContextUserAuthManager manager = extensionUserAuth.getContextUserAuthManager(context.getIndex());
+            for (User user : manager.getUsers()) {
+                ExtensionPopupMenuItem piicm;
+                if (visibleItself) {
+                    piicm = getPopupUserMenu(context, user, this.getText());
+                    this.add(piicm);
+                } else {
+                    piicm = getPopupUserMenu(context, user, this.parentName);
+                    piicm.setMenuIndex(this.getMenuIndex());
+                    mainPopupMenuItems.add(piicm);
+                    subMenuItems.add(piicm);
+                }
+            }
+        }
+    }
 
-			for (User user : manager.getUsers()) {
-				ExtensionPopupMenuItem piicm;
-				if (visibleItself) {
-					piicm = getPopupUserMenu(context, user, this.getText());
-					this.add(piicm);
-				} else {
-					piicm = getPopupUserMenu(context, user, this.parentName);
-					piicm.setMenuIndex(this.getMenuIndex());
-					mainPopupMenuItems.add(piicm);
-					subMenuItems.add(piicm);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Gets the {@link PopupUserMenu} associated with a particular user from a particular context.
-	 *
-	 * @param context the context
-	 * @param user the user
-	 * @param parentName the parent menu's name
-	 * @return the popup context menu
-	 */
-	public abstract PopupUserMenu getPopupUserMenu(Context context, User user, String parentName);
+    /**
+     * Gets the {@link PopupUserMenu} associated with a particular user from a particular context.
+     *
+     * @param context the context
+     * @param user the user
+     * @param parentName the parent menu's name
+     * @return the popup context menu
+     */
+    public abstract PopupUserMenu getPopupUserMenu(Context context, User user, String parentName);
 }

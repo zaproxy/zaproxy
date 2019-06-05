@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -24,17 +24,18 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2016/07/25 Change constructor's parameter to PluginFactory
-// ZAP: 2017/06/05 Take into account the enabled state of the plugin when showing the AlertThreshold of the category.
-// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
+// ZAP: 2017/06/05 Take into account the enabled state of the plugin when showing the AlertThreshold
+// of the category.
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is
+// not important).
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.swing.table.DefaultTableModel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -49,8 +50,9 @@ public class AllCategoryTableModel extends DefaultTableModel {
     private static final String[] columnNames = {
         Constant.messages.getString("ascan.policy.table.category"),
         Constant.messages.getString("ascan.policy.table.threshold"),
-        Constant.messages.getString("ascan.policy.table.strength")};
-    
+        Constant.messages.getString("ascan.policy.table.strength")
+    };
+
     private PluginFactory pluginFactory;
 
     /**
@@ -63,7 +65,6 @@ public class AllCategoryTableModel extends DefaultTableModel {
         this.pluginFactory = pluginFactory;
     }
 
-    
     public void setPluginFactory(PluginFactory pluginFactory) {
         this.pluginFactory = pluginFactory;
         fireTableDataChanged();
@@ -73,7 +74,6 @@ public class AllCategoryTableModel extends DefaultTableModel {
     // ZAP: Added the type argument.
     public Class<?> getColumnClass(int c) {
         return String.class;
-
     }
 
     @Override
@@ -94,21 +94,21 @@ public class AllCategoryTableModel extends DefaultTableModel {
         switch (col) {
             case 0:
                 break;
-                
+
             case 1:
                 if (value.toString().isEmpty()) {
                     break;
                 }
-                
+
                 setPluginCategoryThreshold(row, AlertThreshold.valueOf(i18nToStr((String) value)));
                 fireTableCellUpdated(row, col);
                 break;
-                
+
             case 2:
                 if (value.toString().isEmpty()) {
                     break;
                 }
-                
+
                 setPluginCategoryStrength(row, AttackStrength.valueOf(i18nToStr((String) value)));
                 fireTableCellUpdated(row, col);
                 break;
@@ -127,12 +127,12 @@ public class AllCategoryTableModel extends DefaultTableModel {
             for (AlertThreshold at : AlertThreshold.values()) {
                 i18nToStr.put(this.strToI18n(at.name()), at.name());
             }
-            
+
             for (AttackStrength as : AttackStrength.values()) {
                 i18nToStr.put(this.strToI18n(as.name()), as.name());
             }
         }
-        
+
         return i18nToStr.get(str);
     }
 
@@ -153,19 +153,19 @@ public class AllCategoryTableModel extends DefaultTableModel {
             case 0:
                 result = Category.getName(row);
                 break;
-                
+
             case 1:
                 result = getPluginCategoryThreshold(row);
                 break;
-                
+
             case 2:
                 result = getPluginCategoryStrength(row);
                 break;
-                
+
             default:
                 result = "";
         }
-        
+
         return result;
     }
 
@@ -176,27 +176,28 @@ public class AllCategoryTableModel extends DefaultTableModel {
             if (plugin.getCategory() != category) {
                 continue;
             }
-            
+
             if (at == null) {
                 at = getAlertThreshold(plugin);
-                
+
             } else if (!at.equals(getAlertThreshold(plugin))) {
                 // Not all the same
                 return "";
             }
         }
-        
+
         if (at == null) {
             return "";
         }
-        
+
         return strToI18n(at.name());
     }
 
     /**
      * Gets the appropriate {@code AlertThreshold} for the state of the given plugin.
-     * <p>
-     * If the plugin is disabled it returns {@link AlertThreshold#OFF}, otherwise it returns its {@code AlertThreshold}.
+     *
+     * <p>If the plugin is disabled it returns {@link AlertThreshold#OFF}, otherwise it returns its
+     * {@code AlertThreshold}.
      *
      * @param plugin the plugin for which a {@code AlertThreshold} will be returned.
      * @return the appropriate {@code AlertThreshold} for the plugin's state.
@@ -215,20 +216,20 @@ public class AllCategoryTableModel extends DefaultTableModel {
             if (plugin.getCategory() != category) {
                 continue;
             }
-        
+
             if (at == null) {
                 at = plugin.getAttackStrength(true);
-            
+
             } else if (!at.equals(plugin.getAttackStrength(true))) {
                 // Not all the same
                 return "";
             }
         }
-        
+
         if (at == null) {
             return "";
         }
-        
+
         return strToI18n(at.name());
     }
 
@@ -260,10 +261,9 @@ public class AllCategoryTableModel extends DefaultTableModel {
             if (plugin.getCategory() != category) {
                 continue;
             }
-         
+
             plugin.setAttackStrength(at);
         }
-
     }
 
     void setAllCategoryEnabled(boolean enabled) {
@@ -271,7 +271,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
             Plugin plugin = pluginFactory.getAllPlugin().get(i);
             plugin.setEnabled(enabled);
         }
-        
+
         fireTableDataChanged();
     }
 

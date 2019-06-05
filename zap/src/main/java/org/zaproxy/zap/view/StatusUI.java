@@ -22,45 +22,45 @@ package org.zaproxy.zap.view;
 import org.zaproxy.zap.control.AddOn;
 
 /**
- * A utility class for handling various UI elements related to status/quality
- * related to extensions and extension components
+ * A utility class for handling various UI elements related to status/quality related to extensions
+ * and extension components
+ *
  * @since 2.5.0
  */
 public class StatusUI implements Comparable<StatusUI> {
 
-        private final AddOn.Status status;
-        private final String stringRepresentation;
-/**
- * 
- * @param status the AddOn.Status for which the StatusUI should be created
- * @param stringRepresentation the internationalized status string that corresponds 
- * to the AddOn.Status for which the StatusUI is being constructed.
- * If either parameter is null then "unknown" status will be assumed. 
- */
-        public StatusUI(AddOn.Status status, String stringRepresentation) {
-            if (status == null) {
-        		this.status = AddOn.Status.unknown;
-	        } else {
-	        	this.status = status;
-	        }
-            
-            if (stringRepresentation == null || stringRepresentation.isEmpty()) {
-            	this.stringRepresentation = status.toString();
-            } else {
-            	this.stringRepresentation = stringRepresentation;
-            }
-        }
-        
-        @Override
-        public int compareTo(StatusUI o) {
-            if (o == null) {
-                return 1;
-            }
-            return status.compareTo(o.status);
+    private final AddOn.Status status;
+    private final String stringRepresentation;
+    /**
+     * @param status the AddOn.Status for which the StatusUI should be created
+     * @param stringRepresentation the internationalized status string that corresponds to the
+     *     AddOn.Status for which the StatusUI is being constructed. If either parameter is null
+     *     then "unknown" status will be assumed.
+     */
+    public StatusUI(AddOn.Status status, String stringRepresentation) {
+        if (status == null) {
+            this.status = AddOn.Status.unknown;
+        } else {
+            this.status = status;
         }
 
-        @Override
-        public String toString() {
-            return stringRepresentation;
+        if (stringRepresentation == null || stringRepresentation.isEmpty()) {
+            this.stringRepresentation = status.toString();
+        } else {
+            this.stringRepresentation = stringRepresentation;
         }
     }
+
+    @Override
+    public int compareTo(StatusUI o) {
+        if (o == null) {
+            return 1;
+        }
+        return status.compareTo(o.status);
+    }
+
+    @Override
+    public String toString() {
+        return stringRepresentation;
+    }
+}

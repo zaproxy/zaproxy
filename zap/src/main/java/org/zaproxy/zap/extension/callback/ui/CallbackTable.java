@@ -19,10 +19,9 @@
  */
 package org.zaproxy.zap.extension.callback.ui;
 
+import javax.swing.table.TableModel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
-
-import javax.swing.table.TableModel;
 
 public class CallbackTable extends HistoryReferencesTable {
 
@@ -39,7 +38,8 @@ public class CallbackTable extends HistoryReferencesTable {
     @Override
     public void setModel(TableModel tableModel) {
         if (!(tableModel instanceof CallbackTableModel)) {
-            throw new IllegalArgumentException("Parameter tableModel must be a CallbackTableModel.");
+            throw new IllegalArgumentException(
+                    "Parameter tableModel must be a CallbackTableModel.");
         }
 
         super.setModel(tableModel);

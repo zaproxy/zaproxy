@@ -21,65 +21,64 @@
 package org.zaproxy.zap.utils;
 
 import java.util.Vector;
-
 import javax.swing.DefaultComboBoxModel;
 
 public class SortedComboBoxModel<E extends Comparable<E>> extends DefaultComboBoxModel<E> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public SortedComboBoxModel() {
-		super();
-	}
+    public SortedComboBoxModel() {
+        super();
+    }
 
-	public SortedComboBoxModel(E[] items) {
-		super( items );
-	}
+    public SortedComboBoxModel(E[] items) {
+        super(items);
+    }
 
-	public SortedComboBoxModel(Vector<E> items) {
-		super( items );
-	}
+    public SortedComboBoxModel(Vector<E> items) {
+        super(items);
+    }
 
-	@Override
-	public void addElement(E element) {
-		int size = getSize();
+    @Override
+    public void addElement(E element) {
+        int size = getSize();
 
-		if (size == 0) {
-			super.addElement(element);
-			return;
-		}
-		
-		//  Determine where to insert element to keep list in sorted order
+        if (size == 0) {
+            super.addElement(element);
+            return;
+        }
 
-		int index = 0;
-		for (; index < size; index++) {
-			if (getElementAt(index).compareTo(element) > 0) {
-				break;
-			}
-		}
+        //  Determine where to insert element to keep list in sorted order
 
-		super.insertElementAt(element, index);
-	}
+        int index = 0;
+        for (; index < size; index++) {
+            if (getElementAt(index).compareTo(element) > 0) {
+                break;
+            }
+        }
 
-	@Override
-	public void insertElementAt(E element, int index) {
-		addElement( element );
-	}
+        super.insertElementAt(element, index);
+    }
 
-	/**
-	 * Notifies the listeners that the given {@code element} of the combo box model was changed.
-	 * <p>
-	 * The call to this method has no effect if the given {@code element} doesn't exist in the combo box model.
-	 * </p>
-	 * 
-	 * @param element the element that was changed.
-	 * @since 2.3.0
-	 */
-	public void elementChanged(E element) {
-		int idx = getIndexOf(element);
-		if (idx < 0) {
-			return;
-		}
-		super.fireContentsChanged(this, idx, idx);
-	}
+    @Override
+    public void insertElementAt(E element, int index) {
+        addElement(element);
+    }
+
+    /**
+     * Notifies the listeners that the given {@code element} of the combo box model was changed.
+     *
+     * <p>The call to this method has no effect if the given {@code element} doesn't exist in the
+     * combo box model.
+     *
+     * @param element the element that was changed.
+     * @since 2.3.0
+     */
+    public void elementChanged(E element) {
+        int idx = getIndexOf(element);
+        if (idx < 0) {
+            return;
+        }
+        super.fireContentsChanged(this, idx, idx);
+    }
 }

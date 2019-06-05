@@ -19,22 +19,19 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.awt.*;
+import javax.swing.text.JTextComponent;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
-
-import javax.swing.text.JTextComponent;
-import java.awt.*;
 
 public class PopupPasteMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
     private JTextComponent lastInvoker = null;
 
-
     public JTextComponent getLastInvoker() {
         return lastInvoker;
     }
-
 
     public PopupPasteMenu() {
         super();

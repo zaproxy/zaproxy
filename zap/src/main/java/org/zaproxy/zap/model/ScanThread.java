@@ -21,59 +21,58 @@ package org.zaproxy.zap.model;
 
 import org.parosproxy.paros.model.SiteNode;
 
-
 public abstract class ScanThread extends Thread implements GenericScanner {
 
-	protected String site;
-	protected ScanListenner listenner;
-	protected int progress = 0;
-	protected SiteNode startNode = null;
-	
-	public ScanThread (String site, ScanListenner listenner) {
-		this.site = site;
-		this.listenner = listenner;
-	}
-	
-	public void scanProgress(String host, int progress, int maximum) {
-		if (progress > this.progress) {
-			this.progress = progress;
-			this.listenner.scanProgress(site, progress, maximum);
-		}
-	}
+    protected String site;
+    protected ScanListenner listenner;
+    protected int progress = 0;
+    protected SiteNode startNode = null;
 
-	@Override
-	public SiteNode getStartNode() {
-		return startNode;
-	}
+    public ScanThread(String site, ScanListenner listenner) {
+        this.site = site;
+        this.listenner = listenner;
+    }
 
-	@Override
-	public void setStartNode(SiteNode startNode) {
-		this.startNode = startNode;
-	}
+    public void scanProgress(String host, int progress, int maximum) {
+        if (progress > this.progress) {
+            this.progress = progress;
+            this.listenner.scanProgress(site, progress, maximum);
+        }
+    }
 
-	@Override
-	public abstract void stopScan();
+    @Override
+    public SiteNode getStartNode() {
+        return startNode;
+    }
 
-	@Override
-	public abstract boolean isStopped();
+    @Override
+    public void setStartNode(SiteNode startNode) {
+        this.startNode = startNode;
+    }
 
-	@Override
-	public String getSite() {
-		return site;
-	}
-	
-	@Override
-	public abstract int getProgress ();
+    @Override
+    public abstract void stopScan();
 
-	@Override
-	public abstract int getMaximum ();
-	
-	@Override
-	public abstract void pauseScan();
+    @Override
+    public abstract boolean isStopped();
 
-	@Override
-	public abstract void resumeScan();
-	
-	@Override
-	public abstract boolean isPaused();
+    @Override
+    public String getSite() {
+        return site;
+    }
+
+    @Override
+    public abstract int getProgress();
+
+    @Override
+    public abstract int getMaximum();
+
+    @Override
+    public abstract void pauseScan();
+
+    @Override
+    public abstract void resumeScan();
+
+    @Override
+    public abstract boolean isPaused();
 }

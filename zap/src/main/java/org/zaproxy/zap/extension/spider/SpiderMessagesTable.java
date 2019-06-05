@@ -20,13 +20,11 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SortOrder;
 import javax.swing.table.TableModel;
-
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -55,17 +53,25 @@ class SpiderMessagesTable extends HistoryReferencesTable {
         setAutoCreateColumnsFromModel(false);
 
         getColumnExt(0)
-                .setCellRenderer(new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+                .setCellRenderer(
+                        new DefaultTableRenderer(
+                                new MappedValue(StringValues.EMPTY, IconValues.NONE),
+                                JLabel.CENTER));
         getColumnExt(0).setHighlighters(new ProcessedCellItemIconHighlighter(0));
 
-        getColumnExt(Constant.messages.getString("view.href.table.header.hrefid")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody")).setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.hrefid"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody"))
+                .setVisible(false);
 
         setSortOrder(1, SortOrder.ASCENDING);
 
-        extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
+        extensionHistory =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
     }
 
     @Override
@@ -86,7 +92,8 @@ class SpiderMessagesTable extends HistoryReferencesTable {
             return null;
         }
 
-        if (extensionHistory == null || extensionHistory.getHistoryReference(historyReference.getHistoryId()) == null) {
+        if (extensionHistory == null
+                || extensionHistory.getHistoryReference(historyReference.getHistoryId()) == null) {
             // Associated message was deleted in the meantime.
             return null;
         }
@@ -95,20 +102,20 @@ class SpiderMessagesTable extends HistoryReferencesTable {
     }
 
     /**
-     * A {@link org.jdesktop.swingx.decorator.Highlighter Highlighter} for a column that indicates, using icons and text,
-     * whether or not an entry was processed, that is, is or not in scope.
-     * <p>
-     * The expected type/class of the cell values is {@code ProcessedCellItem}.
+     * A {@link org.jdesktop.swingx.decorator.Highlighter Highlighter} for a column that indicates,
+     * using icons and text, whether or not an entry was processed, that is, is or not in scope.
+     *
+     * <p>The expected type/class of the cell values is {@code ProcessedCellItem}.
      */
     private static class ProcessedCellItemIconHighlighter extends AbstractHighlighter {
 
         /** The icon that indicates the entry was processed. */
-        private static final ImageIcon PROCESSED_ICON = new ImageIcon(
-                SpiderMessagesTable.class.getResource("/resource/icon/16/152.png"));
+        private static final ImageIcon PROCESSED_ICON =
+                new ImageIcon(SpiderMessagesTable.class.getResource("/resource/icon/16/152.png"));
 
         /** The icon that indicates the entry was not processed. */
-        private static final ImageIcon NOT_PROCESSED_ICON = new ImageIcon(
-                SpiderMessagesTable.class.getResource("/resource/icon/16/149.png"));
+        private static final ImageIcon NOT_PROCESSED_ICON =
+                new ImageIcon(SpiderMessagesTable.class.getResource("/resource/icon/16/149.png"));
 
         private final int columnIndex;
 
@@ -141,13 +148,15 @@ class SpiderMessagesTable extends HistoryReferencesTable {
 
         /**
          * {@inheritDoc}
-         * <p>
-         * Overridden to return true if the component is of type IconAware or of type JLabel, false otherwise.
-         * <p>
-         * Note: special casing JLabel is for backward compatibility - application highlighting code which doesn't use the
-         * Swingx renderers would stop working otherwise.
+         *
+         * <p>Overridden to return true if the component is of type IconAware or of type JLabel,
+         * false otherwise.
+         *
+         * <p>Note: special casing JLabel is for backward compatibility - application highlighting
+         * code which doesn't use the Swingx renderers would stop working otherwise.
          */
-        // Method/JavaDoc copied from org.jdesktop.swingx.decorator.IconHighlighter#canHighlight(Component, ComponentAdapter)
+        // Method/JavaDoc copied from
+        // org.jdesktop.swingx.decorator.IconHighlighter#canHighlight(Component, ComponentAdapter)
         @Override
         protected boolean canHighlight(final Component component, final ComponentAdapter adapter) {
             return component instanceof IconAware || component instanceof JLabel;

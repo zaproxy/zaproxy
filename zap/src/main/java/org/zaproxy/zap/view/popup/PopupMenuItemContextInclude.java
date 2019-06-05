@@ -21,9 +21,7 @@ package org.zaproxy.zap.view.popup;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JMenuItem;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -32,19 +30,14 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
-/**
- * @since 2.3.0
- */
+/** @since 2.3.0 */
 public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 3790264690466717219L;
 
     private List<ExtensionPopupMenuItem> subMenus = new ArrayList<>();
 
-    /**
-     * This method initializes
-     * 
-     */
+    /** This method initializes */
     public PopupMenuItemContextInclude() {
         super("IncludeInContextX", true);
     }
@@ -80,7 +73,6 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
         final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
         for (ExtensionPopupMenuItem menu : subMenus) {
             mainPopupMenuItems.remove(menu);
-
         }
         subMenus.clear();
 
@@ -110,5 +102,4 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
     public boolean isSafe() {
         return true;
     }
-
 }

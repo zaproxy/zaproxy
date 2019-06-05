@@ -21,22 +21,21 @@ package org.zaproxy.zap.view;
 
 import java.util.Collections;
 import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 
 public class ContextListTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final String[] columnNames = {
-				Constant.messages.getString("context.list.table.index"),
-				Constant.messages.getString("context.list.table.name"),
-				Constant.messages.getString("context.list.table.inscope")};
-    
+    private static final String[] columnNames = {
+        Constant.messages.getString("context.list.table.index"),
+        Constant.messages.getString("context.list.table.name"),
+        Constant.messages.getString("context.list.table.inscope")
+    };
+
     private List<Object[]> values = Collections.emptyList();
-    
+
     public ContextListTableModel() {
         super();
     }
@@ -56,54 +55,58 @@ public class ContextListTableModel extends AbstractTableModel {
         Object[] value = this.values.get(row);
         return value[col];
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-		switch (columnIndex) {
-		case 0:	return false;
-		case 1:	return false;
-		case 2: return false;		// TODO ideally want to be able to change this here...
-		default: return false;
-		}
+        switch (columnIndex) {
+            case 0:
+                return false;
+            case 1:
+                return false;
+            case 2:
+                return false; // TODO ideally want to be able to change this here...
+            default:
+                return false;
+        }
     }
-    
-    
+
     @Override
     public void setValueAt(Object value, int row, int col) {
-    	if (col == 2) {
-    		this.values.get(row)[col] = value;
-    		fireTableCellUpdated(row, col);
-    	}
+        if (col == 2) {
+            this.values.get(row)[col] = value;
+            fireTableCellUpdated(row, col);
+        }
     }
 
-	@Override
-	public String getColumnName(int col) {
+    @Override
+    public String getColumnName(int col) {
         return columnNames[col];
     }
-    
-	@Override
-	public Class<?> getColumnClass(int c) {
-		switch (c) {
-		case 0:	return Integer.class;
-		case 1:	return String.class;
-		case 2: return Boolean.class;
-    	}
+
+    @Override
+    public Class<?> getColumnClass(int c) {
+        switch (c) {
+            case 0:
+                return Integer.class;
+            case 1:
+                return String.class;
+            case 2:
+                return Boolean.class;
+        }
         return null;
-        
     }
 
-	public List<Object[]> getValues() {
-		return values;
-	}
+    public List<Object[]> getValues() {
+        return values;
+    }
 
-	public void setValues(List<Object[]> values) {
-		this.values = values;
-		this.fireTableDataChanged();
-	}
+    public void setValues(List<Object[]> values) {
+        this.values = values;
+        this.fireTableDataChanged();
+    }
 
-	public void addValues(Object[] values) {
-		this.values.add(values);
-		this.fireTableDataChanged();
-	}
-
+    public void addValues(Object[] values) {
+        this.values.add(values);
+        this.fireTableDataChanged();
+    }
 }

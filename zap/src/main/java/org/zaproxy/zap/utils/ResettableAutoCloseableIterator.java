@@ -21,7 +21,7 @@ package org.zaproxy.zap.utils;
 
 /**
  * A {@code ResettableIterator} that must be closed.
- * 
+ *
  * @param <E> the type of elements returned by this iterator
  * @see ResettableIterator
  * @see AutoCloseable

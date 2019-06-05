@@ -29,20 +29,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-/**
- * Unit test for {@link Constant}.
- */
+/** Unit test for {@link Constant}. */
 public class ConstantUnitTest {
 
-    @ClassRule
-    public static TemporaryFolder tempDir = new TemporaryFolder();
+    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
     private Path zapInstallDir;
     private Path zapHomeDir;
 
@@ -113,7 +109,8 @@ public class ConstantUnitTest {
     }
 
     private static String defaultContents(String name) throws IOException {
-        try (InputStream is = Constant.class.getResourceAsStream("/org/zaproxy/zap/resources/" + name)) {
+        try (InputStream is =
+                Constant.class.getResourceAsStream("/org/zaproxy/zap/resources/" + name)) {
             if (is == null) {
                 throw new IOException("File not found: " + name);
             }
@@ -139,10 +136,14 @@ public class ConstantUnitTest {
     }
 
     private String getNameBackupMalformedConfig() throws IOException {
-        Optional<Path> file = Files.list(zapHomeDir).filter(f -> {
-            String name = f.getFileName().toString();
-            return name.startsWith("config-") && name.endsWith(".xml.bak");
-        }).findFirst();
+        Optional<Path> file =
+                Files.list(zapHomeDir)
+                        .filter(
+                                f -> {
+                                    String name = f.getFileName().toString();
+                                    return name.startsWith("config-") && name.endsWith(".xml.bak");
+                                })
+                        .findFirst();
 
         if (file.isPresent()) {
             return file.get().getFileName().toString();

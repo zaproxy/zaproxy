@@ -26,15 +26,12 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- * Unit test for {@link AbstractParam}.
- */
+/** Unit test for {@link AbstractParam}. */
 public class AbstractParamUnitTest {
 
     private static final String VALUE_KEY = "config.value";
@@ -115,7 +112,8 @@ public class AbstractParamUnitTest {
             }
 
             value = getConfig().getString(VALUE_KEY);
-            List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(VALUES_KEY);
+            List<HierarchicalConfiguration> fields =
+                    ((HierarchicalConfiguration) getConfig()).configurationsAt(VALUES_KEY);
             values = new ArrayList<>(fields.size());
             for (HierarchicalConfiguration sub : fields) {
                 values.add(sub.getString(VALUES_VALUE_KEY));

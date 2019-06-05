@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -22,10 +22,10 @@
 // ZAP: 2011/09/06 Fix alert save plus concurrent mod exceptions
 // ZAP: 2011/11/04 Correct getHierarchicNodeName
 // ZAP: 2011/11/29 Added blank image to node names to fix redrawing issue
-// ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap 
+// ZAP: 2012/02/11 Re-ordered icons, added spider icon and notify via SiteMap
 // ZAP: 2012/03/11 Issue 280: Escape URLs in sites tree
-// ZAP: 2012/03/15 Changed the method toString to use the class StringBuilder 
-//      and reworked the method toString and getIcons. Renamed the method 
+// ZAP: 2012/03/15 Changed the method toString to use the class StringBuilder
+//      and reworked the method toString and getIcons. Renamed the method
 //      getIcons to appendIcons.
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
@@ -50,10 +50,12 @@
 // ZAP: 2016/04/12 Notify of changes when an alert is updated
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
 // ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
-// ZAP: 2017/07/09: Issue 3727: Add getName() function, returning the node name without HTTP method (verb)
+// ZAP: 2017/07/09: Issue 3727: Add getName() function, returning the node name without HTTP method
+// (verb)
 // ZAP: 2018/01/24 Clear highest alert when all deleted.
 // ZAP: 2018/05/29 Allow to use add-on icons in SiteNode.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -65,11 +67,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
-
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -79,19 +79,19 @@ import org.zaproxy.zap.model.SessionStructure;
 
 public class SiteNode extends DefaultMutableTreeNode {
 
-	private static final long serialVersionUID = 7987615016786179150L;
+    private static final long serialVersionUID = 7987615016786179150L;
 
-	private String nodeName = null;
-	private String hierarchicNodeName = null;
+    private String nodeName = null;
+    private String hierarchicNodeName = null;
     private HistoryReference historyReference = null;
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
-	// ZAP: Support for linking Alerts to SiteNodes
+    // ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-	private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<Alert>());
-	private boolean justSpidered = false;
-	//private boolean justAJAXSpidered = false;
-	private ArrayList<String> icons = null;
-	private ArrayList<Boolean> clearIfManual = null;
+    private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<Alert>());
+    private boolean justSpidered = false;
+    // private boolean justAJAXSpidered = false;
+    private ArrayList<String> icons = null;
+    private ArrayList<Boolean> clearIfManual = null;
 
     private static Logger log = Logger.getLogger(SiteNode.class);
     private boolean isIncludedInScope = false;
@@ -100,14 +100,14 @@ public class SiteNode extends DefaultMutableTreeNode {
     private boolean dataDriven = false;
 
     /**
-     * Flag that indicates whether or not the {@link #calculateHighestAlert() highest alert needs to be calculated}, when
-     * {@link #toString() building the string representation}.
+     * Flag that indicates whether or not the {@link #calculateHighestAlert() highest alert needs to
+     * be calculated}, when {@link #toString() building the string representation}.
      */
     private boolean calculateHighestAlert;
 
     /**
      * The {@code Alert} with highest risk (and not a false positive).
-     * 
+     *
      * @see #isHighestAlert(Alert)
      */
     private Alert highestAlert;
@@ -115,48 +115,49 @@ public class SiteNode extends DefaultMutableTreeNode {
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
-		this.nodeName = nodeName;
-		if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
-			this.dataDriven = true; 
-		}
-		this.icons = new ArrayList<>();
-		this.clearIfManual = new ArrayList<>();
-		if (type == HistoryReference.TYPE_SPIDER) {
-			this.justSpidered = true;
-		}
-	}
-    
+        this.nodeName = nodeName;
+        if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
+            this.dataDriven = true;
+        }
+        this.icons = new ArrayList<>();
+        this.clearIfManual = new ArrayList<>();
+        if (type == HistoryReference.TYPE_SPIDER) {
+            this.justSpidered = true;
+        }
+    }
+
     public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
-    	synchronized (this.icons) {
-    		this.icons.clear();
-    		this.icons.addAll(i);
-    		this.clearIfManual = c;
-    	}
+        synchronized (this.icons) {
+            this.icons.clear();
+            this.icons.addAll(i);
+            this.clearIfManual = c;
+        }
     }
-    
+
     public void addCustomIcon(String resourceName, boolean clearIfManual) {
-    	synchronized (this.icons) {  
-	    	if (! this.icons.contains(resourceName)) {
-		    	this.icons.add(resourceName);
-		    	this.clearIfManual.add(clearIfManual);
-		    	this.nodeChanged();
-	    	}
-    	}
+        synchronized (this.icons) {
+            if (!this.icons.contains(resourceName)) {
+                this.icons.add(resourceName);
+                this.clearIfManual.add(clearIfManual);
+                this.nodeChanged();
+            }
+        }
     }
-    
+
     public void removeCustomIcon(String resourceName) {
-    	synchronized (this.icons) {  
-	    	if (this.icons.contains(resourceName)) {
-	    		int i = this.icons.indexOf(resourceName);
-	    		this.icons.remove(i);
-	    		this.clearIfManual.remove(i);
-	    		this.nodeChanged();
-	    	}
-    	}
+        synchronized (this.icons) {
+            if (this.icons.contains(resourceName)) {
+                int i = this.icons.indexOf(resourceName);
+                this.icons.remove(i);
+                this.clearIfManual.remove(i);
+                this.nodeChanged();
+            }
+        }
     }
 
     /**
      * Gets any custom icons that have been set for this node
+     *
      * @return any custom icons that have been set for this node
      * @since 2.6.0
      */
@@ -165,9 +166,9 @@ public class SiteNode extends DefaultMutableTreeNode {
         if (justSpidered) {
             iconList.add(new ImageIcon(Constant.class.getResource("/resource/icon/10/spider.png")));
         }
-        synchronized (this.icons) {  
+        synchronized (this.icons) {
             if (!this.icons.isEmpty()) {
-                for (Iterator<String> it = icons.iterator(); it.hasNext();) {
+                for (Iterator<String> it = icons.iterator(); it.hasNext(); ) {
                     String icon = it.next();
                     URL url = Constant.class.getResource(icon);
                     if (url == null) {
@@ -189,10 +190,11 @@ public class SiteNode extends DefaultMutableTreeNode {
 
     /**
      * Calculates the highest alert.
-     * <p>
-     * After a call to this method the {@link #highestAlert} will have the highest alert (or {@code null} if none) and the flag
-     * {@link #calculateHighestAlert} will have the value {@code false}.
-     * 
+     *
+     * <p>After a call to this method the {@link #highestAlert} will have the highest alert (or
+     * {@code null} if none) and the flag {@link #calculateHighestAlert} will have the value {@code
+     * false}.
+     *
      * @see #isHighestAlert(Alert)
      */
     private void calculateHighestAlert() {
@@ -208,9 +210,10 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
 
     /**
-     * Tells whether or not the given alert is the alert with highest risk than the current highest alert.
-     * <p>
-     * {@link Alert#CONFIDENCE_FALSE_POSITIVE False positive alerts} are ignored.
+     * Tells whether or not the given alert is the alert with highest risk than the current highest
+     * alert.
+     *
+     * <p>{@link Alert#CONFIDENCE_FALSE_POSITIVE False positive alerts} are ignored.
      *
      * @param alert the alert to check
      * @return {@code true} if it's the alert with highest risk, {@code false} otherwise.
@@ -224,11 +227,11 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         return alert.getRisk() > highestAlert.getRisk();
     }
-    
+
     public Alert getHighestAlert() {
         return this.highestAlert;
     }
-    
+
     @Override
     public String toString() {
         if (calculateHighestAlert) {
@@ -236,134 +239,140 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         return nodeName;
     }
-    
-    public boolean isParentOf (String nodeName) {
-    	if (nodeName == null) {
-    		return false;
-    	}
+
+    public boolean isParentOf(String nodeName) {
+        if (nodeName == null) {
+            return false;
+        }
         return nodeName.compareTo(this.nodeName) < 0;
     }
 
     public String getNodeName() {
-    	return this.nodeName;
+        return this.nodeName;
     }
-    
-	/**
-	 * Returns the node's name without the HTTP Method (verb) prefixing the string.
-	 * 
-	 * @return the name of the site node
-	 * @see #getNodeName()
-	 * @see #getCleanNodeName()
-	 * @see #getCleanNodeName(boolean)
-	 * @since 2.7.0
-	 */
-	public String getName() {
-		String name = this.getNodeName();
-		if (this.isLeaf()) {
-			int colonIndex = name.indexOf(":");
-			if (colonIndex > 0) {
-				// Strip the GET/POST etc off
-				name = name.substring(colonIndex+1);
-			}
-		}
-		return name; 
-	}
+
+    /**
+     * Returns the node's name without the HTTP Method (verb) prefixing the string.
+     *
+     * @return the name of the site node
+     * @see #getNodeName()
+     * @see #getCleanNodeName()
+     * @see #getCleanNodeName(boolean)
+     * @since 2.7.0
+     */
+    public String getName() {
+        String name = this.getNodeName();
+        if (this.isLeaf()) {
+            int colonIndex = name.indexOf(":");
+            if (colonIndex > 0) {
+                // Strip the GET/POST etc off
+                name = name.substring(colonIndex + 1);
+            }
+        }
+        return name;
+    }
 
     public String getCleanNodeName() {
-    	return getCleanNodeName(true);
+        return getCleanNodeName(true);
     }
 
     public String getCleanNodeName(boolean specialNodesAsRegex) {
-    	String name = this.getNodeName();
-    	if (specialNodesAsRegex && this.isDataDriven()) {
-    		// Non-greedy regex pattern 
-			name = "(.+?)";
+        String name = this.getNodeName();
+        if (specialNodesAsRegex && this.isDataDriven()) {
+            // Non-greedy regex pattern
+            name = "(.+?)";
 
-    	} else if (this.isLeaf()) {
-    		int colonIndex = name.indexOf(":");
-    		if (colonIndex > 0) {
-    			// Strip the GET/POST etc off
-    			name = name.substring(colonIndex+1);
-    		}
-    		int bracketIndex = name.lastIndexOf("(");
-    		if (bracketIndex > 0) {
-    			// Strip the param summary off
-    			name = name.substring(0, bracketIndex);
-    		}
-    		int quesIndex = name.indexOf("?");
-    		if (quesIndex > 0) {
-    			// Strip the parameters off
-    			name = name.substring(0, quesIndex);
-    		}
-    	}
-    	return name;
+        } else if (this.isLeaf()) {
+            int colonIndex = name.indexOf(":");
+            if (colonIndex > 0) {
+                // Strip the GET/POST etc off
+                name = name.substring(colonIndex + 1);
+            }
+            int bracketIndex = name.lastIndexOf("(");
+            if (bracketIndex > 0) {
+                // Strip the param summary off
+                name = name.substring(0, bracketIndex);
+            }
+            int quesIndex = name.indexOf("?");
+            if (quesIndex > 0) {
+                // Strip the parameters off
+                name = name.substring(0, quesIndex);
+            }
+        }
+        return name;
     }
 
     public String getHierarchicNodeName() {
-    	return getHierarchicNodeName(true);
+        return getHierarchicNodeName(true);
     }
 
     public String getHierarchicNodeName(boolean specialNodesAsRegex) {
-		if (hierarchicNodeName != null && specialNodesAsRegex) {
-			// The regex version is used most frequently, so cache
-			return hierarchicNodeName;
-		}
+        if (hierarchicNodeName != null && specialNodesAsRegex) {
+            // The regex version is used most frequently, so cache
+            return hierarchicNodeName;
+        }
 
-    	if (this.isRoot()) {
-    		hierarchicNodeName = "";
-    	} else if (this.getParent().isRoot()) {
-    		hierarchicNodeName = this.getNodeName();
-    	} else {
-    		String name = 
-        			this.getParent().getHierarchicNodeName(specialNodesAsRegex) + "/" + 
-        					this.getCleanNodeName(specialNodesAsRegex);
-    		if (!specialNodesAsRegex) {
-    			// Dont cache the non regex version
-    			return name;
-    		}
-    		hierarchicNodeName = name;
-    	}
-    	return hierarchicNodeName;
+        if (this.isRoot()) {
+            hierarchicNodeName = "";
+        } else if (this.getParent().isRoot()) {
+            hierarchicNodeName = this.getNodeName();
+        } else {
+            String name =
+                    this.getParent().getHierarchicNodeName(specialNodesAsRegex)
+                            + "/"
+                            + this.getCleanNodeName(specialNodesAsRegex);
+            if (!specialNodesAsRegex) {
+                // Dont cache the non regex version
+                return name;
+            }
+            hierarchicNodeName = name;
+        }
+        return hierarchicNodeName;
     }
-    
+
     public HistoryReference getHistoryReference() {
         return historyReference;
     }
-    
+
     /**
-     * Set current node reference.
-     * If there is any existing reference, delete if spider record.
+     * Set current node reference. If there is any existing reference, delete if spider record.
      * Otherwise, put into past history list.
+     *
      * @param historyReference
      */
     public void setHistoryReference(HistoryReference historyReference) {
-    	
+
         if (getHistoryReference() != null) {
-//            if (getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER) {
-//                getHistoryReference().delete();
-//                getHistoryReference().setSiteNode(null);
-//            } else if (!getPastHistoryReference().contains(historyReference)) {
-//                getPastHistoryReference().add(getHistoryReference());
-//            }
-            
-        	if (this.justSpidered && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED ||
-        	        historyReference.getHistoryType() == HistoryReference.TYPE_ZAP_USER)) {
-        		this.justSpidered = false;
-        		this.nodeChanged();
-        	}
-			// we remove the icons of the node that has to be cleaned when manually visiting them
-			if (!this.icons.isEmpty() && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED ||
-			        historyReference.getHistoryType() == HistoryReference.TYPE_ZAP_USER)) {
-		    	synchronized (this.icons) {  
-					for (int i = 0; i < this.clearIfManual.size(); ++i) {
-						if (this.clearIfManual.get(i) && this.icons.size() > i) {
-							this.icons.remove(i);
-							this.clearIfManual.remove(i);
-						}
-					}
-		    	}
-        		this.nodeChanged();
-    		}
+            //            if (getHistoryReference().getHistoryType() ==
+            // HistoryReference.TYPE_SPIDER) {
+            //                getHistoryReference().delete();
+            //                getHistoryReference().setSiteNode(null);
+            //            } else if (!getPastHistoryReference().contains(historyReference)) {
+            //                getPastHistoryReference().add(getHistoryReference());
+            //            }
+
+            if (this.justSpidered
+                    && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED
+                            || historyReference.getHistoryType()
+                                    == HistoryReference.TYPE_ZAP_USER)) {
+                this.justSpidered = false;
+                this.nodeChanged();
+            }
+            // we remove the icons of the node that has to be cleaned when manually visiting them
+            if (!this.icons.isEmpty()
+                    && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED
+                            || historyReference.getHistoryType()
+                                    == HistoryReference.TYPE_ZAP_USER)) {
+                synchronized (this.icons) {
+                    for (int i = 0; i < this.clearIfManual.size(); ++i) {
+                        if (this.clearIfManual.get(i) && this.icons.size() > i) {
+                            this.icons.remove(i);
+                            this.clearIfManual.remove(i);
+                        }
+                    }
+                }
+                this.nodeChanged();
+            }
             if (HistoryReference.TYPE_SCANNER == historyReference.getHistoryType()) {
                 getPastHistoryReference().add(historyReference);
                 return;
@@ -374,25 +383,26 @@ public class SiteNode extends DefaultMutableTreeNode {
                 getPastHistoryReference().add(getHistoryReference());
             }
         }
-        
+
         this.historyReference = historyReference;
         this.historyReference.setSiteNode(this);
-    }    
-    
+    }
+
     private void nodeChanged() {
-    	if (this.siteMap == null || !View.isInitialised()) {
-    		return;
-    	}
+        if (this.siteMap == null || !View.isInitialised()) {
+            return;
+        }
         if (EventQueue.isDispatchThread()) {
-        	nodeChangedEventHandler();
+            nodeChangedEventHandler();
         } else {
             try {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                    	nodeChangedEventHandler();
-                    }
-                });
+                EventQueue.invokeLater(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                nodeChangedEventHandler();
+                            }
+                        });
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -400,47 +410,47 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
 
     private void nodeChangedEventHandler() {
-		this.siteMap.nodeChanged(this);
+        this.siteMap.nodeChanged(this);
     }
-    
+
     public Vector<HistoryReference> getPastHistoryReference() {
         return pastHistoryList;
     }
-    
+
     public boolean hasAlert(Alert alert) {
-    	if (alert == null) {
-    		throw new IllegalArgumentException("Alert must not be null");
-    	}
-    	return alerts.contains(alert);
+        if (alert == null) {
+            throw new IllegalArgumentException("Alert must not be null");
+        }
+        return alerts.contains(alert);
     }
-    
+
     public void addAlert(Alert alert) {
-    	if (alert == null) {
-    		throw new IllegalArgumentException("Alert must not be null");
-    	}
-    	if (!this.alerts.add(alert)) {
-    		return;
-    	}
-    	if (isHighestAlert(alert)) {
-    		highestAlert = alert;
-    	}
-    	if (this.getParent() != null) {
- 			this.getParent().addAlert(alert);
-    	}
-    	if (this.siteMap != null) {
-    		// Adding alert might affect the nodes visibility in a filtered tree
-    		siteMap.applyFilter(this);
-    	}
-		this.nodeChanged();
+        if (alert == null) {
+            throw new IllegalArgumentException("Alert must not be null");
+        }
+        if (!this.alerts.add(alert)) {
+            return;
+        }
+        if (isHighestAlert(alert)) {
+            highestAlert = alert;
+        }
+        if (this.getParent() != null) {
+            this.getParent().addAlert(alert);
+        }
+        if (this.siteMap != null) {
+            // Adding alert might affect the nodes visibility in a filtered tree
+            siteMap.applyFilter(this);
+        }
+        this.nodeChanged();
     }
-    
+
     public void updateAlert(Alert alert) {
-    	if (alert == null) {
-    		throw new IllegalArgumentException("Alert must not be null");
-    	}
-    	boolean updated = false;
-    	synchronized (alerts) {
-            for (Iterator<Alert> it = alerts.iterator(); it.hasNext();) {
+        if (alert == null) {
+            throw new IllegalArgumentException("Alert must not be null");
+        }
+        boolean updated = false;
+        synchronized (alerts) {
+            for (Iterator<Alert> it = alerts.iterator(); it.hasNext(); ) {
                 if (it.next().getAlertId() == alert.getAlertId()) {
                     it.remove();
                     updated = true;
@@ -462,11 +472,11 @@ public class SiteNode extends DefaultMutableTreeNode {
             this.nodeChanged();
         }
     }
-    
+
     /**
      * Gets the alerts of the node.
-     * <p>
-     * The returned {@code List} is a copy of the internal collection.
+     *
+     * <p>The returned {@code List} is a copy of the internal collection.
      *
      * @return a new {@code List} containing the {@code Alert}s
      */
@@ -475,59 +485,59 @@ public class SiteNode extends DefaultMutableTreeNode {
             return new ArrayList<>(alerts);
         }
     }
-    
-    private void clearChildAlert (Alert alert, SiteNode child) {
-    	// Alerts are propagated up, which means when one is deleted we need to work out if it still
-    	// is present in another child node
-    	boolean removed = true;
-    	alerts.remove(alert);
-		if (this.getChildCount() > 0) {
-	    	SiteNode c = (SiteNode) this.getFirstChild();
-	    	while (c != null) {
-	    		if (! c.equals(child)) {
-	    			if (c.hasAlert(alert)) {
-	    				alerts.add(alert);
-	    				removed = false;
-	    				break;
-	    			}
-	    		}
-	    		c = (SiteNode) this.getChildAfter(c);
-	    	}
-		}
-	 	if (removed) {
-	 	    setCalculateHighestAlertIfSameAlert(alert);
-	 	    nodeChanged();
-	 	    if (this.getParent() != null) {
-	 	        this.getParent().clearChildAlert(alert, this);
-	 	    }
-	 	}
+
+    private void clearChildAlert(Alert alert, SiteNode child) {
+        // Alerts are propagated up, which means when one is deleted we need to work out if it still
+        // is present in another child node
+        boolean removed = true;
+        alerts.remove(alert);
+        if (this.getChildCount() > 0) {
+            SiteNode c = (SiteNode) this.getFirstChild();
+            while (c != null) {
+                if (!c.equals(child)) {
+                    if (c.hasAlert(alert)) {
+                        alerts.add(alert);
+                        removed = false;
+                        break;
+                    }
+                }
+                c = (SiteNode) this.getChildAfter(c);
+            }
+        }
+        if (removed) {
+            setCalculateHighestAlertIfSameAlert(alert);
+            nodeChanged();
+            if (this.getParent() != null) {
+                this.getParent().clearChildAlert(alert, this);
+            }
+        }
     }
 
-	public void deleteAlert(Alert alert) {
-    	if (alert == null) {
-    		throw new IllegalArgumentException("Alert must not be null");
-    	}
-		if (!alerts.remove(alert)) {
-			return;
-		}
+    public void deleteAlert(Alert alert) {
+        if (alert == null) {
+            throw new IllegalArgumentException("Alert must not be null");
+        }
+        if (!alerts.remove(alert)) {
+            return;
+        }
 
-		setCalculateHighestAlertIfSameAlert(alert);
-		
-		// Remove from parents, if not in siblings
-	 	if (this.getParent() != null) {
-	 		this.getParent().clearChildAlert(alert, this);
-	 	}
-    	if (this.siteMap != null) {
-    		// Deleting alert might affect the nodes visibility in a filtered tree
-    		siteMap.applyFilter(this);
-    	}
-		this.nodeChanged();
-	}
-	
+        setCalculateHighestAlertIfSameAlert(alert);
+
+        // Remove from parents, if not in siblings
+        if (this.getParent() != null) {
+            this.getParent().clearChildAlert(alert, this);
+        }
+        if (this.siteMap != null) {
+            // Deleting alert might affect the nodes visibility in a filtered tree
+            siteMap.applyFilter(this);
+        }
+        this.nodeChanged();
+    }
+
     /**
      * Sets whether or not the highest alert needs to be calculated, based on the given alert.
-     * <p>
-     * The highest alert needs to be calculated if the given alert is the highest alert.
+     *
+     * <p>The highest alert needs to be calculated if the given alert is the highest alert.
      *
      * @param alert the alert to check
      */
@@ -544,20 +554,18 @@ public class SiteNode extends DefaultMutableTreeNode {
             if (this.getParent() != null) {
                 this.getParent().clearChildAlerts(alerts);
             }
-        	if (this.siteMap != null) {
-        		// Deleting alerts might affect the nodes visibility in a filtered tree
-        		siteMap.applyFilter(this);
-        	}
-        	calculateHighestAlert = true;
+            if (this.siteMap != null) {
+                // Deleting alerts might affect the nodes visibility in a filtered tree
+                siteMap.applyFilter(this);
+            }
+            calculateHighestAlert = true;
             this.nodeChanged();
         }
     }
 
-    /**
-     * Deletes all alerts of this node and all child nodes recursively.
-     */
+    /** Deletes all alerts of this node and all child nodes recursively. */
     public void deleteAllAlerts() {
-        for(int i = 0; i < getChildCount(); i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             ((SiteNode) getChildAt(i)).deleteAllAlerts();
         }
 
@@ -565,10 +573,10 @@ public class SiteNode extends DefaultMutableTreeNode {
             alerts.clear();
             highestAlert = null;
             calculateHighestAlert = false;
-        	if (this.siteMap != null) {
-        		// Deleting alert might affect the nodes visibility in a filtered tree
-        		siteMap.applyFilter(this);
-        	}
+            if (this.siteMap != null) {
+                // Deleting alert might affect the nodes visibility in a filtered tree
+                siteMap.applyFilter(this);
+            }
             nodeChanged();
         }
     }
@@ -592,108 +600,108 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
     }
 
-	public boolean hasHistoryType (int type) {
-		if (this.historyReference == null) {
-			return false;
-		}
-		if (this.historyReference.getHistoryType() == type) {
-			return true;
-		}
-		for (HistoryReference href : this.pastHistoryList) {
-			if (href.getHistoryType() == type) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean hasJustHistoryType (int type) {
-		if (this.historyReference == null) {
-			return false;
-		}
-		if (this.historyReference.getHistoryType() != type) {
-			return false;
-		}
-		for (HistoryReference href : this.pastHistoryList) {
-			if (href.getHistoryType() != type) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean hasHistoryType(int type) {
+        if (this.historyReference == null) {
+            return false;
+        }
+        if (this.historyReference.getHistoryType() == type) {
+            return true;
+        }
+        for (HistoryReference href : this.pastHistoryList) {
+            if (href.getHistoryType() == type) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public boolean isIncludedInScope() {
-		return isIncludedInScope;
-	}
+    public boolean hasJustHistoryType(int type) {
+        if (this.historyReference == null) {
+            return false;
+        }
+        if (this.historyReference.getHistoryType() != type) {
+            return false;
+        }
+        for (HistoryReference href : this.pastHistoryList) {
+            if (href.getHistoryType() != type) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	public void setIncludedInScope(boolean isIncludedInScope, boolean applyToChildNodes) {
-		this.isIncludedInScope = isIncludedInScope;
-		if (siteMap != null) {
-			// This could have affected its visibility
-			siteMap.applyFilter(this);
-		}
-		this.nodeChanged();
-		// Recurse down
-		if (this.getChildCount() > 0 && applyToChildNodes) {
-			SiteNode c = (SiteNode) this.getFirstChild();
-    		while (c != null) {
-    			c.setIncludedInScope(isIncludedInScope, applyToChildNodes);
-    			c = (SiteNode) this.getChildAfter(c);
-    		}
-		}
-	}
+    public boolean isIncludedInScope() {
+        return isIncludedInScope;
+    }
 
-	public boolean isExcludedFromScope() {
-		return isExcludedFromScope;
-	}
+    public void setIncludedInScope(boolean isIncludedInScope, boolean applyToChildNodes) {
+        this.isIncludedInScope = isIncludedInScope;
+        if (siteMap != null) {
+            // This could have affected its visibility
+            siteMap.applyFilter(this);
+        }
+        this.nodeChanged();
+        // Recurse down
+        if (this.getChildCount() > 0 && applyToChildNodes) {
+            SiteNode c = (SiteNode) this.getFirstChild();
+            while (c != null) {
+                c.setIncludedInScope(isIncludedInScope, applyToChildNodes);
+                c = (SiteNode) this.getChildAfter(c);
+            }
+        }
+    }
 
-	public void setExcludedFromScope(boolean isExcludedFromScope, boolean applyToChildNodes) {
-		this.isExcludedFromScope = isExcludedFromScope;
-		if (isExcludedFromScope) {
-			this.isIncludedInScope = false;
-		}
-		if (siteMap != null) {
-			// This could have affected its visibility
-			siteMap.applyFilter(this);
-		}
-		this.nodeChanged();
-		// Recurse down
-		if (this.getChildCount() > 0 && applyToChildNodes) {
-	    	SiteNode c = (SiteNode) this.getFirstChild();
-	    	while (c != null) {
-	    		c.setExcludedFromScope(isExcludedFromScope, applyToChildNodes);
-	    		c = (SiteNode) this.getChildAfter(c);
-	    	}
-		}
-	}
-	
-	@Override
-	public void setParent(MutableTreeNode newParent) {
-		if (newParent == this) {
-			return;
-		}
-		super.setParent(newParent);
-	}
+    public boolean isExcludedFromScope() {
+        return isExcludedFromScope;
+    }
+
+    public void setExcludedFromScope(boolean isExcludedFromScope, boolean applyToChildNodes) {
+        this.isExcludedFromScope = isExcludedFromScope;
+        if (isExcludedFromScope) {
+            this.isIncludedInScope = false;
+        }
+        if (siteMap != null) {
+            // This could have affected its visibility
+            siteMap.applyFilter(this);
+        }
+        this.nodeChanged();
+        // Recurse down
+        if (this.getChildCount() > 0 && applyToChildNodes) {
+            SiteNode c = (SiteNode) this.getFirstChild();
+            while (c != null) {
+                c.setExcludedFromScope(isExcludedFromScope, applyToChildNodes);
+                c = (SiteNode) this.getChildAfter(c);
+            }
+        }
+    }
+
+    @Override
+    public void setParent(MutableTreeNode newParent) {
+        if (newParent == this) {
+            return;
+        }
+        super.setParent(newParent);
+    }
 
     /**
      * Returns this node's parent or null if this node has no parent.
      *
-     * @return  this node's parent SiteNode, or null if this node has no parent
+     * @return this node's parent SiteNode, or null if this node has no parent
      */
-	@Override
+    @Override
     public SiteNode getParent() {
-        return (SiteNode)super.getParent();
+        return (SiteNode) super.getParent();
     }
 
-	public boolean isFiltered() {
-		return filtered;
-	}
+    public boolean isFiltered() {
+        return filtered;
+    }
 
-	protected void setFiltered(boolean filtered) {
-		this.filtered = filtered;
-	}
+    protected void setFiltered(boolean filtered) {
+        this.filtered = filtered;
+    }
 
-	public boolean isDataDriven() {
-		return dataDriven;
-	}
+    public boolean isDataDriven() {
+        return dataDriven;
+    }
 }

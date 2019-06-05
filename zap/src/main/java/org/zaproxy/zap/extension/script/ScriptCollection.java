@@ -22,34 +22,33 @@ package org.zaproxy.zap.extension.script;
 import java.util.List;
 
 public class ScriptCollection {
-	
-	private ScriptType type;
-	private List<ScriptWrapper> scripts;
-	
-	public ScriptCollection(ScriptType type, List<ScriptWrapper> scripts) {
-		super();
-		this.type = type;
-		this.scripts = scripts;
-	}
 
-	public ScriptType getType() {
-		return type;
-	}
+    private ScriptType type;
+    private List<ScriptWrapper> scripts;
 
-	public List<ScriptWrapper> getScripts() {
-		return scripts;
-	}
+    public ScriptCollection(ScriptType type, List<ScriptWrapper> scripts) {
+        super();
+        this.type = type;
+        this.scripts = scripts;
+    }
 
-	public void setScripts(List<ScriptWrapper> scripts) {
-		this.scripts = scripts;
-	}
-	
-	public void addScript(ScriptWrapper script) {
-		this.scripts.add(script);
-	}
-	
-	public void removeScript(ScriptWrapper script) {
-		this.scripts.remove(script);
-	}
-	
+    public ScriptType getType() {
+        return type;
+    }
+
+    public List<ScriptWrapper> getScripts() {
+        return scripts;
+    }
+
+    public void setScripts(List<ScriptWrapper> scripts) {
+        this.scripts = scripts;
+    }
+
+    public void addScript(ScriptWrapper script) {
+        this.scripts.add(script);
+    }
+
+    public void removeScript(ScriptWrapper script) {
+        this.scripts.remove(script);
+    }
 }

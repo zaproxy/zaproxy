@@ -27,24 +27,22 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseServer;
-
 
 public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
-    
-    private static final Logger logger = Logger.getLogger(HsqldbDatabaseServer.class);
-    
-	public HsqldbDatabaseServer(String dbname) throws ClassNotFoundException, Exception {
-		super(dbname);
 
-		// hsqldb only accept '/' as path;
+    private static final Logger logger = Logger.getLogger(HsqldbDatabaseServer.class);
+
+    public HsqldbDatabaseServer(String dbname) throws ClassNotFoundException, Exception {
+        super(dbname);
+
+        // hsqldb only accept '/' as path;
         dbname = dbname.replaceAll("\\\\", "/");
-        
-    	// ZAP: Check if old database should be compacted
+
+        // ZAP: Check if old database should be compacted
         boolean doCompact = false;
         File propsFile = new File(dbname + ".properties");
         if (propsFile.exists()) {
@@ -72,24 +70,23 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseS
                 doCompact = true;
             }
         }
-        
+
         this.setDbUrl("jdbc:hsqldb:file:" + dbname);
         this.setDbUser(DbSQL.getSingleton().getDbUser());
         this.setDbPassword(DbSQL.getSingleton().getDbPassword());
 
         // ZAP: If old database is in load => shutdown & reconnect
         if (doCompact) {
-	    	shutdown(true);
+            shutdown(true);
         }
     }
-    
-    
+
     @Override
     void shutdown(boolean compact) throws SQLException {
-    	super.shutdown(compact);
+        super.shutdown(compact);
         Connection conn = getNewConnection();
         CallableStatement psCompact = null;
-        
+
         if (compact) {
             // db is not new and useful for future.  Compact it.
             psCompact = conn.prepareCall("SHUTDOWN COMPACT");
@@ -97,9 +94,8 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseS
         } else {
             // new need to compact database.  just shutdown.
             psCompact = conn.prepareCall("SHUTDOWN");
-
         }
-        
+
         psCompact.execute();
         psCompact.close();
         conn.close();

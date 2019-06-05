@@ -21,7 +21,6 @@ package org.zaproxy.zap.view.renderer;
 
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-
 import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
@@ -35,38 +34,42 @@ public class SizeBytesStringValue implements StringValue {
 
     private static final long serialVersionUID = 8021369832769317695L;
 
-    private static final MessageFormat TIME_DURATION_WITH_UNIT_FORMAT = new MessageFormat(
-            Constant.messages.getString("generic.value.size.bytes.value.unit"));
+    private static final MessageFormat TIME_DURATION_WITH_UNIT_FORMAT =
+            new MessageFormat(Constant.messages.getString("generic.value.size.bytes.value.unit"));
 
     // Use the same NumberFormat instance since the renderes are used in EDT only.
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
+
     static {
         NUMBER_FORMAT.setMaximumFractionDigits(2);
     }
 
-    private static final String UNIT_BYTES = Constant.messages.getString("generic.value.size.bytes.unit.bytes");
-    private static final String UNIT_KBYTES = Constant.messages.getString("generic.value.size.bytes.unit.kibytes");
-    private static final String UNIT_MBYTES = Constant.messages.getString("generic.value.size.bytes.unit.mibytes");
-    private static final String UNIT_GBYTES = Constant.messages.getString("generic.value.size.bytes.unit.gibytes");
+    private static final String UNIT_BYTES =
+            Constant.messages.getString("generic.value.size.bytes.unit.bytes");
+    private static final String UNIT_KBYTES =
+            Constant.messages.getString("generic.value.size.bytes.unit.kibytes");
+    private static final String UNIT_MBYTES =
+            Constant.messages.getString("generic.value.size.bytes.unit.mibytes");
+    private static final String UNIT_GBYTES =
+            Constant.messages.getString("generic.value.size.bytes.unit.gibytes");
 
     private static final int ONE_KB_IN_BYTES = 1024;
     private static final int ONE_MB_IN_BYTES = 1024 * ONE_KB_IN_BYTES;
     private static final int ONE_GB_IN_BYTES = 1024 * ONE_MB_IN_BYTES;
 
     private boolean useJustBytesUnit = true;
-    
-    public SizeBytesStringValue() {
-    }
-    
+
+    public SizeBytesStringValue() {}
+
     public SizeBytesStringValue(boolean shouldUseJustBytesUnit) {
         setUseJustBytesUnit(shouldUseJustBytesUnit);
     }
 
     /**
-     * Tells whether or not the conversion to {@code String} should use just bytes, that is, it should not use bigger units
-     * (e.g. KiB, MiB).
-     * <p>
-     * Default is {@code true}.
+     * Tells whether or not the conversion to {@code String} should use just bytes, that is, it
+     * should not use bigger units (e.g. KiB, MiB).
+     *
+     * <p>Default is {@code true}.
      *
      * @return {@code true} if it should use just bytes, {@code false} otherwise.
      * @since 2.6.0
@@ -76,8 +79,8 @@ public class SizeBytesStringValue implements StringValue {
     }
 
     /**
-     * Sets whether or not the conversion to {@code String} should use just bytes, that is, it should not do use bigger units
-     * (e.g. KiB, MiB).
+     * Sets whether or not the conversion to {@code String} should use just bytes, that is, it
+     * should not do use bigger units (e.g. KiB, MiB).
      *
      * @param useJustBytesUnit {@code true} if it should use just bytes, {@code false} otherwise.
      * @since 2.6.0
@@ -103,7 +106,8 @@ public class SizeBytesStringValue implements StringValue {
                     unit = UNIT_GBYTES;
                 }
             }
-            return TIME_DURATION_WITH_UNIT_FORMAT.format(new Object[] { NUMBER_FORMAT.format(size), unit });
+            return TIME_DURATION_WITH_UNIT_FORMAT.format(
+                    new Object[] {NUMBER_FORMAT.format(size), unit});
         }
         return StringValues.TO_STRING.getString(value);
     }

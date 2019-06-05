@@ -20,7 +20,6 @@
 package org.zaproxy.zap;
 
 import java.io.FileNotFoundException;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
@@ -74,7 +73,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
                 System.out.println(Constant.PROGRAM_VERSION);
 
             } else if (getArgs().isDisplaySupportInfo()) {
-            	System.out.println(ZapSupportUtils.getAll(false));
+                System.out.println(ZapSupportUtils.getAll(false));
 
             } else {
                 if (handleCmdLineSessionArgsSynchronously(control)) {
@@ -100,7 +99,8 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             rc = 1;
 
         } finally {
-            control.shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
+            control.shutdown(
+                    Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
             logger.info(Constant.PROGRAM_TITLE + " terminated.");
         }
 

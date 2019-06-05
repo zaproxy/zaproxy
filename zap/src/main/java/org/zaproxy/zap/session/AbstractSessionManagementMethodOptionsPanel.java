@@ -20,54 +20,50 @@
 package org.zaproxy.zap.session;
 
 import javax.swing.JPanel;
-
 import org.zaproxy.zap.session.SessionManagementMethodType.UnsupportedSessionManagementMethodException;
 
 /**
- * An Options Panel that is used to configure all the settings corresponding to an
- * {@link SessionManagementMethod}.
- * <p>
- * This panel will be displayed to users in a separate dialog.
+ * An Options Panel that is used to configure all the settings corresponding to an {@link
+ * SessionManagementMethod}.
+ *
+ * <p>This panel will be displayed to users in a separate dialog.
  */
 public abstract class AbstractSessionManagementMethodOptionsPanel extends JPanel {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 9003182467823059637L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 9003182467823059637L;
 
-	public AbstractSessionManagementMethodOptionsPanel() {
-		super();
-	}
+    public AbstractSessionManagementMethodOptionsPanel() {
+        super();
+    }
 
-	/**
-	 * Binds (loads) data from an existing Session Management method in the panel. After this
-	 * method, the {@link #getMethod()} should return the same object, eventually with some changes
-	 * (if {@link #saveMethod()} was called).
-	 * 
-	 * @param method the method to be loaded/shown in the panel.
-	 * @throws UnsupportedSessionManagementMethodException if the given method is not supported.
-	 */
-	public abstract void bindMethod(SessionManagementMethod method)
-			throws UnsupportedSessionManagementMethodException;
+    /**
+     * Binds (loads) data from an existing Session Management method in the panel. After this
+     * method, the {@link #getMethod()} should return the same object, eventually with some changes
+     * (if {@link #saveMethod()} was called).
+     *
+     * @param method the method to be loaded/shown in the panel.
+     * @throws UnsupportedSessionManagementMethodException if the given method is not supported.
+     */
+    public abstract void bindMethod(SessionManagementMethod method)
+            throws UnsupportedSessionManagementMethodException;
 
-	/**
-	 * Validate the fields of the configuration panel. If any of the fields are not in the proper
-	 * state, an {@link IllegalStateException} is thrown, containing a message describing the
-	 * problem.
-	 * 
-	 * @throws IllegalStateException if any of the fields are not in the valid state
-	 */
-	public abstract void validateFields() throws IllegalStateException;
+    /**
+     * Validate the fields of the configuration panel. If any of the fields are not in the proper
+     * state, an {@link IllegalStateException} is thrown, containing a message describing the
+     * problem.
+     *
+     * @throws IllegalStateException if any of the fields are not in the valid state
+     */
+    public abstract void validateFields() throws IllegalStateException;
 
-	/**
-	 * Save the changes from the panel in the session management method.
-	 */
-	public abstract void saveMethod();
+    /** Save the changes from the panel in the session management method. */
+    public abstract void saveMethod();
 
-	/**
-	 * Gets the session management method configured by this panel.
-	 * 
-	 * @return the method
-	 */
-	public abstract SessionManagementMethod getMethod();
-
+    /**
+     * Gets the session management method configured by this panel.
+     *
+     * @return the method
+     */
+    public abstract SessionManagementMethod getMethod();
 }

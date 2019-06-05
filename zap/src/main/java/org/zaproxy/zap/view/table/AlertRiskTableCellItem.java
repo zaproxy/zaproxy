@@ -22,14 +22,13 @@ package org.zaproxy.zap.view.table;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
 /**
- * The representation of an {@code Alert}'s risk in a table cell, has the risk's name (displayed in the cell) and value (used
- * for comparison).
- * 
+ * The representation of an {@code Alert}'s risk in a table cell, has the risk's name (displayed in
+ * the cell) and value (used for comparison).
+ *
  * @see #getItemForRisk(int)
  * @see Alert
  * @see Alert#RISK_INFO
@@ -44,24 +43,29 @@ public class AlertRiskTableCellItem implements Comparable<AlertRiskTableCellItem
     static {
         Map<Integer, AlertRiskTableCellItem> temp = new HashMap<>();
 
-        AlertRiskTableCellItem alertCellItem = new AlertRiskTableCellItem(
-                Alert.RISK_INFO,
-                Constant.messages.getString("view.href.table.cell.alert.risk.label.info"));
+        AlertRiskTableCellItem alertCellItem =
+                new AlertRiskTableCellItem(
+                        Alert.RISK_INFO,
+                        Constant.messages.getString("view.href.table.cell.alert.risk.label.info"));
         temp.put(alertCellItem.getRisk(), alertCellItem);
 
-        alertCellItem = new AlertRiskTableCellItem(
-                Alert.RISK_LOW,
-                Constant.messages.getString("view.href.table.cell.alert.risk.label.low"));
+        alertCellItem =
+                new AlertRiskTableCellItem(
+                        Alert.RISK_LOW,
+                        Constant.messages.getString("view.href.table.cell.alert.risk.label.low"));
         temp.put(alertCellItem.getRisk(), alertCellItem);
 
-        alertCellItem = new AlertRiskTableCellItem(
-                Alert.RISK_MEDIUM,
-                Constant.messages.getString("view.href.table.cell.alert.risk.label.medium"));
+        alertCellItem =
+                new AlertRiskTableCellItem(
+                        Alert.RISK_MEDIUM,
+                        Constant.messages.getString(
+                                "view.href.table.cell.alert.risk.label.medium"));
         temp.put(alertCellItem.getRisk(), alertCellItem);
 
-        alertCellItem = new AlertRiskTableCellItem(
-                Alert.RISK_HIGH,
-                Constant.messages.getString("view.href.table.cell.alert.risk.label.high"));
+        alertCellItem =
+                new AlertRiskTableCellItem(
+                        Alert.RISK_HIGH,
+                        Constant.messages.getString("view.href.table.cell.alert.risk.label.high"));
         temp.put(alertCellItem.getRisk(), alertCellItem);
 
         values = Collections.unmodifiableMap(temp);
@@ -69,28 +73,30 @@ public class AlertRiskTableCellItem implements Comparable<AlertRiskTableCellItem
 
     /**
      * Represents a non {@code Alert}'s risk. It has an empty name and value {@literal -1}.
-     * <p>
-     * Should be used when there's no alerts therefore no risk.
-     * </p>
-     * 
+     *
+     * <p>Should be used when there's no alerts therefore no risk.
+     *
      * @see Alert#RISK_INFO
      * @see Alert#RISK_LOW
      * @see Alert#RISK_MEDIUM
      * @see Alert#RISK_HIGH
      */
-    public static final AlertRiskTableCellItem NO_RISK_CELL_ITEM = new AlertRiskTableCellItem(-1, "");
+    public static final AlertRiskTableCellItem NO_RISK_CELL_ITEM =
+            new AlertRiskTableCellItem(-1, "");
 
     /**
-     * Represents an undefined {@code Alert}'s risk. It has the name as {@literal undefined} and value {@literal -2}.
-     * 
+     * Represents an undefined {@code Alert}'s risk. It has the name as {@literal undefined} and
+     * value {@literal -2}.
+     *
      * @see Alert#RISK_INFO
      * @see Alert#RISK_LOW
      * @see Alert#RISK_MEDIUM
      * @see Alert#RISK_HIGH
      */
-    public static final AlertRiskTableCellItem UNDEFINED_RISK_CELL_ITEM = new AlertRiskTableCellItem(
-            -2,
-            Constant.messages.getString("view.href.table.cell.alert.risk.label.undefined"));
+    public static final AlertRiskTableCellItem UNDEFINED_RISK_CELL_ITEM =
+            new AlertRiskTableCellItem(
+                    -2,
+                    Constant.messages.getString("view.href.table.cell.alert.risk.label.undefined"));
 
     private final int risk;
 
@@ -146,12 +152,12 @@ public class AlertRiskTableCellItem implements Comparable<AlertRiskTableCellItem
     }
 
     /**
-     * Returns an {@code AlertTableCellItem} for the given {@code risk}. If the risk is {@literal -1} the returned
-     * {@code AlertTableCellItem} will be {@code NO_RISK_CELL_ITEM}.
-     * <p>
-     * If the given {@code risk} is not {@literal -1} but it's not one of the risks defined an {@code UNDEFINED_RISK_CELL_ITEM}
-     * will be returned.
-     * 
+     * Returns an {@code AlertTableCellItem} for the given {@code risk}. If the risk is {@literal
+     * -1} the returned {@code AlertTableCellItem} will be {@code NO_RISK_CELL_ITEM}.
+     *
+     * <p>If the given {@code risk} is not {@literal -1} but it's not one of the risks defined an
+     * {@code UNDEFINED_RISK_CELL_ITEM} will be returned.
+     *
      * @param risk the risk of the alert
      * @return the {@code AlertTableCellItem} for the given {@code risk}.
      * @see #NO_RISK_CELL_ITEM

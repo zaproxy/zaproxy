@@ -21,43 +21,40 @@ package org.zaproxy.zap.extension.keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 
 public class KeyboardShortcutTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("keyboard.options.table.header.menu"),
-            Constant.messages.getString("keyboard.options.table.header.mods"),
-            Constant.messages.getString("keyboard.options.table.header.key")};
-    
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-	
+        Constant.messages.getString("keyboard.options.table.header.menu"),
+        Constant.messages.getString("keyboard.options.table.header.mods"),
+        Constant.messages.getString("keyboard.options.table.header.key")
+    };
+
+    private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+
     private List<KeyboardShortcut> tokens = new ArrayList<>(0);
-    
+
     public KeyboardShortcutTableModel() {
         super();
     }
-    
+
     protected List<KeyboardShortcut> getElements() {
         return tokens;
     }
 
-    /**
-     * @param shortcuts The shortcuts to set.
-     */
+    /** @param shortcuts The shortcuts to set. */
     public void setShortcuts(List<KeyboardShortcut> shortcuts) {
-		this.tokens = new ArrayList<>(shortcuts.size());
-		
-		for (KeyboardShortcut token : shortcuts) {
-			this.tokens.add(token);
-		}
-    	
-  	  	fireTableDataChanged();
+        this.tokens = new ArrayList<>(shortcuts.size());
+
+        for (KeyboardShortcut token : shortcuts) {
+            this.tokens.add(token);
+        }
+
+        fireTableDataChanged();
     }
 
     @Override
@@ -69,9 +66,9 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
     public int getColumnCount() {
         return COLUMN_COUNT;
     }
-    
+
     @Override
-	public Class<?> getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         return String.class;
     }
 
@@ -84,23 +81,22 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch(columnIndex) {
-        case 0:
-            return tokens.get(rowIndex).getName();
-        case 1:
-        	return tokens.get(rowIndex).getKeyStrokeModifiersString();
-        case 2:
-        	return tokens.get(rowIndex).getKeyStrokeKeyCodeString();
+        switch (columnIndex) {
+            case 0:
+                return tokens.get(rowIndex).getName();
+            case 1:
+                return tokens.get(rowIndex).getKeyStrokeModifiersString();
+            case 2:
+                return tokens.get(rowIndex).getKeyStrokeKeyCodeString();
         }
         return null;
     }
 
-	public void addShortcut(KeyboardShortcut shortcut) {
-		this.tokens.add(shortcut);
-  	  	fireTableDataChanged();
-	}
-
+    public void addShortcut(KeyboardShortcut shortcut) {
+        this.tokens.add(shortcut);
+        fireTableDataChanged();
+    }
 }

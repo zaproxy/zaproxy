@@ -22,7 +22,8 @@ package org.zaproxy.zap.utils;
 import java.util.concurrent.ExecutorService;
 
 /**
- * A {@code ExecutorService} that allows to pause and resume. Moreover it allows to listen for termination of the executor.
+ * A {@code ExecutorService} that allows to pause and resume. Moreover it allows to listen for
+ * termination of the executor.
  *
  * @since 2.4.0
  * @see ExecutorTerminatedListener
@@ -33,22 +34,23 @@ public interface PausableExecutorService extends ExecutorService {
 
     /**
      * Pauses the executor, so that no new task will be executed until {@code resume()} is called.
-     * 
+     *
      * @see #resume()
      */
     void pause();
 
     /**
      * Resumes the executor, so that the awaiting tasks are executed.
-     * <p>
-     * The call to this method has no effect if the executor is not paused.
-     * 
+     *
+     * <p>The call to this method has no effect if the executor is not paused.
+     *
      * @see #pause()
      */
     void resume();
 
     /**
-     * Adds the given {@code listener} to the list of listeners that will be notified when the executor terminates.
+     * Adds the given {@code listener} to the list of listeners that will be notified when the
+     * executor terminates.
      *
      * @param listener the listener for termination
      * @see #isTerminated()
@@ -57,12 +59,12 @@ public interface PausableExecutorService extends ExecutorService {
     void addExecutorTerminatedListener(ExecutorTerminatedListener listener);
 
     /**
-     * Removes the given {@code listener} from the list of listeners that are notified when the executor terminates.
+     * Removes the given {@code listener} from the list of listeners that are notified when the
+     * executor terminates.
      *
      * @param listener the listener for termination
      * @see #isTerminated()
      * @see #addExecutorTerminatedListener(ExecutorTerminatedListener)
      */
     void removeExecutorTerminatedListener(ExecutorTerminatedListener listener);
-
 }

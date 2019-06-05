@@ -30,64 +30,59 @@ import java.security.cert.Certificate;
 
 public class AliasCertificate {
 
-	private Certificate certificate;
-	private String alias;
-	
-	AliasCertificate(Certificate certificate, String alias){
-		this.setCertificate(certificate);
-		this.setAlias(alias);
-	}
+    private Certificate certificate;
+    private String alias;
 
-	public void setCertificate(Certificate certificate) {
-		this.certificate = certificate;
-	}
+    AliasCertificate(Certificate certificate, String alias) {
+        this.setCertificate(certificate);
+        this.setAlias(alias);
+    }
 
-	public Certificate getCertificate() {
-		return certificate;
-	}
+    public void setCertificate(Certificate certificate) {
+        this.certificate = certificate;
+    }
 
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
+    public Certificate getCertificate() {
+        return certificate;
+    }
 
-	public String getAlias() {
-		return alias;
-	}
-	
-	public String getName(){
-		
-		String cn = getCN();
-		
-		if(cn == null || cn.length() == 0){
-			return getAlias();
-		}else{
-			return cn + " ["+getAlias()+"]";
-		}
-		
-		
-	}
-	
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public String getName() {
+
+        String cn = getCN();
+
+        if (cn == null || cn.length() == 0) {
+            return getAlias();
+        } else {
+            return cn + " [" + getAlias() + "]";
+        }
+    }
+
     public String getCN() {
-        
-    	String dn = getCertificate().toString();
-    	
-    	int i = 0;
+
+        String dn = getCertificate().toString();
+
+        int i = 0;
         i = dn.indexOf("CN=");
         if (i == -1) {
             return null;
         }
-        //get the remaining DN without CN=
-        dn = dn.substring(i + 3);  
-        
+        // get the remaining DN without CN=
+        dn = dn.substring(i + 3);
+
         char[] dncs = dn.toCharArray();
         for (i = 0; i < dncs.length; i++) {
-            if (dncs[i] == ','  && i > 0 && dncs[i - 1] != '\\') {
+            if (dncs[i] == ',' && i > 0 && dncs[i - 1] != '\\') {
                 break;
             }
         }
         return dn.substring(0, i);
     }
 }
-	
-	
-

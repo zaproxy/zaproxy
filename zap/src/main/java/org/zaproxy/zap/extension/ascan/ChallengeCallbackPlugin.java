@@ -22,15 +22,13 @@ package org.zaproxy.zap.extension.ascan;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Abstract interface for plugins that should be managed by a Challenge based
- * Callback API
- * 
+ * Abstract interface for plugins that should be managed by a Challenge based Callback API
+ *
  * @author yhawke (2014)
  * @deprecated (2.8.0) Superseded by {@link org.zaproxy.zap.extension.callback.CallbackImplementor}.
  */
 @Deprecated
 public interface ChallengeCallbackPlugin {
-    
+
     public void notifyCallback(String challenge, HttpMessage msg);
-    
 }

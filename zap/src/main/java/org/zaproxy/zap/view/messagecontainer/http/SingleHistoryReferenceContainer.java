@@ -22,8 +22,9 @@ package org.zaproxy.zap.view.messagecontainer.http;
 import org.parosproxy.paros.model.HistoryReference;
 
 /**
- * A {@code SingleHttpMessageContainer} that exposes the {@code HistoryReference} of the contained message.
- * 
+ * A {@code SingleHttpMessageContainer} that exposes the {@code HistoryReference} of the contained
+ * message.
+ *
  * @see HistoryReference
  * @see SingleHttpMessageContainer
  * @since 2.3.0
@@ -31,9 +32,11 @@ import org.parosproxy.paros.model.HistoryReference;
 public interface SingleHistoryReferenceContainer extends SingleHttpMessageContainer {
 
     /**
-     * Returns the {@code HistoryReference} of the contained message. Might be {@code null} if no message is present.
-     * 
-     * @return the {@code HistoryReference} of the contained message or {@code null} if no message is present.
+     * Returns the {@code HistoryReference} of the contained message. Might be {@code null} if no
+     * message is present.
+     *
+     * @return the {@code HistoryReference} of the contained message or {@code null} if no message
+     *     is present.
      * @see HistoryReference
      */
     HistoryReference getHistoryReference();

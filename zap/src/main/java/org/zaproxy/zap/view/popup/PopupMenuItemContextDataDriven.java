@@ -21,9 +21,7 @@ package org.zaproxy.zap.view.popup;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JMenuItem;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -32,19 +30,14 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
-/**
- * @since 2.4.3
- */
+/** @since 2.4.3 */
 public class PopupMenuItemContextDataDriven extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 3790264690466717219L;
 
     private List<ExtensionPopupMenuItem> subMenus = new ArrayList<>();
 
-    /**
-     * This method initializes
-     * 
-     */
+    /** This method initializes */
     public PopupMenuItemContextDataDriven() {
         super("DataDrivenNodeX", true);
     }
@@ -80,30 +73,29 @@ public class PopupMenuItemContextDataDriven extends PopupMenuItemSiteNodeContain
         final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
         for (ExtensionPopupMenuItem menu : subMenus) {
             mainPopupMenuItems.remove(menu);
-
         }
         subMenus.clear();
 
         Session session = Model.getSingleton().getSession();
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
-        	if (context.isIncluded(sn)) {
-	            ExtensionPopupMenuItem piicm = createPopupDataDrivenNodeMenu(context);
-	            piicm.setMenuIndex(this.getMenuIndex());
-	            mainPopupMenuItems.add(piicm);
-	            this.subMenus.add(piicm);
-        	}
+            if (context.isIncluded(sn)) {
+                ExtensionPopupMenuItem piicm = createPopupDataDrivenNodeMenu(context);
+                piicm.setMenuIndex(this.getMenuIndex());
+                mainPopupMenuItems.add(piicm);
+                this.subMenus.add(piicm);
+            }
         }
     }
 
     protected ExtensionPopupMenuItem createPopupDataDrivenNodeMenu(Context context) {
-        return new PopupMenuItemContextDataDrivenNode(context,
-        				Constant.messages.getString("context.flag.popup.datadriven", context.getName()));
+        return new PopupMenuItemContextDataDrivenNode(
+                context,
+                Constant.messages.getString("context.flag.popup.datadriven", context.getName()));
     }
 
     @Override
     public boolean isSafe() {
         return true;
     }
-
 }

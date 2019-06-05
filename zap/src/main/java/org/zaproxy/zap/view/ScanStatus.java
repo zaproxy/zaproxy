@@ -24,49 +24,57 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class ScanStatus {
-	private ImageIcon icon;
-	private String name;
-	private int scanCount = 0;
-	private JLabel countLabel = new JLabel();
-	
-	public ScanStatus(ImageIcon icon, String name) {
-		super();
-		this.icon = icon;
-		this.name = name;
-		countLabel.setIcon(icon);
-		countLabel.setToolTipText(name);
-		countLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		this.setScanCount(0);
-	}
-	
-	public ImageIcon getIcon() {
-		return icon;
-	}
-	public void setIcon(ImageIcon icon) {
-		this.icon = icon;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public int getScanCount() {
-		return scanCount;
-	}
-	public void setScanCount(int scanCount) {
-		this.scanCount = scanCount;
-		this.countLabel.setText(Integer.toString(scanCount));
-	}
-	public void incScanCount() {
-		this.scanCount++;
-		this.countLabel.setText(Integer.toString(scanCount));
-	}
-	public void decScanCount() {
-		this.scanCount--;
-		this.countLabel.setText(Integer.toString(scanCount));
-	}
-	public JLabel getCountLabel() {
-		return this.countLabel;
-	}
+    private ImageIcon icon;
+    private String name;
+    private int scanCount = 0;
+    private JLabel countLabel = new JLabel();
+
+    public ScanStatus(ImageIcon icon, String name) {
+        super();
+        this.icon = icon;
+        this.name = name;
+        countLabel.setIcon(icon);
+        countLabel.setToolTipText(name);
+        countLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        this.setScanCount(0);
+    }
+
+    public ImageIcon getIcon() {
+        return icon;
+    }
+
+    public void setIcon(ImageIcon icon) {
+        this.icon = icon;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getScanCount() {
+        return scanCount;
+    }
+
+    public void setScanCount(int scanCount) {
+        this.scanCount = scanCount;
+        this.countLabel.setText(Integer.toString(scanCount));
+    }
+
+    public void incScanCount() {
+        this.scanCount++;
+        this.countLabel.setText(Integer.toString(scanCount));
+    }
+
+    public void decScanCount() {
+        this.scanCount--;
+        this.countLabel.setText(Integer.toString(scanCount));
+    }
+
+    public JLabel getCountLabel() {
+        return this.countLabel;
+    }
 }

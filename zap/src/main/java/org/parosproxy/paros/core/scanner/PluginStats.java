@@ -20,9 +20,9 @@
 package org.parosproxy.paros.core.scanner;
 
 /**
- * The stats of a {@link Plugin}, when the {@code Plugin} was started, how many messages were sent, number of alerts raised, and
- * its scan progress.
- * 
+ * The stats of a {@link Plugin}, when the {@code Plugin} was started, how many messages were sent,
+ * number of alerts raised, and its scan progress.
+ *
  * @since 2.7.0
  */
 public class PluginStats {
@@ -37,7 +37,7 @@ public class PluginStats {
 
     /**
      * Constructs a {@code PluginStats}.
-     * 
+     *
      * @param pluginName the name of the plugin.
      * @see #start()
      */
@@ -96,9 +96,7 @@ public class PluginStats {
         return skippedReason;
     }
 
-    /**
-     * Starts the plugin stats.
-     */
+    /** Starts the plugin stats. */
     void start() {
         startTime = System.currentTimeMillis();
     }
@@ -124,8 +122,8 @@ public class PluginStats {
 
     /**
      * Increments the count of messages sent by the plugin.
-     * <p>
-     * Should be called when the plugin notifies that a message was sent.
+     *
+     * <p>Should be called when the plugin notifies that a message was sent.
      */
     void incMessageCount() {
         messageCount++;
@@ -142,8 +140,8 @@ public class PluginStats {
 
     /**
      * Increments the count of alerts raised by the plugin.
-     * <p>
-     * Should be called when the plugin notifies that an alert was found.
+     *
+     * <p>Should be called when the plugin notifies that an alert was found.
      */
     void incAlertCount() {
         alertCount++;
@@ -160,8 +158,8 @@ public class PluginStats {
 
     /**
      * Increments the scan progress of the plugin.
-     * <p>
-     * Should be called after scanning a message.
+     *
+     * <p>Should be called after scanning a message.
      */
     void incProgress() {
         this.progress++;

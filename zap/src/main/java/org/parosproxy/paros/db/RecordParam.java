@@ -21,7 +21,7 @@ package org.parosproxy.paros.db;
 
 public class RecordParam {
 
-	private long paramId;
+    private long paramId;
     private String site;
     private String type;
     private String name;
@@ -29,62 +29,68 @@ public class RecordParam {
     private String flags;
     private String values;
 
-	public RecordParam(long paramId, String site, String type, String name, int used, String flags,
-			String values) {
-		this.paramId = paramId;
-		this.site = site;
-		this.type = type;
-		this.name = name;
-		this.used = used;
-		this.flags = flags;
-		this.values = values;
-	}
+    public RecordParam(
+            long paramId,
+            String site,
+            String type,
+            String name,
+            int used,
+            String flags,
+            String values) {
+        this.paramId = paramId;
+        this.site = site;
+        this.type = type;
+        this.name = name;
+        this.used = used;
+        this.flags = flags;
+        this.values = values;
+    }
 
-	public long getParamId() {
-		return paramId;
-	}
+    public long getParamId() {
+        return paramId;
+    }
 
-	public String getSite() {
-		return site;
-	}
+    public String getSite() {
+        return site;
+    }
 
-	public void setSite(String site) {
-		this.site = site;
-	}
+    public void setSite(String site) {
+        this.site = site;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public int getUsed() {
-		return used;
-	}
+    public int getUsed() {
+        return used;
+    }
 
-	public void setUsed(int used) {
-		this.used = used;
-	}
+    public void setUsed(int used) {
+        this.used = used;
+    }
 
-	public String getFlags() {
-		return flags;
-	}
+    public String getFlags() {
+        return flags;
+    }
 
-	public void setFlags(String flags) {
-		this.flags = flags;
-	}
+    public void setFlags(String flags) {
+        this.flags = flags;
+    }
 
-	public String getValues() {
-		return values;
-	}
+    public String getValues() {
+        return values;
+    }
 
-	public void setValues(String values) {
-		this.values = values;
-	}
+    public void setValues(String values) {
+        this.values = values;
+    }
 }

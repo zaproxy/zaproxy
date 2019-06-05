@@ -21,10 +21,10 @@ package org.zaproxy.zap.eventBus;
 
 /**
  * A class that can receive events from the event bus
- * @author simon
  *
+ * @author simon
  */
 public interface EventConsumer {
 
-	void eventReceived(Event event);
+    void eventReceived(Event event);
 }

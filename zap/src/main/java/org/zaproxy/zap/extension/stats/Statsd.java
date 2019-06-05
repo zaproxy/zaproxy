@@ -21,151 +21,149 @@ package org.zaproxy.zap.extension.stats;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-
 import org.zaproxy.zap.utils.StatsListener;
 
 public class Statsd implements StatsListener {
 
-	private static final String GLOBAL_KEY = "global";
-	
-	private StatsdClient statsd2;
-	
-	private String host;
-	private int port;
-	private String prefix;
-	private String separator = ".";
-	
-	public Statsd (String host, int port, String prefix) throws UnknownHostException, IOException {
-		this.host = host;
-		this.port = port;
-		this.prefix = prefix;
-		statsd2 = new StatsdClient(host, port);
-	}
-	
-	public String getHost() {
-		return host;
-	}
+    private static final String GLOBAL_KEY = "global";
 
-	public int getPort() {
-		return port;
-	}
+    private StatsdClient statsd2;
 
-	public String getPrefix() {
-		return prefix;
-	}
+    private String host;
+    private int port;
+    private String prefix;
+    private String separator = ".";
 
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
-	}
+    public Statsd(String host, int port, String prefix) throws UnknownHostException, IOException {
+        this.host = host;
+        this.port = port;
+        this.prefix = prefix;
+        statsd2 = new StatsdClient(host, port);
+    }
 
-	public String getSeparator() {
-		return separator;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public void setSeparator(String separator) {
-		this.separator = separator;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	private String getFullKey(String key) {
-		return this.getFullKey(null, key);
-	}
+    public String getPrefix() {
+        return prefix;
+    }
 
-	private String getFullKey(String site, String key) {
-		StringBuilder sb = new StringBuilder();
-		if (prefix != null) {
-			sb.append(prefix);
-			sb.append(separator);
-		}
-		if (site != null) {
-			// Remove http(s)://
-			sb.append(site.substring(site.indexOf(':')+3));
-		} else {
-			sb.append(GLOBAL_KEY);
-		}
-		sb.append(separator);
-		sb.append(key);
-		// Colon is a statsd separator
-		return sb.toString().replace(":", "-");
-	}
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
-	@Override
-	public void counterInc(String key) {
-		statsd2.increment(getFullKey(key));
-	}
+    public String getSeparator() {
+        return separator;
+    }
 
-	@Override
-	public void counterInc(String site, String key) {
-		statsd2.increment(getFullKey(site, key));
-	}
+    public void setSeparator(String separator) {
+        this.separator = separator;
+    }
 
-	@Override
-	public void counterInc(String key, long inc) {
-		statsd2.increment(getFullKey(key), (int)inc);
-	}
+    private String getFullKey(String key) {
+        return this.getFullKey(null, key);
+    }
 
-	@Override
-	public void counterInc(String site, String key, long inc) {
-		statsd2.increment(getFullKey(site, key), (int)inc);
-	}
+    private String getFullKey(String site, String key) {
+        StringBuilder sb = new StringBuilder();
+        if (prefix != null) {
+            sb.append(prefix);
+            sb.append(separator);
+        }
+        if (site != null) {
+            // Remove http(s)://
+            sb.append(site.substring(site.indexOf(':') + 3));
+        } else {
+            sb.append(GLOBAL_KEY);
+        }
+        sb.append(separator);
+        sb.append(key);
+        // Colon is a statsd separator
+        return sb.toString().replace(":", "-");
+    }
 
-	@Override
-	public void counterDec(String key) {
-		statsd2.decrement(getFullKey(key));
-	}
+    @Override
+    public void counterInc(String key) {
+        statsd2.increment(getFullKey(key));
+    }
 
-	@Override
-	public void counterDec(String site, String key) {
-		statsd2.decrement(getFullKey(site, key));
-	}
+    @Override
+    public void counterInc(String site, String key) {
+        statsd2.increment(getFullKey(site, key));
+    }
 
-	@Override
-	public void counterDec(String key, long dec) {
-		statsd2.decrement(getFullKey(key), (int)dec);
-	}
+    @Override
+    public void counterInc(String key, long inc) {
+        statsd2.increment(getFullKey(key), (int) inc);
+    }
 
-	@Override
-	public void counterDec(String site, String key, long dec) {
-		statsd2.decrement(getFullKey(site, key), (int)dec);
-	}
+    @Override
+    public void counterInc(String site, String key, long inc) {
+        statsd2.increment(getFullKey(site, key), (int) inc);
+    }
 
-	@Override
-	public void highwaterMarkSet(String key, long value) {
-		statsd2.gauge(getFullKey(key), value);
-	}
+    @Override
+    public void counterDec(String key) {
+        statsd2.decrement(getFullKey(key));
+    }
 
-	@Override
-	public void highwaterMarkSet(String site, String key, long value) {
-		statsd2.gauge(getFullKey(site, key), value);
-	}
+    @Override
+    public void counterDec(String site, String key) {
+        statsd2.decrement(getFullKey(site, key));
+    }
 
-	@Override
-	public void lowwaterMarkSet(String key, long value) {
-		statsd2.gauge(getFullKey(key), value);
-	}
+    @Override
+    public void counterDec(String key, long dec) {
+        statsd2.decrement(getFullKey(key), (int) dec);
+    }
 
-	@Override
-	public void lowwaterMarkSet(String site, String key, long value) {
-		statsd2.gauge(getFullKey(site, key), value);
-	}
+    @Override
+    public void counterDec(String site, String key, long dec) {
+        statsd2.decrement(getFullKey(site, key), (int) dec);
+    }
 
-	@Override
-	public void allCleared() {
-		// No supported
-	}
+    @Override
+    public void highwaterMarkSet(String key, long value) {
+        statsd2.gauge(getFullKey(key), value);
+    }
 
-	@Override
-	public void allCleared(String site) {
-		// No supported
-	}
+    @Override
+    public void highwaterMarkSet(String site, String key, long value) {
+        statsd2.gauge(getFullKey(site, key), value);
+    }
 
-	@Override
-	public void cleared(String keyPrefix) {
-		// No supported
-	}
+    @Override
+    public void lowwaterMarkSet(String key, long value) {
+        statsd2.gauge(getFullKey(key), value);
+    }
 
-	@Override
-	public void cleared(String site, String keyPrefix) {
-		// No supported
-	}
+    @Override
+    public void lowwaterMarkSet(String site, String key, long value) {
+        statsd2.gauge(getFullKey(site, key), value);
+    }
 
+    @Override
+    public void allCleared() {
+        // No supported
+    }
+
+    @Override
+    public void allCleared(String site) {
+        // No supported
+    }
+
+    @Override
+    public void cleared(String keyPrefix) {
+        // No supported
+    }
+
+    @Override
+    public void cleared(String site, String keyPrefix) {
+        // No supported
+    }
 }

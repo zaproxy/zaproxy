@@ -20,46 +20,51 @@
 package org.parosproxy.paros.core.scanner;
 
 public class MultipartFormParameter {
-	
-	static public enum Type {GENERAL, FILE_NAME, FILE_CONTENT_TYPE};
-	private String name;
-	private String value;
-	private int start;
-	private int end;
-	private int position;
-	private Type type;
-	
-	public MultipartFormParameter(String name, String value, int start, int end, int position, Type type) {
-		this.name = name;
-		this.value = value;
-		this.start = start;
-		this.end = end;
-		this.position = position;
-		this.type = type;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public String getValue() {
-		return value;
-	}
-	
-	public int getStart() {
-		return start;
-	}
-	
-	public int getEnd() {
-		return end;
-	}
-	
-	public int getPosition() {
-		return position;
-	}
-	
-	public Type getType() {
-		return type;
-	}
 
+    public static enum Type {
+        GENERAL,
+        FILE_NAME,
+        FILE_CONTENT_TYPE
+    };
+
+    private String name;
+    private String value;
+    private int start;
+    private int end;
+    private int position;
+    private Type type;
+
+    public MultipartFormParameter(
+            String name, String value, int start, int end, int position, Type type) {
+        this.name = name;
+        this.value = value;
+        this.start = start;
+        this.end = end;
+        this.position = position;
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public int getEnd() {
+        return end;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public Type getType() {
+        return type;
+    }
 }

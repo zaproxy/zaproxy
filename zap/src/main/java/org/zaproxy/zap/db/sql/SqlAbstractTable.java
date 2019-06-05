@@ -21,43 +21,40 @@ package org.zaproxy.zap.db.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.DatabaseUnsupportedException;
-import org.zaproxy.zap.db.sql.SqlDatabaseServer;
 
- public abstract class SqlAbstractTable implements DatabaseListener {
+public abstract class SqlAbstractTable implements DatabaseListener {
 
     private Connection connection = null;
     private SqlDatabaseServer sqlServer = null;
-    
-    public SqlAbstractTable() {
-    }
-    
+
+    public SqlAbstractTable() {}
+
     @Override
-    public void databaseOpen(DatabaseServer server) throws DatabaseException, DatabaseUnsupportedException {
-    	if (server instanceof SqlDatabaseServer) {
+    public void databaseOpen(DatabaseServer server)
+            throws DatabaseException, DatabaseUnsupportedException {
+        if (server instanceof SqlDatabaseServer) {
             this.sqlServer = (SqlDatabaseServer) server;
-    	} else {
-    		throw new DatabaseUnsupportedException();
-    	}
+        } else {
+            throw new DatabaseUnsupportedException();
+        }
         connection = null;
-		reconnect(getConnection());
+        reconnect(getConnection());
     }
-    
+
     protected Connection getConnection() throws DatabaseException {
         try {
-			if (connection == null) {
-				connection = sqlServer.getNewConnection();
-			}
-			return connection;
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+            if (connection == null) {
+                connection = sqlServer.getNewConnection();
+            }
+            return connection;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
-    
-    protected abstract void reconnect(Connection connection) throws DatabaseException;
 
+    protected abstract void reconnect(Connection connection) throws DatabaseException;
 }

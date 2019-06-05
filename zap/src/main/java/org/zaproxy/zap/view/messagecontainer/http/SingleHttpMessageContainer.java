@@ -24,11 +24,11 @@ import org.zaproxy.zap.view.messagecontainer.SingleMessageContainer;
 
 /**
  * A {@code SingleMessageContainer} of {@code HttpMessage}s.
- * 
+ *
  * @see HttpMessage
  * @see HttpMessageContainer
  * @see SingleMessageContainer
  * @since 2.3.0
  */
-public interface SingleHttpMessageContainer extends SingleMessageContainer<HttpMessage>, HttpMessageContainer {
-}
+public interface SingleHttpMessageContainer
+        extends SingleMessageContainer<HttpMessage>, HttpMessageContainer {}

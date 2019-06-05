@@ -20,10 +20,8 @@
 package org.zaproxy.zap.view.table.decorator;
 
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JLabel;
-
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
@@ -39,7 +37,8 @@ public abstract class AbstractTableCellItemIconHighlighter extends AbstractHighl
         this.columnIndex = columnIndex;
     }
 
-    // Implementation adapted from org.jdesktop.swingx.decorator.IconHighlighter#doHighlight(Component, ComponentAdapter)
+    // Implementation adapted from
+    // org.jdesktop.swingx.decorator.IconHighlighter#doHighlight(Component, ComponentAdapter)
     @Override
     protected Component doHighlight(final Component component, final ComponentAdapter adapter) {
         final Icon icon = getIcon(adapter.getValue(columnIndex));
@@ -64,15 +63,15 @@ public abstract class AbstractTableCellItemIconHighlighter extends AbstractHighl
 
     /**
      * {@inheritDoc}
-     * <p>
-     * 
-     * Overridden to return true if the component is of type IconAware or of type JLabel, false otherwise.
-     * <p>
-     * 
-     * Note: special casing JLabel is for backward compatibility - application highlighting code which doesn't use the Swingx
-     * renderers would stop working otherwise.
+     *
+     * <p>Overridden to return true if the component is of type IconAware or of type JLabel, false
+     * otherwise.
+     *
+     * <p>Note: special casing JLabel is for backward compatibility - application highlighting code
+     * which doesn't use the Swingx renderers would stop working otherwise.
      */
-    // Method/JavaDoc copied from org.jdesktop.swingx.decorator.IconHighlighter#canHighlight(Component, ComponentAdapter)
+    // Method/JavaDoc copied from
+    // org.jdesktop.swingx.decorator.IconHighlighter#canHighlight(Component, ComponentAdapter)
     @Override
     protected boolean canHighlight(final Component component, final ComponentAdapter adapter) {
         return component instanceof IconAware || component instanceof JLabel;
@@ -82,7 +81,8 @@ public abstract class AbstractTableCellItemIconHighlighter extends AbstractHighl
 
         @Override
         public boolean isHighlighted(final Component renderer, final ComponentAdapter adapter) {
-            return AbstractTableCellItemIconHighlighter.this.isHighlighted(adapter.getValue(columnIndex));
+            return AbstractTableCellItemIconHighlighter.this.isHighlighted(
+                    adapter.getValue(columnIndex));
         }
     }
 }

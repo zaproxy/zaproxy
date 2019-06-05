@@ -19,15 +19,14 @@
  */
 package org.zaproxy.zap.utils;
 
-
 public class ZapPortNumberSpinner extends ZapNumberSpinner {
 
-	private static final long serialVersionUID = -3475273563365395482L;
-	
-	private static final int MIN_PORT = 1;
-	private static final int MAX_PORT = 65535;
+    private static final long serialVersionUID = -3475273563365395482L;
 
-	public ZapPortNumberSpinner(int defaultPortNumber) {
-		super(MIN_PORT, defaultPortNumber, MAX_PORT);
-	}
+    private static final int MIN_PORT = 1;
+    private static final int MAX_PORT = 65535;
+
+    public ZapPortNumberSpinner(int defaultPortNumber) {
+        super(MIN_PORT, defaultPortNumber, MAX_PORT);
+    }
 }

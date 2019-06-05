@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.proxies;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.sf.json.JSONObject;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -30,8 +30,6 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
-
-import net.sf.json.JSONObject;
 
 public class ProxiesAPI extends ApiImplementor {
 
@@ -54,9 +52,12 @@ public class ProxiesAPI extends ApiImplementor {
         this.addApiAction(
                 new ApiAction(
                         ACTION_ADD_PROXY,
-                        new String[] { PARAM_ADDRESS, PARAM_PORT },
-                        new String[] { PARAM_BEHIND_NAT, PARAM_DECODE_ZIP, PARAM_REM_UNSUPPORTED_ENC }));
-        this.addApiAction(new ApiAction(ACTION_REMOVE_PROXY, new String[] { PARAM_ADDRESS, PARAM_PORT }));
+                        new String[] {PARAM_ADDRESS, PARAM_PORT},
+                        new String[] {
+                            PARAM_BEHIND_NAT, PARAM_DECODE_ZIP, PARAM_REM_UNSUPPORTED_ENC
+                        }));
+        this.addApiAction(
+                new ApiAction(ACTION_REMOVE_PROXY, new String[] {PARAM_ADDRESS, PARAM_PORT}));
     }
 
     @Override
@@ -76,7 +77,9 @@ public class ProxiesAPI extends ApiImplementor {
                 map.put("enabled", Boolean.toString(p.isEnabled()));
                 map.put("behindNat", Boolean.toString(p.isBehindNat()));
                 map.put("alwaysDecodeZip", Boolean.toString(p.isAlwaysDecodeGzip()));
-                map.put("removeUnsupportedEncodings", Boolean.toString(p.isRemoveUnsupportedEncodings()));
+                map.put(
+                        "removeUnsupportedEncodings",
+                        Boolean.toString(p.isRemoveUnsupportedEncodings()));
                 response.addItem(new ApiResponseSet<String>("proxy", map));
             }
 

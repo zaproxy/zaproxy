@@ -20,71 +20,65 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.Component;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 /**
- * The PopupMenuRemoveSession is used to delete a http session from the
- * {@link ExtensionHttpSessions} .
+ * The PopupMenuRemoveSession is used to delete a http session from the {@link
+ * ExtensionHttpSessions} .
  */
 public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 1L;
 
-	/** The extension. */
-	private ExtensionHttpSessions extension;
+    /** The extension. */
+    private ExtensionHttpSessions extension;
 
-	/**
-	 * Instantiates a new popup menu used to delete a session.
-	 */
-	public PopupMenuRemoveSession() {
-		super(Constant.messages.getString("httpsessions.popup.session.remove"));
-		initialize();
-	}
+    /** Instantiates a new popup menu used to delete a session. */
+    public PopupMenuRemoveSession() {
+        super(Constant.messages.getString("httpsessions.popup.session.remove"));
+        initialize();
+    }
 
-	/**
-	 * Sets the extension.
-	 * 
-	 * @param extension the new extension
-	 */
-	public void setExtension(ExtensionHttpSessions extension) {
-		this.extension = extension;
-	}
+    /**
+     * Sets the extension.
+     *
+     * @param extension the new extension
+     */
+    public void setExtension(ExtensionHttpSessions extension) {
+        this.extension = extension;
+    }
 
-	/**
-	 * Initialize the popup menu.
-	 */
-	private void initialize() {
-		this.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				// Get the HttpSessionsSite
-				HttpSessionsPanel panel = extension.getHttpSessionsPanel();
-				HttpSessionsSite site = panel.getCurrentHttpSessionSite();
-				if (site == null)
-					return;
+    /** Initialize the popup menu. */
+    private void initialize() {
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        // Get the HttpSessionsSite
+                        HttpSessionsPanel panel = extension.getHttpSessionsPanel();
+                        HttpSessionsSite site = panel.getCurrentHttpSessionSite();
+                        if (site == null) return;
 
-				// Get the selected session, delete it and trigger a table repaint
-				HttpSession item = panel.getSelectedSession();
-				site.removeHttpSession(item);
-			}
-		});
+                        // Get the selected session, delete it and trigger a table repaint
+                        HttpSession item = panel.getSelectedSession();
+                        site.removeHttpSession(item);
+                    }
+                });
+    }
 
-	}
+    @Override
+    public boolean isEnableForComponent(Component invoker) {
+        if (HttpSessionsPanel.PANEL_NAME.equals(invoker.getName())) {
+            setEnabled(extension.getHttpSessionsPanel().getSelectedSession() != null);
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public boolean isEnableForComponent(Component invoker) {
-		if (HttpSessionsPanel.PANEL_NAME.equals(invoker.getName())) {
-			setEnabled(extension.getHttpSessionsPanel().getSelectedSession() != null);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean isSafe() {
-		return true;
-	}
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

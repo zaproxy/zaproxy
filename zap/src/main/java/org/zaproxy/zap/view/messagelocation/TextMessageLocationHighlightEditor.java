@@ -23,24 +23,24 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
-
 import org.parosproxy.paros.Constant;
 
 /**
- * A {@code TableCellEditor} for {@code TextMessageLocationHighlight}s that allows to choose its colour from a table cell.
- * 
+ * A {@code TableCellEditor} for {@code TextMessageLocationHighlight}s that allows to choose its
+ * colour from a table cell.
+ *
  * @since 2.4.0
  * @see TextMessageLocationHighlight
  * @see TextMessageLocationHighlightRenderer
  */
-public class TextMessageLocationHighlightEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+public class TextMessageLocationHighlightEditor extends AbstractCellEditor
+        implements TableCellEditor, ActionListener {
 
     private static final long serialVersionUID = -4872445961159101261L;
 
@@ -58,13 +58,14 @@ public class TextMessageLocationHighlightEditor extends AbstractCellEditor imple
         button.setBorderPainted(false);
 
         colorChooser = new JColorChooser();
-        dialog = JColorChooser.createDialog(
-                button,
-                Constant.messages.getString("messagelocation.text.highlight.colorpicker"),
-                true,
-                colorChooser,
-                this,
-                null);
+        dialog =
+                JColorChooser.createDialog(
+                        button,
+                        Constant.messages.getString("messagelocation.text.highlight.colorpicker"),
+                        true,
+                        colorChooser,
+                        this,
+                        null);
     }
 
     @Override
@@ -86,7 +87,8 @@ public class TextMessageLocationHighlightEditor extends AbstractCellEditor imple
     }
 
     @Override
-    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+    public Component getTableCellEditorComponent(
+            JTable table, Object value, boolean isSelected, int row, int column) {
         currentColor = ((TextMessageLocationHighlight) value).getColor();
         button.setBackground(currentColor);
 

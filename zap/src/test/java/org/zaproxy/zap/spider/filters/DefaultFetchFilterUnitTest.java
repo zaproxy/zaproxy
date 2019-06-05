@@ -28,7 +28,6 @@ import static org.mockito.Matchers.anyString;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -42,14 +41,11 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
-/**
- * Unit test for {@link DefaultFetchFilter}.
- */
+/** Unit test for {@link DefaultFetchFilter}. */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultFetchFilterUnitTest {
 
-    @Mock
-    Context context;
+    @Mock Context context;
 
     private DefaultFetchFilter filter;
 

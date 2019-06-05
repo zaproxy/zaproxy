@@ -37,10 +37,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.script.Compilable;
 import javax.script.ScriptEngineManager;
-
 import org.junit.Test;
 
 /** Verifies that the script templates are parsed without errors. */
@@ -63,19 +61,25 @@ public class VerifyScriptTemplates {
     private static List<Path> getScriptTemplates(String extension) throws Exception {
         String dirName = "/scripts/templates";
         URL dirPath = VerifyScriptTemplates.class.getResource(dirName);
-        assertThat("Directory " + dirName + " not found on the classpath.", dirPath, is(not(nullValue())));
+        assertThat(
+                "Directory " + dirName + " not found on the classpath.",
+                dirPath,
+                is(not(nullValue())));
 
         List<Path> templates = new ArrayList<>();
-        Files.walkFileTree(Paths.get(dirPath.toURI()), new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(
+                Paths.get(dirPath.toURI()),
+                new SimpleFileVisitor<Path>() {
 
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                if (file.getFileName().toString().endsWith(extension)) {
-                    templates.add(file);
-                }
-                return FileVisitResult.CONTINUE;
-            }
-        });
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException {
+                        if (file.getFileName().toString().endsWith(extension)) {
+                            templates.add(file);
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
 
         assertThat("No templates found in: " + dirPath, templates, is(not(empty())));
 

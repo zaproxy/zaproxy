@@ -26,27 +26,33 @@ import javax.swing.SwingConstants;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.ZAP;
 
-/**
- * Clickable helper class for actions
- */
+/** Clickable helper class for actions */
 public class ScanProgressActionIcon extends JLabel {
 
     private static final long serialVersionUID = 1L;
-    private static final ImageIcon completedIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/10/102.png"));
-    private static final ImageIcon skippedIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/10/150.png"));
-    private static final ImageIcon skipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_16.png"));
-    private static final ImageIcon focusedSkipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_focused_16.png"));
-    private static final ImageIcon pressedSkipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_pressed_16.png"));
-    private static final ImageIcon SKIP_PENDING_ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending.png"));
-    private static final ImageIcon SKIP_PENDING_FOCUSED_ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending-focused.png"));
-    private static final ImageIcon SKIP_PENDING_PRESSED_ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending-pressed.png"));
-    
+    private static final ImageIcon completedIcon =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/10/102.png"));
+    private static final ImageIcon skippedIcon =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/10/150.png"));
+    private static final ImageIcon skipIcon =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_16.png"));
+    private static final ImageIcon focusedSkipIcon =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_focused_16.png"));
+    private static final ImageIcon pressedSkipIcon =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_pressed_16.png"));
+    private static final ImageIcon SKIP_PENDING_ICON =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending.png"));
+    private static final ImageIcon SKIP_PENDING_FOCUSED_ICON =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending-focused.png"));
+    private static final ImageIcon SKIP_PENDING_PRESSED_ICON =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip-pending-pressed.png"));
+
     public static final int CLICKABLE_ICON_WIDTH = 24;
     public static final int CLICKABLE_ICON_HEIGHT = 16;
     private static final int STATE_NORMAL = 0;
     private static final int STATE_FOCUSED = 1;
     private static final int STATE_PRESSED = 2;
-    
+
     private int state;
     private ScanProgressItem item;
 
@@ -65,7 +71,7 @@ public class ScanProgressActionIcon extends JLabel {
 
     /**
      * Updates this action icon with the given scan progress item.
-     * 
+     *
      * @param item new the scan progress item
      */
     public void updateStatus(ScanProgressItem item) {
@@ -116,7 +122,7 @@ public class ScanProgressActionIcon extends JLabel {
      *
      * @return the text to show when the plugin is skipped.
      */
-    private String getSkipText(){
+    private String getSkipText() {
         String reason = item.getSkippedReason();
         if (reason != null) {
             return Constant.messages.getString("ascan.progress.label.skippedWithReason", reason);

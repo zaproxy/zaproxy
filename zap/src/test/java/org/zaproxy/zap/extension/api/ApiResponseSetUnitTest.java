@@ -23,12 +23,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link ApiResponseElement}.
- */
+/** Unit test for {@link ApiResponseElement}. */
 public class ApiResponseSetUnitTest {
 
     @Test

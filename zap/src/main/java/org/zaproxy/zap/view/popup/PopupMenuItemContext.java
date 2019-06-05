@@ -23,9 +23,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 
-/**
- * @since 2.3.0
- */
+/** @since 2.3.0 */
 public abstract class PopupMenuItemContext extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 2282358266003940700L;
@@ -56,7 +54,8 @@ public abstract class PopupMenuItemContext extends PopupMenuItemSiteNodeContaine
     }
 
     @Override
-    protected boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+    protected boolean isEnableForInvoker(
+            Invoker invoker, HttpMessageContainer httpMessageContainer) {
         if (invoker == Invoker.SITES_PANEL || invoker == Invoker.HISTORY_PANEL) {
             return true;
         }

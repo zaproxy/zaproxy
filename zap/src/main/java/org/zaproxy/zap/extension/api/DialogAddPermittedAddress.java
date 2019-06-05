@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.api;
 
 import java.awt.Dialog;
 import java.util.regex.Pattern;
-
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -29,7 +28,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -39,18 +37,23 @@ class DialogAddPermittedAddress extends AbstractFormDialog {
 
     private static final long serialVersionUID = -7356390753317082681L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("api.options.addr.add.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("api.options.addr.add.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.addr.add.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("api.options.addr.add.button.confirm");
 
-    private static final String DOMAIN_FIELD_LABEL = Constant.messages.getString("api.options.addr.field.label.domain");
-    private static final String REGEX_FIELD_LABEL = Constant.messages.getString("api.options.addr.field.label.regex");
-    private static final String ENABLED_FIELD_LABEL = Constant.messages.getString("api.options.addr.field.label.enabled");
+    private static final String DOMAIN_FIELD_LABEL =
+            Constant.messages.getString("api.options.addr.field.label.domain");
+    private static final String REGEX_FIELD_LABEL =
+            Constant.messages.getString("api.options.addr.field.label.regex");
+    private static final String ENABLED_FIELD_LABEL =
+            Constant.messages.getString("api.options.addr.field.label.enabled");
 
-    private static final String TITLE_INVALID_REGEX_DIALOG = Constant.messages
-            .getString("api.options.addr.warning.invalid.regex.title");
-    private static final String TEXT_INVALID_REGEX_DIALOG = Constant.messages
-            .getString("api.options.addr.warning.invalid.regex.text");
+    private static final String TITLE_INVALID_REGEX_DIALOG =
+            Constant.messages.getString("api.options.addr.warning.invalid.regex.title");
+    private static final String TEXT_INVALID_REGEX_DIALOG =
+            Constant.messages.getString("api.options.addr.warning.invalid.regex.text");
 
     private ZapTextField addressTextField;
     private JCheckBox regexCheckBox;
@@ -170,7 +173,9 @@ class DialogAddPermittedAddress extends AbstractFormDialog {
     protected ZapTextField getAddressTextField() {
         if (addressTextField == null) {
             addressTextField = new ZapTextField(25);
-            addressTextField.getDocument().addDocumentListener(getConfirmButtonValidatorDocListener());
+            addressTextField
+                    .getDocument()
+                    .addDocumentListener(getConfirmButtonValidatorDocListener());
         }
 
         return addressTextField;
@@ -224,5 +229,4 @@ class DialogAddPermittedAddress extends AbstractFormDialog {
             setConfirmButtonEnabled(enabled);
         }
     }
-
 }

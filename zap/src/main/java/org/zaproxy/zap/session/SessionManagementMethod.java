@@ -29,84 +29,83 @@ import org.zaproxy.zap.extension.api.ApiResponse;
  */
 public interface SessionManagementMethod {
 
-	/**
-	 * Checks if the session management method is fully configured.
-	 * 
-	 * @return true, if is configured
-	 */
-	public boolean isConfigured();
+    /**
+     * Checks if the session management method is fully configured.
+     *
+     * @return true, if is configured
+     */
+    public boolean isConfigured();
 
-	/**
-	 * Gets the {@link SessionManagementMethodType} corresponding to this session management method.
-	 * <p>
-	 * Implementations may return new instantiations at every call, so performance considerations
-	 * should be taken by users.
-	 * </p>
-	 * 
-	 * @return the type
-	 */
-	public SessionManagementMethodType getType();
+    /**
+     * Gets the {@link SessionManagementMethodType} corresponding to this session management method.
+     *
+     * <p>Implementations may return new instantiations at every call, so performance considerations
+     * should be taken by users.
+     *
+     * @return the type
+     */
+    public SessionManagementMethodType getType();
 
-	/**
-	 * Clones the current session management method, creating a deep-copy of it.
-	 * 
-	 * @return a deep copy of the session management method
-	 */
-	public SessionManagementMethod clone();
+    /**
+     * Clones the current session management method, creating a deep-copy of it.
+     *
+     * @return a deep copy of the session management method
+     */
+    public SessionManagementMethod clone();
 
-	/**
-	 * Extracts the web session information from a Http Message, creating a {@link WebSession}
-	 * object corresponding to the Session Management Method.
-	 * 
-	 * @param msg the msg
-	 * @return the web session
-	 */
-	public WebSession extractWebSession(HttpMessage msg);
-	
-	/**
-	 * Creates an empty web session.
-	 *
-	 * @return the web session
-	 */
-	public WebSession createEmptyWebSession();
+    /**
+     * Extracts the web session information from a Http Message, creating a {@link WebSession}
+     * object corresponding to the Session Management Method.
+     *
+     * @param msg the msg
+     * @return the web session
+     */
+    public WebSession extractWebSession(HttpMessage msg);
 
-	/**
-	 * Clears any tokens or elements that can link the HttpMessage provided as a parameter to a
-	 * WebSession.
-	 * 
-	 * @param msg the http message
-	 */
-	public void clearWebSessionIdentifiers(HttpMessage msg);
-	
-	/**
-	 * Gets an api response that represents the Session Management Method.
-	 * 
-	 * @return the api response representation
-	 */
-	public abstract ApiResponse getApiResponseRepresentation();
+    /**
+     * Creates an empty web session.
+     *
+     * @return the web session
+     */
+    public WebSession createEmptyWebSession();
 
-	/**
-	 * Modifies a message so its Request Header/Body matches the given web session, according to
-	 * this session management method.
-	 * 
-	 * @param message the message
-	 * @param session the session
-	 * @throws UnsupportedWebSessionException if the web session type is unsupported
-	 */
-	public void processMessageToMatchSession(HttpMessage message, WebSession session)
-			throws UnsupportedWebSessionException;
+    /**
+     * Clears any tokens or elements that can link the HttpMessage provided as a parameter to a
+     * WebSession.
+     *
+     * @param msg the http message
+     */
+    public void clearWebSessionIdentifiers(HttpMessage msg);
 
-	/**
-	 * Thrown when an unsupported type of web session is used with a {@link SessionManagementMethod}
-	 * .
-	 */
-	public class UnsupportedWebSessionException extends RuntimeException {
+    /**
+     * Gets an api response that represents the Session Management Method.
+     *
+     * @return the api response representation
+     */
+    public abstract ApiResponse getApiResponseRepresentation();
 
-		/** The Constant serialVersionUID. */
-		private static final long serialVersionUID = 4802501809913124766L;
+    /**
+     * Modifies a message so its Request Header/Body matches the given web session, according to
+     * this session management method.
+     *
+     * @param message the message
+     * @param session the session
+     * @throws UnsupportedWebSessionException if the web session type is unsupported
+     */
+    public void processMessageToMatchSession(HttpMessage message, WebSession session)
+            throws UnsupportedWebSessionException;
 
-		public UnsupportedWebSessionException(String message) {
-			super(message);
-		}
-	}
+    /**
+     * Thrown when an unsupported type of web session is used with a {@link SessionManagementMethod}
+     * .
+     */
+    public class UnsupportedWebSessionException extends RuntimeException {
+
+        /** The Constant serialVersionUID. */
+        private static final long serialVersionUID = 4802501809913124766L;
+
+        public UnsupportedWebSessionException(String message) {
+            super(message);
+        }
+    }
 }

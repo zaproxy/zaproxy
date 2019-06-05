@@ -20,11 +20,9 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.awt.Component;
-
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-
 import org.parosproxy.paros.core.scanner.Alert;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -33,20 +31,27 @@ public class AlertTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private static final long serialVersionUID = 1L;
 
-    private static final ImageIcon LEAF_ICON = DisplayUtils
-            .getScaledIcon(new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png")));
-    private static final ImageIcon FOLDER_OPEN_ICON = DisplayUtils.getScaledIcon(
-            new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png")));
-    private static final ImageIcon FOLDER_CLOSED_ICON = DisplayUtils.getScaledIcon(
-            new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png")));
+    private static final ImageIcon LEAF_ICON =
+            DisplayUtils.getScaledIcon(
+                    new ImageIcon(
+                            SiteMapTreeCellRenderer.class.getResource(
+                                    "/resource/icon/fugue/document.png")));
+    private static final ImageIcon FOLDER_OPEN_ICON =
+            DisplayUtils.getScaledIcon(
+                    new ImageIcon(
+                            SiteMapTreeCellRenderer.class.getResource(
+                                    "/resource/icon/fugue/folder-horizontal-open.png")));
+    private static final ImageIcon FOLDER_CLOSED_ICON =
+            DisplayUtils.getScaledIcon(
+                    new ImageIcon(
+                            SiteMapTreeCellRenderer.class.getResource(
+                                    "/resource/icon/fugue/folder-horizontal.png")));
 
     public AlertTreeCellRenderer() {
         this.putClientProperty("html.disable", Boolean.TRUE);
     }
 
-    /**
-     * Sets the relevant tree icons.
-     */
+    /** Sets the relevant tree icons. */
     @Override
     public Component getTreeCellRendererComponent(
             JTree tree,
@@ -77,5 +82,4 @@ public class AlertTreeCellRenderer extends DefaultTreeCellRenderer {
         }
         return this;
     }
-
 }

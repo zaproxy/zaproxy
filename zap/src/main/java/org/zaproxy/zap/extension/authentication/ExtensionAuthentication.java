@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
@@ -53,307 +52,321 @@ import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
-/**
- * The Extension that handles Authentication methods, in correlation with Contexts.
- */
-public class ExtensionAuthentication extends ExtensionAdaptor implements ContextPanelFactory,
-		ContextDataFactory {
+/** The Extension that handles Authentication methods, in correlation with Contexts. */
+public class ExtensionAuthentication extends ExtensionAdaptor
+        implements ContextPanelFactory, ContextDataFactory {
 
-	public static final int EXTENSION_ORDER = 52;
-	
-	/** The NAME of the extension. */
-	public static final String NAME = "ExtensionAuthentication";
+    public static final int EXTENSION_ORDER = 52;
 
-	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(ExtensionAuthentication.class);
+    /** The NAME of the extension. */
+    public static final String NAME = "ExtensionAuthentication";
 
-	/** The automatically loaded authentication method types. */
-	List<AuthenticationMethodType> authenticationMethodTypes;
+    /** The Constant log. */
+    private static final Logger log = Logger.getLogger(ExtensionAuthentication.class);
 
-	/** The context panels map. */
-	private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
+    /** The automatically loaded authentication method types. */
+    List<AuthenticationMethodType> authenticationMethodTypes;
 
-	private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory;
+    /** The context panels map. */
+    private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
 
-	private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory;
+    private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory;
 
-	AuthenticationAPI api;
+    private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory;
 
-	public ExtensionAuthentication() {
-		super();
-		initialize();
-	}
+    AuthenticationAPI api;
 
-	/**
-	 * Initialize the extension.
-	 */
-	private void initialize() {
-		this.setName(NAME);
-		this.setOrder(EXTENSION_ORDER);
-	}
+    public ExtensionAuthentication() {
+        super();
+        initialize();
+    }
 
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    /** Initialize the extension. */
+    private void initialize() {
+        this.setName(NAME);
+        this.setOrder(EXTENSION_ORDER);
+    }
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("authentication.name");
-	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
-		// Register this as a context data factory
-		extensionHook.addContextDataFactory(this);
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 
-		if (getView() != null) {
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("authentication.name");
+    }
 
-			// Factory for generating Session Context UserAuth panels
-			extensionHook.getHookView().addContextPanelFactory(this);
-		}
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        // Register this as a context data factory
+        extensionHook.addContextDataFactory(this);
 
-		// Load the Authentication and Session Management methods
-		this.loadAuthenticationMethodTypes(extensionHook);
+        if (getView() != null) {
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
 
-		// Register the api
-		this.api = new AuthenticationAPI(this);
-		extensionHook.addApiImplementor(api);
-	}
+            // Factory for generating Session Context UserAuth panels
+            extensionHook.getHookView().addContextPanelFactory(this);
+        }
 
-	@Override
-	public AbstractContextPropertiesPanel getContextPanel(Context context) {
-		ContextAuthenticationPanel panel = this.contextPanelsMap.get(context.getIndex());
-		if (panel == null) {
-			panel = new ContextAuthenticationPanel(this, context);
-			this.contextPanelsMap.put(context.getIndex(), panel);
-		}
-		return panel;
-	}
+        // Load the Authentication and Session Management methods
+        this.loadAuthenticationMethodTypes(extensionHook);
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+        // Register the api
+        this.api = new AuthenticationAPI(this);
+        extensionHook.addApiImplementor(api);
+    }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public AbstractContextPropertiesPanel getContextPanel(Context context) {
+        ContextAuthenticationPanel panel = this.contextPanelsMap.get(context.getIndex());
+        if (panel == null) {
+            panel = new ContextAuthenticationPanel(this, context);
+            this.contextPanelsMap.put(context.getIndex(), panel);
+        }
+        return panel;
+    }
 
-	/**
-	 * Gets the popup menu for flagging the "Logged in" pattern.
-	 * 
-	 * @return the popup menu
-	 */
-	private PopupContextMenuItemFactory getPopupFlagLoggedInIndicatorMenu() {
-		if (this.popupFlagLoggedInIndicatorMenuFactory == null) {
-			popupFlagLoggedInIndicatorMenuFactory = new PopupContextMenuItemFactory("dd - "
-					+ Constant.messages.getString("context.flag.popup")) {
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-				private static final long serialVersionUID = 2453839120088204122L;
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-				@Override
-				public ExtensionPopupMenuItem getContextMenu(Context context, String parentMenu) {
-					return new PopupFlagLoggedInIndicatorMenu(context);
-				}
+    /**
+     * Gets the popup menu for flagging the "Logged in" pattern.
+     *
+     * @return the popup menu
+     */
+    private PopupContextMenuItemFactory getPopupFlagLoggedInIndicatorMenu() {
+        if (this.popupFlagLoggedInIndicatorMenuFactory == null) {
+            popupFlagLoggedInIndicatorMenuFactory =
+                    new PopupContextMenuItemFactory(
+                            "dd - " + Constant.messages.getString("context.flag.popup")) {
 
-			};
-		}
-		return this.popupFlagLoggedInIndicatorMenuFactory;
-	}
+                        private static final long serialVersionUID = 2453839120088204122L;
 
-	/**
-	 * Gets the popup menu for flagging the "Logged out" pattern.
-	 * 
-	 * @return the popup menu
-	 */
-	private PopupContextMenuItemFactory getPopupFlagLoggedOutIndicatorMenu() {
-		if (this.popupFlagLoggedOutIndicatorMenuFactory == null) {
-			popupFlagLoggedOutIndicatorMenuFactory = new PopupContextMenuItemFactory("dd - "
-					+ Constant.messages.getString("context.flag.popup")) {
+                        @Override
+                        public ExtensionPopupMenuItem getContextMenu(
+                                Context context, String parentMenu) {
+                            return new PopupFlagLoggedInIndicatorMenu(context);
+                        }
+                    };
+        }
+        return this.popupFlagLoggedInIndicatorMenuFactory;
+    }
 
-				private static final long serialVersionUID = 2453839120088204123L;
+    /**
+     * Gets the popup menu for flagging the "Logged out" pattern.
+     *
+     * @return the popup menu
+     */
+    private PopupContextMenuItemFactory getPopupFlagLoggedOutIndicatorMenu() {
+        if (this.popupFlagLoggedOutIndicatorMenuFactory == null) {
+            popupFlagLoggedOutIndicatorMenuFactory =
+                    new PopupContextMenuItemFactory(
+                            "dd - " + Constant.messages.getString("context.flag.popup")) {
 
-				@Override
-				public ExtensionPopupMenuItem getContextMenu(Context context, String parentMenu) {
-					return new PopupFlagLoggedOutIndicatorMenu(context);
-				}
+                        private static final long serialVersionUID = 2453839120088204123L;
 
-			};
-		}
-		return this.popupFlagLoggedOutIndicatorMenuFactory;
-	}
+                        @Override
+                        public ExtensionPopupMenuItem getContextMenu(
+                                Context context, String parentMenu) {
+                            return new PopupFlagLoggedOutIndicatorMenu(context);
+                        }
+                    };
+        }
+        return this.popupFlagLoggedOutIndicatorMenuFactory;
+    }
 
-	/**
-	 * Loads the authentication method types and hooks them up.
-	 * 
-	 * @param hook the extension hook
-	 */
-	private void loadAuthenticationMethodTypes(ExtensionHook hook) {
-		this.authenticationMethodTypes = new ArrayList<>();
-		this.authenticationMethodTypes.add(new FormBasedAuthenticationMethodType());
-		this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
-		this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
-		this.authenticationMethodTypes.add(new ScriptBasedAuthenticationMethodType());
-		this.authenticationMethodTypes.add(new JsonBasedAuthenticationMethodType());
+    /**
+     * Loads the authentication method types and hooks them up.
+     *
+     * @param hook the extension hook
+     */
+    private void loadAuthenticationMethodTypes(ExtensionHook hook) {
+        this.authenticationMethodTypes = new ArrayList<>();
+        this.authenticationMethodTypes.add(new FormBasedAuthenticationMethodType());
+        this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
+        this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
+        this.authenticationMethodTypes.add(new ScriptBasedAuthenticationMethodType());
+        this.authenticationMethodTypes.add(new JsonBasedAuthenticationMethodType());
 
-		for (AuthenticationMethodType a : authenticationMethodTypes) {
-			a.hook(hook);
-		}
+        for (AuthenticationMethodType a : authenticationMethodTypes) {
+            a.hook(hook);
+        }
 
-		if (log.isInfoEnabled()) {
-			log.info("Loaded authentication method types: " + authenticationMethodTypes);
-		}
-	}
+        if (log.isInfoEnabled()) {
+            log.info("Loaded authentication method types: " + authenticationMethodTypes);
+        }
+    }
 
-	/**
-	 * Gets all the registered/loaded authentication method types.
-	 * 
-	 * @return the authentication method types
-	 */
-	public List<AuthenticationMethodType> getAuthenticationMethodTypes() {
-		return authenticationMethodTypes;
-	}
+    /**
+     * Gets all the registered/loaded authentication method types.
+     *
+     * @return the authentication method types
+     */
+    public List<AuthenticationMethodType> getAuthenticationMethodTypes() {
+        return authenticationMethodTypes;
+    }
 
-	/**
-	 * Gets the authentication method type for a given identifier.
-	 * 
-	 * @param id the id
-	 * @return the authentication method type for identifier
-	 */
-	public AuthenticationMethodType getAuthenticationMethodTypeForIdentifier(int id) {
-		for (AuthenticationMethodType t : getAuthenticationMethodTypes())
-			if (t.getUniqueIdentifier() == id)
-				return t;
-		return null;
-	}
+    /**
+     * Gets the authentication method type for a given identifier.
+     *
+     * @param id the id
+     * @return the authentication method type for identifier
+     */
+    public AuthenticationMethodType getAuthenticationMethodTypeForIdentifier(int id) {
+        for (AuthenticationMethodType t : getAuthenticationMethodTypes())
+            if (t.getUniqueIdentifier() == id) return t;
+        return null;
+    }
 
-	/**
-	 * Gets the URI for the login request that corresponds to a given context, if any.
-	 * 
-	 * @param ctx the context
-	 * @return the login request uri for context, or <code>null</code>, if the context does not have
-	 *         a 'login request' configured
-	 */
-	public URI getLoginRequestURIForContext(Context ctx) {
-		if (!(ctx.getAuthenticationMethod() instanceof FormBasedAuthenticationMethod))
-			return null;
-		FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) ctx.getAuthenticationMethod();
-		try {
-			return new URI(method.getLoginRequestURL(), false);
-		} catch (URIException | NullPointerException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+    /**
+     * Gets the URI for the login request that corresponds to a given context, if any.
+     *
+     * @param ctx the context
+     * @return the login request uri for context, or <code>null</code>, if the context does not have
+     *     a 'login request' configured
+     */
+    public URI getLoginRequestURIForContext(Context ctx) {
+        if (!(ctx.getAuthenticationMethod() instanceof FormBasedAuthenticationMethod)) return null;
+        FormBasedAuthenticationMethod method =
+                (FormBasedAuthenticationMethod) ctx.getAuthenticationMethod();
+        try {
+            return new URI(method.getLoginRequestURL(), false);
+        } catch (URIException | NullPointerException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-	@Override
-	public void loadContextData(Session session, Context context) {
-		try {
-			List<String> typeL = session.getContextDataStrings(context.getIndex(),
-					RecordContext.TYPE_AUTH_METHOD_TYPE);
-			if (typeL != null && typeL.size() > 0) {
-				AuthenticationMethodType t = getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL
-						.get(0)));
-				if (t != null) {
-					context.setAuthenticationMethod(t.loadMethodFromSession(session, context.getIndex()));
+    @Override
+    public void loadContextData(Session session, Context context) {
+        try {
+            List<String> typeL =
+                    session.getContextDataStrings(
+                            context.getIndex(), RecordContext.TYPE_AUTH_METHOD_TYPE);
+            if (typeL != null && typeL.size() > 0) {
+                AuthenticationMethodType t =
+                        getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL.get(0)));
+                if (t != null) {
+                    context.setAuthenticationMethod(
+                            t.loadMethodFromSession(session, context.getIndex()));
 
-					List<String> loginIndicatorL = session.getContextDataStrings(context.getIndex(),
-							RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR);
-					if (loginIndicatorL != null && loginIndicatorL.size() > 0)
-						context.getAuthenticationMethod().setLoggedInIndicatorPattern(loginIndicatorL.get(0));
+                    List<String> loginIndicatorL =
+                            session.getContextDataStrings(
+                                    context.getIndex(),
+                                    RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR);
+                    if (loginIndicatorL != null && loginIndicatorL.size() > 0)
+                        context.getAuthenticationMethod()
+                                .setLoggedInIndicatorPattern(loginIndicatorL.get(0));
 
-					List<String> logoutIndicatorL = session.getContextDataStrings(context.getIndex(),
-							RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR);
-					if (logoutIndicatorL != null && logoutIndicatorL.size() > 0)
-						context.getAuthenticationMethod().setLoggedOutIndicatorPattern(
-								logoutIndicatorL.get(0));
-				}
-			}
+                    List<String> logoutIndicatorL =
+                            session.getContextDataStrings(
+                                    context.getIndex(),
+                                    RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR);
+                    if (logoutIndicatorL != null && logoutIndicatorL.size() > 0)
+                        context.getAuthenticationMethod()
+                                .setLoggedOutIndicatorPattern(logoutIndicatorL.get(0));
+                }
+            }
 
-		} catch (DatabaseException e) {
-			log.error("Unable to load Authentication method.", e);
-		}
+        } catch (DatabaseException e) {
+            log.error("Unable to load Authentication method.", e);
+        }
+    }
 
-	}
+    @Override
+    public void persistContextData(Session session, Context context) {
+        try {
+            int contextIdx = context.getIndex();
+            AuthenticationMethodType t = context.getAuthenticationMethod().getType();
+            session.setContextData(
+                    contextIdx,
+                    RecordContext.TYPE_AUTH_METHOD_TYPE,
+                    Integer.toString(t.getUniqueIdentifier()));
 
-	@Override
-	public void persistContextData(Session session, Context context) {
-		try {
-			int contextIdx = context.getIndex();
-			AuthenticationMethodType t = context.getAuthenticationMethod().getType();
-			session.setContextData(contextIdx, RecordContext.TYPE_AUTH_METHOD_TYPE,
-					Integer.toString(t.getUniqueIdentifier()));
+            persistLoggedIndicator(
+                    session,
+                    contextIdx,
+                    RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
+                    context.getAuthenticationMethod().getLoggedInIndicatorPattern());
 
-			persistLoggedIndicator(session, contextIdx, RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
-					context.getAuthenticationMethod().getLoggedInIndicatorPattern());
+            persistLoggedIndicator(
+                    session,
+                    contextIdx,
+                    RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR,
+                    context.getAuthenticationMethod().getLoggedOutIndicatorPattern());
 
-			persistLoggedIndicator(session, contextIdx, RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR, 
-					context.getAuthenticationMethod().getLoggedOutIndicatorPattern());
+            t.persistMethodToSession(session, contextIdx, context.getAuthenticationMethod());
+        } catch (DatabaseException e) {
+            log.error("Unable to persist Authentication method.", e);
+        }
+    }
 
-			t.persistMethodToSession(session, contextIdx, context.getAuthenticationMethod());
-		} catch (DatabaseException e) {
-			log.error("Unable to persist Authentication method.", e);
-		}
-	}
+    private static void persistLoggedIndicator(
+            Session session, int contextIdx, int recordType, Pattern pattern)
+            throws DatabaseException {
+        if (pattern != null) {
+            session.setContextData(contextIdx, recordType, pattern.toString());
+        } else {
+            session.clearContextDataForType(contextIdx, recordType);
+        }
+    }
 
-	private static void persistLoggedIndicator(Session session, int contextIdx, int recordType, Pattern pattern)
-			throws DatabaseException {
-		if (pattern != null) {
-			session.setContextData(contextIdx, recordType, pattern.toString());
-		} else {
-			session.clearContextDataForType(contextIdx, recordType);
-		}
-	}
+    @Override
+    public void discardContexts() {
+        contextPanelsMap.clear();
+    }
 
-	@Override
-	public void discardContexts() {
-		contextPanelsMap.clear();
-	}
+    @Override
+    public void discardContext(Context ctx) {
+        contextPanelsMap.remove(ctx.getIndex());
+    }
 
-	@Override
-	public void discardContext(Context ctx) {
-		contextPanelsMap.remove(ctx.getIndex());
-	}
+    @Override
+    public void exportContextData(Context ctx, Configuration config) {
+        config.setProperty(
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE,
+                ctx.getAuthenticationMethod().getType().getUniqueIdentifier());
+        if (ctx.getAuthenticationMethod().getLoggedInIndicatorPattern() != null) {
+            config.setProperty(
+                    AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN,
+                    ctx.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
+        }
+        if (ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null) {
+            config.setProperty(
+                    AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT,
+                    ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern().toString());
+        }
+        ctx.getAuthenticationMethod().getType().exportData(config, ctx.getAuthenticationMethod());
+    }
 
-	@Override
-	public void exportContextData(Context ctx, Configuration config) {
-		config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE, ctx.getAuthenticationMethod().getType().getUniqueIdentifier());
-		if (ctx.getAuthenticationMethod().getLoggedInIndicatorPattern() != null) {
-			config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, 
-					ctx.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
-		}
-		if (ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null) {
-			config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, 
-					ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern().toString());
-		}
-		ctx.getAuthenticationMethod().getType().exportData(config, ctx.getAuthenticationMethod());
-
-	}
-	
-	@Override
-	public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-		ctx.setAuthenticationMethod(
-				getAuthenticationMethodTypeForIdentifier(
-						config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE)).createAuthenticationMethod(ctx.getIndex()));
-		String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
-		if (str.length() > 0) {
-			ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);
-		}
-		str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, "");
-		if (str.length() > 0) {
-			ctx.getAuthenticationMethod().setLoggedOutIndicatorPattern(str);
-		}
-		ctx.getAuthenticationMethod().getType().importData(config, ctx.getAuthenticationMethod());
-
-	}
-
+    @Override
+    public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
+        ctx.setAuthenticationMethod(
+                getAuthenticationMethodTypeForIdentifier(
+                                config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE))
+                        .createAuthenticationMethod(ctx.getIndex()));
+        String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
+        if (str.length() > 0) {
+            ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);
+        }
+        str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, "");
+        if (str.length() > 0) {
+            ctx.getAuthenticationMethod().setLoggedOutIndicatorPattern(str);
+        }
+        ctx.getAuthenticationMethod().getType().importData(config, ctx.getAuthenticationMethod());
+    }
 }

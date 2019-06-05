@@ -23,12 +23,11 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 /**
- *
  * @author yhawke (2014)
  * @param <E> the type of the options
  */
 public abstract class AbstractMultipleOptionsBaseTableModel<E> extends AbstractTableModel {
-    
+
     protected static final long serialVersionUID = 3210877546875314579L;
 
     public AbstractMultipleOptionsBaseTableModel() {

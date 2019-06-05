@@ -25,6 +25,4 @@ package org.zaproxy.zap.view.messagelocation;
  * @since 2.4.0
  * @see TextMessageLocationHighlight
  */
-public interface MessageLocationHighlight {
-
-}
+public interface MessageLocationHighlight {}

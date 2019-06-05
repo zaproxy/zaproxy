@@ -23,12 +23,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link ApiResponseElement}.
- */
+/** Unit test for {@link ApiResponseElement}. */
 public class ApiResponseListUnitTest {
 
     @Test
@@ -54,6 +51,8 @@ public class ApiResponseListUnitTest {
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then
-        assertEquals(jsonResponse, "{\"test\":[\"{\\\"name1\\\":\\\"value1\\\"}\",\"{\\\"name2\\\":\\\"value2\\\"}\"]}");
+        assertEquals(
+                jsonResponse,
+                "{\"test\":[\"{\\\"name1\\\":\\\"value1\\\"}\",\"{\\\"name2\\\":\\\"value2\\\"}\"]}");
     }
 }

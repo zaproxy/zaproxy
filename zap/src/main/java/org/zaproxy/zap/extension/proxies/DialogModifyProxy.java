@@ -20,17 +20,17 @@
 package org.zaproxy.zap.extension.proxies;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 
 class DialogModifyProxy extends DialogAddProxy {
 
     private static final long serialVersionUID = 6675509994290748494L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("options.proxy.dialog.proxy.modify.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("options.proxy.dialog.proxy.modify.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages
-            .getString("options.proxy.dialog.proxy.modify.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("options.proxy.dialog.proxy.modify.button.confirm");
 
     protected DialogModifyProxy(Dialog owner, ExtensionProxies extension) {
         super(owner, DIALOG_TITLE, extension);
@@ -50,7 +50,8 @@ class DialogModifyProxy extends DialogAddProxy {
     @Override
     protected boolean validateFields() {
         ProxiesParamProxy testProxy = proxyPanel.getProxy();
-        if (ExtensionProxies.isSameAddress(testProxy.getAddress(), proxy.getAddress()) && testProxy.getPort() == proxy.getPort()) {
+        if (ExtensionProxies.isSameAddress(testProxy.getAddress(), proxy.getAddress())
+                && testProxy.getPort() == proxy.getPort()) {
             // No change, assume its ok
             return true;
         }
@@ -61,5 +62,4 @@ class DialogModifyProxy extends DialogAddProxy {
     protected void init() {
         this.setProxy(proxy);
     }
-
 }

@@ -26,12 +26,11 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-
 public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = Logger.getLogger(PopupMenuAlert.class);
+    private static final Logger logger = Logger.getLogger(PopupMenuAlert.class);
 
     private final ExtensionAlert extension;
 
@@ -46,59 +45,59 @@ public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
         this.extension = extension;
     }
-	
-	@Override
-	public void performAction(HistoryReference href) {
-	    Invoker invoker = getInvoker();
-	    if (invoker == Invoker.ACTIVE_SCANNER_PANEL) {
-	        try {
-	            extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
-	        } catch (HttpMalformedHeaderException | DatabaseException e) {
-	            logger.error(e.getMessage(), e);
-	        }
-	    } else if (invoker == Invoker.FUZZER_PANEL) {
-	        try {
-	            extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
-    	    } catch (HttpMalformedHeaderException | DatabaseException e) {
+
+    @Override
+    public void performAction(HistoryReference href) {
+        Invoker invoker = getInvoker();
+        if (invoker == Invoker.ACTIVE_SCANNER_PANEL) {
+            try {
+                extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
+            } catch (HttpMalformedHeaderException | DatabaseException e) {
                 logger.error(e.getMessage(), e);
             }
-	    } else {
-	        extension.showAlertAddDialog(href);
-	    }
-	}
+        } else if (invoker == Invoker.FUZZER_PANEL) {
+            try {
+                extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
+            } catch (HttpMalformedHeaderException | DatabaseException e) {
+                logger.error(e.getMessage(), e);
+            }
+        } else {
+            extension.showAlertAddDialog(href);
+        }
+    }
 
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		switch (invoker) {
-		case ALERTS_PANEL:
-			return false;
-		case SITES_PANEL:
-		case HISTORY_PANEL:
-		case ACTIVE_SCANNER_PANEL:
-		case SEARCH_PANEL:
-		case FUZZER_PANEL:
-		case FORCED_BROWSE_PANEL:
-		default:
-			return true;
-		}
-	}
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        switch (invoker) {
+            case ALERTS_PANEL:
+                return false;
+            case SITES_PANEL:
+            case HISTORY_PANEL:
+            case ACTIVE_SCANNER_PANEL:
+            case SEARCH_PANEL:
+            case FUZZER_PANEL:
+            case FORCED_BROWSE_PANEL:
+            default:
+                return true;
+        }
+    }
 
-	@Override
-    public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
+    @Override
+    public boolean isButtonEnabledForHistoryReference(HistoryReference href) {
         if (href != null) {
             switch (getInvoker()) {
-            case ACTIVE_SCANNER_PANEL:
-            case FUZZER_PANEL:
-                return true;
-            default:
-                return (href.getHistoryType() != HistoryReference.TYPE_TEMPORARY);
+                case ACTIVE_SCANNER_PANEL:
+                case FUZZER_PANEL:
+                    return true;
+                default:
+                    return (href.getHistoryType() != HistoryReference.TYPE_TEMPORARY);
             }
         }
         return false;
     }
-	
+
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

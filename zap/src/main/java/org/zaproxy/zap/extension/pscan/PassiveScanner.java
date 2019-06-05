@@ -20,49 +20,49 @@
 package org.zaproxy.zap.extension.pscan;
 
 import net.htmlparser.jericho.Source;
-
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface PassiveScanner {
 
-	void scanHttpRequestSend(HttpMessage msg, int id);
-	
-	void scanHttpResponseReceive(HttpMessage msg, int id, Source source);
-	
-	void setParent (PassiveScanThread parent);
+    void scanHttpRequestSend(HttpMessage msg, int id);
 
-	String getName();
-	
-	void setEnabled (boolean enabled);
-	
-	boolean isEnabled();
-	
-	/**
-	 * Gets the alert threshold of the scanner.
-	 * <p>
-	 * Default implementation returns always {@link AlertThreshold#MEDIUM}.
-	 *
-	 * @return the alert threshold of the scanner.
-	 * @deprecated (2.7.0) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
-	 */
-	@Deprecated
-	default AlertThreshold getLevel() {
-		return AlertThreshold.MEDIUM;
-	}
+    void scanHttpResponseReceive(HttpMessage msg, int id, Source source);
 
-	/**
-	 * Sets the alert threshold of the scanner.
-	 * <p>
-	 * Default implementation does nothing.
-	 *
-	 * @param level the new alert threshold.
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @deprecated (2.7.0) No longer used, the {@code AlertThreshold} is only needed for/by {@link PluginPassiveScanner}.
-	 */
-	@Deprecated
-	default void setLevel(AlertThreshold level) {
-	}
-	
-	boolean appliesToHistoryType (int historyType);
+    void setParent(PassiveScanThread parent);
+
+    String getName();
+
+    void setEnabled(boolean enabled);
+
+    boolean isEnabled();
+
+    /**
+     * Gets the alert threshold of the scanner.
+     *
+     * <p>Default implementation returns always {@link AlertThreshold#MEDIUM}.
+     *
+     * @return the alert threshold of the scanner.
+     * @deprecated (2.7.0) No longer used, the {@code AlertThreshold} is only needed for/by {@link
+     *     PluginPassiveScanner}.
+     */
+    @Deprecated
+    default AlertThreshold getLevel() {
+        return AlertThreshold.MEDIUM;
+    }
+
+    /**
+     * Sets the alert threshold of the scanner.
+     *
+     * <p>Default implementation does nothing.
+     *
+     * @param level the new alert threshold.
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @deprecated (2.7.0) No longer used, the {@code AlertThreshold} is only needed for/by {@link
+     *     PluginPassiveScanner}.
+     */
+    @Deprecated
+    default void setLevel(AlertThreshold level) {}
+
+    boolean appliesToHistoryType(int historyType);
 }

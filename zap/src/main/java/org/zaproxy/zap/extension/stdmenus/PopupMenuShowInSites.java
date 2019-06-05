@@ -26,38 +26,36 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 public class PopupMenuShowInSites extends PopupMenuItemSiteNodeContainer {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuShowInSites(String label) {
         super(label);
     }
 
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		switch (invoker) {
-		case FORCED_BROWSE_PANEL:
-		case FUZZER_PANEL:
-		case SITES_PANEL:
-			return false;
-		case ACTIVE_SCANNER_PANEL:
-		case ALERTS_PANEL:
-		case HISTORY_PANEL:
-		case SEARCH_PANEL:
-		default:
-			return true;
-		}
-	}
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        switch (invoker) {
+            case FORCED_BROWSE_PANEL:
+            case FUZZER_PANEL:
+            case SITES_PANEL:
+                return false;
+            case ACTIVE_SCANNER_PANEL:
+            case ALERTS_PANEL:
+            case HISTORY_PANEL:
+            case SEARCH_PANEL:
+            default:
+                return true;
+        }
+    }
 
-	@Override
-	public void performAction(SiteNode sn) {
-		View.getSingleton().getSiteTreePanel().showInSites(sn);
-	}
-	
+    @Override
+    public void performAction(SiteNode sn) {
+        View.getSingleton().getSiteTreePanel().showInSites(sn);
+    }
+
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

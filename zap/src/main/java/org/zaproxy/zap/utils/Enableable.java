@@ -63,5 +63,4 @@ public abstract class Enableable implements EnableableInterface {
         }
         return true;
     }
-
 }

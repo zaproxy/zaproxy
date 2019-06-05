@@ -23,13 +23,13 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
- * A {@code SSLSocketFactory} that allows to decorate {@code SSLSocket}s after creation but before returning them.
- * 
+ * A {@code SSLSocketFactory} that allows to decorate {@code SSLSocket}s after creation but before
+ * returning them.
+ *
  * @see SSLSocketFactory
  * @see SslSocketDecorator
  */
@@ -39,7 +39,8 @@ public class DecoratedSocketsSslSocketFactory extends SSLSocketFactory {
 
     private final SslSocketDecorator socketDecorator;
 
-    public DecoratedSocketsSslSocketFactory(final SSLSocketFactory delegate, SslSocketDecorator socketDecorator) {
+    public DecoratedSocketsSslSocketFactory(
+            final SSLSocketFactory delegate, SslSocketDecorator socketDecorator) {
         super();
 
         if (delegate == null) {
@@ -75,21 +76,25 @@ public class DecoratedSocketsSslSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket(final String host, final int port) throws IOException, UnknownHostException {
+    public Socket createSocket(final String host, final int port)
+            throws IOException, UnknownHostException {
         Socket socket = delegate.createSocket(host, port);
         decorate((SSLSocket) socket);
         return socket;
     }
 
     @Override
-    public Socket createSocket(final Socket s, final String host, final int port, final boolean autoClose) throws IOException {
+    public Socket createSocket(
+            final Socket s, final String host, final int port, final boolean autoClose)
+            throws IOException {
         Socket socket = delegate.createSocket(s, host, port, autoClose);
         decorate((SSLSocket) socket);
         return socket;
     }
 
     @Override
-    public Socket createSocket(final String host, final int port, final InetAddress localHost, final int localPort)
+    public Socket createSocket(
+            final String host, final int port, final InetAddress localHost, final int localPort)
             throws IOException, UnknownHostException {
         Socket socket = delegate.createSocket(host, port, localHost, localPort);
         decorate((SSLSocket) socket);
@@ -104,7 +109,11 @@ public class DecoratedSocketsSslSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket createSocket(final InetAddress address, final int port, final InetAddress localAddress, final int localPort)
+    public Socket createSocket(
+            final InetAddress address,
+            final int port,
+            final InetAddress localAddress,
+            final int localPort)
             throws IOException {
         Socket socket = delegate.createSocket(address, port, localAddress, localPort);
         decorate((SSLSocket) socket);
@@ -113,7 +122,7 @@ public class DecoratedSocketsSslSocketFactory extends SSLSocketFactory {
 
     /**
      * Decorator of {@code SSLSocket}s for {@code DecoratedSocketsSslSocketFactory}ies.
-     * 
+     *
      * @see SSLSocket
      * @see DecoratedSocketsSslSocketFactory
      * @see #decorate(SSLSocket)
@@ -122,7 +131,7 @@ public class DecoratedSocketsSslSocketFactory extends SSLSocketFactory {
 
         /**
          * Decorates the given SSL socket.
-         * 
+         *
          * @param sslSocket the SSL socket that will be decorated.
          */
         void decorate(SSLSocket sslSocket);

@@ -22,101 +22,99 @@ package org.zaproxy.zap.model;
 import java.util.TreeSet;
 
 public class TechSet {
-	
-	public static final TechSet AllTech = new TechSet(Tech.builtInTopLevelTech);
-	
-	private TreeSet<Tech> includeTech = new TreeSet<>();
-	private TreeSet<Tech> excludeTech = new TreeSet<>();
 
-	public TechSet () {
-	}
-	
-	public TechSet (Tech[] include) {
-		this (include, (Tech[])null);
-	}
-	
-	public TechSet (Tech[] include, Tech[] exclude) {
-		if (include != null) {
-			for (Tech tech : include) {
-				this.include(tech);
-			}
-		}
-		if (exclude != null) {
-			for (Tech tech : exclude) {
-				this.exclude(tech);
-			}
-		}
-	}
-	
-	public TechSet(TechSet techSet){
-		this.includeTech.addAll(techSet.includeTech);
-		this.excludeTech.addAll(techSet.excludeTech);
-	}
-	
-	public void include(Tech tech) {
-		excludeTech.remove(tech);
-		includeTech.add(tech);
-	}
-	
-	public void exclude(Tech tech) {
-		includeTech.remove(tech);
-		excludeTech.add(tech);
-	}
-	
-	public boolean includes(Tech tech) {
-		if (tech == null) {
-			return false;
-		}
-		if (excludeTech.contains(tech)) {
-			return false;
-		} else if (includeTech.contains(tech)) {
-			return true;
-		} else {
-			return this.includes(tech.getParent());
-		}
-	}
+    public static final TechSet AllTech = new TechSet(Tech.builtInTopLevelTech);
 
-	/**
-	 * Tells whether or not any of the given technologies is included.
-	 * 
-	 * @param techs the technologies that will be checked.
-	 * @return {@code true} if any of the technologies is included, {@code false} otherwise.
-	 * @since 2.8.0
-	 * @see #includes(Tech)
-	 */
-	public boolean includesAny(Tech... techs) {
-		if (techs == null || techs.length == 0) {
-			return false;
-		}
-		for (Tech tech : techs) {
-			if (includes(tech)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public TreeSet<Tech> getIncludeTech() {
-		TreeSet<Tech> copy = new TreeSet<>();
-		copy.addAll(this.includeTech);
-		return copy;
-	}
-	
-	public TreeSet<Tech> getExcludeTech() {
-		TreeSet<Tech> copy = new TreeSet<>();
-		copy.addAll(this.excludeTech);
-		return copy;
-	}
-	
-	// Useful for debuging ;)
-	public void print() {
-		System.out.println("TechSet: " + this.hashCode());
-		for (Tech tech : includeTech) {
-			System.out.println("\tInclude: " + tech);
-		}
-		for (Tech tech : excludeTech) {
-			System.out.println("\tExclude: " + tech);
-		}
-		
-	}
+    private TreeSet<Tech> includeTech = new TreeSet<>();
+    private TreeSet<Tech> excludeTech = new TreeSet<>();
+
+    public TechSet() {}
+
+    public TechSet(Tech[] include) {
+        this(include, (Tech[]) null);
+    }
+
+    public TechSet(Tech[] include, Tech[] exclude) {
+        if (include != null) {
+            for (Tech tech : include) {
+                this.include(tech);
+            }
+        }
+        if (exclude != null) {
+            for (Tech tech : exclude) {
+                this.exclude(tech);
+            }
+        }
+    }
+
+    public TechSet(TechSet techSet) {
+        this.includeTech.addAll(techSet.includeTech);
+        this.excludeTech.addAll(techSet.excludeTech);
+    }
+
+    public void include(Tech tech) {
+        excludeTech.remove(tech);
+        includeTech.add(tech);
+    }
+
+    public void exclude(Tech tech) {
+        includeTech.remove(tech);
+        excludeTech.add(tech);
+    }
+
+    public boolean includes(Tech tech) {
+        if (tech == null) {
+            return false;
+        }
+        if (excludeTech.contains(tech)) {
+            return false;
+        } else if (includeTech.contains(tech)) {
+            return true;
+        } else {
+            return this.includes(tech.getParent());
+        }
+    }
+
+    /**
+     * Tells whether or not any of the given technologies is included.
+     *
+     * @param techs the technologies that will be checked.
+     * @return {@code true} if any of the technologies is included, {@code false} otherwise.
+     * @since 2.8.0
+     * @see #includes(Tech)
+     */
+    public boolean includesAny(Tech... techs) {
+        if (techs == null || techs.length == 0) {
+            return false;
+        }
+        for (Tech tech : techs) {
+            if (includes(tech)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public TreeSet<Tech> getIncludeTech() {
+        TreeSet<Tech> copy = new TreeSet<>();
+        copy.addAll(this.includeTech);
+        return copy;
+    }
+
+    public TreeSet<Tech> getExcludeTech() {
+        TreeSet<Tech> copy = new TreeSet<>();
+        copy.addAll(this.excludeTech);
+        return copy;
+    }
+
+    // Useful for debuging ;)
+    public void print() {
+        System.out.println("TechSet: " + this.hashCode());
+        for (Tech tech : includeTech) {
+            System.out.println("\tInclude: " + tech);
+        }
+        for (Tech tech : excludeTech) {
+            System.out.println("\tExclude: " + tech);
+        }
+    }
 }

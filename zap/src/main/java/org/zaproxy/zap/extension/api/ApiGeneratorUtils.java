@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.alert.AlertAPI;
@@ -48,69 +47,70 @@ import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * Utility class for the API generators
- * @author simon
  *
+ * @author simon
  */
 public class ApiGeneratorUtils {
 
-	/**
-	 * Return all of the available ApiImplementors.
-	 * If you implement a new ApiImplementor then you must add it to this class.
-	 * @return all of the available ApiImplementors.
-	 */
-	public static List<ApiImplementor> getAllImplementors() {
-		List<ApiImplementor> imps = new ArrayList<>();
-		
-		ApiImplementor api;
+    /**
+     * Return all of the available ApiImplementors. If you implement a new ApiImplementor then you
+     * must add it to this class.
+     *
+     * @return all of the available ApiImplementors.
+     */
+    public static List<ApiImplementor> getAllImplementors() {
+        List<ApiImplementor> imps = new ArrayList<>();
 
-		imps.add(new AlertAPI(null));
+        ApiImplementor api;
 
-		api = new AntiCsrfAPI(null);
-		api.addApiOptions(new AntiCsrfParam());
-		imps.add(api);
-		
-		imps.add(new PassiveScanAPI(null));
-		imps.add(new SearchAPI(null));
+        imps.add(new AlertAPI(null));
 
-		api = new AutoUpdateAPI(null);
-		api.addApiOptions(new OptionsParamCheckForUpdates());
-		imps.add(api);
+        api = new AntiCsrfAPI(null);
+        api.addApiOptions(new AntiCsrfParam());
+        imps.add(api);
 
-		api = new SpiderAPI(null);
-		api.addApiOptions(new SpiderParam());
-		imps.add(api);
+        imps.add(new PassiveScanAPI(null));
+        imps.add(new SearchAPI(null));
 
-		api = new CoreAPI(new ConnectionParam());
-		imps.add(api);
+        api = new AutoUpdateAPI(null);
+        api.addApiOptions(new OptionsParamCheckForUpdates());
+        imps.add(api);
 
-		imps.add(new ParamsAPI(null));
-		
-		api = new ActiveScanAPI(null);
-		api.addApiOptions(new ScannerParam());
-		imps.add(api);
+        api = new SpiderAPI(null);
+        api.addApiOptions(new SpiderParam());
+        imps.add(api);
+
+        api = new CoreAPI(new ConnectionParam());
+        imps.add(api);
+
+        imps.add(new ParamsAPI(null));
+
+        api = new ActiveScanAPI(null);
+        api.addApiOptions(new ScannerParam());
+        imps.add(api);
 
         imps.add(new ContextAPI());
-		
-		imps.add(new HttpSessionsAPI(null));
-		
-		imps.add(new BreakAPI(null));
-		
-		imps.add(new AuthenticationAPI(null));
-		
-		imps.add(new AuthorizationAPI());
 
-		imps.add(new SessionManagementAPI(null));
-		
-		imps.add(new UsersAPI(null));
-		
-		imps.add(new ForcedUserAPI(null));
+        imps.add(new HttpSessionsAPI(null));
 
-		imps.add(new ScriptAPI(null));
+        imps.add(new BreakAPI(null));
 
-		api = new StatsAPI(null);
-		api.addApiOptions(new StatsParam());
-		imps.add(api);
+        imps.add(new AuthenticationAPI(null));
 
-		return imps;
-	}
+        imps.add(new AuthorizationAPI());
+
+        imps.add(new SessionManagementAPI(null));
+
+        imps.add(new UsersAPI(null));
+
+        imps.add(new ForcedUserAPI(null));
+
+        imps.add(new ScriptAPI(null));
+
+        api = new StatsAPI(null);
+        api.addApiOptions(new StatsParam());
+        imps.add(api);
+
+        return imps;
+    }
 }

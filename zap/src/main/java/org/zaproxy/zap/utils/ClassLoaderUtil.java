@@ -24,15 +24,14 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 // Based on code from http://twit88.com/blog/2007/10/04/java-dynamic-loading-of-class-and-jar-file/
 
 /**
- * @deprecated (2.8.0) The use of this class is discouraged, it expects a {@code URLClassLoader} as system class
- *             loader, which is not always the case (e.g. Java 9+).
+ * @deprecated (2.8.0) The use of this class is discouraged, it expects a {@code URLClassLoader} as
+ *     system class loader, which is not always the case (e.g. Java 9+).
  */
 @Deprecated
 public class ClassLoaderUtil {
@@ -41,12 +40,13 @@ public class ClassLoaderUtil {
     private static Logger log = Logger.getLogger(ClassLoaderUtil.class);
 
     // Parameters
-	private static final Class<?>[] parameters = new Class<?>[]{URL.class};
+    private static final Class<?>[] parameters = new Class<?>[] {URL.class};
 
     /**
      * Add file to CLASSPATH
+     *
      * @param s File name
-     * @throws IOException  IOException
+     * @throws IOException IOException
      */
     public static void addFile(String s) throws IOException {
         File f = new File(s);
@@ -55,7 +55,8 @@ public class ClassLoaderUtil {
 
     /**
      * Add file to CLASSPATH
-     * @param f  File object
+     *
+     * @param f File object
      * @throws IOException IOException
      */
     public static void addFile(File f) throws IOException {
@@ -64,6 +65,7 @@ public class ClassLoaderUtil {
 
     /**
      * Add URL to CLASSPATH
+     *
      * @param u URL
      * @throws IOException IOException
      */
@@ -86,11 +88,10 @@ public class ClassLoaderUtil {
         try {
             Method method = sysclass.getDeclaredMethod("addURL", parameters);
             method.setAccessible(true);
-            method.invoke(sysLoader, new Object[]{u});
+            method.invoke(sysLoader, new Object[] {u});
         } catch (Throwable t) {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
     }
-
 }

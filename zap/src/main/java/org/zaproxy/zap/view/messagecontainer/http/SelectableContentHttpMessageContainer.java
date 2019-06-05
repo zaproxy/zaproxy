@@ -28,7 +28,5 @@ import org.zaproxy.zap.view.messagecontainer.SelectableContentMessageContainer;
  * @since 2.4.0
  * @see SelectableContentMessageContainer
  */
-public interface SelectableContentHttpMessageContainer extends SingleHttpMessageContainer,
-        SelectableContentMessageContainer<HttpMessage> {
-
-}
+public interface SelectableContentHttpMessageContainer
+        extends SingleHttpMessageContainer, SelectableContentMessageContainer<HttpMessage> {}

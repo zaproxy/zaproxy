@@ -34,7 +34,6 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -52,7 +51,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.Highlight;
 import javax.swing.text.Highlighter.HighlightPainter;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -81,13 +79,14 @@ import org.zaproxy.zap.view.StandardFieldsDialog;
 import org.zaproxy.zap.view.TechnologyTreePanel;
 
 public class CustomScanDialog extends StandardFieldsDialog {
-	
-	protected static final String[] STD_TAB_LABELS = {
-		"ascan.custom.tab.scope",
+
+    protected static final String[] STD_TAB_LABELS = {
+        "ascan.custom.tab.scope",
         "ascan.custom.tab.input",
         "ascan.custom.tab.custom",
         "ascan.custom.tab.tech",
-        "ascan.custom.tab.policy"};
+        "ascan.custom.tab.policy"
+    };
 
     private static final String FIELD_START = "ascan.custom.label.start";
     private static final String FIELD_POLICY = "ascan.custom.label.policy";
@@ -95,17 +94,19 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_USER = "ascan.custom.label.user";
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
     private static final String FIELD_ADVANCED = "ascan.custom.label.adv";
-    
+
     private static final Logger logger = Logger.getLogger(CustomScanDialog.class);
     private static final long serialVersionUID = 1L;
 
     private JButton[] extraButtons = null;
     private ExtensionActiveScan extension = null;
 
-    private final ExtensionUserManagement extUserMgmt = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
+    private final ExtensionUserManagement extUserMgmt =
+            Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 
     private int headerLength = -1;
-    // The index of the start of the URL path eg after https://www.example.com:1234/ - no point attacking this
+    // The index of the start of the URL path eg after https://www.example.com:1234/ - no point
+    // attacking this
     private int urlPathStart = -1;
     private Target target = null;
 
@@ -129,24 +130,31 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private boolean showingAdvTabs = true;
     private ScanPolicyPanel policyPanel;
 
-    public CustomScanDialog(ExtensionActiveScan ext, String[] tabLabels, List<CustomScanPanel> customPanels, Frame owner, Dimension dim) {
+    public CustomScanDialog(
+            ExtensionActiveScan ext,
+            String[] tabLabels,
+            List<CustomScanPanel> customPanels,
+            Frame owner,
+            Dimension dim) {
         super(owner, "ascan.custom.title", dim, tabLabels);
-        
+
         this.extension = ext;
         this.customPanels = customPanels;
-        this.policyPanel = new ScanPolicyPanel(
-                this,
-                extension,
-                Constant.messages.getString("ascan.custom.tab.policy"),
-                new ScanPolicy());
+        this.policyPanel =
+                new ScanPolicyPanel(
+                        this,
+                        extension,
+                        Constant.messages.getString("ascan.custom.tab.policy"),
+                        new ScanPolicy());
 
-        addWindowListener(new WindowAdapter() {
+        addWindowListener(
+                new WindowAdapter() {
 
-            @Override
-            public void windowClosed(WindowEvent e) {
-                scanPolicy = null;
-            }
-        });
+                    @Override
+                    public void windowClosed(WindowEvent e) {
+                        scanPolicy = null;
+                    }
+                });
 
         // The first time init to the default options set, after that keep own copies
         reset(false);
@@ -157,7 +165,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             // If one isn't specified then leave the previously selected one
             this.target = target;
         }
-        
+
         logger.debug("init " + this.target);
 
         this.removeAllFields();
@@ -180,52 +188,65 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         this.addTargetSelectField(0, FIELD_START, this.target, false, false);
-        this.addComboField(0, FIELD_POLICY, extension.getPolicyManager().getAllPolicyNames(), scanPolicy.getName());
-        this.addComboField(0, FIELD_CONTEXT, new String[]{}, "");
-        this.addComboField(0, FIELD_USER, new String[]{}, "");
+        this.addComboField(
+                0,
+                FIELD_POLICY,
+                extension.getPolicyManager().getAllPolicyNames(),
+                scanPolicy.getName());
+        this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
+        this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         // This option is always read from the 'global' options
-        this.addCheckBoxField(0, FIELD_ADVANCED, extension.getScannerParam().isShowAdvancedDialog());
+        this.addCheckBoxField(
+                0, FIELD_ADVANCED, extension.getScannerParam().isShowAdvancedDialog());
 
-        this.addFieldListener(FIELD_POLICY, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                policySelected();
-            }
-        });
+        this.addFieldListener(
+                FIELD_POLICY,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        policySelected();
+                    }
+                });
 
         this.addPadding(0);
 
         // Default to Recurse, so always set the warning
         customPanelStatus.setText(Constant.messages.getString("ascan.custom.status.recurse"));
 
-        this.addFieldListener(FIELD_CONTEXT, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setUsers();
-                setTech();
-            }
-        });
-        
-        this.addFieldListener(FIELD_RECURSE, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setFieldStates();
-            }
-        });
-        
-        this.addFieldListener(FIELD_ADVANCED, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Save the adv option permanently for next time
+        this.addFieldListener(
+                FIELD_CONTEXT,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setUsers();
+                        setTech();
+                    }
+                });
 
-                setAdvancedOptions(getBoolValue(FIELD_ADVANCED));
-            }
-        });
+        this.addFieldListener(
+                FIELD_RECURSE,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setFieldStates();
+                    }
+                });
+
+        this.addFieldListener(
+                FIELD_ADVANCED,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        // Save the adv option permanently for next time
+
+                        setAdvancedOptions(getBoolValue(FIELD_ADVANCED));
+                    }
+                });
 
         this.getVariantPanel().initParam(scannerParam);
         this.setCustomTabPanel(1, getVariantPanel());
-         
+
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
 
@@ -235,20 +256,20 @@ public class CustomScanDialog extends StandardFieldsDialog {
         setTechSet(techTreeState);
 
         this.setCustomTabPanel(4, policyPanel);
-        
+
         // add custom panels
         int cIndex = 5;
         if (this.customPanels != null) {
-        	for (CustomScanPanel customPanel : this.customPanels) {
+            for (CustomScanPanel customPanel : this.customPanels) {
                 this.setCustomTabPanel(cIndex, customPanel.getPanel(true));
-        		cIndex++;
-        	}
+                cIndex++;
+            }
         }
 
         if (target != null) {
             // Set up the fields if a node has been specified, otherwise leave as previously set
             this.populateRequestField(this.target.getStartNode());
-	        this.targetSelected(FIELD_START, this.target);
+            this.targetSelected(FIELD_START, this.target);
             this.setUsers();
             this.setTech();
         }
@@ -257,10 +278,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         this.pack();
     }
-    
+
     @Override
     public String getHelpIndex() {
-    	return "ui.dialogs.advascan";
+        return "ui.dialogs.advascan";
     }
 
     private void policySelected() {
@@ -274,12 +295,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
             logger.error(e.getMessage(), e);
         }
     }
-    
+
     private void setAdvancedOptions(boolean adv) {
         this.getField(FIELD_POLICY).setEnabled(!adv);
         if (adv) {
-            ((JComboBox<?>) this.getField(FIELD_POLICY)).setToolTipText(
-                    Constant.messages.getString("ascan.custom.tooltip.policy"));
+            ((JComboBox<?>) this.getField(FIELD_POLICY))
+                    .setToolTipText(Constant.messages.getString("ascan.custom.tooltip.policy"));
         } else {
             ((JComboBox<?>) this.getField(FIELD_POLICY)).setToolTipText("");
         }
@@ -289,19 +310,21 @@ public class CustomScanDialog extends StandardFieldsDialog {
             return;
         }
         // Show/hide all except from the first tab
-        this.setTabsVisible(new String[]{
-            "ascan.custom.tab.input",
-            "ascan.custom.tab.custom",
-            "ascan.custom.tab.tech",
-            "ascan.custom.tab.policy"
-        }, adv);
-        
+        this.setTabsVisible(
+                new String[] {
+                    "ascan.custom.tab.input",
+                    "ascan.custom.tab.custom",
+                    "ascan.custom.tab.tech",
+                    "ascan.custom.tab.policy"
+                },
+                adv);
+
         if (this.customPanels != null) {
-        	for (CustomScanPanel customPanel : this.customPanels) {
-        		this.setTabsVisible(new String[]{customPanel.getLabel()}, adv);
-        	}
+            for (CustomScanPanel customPanel : this.customPanels) {
+                this.setTabsVisible(new String[] {customPanel.getLabel()}, adv);
+            }
         }
-        
+
         showingAdvTabs = adv;
         // Always save in the 'global' options
         extension.getScannerParam().setShowAdvancedDialog(adv);
@@ -309,7 +332,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private void populateRequestField(SiteNode node) {
         try {
-            if (node == null || node.getHistoryReference() == null || node.getHistoryReference().getHttpMessage() == null) {
+            if (node == null
+                    || node.getHistoryReference() == null
+                    || node.getHistoryReference().getHttpMessage() == null) {
                 this.getRequestField().setText("");
 
             } else {
@@ -319,7 +344,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 StringBuilder sb = new StringBuilder();
                 sb.append(header);
                 this.headerLength = header.length();
-                this.urlPathStart = header.indexOf("/", header.indexOf("://") + 2) + 1;	// Ignore <METHOD> http(s)://host:port/
+                this.urlPathStart =
+                        header.indexOf("/", header.indexOf("://") + 2)
+                                + 1; // Ignore <METHOD> http(s)://host:port/
                 sb.append(msg.getRequestBody().toString());
                 this.getRequestField().setText(sb.toString());
 
@@ -332,10 +359,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
             this.setFieldStates();
 
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            // 
+            //
             this.getRequestField().setText("");
         }
-
     }
 
     @Override
@@ -359,7 +385,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             this.setTech();
         }
-        
+
         this.setComboFields(FIELD_CONTEXT, ctxNames, "");
         this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
     }
@@ -377,7 +403,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         Context context = this.getSelectedContext();
         if (context != null) {
             String userName = this.getStringValue(FIELD_USER);
-            List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+            List<User> users =
+                    this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
             for (User user : users) {
                 if (userName.equals(user.getName())) {
                     return user;
@@ -391,14 +418,15 @@ public class CustomScanDialog extends StandardFieldsDialog {
         Context context = this.getSelectedContext();
         List<String> userNames = new ArrayList<>();
         if (context != null) {
-            List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
-            userNames.add("");	// The default should always be 'not specified'
+            List<User> users =
+                    this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+            userNames.add(""); // The default should always be 'not specified'
             for (User user : users) {
                 userNames.add(user.getName());
             }
         }
         this.setComboFields(FIELD_USER, userNames, "");
-        this.getField(FIELD_USER).setEnabled(userNames.size() > 1);	// Theres always 1..
+        this.getField(FIELD_USER).setEnabled(userNames.size() > 1); // Theres always 1..
     }
 
     private void setTech() {
@@ -428,10 +456,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private OptionsVariantPanel getVariantPanel() {
         if (variantPanel == null) {
-            variantPanel = new OptionsVariantPanel();            
-            variantPanel.setReasonVariantsDisabled(Constant.messages.getString("ascan.custom.warn.disabled"));
+            variantPanel = new OptionsVariantPanel();
+            variantPanel.setReasonVariantsDisabled(
+                    Constant.messages.getString("ascan.custom.warn.disabled"));
         }
-        
+
         return variantPanel;
     }
 
@@ -445,38 +474,63 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             JPanel buttonPanel = new JPanel(new GridBagLayout());
 
-            getRequestField().addCaretListener(new CaretListener() {
-                @Override
-                public void caretUpdate(CaretEvent event) {
-                    setFieldStates();
-                }
-            });
+            getRequestField()
+                    .addCaretListener(
+                            new CaretListener() {
+                                @Override
+                                public void caretUpdate(CaretEvent event) {
+                                    setFieldStates();
+                                }
+                            });
 
-            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(0, 0, 1, 0.5));	// Spacer
-            buttonPanel.add(getAddCustomButton(), LayoutHelper.getGBC(1, 0, 1, 1, 0.0D, 0.0D,
-                    GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(5, 5, 5, 5)));
+            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(0, 0, 1, 0.5)); // Spacer
+            buttonPanel.add(
+                    getAddCustomButton(),
+                    LayoutHelper.getGBC(
+                            1,
+                            0,
+                            1,
+                            1,
+                            0.0D,
+                            0.0D,
+                            GridBagConstraints.BOTH,
+                            GridBagConstraints.NORTHWEST,
+                            new Insets(5, 5, 5, 5)));
 
-            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 0.5));	// Spacer
+            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 0.5)); // Spacer
 
-            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(0, 1, 1, 0.5));	// Spacer
-            buttonPanel.add(getRemoveCustomButton(), LayoutHelper.getGBC(1, 1, 1, 1, 0.0D, 0.0D,
-                    GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(5, 5, 5, 5)));
+            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(0, 1, 1, 0.5)); // Spacer
+            buttonPanel.add(
+                    getRemoveCustomButton(),
+                    LayoutHelper.getGBC(
+                            1,
+                            1,
+                            1,
+                            1,
+                            0.0D,
+                            0.0D,
+                            GridBagConstraints.BOTH,
+                            GridBagConstraints.NORTHWEST,
+                            new Insets(5, 5, 5, 5)));
 
-            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(2, 1, 1, 0.5));	// Spacer
+            buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(2, 1, 1, 0.5)); // Spacer
 
             JScrollPane scrollPane2 = new JScrollPane(getInjectionPointList());
             scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-            buttonPanel.add(new JLabel(Constant.messages.getString("ascan.custom.label.vectors")),
+            buttonPanel.add(
+                    new JLabel(Constant.messages.getString("ascan.custom.label.vectors")),
                     LayoutHelper.getGBC(0, 2, 3, 0.0D, 0.0D));
 
             buttonPanel.add(scrollPane2, LayoutHelper.getGBC(0, 3, 3, 1.0D, 1.0D));
 
-            JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, buttonPanel);
+            JSplitPane splitPane =
+                    new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, buttonPanel);
             splitPane.setDividerLocation(550);
             customPanel.add(splitPane, LayoutHelper.getGBC(0, 0, 1, 1, 1.0D, 1.0D));
             customPanel.add(customPanelStatus, LayoutHelper.getGBC(0, 1, 1, 1, 1.0D, 0.0D));
-            customPanel.add(getDisableNonCustomVectors(), LayoutHelper.getGBC(0, 2, 1, 1, 1.0D, 0.0D));
+            customPanel.add(
+                    getDisableNonCustomVectors(), LayoutHelper.getGBC(0, 2, 1, 1, 1.0D, 0.0D));
         }
 
         return customPanel;
@@ -484,83 +538,93 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private JButton getAddCustomButton() {
         if (addCustomButton == null) {
-            addCustomButton = new JButton(Constant.messages.getString("ascan.custom.button.pt.add"));
+            addCustomButton =
+                    new JButton(Constant.messages.getString("ascan.custom.button.pt.add"));
             addCustomButton.setEnabled(false);
 
-            addCustomButton.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // Add the selected injection point
-                    int userDefStart = getRequestField().getSelectionStart();
-                    if (userDefStart >= 0) {
-                        int userDefEnd = getRequestField().getSelectionEnd();
-                        Highlighter hl = getRequestField().getHighlighter();
-                        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.RED);
-                        try {
-                            Highlight hlt = (Highlight) hl.addHighlight(userDefStart, userDefEnd, painter);
-                            injectionPointModel.addElement(hlt);
-                            // Unselect the text
-                            getRequestField().setSelectionStart(userDefEnd);
-                            getRequestField().setSelectionEnd(userDefEnd);
-                            getRequestField().getCaret().setVisible(true);
+            addCustomButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            // Add the selected injection point
+                            int userDefStart = getRequestField().getSelectionStart();
+                            if (userDefStart >= 0) {
+                                int userDefEnd = getRequestField().getSelectionEnd();
+                                Highlighter hl = getRequestField().getHighlighter();
+                                HighlightPainter painter =
+                                        new DefaultHighlighter.DefaultHighlightPainter(Color.RED);
+                                try {
+                                    Highlight hlt =
+                                            (Highlight)
+                                                    hl.addHighlight(
+                                                            userDefStart, userDefEnd, painter);
+                                    injectionPointModel.addElement(hlt);
+                                    // Unselect the text
+                                    getRequestField().setSelectionStart(userDefEnd);
+                                    getRequestField().setSelectionEnd(userDefEnd);
+                                    getRequestField().getCaret().setVisible(true);
 
-                        } catch (BadLocationException e1) {
-                            logger.error(e1.getMessage(), e1);
+                                } catch (BadLocationException e1) {
+                                    logger.error(e1.getMessage(), e1);
+                                }
+                            }
                         }
-                    }
-
-                }
-            });
-
+                    });
         }
         return addCustomButton;
     }
 
     private JButton getRemoveCustomButton() {
         if (removeCustomButton == null) {
-            removeCustomButton = new JButton(Constant.messages.getString("ascan.custom.button.pt.rem"));
+            removeCustomButton =
+                    new JButton(Constant.messages.getString("ascan.custom.button.pt.rem"));
             removeCustomButton.setEnabled(false);
 
-            removeCustomButton.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    // Remove any selected injection points
-                    int userDefStart = getRequestField().getSelectionStart();
-                    if (userDefStart >= 0) {
-                        int userDefEnd = getRequestField().getSelectionEnd();
-                        Highlighter hltr = getRequestField().getHighlighter();
-                        Highlight[] hls = hltr.getHighlights();
+            removeCustomButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            // Remove any selected injection points
+                            int userDefStart = getRequestField().getSelectionStart();
+                            if (userDefStart >= 0) {
+                                int userDefEnd = getRequestField().getSelectionEnd();
+                                Highlighter hltr = getRequestField().getHighlighter();
+                                Highlight[] hls = hltr.getHighlights();
 
-                        if (hls != null && hls.length > 0) {
-                            for (Highlight hl : hls) {
-                                if (selectionIncludesHighlight(userDefStart, userDefEnd, hl)) {
-                                    hltr.removeHighlight(hl);
-                                    injectionPointModel.removeElement(hl);
+                                if (hls != null && hls.length > 0) {
+                                    for (Highlight hl : hls) {
+                                        if (selectionIncludesHighlight(
+                                                userDefStart, userDefEnd, hl)) {
+                                            hltr.removeHighlight(hl);
+                                            injectionPointModel.removeElement(hl);
+                                        }
+                                    }
                                 }
+
+                                // Unselect the text
+                                getRequestField().setSelectionStart(userDefEnd);
+                                getRequestField().setSelectionEnd(userDefEnd);
+                                getRequestField().getCaret().setVisible(true);
                             }
                         }
-
-                        // Unselect the text
-                        getRequestField().setSelectionStart(userDefEnd);
-                        getRequestField().setSelectionEnd(userDefEnd);
-                        getRequestField().getCaret().setVisible(true);
-                    }
-                }
-            });
+                    });
         }
 
         return removeCustomButton;
     }
-        
+
     private JCheckBox getDisableNonCustomVectors() {
         if (disableNonCustomVectors == null) {
-            disableNonCustomVectors = new JCheckBox(Constant.messages.getString("ascan.custom.label.disableiv"));
-            disableNonCustomVectors
-                    .addActionListener(e -> getVariantPanel().setAllInjectableAndRPC(!disableNonCustomVectors.isSelected()));
+            disableNonCustomVectors =
+                    new JCheckBox(Constant.messages.getString("ascan.custom.label.disableiv"));
+            disableNonCustomVectors.addActionListener(
+                    e ->
+                            getVariantPanel()
+                                    .setAllInjectableAndRPC(!disableNonCustomVectors.isSelected()));
         }
         return disableNonCustomVectors;
     }
-    
+
     private JPanel getTechPanel() {
         if (techPanel == null) {
             techPanel = new JPanel(new GridBagLayout());
@@ -568,8 +632,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
             JScrollPane scrollPane = new JScrollPane();
             scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPane.setViewportView(getTechTree());
-            scrollPane.setBorder(javax.swing.BorderFactory
-                    .createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+            scrollPane.setBorder(
+                    javax.swing.BorderFactory.createEtchedBorder(
+                            javax.swing.border.EtchedBorder.RAISED));
 
             techPanel.add(scrollPane, LayoutHelper.getGBC(0, 0, 1, 1, 1.0D, 1.0D));
         }
@@ -579,7 +644,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private TechnologyTreePanel getTechTree() {
         if (techTree == null) {
-            techTree = new TechnologyTreePanel(Constant.messages.getString("ascan.custom.tab.tech.node"));
+            techTree =
+                    new TechnologyTreePanel(
+                            Constant.messages.getString("ascan.custom.tab.tech.node"));
         }
         return techTree;
     }
@@ -598,17 +665,20 @@ public class CustomScanDialog extends StandardFieldsDialog {
             customPanelStatus.setText(Constant.messages.getString("ascan.custom.status.highlight"));
             if (userDefStart >= 0) {
                 int userDefEnd = getRequestField().getSelectionEnd();
-                if (selectionIncludesHighlight(userDefStart, userDefEnd,
+                if (selectionIncludesHighlight(
+                        userDefStart,
+                        userDefEnd,
                         getRequestField().getHighlighter().getHighlights())) {
                     getAddCustomButton().setEnabled(false);
                     getRemoveCustomButton().setEnabled(true);
 
                 } else if (userDefStart < urlPathStart) {
-                    // No point attacking the method, hostname or port 
+                    // No point attacking the method, hostname or port
                     getAddCustomButton().setEnabled(false);
 
                 } else if (userDefStart < headerLength && userDefEnd > headerLength) {
-                    // The users selection cross the header / body boundry - thats never going to work well
+                    // The users selection cross the header / body boundry - thats never going to
+                    // work well
                     getAddCustomButton().setEnabled(false);
                     getRemoveCustomButton().setEnabled(false);
 
@@ -622,7 +692,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 getAddCustomButton().setEnabled(false);
                 getRemoveCustomButton().setEnabled(false);
             }
-            
+
             getDisableNonCustomVectors().setEnabled(true);
         }
 
@@ -632,34 +702,49 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JList<Highlight> getInjectionPointList() {
         if (injectionPointList == null) {
             injectionPointList = new JList<>(injectionPointModel);
-            injectionPointList.setCellRenderer(new ListCellRenderer<Highlight>() {
-                @Override
-                public Component getListCellRendererComponent(
-                        JList<? extends Highlight> list, Highlight hlt,
-                        int index, boolean isSelected, boolean cellHasFocus) {
-                    
-                    String str = "";
-                    try {
-                        str = getRequestField().getText(hlt.getStartOffset(), hlt.getEndOffset() - hlt.getStartOffset());
-                        if (str.length() > 8) {
-                            // just show first 8 chrs (arbitrary limit;)
-                            str = str.substring(0, 8) + "..";
-                        }
-                    } catch (BadLocationException e) {
-                        // Ignore
-                    }
+            injectionPointList.setCellRenderer(
+                    new ListCellRenderer<Highlight>() {
+                        @Override
+                        public Component getListCellRendererComponent(
+                                JList<? extends Highlight> list,
+                                Highlight hlt,
+                                int index,
+                                boolean isSelected,
+                                boolean cellHasFocus) {
 
-                    return new JLabel("[" + hlt.getStartOffset() + "," + hlt.getEndOffset() + "]: " + str);
-                }
-            });
+                            String str = "";
+                            try {
+                                str =
+                                        getRequestField()
+                                                .getText(
+                                                        hlt.getStartOffset(),
+                                                        hlt.getEndOffset() - hlt.getStartOffset());
+                                if (str.length() > 8) {
+                                    // just show first 8 chrs (arbitrary limit;)
+                                    str = str.substring(0, 8) + "..";
+                                }
+                            } catch (BadLocationException e) {
+                                // Ignore
+                            }
+
+                            return new JLabel(
+                                    "["
+                                            + hlt.getStartOffset()
+                                            + ","
+                                            + hlt.getEndOffset()
+                                            + "]: "
+                                            + str);
+                        }
+                    });
         }
-        
+
         return injectionPointList;
     }
 
     private boolean selectionIncludesHighlight(int start, int end, Highlight hl) {
         if (hl.getPainter() instanceof DefaultHighlighter.DefaultHighlightPainter) {
-            DefaultHighlighter.DefaultHighlightPainter ptr = (DefaultHighlighter.DefaultHighlightPainter) hl.getPainter();
+            DefaultHighlighter.DefaultHighlightPainter ptr =
+                    (DefaultHighlighter.DefaultHighlightPainter) hl.getPainter();
             if (ptr.getColor() != null && ptr.getColor().equals(Color.RED)) {
                 // Test for 'RED' needed to prevent matching the users selection
                 return start < hl.getEndOffset() && end > hl.getStartOffset();
@@ -696,23 +781,23 @@ public class CustomScanDialog extends StandardFieldsDialog {
     @Override
     public JButton[] getExtraButtons() {
         if (extraButtons == null) {
-            JButton resetButton = new JButton(Constant.messages.getString("ascan.custom.button.reset"));
-            resetButton.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    reset(true);
-                }
-            });
+            JButton resetButton =
+                    new JButton(Constant.messages.getString("ascan.custom.button.reset"));
+            resetButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            reset(true);
+                        }
+                    });
 
-            extraButtons = new JButton[]{resetButton};
+            extraButtons = new JButton[] {resetButton};
         }
-        
+
         return extraButtons;
     }
 
-    /**
-     * Use the save method to launch a scan
-     */
+    /** Use the save method to launch a scan */
     @Override
     public void save() {
         List<Object> contextSpecificObjects = new ArrayList<Object>();
@@ -723,27 +808,27 @@ public class CustomScanDialog extends StandardFieldsDialog {
             contextSpecificObjects.add(scanPolicy);
         } else {
             contextSpecificObjects.add(policyPanel.getScanPolicy());
-        	
-        	if (target == null && this.customPanels != null) {
-        		// One of the custom scan panels must have specified a target 
-            	for (CustomScanPanel customPanel : this.customPanels) {
+
+            if (target == null && this.customPanels != null) {
+                // One of the custom scan panels must have specified a target
+                for (CustomScanPanel customPanel : this.customPanels) {
                     target = customPanel.getTarget();
                     if (target != null) {
-                    	break;
+                        break;
                     }
-            	}
-        	}
+                }
+            }
 
             // Save all Variant configurations
             getVariantPanel().saveParam(scannerParam);
-            
+
             // If all other vectors has been disabled
             // force all injectable params and rpc model to NULL
             if (getDisableNonCustomVectors().isSelected()) {
                 scannerParam.setTargetParamsInjectable(0);
-                scannerParam.setTargetParamsEnabledRPC(0);                
+                scannerParam.setTargetParamsEnabledRPC(0);
             }
-            
+
             if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
                 int[][] injPoints = new int[injectionPointModel.getSize()][];
                 for (int i = 0; i < injectionPointModel.getSize(); i++) {
@@ -756,7 +841,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 try {
                     if (target != null && target.getStartNode() != null) {
                         VariantUserDefined.setInjectionPoints(
-                                this.target.getStartNode().getHistoryReference().getURI().toString(),
+                                this.target
+                                        .getStartNode()
+                                        .getHistoryReference()
+                                        .getURI()
+                                        .toString(),
                                 injPoints);
 
                         enableUserDefinedRPC();
@@ -769,22 +858,22 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             scannerParam.setHostPerScan(extension.getScannerParam().getHostPerScan());
             scannerParam.setThreadPerHost(extension.getScannerParam().getThreadPerHost());
-            scannerParam.setHandleAntiCSRFTokens(extension.getScannerParam().getHandleAntiCSRFTokens());
+            scannerParam.setHandleAntiCSRFTokens(
+                    extension.getScannerParam().getHandleAntiCSRFTokens());
             scannerParam.setMaxResultsToList(extension.getScannerParam().getMaxResultsToList());
-
 
             contextSpecificObjects.add(scannerParam);
             contextSpecificObjects.add(techTreeState);
-            
+
             if (this.customPanels != null) {
-            	for (CustomScanPanel customPanel : this.customPanels) {
+                for (CustomScanPanel customPanel : this.customPanels) {
                     Object[] objs = customPanel.getContextSpecificObjects();
                     if (objs != null) {
-                    	for (Object obj : objs) {
+                        for (Object obj : objs) {
                             contextSpecificObjects.add(obj);
-                    	}
+                        }
                     }
-            	}
+                }
             }
         }
 
@@ -794,10 +883,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             target.setContext(getSelectedContext());
         }
 
-        this.extension.startScan(
-                target,
-                getSelectedUser(),
-                contextSpecificObjects.toArray());
+        this.extension.startScan(target, getSelectedUser(), contextSpecificObjects.toArray());
     }
 
     @Override
@@ -817,21 +903,21 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         if (this.customPanels != null) {
-        	// Check all custom panels validate ok
-        	for (CustomScanPanel customPanel : this.customPanels) {
+            // Check all custom panels validate ok
+            for (CustomScanPanel customPanel : this.customPanels) {
                 String fail = customPanel.validateFields();
                 if (fail != null) {
-                	return fail;
+                    return fail;
                 }
-        	}
-        	// Check if they support a custom target
-        	for (CustomScanPanel customPanel : this.customPanels) {
-        		Target target = customPanel.getTarget();
+            }
+            // Check if they support a custom target
+            for (CustomScanPanel customPanel : this.customPanels) {
+                Target target = customPanel.getTarget();
                 if (target != null && target.isValid()) {
-                	// They do, everythings ok
-                	return null;
+                    // They do, everythings ok
+                    return null;
                 }
-        	}
+            }
         }
 
         if (this.target == null || !this.target.isValid()) {
@@ -839,31 +925,28 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         switch (Control.getSingleton().getMode()) {
-        case protect:
-            List<StructuralNode> nodes = target.getStartNodes();
-            if (nodes != null) {
-                for (StructuralNode node : nodes) {
-                    if (node instanceof StructuralSiteNode) {
-                        SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
-                        if (!siteNode.isIncludedInScope()) {
-                            return Constant.messages.getString(
-                                    "ascan.custom.targetNotInScope.error",
-                                    siteNode.getHierarchicNodeName());
+            case protect:
+                List<StructuralNode> nodes = target.getStartNodes();
+                if (nodes != null) {
+                    for (StructuralNode node : nodes) {
+                        if (node instanceof StructuralSiteNode) {
+                            SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
+                            if (!siteNode.isIncludedInScope()) {
+                                return Constant.messages.getString(
+                                        "ascan.custom.targetNotInScope.error",
+                                        siteNode.getHierarchicNodeName());
+                            }
                         }
                     }
                 }
-            }
-            break;
-        default:
+                break;
+            default:
         }
 
         return null;
     }
 
-
-    /**
-     * Force UserDefinedRPC setting
-     */
+    /** Force UserDefinedRPC setting */
     public void enableUserDefinedRPC() {
         int enabledRpc = scannerParam.getTargetParamsEnabledRPC();
         enabledRpc |= ScannerParam.RPC_USERDEF;
@@ -871,7 +954,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     /**
-     * An {@code AbstractParamContainerPanel} that allows to configure {@link ScanPolicy scan policies}.
+     * An {@code AbstractParamContainerPanel} that allows to configure {@link ScanPolicy scan
+     * policies}.
      */
     private static class ScanPolicyPanel extends AbstractParamContainerPanel {
 
@@ -881,32 +965,41 @@ public class CustomScanDialog extends StandardFieldsDialog {
         private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
         private ScanPolicy scanPolicy;
 
-        public ScanPolicyPanel(Window parent, ExtensionActiveScan extension, String rootName, ScanPolicy scanPolicy) {
+        public ScanPolicyPanel(
+                Window parent,
+                ExtensionActiveScan extension,
+                String rootName,
+                ScanPolicy scanPolicy) {
             super(rootName);
 
             this.scanPolicy = scanPolicy;
             String[] ROOT = {};
 
-            policyAllCategoryPanel = new PolicyAllCategoryPanel(parent, extension, scanPolicy, true);
+            policyAllCategoryPanel =
+                    new PolicyAllCategoryPanel(parent, extension, scanPolicy, true);
             policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
-            policyAllCategoryPanel.addScanPolicyChangedEventListener(new ScanPolicyChangedEventListener() {
+            policyAllCategoryPanel.addScanPolicyChangedEventListener(
+                    new ScanPolicyChangedEventListener() {
 
-                @Override
-                public void scanPolicyChanged(ScanPolicy scanPolicy) {
-                    ScanPolicyPanel.this.scanPolicy = scanPolicy;
-                    for (PolicyCategoryPanel panel : categoryPanels) {
-                        panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
-                    }
-                }
-            });
+                        @Override
+                        public void scanPolicyChanged(ScanPolicy scanPolicy) {
+                            ScanPolicyPanel.this.scanPolicy = scanPolicy;
+                            for (PolicyCategoryPanel panel : categoryPanels) {
+                                panel.setPluginFactory(
+                                        scanPolicy.getPluginFactory(),
+                                        scanPolicy.getDefaultThreshold());
+                            }
+                        }
+                    });
             addParamPanel(null, policyAllCategoryPanel, false);
 
             categoryPanels = new ArrayList<>(Category.getAllNames().length);
             for (int i = 0; i < Category.getAllNames().length; i++) {
-                PolicyCategoryPanel panel = new PolicyCategoryPanel(
-                        i,
-                        this.scanPolicy.getPluginFactory(),
-                        scanPolicy.getDefaultThreshold());
+                PolicyCategoryPanel panel =
+                        new PolicyCategoryPanel(
+                                i,
+                                this.scanPolicy.getPluginFactory(),
+                                scanPolicy.getDefaultThreshold());
                 addParamPanel(ROOT, Category.getName(i), panel, true);
                 this.categoryPanels.add(panel);
             }
@@ -928,7 +1021,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     /**
      * Resets the active scan dialogue to its default state.
-     * 
+     *
      * @since 2.5.0
      */
     void reset() {

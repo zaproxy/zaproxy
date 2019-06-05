@@ -19,27 +19,24 @@
  */
 package org.parosproxy.paros.security;
 
-/**
- * Signal not initialized root CA certificate store.
- */
+/** Signal not initialized root CA certificate store. */
 public class MissingRootCertificateException extends IllegalStateException {
 
-	private static final long serialVersionUID = -9087082417871920302L;
+    private static final long serialVersionUID = -9087082417871920302L;
 
-	public MissingRootCertificateException() {
-		super();
-	}
+    public MissingRootCertificateException() {
+        super();
+    }
 
-	public MissingRootCertificateException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public MissingRootCertificateException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public MissingRootCertificateException(String s) {
-		super(s);
-	}
+    public MissingRootCertificateException(String s) {
+        super(s);
+    }
 
-	public MissingRootCertificateException(Throwable cause) {
-		super(cause);
-	}
-
+    public MissingRootCertificateException(Throwable cause) {
+        super(cause);
+    }
 }

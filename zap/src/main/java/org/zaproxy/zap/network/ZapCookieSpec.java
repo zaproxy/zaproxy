@@ -25,45 +25,41 @@ import org.apache.commons.httpclient.cookie.MalformedCookieException;
 
 /**
  * A {@link CookieSpecBase} that does not do any path validation.
- * 
+ *
  * @since 2.7.0
  */
 public class ZapCookieSpec extends CookieSpecBase {
 
     // ZAP: Same implementation as base class but without the path validation.
     @Override
-    public void validate(String host, int port, String path, boolean secure, Cookie cookie) throws MalformedCookieException {
-        LOG.trace("enter CookieSpecBase.validate("
-            + "String, port, path, boolean, Cookie)");
+    public void validate(String host, int port, String path, boolean secure, Cookie cookie)
+            throws MalformedCookieException {
+        LOG.trace("enter CookieSpecBase.validate(" + "String, port, path, boolean, Cookie)");
         if (host == null) {
-            throw new IllegalArgumentException(
-                "Host of origin may not be null");
+            throw new IllegalArgumentException("Host of origin may not be null");
         }
         if (host.trim().equals("")) {
-            throw new IllegalArgumentException(
-                "Host of origin may not be blank");
+            throw new IllegalArgumentException("Host of origin may not be blank");
         }
         if (port < 0) {
             throw new IllegalArgumentException("Invalid port: " + port);
         }
         if (path == null) {
-            throw new IllegalArgumentException(
-                "Path of origin may not be null.");
+            throw new IllegalArgumentException("Path of origin may not be null.");
         }
         host = host.toLowerCase();
         // check version
         if (cookie.getVersion() < 0) {
-            throw new MalformedCookieException ("Illegal version number " 
-                + cookie.getValue());
+            throw new MalformedCookieException("Illegal version number " + cookie.getValue());
         }
 
         // security check... we musn't allow the server to give us an
         // invalid domain scope
 
-        // Validate the cookies domain attribute.  NOTE:  Domains without 
-        // any dots are allowed to support hosts on private LANs that don't 
-        // have DNS names.  Since they have no dots, to domain-match the 
-        // request-host and domain must be identical for the cookie to sent 
+        // Validate the cookies domain attribute.  NOTE:  Domains without
+        // any dots are allowed to support hosts on private LANs that don't
+        // have DNS names.  Since they have no dots, to domain-match the
+        // request-host and domain must be identical for the cookie to sent
         // back to the origin-server.
         if (host.indexOf(".") >= 0) {
             // Not required to have at least two dots.  RFC 2965.
@@ -75,17 +71,23 @@ public class ZapCookieSpec extends CookieSpecBase {
                 if (s.startsWith(".")) {
                     s = s.substring(1, s.length());
                 }
-                if (!host.equals(s)) { 
+                if (!host.equals(s)) {
                     throw new MalformedCookieException(
-                        "Illegal domain attribute \"" + cookie.getDomain() 
-                        + "\". Domain of origin: \"" + host + "\"");
+                            "Illegal domain attribute \""
+                                    + cookie.getDomain()
+                                    + "\". Domain of origin: \""
+                                    + host
+                                    + "\"");
                 }
             }
         } else {
             if (!host.equals(cookie.getDomain())) {
                 throw new MalformedCookieException(
-                    "Illegal domain attribute \"" + cookie.getDomain() 
-                    + "\". Domain of origin: \"" + host + "\"");
+                        "Illegal domain attribute \""
+                                + cookie.getDomain()
+                                + "\". Domain of origin: \""
+                                + host
+                                + "\"");
             }
         }
     }

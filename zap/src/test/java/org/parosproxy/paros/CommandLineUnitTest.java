@@ -20,8 +20,8 @@
 package org.parosproxy.paros;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,20 +49,18 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.zaproxy.zap.utils.I18N;
 
-/**
- * Unit test for {@link CommandLine}.
- */
+/** Unit test for {@link CommandLine}. */
 @RunWith(MockitoJUnitRunner.class)
 public class CommandLineUnitTest {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    @Rule public TemporaryFolder folder = new TemporaryFolder();
 
-    private static final Vector<CommandLineArgument[]> NO_EXTENSIONS_CUSTOM_ARGUMENTS = new Vector<>();
-    private static final Map<String, CommandLineListener> NO_SUPPORTED_FILE_EXTENSIONS = Collections.emptyMap();
+    private static final Vector<CommandLineArgument[]> NO_EXTENSIONS_CUSTOM_ARGUMENTS =
+            new Vector<>();
+    private static final Map<String, CommandLineListener> NO_SUPPORTED_FILE_EXTENSIONS =
+            Collections.emptyMap();
 
-    @Mock
-    private I18N i18n;
+    @Mock private I18N i18n;
 
     private CommandLine cmdLine;
 
@@ -86,7 +83,7 @@ public class CommandLineUnitTest {
     @Test
     public void shouldParseNullArguments() throws Exception {
         // Given
-        String[] args = { null, null };
+        String[] args = {null, null};
         cmdLine = new CommandLine(args);
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
@@ -104,7 +101,7 @@ public class CommandLineUnitTest {
 
     @Test
     public void daemonFlag() throws Exception {
-        cmdLine = new CommandLine(new String[] { CommandLine.DAEMON });
+        cmdLine = new CommandLine(new String[] {CommandLine.DAEMON});
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         assertFalse(cmdLine.isGUI());
         assertTrue(cmdLine.isDaemon());
@@ -114,7 +111,7 @@ public class CommandLineUnitTest {
     @Test
     public void shouldReportNonDaemonNorGuiIfSetCommandLineArgument() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.CMD });
+        cmdLine = new CommandLine(new String[] {CommandLine.CMD});
         // Then
         assertThat(cmdLine.isDaemon(), is(equalTo(false)));
         assertThat(cmdLine.isGUI(), is(equalTo(false)));
@@ -123,14 +120,14 @@ public class CommandLineUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailIfDaemonAndCommandLineArgumentsAreSet() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.CMD, CommandLine.DAEMON });
+        cmdLine = new CommandLine(new String[] {CommandLine.CMD, CommandLine.DAEMON});
         // Then = IllegalArgumentException.class
     }
 
     @Test(expected = Exception.class)
     public void shouldFailIfSessionArgumentDoesNotHaveValue() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.SESSION });
+        cmdLine = new CommandLine(new String[] {CommandLine.SESSION});
         // Then = Exception.class
     }
 
@@ -139,7 +136,7 @@ public class CommandLineUnitTest {
         // Given
         String argumentValue = "/Dummy/Session/Path";
         // When
-        cmdLine = new CommandLine(new String[] { CommandLine.SESSION, argumentValue });
+        cmdLine = new CommandLine(new String[] {CommandLine.SESSION, argumentValue});
         // Then
         assertThat(cmdLine.getArgument(CommandLine.SESSION), is(equalTo(argumentValue)));
     }
@@ -147,7 +144,7 @@ public class CommandLineUnitTest {
     @Test(expected = Exception.class)
     public void shouldFailIfNewSessionArgumentDoesNotHaveValue() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.NEW_SESSION });
+        cmdLine = new CommandLine(new String[] {CommandLine.NEW_SESSION});
         // Then = Exception.class
     }
 
@@ -156,7 +153,7 @@ public class CommandLineUnitTest {
         // Given
         String argumentValue = "/Dummy/Session/Path";
         // When
-        cmdLine = new CommandLine(new String[] { CommandLine.NEW_SESSION, argumentValue });
+        cmdLine = new CommandLine(new String[] {CommandLine.NEW_SESSION, argumentValue});
         // Then
         assertThat(cmdLine.getArgument(CommandLine.NEW_SESSION), is(equalTo(argumentValue)));
     }
@@ -164,14 +161,14 @@ public class CommandLineUnitTest {
     @Test(expected = Exception.class)
     public void shouldFailIfPortArgumentDoesNotHaveValue() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.PORT });
+        cmdLine = new CommandLine(new String[] {CommandLine.PORT});
         // Then = Exception.class
     }
 
     @Test(expected = Exception.class)
     public void shouldFailToParseInvalidPortArgument() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.PORT, "InvalidPort" });
+        cmdLine = new CommandLine(new String[] {CommandLine.PORT, "InvalidPort"});
         // Then = Exception.class
     }
 
@@ -180,7 +177,7 @@ public class CommandLineUnitTest {
         // Given
         int port = 8080;
         // When
-        cmdLine = new CommandLine(new String[] { CommandLine.PORT, Integer.toString(port) });
+        cmdLine = new CommandLine(new String[] {CommandLine.PORT, Integer.toString(port)});
         // Then
         assertThat(cmdLine.getPort(), is(equalTo(port)));
         assertThat(cmdLine.getArgument(CommandLine.PORT), is(equalTo("8080")));
@@ -189,7 +186,7 @@ public class CommandLineUnitTest {
     @Test(expected = Exception.class)
     public void shouldFailIfHostArgumentDoesNotHaveValue() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.HOST });
+        cmdLine = new CommandLine(new String[] {CommandLine.HOST});
         // Then = Exception.class
     }
 
@@ -198,7 +195,7 @@ public class CommandLineUnitTest {
         // Given
         String hostname = "127.0.0.1";
         // When
-        cmdLine = new CommandLine(new String[] { CommandLine.HOST, hostname });
+        cmdLine = new CommandLine(new String[] {CommandLine.HOST, hostname});
         // Then
         assertThat(cmdLine.getHost(), is(equalTo(hostname)));
     }
@@ -214,7 +211,7 @@ public class CommandLineUnitTest {
     @Test
     public void shouldParseNoStdOutArgument() throws Exception {
         // Given / When
-        cmdLine = new CommandLine(new String[] { CommandLine.NOSTDOUT });
+        cmdLine = new CommandLine(new String[] {CommandLine.NOSTDOUT});
         // Then
         assertThat(cmdLine.isNoStdOutLog(), is(equalTo(true)));
     }
@@ -234,8 +231,8 @@ public class CommandLineUnitTest {
         // Given
         String argName = "-arg";
         Vector<CommandLineArgument[]> supportedArguments = new Vector<>();
-        supportedArguments.add(new CommandLineArgument[] { new CommandLineArgument(argName, 1) });
-        cmdLine = new CommandLine(new String[] { argName, "value" });
+        supportedArguments.add(new CommandLineArgument[] {new CommandLineArgument(argName, 1)});
+        cmdLine = new CommandLine(new String[] {argName, "value"});
         // When
         cmdLine.parse(supportedArguments, NO_SUPPORTED_FILE_EXTENSIONS);
         // Then
@@ -245,7 +242,7 @@ public class CommandLineUnitTest {
     @Test(expected = Exception.class)
     public void shouldFailIfGivenUnsupportedArgument() throws Exception {
         // Given
-        cmdLine = new CommandLine(new String[] { "-unsupported" });
+        cmdLine = new CommandLine(new String[] {"-unsupported"});
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         // Then = Exception.class
@@ -253,11 +250,14 @@ public class CommandLineUnitTest {
 
     @Test
     public void claWithoutArgs() throws Exception {
-        cmdLine = new CommandLine(new String[] { "-a", "-b" });
+        cmdLine = new CommandLine(new String[] {"-a", "-b"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-a", 0, null, null, null) });
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-b", 0, null, null, null) });
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-c", 0, null, null, null) });
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-a", 0, null, null, null)});
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-b", 0, null, null, null)});
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-c", 0, null, null, null)});
         cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
 
         assertTrue(customArguments.get(0)[0].isEnabled());
@@ -267,11 +267,14 @@ public class CommandLineUnitTest {
 
     @Test
     public void claWithArgs() throws Exception {
-        cmdLine = new CommandLine(new String[] { "-a", "aaa", "-b", "bbb", "BBB" });
+        cmdLine = new CommandLine(new String[] {"-a", "aaa", "-b", "bbb", "BBB"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-a", 1, null, null, null) });
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-b", 2, null, null, null) });
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-c", 3, null, null, null) });
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-a", 1, null, null, null)});
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-b", 2, null, null, null)});
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-c", 3, null, null, null)});
         cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
 
         assertTrue(customArguments.get(0)[0].isEnabled());
@@ -290,11 +293,14 @@ public class CommandLineUnitTest {
 
     @Test
     public void claWithMissingArgs() throws Exception {
-        cmdLine = new CommandLine(new String[] { "-a", "aaa", "-b", "bbb" });
+        cmdLine = new CommandLine(new String[] {"-a", "aaa", "-b", "bbb"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-a", 1, null, null, null) });
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-b", 2, null, null, null) });
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-c", 3, null, null, null) });
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-a", 1, null, null, null)});
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-b", 2, null, null, null)});
+        customArguments.add(
+                new CommandLineArgument[] {new CommandLineArgument("-c", 3, null, null, null)});
         try {
             cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
             fail("Expected an exception");
@@ -305,9 +311,12 @@ public class CommandLineUnitTest {
 
     @Test
     public void claWithPattern() throws Exception {
-        cmdLine = new CommandLine(new String[] { "-script", "aaa", "bbb", "ccc" });
+        cmdLine = new CommandLine(new String[] {"-script", "aaa", "bbb", "ccc"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
-        customArguments.add(new CommandLineArgument[] { new CommandLineArgument("-script", -1, ".*", null, null) });
+        customArguments.add(
+                new CommandLineArgument[] {
+                    new CommandLineArgument("-script", -1, ".*", null, null)
+                });
         cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
         assertTrue(customArguments.get(0)[0].isEnabled());
         assertThat(customArguments.get(0)[0].getArguments().size(), is(equalTo(3)));
@@ -317,16 +326,17 @@ public class CommandLineUnitTest {
     public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorFile() throws Exception {
         // Given
         String notAFile = "NotAFile" + new Random().nextInt();
-        cmdLine = new CommandLine(new String[] { notAFile });
+        cmdLine = new CommandLine(new String[] {notAFile});
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         // Then = Exception.class
     }
 
     @Test(expected = Exception.class)
-    public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorSupportedFileWithExtension() throws Exception {
+    public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorSupportedFileWithExtension()
+            throws Exception {
         // Given
-        cmdLine = new CommandLine(new String[] { "notsupported.test" });
+        cmdLine = new CommandLine(new String[] {"notsupported.test"});
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         // Then = Exception.class
@@ -339,7 +349,7 @@ public class CommandLineUnitTest {
         File testFile = folder.newFile("aaa." + fileExtension);
         Map<String, CommandLineListener> supportedExtensions = new HashMap<>();
         supportedExtensions.put(fileExtension, new AcceptAllFilesCommandLineListener());
-        cmdLine = new CommandLine(new String[] { testFile.toString() });
+        cmdLine = new CommandLine(new String[] {testFile.toString()});
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, supportedExtensions);
         // Then = Accepted file argument
@@ -352,7 +362,7 @@ public class CommandLineUnitTest {
         File testFile = folder.newFile("aaa." + fileExtension);
         Map<String, CommandLineListener> supportedExtensions = new HashMap<>();
         supportedExtensions.put(fileExtension, new RejectAllFilesCommandLineListener());
-        cmdLine = new CommandLine(new String[] { testFile.toString() });
+        cmdLine = new CommandLine(new String[] {testFile.toString()});
         // When
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, supportedExtensions);
         // Then = Exception.class
@@ -371,8 +381,7 @@ public class CommandLineUnitTest {
         }
 
         @Override
-        public void execute(CommandLineArgument[] args) {
-        }
+        public void execute(CommandLineArgument[] args) {}
     }
 
     private static class RejectAllFilesCommandLineListener implements CommandLineListener {
@@ -388,8 +397,6 @@ public class CommandLineUnitTest {
         }
 
         @Override
-        public void execute(CommandLineArgument[] args) {
-        }
+        public void execute(CommandLineArgument[] args) {}
     }
-
 }

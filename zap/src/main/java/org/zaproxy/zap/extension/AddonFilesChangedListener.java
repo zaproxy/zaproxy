@@ -19,16 +19,10 @@
  */
 package org.zaproxy.zap.extension;
 
-
 public interface AddonFilesChangedListener {
-    /**
-     * Called after addon files have been dynamically added from the marketplace. 
-     */
+    /** Called after addon files have been dynamically added from the marketplace. */
     void filesAdded();
-    
-    /**
-     * Called after addon files have been dynamically removed when uninstalling an addon. 
-     */
+
+    /** Called after addon files have been dynamically removed when uninstalling an addon. */
     void filesRemoved();
-    
 }

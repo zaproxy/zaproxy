@@ -23,16 +23,17 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * An add-on entry of {@code ZapVersions.xml} file.
- * <p>
- * It also reads:
+ *
+ * <p>It also reads:
+ *
  * <ul>
- * <li>file;</li>
- * <li>size;</li>
- * <li>info;</li>
- * <li>date;</li>
- * <li>hash.</li>
+ *   <li>file;
+ *   <li>size;
+ *   <li>info;
+ *   <li>date;
+ *   <li>hash.
  * </ul>
- * 
+ *
  * @since 2.4.0
  */
 public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {

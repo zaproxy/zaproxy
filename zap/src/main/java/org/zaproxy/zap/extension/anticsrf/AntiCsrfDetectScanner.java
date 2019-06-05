@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.List;
-
 import net.htmlparser.jericho.Source;
-
 import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
@@ -32,19 +30,20 @@ import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
 
 /**
- * A {@code PassiveScanner} that {@link ExtensionAntiCSRF#getTokensFromResponse(HttpMessage,Source) extracts} and
- * {@link ExtensionAntiCSRF#registerAntiCsrfToken(AntiCsrfToken) registers} anti-csrf tokens found in
- * {@link PluginPassiveScanner#getDefaultHistoryTypes() HTTP messages}.
- * <p>
- * Additionally, the messages with anti-csrf tokens are tagged with {@link ExtensionAntiCSRF#TAG}.
- * 
+ * A {@code PassiveScanner} that {@link ExtensionAntiCSRF#getTokensFromResponse(HttpMessage,Source)
+ * extracts} and {@link ExtensionAntiCSRF#registerAntiCsrfToken(AntiCsrfToken) registers} anti-csrf
+ * tokens found in {@link PluginPassiveScanner#getDefaultHistoryTypes() HTTP messages}.
+ *
+ * <p>Additionally, the messages with anti-csrf tokens are tagged with {@link
+ * ExtensionAntiCSRF#TAG}.
+ *
  * @since 1.3.0
  */
 public class AntiCsrfDetectScanner implements PassiveScanner {
 
-	public static final String ACSRF_STATS_PREFIX = "stats.acsrf.";
+    public static final String ACSRF_STATS_PREFIX = "stats.acsrf.";
 
-	private PassiveScanThread parent = null;
+    private PassiveScanThread parent = null;
 
     private final ExtensionAntiCSRF extAntiCSRF;
 
@@ -52,58 +51,58 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
         this.extAntiCSRF = extAntiCSRF;
     }
 
-	@Override
-	public void setParent (PassiveScanThread parent) {
-		this.parent = parent;
-	}
+    @Override
+    public void setParent(PassiveScanThread parent) {
+        this.parent = parent;
+    }
 
-	@Override
-	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		// Ignore
-	}
+    @Override
+    public void scanHttpRequestSend(HttpMessage msg, int id) {
+        // Ignore
+    }
 
-	@Override
-	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		List<AntiCsrfToken> list = extAntiCSRF.getTokensFromResponse(msg, source);
-		for (AntiCsrfToken token : list) {
-			if (this.registerToken(msg.getHistoryRef().getHistoryType())) {
-				if (parent != null) {
-					parent.addTag(id, ExtensionAntiCSRF.TAG);
-				}
-				extAntiCSRF.registerAntiCsrfToken(token);
-			}
-			// Always record stats
-			try {
-				Stats.incCounter(SessionStructure.getHostName(msg), ACSRF_STATS_PREFIX + token.getName());
-			} catch (URIException e) {
-				// Ignore
-			}
+    @Override
+    public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
+        List<AntiCsrfToken> list = extAntiCSRF.getTokensFromResponse(msg, source);
+        for (AntiCsrfToken token : list) {
+            if (this.registerToken(msg.getHistoryRef().getHistoryType())) {
+                if (parent != null) {
+                    parent.addTag(id, ExtensionAntiCSRF.TAG);
+                }
+                extAntiCSRF.registerAntiCsrfToken(token);
+            }
+            // Always record stats
+            try {
+                Stats.incCounter(
+                        SessionStructure.getHostName(msg), ACSRF_STATS_PREFIX + token.getName());
+            } catch (URIException e) {
+                // Ignore
+            }
+        }
+    }
 
-		}
-	}
+    @Override
+    public String getName() {
+        return "Anti CSRF Token Detection";
+    }
 
-	@Override
-	public String getName() {
-		return "Anti CSRF Token Detection";
-	}
+    @Override
+    public boolean isEnabled() {
+        // Always enabled
+        return true;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		// Always enabled
-		return true;
-	}
+    @Override
+    public void setEnabled(boolean enabled) {
+        // Ignore
+    }
 
-	@Override
-	public void setEnabled(boolean enabled) {
-		// Ignore
-	}
+    private boolean registerToken(int historyType) {
+        return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
+    }
 
-	private boolean registerToken(int historyType) {
-		return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
-	}
-
-	@Override
-	public boolean appliesToHistoryType(int historyType) {
-		return true;
-	}
+    @Override
+    public boolean appliesToHistoryType(int historyType) {
+        return true;
+    }
 }

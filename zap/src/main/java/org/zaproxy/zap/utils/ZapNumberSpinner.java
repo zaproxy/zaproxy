@@ -25,7 +25,6 @@ import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
-
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.DefaultFormatterFactory;
@@ -33,151 +32,153 @@ import javax.swing.text.NumberFormatter;
 
 public class ZapNumberSpinner extends JSpinner {
 
-	private static final long serialVersionUID = -3475273563365395482L;
-	
-	private int minValue;
-	private int maxValue;
-	private int defaultValue;
+    private static final long serialVersionUID = -3475273563365395482L;
 
-	public ZapNumberSpinner() {
-		this (0, 0, Integer.MAX_VALUE);
-	}
-	
-	public ZapNumberSpinner(int minValue, int defaultValue, int maxValue) {
-		this.minValue = minValue;
-		this.maxValue = maxValue;
-		if (!isValidValue(defaultValue)) {
-			this.defaultValue = minValue;
-		} else {
-			this.defaultValue = defaultValue;
-		}
-		setModel(new SpinnerNumberModel(this.defaultValue, minValue, maxValue, 1));
-		((NumberEditor)getEditor()).getTextField().setFormatterFactory(
-				new DefaultFormatterFactory(new ZapNumberFormatter(minValue, maxValue)));
-	}
+    private int minValue;
+    private int maxValue;
+    private int defaultValue;
 
-	private boolean isValidValue(int value) {
-		if (value < minValue || value > maxValue) {
-			return false;
-		}
-		return true;
-	}
+    public ZapNumberSpinner() {
+        this(0, 0, Integer.MAX_VALUE);
+    }
 
-	public void changeToDefaultValue() {
-		super.setValue(defaultValue);
-	}
-	
-	@Override
-	public void setValue(Object value) {
-		if ((value == null) || !(value instanceof Number)) {
-			return;
-		}
-		setValue(((Number) value).intValue());
-	}
+    public ZapNumberSpinner(int minValue, int defaultValue, int maxValue) {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        if (!isValidValue(defaultValue)) {
+            this.defaultValue = minValue;
+        } else {
+            this.defaultValue = defaultValue;
+        }
+        setModel(new SpinnerNumberModel(this.defaultValue, minValue, maxValue, 1));
+        ((NumberEditor) getEditor())
+                .getTextField()
+                .setFormatterFactory(
+                        new DefaultFormatterFactory(new ZapNumberFormatter(minValue, maxValue)));
+    }
 
-	public void setValue(int value) {
-		if (!isValidValue(value)) {
-			return;
-		}
-		
-		super.setValue(value);
-	}
+    private boolean isValidValue(int value) {
+        if (value < minValue || value > maxValue) {
+            return false;
+        }
+        return true;
+    }
 
-	@Override
-	public Integer getValue() {
-		return (Integer)super.getValue();
-	}
+    public void changeToDefaultValue() {
+        super.setValue(defaultValue);
+    }
 
-	public void setEditable(boolean enabled) {
-		super.setEnabled(enabled);
-		((NumberEditor)getEditor()).getTextField().setEnabled(true);
-		((NumberEditor)getEditor()).getTextField().setEditable(enabled);
-	}
-	
-	private static class ZapNumberFormatter extends NumberFormatter {
+    @Override
+    public void setValue(Object value) {
+        if ((value == null) || !(value instanceof Number)) {
+            return;
+        }
+        setValue(((Number) value).intValue());
+    }
 
-		private static final long serialVersionUID = 4888079030453662194L;
-		private int minValue;
-		private int maxValue;
+    public void setValue(int value) {
+        if (!isValidValue(value)) {
+            return;
+        }
 
-		public ZapNumberFormatter(int minValue, int maxValue) {
-			this.minValue = minValue;
-			this.maxValue = maxValue;
-			setValueClass(Integer.class);
+        super.setValue(value);
+    }
 
-			setMinimum(minValue);
-			setMaximum(maxValue);
-			setAllowsInvalid(false);
+    @Override
+    public Integer getValue() {
+        return (Integer) super.getValue();
+    }
 
-			setFormat(new ZapNumberFormat(minValue));
-		}
+    public void setEditable(boolean enabled) {
+        super.setEnabled(enabled);
+        ((NumberEditor) getEditor()).getTextField().setEnabled(true);
+        ((NumberEditor) getEditor()).getTextField().setEditable(enabled);
+    }
 
-		@Override
-		public Object stringToValue(String text) throws ParseException {
-			Object o = null;
+    private static class ZapNumberFormatter extends NumberFormatter {
 
-			try {
-				o = super.stringToValue(text);
-			} catch (ParseException e) {
-				boolean throwException = true;
-				if (e.getMessage().equals("Value not within min/max range")) {
-					final int value = ((Number)getFormat().parseObject(text)).intValue();
-					if (value < minValue) {
-						o = minValue;
-						throwException = false;
-					} else if (value > maxValue) {
-						o = maxValue;
-						throwException = false;
-					}
-				}
+        private static final long serialVersionUID = 4888079030453662194L;
+        private int minValue;
+        private int maxValue;
 
-				if (throwException) {
-					throw e;
-				}
-			}
+        public ZapNumberFormatter(int minValue, int maxValue) {
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            setValueClass(Integer.class);
 
-			return o;
-		}
-	}
+            setMinimum(minValue);
+            setMaximum(maxValue);
+            setAllowsInvalid(false);
 
-	private static class ZapNumberFormat extends Format {
+            setFormat(new ZapNumberFormat(minValue));
+        }
 
-		private static final long serialVersionUID = 7864449797301371031L;
-		
-		private final NumberFormat numberFormat;
-		private int minValue;
+        @Override
+        public Object stringToValue(String text) throws ParseException {
+            Object o = null;
 
-		public ZapNumberFormat(int minValue) {
-			this.minValue = minValue;
-			this.numberFormat = NumberFormat.getIntegerInstance();
-			this.numberFormat.setGroupingUsed(false);
-		}
+            try {
+                o = super.stringToValue(text);
+            } catch (ParseException e) {
+                boolean throwException = true;
+                if (e.getMessage().equals("Value not within min/max range")) {
+                    final int value = ((Number) getFormat().parseObject(text)).intValue();
+                    if (value < minValue) {
+                        o = minValue;
+                        throwException = false;
+                    } else if (value > maxValue) {
+                        o = maxValue;
+                        throwException = false;
+                    }
+                }
 
-		@Override
-		public AttributedCharacterIterator formatToCharacterIterator(Object obj) {
-			return numberFormat.formatToCharacterIterator(obj);
-		}
+                if (throwException) {
+                    throw e;
+                }
+            }
 
-		@Override
-		public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-			return numberFormat.format(obj, toAppendTo, pos);
-		}
+            return o;
+        }
+    }
 
-		@Override
-		public Object parseObject(String source, ParsePosition pos) {
-			if (source.isEmpty()) {
-				pos.setIndex(1);
-				return minValue;
-			}
-			
-			Object val = numberFormat.parseObject(source, pos);
+    private static class ZapNumberFormat extends Format {
 
-			if (pos.getIndex() != source.length()) {
-				pos.setErrorIndex(pos.getIndex());
-				pos.setIndex(0);
-			}
+        private static final long serialVersionUID = 7864449797301371031L;
 
-			return val;
-		}
-	}
+        private final NumberFormat numberFormat;
+        private int minValue;
+
+        public ZapNumberFormat(int minValue) {
+            this.minValue = minValue;
+            this.numberFormat = NumberFormat.getIntegerInstance();
+            this.numberFormat.setGroupingUsed(false);
+        }
+
+        @Override
+        public AttributedCharacterIterator formatToCharacterIterator(Object obj) {
+            return numberFormat.formatToCharacterIterator(obj);
+        }
+
+        @Override
+        public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+            return numberFormat.format(obj, toAppendTo, pos);
+        }
+
+        @Override
+        public Object parseObject(String source, ParsePosition pos) {
+            if (source.isEmpty()) {
+                pos.setIndex(1);
+                return minValue;
+            }
+
+            Object val = numberFormat.parseObject(source, pos);
+
+            if (pos.getIndex() != source.length()) {
+                pos.setErrorIndex(pos.getIndex());
+                pos.setIndex(0);
+            }
+
+            return val;
+        }
+    }
 }

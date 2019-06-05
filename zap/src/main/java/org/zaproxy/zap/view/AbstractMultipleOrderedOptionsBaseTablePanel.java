@@ -21,9 +21,7 @@ package org.zaproxy.zap.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.Orderable;
 
@@ -32,8 +30,8 @@ import org.zaproxy.zap.utils.Orderable;
  *
  * @param <E> the type of elements in this table
  */
-public abstract class AbstractMultipleOrderedOptionsBaseTablePanel<E extends Orderable> extends
-        AbstractMultipleOptionsBaseTablePanel<E> {
+public abstract class AbstractMultipleOrderedOptionsBaseTablePanel<E extends Orderable>
+        extends AbstractMultipleOptionsBaseTablePanel<E> {
 
     private static final long serialVersionUID = 8297404899024654579L;
 
@@ -42,76 +40,101 @@ public abstract class AbstractMultipleOrderedOptionsBaseTablePanel<E extends Ord
     private JButton moveDownButton;
     private JButton moveBottomButton;
 
-    public AbstractMultipleOrderedOptionsBaseTablePanel(AbstractMultipleOrderedOptionsBaseTableModel<E> model) {
+    public AbstractMultipleOrderedOptionsBaseTablePanel(
+            AbstractMultipleOrderedOptionsBaseTableModel<E> model) {
         this(model, true);
     }
 
     protected AbstractMultipleOrderedOptionsBaseTablePanel(
-            AbstractMultipleOrderedOptionsBaseTableModel<E> model,
-            boolean allowModification) {
+            AbstractMultipleOrderedOptionsBaseTableModel<E> model, boolean allowModification) {
         super(model, allowModification);
     }
 
     protected void addMoveButtons() {
         addButtonSpacer();
 
-        moveTopButton = new JButton(Constant.messages.getString("multiple.options.panel.ordered.move.top.button.label"));
-        moveTopButton.setToolTipText(Constant.messages.getString("multiple.options.panel.ordered.move.top.button.tooltip"));
+        moveTopButton =
+                new JButton(
+                        Constant.messages.getString(
+                                "multiple.options.panel.ordered.move.top.button.label"));
+        moveTopButton.setToolTipText(
+                Constant.messages.getString(
+                        "multiple.options.panel.ordered.move.top.button.tooltip"));
         moveTopButton.setEnabled(false);
 
-        moveTopButton.addActionListener(new ActionListener() {
+        moveTopButton.addActionListener(
+                new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getMultipleOptionsModel().moveTop(getSelectedRow());
-                int finalRow = getTable().convertRowIndexToView(0);
-                getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
-            }
-        });
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        getMultipleOptionsModel().moveTop(getSelectedRow());
+                        int finalRow = getTable().convertRowIndexToView(0);
+                        getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
+                    }
+                });
         addButton(moveTopButton);
 
-        moveUpButton = new JButton(Constant.messages.getString("multiple.options.panel.ordered.move.up.button.label"));
-        moveUpButton.setToolTipText(Constant.messages.getString("multiple.options.panel.ordered.move.up.button.tooltip"));
+        moveUpButton =
+                new JButton(
+                        Constant.messages.getString(
+                                "multiple.options.panel.ordered.move.up.button.label"));
+        moveUpButton.setToolTipText(
+                Constant.messages.getString(
+                        "multiple.options.panel.ordered.move.up.button.tooltip"));
         moveUpButton.setEnabled(false);
-        moveUpButton.addActionListener(new ActionListener() {
+        moveUpButton.addActionListener(
+                new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int row = getSelectedRow();
-                getMultipleOptionsModel().moveUp(row);
-                int finalRow = getTable().convertRowIndexToView(row - 1);
-                getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
-            }
-        });
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int row = getSelectedRow();
+                        getMultipleOptionsModel().moveUp(row);
+                        int finalRow = getTable().convertRowIndexToView(row - 1);
+                        getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
+                    }
+                });
         addButton(moveUpButton);
 
-        moveDownButton = new JButton(Constant.messages.getString("multiple.options.panel.ordered.move.down.button.label"));
-        moveDownButton.setToolTipText(Constant.messages.getString("multiple.options.panel.ordered.move.down.button.tooltip"));
+        moveDownButton =
+                new JButton(
+                        Constant.messages.getString(
+                                "multiple.options.panel.ordered.move.down.button.label"));
+        moveDownButton.setToolTipText(
+                Constant.messages.getString(
+                        "multiple.options.panel.ordered.move.down.button.tooltip"));
         moveDownButton.setEnabled(false);
-        moveDownButton.addActionListener(new ActionListener() {
+        moveDownButton.addActionListener(
+                new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int row = getSelectedRow();
-                getMultipleOptionsModel().moveDown(row);
-                int finalRow = getTable().convertRowIndexToView(row + 1);
-                getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
-            }
-        });
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int row = getSelectedRow();
+                        getMultipleOptionsModel().moveDown(row);
+                        int finalRow = getTable().convertRowIndexToView(row + 1);
+                        getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
+                    }
+                });
         addButton(moveDownButton);
 
-        moveBottomButton = new JButton(Constant.messages.getString("multiple.options.panel.ordered.move.bottom.button.label"));
-        moveBottomButton.setToolTipText(Constant.messages.getString("multiple.options.panel.ordered.move.bottom.button.tooltip"));
+        moveBottomButton =
+                new JButton(
+                        Constant.messages.getString(
+                                "multiple.options.panel.ordered.move.bottom.button.label"));
+        moveBottomButton.setToolTipText(
+                Constant.messages.getString(
+                        "multiple.options.panel.ordered.move.bottom.button.tooltip"));
         moveBottomButton.setEnabled(false);
-        moveBottomButton.addActionListener(new ActionListener() {
+        moveBottomButton.addActionListener(
+                new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getMultipleOptionsModel().moveBottom(getSelectedRow());
-                int finalRow = getTable().convertRowIndexToView(getModel().getRowCount() - 1);
-                getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
-            }
-        });
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        getMultipleOptionsModel().moveBottom(getSelectedRow());
+                        int finalRow =
+                                getTable().convertRowIndexToView(getModel().getRowCount() - 1);
+                        getTable().getSelectionModel().setSelectionInterval(finalRow, finalRow);
+                    }
+                });
         addButton(moveBottomButton);
 
         addButtonSpacer();
@@ -124,8 +147,8 @@ public abstract class AbstractMultipleOrderedOptionsBaseTablePanel<E extends Ord
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to also enable/disable the "move" buttons ("Top", "Up", "Down" and "Bottom").
+     *
+     * <p>Overridden to also enable/disable the "move" buttons ("Top", "Up", "Down" and "Bottom").
      */
     @Override
     public void setComponentEnabled(boolean enabled) {
@@ -141,8 +164,9 @@ public abstract class AbstractMultipleOrderedOptionsBaseTablePanel<E extends Ord
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to update the enabled state of the "move" buttons ("Top", "Up", "Down" and "Bottom").
+     *
+     * <p>Overridden to update the enabled state of the "move" buttons ("Top", "Up", "Down" and
+     * "Bottom").
      */
     @Override
     protected void selectionChanged(boolean entrySelected) {
@@ -187,5 +211,4 @@ public abstract class AbstractMultipleOrderedOptionsBaseTablePanel<E extends Ord
         moveDownButton.setEnabled(false);
         moveBottomButton.setEnabled(false);
     }
-
 }

@@ -20,33 +20,30 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.Component;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-
 public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private ExtensionParams extension;
 
     public PopupMenuParamSearch() {
         super(Constant.messages.getString("params.search.popup"));
-        this.addActionListener(new java.awt.event.ActionListener() { 
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
 
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        		extension.searchForSelectedParam();
-        	}
-        });
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        extension.searchForSelectedParam();
+                    }
+                });
+    }
 
-			
-	}
-
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
+    public void setExtension(ExtensionParams extension) {
+        this.extension = extension;
+    }
 
     @Override
     public boolean isEnableForComponent(Component invoker) {
@@ -56,10 +53,9 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
         }
         return false;
     }
-    
 
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

@@ -22,15 +22,13 @@ package org.zaproxy.zap.extension.ascan;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 
 public class ScanProgressTableModel extends AbstractTableModel {
-    
+
     private static final long serialVersionUID = 1L;
     private static final String[] columnNames = {
         "",
@@ -41,7 +39,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
         Constant.messages.getString("ascan.progress.table.alerts"),
         Constant.messages.getString("ascan.progress.table.status"),
     };
-    
+
     private HostProcess hp;
     private List<ScanProgressItem> values;
     private ScanProgressActionIcon focusedAction;
@@ -54,48 +52,42 @@ public class ScanProgressTableModel extends AbstractTableModel {
         focusedAction = null;
     }
 
-    /**
-     * 
-     * @return 
-     */
+    /** @return */
     @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
-    /**
-     * 
-     * @return 
-     */
+    /** @return */
     @Override
     public int getRowCount() {
         if (values == null) {
             return 0;
         }
-        
+
         // Add other 5 rows for other info shown.
         return values.size() + 5;
     }
 
     /**
-     * 
      * @param row
      * @param col
-     * @return 
+     * @return
      */
     @Override
     public Object getValueAt(int row, int col) {
-        // 1st row is for the Analyser, 2nd row is empty (for separation with the plugins), 3rd for Plugin label.
+        // 1st row is for the Analyser, 2nd row is empty (for separation with the plugins), 3rd for
+        // Plugin label.
         if (row == 0) {
             switch (col) {
-            case 0:
-                return Constant.messages.getString("ascan.progress.table.analyser");
-            case 3:
-                return hp != null ? getElapsedTimeLabel(hp.getAnalyser().getRunningTime()) : "";
-            case 4:
-                return hp != null ? String.valueOf(hp.getAnalyser().getRequestCount()) : "";
-            default:
-                return null;
+                case 0:
+                    return Constant.messages.getString("ascan.progress.table.analyser");
+                case 3:
+                    return hp != null ? getElapsedTimeLabel(hp.getAnalyser().getRunningTime()) : "";
+                case 4:
+                    return hp != null ? String.valueOf(hp.getAnalyser().getRequestCount()) : "";
+                default:
+                    return null;
             }
         } else if (row == 1) {
             return null;
@@ -108,20 +100,20 @@ public class ScanProgressTableModel extends AbstractTableModel {
 
         // First check if we're showing the plugin status list
         if (row < values.size()) {
-            
+
             // It's an entry so show the correct values
             final ScanProgressItem item = values.get(row);
             switch (col) {
                 case 0:
                     return item.getNameLabel();
-                    
+
                 case 1:
                     return item.getAttackStrenghtLabel();
-                    
+
                 case 2:
                     if (item.isCompleted() || item.isRunning() || item.isSkipped()) {
                         return item;
-                        
+
                     } else {
                         return null;
                     }
@@ -130,8 +122,8 @@ public class ScanProgressTableModel extends AbstractTableModel {
                     return getElapsedTimeLabel(item.getElapsedTime());
 
                 case 4:
-                	return item.getReqCount();
-                	
+                    return item.getReqCount();
+
                 case 5:
                     return item.getAlertCount();
                 case 6:
@@ -140,29 +132,29 @@ public class ScanProgressTableModel extends AbstractTableModel {
                 default:
                     return null;
             }
-            
-        // We're in the summary "region", first print an empty
-        // line and then two line of summary (tot time and to requests)
-        // Maybe could be done in a better way, for example using
-        // a dedicated panel positioned on top/bottom of the dialog
+
+            // We're in the summary "region", first print an empty
+            // line and then two line of summary (tot time and to requests)
+            // Maybe could be done in a better way, for example using
+            // a dedicated panel positioned on top/bottom of the dialog
         } else if (row == values.size()) {
             // The first line after values should be empty
             return null;
-            
+
         } else if (row == (values.size() + 1)) {
             // The second line after values should contains the totals
             switch (col) {
                 case 0:
-                    return Constant.messages.getString("ascan.progress.label.totals");                    
-                
+                    return Constant.messages.getString("ascan.progress.label.totals");
+
                 case 3:
                     return totTime;
-                    
+
                 case 4:
-                    return totRequests;                    
+                    return totRequests;
                 case 5:
                     return hp != null ? hp.getAlertCount() : 0;
-                
+
                 default:
                     return null;
             }
@@ -171,10 +163,9 @@ public class ScanProgressTableModel extends AbstractTableModel {
     }
 
     /**
-     * 
      * @param rowIndex
      * @param columnIndex
-     * @return 
+     * @return
      */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -182,9 +173,8 @@ public class ScanProgressTableModel extends AbstractTableModel {
     }
 
     /**
-     * 
      * @param col
-     * @return 
+     * @return
      */
     @Override
     public String getColumnName(int col) {
@@ -192,63 +182,50 @@ public class ScanProgressTableModel extends AbstractTableModel {
     }
 
     /**
-     * 
      * @param c
-     * @return 
+     * @return
      */
     @Override
     public Class<?> getColumnClass(int c) {
         switch (c) {
             case 0:
                 return String.class;
-            
+
             case 1:
                 return String.class;
-                
+
             case 2:
                 return ScanProgressItem.class;
-        
+
             case 3:
                 return String.class;
-                
+
             case 4:
                 return ScanProgressActionIcon.class;
         }
-        
+
         return null;
     }
-   
-    /**
-     * 
-     * @return 
-     */
+
+    /** @return */
     public List<ScanProgressItem> getValues() {
         return values;
     }
 
-    /**
-     * 
-     * @param actionIcon
-     */
+    /** @param actionIcon */
     public void setFocusedAction(ScanProgressActionIcon actionIcon) {
         focusedAction = actionIcon;
     }
 
-    /**
-     * 
-     * @return 
-     */
+    /** @return */
     public ScanProgressActionIcon getFocusedAction() {
         return focusedAction;
     }
-    
-    /**
-     * 
-     * @param scan 
-     */
+
+    /** @param scan */
     public void updateValues(ActiveScan scan, HostProcess hp) {
         setHostProcess(hp);
-        
+
         // Update total elapsed time and request count
         Date end = (scan.getTimeFinished() == null) ? new Date() : scan.getTimeFinished();
         long elapsed = end.getTime() - scan.getTimeStarted().getTime();
@@ -284,12 +261,15 @@ public class ScanProgressTableModel extends AbstractTableModel {
 
     /**
      * Inner method for elapsed time label formatting
+     *
      * @param elapsed the time in milliseconds
      * @return the label with the elapsed time in readable format
      */
     private String getElapsedTimeLabel(long elapsed) {
-        return (elapsed >= 0) ?
-                String.format("%02d:%02d.%03d", elapsed / 60000, (elapsed % 60000) / 1000, (elapsed % 1000)) :
-                null;
+        return (elapsed >= 0)
+                ? String.format(
+                        "%02d:%02d.%03d",
+                        elapsed / 60000, (elapsed % 60000) / 1000, (elapsed % 1000))
+                : null;
     }
 }

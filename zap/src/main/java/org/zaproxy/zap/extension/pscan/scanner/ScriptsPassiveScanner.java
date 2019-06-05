@@ -21,9 +21,7 @@ package org.zaproxy.zap.extension.pscan.scanner;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
-
 import net.htmlparser.jericho.Source;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -37,121 +35,176 @@ import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
 
 public class ScriptsPassiveScanner extends PluginPassiveScanner {
-	
-	private static final Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
 
-	private ExtensionScript extension = null;
-	private PassiveScanThread parent = null;
-	
+    private static final Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
 
-	private int currentHRefId;
-	private int currentHistoryType;
+    private ExtensionScript extension = null;
+    private PassiveScanThread parent = null;
 
-	public ScriptsPassiveScanner() {
-	}
-	
-	@Override
-	public String getName() {
-		return Constant.messages.getString("pscan.scripts.passivescanner.title");
-	}
+    private int currentHRefId;
+    private int currentHistoryType;
 
-	private ExtensionScript getExtension() {
-		if (extension == null) {
-			extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
-		}
-		return extension;
-	}
-	
-	@Override
-	public int getPluginId () {
-		return 50001;
-	}
-	
-	@Override
-	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		// Ignore
-	}
+    public ScriptsPassiveScanner() {}
 
-	@Override
-	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		if (this.getExtension() != null) {
-			currentHRefId = id;
-			List<ScriptWrapper> scripts = extension.getScripts(ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE);
-			for (ScriptWrapper script : scripts) {
-				try {
-					if (script.isEnabled()) {
-						PassiveScript s = extension.getInterface(script, PassiveScript.class);
-						
-						if (s != null) {
-							if (appliesToCurrentHistoryType(script, s)) {
-								s.scan(this, msg, source);
-							}
-							
-						} else {
-							extension.handleFailedScriptInterface(
-									script,
-									Constant.messages.getString("pscan.scripts.interface.passive.error", script.getName()));
-						}
-					}
-					
-				} catch (Exception e) {
-					extension.handleScriptException(script, e);
-				}
-			}
-		}
-		
-	}
+    @Override
+    public String getName() {
+        return Constant.messages.getString("pscan.scripts.passivescanner.title");
+    }
 
-	private boolean appliesToCurrentHistoryType(ScriptWrapper wrapper, PassiveScript ps) {
-		try {
-			return ps.appliesToHistoryType(currentHistoryType);
-		} catch (UndeclaredThrowableException e) {
-			// Python script implementation throws an exception if this optional/default method is not
-			// actually implemented by the script (other script implementations, Zest/ECMAScript, just
-			// use the default method).
-			if (e.getCause() instanceof NoSuchMethodException && "appliesToHistoryType".equals(e.getCause().getMessage())) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Script [Name=" + wrapper.getName() + ", Engine=" + wrapper.getEngineName()
-									+ "]  does not implement the optional method appliesToHistoryType: ", e);
-				}
-				return super.appliesToHistoryType(currentHistoryType);
-			}
-			throw e;
-		}
-	}
-	
-	public void raiseAlert(int risk, int confidence, String name, String description, String uri, 
-			String param, String attack, String otherInfo, String solution, String evidence, 
-			int cweId, int wascId, HttpMessage msg) {
-		
-		raiseAlert(risk, confidence, name, description, uri, param, attack,
-				otherInfo, solution, evidence, null, cweId, wascId, msg);
-	}
+    private ExtensionScript getExtension() {
+        if (extension == null) {
+            extension =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
+        }
+        return extension;
+    }
 
-	public void raiseAlert(int risk, int confidence, String name, String description, String uri,
-			String param, String attack, String otherInfo, String solution, String evidence,
-			String reference, int cweId, int wascId, HttpMessage msg) {
-		
-		Alert alert = new Alert(getPluginId(), risk, confidence, name);
-		     
-		alert.setDetail(description, msg.getRequestHeader().getURI().toString(), 
-				param, attack, otherInfo, solution, reference, evidence, cweId, wascId, msg);
+    @Override
+    public int getPluginId() {
+        return 50001;
+    }
 
-		this.parent.raiseAlert(currentHRefId, alert);
-	}
-	
-	public void addTag(String tag) {		
-		this.parent.addTag(currentHRefId, tag);
-	}
+    @Override
+    public void scanHttpRequestSend(HttpMessage msg, int id) {
+        // Ignore
+    }
 
-	@Override
-	public void setParent(PassiveScanThread parent) {
-		this.parent = parent;
-	}
+    @Override
+    public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
+        if (this.getExtension() != null) {
+            currentHRefId = id;
+            List<ScriptWrapper> scripts =
+                    extension.getScripts(ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE);
+            for (ScriptWrapper script : scripts) {
+                try {
+                    if (script.isEnabled()) {
+                        PassiveScript s = extension.getInterface(script, PassiveScript.class);
 
-	@Override
-	public boolean appliesToHistoryType(int historyType) {
-		this.currentHistoryType = historyType;
-		return true;
-	}
+                        if (s != null) {
+                            if (appliesToCurrentHistoryType(script, s)) {
+                                s.scan(this, msg, source);
+                            }
+
+                        } else {
+                            extension.handleFailedScriptInterface(
+                                    script,
+                                    Constant.messages.getString(
+                                            "pscan.scripts.interface.passive.error",
+                                            script.getName()));
+                        }
+                    }
+
+                } catch (Exception e) {
+                    extension.handleScriptException(script, e);
+                }
+            }
+        }
+    }
+
+    private boolean appliesToCurrentHistoryType(ScriptWrapper wrapper, PassiveScript ps) {
+        try {
+            return ps.appliesToHistoryType(currentHistoryType);
+        } catch (UndeclaredThrowableException e) {
+            // Python script implementation throws an exception if this optional/default method is
+            // not
+            // actually implemented by the script (other script implementations, Zest/ECMAScript,
+            // just
+            // use the default method).
+            if (e.getCause() instanceof NoSuchMethodException
+                    && "appliesToHistoryType".equals(e.getCause().getMessage())) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(
+                            "Script [Name="
+                                    + wrapper.getName()
+                                    + ", Engine="
+                                    + wrapper.getEngineName()
+                                    + "]  does not implement the optional method appliesToHistoryType: ",
+                            e);
+                }
+                return super.appliesToHistoryType(currentHistoryType);
+            }
+            throw e;
+        }
+    }
+
+    public void raiseAlert(
+            int risk,
+            int confidence,
+            String name,
+            String description,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String solution,
+            String evidence,
+            int cweId,
+            int wascId,
+            HttpMessage msg) {
+
+        raiseAlert(
+                risk,
+                confidence,
+                name,
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                evidence,
+                null,
+                cweId,
+                wascId,
+                msg);
+    }
+
+    public void raiseAlert(
+            int risk,
+            int confidence,
+            String name,
+            String description,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String solution,
+            String evidence,
+            String reference,
+            int cweId,
+            int wascId,
+            HttpMessage msg) {
+
+        Alert alert = new Alert(getPluginId(), risk, confidence, name);
+
+        alert.setDetail(
+                description,
+                msg.getRequestHeader().getURI().toString(),
+                param,
+                attack,
+                otherInfo,
+                solution,
+                reference,
+                evidence,
+                cweId,
+                wascId,
+                msg);
+
+        this.parent.raiseAlert(currentHRefId, alert);
+    }
+
+    public void addTag(String tag) {
+        this.parent.addTag(currentHRefId, tag);
+    }
+
+    @Override
+    public void setParent(PassiveScanThread parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public boolean appliesToHistoryType(int historyType) {
+        this.currentHistoryType = historyType;
+        return true;
+    }
 }

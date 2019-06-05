@@ -23,18 +23,17 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public interface BreakpointsUiManagerInterface {
 
-	Class<? extends Message> getMessageClass();
+    Class<? extends Message> getMessageClass();
 
-	Class<? extends BreakpointMessageInterface> getBreakpointClass();
+    Class<? extends BreakpointMessageInterface> getBreakpointClass();
 
-	String getType();
+    String getType();
 
-	void handleAddBreakpoint(Message aMessage);
+    void handleAddBreakpoint(Message aMessage);
 
-	void handleEditBreakpoint(BreakpointMessageInterface breakpoint);
+    void handleEditBreakpoint(BreakpointMessageInterface breakpoint);
 
-	void handleRemoveBreakpoint(BreakpointMessageInterface breakpoint);
+    void handleRemoveBreakpoint(BreakpointMessageInterface breakpoint);
 
-	void reset();
-
+    void reset();
 }

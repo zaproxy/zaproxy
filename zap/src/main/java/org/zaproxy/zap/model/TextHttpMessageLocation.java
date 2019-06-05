@@ -21,7 +21,7 @@ package org.zaproxy.zap.model;
 
 /**
  * A textual {@code HttpMessageLocation}.
- * 
+ *
  * @since 2.4.0
  */
 public interface TextHttpMessageLocation extends HttpMessageLocation {
@@ -29,5 +29,4 @@ public interface TextHttpMessageLocation extends HttpMessageLocation {
     int getStart();
 
     int getEnd();
-
 }

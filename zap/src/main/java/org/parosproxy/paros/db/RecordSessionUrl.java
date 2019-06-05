@@ -21,46 +21,45 @@ package org.parosproxy.paros.db;
 
 public class RecordSessionUrl {
 
-	public static final int TYPE_EXCLUDE_FROM_PROXY = 1;
-	public static final int TYPE_EXCLUDE_FROM_SCAN = 2;
-	public static final int TYPE_EXCLUDE_FROM_SPIDER = 3;
-	public static final int TYPE_EXCLUDE_FROM_SCOPE = 4;
-	public static final int TYPE_INCLUDE_IN_SCOPE = 5;
-	public static final int TYPE_EXCLUDE_FROM_WEBSOCKET = 6;
-	
+    public static final int TYPE_EXCLUDE_FROM_PROXY = 1;
+    public static final int TYPE_EXCLUDE_FROM_SCAN = 2;
+    public static final int TYPE_EXCLUDE_FROM_SPIDER = 3;
+    public static final int TYPE_EXCLUDE_FROM_SCOPE = 4;
+    public static final int TYPE_INCLUDE_IN_SCOPE = 5;
+    public static final int TYPE_EXCLUDE_FROM_WEBSOCKET = 6;
+
     private long urlId = 0;
     private int type = 0;
     private String url = "";
 
-	public RecordSessionUrl(long urlId, int type, String url) {
-		super();
-		this.urlId = urlId;
-		this.type = type;
-		this.url = url;
-	}
+    public RecordSessionUrl(long urlId, int type, String url) {
+        super();
+        this.urlId = urlId;
+        this.type = type;
+        this.url = url;
+    }
 
-	public long getUrlId() {
-		return urlId;
-	}
+    public long getUrlId() {
+        return urlId;
+    }
 
-	public void setUrlId(long urlId) {
-		this.urlId = urlId;
-	}
+    public void setUrlId(long urlId) {
+        this.urlId = urlId;
+    }
 
-	public int getType() {
-		return type;
-	}
+    public int getType() {
+        return type;
+    }
 
-	public void setType(int type) {
-		this.type = type;
-	}
+    public void setType(int type) {
+        this.type = type;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

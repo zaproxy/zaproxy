@@ -24,11 +24,14 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Generic Script interface for Input Vectors
+ *
  * @author yhawke (2014)
  */
 public interface VariantScript {
 
     public void parseParameters(VariantCustom variant, HttpMessage msg) throws ScriptException;
 
-    public void setParameter(VariantCustom variant, HttpMessage msg, String param, String value, boolean escaped) throws ScriptException;
+    public void setParameter(
+            VariantCustom variant, HttpMessage msg, String param, String value, boolean escaped)
+            throws ScriptException;
 }

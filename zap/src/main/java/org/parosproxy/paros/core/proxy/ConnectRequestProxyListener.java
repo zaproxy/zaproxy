@@ -23,7 +23,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A listener that will be notified when a HTTP CONNECT request is received from a client.
- * 
+ *
  * @since 2.5.0
  * @see ProxyListener
  * @see OverrideMessageProxyListener
@@ -32,9 +32,9 @@ public interface ConnectRequestProxyListener {
 
     /**
      * Notifies that a HTTP CONNECT request was received from a client.
-     * <p>
-     * The {@code HttpMessage} {@code connectMessage} should not be modified.
-     * 
+     *
+     * <p>The {@code HttpMessage} {@code connectMessage} should not be modified.
+     *
      * @param connectMessage the HTTP CONNECT request received from a client
      */
     void receivedConnectRequest(HttpMessage connectMessage);

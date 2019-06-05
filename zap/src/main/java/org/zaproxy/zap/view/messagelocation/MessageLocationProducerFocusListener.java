@@ -23,9 +23,10 @@ import java.util.EventListener;
 
 /**
  * An {@code EventListener} that allows to listen to {@code MessageLocationProducerFocusEvent}.
- * <p>
- * Used to listen to changes in the focus of {@code MessageLocationProducer}s and propagate the event with the custom format.
- * 
+ *
+ * <p>Used to listen to changes in the focus of {@code MessageLocationProducer}s and propagate the
+ * event with the custom format.
+ *
  * @since 2.4.0
  * @see MessageLocationProducerFocusEvent
  * @see MessageLocationProducer
@@ -34,14 +35,14 @@ public interface MessageLocationProducerFocusListener extends EventListener {
 
     /**
      * Invoked when a {@code MessageLocationProducer} gains the focus.
-     * 
+     *
      * @param event the event with the details
      */
     void focusGained(MessageLocationProducerFocusEvent event);
 
     /**
      * Invoked when a {@code MessageLocationProducer} loses the focus.
-     * 
+     *
      * @param event the event with the details
      */
     void focusLost(MessageLocationProducerFocusEvent event);

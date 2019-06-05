@@ -23,22 +23,24 @@ import java.util.List;
 
 /**
  * A table that represents the SiteMap when the low-memory option is set
- * @author psiinon
  *
+ * @author psiinon
  */
 public interface TableStructure extends DatabaseListener {
 
-	RecordStructure read(long sessionId, long structureId) throws DatabaseException;
+    RecordStructure read(long sessionId, long structureId) throws DatabaseException;
 
-	RecordStructure find(long sessionId, String name, String method) throws DatabaseException;
+    RecordStructure find(long sessionId, String name, String method) throws DatabaseException;
 
-	List<RecordStructure> getChildren(long sessionId, long parentId) throws DatabaseException;
+    List<RecordStructure> getChildren(long sessionId, long parentId) throws DatabaseException;
 
-	long getChildCount(long sessionId, long parentId) throws DatabaseException;
+    long getChildCount(long sessionId, long parentId) throws DatabaseException;
 
-	RecordStructure insert(long sessionId, long parentId, int historyId, String name, String url, String method) throws DatabaseException;
+    RecordStructure insert(
+            long sessionId, long parentId, int historyId, String name, String url, String method)
+            throws DatabaseException;
 
-	void deleteLeaf(long sessionId, long structureId) throws DatabaseException;
+    void deleteLeaf(long sessionId, long structureId) throws DatabaseException;
 
-	void deleteSubtree(long sessionId, long structureId) throws DatabaseException;
+    void deleteSubtree(long sessionId, long structureId) throws DatabaseException;
 }

@@ -77,5 +77,4 @@ class AntiCsrfParamToken extends Enableable {
         }
         return true;
     }
-
 }

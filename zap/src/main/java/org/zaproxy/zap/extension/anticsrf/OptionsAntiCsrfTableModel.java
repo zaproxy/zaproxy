@@ -21,44 +21,43 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel<AntiCsrfParamToken> {
+public class OptionsAntiCsrfTableModel
+        extends AbstractMultipleOptionsTableModel<AntiCsrfParamToken> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("options.acsrf.table.header.enabled"),
-            Constant.messages.getString("options.acsrf.table.header.token")};
-    
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-	
+        Constant.messages.getString("options.acsrf.table.header.enabled"),
+        Constant.messages.getString("options.acsrf.table.header.token")
+    };
+
+    private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+
     private List<AntiCsrfParamToken> tokens = new ArrayList<>(0);
-    
+
     public OptionsAntiCsrfTableModel() {
         super();
     }
-    
+
     @Override
     public List<AntiCsrfParamToken> getElements() {
         return tokens;
     }
 
-    /**
-     * @param tokens The tokens to set.
-     */
+    /** @param tokens The tokens to set. */
     public void setTokens(List<AntiCsrfParamToken> tokens) {
-		this.tokens = new ArrayList<>(tokens.size());
-		
-		for (AntiCsrfParamToken token : tokens) {
-			this.tokens.add(new AntiCsrfParamToken(token));
-		}
-    	
-  	  	fireTableDataChanged();
+        this.tokens = new ArrayList<>(tokens.size());
+
+        for (AntiCsrfParamToken token : tokens) {
+            this.tokens.add(new AntiCsrfParamToken(token));
+        }
+
+        fireTableDataChanged();
     }
-    
+
     @Override
     public String getColumnName(int col) {
         return COLUMN_NAMES[col];
@@ -68,9 +67,9 @@ public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel
     public int getColumnCount() {
         return COLUMN_COUNT;
     }
-    
+
     @Override
-	public Class<?> getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         if (c == 0) {
             return Boolean.class;
         }
@@ -86,14 +85,14 @@ public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return (columnIndex == 0);
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch(columnIndex) {
-        case 0:
-            return getElement(rowIndex).isEnabled();
-        case 1:
-            return getElement(rowIndex).getName();
+        switch (columnIndex) {
+            case 0:
+                return getElement(rowIndex).isEnabled();
+            case 1:
+                return getElement(rowIndex).getName();
         }
         return null;
     }
@@ -107,5 +106,4 @@ public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel
             }
         }
     }
-    
 }

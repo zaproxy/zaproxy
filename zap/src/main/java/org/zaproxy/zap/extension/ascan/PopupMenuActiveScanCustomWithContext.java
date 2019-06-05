@@ -20,15 +20,15 @@
 package org.zaproxy.zap.extension.ascan;
 
 import javax.swing.ImageIcon;
-
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.stdmenus.PopupContextTreeMenu;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 
 /**
- * A {@code PopupContextTreeMenu} that allows to show the Active Scan dialogue for a selected {@link Context}.
- * 
+ * A {@code PopupContextTreeMenu} that allows to show the Active Scan dialogue for a selected {@link
+ * Context}.
+ *
  * @see ExtensionActiveScan#showCustomScanDialog(Target)
  */
 public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
@@ -39,11 +39,15 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
         super();
 
         this.setText(extension.getMessages().getString("ascan.custom.popup"));
-        this.setIcon(new ImageIcon(PopupMenuActiveScanCustomWithContext.class.getResource("/resource/icon/16/093.png")));
+        this.setIcon(
+                new ImageIcon(
+                        PopupMenuActiveScanCustomWithContext.class.getResource(
+                                "/resource/icon/16/093.png")));
 
-        this.addActionListener(e -> {
-            Context context = Model.getSingleton().getSession().getContext(getContextId());
-            extension.showCustomScanDialog(new Target(context));
-        });
+        this.addActionListener(
+                e -> {
+                    Context context = Model.getSingleton().getSession().getContext(getContextId());
+                    extension.showCustomScanDialog(new Target(context));
+                });
     }
 }

@@ -28,35 +28,34 @@ import org.parosproxy.paros.model.SiteNode;
  */
 public class MaxChildrenFetchFilter extends FetchFilter {
 
-	private int maxChildren = -1;
-	
-	private Model model;
+    private int maxChildren = -1;
 
-	@Override
-	public FetchStatus checkFilter(URI uri) {
-		log.debug("Checking: " + uri);
+    private Model model;
 
-		SiteNode parent = model.getSession().getSiteTree().findClosestParent(uri);
-		if (parent != null) {
-			if (maxChildren > 0 && parent.getChildCount() > maxChildren) {
-				return FetchStatus.USER_RULES;
-			}
-		}
+    @Override
+    public FetchStatus checkFilter(URI uri) {
+        log.debug("Checking: " + uri);
 
-		return FetchStatus.VALID;
-	}
+        SiteNode parent = model.getSession().getSiteTree().findClosestParent(uri);
+        if (parent != null) {
+            if (maxChildren > 0 && parent.getChildCount() > maxChildren) {
+                return FetchStatus.USER_RULES;
+            }
+        }
 
-	public void setMaxChildren(int maxChildren) {
-		this.maxChildren = maxChildren;
-	}
+        return FetchStatus.VALID;
+    }
 
-	/**
-	 * Sets the model
-	 * 
-	 * @param model the model used to check the number of children of a node
-	 */
-	public void setModel(Model model) {
-		this.model = model;
-	}
+    public void setMaxChildren(int maxChildren) {
+        this.maxChildren = maxChildren;
+    }
 
+    /**
+     * Sets the model
+     *
+     * @param model the model used to check the number of children of a node
+     */
+    public void setModel(Model model) {
+        this.model = model;
+    }
 }

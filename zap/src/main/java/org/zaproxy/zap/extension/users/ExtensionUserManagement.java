@@ -26,9 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.management.relation.Role;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -51,290 +49,288 @@ import org.zaproxy.zap.view.ContextPanelFactory;
 
 /**
  * The Extension for managing {@link User Users}, {@link Role Roles}, and related entities.
- * <p>
- * This class also handles the loading of {@link AuthenticationMethodType} and
- * {@link AuthenticationMethodType} classes in the system using the AddOnLoader (
- * {@link ExtensionFactory#getAddOnLoader()}).
- * </p>
+ *
+ * <p>This class also handles the loading of {@link AuthenticationMethodType} and {@link
+ * AuthenticationMethodType} classes in the system using the AddOnLoader ( {@link
+ * ExtensionFactory#getAddOnLoader()}).
  */
-public class ExtensionUserManagement extends ExtensionAdaptor implements ContextPanelFactory,
-		ContextDataFactory {
+public class ExtensionUserManagement extends ExtensionAdaptor
+        implements ContextPanelFactory, ContextDataFactory {
 
-	public static final String CONTEXT_CONFIG_USERS = Context.CONTEXT_CONFIG + ".users";
-	public static final String CONTEXT_CONFIG_USERS_USER = CONTEXT_CONFIG_USERS + ".user";
+    public static final String CONTEXT_CONFIG_USERS = Context.CONTEXT_CONFIG + ".users";
+    public static final String CONTEXT_CONFIG_USERS_USER = CONTEXT_CONFIG_USERS + ".user";
 
-	/**
-	 * The extension's order during loading. Make sure we load this extension AFTER the
-	 * Authentication one.
-	 */
-	public static final int EXTENSION_ORDER = ExtensionAuthentication.EXTENSION_ORDER + 5;
-	
-	/** The NAME of the extension. */
-	public static final String NAME = "ExtensionUserManagement";
+    /**
+     * The extension's order during loading. Make sure we load this extension AFTER the
+     * Authentication one.
+     */
+    public static final int EXTENSION_ORDER = ExtensionAuthentication.EXTENSION_ORDER + 5;
 
-	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(ExtensionUserManagement.class);
+    /** The NAME of the extension. */
+    public static final String NAME = "ExtensionUserManagement";
 
-	/** The user panels, mapped to each context. */
-	private Map<Integer, ContextUsersPanel> userPanelsMap = new HashMap<>();
+    /** The Constant log. */
+    private static final Logger log = Logger.getLogger(ExtensionUserManagement.class);
 
-	/** The context managers, mapped to each context. */
-	private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
+    /** The user panels, mapped to each context. */
+    private Map<Integer, ContextUsersPanel> userPanelsMap = new HashMap<>();
 
-	private UsersAPI api;
+    /** The context managers, mapped to each context. */
+    private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
 
-	/** The Constant EXTENSION DEPENDENCIES. */
-	private static final List<Class<? extends Extension>> EXTENSION_DEPENDENCIES;
-	static {
-		// Prepare a list of Extensions on which this extension depends
-		List<Class<? extends Extension>> dependencies = new ArrayList<>(3);
-		dependencies.add(ExtensionHttpSessions.class);
-		dependencies.add(ExtensionAuthentication.class);
-		dependencies.add(ExtensionSessionManagement.class);
-		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
-	}
+    private UsersAPI api;
 
-	/** A reference to the http sessions extension. */
-	private ExtensionHttpSessions extensionHttpSessions;
+    /** The Constant EXTENSION DEPENDENCIES. */
+    private static final List<Class<? extends Extension>> EXTENSION_DEPENDENCIES;
 
-	/**
-	 * Instantiates a new extension.
-	 */
-	public ExtensionUserManagement() {
-		initialize();
-	}
+    static {
+        // Prepare a list of Extensions on which this extension depends
+        List<Class<? extends Extension>> dependencies = new ArrayList<>(3);
+        dependencies.add(ExtensionHttpSessions.class);
+        dependencies.add(ExtensionAuthentication.class);
+        dependencies.add(ExtensionSessionManagement.class);
+        EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
+    }
 
-	/**
-	 * Gets the ExtensionHttpSessions, if it's enabled.
-	 * 
-	 * @return the Http Sessions extension or null, if it's not available
-	 */
-	protected ExtensionHttpSessions getExtensionHttpSessions() {
-		if (extensionHttpSessions == null) {
-			extensionHttpSessions = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class);
-			if (extensionHttpSessions == null)
-				log.error("Http Sessions Extension should be enabled for the "
-						+ ExtensionUserManagement.class.getSimpleName() + " to work.");
-		}
-		return extensionHttpSessions;
+    /** A reference to the http sessions extension. */
+    private ExtensionHttpSessions extensionHttpSessions;
 
-	}
+    /** Instantiates a new extension. */
+    public ExtensionUserManagement() {
+        initialize();
+    }
 
-	/**
-	 * Initialize the extension.
-	 */
-	private void initialize() {
-		this.setName(NAME);
-		// Added to make sure the ExtensionForcedUser is loaded after this one.
-		// See: ExtensionForcedUser#getOrder()
-		this.setOrder(EXTENSION_ORDER);
-	}
+    /**
+     * Gets the ExtensionHttpSessions, if it's enabled.
+     *
+     * @return the Http Sessions extension or null, if it's not available
+     */
+    protected ExtensionHttpSessions getExtensionHttpSessions() {
+        if (extensionHttpSessions == null) {
+            extensionHttpSessions =
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionHttpSessions.class);
+            if (extensionHttpSessions == null)
+                log.error(
+                        "Http Sessions Extension should be enabled for the "
+                                + ExtensionUserManagement.class.getSimpleName()
+                                + " to work.");
+        }
+        return extensionHttpSessions;
+    }
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("users.name");
-	}
-	
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    /** Initialize the extension. */
+    private void initialize() {
+        this.setName(NAME);
+        // Added to make sure the ExtensionForcedUser is loaded after this one.
+        // See: ExtensionForcedUser#getOrder()
+        this.setOrder(EXTENSION_ORDER);
+    }
 
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
-		// Register this as a context data factory
-		extensionHook.addContextDataFactory(this);
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("users.name");
+    }
 
-		if (getView() != null) {
-			// Factory for generating Session Context Users panels
-			extensionHook.getHookView().addContextPanelFactory(this);
-		}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-		// Prepare API
-		this.api = new UsersAPI(this);
-		extensionHook.addApiImplementor(api);
-	}
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        // Register this as a context data factory
+        extensionHook.addContextDataFactory(this);
 
-	@Override
-	public List<Class<? extends Extension>> getDependencies() {
-		return EXTENSION_DEPENDENCIES;
-	}
+        if (getView() != null) {
+            // Factory for generating Session Context Users panels
+            extensionHook.getHookView().addContextPanelFactory(this);
+        }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+        // Prepare API
+        this.api = new UsersAPI(this);
+        extensionHook.addApiImplementor(api);
+    }
 
-	@Override
-	public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
-		return getContextPanel(ctx.getIndex());
-	}
+    @Override
+    public List<Class<? extends Extension>> getDependencies() {
+        return EXTENSION_DEPENDENCIES;
+    }
 
-	/**
-	 * Gets the context panel for a given context.
-	 * 
-	 * @param contextId the context id
-	 * @return the context panel
-	 */
-	private ContextUsersPanel getContextPanel(int contextId) {
-		ContextUsersPanel panel = this.userPanelsMap.get(contextId);
-		if (panel == null) {
-			panel = new ContextUsersPanel(this, contextId);
-			this.userPanelsMap.put(contextId, panel);
-		}
-		return panel;
-	}
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * Gets the context user auth manager for a given context.
-	 * 
-	 * @param contextId the context id
-	 * @return the context user auth manager
-	 */
-	public ContextUserAuthManager getContextUserAuthManager(int contextId) {
-		ContextUserAuthManager manager = contextManagers.get(contextId);
-		if (manager == null) {
-			manager = new ContextUserAuthManager(contextId);
-			contextManagers.put(contextId, manager);
-		}
-		return manager;
-	}
+    @Override
+    public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
+        return getContextPanel(ctx.getIndex());
+    }
 
-	/**
-	 * Gets an unmodifiable view of the users that are currently shown in the UI.
-	 * 
-	 * @param contextId the context id
-	 * @return the uI configured users
-	 */
-	public List<User> getUIConfiguredUsers(int contextId) {
-		ContextUsersPanel panel = this.userPanelsMap.get(contextId);
-		if (panel != null) {
-			return Collections.unmodifiableList(panel.getUsersTableModel().getUsers());
-		}
-		return null;
-	}
+    /**
+     * Gets the context panel for a given context.
+     *
+     * @param contextId the context id
+     * @return the context panel
+     */
+    private ContextUsersPanel getContextPanel(int contextId) {
+        ContextUsersPanel panel = this.userPanelsMap.get(contextId);
+        if (panel == null) {
+            panel = new ContextUsersPanel(this, contextId);
+            this.userPanelsMap.put(contextId, panel);
+        }
+        return panel;
+    }
 
-	/**
-	 * Gets the model of the users that are currently shown in the UI.
-	 * 
-	 * @param contextId the context id
-	 * @return the users model, if any, or null, if there is no panel for the given model
-	 */
-	public UsersTableModel getUIConfiguredUsersModel(int contextId) {
-		ContextUsersPanel panel = this.userPanelsMap.get(contextId);
-		if (panel != null) {
-			return panel.getUsersTableModel();
-		}
-		return null;
-	}
+    /**
+     * Gets the context user auth manager for a given context.
+     *
+     * @param contextId the context id
+     * @return the context user auth manager
+     */
+    public ContextUserAuthManager getContextUserAuthManager(int contextId) {
+        ContextUserAuthManager manager = contextManagers.get(contextId);
+        if (manager == null) {
+            manager = new ContextUserAuthManager(contextId);
+            contextManagers.put(contextId, manager);
+        }
+        return manager;
+    }
 
-	@Override
-	public void discardContexts() {
-		this.contextManagers.clear();
-		this.userPanelsMap.clear();
-	}
+    /**
+     * Gets an unmodifiable view of the users that are currently shown in the UI.
+     *
+     * @param contextId the context id
+     * @return the uI configured users
+     */
+    public List<User> getUIConfiguredUsers(int contextId) {
+        ContextUsersPanel panel = this.userPanelsMap.get(contextId);
+        if (panel != null) {
+            return Collections.unmodifiableList(panel.getUsersTableModel().getUsers());
+        }
+        return null;
+    }
 
-	@Override
-	public void discardContext(Context ctx) {
-		this.contextManagers.remove(ctx.getIndex());
-		this.userPanelsMap.remove(ctx.getIndex());
-	}
+    /**
+     * Gets the model of the users that are currently shown in the UI.
+     *
+     * @param contextId the context id
+     * @return the users model, if any, or null, if there is no panel for the given model
+     */
+    public UsersTableModel getUIConfiguredUsersModel(int contextId) {
+        ContextUsersPanel panel = this.userPanelsMap.get(contextId);
+        if (panel != null) {
+            return panel.getUsersTableModel();
+        }
+        return null;
+    }
 
-	@Override
-	public void loadContextData(Session session, Context context) {
-		try {
-			List<String> encodedUsers = session.getContextDataStrings(context.getIndex(),
-					RecordContext.TYPE_USER);
-			ContextUserAuthManager usersManager = getContextUserAuthManager(context.getIndex());
-			for (String e : encodedUsers) {
-				User u = User.decode(context.getIndex(), e);
-				usersManager.addUser(u);
-			}
-		} catch (Exception ex) {
-			log.error("Unable to load Users.", ex);
-		}
-	}
+    @Override
+    public void discardContexts() {
+        this.contextManagers.clear();
+        this.userPanelsMap.clear();
+    }
 
-	@Override
-	public void persistContextData(Session session, Context context) {
-		try {
-			List<String> encodedUsers = new ArrayList<>();
-			ContextUserAuthManager m = contextManagers.get(context.getIndex());
-			if (m != null) {
-				for (User u : m.getUsers()) {
-					encodedUsers.add(User.encode(u));
-				}
-				session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
-			}
-		} catch (Exception ex) {
-			log.error("Unable to persist Users.", ex);
-		}
-	}
+    @Override
+    public void discardContext(Context ctx) {
+        this.contextManagers.remove(ctx.getIndex());
+        this.userPanelsMap.remove(ctx.getIndex());
+    }
 
-	/**
-	 * Removes all the users that are shown in the UI (for the Users context panel) and correspond
-	 * to a particular shared Context.
-	 * 
-	 * @param sharedContext the shared context
-	 */
-	public void removeSharedContextUsers(Context sharedContext) {
-		this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().removeAllUsers();
-	}
-	
-	/**
-	 * Add a new user shown in the UI (for the Users context panel) that corresponds
-	 * to a particular shared Context.
-	 *
-	 * @param sharedContext the shared context
-	 * @param user the user
-	 */
-	public void addSharedContextUser(Context sharedContext, User user) {
-		this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().addUser(user);
-	}
-	
-	public List<User> getSharedContextUsers(Context sharedContext){
-		return getContextPanel(sharedContext.getIndex()).getUsersTableModel().getUsers();
-	}
+    @Override
+    public void loadContextData(Session session, Context context) {
+        try {
+            List<String> encodedUsers =
+                    session.getContextDataStrings(context.getIndex(), RecordContext.TYPE_USER);
+            ContextUserAuthManager usersManager = getContextUserAuthManager(context.getIndex());
+            for (String e : encodedUsers) {
+                User u = User.decode(context.getIndex(), e);
+                usersManager.addUser(u);
+            }
+        } catch (Exception ex) {
+            log.error("Unable to load Users.", ex);
+        }
+    }
 
-	/**
-	 * Removes all the that correspond to a Context with a given id.
-	 * 
-	 * @param contextId the context id
-	 */
-	public void removeContextUsers(int contextId) {
-		this.getContextUserAuthManager(contextId).removeAllUsers();
-	}
+    @Override
+    public void persistContextData(Session session, Context context) {
+        try {
+            List<String> encodedUsers = new ArrayList<>();
+            ContextUserAuthManager m = contextManagers.get(context.getIndex());
+            if (m != null) {
+                for (User u : m.getUsers()) {
+                    encodedUsers.add(User.encode(u));
+                }
+                session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
+            }
+        } catch (Exception ex) {
+            log.error("Unable to persist Users.", ex);
+        }
+    }
 
-	@Override
-	public void exportContextData(Context ctx, Configuration config) {
-		ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
-		if (m != null) {
-			for (User u : m.getUsers()) {
-				config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
-			}
-		}
-	}
+    /**
+     * Removes all the users that are shown in the UI (for the Users context panel) and correspond
+     * to a particular shared Context.
+     *
+     * @param sharedContext the shared context
+     */
+    public void removeSharedContextUsers(Context sharedContext) {
+        this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().removeAllUsers();
+    }
 
-	@Override
-	public void importContextData(Context ctx, Configuration config) {
-		List<Object> list = config.getList(CONTEXT_CONFIG_USERS_USER);
-		ContextUserAuthManager m = getContextUserAuthManager(ctx.getIndex());
-		for (Object o : list) {
-			User usersManager = User.decode(ctx.getIndex(), o.toString());
-			m.addUser(usersManager);
-		}
-	}
+    /**
+     * Add a new user shown in the UI (for the Users context panel) that corresponds to a particular
+     * shared Context.
+     *
+     * @param sharedContext the shared context
+     * @param user the user
+     */
+    public void addSharedContextUser(Context sharedContext, User user) {
+        this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().addUser(user);
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    public List<User> getSharedContextUsers(Context sharedContext) {
+        return getContextPanel(sharedContext.getIndex()).getUsersTableModel().getUsers();
+    }
+
+    /**
+     * Removes all the that correspond to a Context with a given id.
+     *
+     * @param contextId the context id
+     */
+    public void removeContextUsers(int contextId) {
+        this.getContextUserAuthManager(contextId).removeAllUsers();
+    }
+
+    @Override
+    public void exportContextData(Context ctx, Configuration config) {
+        ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
+        if (m != null) {
+            for (User u : m.getUsers()) {
+                config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+            }
+        }
+    }
+
+    @Override
+    public void importContextData(Context ctx, Configuration config) {
+        List<Object> list = config.getList(CONTEXT_CONFIG_USERS_USER);
+        ContextUserAuthManager m = getContextUserAuthManager(ctx.getIndex());
+        for (Object o : list) {
+            User usersManager = User.decode(ctx.getIndex(), o.toString());
+            m.addUser(usersManager);
+        }
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }

@@ -24,7 +24,7 @@ import javax.swing.ButtonModel;
 
 /**
  * A {@code ButtonGroup} that allows to deselect the selected button.
- * 
+ *
  * @see ButtonGroup
  */
 public class DeselectableButtonGroup extends ButtonGroup {
@@ -33,9 +33,8 @@ public class DeselectableButtonGroup extends ButtonGroup {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to deselect the button when {@code selected} is {@code false}.
-     * </p>
+     *
+     * <p>Overridden to deselect the button when {@code selected} is {@code false}.
      */
     @Override
     public void setSelected(ButtonModel m, boolean selected) {
@@ -45,5 +44,4 @@ public class DeselectableButtonGroup extends ButtonGroup {
             super.setSelected(m, selected);
         }
     }
-
 }

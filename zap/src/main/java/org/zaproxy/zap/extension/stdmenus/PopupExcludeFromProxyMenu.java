@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -37,59 +36,59 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
 
-	private static final long serialVersionUID = 2282358266003940700L;
+    private static final long serialVersionUID = 2282358266003940700L;
 
-	/**
-	 * This method initializes 
-	 * 
-	 */
-	public PopupExcludeFromProxyMenu() {
-		super(Constant.messages.getString("sites.exclude.proxy.popup"), true);
-	}
-	    
-   @Override
-   public boolean isSubMenu() {
-   	return true;
-   }
-   
-   @Override
-   public String getParentMenuName() {
-   	return Constant.messages.getString("sites.exclude.popup");
-   }
+    /** This method initializes */
+    public PopupExcludeFromProxyMenu() {
+        super(Constant.messages.getString("sites.exclude.proxy.popup"), true);
+    }
 
-   @Override
-   public int getParentMenuIndex() {
-   	return EXCLUDE_MENU_INDEX;
-   }
-   
-	@Override
-	public void performAction(SiteNode sn) {
+    @Override
+    public boolean isSubMenu() {
+        return true;
+    }
+
+    @Override
+    public String getParentMenuName() {
+        return Constant.messages.getString("sites.exclude.popup");
+    }
+
+    @Override
+    public int getParentMenuIndex() {
+        return EXCLUDE_MENU_INDEX;
+    }
+
+    @Override
+    public void performAction(SiteNode sn) {
         try {
-			Session session = Model.getSingleton().getSession();
-			session.getExcludeFromProxyRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
-			SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
+            Session session = Model.getSingleton().getSession();
+            session.getExcludeFromProxyRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
+            SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
 
             ExtensionHistory extHistory =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionHistory.class);
 
             if (extHistory != null) {
                 extHistory.purge(map, sn);
             }
 
-			
-		} catch (DatabaseException e) {
-			// Ignore
-		}
-	}
+        } catch (DatabaseException e) {
+            // Ignore
+        }
+    }
 
-	@Override
-    public void performHistoryReferenceActions (List<HistoryReference> hrefs) {
-		super.performHistoryReferenceActions(hrefs);
-        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), SessionExcludeFromProxyPanel.PANEL_NAME);
-	}
+    @Override
+    public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
+        super.performHistoryReferenceActions(hrefs);
+        View.getSingleton()
+                .showSessionDialog(
+                        Model.getSingleton().getSession(), SessionExcludeFromProxyPanel.PANEL_NAME);
+    }
 
-	@Override
-	public boolean isSafe() {
-	   	return true;
-	}
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

@@ -24,52 +24,50 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.network.HttpMessage;
 
-
 public class ProxyListenerScript implements ProxyListener {
 
-    // Should be the last one but one before the listener that saves the HttpMessage to the db 
+    // Should be the last one but one before the listener that saves the HttpMessage to the db
     // so that anything can be changed
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER - 2;
-	
-	private final ExtensionScript extension;
 
-	private static final Logger logger = Logger.getLogger(ProxyListenerScript.class);
+    private final ExtensionScript extension;
 
-	public ProxyListenerScript(ExtensionScript extension) {
-	    this.extension = extension;
-	}
-	
-	@Override
-	public int getArrangeableListenerOrder() {
-		return PROXY_LISTENER_ORDER;
-	}
-	
-	@Override
-	public boolean onHttpRequestSend(HttpMessage msg) {
-		return invokeProxyScripts(msg, true);
-	}
+    private static final Logger logger = Logger.getLogger(ProxyListenerScript.class);
 
-	private boolean invokeProxyScripts(HttpMessage msg, boolean processRequest) {
-		for (ScriptWrapper script : extension.getScripts(ExtensionScript.TYPE_PROXY)) {
-			if (script.isEnabled()) {
-				try {
-					if (! extension.invokeProxyScript(script, msg, processRequest)) {
-						// The script is telling us to drop the message
-						return false;
-					}
-					
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-		// No scripts, or they all passed
-		return true;
-	}
+    public ProxyListenerScript(ExtensionScript extension) {
+        this.extension = extension;
+    }
 
-	@Override
-	public boolean onHttpResponseReceive(HttpMessage msg) {
-		return invokeProxyScripts(msg, false);
-	}
-    
+    @Override
+    public int getArrangeableListenerOrder() {
+        return PROXY_LISTENER_ORDER;
+    }
+
+    @Override
+    public boolean onHttpRequestSend(HttpMessage msg) {
+        return invokeProxyScripts(msg, true);
+    }
+
+    private boolean invokeProxyScripts(HttpMessage msg, boolean processRequest) {
+        for (ScriptWrapper script : extension.getScripts(ExtensionScript.TYPE_PROXY)) {
+            if (script.isEnabled()) {
+                try {
+                    if (!extension.invokeProxyScript(script, msg, processRequest)) {
+                        // The script is telling us to drop the message
+                        return false;
+                    }
+
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+        // No scripts, or they all passed
+        return true;
+    }
+
+    @Override
+    public boolean onHttpResponseReceive(HttpMessage msg) {
+        return invokeProxyScripts(msg, false);
+    }
 }

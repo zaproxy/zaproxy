@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,42 +30,41 @@
 // ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
 // ZAP: 2019/03/15 Issue 3578: Added the method addImportMenuItem(ZapMenuItem  menuitem)
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
- * The object to add/hook menus and menu items to the {@link org.parosproxy.paros.view.MainFrame#getMainMenuBar() main menu bar}
- * and to the {@link View#getPopupMenu() main context menu}.
- * <p>
- * The menus added through the hook are removed when the extension is unloaded.
- * <p>
- * <strong>Note:</strong> This class is not thread-safe, the menus should be added only through the thread that
- * {@link Extension#hook(ExtensionHook) hooks the extension}.
+ * The object to add/hook menus and menu items to the {@link
+ * org.parosproxy.paros.view.MainFrame#getMainMenuBar() main menu bar} and to the {@link
+ * View#getPopupMenu() main context menu}.
+ *
+ * <p>The menus added through the hook are removed when the extension is unloaded.
+ *
+ * <p><strong>Note:</strong> This class is not thread-safe, the menus should be added only through
+ * the thread that {@link Extension#hook(ExtensionHook) hooks the extension}.
  *
  * @since 1.0.0
  * @see View#getMainFrame()
  */
 public class ExtensionHookMenu {
-    
+
     public static final JMenuItem MENU_SEPARATOR;
     public static final ExtensionPopupMenuItem POPUP_MENU_SEPARATOR;
-    
+
     /**
      * The new menus for the main menu bar added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addNewMenu(JMenu)
      * @see #getNewMenus()
      */
@@ -73,9 +72,9 @@ public class ExtensionHookMenu {
 
     /**
      * The file menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addFileMenuItemImpl(JMenuItem)
      * @see #getFile()
      */
@@ -83,9 +82,9 @@ public class ExtensionHookMenu {
 
     /**
      * The edit menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addEditMenuItemImpl(JMenuItem)
      * @see #getEdit()
      */
@@ -93,9 +92,9 @@ public class ExtensionHookMenu {
 
     /**
      * The view menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addViewMenuItemImpl(JMenuItem)
      * @see #getView()
      */
@@ -103,9 +102,9 @@ public class ExtensionHookMenu {
 
     /**
      * The analyse menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addAnalyseMenuItemImpl(JMenuItem)
      * @see #getAnalyse()
      */
@@ -113,9 +112,9 @@ public class ExtensionHookMenu {
 
     /**
      * The tools menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addToolsMenuItemImpl(JMenuItem)
      * @see #getTools()
      */
@@ -123,8 +122,8 @@ public class ExtensionHookMenu {
 
     /**
      * The import menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
+     *
+     * <p>Lazily initialised.
      *
      * @see #addImportMenuItem(ZapMenuItem)
      * @see #getImport()
@@ -134,9 +133,9 @@ public class ExtensionHookMenu {
 
     /**
      * The menus for the main context menu added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addPopupMenuImpl(JMenuItem)
      * @see #getPopupMenus()
      */
@@ -144,9 +143,9 @@ public class ExtensionHookMenu {
 
     /**
      * The help menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addHelpMenuItemImpl(JMenuItem)
      * @see #getHelpMenus()
      */
@@ -154,9 +153,9 @@ public class ExtensionHookMenu {
 
     /**
      * The report menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addReportMenuItemImpl(JMenuItem)
      * @see #getReportMenus()
      */
@@ -164,14 +163,14 @@ public class ExtensionHookMenu {
 
     /**
      * The online menus added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addOnlineMenuItem(ZapMenuItem)
      * @see #getOnlineMenus()
      */
     private List<JMenuItem> onlineMenuList;
-    
+
     // ZAP: Added static block.
     static {
         // XXX temporary "hack" to check if ZAP is in GUI mode.
@@ -185,7 +184,7 @@ public class ExtensionHookMenu {
             POPUP_MENU_SEPARATOR = null;
         }
     }
-    
+
     List<JMenuItem> getNewMenus() {
         return unmodifiableList(newMenuList);
     }
@@ -210,15 +209,13 @@ public class ExtensionHookMenu {
         return unmodifiableList(toolsMenuItemList);
     }
 
-    List<JMenuItem> getImport() { 
-	return unmodifiableList(importMenuItemList); 
+    List<JMenuItem> getImport() {
+        return unmodifiableList(importMenuItemList);
     }
-    
 
-    
     /**
      * Gets the popup menu items used for the whole workbench.
-     * 
+     *
      * @return a {@code List} containing the popup menu items of the extension
      */
     List<JMenuItem> getPopupMenus() {
@@ -239,8 +236,8 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the File menu
-     * @param menuItem the file menu item
      *
+     * @param menuItem the file menu item
      * @deprecated use {@link #addFileMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
@@ -257,8 +254,8 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the Edit menu
-     * @param menuItem the edit menu item
      *
+     * @param menuItem the edit menu item
      * @deprecated use {@link #addEditMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
@@ -275,8 +272,8 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the View menu
-     * @param menuItem the view menu item
      *
+     * @param menuItem the view menu item
      * @deprecated use {@link #addViewMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
@@ -293,8 +290,8 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the Analyse menu
-     * @param menuItem the analyse menu item
      *
+     * @param menuItem the analyse menu item
      * @deprecated use {@link #addAnalyseMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
@@ -311,8 +308,8 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the Tools menu
-     * @param menuItem the tools menu item
      *
+     * @param menuItem the tools menu item
      * @deprecated use {@link #addToolsMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
@@ -346,11 +343,9 @@ public class ExtensionHookMenu {
     public void addToolsMenuItem(ZapMenuItem menuItem) {
         addToolsMenuItemImpl(menuItem);
     }
-    /**
-     * @since 2.8.0
-     */
-    public void addImportMenuItem(ZapMenuItem menuItem) { 
-	if (importMenuItemList == null) {
+    /** @since 2.8.0 */
+    public void addImportMenuItem(ZapMenuItem menuItem) {
+        if (importMenuItemList == null) {
             importMenuItemList = createList();
         }
         importMenuItemList.add(menuItem);
@@ -364,8 +359,9 @@ public class ExtensionHookMenu {
     }
 
     /**
-     * Add a popup menu item used for the whole workbench.  Conditions can be set in PluginMenu
-     * when the popup menu can be used.
+     * Add a popup menu item used for the whole workbench. Conditions can be set in PluginMenu when
+     * the popup menu can be used.
+     *
      * @param menuItem the popup menu item
      */
     public void addPopupMenuItem(ExtensionPopupMenuItem menuItem) {
@@ -378,21 +374,21 @@ public class ExtensionHookMenu {
         }
         popupMenuList.add(menu);
     }
-    
+
     // ZAP: Added the method.
     public void addPopupMenuItem(ExtensionPopupMenu menu) {
         addPopupMenuImpl(menu);
     }
-    
+
     /**
      * Add a menu item to the Help menu
-     * @param menuItem the help menu item
      *
+     * @param menuItem the help menu item
      * @deprecated use {@link #addHelpMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addHelpMenuItem(JMenuItem menuItem) {
-        addHelpMenuItemImpl(menuItem);        
+        addHelpMenuItemImpl(menuItem);
     }
 
     private void addHelpMenuItemImpl(JMenuItem menuItem) {
@@ -401,11 +397,11 @@ public class ExtensionHookMenu {
         }
         helpMenuList.add(menuItem);
     }
-    
+
     /**
      * Add a menu item to the Report menu
-     * @param menuItem the report menu item
      *
+     * @param menuItem the report menu item
      * @deprecated use {@link #addReportMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
@@ -419,22 +415,22 @@ public class ExtensionHookMenu {
         }
         reportMenuList.add(menuItem);
     }
-    
+
     public void addHelpMenuItem(ZapMenuItem menuItem) {
         addHelpMenuItemImpl(menuItem);
     }
-    
+
     public void addReportMenuItem(ZapMenuItem menuItem) {
         addReportMenuItemImpl(menuItem);
     }
-    
+
     public void addOnlineMenuItem(ZapMenuItem menuItem) {
         if (onlineMenuList == null) {
             onlineMenuList = createList();
         }
         onlineMenuList.add(menuItem);
     }
-    
+
     public JMenuItem getMenuSeparator() {
         return MENU_SEPARATOR;
     }
@@ -445,8 +441,8 @@ public class ExtensionHookMenu {
 
     /**
      * Creates an {@link ArrayList} with initial capacity of 1.
-     * <p>
-     * Most of the extensions just add one menu.
+     *
+     * <p>Most of the extensions just add one menu.
      *
      * @return the {@code ArrayList}.
      */

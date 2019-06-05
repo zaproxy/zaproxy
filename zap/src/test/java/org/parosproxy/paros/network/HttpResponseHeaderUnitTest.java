@@ -25,9 +25,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-/**
- * Unit test for {@link HttpResponseHeader}.
- */
+/** Unit test for {@link HttpResponseHeader}. */
 public class HttpResponseHeaderUnitTest {
 
     @Test
@@ -53,7 +51,8 @@ public class HttpResponseHeaderUnitTest {
     @Test
     public void shouldNotBeEmptyIfItHasStatusAndHeaders() throws Exception {
         // Given
-        HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\nX-Header: value\r\n\r\n");
+        HttpResponseHeader header =
+                new HttpResponseHeader("HTTP/1.1 200 OK\r\nX-Header: value\r\n\r\n");
         // When
         boolean empty = header.isEmpty();
         // Then

@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 /**
  * An {@code Iterator} that allows to be reset, to initial state.
- * 
+ *
  * @param <E> the type of elements returned by this iterator
  * @see Iterator
  * @see EmptyResettableIterator
@@ -31,9 +31,6 @@ import java.util.Iterator;
  */
 public interface ResettableIterator<E> extends Iterator<E> {
 
-    /**
-     * Resets the iterator to the initial state.
-     */
+    /** Resets the iterator to the initial state. */
     void reset();
-
 }

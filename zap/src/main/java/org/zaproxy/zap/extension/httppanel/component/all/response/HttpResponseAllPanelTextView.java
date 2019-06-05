@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.httppanel.component.all.response;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
@@ -33,66 +32,71 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseAllPanelTextView extends HttpPanelTextView {
 
-	private static final Logger log = Logger.getLogger(HttpResponseAllPanelTextView.class);
-	
-	public HttpResponseAllPanelTextView(ResponseStringHttpPanelViewModel model) {
-		super(model);
-	}
-	
-	@Override
-	protected HttpPanelTextArea createHttpPanelTextArea() {
-		return new HttpResponseAllPanelTextArea();
-	}
-	
-	protected static class HttpResponseAllPanelTextArea extends HttpPanelTextArea {
+    private static final Logger log = Logger.getLogger(HttpResponseAllPanelTextView.class);
 
-		private static final long serialVersionUID = 2539870692549575745L;
+    public HttpResponseAllPanelTextView(ResponseStringHttpPanelViewModel model) {
+        super(model);
+    }
 
-		@Override
-		public void search(Pattern p, List<SearchMatch> matches) {
-			String header = ((HttpMessage) getMessage()).getResponseHeader().toString();
-			Matcher m = p.matcher(getText());
-			while (m.find()) {
+    @Override
+    protected HttpPanelTextArea createHttpPanelTextArea() {
+        return new HttpResponseAllPanelTextArea();
+    }
 
-				int[] position = HttpTextViewUtils.getViewToHeaderBodyPosition(this, header, m.start(), m.end());
-				if (position.length == 0) {
-					return;
-				}
+    protected static class HttpResponseAllPanelTextArea extends HttpPanelTextArea {
 
-				SearchMatch.Location location = position.length == 2
-						? SearchMatch.Location.RESPONSE_HEAD
-						: SearchMatch.Location.RESPONSE_BODY;
-				matches.add(new SearchMatch(location, position[0], position[1]));
-			}
-		}
-		
-		@Override
-		public void highlight(SearchMatch sm) {
-			if (!(SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation()) ||
-				SearchMatch.Location.RESPONSE_BODY.equals(sm.getLocation()))) {
-				return;
-			}
-			
-			int[] pos;
-			if (SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation())) {
-				pos = HttpTextViewUtils.getHeaderToViewPosition(
-						this,
-						sm.getMessage().getResponseHeader().toString(),
-						sm.getStart(),
-						sm.getEnd());
-			} else {
-				pos = HttpTextViewUtils.getBodyToViewPosition(
-						this,
-						sm.getMessage().getResponseHeader().toString(),
-						sm.getStart(),
-						sm.getEnd());
-			}
+        private static final long serialVersionUID = 2539870692549575745L;
 
-			if (pos.length == 0) {
-				return;
-			}
-			
-			highlight(pos[0], pos[1]);
-		}
-	}
+        @Override
+        public void search(Pattern p, List<SearchMatch> matches) {
+            String header = ((HttpMessage) getMessage()).getResponseHeader().toString();
+            Matcher m = p.matcher(getText());
+            while (m.find()) {
+
+                int[] position =
+                        HttpTextViewUtils.getViewToHeaderBodyPosition(
+                                this, header, m.start(), m.end());
+                if (position.length == 0) {
+                    return;
+                }
+
+                SearchMatch.Location location =
+                        position.length == 2
+                                ? SearchMatch.Location.RESPONSE_HEAD
+                                : SearchMatch.Location.RESPONSE_BODY;
+                matches.add(new SearchMatch(location, position[0], position[1]));
+            }
+        }
+
+        @Override
+        public void highlight(SearchMatch sm) {
+            if (!(SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation())
+                    || SearchMatch.Location.RESPONSE_BODY.equals(sm.getLocation()))) {
+                return;
+            }
+
+            int[] pos;
+            if (SearchMatch.Location.RESPONSE_HEAD.equals(sm.getLocation())) {
+                pos =
+                        HttpTextViewUtils.getHeaderToViewPosition(
+                                this,
+                                sm.getMessage().getResponseHeader().toString(),
+                                sm.getStart(),
+                                sm.getEnd());
+            } else {
+                pos =
+                        HttpTextViewUtils.getBodyToViewPosition(
+                                this,
+                                sm.getMessage().getResponseHeader().toString(),
+                                sm.getStart(),
+                                sm.getEnd());
+            }
+
+            if (pos.length == 0) {
+                return;
+            }
+
+            highlight(pos[0], pos[1]);
+        }
+    }
 }

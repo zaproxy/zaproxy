@@ -21,7 +21,6 @@ package org.parosproxy.paros.extension.history;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
@@ -29,18 +28,16 @@ import org.zaproxy.zap.eventBus.EventPublisher;
 
 /**
  * A {@link EventPublisher} of {@link ProxyListenerLog} events.
+ *
  * @since 2.8.0
  */
 public final class ProxyListenerLogEventPublisher implements EventPublisher {
 
-    /**
-     * The event sent when a {@code HistoryReference} is added.
-     */
+    /** The event sent when a {@code HistoryReference} is added. */
     public static final String EVENT_ADDED = "href.added";
-    /**
-     * The event's field that contains the ID of the {@code HistoryReference} of the event.
-     */
+    /** The event's field that contains the ID of the {@code HistoryReference} of the event. */
     public static final String FIELD_HISTORY_REFERENCE_ID = "historyReferenceId";
+
     private static final String FIELD_URI = "uri";
     private static final String FIELD_METHOD = "method";
     private static final String FIELD_TIME_SENT_MS = "timeSentInMs";
@@ -70,12 +67,10 @@ public final class ProxyListenerLogEventPublisher implements EventPublisher {
     private static synchronized void createPublisher() {
         if (publisher == null) {
             publisher = new ProxyListenerLogEventPublisher();
-            ZAP.getEventBus().registerPublisher(
-                    publisher,
-                    EVENT_ADDED);
+            ZAP.getEventBus().registerPublisher(publisher, EVENT_ADDED);
         }
     }
-    
+
     public void publishHrefAddedEvent(HistoryReference href) {
         Map<String, String> map = new HashMap<String, String>();
         map.put(FIELD_HISTORY_REFERENCE_ID, Integer.toString(href.getHistoryId()));
@@ -85,8 +80,8 @@ public final class ProxyListenerLogEventPublisher implements EventPublisher {
         map.put(FIELD_STATUS_CODE, Integer.toString(href.getStatusCode()));
         map.put(FIELD_RTT, Integer.toString(href.getRtt()));
         map.put(FIELD_RESPONSE_BODY_LENGTH, Integer.toString(href.getResponseBodyLength()));
-        ZAP.getEventBus().publishSyncEvent(
-                getPublisher(),
-                new Event(getPublisher(), EVENT_ADDED, null, map));
+        ZAP.getEventBus()
+                .publishSyncEvent(
+                        getPublisher(), new Event(getPublisher(), EVENT_ADDED, null, map));
     }
 }

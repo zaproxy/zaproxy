@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -40,205 +39,205 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public abstract class AbstractFormDialog extends JDialog {
 
-	private static final long serialVersionUID = -3345423228612477780L;
+    private static final long serialVersionUID = -3345423228612477780L;
 
-	private static final String CANCEL_BUTTON_LABEL = Constant.messages
-			.getString("form.dialog.button.cancel");
+    private static final String CANCEL_BUTTON_LABEL =
+            Constant.messages.getString("form.dialog.button.cancel");
 
-	private JButton helpButton;
-	private JButton confirmButton;
-	private JButton cancelButton;
+    private JButton helpButton;
+    private JButton confirmButton;
+    private JButton cancelButton;
 
-	private boolean firstTime;
-	private String helpTarget;
+    private boolean firstTime;
+    private String helpTarget;
 
-	public AbstractFormDialog(Dialog owner, String title) {
-		this(owner, title, true);
-	}
+    public AbstractFormDialog(Dialog owner, String title) {
+        this(owner, title, true);
+    }
 
-	public AbstractFormDialog(Dialog owner, String title, boolean initView) {
-		super(owner, title, ModalityType.DOCUMENT_MODAL);
-		initialise(initView);
-	}
+    public AbstractFormDialog(Dialog owner, String title, boolean initView) {
+        super(owner, title, ModalityType.DOCUMENT_MODAL);
+        initialise(initView);
+    }
 
-	public AbstractFormDialog(Frame owner, String title) {
-		this(owner, title, true);
-	}
+    public AbstractFormDialog(Frame owner, String title) {
+        this(owner, title, true);
+    }
 
-	public AbstractFormDialog(Frame owner, String title, boolean initView) {
-		super(owner, title, ModalityType.DOCUMENT_MODAL);
-		initialise(initView);
-	}
+    public AbstractFormDialog(Frame owner, String title, boolean initView) {
+        super(owner, title, ModalityType.DOCUMENT_MODAL);
+        initialise(initView);
+    }
 
-	public AbstractFormDialog(Window owner, String title) {
-		this(owner, title, true);
-	}
+    public AbstractFormDialog(Window owner, String title) {
+        this(owner, title, true);
+    }
 
-	public AbstractFormDialog(Window owner, String title, boolean initView) {
-		super(owner, title, ModalityType.DOCUMENT_MODAL);
-		initialise(initView);
-	}
+    public AbstractFormDialog(Window owner, String title, boolean initView) {
+        super(owner, title, ModalityType.DOCUMENT_MODAL);
+        initialise(initView);
+    }
 
-	private void initialise(boolean initView) {
-		setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
+    private void initialise(boolean initView) {
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(
+                new WindowAdapter() {
 
-			@Override
-			public void windowClosing(WindowEvent e) {
-				clearAndHide();
-			}
-		});
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        clearAndHide();
+                    }
+                });
 
-		firstTime = true;
-		if (initView) {
-			initView();
-		}
-		
-		// Handle escape key to close the dialog
-		KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-		AbstractAction escapeAction = new AbstractAction() {
+        firstTime = true;
+        if (initView) {
+            initView();
+        }
 
-			private static final long serialVersionUID = -8088438488574461587L;
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				clearAndHide();
-			}
-		};
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
-		getRootPane().getActionMap().put("ESCAPE", escapeAction);
-	}
+        // Handle escape key to close the dialog
+        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        AbstractAction escapeAction =
+                new AbstractAction() {
 
-	protected void initView() {
-		JPanel buttonsPanel = new JPanel();
-		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
-		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		buttonsPanel.add(getHelpButton());
-		buttonsPanel.add(Box.createHorizontalGlue());
-		buttonsPanel.add(getCancelButton());
-		buttonsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
-		buttonsPanel.add(getConfirmButton());
+                    private static final long serialVersionUID = -8088438488574461587L;
 
-		JPanel panel = new JPanel(new BorderLayout());
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        clearAndHide();
+                    }
+                };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
+    }
 
-		panel.add(getFieldsPanel(), BorderLayout.CENTER);
-		panel.add(buttonsPanel, BorderLayout.PAGE_END);
+    protected void initView() {
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        buttonsPanel.add(getHelpButton());
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(getCancelButton());
+        buttonsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
+        buttonsPanel.add(getConfirmButton());
 
-		this.setContentPane(panel);
-	}
+        JPanel panel = new JPanel(new BorderLayout());
 
-	private JButton getHelpButton() {
-		if (helpButton == null) {
-			helpButton = new JButton();
-			helpButton.setIcon(ExtensionHelp.getHelpIcon());
-			helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
-			helpButton.setVisible(false);
+        panel.add(getFieldsPanel(), BorderLayout.CENTER);
+        panel.add(buttonsPanel, BorderLayout.PAGE_END);
 
-			helpButton.addActionListener(new java.awt.event.ActionListener() {
+        this.setContentPane(panel);
+    }
 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (helpTarget != null) {
-						ExtensionHelp.showHelp(helpTarget);
-					}
-				}
-			});
-		}
-		return helpButton;
-	}
+    private JButton getHelpButton() {
+        if (helpButton == null) {
+            helpButton = new JButton();
+            helpButton.setIcon(ExtensionHelp.getHelpIcon());
+            helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
+            helpButton.setVisible(false);
 
-	protected void setHelpTarget(String helpTarget) {
-		this.helpTarget = helpTarget;
-		getHelpButton().setVisible(helpTarget != null);
-	}
+            helpButton.addActionListener(
+                    new java.awt.event.ActionListener() {
 
-	private JButton getConfirmButton() {
-		if (confirmButton == null) {
-			confirmButton = new JButton(getConfirmButtonLabel());
-			confirmButton.setEnabled(false);
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            if (helpTarget != null) {
+                                ExtensionHelp.showHelp(helpTarget);
+                            }
+                        }
+                    });
+        }
+        return helpButton;
+    }
 
-			confirmButton.addActionListener(new ActionListener() {
+    protected void setHelpTarget(String helpTarget) {
+        this.helpTarget = helpTarget;
+        getHelpButton().setVisible(helpTarget != null);
+    }
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (validateFields()) {
-						performAction();
-						clearAndHide();
-					}
-				}
-			});
-		}
-		return confirmButton;
-	}
+    private JButton getConfirmButton() {
+        if (confirmButton == null) {
+            confirmButton = new JButton(getConfirmButtonLabel());
+            confirmButton.setEnabled(false);
 
-	private JButton getCancelButton() {
-		if (cancelButton == null) {
-			cancelButton = new JButton(getCancelButtonLabel());
-			cancelButton.addActionListener(new ActionListener() {
+            confirmButton.addActionListener(
+                    new ActionListener() {
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					clearAndHide();
-				}
-			});
-		}
-		return cancelButton;
-	}
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (validateFields()) {
+                                performAction();
+                                clearAndHide();
+                            }
+                        }
+                    });
+        }
+        return confirmButton;
+    }
 
-	protected abstract JPanel getFieldsPanel();
+    private JButton getCancelButton() {
+        if (cancelButton == null) {
+            cancelButton = new JButton(getCancelButtonLabel());
+            cancelButton.addActionListener(
+                    new ActionListener() {
 
-	@Override
-	public void setVisible(boolean b) {
-		init();
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            clearAndHide();
+                        }
+                    });
+        }
+        return cancelButton;
+    }
 
-		if (firstTime) {
-			centreOnOwner();
-			firstTime = false;
-		}
+    protected abstract JPanel getFieldsPanel();
 
-		super.setVisible(b);
-	}
+    @Override
+    public void setVisible(boolean b) {
+        init();
 
-	private void clearAndHide() {
-		clearFields();
-		dispose();
-	}
+        if (firstTime) {
+            centreOnOwner();
+            firstTime = false;
+        }
 
-	protected abstract String getConfirmButtonLabel();
+        super.setVisible(b);
+    }
 
-	protected String getCancelButtonLabel() {
-		return CANCEL_BUTTON_LABEL;
-	}
+    private void clearAndHide() {
+        clearFields();
+        dispose();
+    }
 
-	protected void setConfirmButtonEnabled(boolean enabled) {
-		getConfirmButton().setEnabled(enabled);
-	}
+    protected abstract String getConfirmButtonLabel();
 
-	protected void init() {
-	}
+    protected String getCancelButtonLabel() {
+        return CANCEL_BUTTON_LABEL;
+    }
 
-	protected boolean validateFields() {
-		return true;
-	}
+    protected void setConfirmButtonEnabled(boolean enabled) {
+        getConfirmButton().setEnabled(enabled);
+    }
 
-	protected void performAction() {
-	}
+    protected void init() {}
 
-	protected void clearFields() {
-	}
+    protected boolean validateFields() {
+        return true;
+    }
 
-	private void centreOnOwner() {
-		Dimension frameSize = this.getSize();
-		Rectangle mainrect = getOwner().getBounds();
-		int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
-		int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
-		this.setLocation(x, y);
-	}
+    protected void performAction() {}
 
+    protected void clearFields() {}
+
+    private void centreOnOwner() {
+        Dimension frameSize = this.getSize();
+        Rectangle mainrect = getOwner().getBounds();
+        int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
+        int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
+        this.setLocation(x, y);
+    }
 }

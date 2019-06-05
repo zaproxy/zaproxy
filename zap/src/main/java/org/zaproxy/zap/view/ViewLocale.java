@@ -22,10 +22,11 @@ package org.zaproxy.zap.view;
 import java.util.Locale;
 
 /**
- * Representation of a {@code Locale} for displaying in view components (for example, {@code JComboBox}).
- * <p>
- * The method {@code toString()} returns the (display) name of the locale.
- * 
+ * Representation of a {@code Locale} for displaying in view components (for example, {@code
+ * JComboBox}).
+ *
+ * <p>The method {@code toString()} returns the (display) name of the locale.
+ *
  * @see Locale
  * @since 2.4.0
  */
@@ -48,9 +49,7 @@ public class ViewLocale {
         return locale;
     }
 
-    /**
-     * Returns the display name of the locale.
-     */
+    /** Returns the display name of the locale. */
     @Override
     public String toString() {
         return displayName;
@@ -82,5 +81,4 @@ public class ViewLocale {
         }
         return true;
     }
-
 }

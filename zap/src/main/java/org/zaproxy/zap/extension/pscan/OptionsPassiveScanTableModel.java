@@ -21,39 +21,37 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+public class OptionsPassiveScanTableModel
+        extends AbstractMultipleOptionsTableModel<RegexAutoTagScanner> {
 
-public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableModel<RegexAutoTagScanner> {
+    private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
+    private static final String[] COLUMN_NAMES = {
+        Constant.messages.getString("pscan.options.table.header.enabled"),
+        Constant.messages.getString("pscan.options.table.header.name"),
+        Constant.messages.getString("pscan.options.table.header.configuration")
+    };
 
-	private static final String[] COLUMN_NAMES = {
-		Constant.messages.getString("pscan.options.table.header.enabled"),
-		Constant.messages.getString("pscan.options.table.header.name"),
-		Constant.messages.getString("pscan.options.table.header.configuration")};
-    
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-    
-	private List <RegexAutoTagScanner> defns = new ArrayList<>(5);
-    
+    private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+
+    private List<RegexAutoTagScanner> defns = new ArrayList<>(5);
+
     public OptionsPassiveScanTableModel() {
         super();
     }
 
-    /**
-     * @param defns
-     */
-    public void setScanDefns(List <RegexAutoTagScanner> defns) {
+    /** @param defns */
+    public void setScanDefns(List<RegexAutoTagScanner> defns) {
         this.defns = new ArrayList<>(defns.size());
-        
+
         for (RegexAutoTagScanner def : defns) {
             this.defns.add(new RegexAutoTagScanner(def));
         }
-        
+
         fireTableDataChanged();
     }
 
@@ -88,16 +86,16 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-        case 0:
-            return getElement(rowIndex).isEnabled();
-        case 1:
-            return getElement(rowIndex).getName();
-        case 2:
-            return getElement(rowIndex).getConf();
+            case 0:
+                return getElement(rowIndex).isEnabled();
+            case 1:
+                return getElement(rowIndex).getName();
+            case 2:
+                return getElement(rowIndex).getConf();
         }
         return null;
     }
-    
+
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
@@ -107,10 +105,9 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
             }
         }
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return (columnIndex == 0);
     }
-    
 }

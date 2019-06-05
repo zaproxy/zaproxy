@@ -21,9 +21,7 @@ package org.zaproxy.zap.extension.httppanel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JComboBox;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -32,86 +30,91 @@ import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitC
 import org.zaproxy.zap.view.HttpPanelManager;
 
 public class HttpPanelRequest extends HttpPanel {
-	private static final long serialVersionUID = 1L;
-	
-	protected JComboBox<String> comboChangeMethod;
-	
-	private static final String REQUEST_KEY = "request.";
-	
-	public HttpPanelRequest(boolean isEditable, String configurationKey) {
+    private static final long serialVersionUID = 1L;
+
+    protected JComboBox<String> comboChangeMethod;
+
+    private static final String REQUEST_KEY = "request.";
+
+    public HttpPanelRequest(boolean isEditable, String configurationKey) {
         super(isEditable, configurationKey + REQUEST_KEY);
 
         HttpPanelManager.getInstance().addRequestPanel(this);
         this.setHideable(false);
-	}
+    }
 
-	@Override
-	protected void initComponents() {
-		addComponent(new RequestSplitComponent<HttpMessage>(), Model.getSingleton().getOptionsParam().getConfig());
-	}
+    @Override
+    protected void initComponents() {
+        addComponent(
+                new RequestSplitComponent<HttpMessage>(),
+                Model.getSingleton().getOptionsParam().getConfig());
+    }
 
-	@Override
-	protected void initSpecial() {
-		if (isEditable()) {
-			initComboChangeMethod();
-		}
-	}
+    @Override
+    protected void initSpecial() {
+        if (isEditable()) {
+            initComboChangeMethod();
+        }
+    }
 
-	@Override
-	public void setEnableViewSelect(boolean enableViewSelect) {
-		super.setEnableViewSelect(enableViewSelect);
-		
-		if (isEditable()) {
-			initComboChangeMethod();
-			comboChangeMethod.setEnabled(enableViewSelect);
-		}
-	}
-	
-	protected void initComboChangeMethod() {
-		if (comboChangeMethod == null) {
-			comboChangeMethod = new JComboBox<>();
-			comboChangeMethod.setEditable(false);
-			comboChangeMethod.setMaximumRowCount(9);	// Prevents scrollbar
-			comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
-			comboChangeMethod.addItem(HttpRequestHeader.CONNECT);
-			comboChangeMethod.addItem(HttpRequestHeader.DELETE);
-			comboChangeMethod.addItem(HttpRequestHeader.GET);
-			comboChangeMethod.addItem(HttpRequestHeader.HEAD);
-			comboChangeMethod.addItem(HttpRequestHeader.OPTIONS);
-			comboChangeMethod.addItem(HttpRequestHeader.POST);
-			comboChangeMethod.addItem(HttpRequestHeader.PUT);
-			comboChangeMethod.addItem(HttpRequestHeader.TRACE);
-			comboChangeMethod.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (message == null) {
-						comboChangeMethod.setSelectedIndex(0);
-						return;
-					}
-					if (comboChangeMethod.getSelectedIndex() > 0) {
+    @Override
+    public void setEnableViewSelect(boolean enableViewSelect) {
+        super.setEnableViewSelect(enableViewSelect);
 
-                        if (message instanceof HttpMessage) {
-    						saveData();
-    						((HttpMessage)message).mutateHttpMethod((String) comboChangeMethod.getSelectedItem());
-    						comboChangeMethod.setSelectedIndex(0);
-    						updateContent();
-						}
-					}
-				}});
-	
-			addOptions(comboChangeMethod, OptionsLocation.BEGIN);
-			comboChangeMethod.setEnabled(false);
-		}
-	}
-	
-	@Override
-	public void setEditable(boolean editable) {
-		super.setEditable(editable);
-		
-		if (editable) {
-			initComboChangeMethod();
-			comboChangeMethod.setEnabled(true);
-		}
-	}
+        if (isEditable()) {
+            initComboChangeMethod();
+            comboChangeMethod.setEnabled(enableViewSelect);
+        }
+    }
 
+    protected void initComboChangeMethod() {
+        if (comboChangeMethod == null) {
+            comboChangeMethod = new JComboBox<>();
+            comboChangeMethod.setEditable(false);
+            comboChangeMethod.setMaximumRowCount(9); // Prevents scrollbar
+            comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
+            comboChangeMethod.addItem(HttpRequestHeader.CONNECT);
+            comboChangeMethod.addItem(HttpRequestHeader.DELETE);
+            comboChangeMethod.addItem(HttpRequestHeader.GET);
+            comboChangeMethod.addItem(HttpRequestHeader.HEAD);
+            comboChangeMethod.addItem(HttpRequestHeader.OPTIONS);
+            comboChangeMethod.addItem(HttpRequestHeader.POST);
+            comboChangeMethod.addItem(HttpRequestHeader.PUT);
+            comboChangeMethod.addItem(HttpRequestHeader.TRACE);
+            comboChangeMethod.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (message == null) {
+                                comboChangeMethod.setSelectedIndex(0);
+                                return;
+                            }
+                            if (comboChangeMethod.getSelectedIndex() > 0) {
+
+                                if (message instanceof HttpMessage) {
+                                    saveData();
+                                    ((HttpMessage) message)
+                                            .mutateHttpMethod(
+                                                    (String) comboChangeMethod.getSelectedItem());
+                                    comboChangeMethod.setSelectedIndex(0);
+                                    updateContent();
+                                }
+                            }
+                        }
+                    });
+
+            addOptions(comboChangeMethod, OptionsLocation.BEGIN);
+            comboChangeMethod.setEnabled(false);
+        }
+    }
+
+    @Override
+    public void setEditable(boolean editable) {
+        super.setEditable(editable);
+
+        if (editable) {
+            initComboChangeMethod();
+            comboChangeMethod.setEnabled(true);
+        }
+    }
 }

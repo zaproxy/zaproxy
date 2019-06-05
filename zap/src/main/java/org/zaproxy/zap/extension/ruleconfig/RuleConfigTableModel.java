@@ -21,9 +21,7 @@ package org.zaproxy.zap.extension.ruleconfig;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 
 public class RuleConfigTableModel extends AbstractTableModel {
@@ -31,33 +29,32 @@ public class RuleConfigTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("ruleconfig.options.table.header.key"),
-            Constant.messages.getString("ruleconfig.options.table.header.default"),
-            Constant.messages.getString("ruleconfig.options.table.header.value")};
-    
+        Constant.messages.getString("ruleconfig.options.table.header.key"),
+        Constant.messages.getString("ruleconfig.options.table.header.default"),
+        Constant.messages.getString("ruleconfig.options.table.header.value")
+    };
+
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-    
+
     private List<RuleConfig> rcs = new ArrayList<>(0);
-    
+
     public RuleConfigTableModel() {
         super();
     }
-    
+
     protected List<RuleConfig> getElements() {
         return rcs;
     }
 
-    /**
-     * @param rcs The ruleconfigs to set.
-     */
+    /** @param rcs The ruleconfigs to set. */
     public void setRuleConfigs(List<RuleConfig> rcs) {
         this.rcs = new ArrayList<>(rcs.size());
-        
+
         for (RuleConfig token : rcs) {
             this.rcs.add(token);
         }
-        
-            fireTableDataChanged();
+
+        fireTableDataChanged();
     }
 
     @Override
@@ -69,7 +66,7 @@ public class RuleConfigTableModel extends AbstractTableModel {
     public int getColumnCount() {
         return COLUMN_COUNT;
     }
-    
+
     @Override
     public Class<?> getColumnClass(int c) {
         return String.class;
@@ -84,22 +81,22 @@ public class RuleConfigTableModel extends AbstractTableModel {
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch(columnIndex) {
-        case 0:
-            return rcs.get(rowIndex).getKey();
-        case 1:
-            return rcs.get(rowIndex).getDefaultValue();
-        case 2:
-            return rcs.get(rowIndex).getValue();
+        switch (columnIndex) {
+            case 0:
+                return rcs.get(rowIndex).getKey();
+            case 1:
+                return rcs.get(rowIndex).getDefaultValue();
+            case 2:
+                return rcs.get(rowIndex).getValue();
         }
         return null;
     }
 
     public void setRuleConfigValue(String key, String value) {
-    	int row = 0;
+        int row = 0;
         for (RuleConfig token : rcs) {
             // Not super efficient, but we dont expect there to be too many of these
             if (token.getKey().equals(key)) {
@@ -110,5 +107,4 @@ public class RuleConfigTableModel extends AbstractTableModel {
             row++;
         }
     }
-
 }

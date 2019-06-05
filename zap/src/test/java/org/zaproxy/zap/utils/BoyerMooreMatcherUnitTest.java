@@ -19,15 +19,13 @@
  */
 package org.zaproxy.zap.utils;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-/**
- * Unit test for {@link BoyerMooreMatcher}
- */
+/** Unit test for {@link BoyerMooreMatcher} */
 public class BoyerMooreMatcherUnitTest {
 
     private static final String CONTENT = "The quick brown fox jumps over the lazy dog.";

@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.callback.ui;
 
-public abstract class CustomColumn<T>{
+public abstract class CustomColumn<T> {
     Class<?> columnClass;
     String name;
 
@@ -38,7 +38,7 @@ public abstract class CustomColumn<T>{
 
     public abstract Object getValue(T model);
 
-    public Object getPrototypeValue(){
+    public Object getPrototypeValue() {
         return null;
     }
 }

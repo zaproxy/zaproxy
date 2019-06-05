@@ -59,8 +59,8 @@ public interface MessageLocationProducer {
     void removeFocusListener(MessageLocationProducerFocusListener focusListener);
 
     /**
-     * Creates a {@code MessageLocationHighlightsManager} responsible to manage the highlights of the message locations
-     * produced.
+     * Creates a {@code MessageLocationHighlightsManager} responsible to manage the highlights of
+     * the message locations produced.
      *
      * @return the {@code MessageLocationHighlightsManager}
      */

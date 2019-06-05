@@ -30,23 +30,24 @@ import org.zaproxy.zap.extension.script.ScriptWrapper;
 
 /**
  * Custom Variant based on an implemented Script
- * 
+ *
  * @author yhawke (2014)
  */
 public class VariantCustom implements Variant {
-    
+
     ExtensionScript extension = null;
     private ScriptWrapper wrapper = null;
-    private VariantScript script = null; 
+    private VariantScript script = null;
     private final List<NameValuePair> params = new ArrayList<>();
     private NameValuePair currentParam;
 
-    // base64 strings are similar, except they can contain + and /, and end 
-    // with 0 - 2 '=' signs. They are also a multiple of 4 bytes. 
-    private final static Pattern BASE64_PATTERN = Pattern.compile("^[a-zA-Z0-9/+]+={0,2}$");
+    // base64 strings are similar, except they can contain + and /, and end
+    // with 0 - 2 '=' signs. They are also a multiple of 4 bytes.
+    private static final Pattern BASE64_PATTERN = Pattern.compile("^[a-zA-Z0-9/+]+={0,2}$");
 
     /**
      * Create a new Custom Variant using the specific script
+     *
      * @param wrapper the script wrapper that need to be set for this Variant
      * @param extension the general extension Script object
      */
@@ -60,11 +61,14 @@ public class VariantCustom implements Variant {
                 if (script == null) {
                     extension.handleFailedScriptInterface(
                             wrapper,
-                            Constant.messages.getString("variant.scripts.interface.variant.error", wrapper.getName()));
+                            Constant.messages.getString(
+                                    "variant.scripts.interface.variant.error", wrapper.getName()));
                 }
             } catch (Exception ex) {
-                // Catch Exception instead of ScriptException and IOException because script engine implementations
-                // might throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
+                // Catch Exception instead of ScriptException and IOException because script engine
+                // implementations
+                // might throw other exceptions on script errors (e.g.
+                // jdk.nashorn.internal.runtime.ECMAException)
                 this.extension.handleScriptException(wrapper, ex);
             }
         }
@@ -72,24 +76,28 @@ public class VariantCustom implements Variant {
 
     /**
      * Set the current message that this Variant has to scan
+     *
      * @param msg the message object (remember Response is not set)
      */
     @Override
     public void setMessage(HttpMessage msg) {
-	try {
+        try {
             if (script != null) {
                 script.parseParameters(this, msg);
             }
-            
+
         } catch (Exception e) {
-            // Catch Exception instead of ScriptException because script engine implementations might
-            // throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
+            // Catch Exception instead of ScriptException because script engine implementations
+            // might
+            // throw other exceptions on script errors (e.g.
+            // jdk.nashorn.internal.runtime.ECMAException)
             extension.handleScriptException(wrapper, e);
         }
     }
 
     /**
      * Give back the list of retrieved parameters
+     *
      * @return the list of parsed parameters
      */
     @Override
@@ -99,15 +107,17 @@ public class VariantCustom implements Variant {
 
     /**
      * Support method to get back the name of the n-th parameter
+     *
      * @param index the index of the requested parameter
      * @return the parameter name if exists
      */
     public String getParamName(int index) {
         return (index < params.size()) ? params.get(index).getName() : null;
     }
-    
+
     /**
      * Support method to get back the value of the n-th parameter
+     *
      * @param index the index of the requested parameter
      * @return the parameter value if exists
      */
@@ -117,7 +127,8 @@ public class VariantCustom implements Variant {
 
     /**
      * Get the number of parameters currently available for this variant
-     * @return 
+     *
+     * @return
      */
     public int getParamNumber() {
         return params.size();
@@ -125,16 +136,17 @@ public class VariantCustom implements Variant {
 
     /**
      * Gets the current parameter being tested.
-     * 
+     *
      * @return the parameter being tested, or {@code null} if none.
      * @since 2.8.0
      */
     public NameValuePair getCurrentParam() {
         return currentParam;
     }
-    
+
     /**
      * Support method to add a new param to this custom variant
+     *
      * @param name the param name
      * @param value the value of this parameter
      * @param type the type of this parameter
@@ -146,24 +158,27 @@ public class VariantCustom implements Variant {
 
     /**
      * Support method to add a new QueryString param to this custom variant
+     *
      * @param name the param name
      * @param value the value of this parameter
      */
     public void addParamQuery(String name, String value) {
         addParam(name, value, NameValuePair.TYPE_QUERY_STRING);
     }
-    
+
     /**
      * Support method to add a new PostData param to this custom variant
+     *
      * @param name the param name
      * @param value the value of this parameter
      */
     public void addParamPost(String name, String value) {
         addParam(name, value, NameValuePair.TYPE_POST_DATA);
     }
-    
+
     /**
      * Support method to add a new Header param to this custom variant
+     *
      * @param name the param name
      * @param value the value of this parameter
      */
@@ -173,6 +188,7 @@ public class VariantCustom implements Variant {
 
     /**
      * Support method to encode a string to Base64
+     *
      * @param value the value that need to be encoded
      * @return the encoded string
      */
@@ -182,6 +198,7 @@ public class VariantCustom implements Variant {
 
     /**
      * Support method to decode a Base64 string
+     *
      * @param value the value that need to be decoded
      * @return the decoded string
      */
@@ -191,25 +208,29 @@ public class VariantCustom implements Variant {
 
     /**
      * Support method to verify if the content is a Base64 string
+     *
      * @param value the value that need to be checked
      * @return true if the value is a Base64 string
      */
     public boolean isBase64(String value) {
-        return (BASE64_PATTERN.matcher(value).matches() && ((value.length() % 4) == 0));        
+        return (BASE64_PATTERN.matcher(value).matches() && ((value.length() % 4) == 0));
     }
-    
+
     @Override
-    public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
+    public String setParameter(
+            HttpMessage msg, NameValuePair originalPair, String param, String value) {
         return setParameter(msg, originalPair, param, value, false);
     }
 
     @Override
-    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
+    public String setEscapedParameter(
+            HttpMessage msg, NameValuePair originalPair, String param, String value) {
         return setParameter(msg, originalPair, param, value, true);
-    }    
+    }
 
     /**
      * Inner method for correct scripting
+     *
      * @param msg the message that need to be modified
      * @param originalPair the original {@code NameValuePair} being tested.
      * @param paramName the name of the parameter
@@ -217,21 +238,28 @@ public class VariantCustom implements Variant {
      * @param escaped true if the parameter has been already escaped
      * @return the value set as parameter
      */
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String paramName, String value, boolean escaped) {
-	try {
+    private String setParameter(
+            HttpMessage msg,
+            NameValuePair originalPair,
+            String paramName,
+            String value,
+            boolean escaped) {
+        try {
             if (script != null) {
                 currentParam = originalPair;
                 script.setParameter(this, msg, paramName, value, escaped);
             }
-                        
+
         } catch (Exception e) {
-            // Catch Exception instead of ScriptException because script engine implementations might
-            // throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
+            // Catch Exception instead of ScriptException because script engine implementations
+            // might
+            // throw other exceptions on script errors (e.g.
+            // jdk.nashorn.internal.runtime.ECMAException)
             extension.handleScriptException(wrapper, e);
         } finally {
             currentParam = null;
         }
-        
+
         return value;
     }
 }

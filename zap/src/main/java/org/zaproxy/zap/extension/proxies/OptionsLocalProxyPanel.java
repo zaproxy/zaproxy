@@ -23,12 +23,10 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
-
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.jdesktop.swingx.JXLabel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.FontUtils;
@@ -69,26 +67,36 @@ public class OptionsLocalProxyPanel extends JPanel {
 
     private JCheckBox getChkBehindNat() {
         if (chkBehindNat == null) {
-            chkBehindNat = new JCheckBox(Constant.messages.getString("options.proxy.local.label.behindnat"));
-            chkBehindNat.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.behindnat"));
+            chkBehindNat =
+                    new JCheckBox(
+                            Constant.messages.getString("options.proxy.local.label.behindnat"));
+            chkBehindNat.setToolTipText(
+                    Constant.messages.getString("options.proxy.local.tooltip.behindnat"));
         }
         return chkBehindNat;
     }
 
     public JCheckBox getChkRemoveUnsupportedEncodings() {
         if (chkRemoveUnsupportedEncodings == null) {
-            chkRemoveUnsupportedEncodings = new JCheckBox(
-                    Constant.messages.getString("options.proxy.local.label.removeUnsupportedEncodings"));
-            chkRemoveUnsupportedEncodings
-                    .setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.removeUnsupportedEncodings"));
+            chkRemoveUnsupportedEncodings =
+                    new JCheckBox(
+                            Constant.messages.getString(
+                                    "options.proxy.local.label.removeUnsupportedEncodings"));
+            chkRemoveUnsupportedEncodings.setToolTipText(
+                    Constant.messages.getString(
+                            "options.proxy.local.tooltip.removeUnsupportedEncodings"));
         }
         return chkRemoveUnsupportedEncodings;
     }
 
     private JCheckBox getChkAlwaysDecodeGzip() {
         if (chkAlwaysDecodeGzip == null) {
-            chkAlwaysDecodeGzip = new JCheckBox(Constant.messages.getString("options.proxy.local.label.alwaysDecodeGzip"));
-            chkAlwaysDecodeGzip.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.alwaysDecodeGzip"));
+            chkAlwaysDecodeGzip =
+                    new JCheckBox(
+                            Constant.messages.getString(
+                                    "options.proxy.local.label.alwaysDecodeGzip"));
+            chkAlwaysDecodeGzip.setToolTipText(
+                    Constant.messages.getString("options.proxy.local.tooltip.alwaysDecodeGzip"));
         }
         return chkAlwaysDecodeGzip;
     }
@@ -118,13 +126,14 @@ public class OptionsLocalProxyPanel extends JPanel {
 
         JPanel panelLocalProxy = new JPanel(new GridBagLayout());
         panelLocalProxy.setFont(FontUtils.getFont(FontUtils.Size.standard));
-        panelLocalProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                null,
-                Constant.messages.getString("options.proxy.local.title"),
-                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-                javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                FontUtils.getFont(FontUtils.Size.standard),
-                java.awt.Color.black));
+        panelLocalProxy.setBorder(
+                javax.swing.BorderFactory.createTitledBorder(
+                        null,
+                        Constant.messages.getString("options.proxy.local.title"),
+                        javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                        javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard),
+                        java.awt.Color.black));
 
         jLabel.setText(Constant.messages.getString("options.proxy.local.label.address"));
 
@@ -205,10 +214,11 @@ public class OptionsLocalProxyPanel extends JPanel {
     }
 
     public ProxiesParamProxy getProxy() {
-        ProxiesParamProxy proxy = new ProxiesParamProxy(
-                (String) getLocalAddress().getSelectedItem(),
-                getSpinnerProxyPort().getValue(),
-                true);
+        ProxiesParamProxy proxy =
+                new ProxiesParamProxy(
+                        (String) getLocalAddress().getSelectedItem(),
+                        getSpinnerProxyPort().getValue(),
+                        true);
         proxy.setBehindNat(getChkBehindNat().isSelected());
         proxy.setAlwaysDecodeGzip(getChkAlwaysDecodeGzip().isSelected());
         proxy.setRemoveUnsupportedEncodings(getChkRemoveUnsupportedEncodings().isSelected());

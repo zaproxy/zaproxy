@@ -25,10 +25,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.Extension;
@@ -36,48 +34,47 @@ import org.parosproxy.paros.model.SiteNode;
 
 public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
 
-	private static final long serialVersionUID = -4426560452505908380L;
+    private static final long serialVersionUID = -4426560452505908380L;
 
-	private static Logger LOG = Logger.getLogger(PopupMenuExportSelectedURLs.class);
+    private static Logger LOG = Logger.getLogger(PopupMenuExportSelectedURLs.class);
 
-	public PopupMenuExportSelectedURLs(String menuItem, Extension extension) {
-		super(menuItem, extension);
-	}
+    public PopupMenuExportSelectedURLs(String menuItem, Extension extension) {
+        super(menuItem, extension);
+    }
 
-	@Override
-	protected void performAction() {
-		File file = super.getOutputFile();
-		if (file == null) {
-			return;
-		}
+    @Override
+    protected void performAction() {
+        File file = super.getOutputFile();
+        if (file == null) {
+            return;
+        }
 
-		JTree siteTree = extension.getView().getSiteTreePanel().getTreeSite();
+        JTree siteTree = extension.getView().getSiteTreePanel().getTreeSite();
 
-		super.writeURLs(file, this.getOutputSet(siteTree.getSelectionPaths()));
-	}
+        super.writeURLs(file, this.getOutputSet(siteTree.getSelectionPaths()));
+    }
 
-	private SortedSet<String> getOutputSet(TreePath[] startingPoints) {
-		JTree siteTree = extension.getView().getSiteTreePanel().getTreeSite();
-		ArrayList<TreePath> startingPts = new ArrayList<TreePath>();
+    private SortedSet<String> getOutputSet(TreePath[] startingPoints) {
+        JTree siteTree = extension.getView().getSiteTreePanel().getTreeSite();
+        ArrayList<TreePath> startingPts = new ArrayList<TreePath>();
 
-		if (ArrayUtils.isEmpty(startingPoints)) {
-			startingPts.add(new TreePath(siteTree.getModel().getRoot()));
-		} else {
-			startingPts.addAll(Arrays.asList(startingPoints));
-		}
+        if (ArrayUtils.isEmpty(startingPoints)) {
+            startingPts.add(new TreePath(siteTree.getModel().getRoot()));
+        } else {
+            startingPts.addAll(Arrays.asList(startingPoints));
+        }
 
-		SortedSet<String> outputSet = new TreeSet<String>();
-		for (TreePath aPath : startingPts) {
-			Enumeration<?> en = (((SiteNode) aPath.getLastPathComponent()).preorderEnumeration());
-			while (en.hasMoreElements()) {
-				SiteNode node = (SiteNode) en.nextElement();
-				if (node.isRoot()) {
-					continue;
-				}
-				outputSet.add(node.getHistoryReference().getURI().toString());
-			}
-		}
-		return outputSet;
-	}
-
+        SortedSet<String> outputSet = new TreeSet<String>();
+        for (TreePath aPath : startingPts) {
+            Enumeration<?> en = (((SiteNode) aPath.getLastPathComponent()).preorderEnumeration());
+            while (en.hasMoreElements()) {
+                SiteNode node = (SiteNode) en.nextElement();
+                if (node.isRoot()) {
+                    continue;
+                }
+                outputSet.add(node.getHistoryReference().getURI().toString());
+            }
+        }
+        return outputSet;
+    }
 }

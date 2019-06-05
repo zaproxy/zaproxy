@@ -19,17 +19,15 @@
  */
 package org.zaproxy.zap.extension.ruleconfig;
 
-
 public class RuleConfig implements Cloneable {
 
     private String key;
     private String value;
     private String defaultValue;
-    
+
     private boolean changed;
 
-    public RuleConfig() {
-    }
+    public RuleConfig() {}
 
     public RuleConfig(String key, String defaultValue, String value) {
         super();
@@ -44,7 +42,7 @@ public class RuleConfig implements Cloneable {
         this.defaultValue = defaultValue;
         this.value = defaultValue;
     }
-    
+
     @Override
     protected RuleConfig clone() {
         return new RuleConfig(key, defaultValue, value);
@@ -70,7 +68,7 @@ public class RuleConfig implements Cloneable {
     public boolean isChanged() {
         return changed;
     }
-    
+
     public void reset() {
         this.setValue(this.defaultValue);
     }

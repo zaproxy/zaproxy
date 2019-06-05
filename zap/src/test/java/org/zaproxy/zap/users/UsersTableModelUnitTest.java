@@ -34,9 +34,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.event.TableModelListener;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,9 +44,7 @@ import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.view.TableModelTestUtils;
 
-/**
- * Unit test for {@code UsersTableModel}.
- */
+/** Unit test for {@code UsersTableModel}. */
 @RunWith(MockitoJUnitRunner.class)
 public class UsersTableModelUnitTest extends TableModelTestUtils {
 

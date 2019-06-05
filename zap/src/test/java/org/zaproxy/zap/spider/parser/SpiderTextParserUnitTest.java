@@ -25,17 +25,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
-import net.htmlparser.jericho.Source;
-
-/**
- * Unit test for {@link SpiderTextParser}.
- */
+/** Unit test for {@link SpiderTextParser}. */
 public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
 
     private static final String EMPTY_BODY = "";
@@ -157,12 +154,13 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
         SpiderTextParser spiderParser = new SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
-        HttpMessage message = createMessageWith(
-                body(
-                        "Body with no HTTP/S URLs",
-                        " ://example.com/ ",
-                        "More text...  ftp://ftp.example.com/ ",
-                        "Even more text... //noscheme.example.com "));
+        HttpMessage message =
+                createMessageWith(
+                        body(
+                                "Body with no HTTP/S URLs",
+                                " ://example.com/ ",
+                                "More text...  ftp://ftp.example.com/ ",
+                                "Even more text... //noscheme.example.com "));
         Source source = createSource(message);
         // When
         boolean completelyParsed = spiderParser.parseResource(message, source, BASE_DEPTH);
@@ -178,21 +176,23 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
         SpiderTextParser spiderParser = new SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith(
-                body(
-                        "Body with HTTP/S URLs",
-                        " - http://plaincomment.example.com some text not part of URL",
-                        "- \"https://plaincomment.example.com/z.php?x=y\" more text not part of URL",
-                        "- 'http://plaincomment.example.com/c.pl?x=y' even more text not part of URL",
-                        "- <https://plaincomment.example.com/d.asp?x=y> ...",
-                        "- http://plaincomment.example.com/e/e1/e2.html?x=y#stop fragment should be ignored",
-                        "- (https://plaincomment.example.com/surrounded/with/parenthesis) parenthesis should not be included",
-                        "- [https://plaincomment.example.com/surrounded/with/brackets] brackets should not be included",
-                        "- {https://plaincomment.example.com/surrounded/with/curly/brackets} curly brackets should not be included",
-                        "- mixed case URLs HtTpS://ExAmPlE.CoM/path/ should also be found"));
+        HttpMessage messageHtmlResponse =
+                createMessageWith(
+                        body(
+                                "Body with HTTP/S URLs",
+                                " - http://plaincomment.example.com some text not part of URL",
+                                "- \"https://plaincomment.example.com/z.php?x=y\" more text not part of URL",
+                                "- 'http://plaincomment.example.com/c.pl?x=y' even more text not part of URL",
+                                "- <https://plaincomment.example.com/d.asp?x=y> ...",
+                                "- http://plaincomment.example.com/e/e1/e2.html?x=y#stop fragment should be ignored",
+                                "- (https://plaincomment.example.com/surrounded/with/parenthesis) parenthesis should not be included",
+                                "- [https://plaincomment.example.com/surrounded/with/brackets] brackets should not be included",
+                                "- {https://plaincomment.example.com/surrounded/with/curly/brackets} curly brackets should not be included",
+                                "- mixed case URLs HtTpS://ExAmPlE.CoM/path/ should also be found"));
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = spiderParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                spiderParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(9)));
@@ -218,13 +218,20 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
         return createMessageWith("200 OK", contentType, body);
     }
 
-    private static HttpMessage createMessageWith(String statusCodeMessage, String contentType, String body) {
+    private static HttpMessage createMessageWith(
+            String statusCodeMessage, String contentType, String body) {
         HttpMessage message = new HttpMessage();
         try {
             message.setRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
-                    "HTTP/1.1 " + statusCodeMessage + "\r\n" + "Content-Type: " + contentType + "; charset=UTF-8\r\n"
-                            + "Content-Length: " + body.length());
+                    "HTTP/1.1 "
+                            + statusCodeMessage
+                            + "\r\n"
+                            + "Content-Type: "
+                            + contentType
+                            + "; charset=UTF-8\r\n"
+                            + "Content-Length: "
+                            + body.length());
             message.setResponseBody(body);
         } catch (Exception e) {
             throw new RuntimeException(e);

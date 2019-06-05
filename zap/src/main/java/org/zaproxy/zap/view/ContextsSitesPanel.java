@@ -22,7 +22,6 @@ package org.zaproxy.zap.view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -30,8 +29,8 @@ import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
 /**
- * A {@code JPanel} containing two {@code JTree} shown one above the other, used to display the contexts and sites trees in the
- * same panel.
+ * A {@code JPanel} containing two {@code JTree} shown one above the other, used to display the
+ * contexts and sites trees in the same panel.
  *
  * @since 2.6.0
  */
@@ -51,8 +50,8 @@ public class ContextsSitesPanel extends JPanel {
     }
 
     /**
-     * Constructs a {@code ContextsSitesPanel} with the given contexts and sites trees and with the given name for the
-     * {@code JScrollPane}.
+     * Constructs a {@code ContextsSitesPanel} with the given contexts and sites trees and with the
+     * given name for the {@code JScrollPane}.
      *
      * @param contextsTree the contexts tree
      * @param sitesTree the sites tree
@@ -102,12 +101,14 @@ public class ContextsSitesPanel extends JPanel {
         public Dimension getPreferredScrollableViewportSize() {
             Dimension dNT = contextsTree.getPreferredScrollableViewportSize();
             Dimension dCT = sitesTree.getPreferredScrollableViewportSize();
-            dCT.setSize(Math.max(dNT.getWidth(), dCT.getWidth()), dNT.getHeight() + dCT.getHeight());
+            dCT.setSize(
+                    Math.max(dNT.getWidth(), dCT.getWidth()), dNT.getHeight() + dCT.getHeight());
             return dCT;
         }
 
         @Override
-        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+        public int getScrollableUnitIncrement(
+                Rectangle visibleRect, int orientation, int direction) {
             if (visibleRect.getY() < sitesTree.getBounds().getY()) {
                 return contextsTree.getScrollableUnitIncrement(visibleRect, orientation, direction);
             }
@@ -115,21 +116,26 @@ public class ContextsSitesPanel extends JPanel {
         }
 
         @Override
-        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+        public int getScrollableBlockIncrement(
+                Rectangle visibleRect, int orientation, int direction) {
             // Same behaviour for both trees.
             return sitesTree.getScrollableBlockIncrement(visibleRect, orientation, direction);
         }
 
         @Override
         public boolean getScrollableTracksViewportWidth() {
-            int width = Math.max(sitesTree.getPreferredSize().width, contextsTree.getPreferredSize().width);
+            int width =
+                    Math.max(
+                            sitesTree.getPreferredSize().width,
+                            contextsTree.getPreferredSize().width);
             return SwingUtilities.getUnwrappedParent(this).getWidth() > width;
         }
 
         @Override
         public boolean getScrollableTracksViewportHeight() {
-            return SwingUtilities.getUnwrappedParent(this)
-                    .getHeight() > (sitesTree.getPreferredSize().height + contextsTree.getPreferredSize().height);
+            return SwingUtilities.getUnwrappedParent(this).getHeight()
+                    > (sitesTree.getPreferredSize().height
+                            + contextsTree.getPreferredSize().height);
         }
     }
 }

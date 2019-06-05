@@ -21,7 +21,7 @@ package org.zaproxy.zap.utils;
 
 /**
  * An {@code Object} that has an order.
- * 
+ *
  * @since 2.4.0
  */
 public interface Orderable {

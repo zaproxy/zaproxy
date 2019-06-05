@@ -23,7 +23,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.text.Caret;
 import javax.swing.text.JTextComponent;
 
@@ -99,7 +98,5 @@ public class CaretVisibilityEnforcerOnFocusGain implements PropertyChangeListene
     }
 
     @Override
-    public void focusLost(FocusEvent e) {
-    }
-
+    public void focusLost(FocusEvent e) {}
 }

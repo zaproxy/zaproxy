@@ -21,12 +21,10 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -34,28 +32,23 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
-
 public class OptionsPassiveScan extends AbstractParamPanel {
 
-	private static final long serialVersionUID = 1L;
-	private PassiveScannerList passiveScanners = null;
+    private static final long serialVersionUID = 1L;
+    private PassiveScannerList passiveScanners = null;
 
-	private ScannersMultipleOptionsPanel scannersOptionsPanel;
-	
-	private OptionsPassiveScanTableModel tableModel = null;
-	
+    private ScannersMultipleOptionsPanel scannersOptionsPanel;
+
+    private OptionsPassiveScanTableModel tableModel = null;
 
     public OptionsPassiveScan(PassiveScannerList scannerList) {
         super();
-        this.passiveScanners = scannerList; 
- 		initialize();
+        this.passiveScanners = scannerList;
+        initialize();
     }
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
+    /** This method initializes this */
+    private void initialize() {
         this.setName(Constant.messages.getString("pscan.options.name"));
         this.setLayout(new GridBagLayout());
 
@@ -64,34 +57,35 @@ public class OptionsPassiveScan extends AbstractParamPanel {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.BOTH;
-        
+
         this.add(new JLabel(Constant.messages.getString("pscan.options.header")), gbc);
 
         scannersOptionsPanel = new ScannersMultipleOptionsPanel(getTableModel());
-        
+
         gbc.weighty = 1.0;
         this.add(scannersOptionsPanel, gbc);
-        
-        //gbc.weighty = 0.0;
-	}
-	
-//	private List<RegexAutoTagScanner> getRegexAutoTags(List<PassiveScanner> scannerList) {
-//		List<RegexAutoTagScanner> ratsList = new ArrayList<>();
-//		for (PassiveScanner scanner : scannerList) {
-//			if (scanner instanceof RegexAutoTagScanner) {
-//				ratsList.add((RegexAutoTagScanner)scanner);
-//			}
-//		}
-//		
-//		return ratsList;
-//	}
-	
+
+        // gbc.weighty = 0.0;
+    }
+
+    //	private List<RegexAutoTagScanner> getRegexAutoTags(List<PassiveScanner> scannerList) {
+    //		List<RegexAutoTagScanner> ratsList = new ArrayList<>();
+    //		for (PassiveScanner scanner : scannerList) {
+    //			if (scanner instanceof RegexAutoTagScanner) {
+    //				ratsList.add((RegexAutoTagScanner)scanner);
+    //			}
+    //		}
+    //
+    //		return ratsList;
+    //	}
+
     @Override
     public void initParam(Object obj) {
         OptionsParam optionsParam = (OptionsParam) obj;
         PassiveScanParam passiveScanParam = optionsParam.getParamSet(PassiveScanParam.class);
         getTableModel().setScanDefns(passiveScanParam.getAutoTagScanners());
-        scannersOptionsPanel.setRemoveWithoutConfirmation(!passiveScanParam.isConfirmRemoveAutoTagScanner());
+        scannersOptionsPanel.setRemoveWithoutConfirmation(
+                !passiveScanParam.isConfirmRemoveAutoTagScanner());
     }
 
     @Override
@@ -99,50 +93,57 @@ public class OptionsPassiveScan extends AbstractParamPanel {
         OptionsParam optionsParam = (OptionsParam) obj;
         PassiveScanParam passiveScanParam = optionsParam.getParamSet(PassiveScanParam.class);
         passiveScanParam.setAutoTagScanners(getTableModel().getElements());
-        passiveScanParam.setConfirmRemoveAutoTagScanner(!scannersOptionsPanel.isRemoveWithoutConfirmation());
-        
+        passiveScanParam.setConfirmRemoveAutoTagScanner(
+                !scannersOptionsPanel.isRemoveWithoutConfirmation());
+
         passiveScanners.setAutoTagScanners(passiveScanParam.getAutoTagScanners());
     }
 
-	/**
-	 * This method initializes authModel
-	 * 	
-	 * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel
-	 */    
-	private OptionsPassiveScanTableModel getTableModel() {
-		if (tableModel == null) {
-			tableModel = new OptionsPassiveScanTableModel();
-		}
-		return tableModel;
-	}
+    /**
+     * This method initializes authModel
+     *
+     * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel
+     */
+    private OptionsPassiveScanTableModel getTableModel() {
+        if (tableModel == null) {
+            tableModel = new OptionsPassiveScanTableModel();
+        }
+        return tableModel;
+    }
 
-	@Override
-	public String getHelpIndex() {
-		return "ui.dialogs.options.pscan";
-	}
+    @Override
+    public String getHelpIndex() {
+        return "ui.dialogs.options.pscan";
+    }
 
-    private static class ScannersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<RegexAutoTagScanner> {
+    private static class ScannersMultipleOptionsPanel
+            extends AbstractMultipleOptionsTablePanel<RegexAutoTagScanner> {
 
         private static final long serialVersionUID = 8762085355395403532L;
-        
-        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("pscan.options.dialog.scanner.remove.title");
-        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("pscan.options.dialog.scanner.remove.text");
-        
-        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.remove.button.confirm");
-        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.remove.button.cancel");
-        
-        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.remove.checkbox.label");
-        
+
+        private static final String REMOVE_DIALOG_TITLE =
+                Constant.messages.getString("pscan.options.dialog.scanner.remove.title");
+        private static final String REMOVE_DIALOG_TEXT =
+                Constant.messages.getString("pscan.options.dialog.scanner.remove.text");
+
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL =
+                Constant.messages.getString("pscan.options.dialog.scanner.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL =
+                Constant.messages.getString("pscan.options.dialog.scanner.remove.button.cancel");
+
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL =
+                Constant.messages.getString("pscan.options.dialog.scanner.remove.checkbox.label");
+
         private DialogAddAutoTagScanner addDialog = null;
         private DialogModifyAutoTagScanner modifyDialog = null;
-        
+
         private OptionsPassiveScanTableModel model;
-        
+
         public ScannersMultipleOptionsPanel(OptionsPassiveScanTableModel model) {
             super(model);
-            
+
             this.model = model;
-            
+
             getTable().getColumnExt(0).setPreferredWidth(20);
             getTable().setSortOrder(1, SortOrder.ASCENDING);
         }
@@ -155,49 +156,60 @@ public class OptionsPassiveScan extends AbstractParamPanel {
             }
             addDialog.setScanners(model.getElements());
             addDialog.setVisible(true);
-            
+
             RegexAutoTagScanner app = addDialog.getScanner();
             addDialog.clear();
-            
+
             return app;
         }
-        
+
         @Override
         public RegexAutoTagScanner showModifyDialogue(RegexAutoTagScanner e) {
             if (modifyDialog == null) {
-                modifyDialog = new DialogModifyAutoTagScanner(View.getSingleton().getOptionsDialog(null));
+                modifyDialog =
+                        new DialogModifyAutoTagScanner(View.getSingleton().getOptionsDialog(null));
                 modifyDialog.pack();
             }
             modifyDialog.setScanners(model.getElements());
             modifyDialog.setApp(e);
             modifyDialog.setVisible(true);
-            
+
             RegexAutoTagScanner app = modifyDialog.getScanner();
             modifyDialog.clear();
-            
+
             if (!app.equals(e)) {
                 return app;
             }
-            
+
             return null;
         }
-        
+
         @Override
         public boolean showRemoveDialogue(RegexAutoTagScanner e) {
-            JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            JCheckBox removeWithoutConfirmationCheckBox =
+                    new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
             Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
-            int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(), messages, REMOVE_DIALOG_TITLE,
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    null, new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL }, null);
+            int option =
+                    JOptionPane.showOptionDialog(
+                            View.getSingleton().getMainFrame(),
+                            messages,
+                            REMOVE_DIALOG_TITLE,
+                            JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            new String[] {
+                                REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
+                                REMOVE_DIALOG_CANCEL_BUTTON_LABEL
+                            },
+                            null);
 
             if (option == JOptionPane.OK_OPTION) {
                 setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
-                
+
                 return true;
             }
-            
+
             return false;
         }
     }
-	
 }

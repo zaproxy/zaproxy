@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.api;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 
@@ -28,9 +27,11 @@ class DialogModifyPermittedAddress extends DialogAddPermittedAddress {
 
     private static final long serialVersionUID = -4031122965844883255L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("api.options.addr.modify.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("api.options.addr.modify.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("api.options.addr.modify.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("api.options.addr.modify.button.confirm");
 
     protected DialogModifyPermittedAddress(Dialog owner) {
         super(owner, DIALOG_TITLE);
@@ -54,5 +55,4 @@ class DialogModifyPermittedAddress extends DialogAddPermittedAddress {
 
         getEnabledCheckBox().setSelected(address.isEnabled());
     }
-
 }

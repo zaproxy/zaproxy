@@ -20,27 +20,22 @@
 package org.zaproxy.zap.model;
 
 /**
- * Default implementation of {@code NameValuePair}, in which the name and value are optional, that is, can be {@code null}.
- * <p>
- * The implementation is immutable thus thread safe.
+ * Default implementation of {@code NameValuePair}, in which the name and value are optional, that
+ * is, can be {@code null}.
+ *
+ * <p>The implementation is immutable thus thread safe.
  *
  * @since 2.5.0
  */
 public final class DefaultNameValuePair implements NameValuePair, Comparable<DefaultNameValuePair> {
 
-    /**
-     * The name of the pair, might be {@code null}.
-     */
+    /** The name of the pair, might be {@code null}. */
     private final String name;
 
-    /**
-     * The value of the pair, might be {@code null}.
-     */
+    /** The value of the pair, might be {@code null}. */
     private final String value;
 
-    /**
-     * Constructs a {@code DefaultNameValuePair} with no name nor value.
-     */
+    /** Constructs a {@code DefaultNameValuePair} with no name nor value. */
     public DefaultNameValuePair() {
         this(null, null);
     }
@@ -65,17 +60,13 @@ public final class DefaultNameValuePair implements NameValuePair, Comparable<Def
         this.value = value;
     }
 
-    /**
-     * @return the name, might be {@code null}
-     */
+    /** @return the name, might be {@code null} */
     @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * @return the value, might be {@code null}
-     */
+    /** @return the value, might be {@code null} */
     @Override
     public String getValue() {
         return value;

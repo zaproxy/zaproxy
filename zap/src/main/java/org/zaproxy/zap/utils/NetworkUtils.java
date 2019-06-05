@@ -25,16 +25,12 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 
-/**
- * @since 2.7.0
- */
+/** @since 2.7.0 */
 public final class NetworkUtils {
-    
-    private NetworkUtils() {
-    }
+
+    private NetworkUtils() {}
 
     private static final Logger LOG = Logger.getLogger(NetworkUtils.class);
 

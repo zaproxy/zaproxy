@@ -20,65 +20,74 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
-
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
 
-/**
- * Custom renderer for contexts tree
- */
+/** Custom renderer for contexts tree */
 public class ContextsTreeCellRenderer extends DefaultTreeCellRenderer {
-	
-	private static final ImageIcon ROOT_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/applications-blue.png"));
-	private static final ImageIcon CONTEXT_IN_SCOPE_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/application-blue-target.png"));
-	private static final ImageIcon CONTEXT_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/application-blue.png"));
-	private static final ImageIcon ALL_IN_SCOPE_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/target.png"));
 
-	private static final long serialVersionUID = -4278691012245035225L;
+    private static final ImageIcon ROOT_ICON =
+            new ImageIcon(
+                    ContextsTreeCellRenderer.class.getResource(
+                            "/resource/icon/fugue/applications-blue.png"));
+    private static final ImageIcon CONTEXT_IN_SCOPE_ICON =
+            new ImageIcon(
+                    ContextsTreeCellRenderer.class.getResource(
+                            "/resource/icon/fugue/application-blue-target.png"));
+    private static final ImageIcon CONTEXT_ICON =
+            new ImageIcon(
+                    ContextsTreeCellRenderer.class.getResource(
+                            "/resource/icon/fugue/application-blue.png"));
+    private static final ImageIcon ALL_IN_SCOPE_ICON =
+            new ImageIcon(
+                    ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/target.png"));
 
-	public ContextsTreeCellRenderer() {
-	}
+    private static final long serialVersionUID = -4278691012245035225L;
 
-	/**
-	 * Sets custom tree node logos.
-	 */
-	@Override
-	public Component getTreeCellRendererComponent(JTree tree, Object value,
-			boolean sel, boolean expanded, boolean leaf, int row,
-			boolean hasFocus) {
+    public ContextsTreeCellRenderer() {}
 
-		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-		
-		SiteNode node = null;
-		Target target = null;
-		if (value instanceof SiteNode) {
-			node = (SiteNode) value;
-			if (node.getUserObject() instanceof Target) {
-				target = (Target) node.getUserObject();
-			}
-		}
-		
-		if (node != null) {
-			if (node.isRoot()) {
-				setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));
-			} else if (target != null) {
-				if (target.getContext() != null) {
-					if (target.getContext().isInScope()) {
-						setIcon(DisplayUtils.getScaledIcon(CONTEXT_IN_SCOPE_ICON));
-					} else {
-						setIcon(DisplayUtils.getScaledIcon(CONTEXT_ICON));
-					}
-				} else if (target.isInScopeOnly()) {
-					setIcon(DisplayUtils.getScaledIcon(ALL_IN_SCOPE_ICON));
-				}
-			}
-		}
+    /** Sets custom tree node logos. */
+    @Override
+    public Component getTreeCellRendererComponent(
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) {
 
-		return this;
-	}
+        super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+
+        SiteNode node = null;
+        Target target = null;
+        if (value instanceof SiteNode) {
+            node = (SiteNode) value;
+            if (node.getUserObject() instanceof Target) {
+                target = (Target) node.getUserObject();
+            }
+        }
+
+        if (node != null) {
+            if (node.isRoot()) {
+                setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));
+            } else if (target != null) {
+                if (target.getContext() != null) {
+                    if (target.getContext().isInScope()) {
+                        setIcon(DisplayUtils.getScaledIcon(CONTEXT_IN_SCOPE_ICON));
+                    } else {
+                        setIcon(DisplayUtils.getScaledIcon(CONTEXT_ICON));
+                    }
+                } else if (target.isInScopeOnly()) {
+                    setIcon(DisplayUtils.getScaledIcon(ALL_IN_SCOPE_ICON));
+                }
+            }
+        }
+
+        return this;
+    }
 }

@@ -29,15 +29,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Test;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
-/**
- * Unit test for {@link VariantAbstractQuery}.
- */
+/** Unit test for {@link VariantAbstractQuery}. */
 public class VariantAbstractQueryUnitTest {
 
     private static final int NAME_VALUE_PAIR_TYPE = -1;
@@ -80,7 +77,9 @@ public class VariantAbstractQueryUnitTest {
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
         // Then
-        assertThat(variantAbstractQuery.getParamList(), contains(param(NAME_VALUE_PAIR_TYPE, "query", "query", 0)));
+        assertThat(
+                variantAbstractQuery.getParamList(),
+                contains(param(NAME_VALUE_PAIR_TYPE, "query", "query", 0)));
     }
 
     @Test
@@ -99,38 +98,45 @@ public class VariantAbstractQueryUnitTest {
     public void shouldCreateNameValuePairsFromProvidedParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(parameter("a", "b"), parameter("c", "d"));
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter("a", "b"), parameter("c", "d"));
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         // Then
         assertThat(
                 variantAbstractQuery.getParamList(),
-                contains(param(NAME_VALUE_PAIR_TYPE, "a", "b", 0), param(NAME_VALUE_PAIR_TYPE, "c", "d", 1)));
+                contains(
+                        param(NAME_VALUE_PAIR_TYPE, "a", "b", 0),
+                        param(NAME_VALUE_PAIR_TYPE, "c", "d", 1)));
     }
 
     @Test
     public void shouldCreateNameValuePairsFromProvidedParametersWithNullNameOrValue() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(parameter(null, "b"), parameter("c", null));
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter(null, "b"), parameter("c", null));
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         // Then
         assertThat(
                 variantAbstractQuery.getParamList(),
-                contains(param(NAME_VALUE_PAIR_TYPE, "", "b", 0), param(NAME_VALUE_PAIR_TYPE, "c", "", 1)));
+                contains(
+                        param(NAME_VALUE_PAIR_TYPE, "", "b", 0),
+                        param(NAME_VALUE_PAIR_TYPE, "c", "", 1)));
     }
 
     @Test
     public void shouldCreateNameValuePairsWithIndexedNamesFromProvidedArrayParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(
-                parameter("a[]", "b"),
-                parameter("a[]", "d"),
-                parameter("e", "f"),
-                parameter("g[]", "h"),
-                parameter("i", "j"));
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(
+                        parameter("a[]", "b"),
+                        parameter("a[]", "d"),
+                        parameter("e", "f"),
+                        parameter("g[]", "h"),
+                        parameter("i", "j"));
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         // Then
@@ -148,32 +154,35 @@ public class VariantAbstractQueryUnitTest {
     public void shouldNotAccumulateProvidedParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(parameter("a", "b"), parameter("c", "d"));
-        List<org.zaproxy.zap.model.NameValuePair> otherParameters = parameters(parameter("e", "f"), parameter("g", "h"));
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter("a", "b"), parameter("c", "d"));
+        List<org.zaproxy.zap.model.NameValuePair> otherParameters =
+                parameters(parameter("e", "f"), parameter("g", "h"));
         int otherType = -2;
         // When
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         variantAbstractQuery.setParameters(otherType, otherParameters);
         // Then
-        assertThat(variantAbstractQuery.getParamList(), contains(param(otherType, "e", "f", 0), param(otherType, "g", "h", 1)));
+        assertThat(
+                variantAbstractQuery.getParamList(),
+                contains(param(otherType, "e", "f", 0), param(otherType, "g", "h", 1)));
     }
 
     @Test
     public void shouldNotCallGetEscapedValueForInjectedValueIfEscapedWhenSettingParameter() {
         // Given
         List<String> values = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedValue(HttpMessage msg, String value) {
-                values.add(value);
-                return value;
-            }
-        };
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(
-                parameter("a", "b"),
-                parameter("c", "d"),
-                parameter("e", "f"));
+                    @Override
+                    protected String getEscapedValue(HttpMessage msg, String value) {
+                        values.add(value);
+                        return value;
+                    }
+                };
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter("a", "b"), parameter("c", "d"), parameter("e", "f"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
         // When
@@ -186,18 +195,17 @@ public class VariantAbstractQueryUnitTest {
     public void shouldCallGetEscapedValueForInjectedValueIfNotEscapedWhenSettingParameter() {
         // Given
         List<String> values = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedValue(HttpMessage msg, String value) {
-                values.add(value);
-                return value;
-            }
-        };
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(
-                parameter("a", "b"),
-                parameter("c", "d"),
-                parameter("e", "f"));
+                    @Override
+                    protected String getEscapedValue(HttpMessage msg, String value) {
+                        values.add(value);
+                        return value;
+                    }
+                };
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter("a", "b"), parameter("c", "d"), parameter("e", "f"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
         // When
@@ -210,18 +218,17 @@ public class VariantAbstractQueryUnitTest {
     public void shouldCallGetEscapedNameForEachNameWhenSettingParameter() {
         // Given
         List<String> names = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedName(HttpMessage msg, String name) {
-                names.add(name);
-                return name;
-            }
-        };
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(
-                parameter("a", "b"),
-                parameter("c", "d"),
-                parameter("e", "f"));
+                    @Override
+                    protected String getEscapedName(HttpMessage msg, String name) {
+                        names.add(name);
+                        return name;
+                    }
+                };
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter("a", "b"), parameter("c", "d"), parameter("e", "f"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
         // When
@@ -234,20 +241,22 @@ public class VariantAbstractQueryUnitTest {
     public void shouldUseOriginalNamesForArraysWhenSettingParameter() {
         // Given
         List<String> names = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedName(HttpMessage msg, String name) {
-                names.add(name);
-                return name;
-            }
-        };
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(
-                parameter("a[]", "b"),
-                parameter("a[]", "d"),
-                parameter("e", "f"),
-                parameter("g[]", "h"),
-                parameter("i", "j"));
+                    @Override
+                    protected String getEscapedName(HttpMessage msg, String name) {
+                        names.add(name);
+                        return name;
+                    }
+                };
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(
+                        parameter("a[]", "b"),
+                        parameter("a[]", "d"),
+                        parameter("e", "f"),
+                        parameter("g[]", "h"),
+                        parameter("i", "j"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
         // When
@@ -260,14 +269,15 @@ public class VariantAbstractQueryUnitTest {
     public void shouldUseInjectedNameWhenSettingArrayParameter() {
         // Given
         List<String> names = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedName(HttpMessage msg, String name) {
-                names.add(name);
-                return name;
-            }
-        };
+                    @Override
+                    protected String getEscapedName(HttpMessage msg, String name) {
+                        names.add(name);
+                        return name;
+                    }
+                };
         List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(parameter("a[]", "b"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
@@ -281,14 +291,15 @@ public class VariantAbstractQueryUnitTest {
     public void shouldUseInjectedNameEvenIfEqualToIndexedNameWhenSettingArrayParameter() {
         // Given
         List<String> names = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedName(HttpMessage msg, String name) {
-                names.add(name);
-                return name;
-            }
-        };
+                    @Override
+                    protected String getEscapedName(HttpMessage msg, String name) {
+                        names.add(name);
+                        return name;
+                    }
+                };
         List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(parameter("a[]", "b"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
@@ -303,20 +314,21 @@ public class VariantAbstractQueryUnitTest {
         // Given
         List<String> names = new ArrayList<>();
         List<String> values = new ArrayList<>();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected String getEscapedName(HttpMessage msg, String name) {
-                names.add(name);
-                return name;
-            }
+                    @Override
+                    protected String getEscapedName(HttpMessage msg, String name) {
+                        names.add(name);
+                        return name;
+                    }
 
-            @Override
-            protected String getEscapedValue(HttpMessage msg, String value) {
-                values.add(value);
-                return value;
-            }
-        };
+                    @Override
+                    protected String getEscapedValue(HttpMessage msg, String value) {
+                        values.add(value);
+                        return value;
+                    }
+                };
         List<org.zaproxy.zap.model.NameValuePair> noParameters = parameters();
         variantAbstractQuery.setAddQueryParam(true);
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, noParameters);
@@ -332,14 +344,16 @@ public class VariantAbstractQueryUnitTest {
     public void shouldCallBuildMessageWhenSettingParameter() {
         // Given
         MutableBoolean buildMessageCalled = new MutableBoolean();
-        VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl() {
+        VariantAbstractQuery variantAbstractQuery =
+                new VariantAbstractQueryImpl() {
 
-            @Override
-            protected void buildMessage(HttpMessage msg, String query) {
-                buildMessageCalled.setValue(true);
-            }
-        };
-        List<org.zaproxy.zap.model.NameValuePair> parameters = parameters(parameter("a", "b"), parameter("c", "d"));
+                    @Override
+                    protected void buildMessage(HttpMessage msg, String query) {
+                        buildMessageCalled.setValue(true);
+                    }
+                };
+        List<org.zaproxy.zap.model.NameValuePair> parameters =
+                parameters(parameter("a", "b"), parameter("c", "d"));
         variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, parameters);
         HttpMessage message = createMessage();
         // When
@@ -381,7 +395,8 @@ public class VariantAbstractQueryUnitTest {
         };
     }
 
-    private static List<org.zaproxy.zap.model.NameValuePair> parameters(org.zaproxy.zap.model.NameValuePair... parameters) {
+    private static List<org.zaproxy.zap.model.NameValuePair> parameters(
+            org.zaproxy.zap.model.NameValuePair... parameters) {
         if (parameters == null || parameters.length == 0) {
             return Collections.emptyList();
         }

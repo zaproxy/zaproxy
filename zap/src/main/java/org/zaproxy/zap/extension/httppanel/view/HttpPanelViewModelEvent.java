@@ -23,10 +23,9 @@ import java.util.EventObject;
 
 public class HttpPanelViewModelEvent extends EventObject {
 
-	private static final long serialVersionUID = 8346389985762067349L;
+    private static final long serialVersionUID = 8346389985762067349L;
 
-	public HttpPanelViewModelEvent(HttpPanelViewModel source) {
-		super(source);
-	}
-
+    public HttpPanelViewModelEvent(HttpPanelViewModel source) {
+        super(source);
+    }
 }

@@ -22,8 +22,8 @@ package org.zaproxy.zap.extension.httppanel.view.paramtable.addins;
 import java.io.UnsupportedEncodingException;
 
 public interface ParamAddinInterface {
-	
-	String convertData(String data) throws UnsupportedEncodingException;
-	
-	String getName();
+
+    String convertData(String data) throws UnsupportedEncodingException;
+
+    String getName();
 }

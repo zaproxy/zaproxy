@@ -23,19 +23,19 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
  * A default implementation of {@code HistoryReferencesTableEntry}.
- * <p>
- * Only the necessary column values will be kept in memory as specified in constructor.
+ *
+ * <p>Only the necessary column values will be kept in memory as specified in constructor.
  */
 public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReferencesTableEntry {
 
-    private static final String VALUES_SEPARATOR = Constant.messages.getString("generic.value.text.separator.comma");
+    private static final String VALUES_SEPARATOR =
+            Constant.messages.getString("generic.value.text.separator.comma");
 
     private final Integer historyId;
     private final Integer historyType;
@@ -65,33 +65,54 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         Column[] sortedColumns = Arrays.copyOf(columns, columns.length);
         Arrays.sort(sortedColumns);
 
-        historyId = hasColumn(sortedColumns, Column.HREF_ID) ? historyReference.getHistoryId() : null;
-        historyType = hasColumn(sortedColumns, Column.HREF_TYPE) ? historyReference.getHistoryType() : null;
-        sessionId = hasColumn(sortedColumns, Column.SESSION_ID) ? historyReference.getSessionId() : null;
+        historyId =
+                hasColumn(sortedColumns, Column.HREF_ID) ? historyReference.getHistoryId() : null;
+        historyType =
+                hasColumn(sortedColumns, Column.HREF_TYPE)
+                        ? historyReference.getHistoryType()
+                        : null;
+        sessionId =
+                hasColumn(sortedColumns, Column.SESSION_ID)
+                        ? historyReference.getSessionId()
+                        : null;
         method = hasColumn(sortedColumns, Column.METHOD) ? historyReference.getMethod() : null;
-        statusCode = hasColumn(sortedColumns, Column.STATUS_CODE) ? historyReference.getStatusCode() : null;
-        reason = hasColumn(sortedColumns, Column.STATUS_REASON) ? historyReference.getReason() : null;
+        statusCode =
+                hasColumn(sortedColumns, Column.STATUS_CODE)
+                        ? historyReference.getStatusCode()
+                        : null;
+        reason =
+                hasColumn(sortedColumns, Column.STATUS_REASON)
+                        ? historyReference.getReason()
+                        : null;
         rtt = hasColumn(sortedColumns, Column.RTT) ? historyReference.getRtt() : null;
 
         uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
-        timeSentMillis = hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
-                ? new Date(historyReference.getTimeSentMillis())
-                : null;
-        timeReceivedMillis = hasColumn(sortedColumns, Column.RESPONSE_TIMESTAMP) ? new Date(
-                historyReference.getTimeReceivedMillis()) : null;
-        requestHeaderSize = hasColumn(sortedColumns, Column.SIZE_REQUEST_HEADER)
-                ? historyReference.getRequestHeaderLength()
-                : null;
-        requestBodySize = hasColumn(sortedColumns, Column.SIZE_REQUEST_BODY)
-                ? historyReference.getRequestBodyLength()
-                : null;
-        responseHeaderSize = hasColumn(sortedColumns, Column.SIZE_RESPONSE_HEADER)
-                ? historyReference.getResponseHeaderLength()
-                : null;
-        responseBodySize = hasColumn(sortedColumns, Column.SIZE_RESPONSE_BODY)
-                ? historyReference.getResponseBodyLength()
-                : null;
-        messageSize = extractMessageSize(historyReference, hasColumn(sortedColumns, Column.SIZE_MESSAGE));
+        timeSentMillis =
+                hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
+                        ? new Date(historyReference.getTimeSentMillis())
+                        : null;
+        timeReceivedMillis =
+                hasColumn(sortedColumns, Column.RESPONSE_TIMESTAMP)
+                        ? new Date(historyReference.getTimeReceivedMillis())
+                        : null;
+        requestHeaderSize =
+                hasColumn(sortedColumns, Column.SIZE_REQUEST_HEADER)
+                        ? historyReference.getRequestHeaderLength()
+                        : null;
+        requestBodySize =
+                hasColumn(sortedColumns, Column.SIZE_REQUEST_BODY)
+                        ? historyReference.getRequestBodyLength()
+                        : null;
+        responseHeaderSize =
+                hasColumn(sortedColumns, Column.SIZE_RESPONSE_HEADER)
+                        ? historyReference.getResponseHeaderLength()
+                        : null;
+        responseBodySize =
+                hasColumn(sortedColumns, Column.SIZE_RESPONSE_BODY)
+                        ? historyReference.getResponseBodyLength()
+                        : null;
+        messageSize =
+                extractMessageSize(historyReference, hasColumn(sortedColumns, Column.SIZE_MESSAGE));
 
         highestAlertColumn = hasColumn(sortedColumns, Column.HIGHEST_ALERT);
         noteColumn = hasColumn(sortedColumns, Column.NOTE);
@@ -107,8 +128,11 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
             return 0L;
         }
 
-        return (long) (historyReference.getRequestHeaderLength() + historyReference.getRequestBodyLength()
-                + historyReference.getResponseHeaderLength() + historyReference.getResponseBodyLength());
+        return (long)
+                (historyReference.getRequestHeaderLength()
+                        + historyReference.getRequestBodyLength()
+                        + historyReference.getResponseHeaderLength()
+                        + historyReference.getResponseBodyLength());
     }
 
     private static boolean hasColumn(Column[] columns, Column column) {
@@ -212,7 +236,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     /**
      * Refresh the cached values of {@code HistoryReference}'s mutable fields.
-     * 
+     *
      * @see HistoryReference#getHighestAlert()
      * @see HistoryReference#getTags()
      */
@@ -224,7 +248,8 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
             tags = listToCsv(getHistoryReference().getTags());
         }
         if (highestAlertColumn) {
-            alertRiskCellItem = AlertRiskTableCellItem.getItemForRisk(getHistoryReference().getHighestAlert());
+            alertRiskCellItem =
+                    AlertRiskTableCellItem.getItemForRisk(getHistoryReference().getHighestAlert());
         }
     }
 
@@ -234,15 +259,17 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         } else if (list.size() == 1) {
             return list.get(0);
         } else if (list.size() == 2) {
-            return MessageFormat.format(VALUES_SEPARATOR, new Object[] { list.get(0), list.get(1) });
+            return MessageFormat.format(VALUES_SEPARATOR, new Object[] {list.get(0), list.get(1)});
         }
 
         String tags = VALUES_SEPARATOR;
         int total = list.size() - 2;
         for (int i = 0; i < total; i++) {
-            tags = MessageFormat.format(tags, new Object[] { list.get(i), VALUES_SEPARATOR });
+            tags = MessageFormat.format(tags, new Object[] {list.get(i), VALUES_SEPARATOR});
         }
-        tags = MessageFormat.format(tags, new Object[] { list.get(total), list.get(list.size() - 1) });
+        tags =
+                MessageFormat.format(
+                        tags, new Object[] {list.get(total), list.get(list.size() - 1)});
 
         return tags;
     }

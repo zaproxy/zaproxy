@@ -23,30 +23,29 @@ import java.awt.event.KeyEvent;
 
 public class FilteredZapTextField extends ZapTextField {
 
-	private static final long serialVersionUID = 1L;
-	
-	private String validChars;
+    private static final long serialVersionUID = 1L;
 
-	public FilteredZapTextField (String validChars) {
-		super();
-		this.validChars = validChars;
-	}
-	
-	@Override
-	public void processKeyEvent(KeyEvent ev) {
+    private String validChars;
 
-		char c = ev.getKeyChar();
+    public FilteredZapTextField(String validChars) {
+        super();
+        this.validChars = validChars;
+    }
 
-//		if((Character.isLetter(c) && ! ev.isAltDown()) 
-//				|| validChars.indexOf(c) < 0) {
-//		if (ev.getKeyCode() == KeyEvent.VK_DELETE) {
-		if (Character.isISOControl(c)) {
-			// Fall through
-		} else if(validChars.indexOf(c) < 0) {
-			ev.consume();
-			return;
-		}
-		super.processKeyEvent(ev);
-	}
+    @Override
+    public void processKeyEvent(KeyEvent ev) {
 
+        char c = ev.getKeyChar();
+
+        //		if((Character.isLetter(c) && ! ev.isAltDown())
+        //				|| validChars.indexOf(c) < 0) {
+        //		if (ev.getKeyCode() == KeyEvent.VK_DELETE) {
+        if (Character.isISOControl(c)) {
+            // Fall through
+        } else if (validChars.indexOf(c) < 0) {
+            ev.consume();
+            return;
+        }
+        super.processKeyEvent(ev);
+    }
 }

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.Before;
@@ -38,17 +37,15 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
 
-/**
- * Unit test for {@link DefaultParseFilter}.
- */
+/** Unit test for {@link DefaultParseFilter}. */
 public class DefaultParseFilterUnitTest {
 
     private static final String FILTERED_REASON_EMPTY = "empty";
     private static final String FILTERED_REASON_MAX_SIZE = "maxSize";
     private static final String FILTERED_REASON_NOT_TEXT = "notText";
-    
+
     private ResourceBundle resourceBundle;
-    
+
     @BeforeClass
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
@@ -56,31 +53,31 @@ public class DefaultParseFilterUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        resourceBundle = new ResourceBundle() {
+        resourceBundle =
+                new ResourceBundle() {
 
-            @Override
-            protected Object handleGetObject(String key) {
-                switch (key) {
-                case "spider.parsefilter.reason.empty":
-                    return FILTERED_REASON_EMPTY;
-                case "spider.parsefilter.reason.maxsize":
-                    return FILTERED_REASON_MAX_SIZE;
-                case "spider.parsefilter.reason.nottext":
-                    return FILTERED_REASON_NOT_TEXT;
-                }
-                return null;
-            }
+                    @Override
+                    protected Object handleGetObject(String key) {
+                        switch (key) {
+                            case "spider.parsefilter.reason.empty":
+                                return FILTERED_REASON_EMPTY;
+                            case "spider.parsefilter.reason.maxsize":
+                                return FILTERED_REASON_MAX_SIZE;
+                            case "spider.parsefilter.reason.nottext":
+                                return FILTERED_REASON_NOT_TEXT;
+                        }
+                        return null;
+                    }
 
-            @Override
-            public Enumeration<String> getKeys() {
-                return Collections.emptyEnumeration();
-            }
-
-        };
+                    @Override
+                    public Enumeration<String> getKeys() {
+                        return Collections.emptyEnumeration();
+                    }
+                };
     }
 
     @Test
-    @SuppressWarnings({ "deprecation", "unused" })
+    @SuppressWarnings({"deprecation", "unused"})
     public void shouldCreateDefaultParseFilterWithDefaultConfigsAndResourceBundleIfNoneSet() {
         // Given / When
         new DefaultParseFilter();
@@ -198,7 +195,8 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithoutContentType() throws Exception {
+    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithoutContentType()
+            throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
@@ -210,7 +208,8 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithContentType() throws Exception {
+    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithContentType()
+            throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
@@ -222,7 +221,8 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithoutContentType() throws Exception {
+    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithoutContentType()
+            throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
@@ -234,7 +234,8 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithContentType() throws Exception {
+    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithContentType()
+            throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
@@ -286,7 +287,8 @@ public class DefaultParseFilterUnitTest {
     public void shouldFilterHttpMessageWithResponseAboveMaxParseSize() throws Exception {
         // Given
         int maxParseSizeBytes = 2;
-        DefaultParseFilter filter = new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
+        DefaultParseFilter filter =
+                new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
         HttpMessage httpMessage = createHttpMessageWithResponseBody("ABC");
         // When
         FilterResult filterResult = filter.filtered(httpMessage);
@@ -299,7 +301,8 @@ public class DefaultParseFilterUnitTest {
     public void shouldNotFilterHttpMessageWithResponseEqualToMaxParseSize() throws Exception {
         // Given
         int maxParseSizeBytes = 2;
-        DefaultParseFilter filter = new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
+        DefaultParseFilter filter =
+                new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
         HttpMessage httpMessage = createHttpMessageWithResponseBody("AB");
         // When
         FilterResult filterResult = filter.filtered(httpMessage);
@@ -311,7 +314,8 @@ public class DefaultParseFilterUnitTest {
     public void shouldNotFilterHttpMessageWithResponseUnderMaxParseSize() throws Exception {
         // Given
         int maxParseSizeBytes = 2;
-        DefaultParseFilter filter = new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
+        DefaultParseFilter filter =
+                new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
         HttpMessage httpMessage = createHttpMessageWithResponseBody("A");
         // When
         FilterResult filterResult = filter.filtered(httpMessage);
@@ -346,7 +350,8 @@ public class DefaultParseFilterUnitTest {
 
     private static HttpMessage createDefaultRequest() {
         try {
-            return new HttpMessage(new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n"));
+            return new HttpMessage(
+                    new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -354,8 +359,10 @@ public class DefaultParseFilterUnitTest {
 
     private static HttpMessage createHttpMessageWithRequestUri(String requestUri) {
         try {
-            HttpMessage message = new HttpMessage(
-                    new HttpRequestHeader("GET " + requestUri + " HTTP/1.1\r\nHost: example.com\r\n"));
+            HttpMessage message =
+                    new HttpMessage(
+                            new HttpRequestHeader(
+                                    "GET " + requestUri + " HTTP/1.1\r\nHost: example.com\r\n"));
             message.setResponseHeader("HTTP/1.1 200 OK\r\n");
             return message;
         } catch (Exception e) {

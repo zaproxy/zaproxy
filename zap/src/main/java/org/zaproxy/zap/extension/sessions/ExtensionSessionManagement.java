@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -44,186 +43,186 @@ import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
-/**
- * The Extension that handles Session Management methods.
- */
-public class ExtensionSessionManagement extends ExtensionAdaptor implements ContextPanelFactory,
-		ContextDataFactory {
+/** The Extension that handles Session Management methods. */
+public class ExtensionSessionManagement extends ExtensionAdaptor
+        implements ContextPanelFactory, ContextDataFactory {
 
-	/** The NAME of the extension. */
-	public static final String NAME = "ExtensionSessionManagement";
+    /** The NAME of the extension. */
+    public static final String NAME = "ExtensionSessionManagement";
 
-	public static final String CONTEXT_CONFIG_SESSION = Context.CONTEXT_CONFIG + ".session";
-	public static final String CONTEXT_CONFIG_SESSION_TYPE = CONTEXT_CONFIG_SESSION + ".type";
+    public static final String CONTEXT_CONFIG_SESSION = Context.CONTEXT_CONFIG + ".session";
+    public static final String CONTEXT_CONFIG_SESSION_TYPE = CONTEXT_CONFIG_SESSION + ".type";
 
-	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(ExtensionSessionManagement.class);
+    /** The Constant log. */
+    private static final Logger log = Logger.getLogger(ExtensionSessionManagement.class);
 
-	/** The automatically loaded session management method types. */
-	List<SessionManagementMethodType> sessionManagementMethodTypes;
+    /** The automatically loaded session management method types. */
+    List<SessionManagementMethodType> sessionManagementMethodTypes;
 
-	/** The map of context panels. */
-	private Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
+    /** The map of context panels. */
+    private Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
 
-	private SessionManagementAPI api;
+    private SessionManagementAPI api;
 
-	public ExtensionSessionManagement() {
-		super();
-		initialize();
-	}
+    public ExtensionSessionManagement() {
+        super();
+        initialize();
+    }
 
-	/**
-	 * Initialize the extension.
-	 */
-	private void initialize() {
-		this.setName(NAME);
-		this.setOrder(103);
-	}
+    /** Initialize the extension. */
+    private void initialize() {
+        this.setName(NAME);
+        this.setOrder(103);
+    }
 
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("sessionmanagement.name");
-	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
-		// Register this as a context data factory
-		extensionHook.addContextDataFactory(this);
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("sessionmanagement.name");
+    }
 
-		if (getView() != null) {
-			// Factory for generating Session Context UserAuth panels
-			extensionHook.getHookView().addContextPanelFactory(this);
-		}
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        // Register this as a context data factory
+        extensionHook.addContextDataFactory(this);
 
-		// Load the Session Management methods
-		this.loadSesssionManagementMethodTypes(extensionHook);
+        if (getView() != null) {
+            // Factory for generating Session Context UserAuth panels
+            extensionHook.getHookView().addContextPanelFactory(this);
+        }
 
-		// Register the api
-		this.api = new SessionManagementAPI(this);
-		extensionHook.addApiImplementor(api);
-	}
+        // Load the Session Management methods
+        this.loadSesssionManagementMethodTypes(extensionHook);
 
-	@Override
-	public AbstractContextPropertiesPanel getContextPanel(Context context) {
-		ContextSessionManagementPanel panel = this.contextPanelsMap.get(context.getIndex());
-		if (panel == null) {
-			panel = new ContextSessionManagementPanel(this, context);
-			this.contextPanelsMap.put(context.getIndex(), panel);
-		}
-		return panel;
-	}
+        // Register the api
+        this.api = new SessionManagementAPI(this);
+        extensionHook.addApiImplementor(api);
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+    @Override
+    public AbstractContextPropertiesPanel getContextPanel(Context context) {
+        ContextSessionManagementPanel panel = this.contextPanelsMap.get(context.getIndex());
+        if (panel == null) {
+            panel = new ContextSessionManagementPanel(this, context);
+            this.contextPanelsMap.put(context.getIndex(), panel);
+        }
+        return panel;
+    }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	public List<SessionManagementMethodType> getSessionManagementMethodTypes() {
-		return sessionManagementMethodTypes;
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	/**
-	 * Loads session management method types and hooks them up.
-	 * 
-	 * @param extensionHook the extension hook
-	 */
-	private void loadSesssionManagementMethodTypes(ExtensionHook extensionHook) {
-		this.sessionManagementMethodTypes = new ArrayList<>();
-		this.sessionManagementMethodTypes.add(new CookieBasedSessionManagementMethodType());
-		this.sessionManagementMethodTypes.add(new HttpAuthSessionManagementMethodType());
+    public List<SessionManagementMethodType> getSessionManagementMethodTypes() {
+        return sessionManagementMethodTypes;
+    }
 
-		for (SessionManagementMethodType t : sessionManagementMethodTypes) {
-			t.hook(extensionHook);
-		}
+    /**
+     * Loads session management method types and hooks them up.
+     *
+     * @param extensionHook the extension hook
+     */
+    private void loadSesssionManagementMethodTypes(ExtensionHook extensionHook) {
+        this.sessionManagementMethodTypes = new ArrayList<>();
+        this.sessionManagementMethodTypes.add(new CookieBasedSessionManagementMethodType());
+        this.sessionManagementMethodTypes.add(new HttpAuthSessionManagementMethodType());
 
-		if (log.isInfoEnabled()) {
-			log.info("Loaded session management method types: " + sessionManagementMethodTypes);
-		}
-	}
+        for (SessionManagementMethodType t : sessionManagementMethodTypes) {
+            t.hook(extensionHook);
+        }
 
-	@Override
-	public void discardContexts() {
-		this.contextPanelsMap.clear();
-	}
+        if (log.isInfoEnabled()) {
+            log.info("Loaded session management method types: " + sessionManagementMethodTypes);
+        }
+    }
 
-	@Override
-	public void discardContext(Context c) {
-		this.contextPanelsMap.remove(c.getIndex());
-	}
+    @Override
+    public void discardContexts() {
+        this.contextPanelsMap.clear();
+    }
 
-	/**
-	 * Gets the session management method type for a given identifier.
-	 * 
-	 * @param id the id
-	 * @return the session management method type for identifier
-	 */
-	public SessionManagementMethodType getSessionManagementMethodTypeForIdentifier(int id) {
-		for (SessionManagementMethodType t : getSessionManagementMethodTypes())
-			if (t.getUniqueIdentifier() == id)
-				return t;
-		return null;
-	}
+    @Override
+    public void discardContext(Context c) {
+        this.contextPanelsMap.remove(c.getIndex());
+    }
 
-	@Override
-	public void loadContextData(Session session, Context context) {
-		try {
-			List<String> typeL = session.getContextDataStrings(context.getIndex(),
-					RecordContext.TYPE_SESSION_MANAGEMENT_TYPE);
-			if (typeL != null && typeL.size() > 0) {
-				SessionManagementMethodType t = getSessionManagementMethodTypeForIdentifier(Integer
-						.parseInt(typeL.get(0)));
-				if (t != null) {
-					context.setSessionManagementMethod(t.loadMethodFromSession(session, context.getIndex()));
-				}
-			}
-		} catch (DatabaseException e) {
-			log.error("Unable to load Session Management method.", e);
-		}
+    /**
+     * Gets the session management method type for a given identifier.
+     *
+     * @param id the id
+     * @return the session management method type for identifier
+     */
+    public SessionManagementMethodType getSessionManagementMethodTypeForIdentifier(int id) {
+        for (SessionManagementMethodType t : getSessionManagementMethodTypes())
+            if (t.getUniqueIdentifier() == id) return t;
+        return null;
+    }
 
-	}
+    @Override
+    public void loadContextData(Session session, Context context) {
+        try {
+            List<String> typeL =
+                    session.getContextDataStrings(
+                            context.getIndex(), RecordContext.TYPE_SESSION_MANAGEMENT_TYPE);
+            if (typeL != null && typeL.size() > 0) {
+                SessionManagementMethodType t =
+                        getSessionManagementMethodTypeForIdentifier(Integer.parseInt(typeL.get(0)));
+                if (t != null) {
+                    context.setSessionManagementMethod(
+                            t.loadMethodFromSession(session, context.getIndex()));
+                }
+            }
+        } catch (DatabaseException e) {
+            log.error("Unable to load Session Management method.", e);
+        }
+    }
 
-	@Override
-	public void persistContextData(Session session, Context context) {
-		try {
-			SessionManagementMethodType t = context.getSessionManagementMethod().getType();
-			session.setContextData(context.getIndex(), RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
-					Integer.toString(t.getUniqueIdentifier()));
-			t.persistMethodToSession(session, context.getIndex(), context.getSessionManagementMethod());
-		} catch (DatabaseException e) {
-			log.error("Unable to persist Session Management method.", e);
-		}
-	}
+    @Override
+    public void persistContextData(Session session, Context context) {
+        try {
+            SessionManagementMethodType t = context.getSessionManagementMethod().getType();
+            session.setContextData(
+                    context.getIndex(),
+                    RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
+                    Integer.toString(t.getUniqueIdentifier()));
+            t.persistMethodToSession(
+                    session, context.getIndex(), context.getSessionManagementMethod());
+        } catch (DatabaseException e) {
+            log.error("Unable to persist Session Management method.", e);
+        }
+    }
 
-	@Override
-	public void exportContextData(Context ctx, Configuration config) {
-		SessionManagementMethodType type = ctx.getSessionManagementMethod().getType();
-		config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, type.getUniqueIdentifier());
-		type.exportData(config, ctx.getSessionManagementMethod());
-	}
+    @Override
+    public void exportContextData(Context ctx, Configuration config) {
+        SessionManagementMethodType type = ctx.getSessionManagementMethod().getType();
+        config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, type.getUniqueIdentifier());
+        type.exportData(config, ctx.getSessionManagementMethod());
+    }
 
-	@Override
-	public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-		SessionManagementMethodType t = getSessionManagementMethodTypeForIdentifier(config.getInt(CONTEXT_CONFIG_SESSION_TYPE));
-		if (t != null) {
-			SessionManagementMethod method = t.createSessionManagementMethod(ctx.getIndex());
-			t.importData(config, method);
-			ctx.setSessionManagementMethod(method);
-		}
-	}
-
+    @Override
+    public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
+        SessionManagementMethodType t =
+                getSessionManagementMethodTypeForIdentifier(
+                        config.getInt(CONTEXT_CONFIG_SESSION_TYPE));
+        if (t != null) {
+            SessionManagementMethod method = t.createSessionManagementMethod(ctx.getIndex());
+            t.importData(config, method);
+            ctx.setSessionManagementMethod(method);
+        }
+    }
 }

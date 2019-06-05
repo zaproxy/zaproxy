@@ -24,14 +24,14 @@ import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
  * An entry of {@code HistoryReferencesTableModel}.
- * 
+ *
  * @see HistoryReferencesTableModel
  */
 public interface HistoryReferencesTableEntry {
 
     /**
      * Returns the {@code HistoryReference} of the table entry.
-     * 
+     *
      * @return the {@code HistoryReference} of the table entry
      * @see HistoryReference
      */
@@ -39,7 +39,7 @@ public interface HistoryReferencesTableEntry {
 
     /**
      * Returns the value of the entry for the given {@code column}.
-     * 
+     *
      * @param column the column whose entry value will be returned
      * @return the value of the entry for the given {@code column}
      */

@@ -20,13 +20,11 @@
 package org.zaproxy.zap.extension.httppanel.view.image;
 
 import java.awt.BorderLayout;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
@@ -38,110 +36,106 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
 
 public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListener {
 
-	public static final String NAME = "ResponseImageView";
-	
-	public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.image.name");
-	
-	private JPanel mainPanel;
-	private JLabel imageLabel;
-	
-	private HttpPanelViewModel model;
-	
-	public ResponseImageView(HttpPanelViewModel model) {
-		this.model = model;
-		
-		imageLabel = new JLabel();
-		imageLabel.setVerticalAlignment(JLabel.TOP);
-		
-		mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(new JScrollPane(imageLabel));
-		
-		this.model.addHttpPanelViewModelListener(this);
-	}
-	
-	@Override
-	public void save() {
-	}
+    public static final String NAME = "ResponseImageView";
 
-	@Override
-	public void setSelected(boolean selected) {
-		if (selected) {
-			imageLabel.requestFocusInWindow();
-		}
-	}
+    public static final String CAPTION_NAME =
+            Constant.messages.getString("http.panel.view.image.name");
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+    private JPanel mainPanel;
+    private JLabel imageLabel;
 
-	@Override
-	public String getCaptionName() {
-		return CAPTION_NAME;
-	}
-	
-	@Override
-	public String getTargetViewName() {
-		return "";
-	}
-	
-	@Override
-	public int getPosition() {
-		return 1;
-	}
+    private HttpPanelViewModel model;
 
-	@Override
-	public boolean isEnabled(Message aMessage) {
-		return isImage(aMessage);
-	}
+    public ResponseImageView(HttpPanelViewModel model) {
+        this.model = model;
 
-	@Override
-	public boolean hasChanged() {
-		return false;
-	}
+        imageLabel = new JLabel();
+        imageLabel.setVerticalAlignment(JLabel.TOP);
 
-	@Override
-	public JComponent getPane() {
-		return mainPanel;
-	}
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(new JScrollPane(imageLabel));
 
-	@Override
-	public boolean isEditable() {
-		return false;
-	}
+        this.model.addHttpPanelViewModelListener(this);
+    }
 
-	@Override
-	public void setEditable(boolean editable) {
-	}
-	
-	@Override
-	public void setParentConfigurationKey(String configurationKey) {
-	}
-	
-	@Override
-	public void loadConfiguration(FileConfiguration fileConfiguration) {
-	}
-	
-	@Override
-	public void saveConfiguration(FileConfiguration fileConfiguration) {
-	}
+    @Override
+    public void save() {}
 
-	@Override
-	public HttpPanelViewModel getModel() {
-		return model;
-	}
-	
-	@Override
-	public void dataChanged(HttpPanelViewModelEvent e) {
+    @Override
+    public void setSelected(boolean selected) {
+        if (selected) {
+            imageLabel.requestFocusInWindow();
+        }
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public String getCaptionName() {
+        return CAPTION_NAME;
+    }
+
+    @Override
+    public String getTargetViewName() {
+        return "";
+    }
+
+    @Override
+    public int getPosition() {
+        return 1;
+    }
+
+    @Override
+    public boolean isEnabled(Message aMessage) {
+        return isImage(aMessage);
+    }
+
+    @Override
+    public boolean hasChanged() {
+        return false;
+    }
+
+    @Override
+    public JComponent getPane() {
+        return mainPanel;
+    }
+
+    @Override
+    public boolean isEditable() {
+        return false;
+    }
+
+    @Override
+    public void setEditable(boolean editable) {}
+
+    @Override
+    public void setParentConfigurationKey(String configurationKey) {}
+
+    @Override
+    public void loadConfiguration(FileConfiguration fileConfiguration) {}
+
+    @Override
+    public void saveConfiguration(FileConfiguration fileConfiguration) {}
+
+    @Override
+    public HttpPanelViewModel getModel() {
+        return model;
+    }
+
+    @Override
+    public void dataChanged(HttpPanelViewModelEvent e) {
         // FIXME(This view should ask for a specific model based on HttpMessage)
-		HttpMessage httpMessage = (HttpMessage) model.getMessage();
-		
-		if (isImage(httpMessage)) {
-			imageLabel.setIcon(new ImageIcon(httpMessage.getResponseBody().getBytes()));
-		} else {
-			imageLabel.setIcon(null);
-		}
-	}
+        HttpMessage httpMessage = (HttpMessage) model.getMessage();
+
+        if (isImage(httpMessage)) {
+            imageLabel.setIcon(new ImageIcon(httpMessage.getResponseBody().getBytes()));
+        } else {
+            imageLabel.setIcon(null);
+        }
+    }
 
     static boolean isImage(final Message aMessage) {
         if (aMessage instanceof HttpMessage) {
@@ -150,10 +144,10 @@ public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListe
             if (httpMessage.getResponseBody() == null) {
                 return false;
             }
-            
+
             return httpMessage.getResponseHeader().isImage();
         }
-        
+
         return false;
     }
 }

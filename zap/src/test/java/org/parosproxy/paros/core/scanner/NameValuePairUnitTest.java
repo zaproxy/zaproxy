@@ -26,9 +26,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-/**
- * Unit test for {@link NameValuePair}.
- */
+/** Unit test for {@link NameValuePair}. */
 public class NameValuePairUnitTest {
 
     private static final String NAME = "name";
@@ -100,11 +98,12 @@ public class NameValuePairUnitTest {
     public void shouldProduceConsistentHashCodes() {
         // Given
         NameValuePair[] nameValuePairs = {
-                new NameValuePair(1, NAME, VALUE, 2),
-                new NameValuePair(3, NAME, null, 4),
-                new NameValuePair(5, null, VALUE, 6),
-                new NameValuePair(-341, null, null, -950) };
-        int[] expectedHashCodes = { 1834755624, 1722784887, 112902163, 0 };
+            new NameValuePair(1, NAME, VALUE, 2),
+            new NameValuePair(3, NAME, null, 4),
+            new NameValuePair(5, null, VALUE, 6),
+            new NameValuePair(-341, null, null, -950)
+        };
+        int[] expectedHashCodes = {1834755624, 1722784887, 112902163, 0};
         for (int i = 0; i < nameValuePairs.length; i++) {
             // When / Then
             assertThat(nameValuePairs[i].hashCode(), is(equalTo(expectedHashCodes[i])));
@@ -235,8 +234,8 @@ public class NameValuePairUnitTest {
         // Given
         NameValuePair nameValuePair = new NameValuePair(1, NAME, VALUE, 2);
         NameValuePair otherNameValuePair = new NameValuePair(1, NAME, VALUE, 2) {
-            // Anonymous NameValuePair
-        };
+                    // Anonymous NameValuePair
+                };
         // When
         boolean equals = nameValuePair.equals(otherNameValuePair);
         // Then
@@ -247,19 +246,20 @@ public class NameValuePairUnitTest {
     public void shouldProduceConsistentStringRepresentations() {
         // Given
         NameValuePair[] nameValuePairs = {
-                new NameValuePair(1, NAME, VALUE, 2),
-                new NameValuePair(3, NAME, null, 4),
-                new NameValuePair(5, null, VALUE, 6),
-                new NameValuePair(7, null, null, 8) };
+            new NameValuePair(1, NAME, VALUE, 2),
+            new NameValuePair(3, NAME, null, 4),
+            new NameValuePair(5, null, VALUE, 6),
+            new NameValuePair(7, null, null, 8)
+        };
         String[] expectedStringRepresentations = {
-                "[Position=2, Type=1, Name=" + NAME + ", Value=" + VALUE + "]",
-                "[Position=4, Type=3, Name=" + NAME + "]",
-                "[Position=6, Type=5, Value=" + VALUE + "]",
-                "[Position=8, Type=7]" };
+            "[Position=2, Type=1, Name=" + NAME + ", Value=" + VALUE + "]",
+            "[Position=4, Type=3, Name=" + NAME + "]",
+            "[Position=6, Type=5, Value=" + VALUE + "]",
+            "[Position=8, Type=7]"
+        };
         for (int i = 0; i < nameValuePairs.length; i++) {
             // When / Then
             assertThat(nameValuePairs[i].toString(), is(equalTo(expectedStringRepresentations[i])));
         }
     }
-
 }

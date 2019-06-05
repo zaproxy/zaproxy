@@ -22,10 +22,8 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
@@ -33,31 +31,33 @@ import org.zaproxy.zap.model.Context;
 
 public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 
-	private static final String PANEL_NAME = Constant.messages.getString("context.scope.exclude.title"); 
-	private static final long serialVersionUID = -8337361808959321380L;
-	
-	private JPanel panelSession = null;
-	private MultipleRegexesOptionsPanel regexesPanel;
-	
+    private static final String PANEL_NAME =
+            Constant.messages.getString("context.scope.exclude.title");
+    private static final long serialVersionUID = -8337361808959321380L;
+
+    private JPanel panelSession = null;
+    private MultipleRegexesOptionsPanel regexesPanel;
+
     /**
      * Returns the name of the panel "Exclude from context" for the given {@code contextIndex}.
-     * 
+     *
      * @param contextIndex the context index that will be used to create the name of the panel
      * @return the name of the panel "Exclude from context" for the given {@code contextIndex}
      * @since 2.2.0
      * @see Context#getIndex()
      */
-	public static String getPanelName(int contextIndex) {
-		// Panel names have to be unique, so precede with the context index
-		return contextIndex + ": " + PANEL_NAME;
-	}
-	
+    public static String getPanelName(int contextIndex) {
+        // Panel names have to be unique, so precede with the context index
+        return contextIndex + ": " + PANEL_NAME;
+    }
+
     /**
      * Gets the name of the panel for the given context.
-     * 
+     *
      * @param context the context
      * @return the name of the panel
-     * @deprecated (2.2.0) Replaced by {@link #getPanelName(int)}. It will be removed in a future release.
+     * @deprecated (2.2.0) Replaced by {@link #getPanelName(int)}. It will be removed in a future
+     *     release.
      */
     @Deprecated
     public static String getPanelName(Context context) {
@@ -66,7 +66,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 
     /**
      * Constructs a {@code ContextIncludePanel} for the given context.
-     * 
+     *
      * @param context the target context, must not be {@code null}.
      */
     public ContextExcludePanel(Context context) {
@@ -77,72 +77,71 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
         this.setLayout(new CardLayout());
         this.setName(getPanelName(getContextIndex()));
         this.add(getPanelSession(), getPanelSession().getName());
-	}
-	/**
-	 * This method initializes panelSession	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getPanelSession() {
-		if (panelSession == null) {
+    }
+    /**
+     * This method initializes panelSession
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getPanelSession() {
+        if (panelSession == null) {
 
-			panelSession = new JPanel();
-			panelSession.setLayout(new GridBagLayout());
-			panelSession.setName("ExcludeFromScope");
+            panelSession = new JPanel();
+            panelSession.setLayout(new GridBagLayout());
+            panelSession.setName("ExcludeFromScope");
 
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
-	        javax.swing.JLabel jLabel = new JLabel();
+            javax.swing.JLabel jLabel = new JLabel();
 
-	        jLabel.setText(Constant.messages.getString("context.label.exclude"));
-	        gridBagConstraints1.gridx = 0;
-	        gridBagConstraints1.gridy = 0;
-	        gridBagConstraints1.gridheight = 1;
-	        gridBagConstraints1.insets = new java.awt.Insets(10,0,5,0);
-	        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-	        gridBagConstraints1.weightx = 0.0D;
+            jLabel.setText(Constant.messages.getString("context.label.exclude"));
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = 0;
+            gridBagConstraints1.gridheight = 1;
+            gridBagConstraints1.insets = new java.awt.Insets(10, 0, 5, 0);
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints1.weightx = 0.0D;
 
-	        gridBagConstraints2.gridx = 0;
-	        gridBagConstraints2.gridy = 1;
-	        gridBagConstraints2.weightx = 1.0;
-	        gridBagConstraints2.weighty = 1.0;
-	        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-	        gridBagConstraints2.ipadx = 0;
-	        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-	        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-	        panelSession.add(jLabel, gridBagConstraints1);
-	        panelSession.add(regexesPanel, gridBagConstraints2);
-		}
-		return panelSession;
-	}
+            gridBagConstraints2.gridx = 0;
+            gridBagConstraints2.gridy = 1;
+            gridBagConstraints2.weightx = 1.0;
+            gridBagConstraints2.weighty = 1.0;
+            gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints2.ipadx = 0;
+            gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
+            gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            panelSession.add(jLabel, gridBagConstraints1);
+            panelSession.add(regexesPanel, gridBagConstraints2);
+        }
+        return panelSession;
+    }
 
-	@Override
-	public String getHelpIndex() {
-		return "ui.dialogs.contexts";
-	}
+    @Override
+    public String getHelpIndex() {
+        return "ui.dialogs.contexts";
+    }
 
-	@Override
-	public void initContextData(Session session, Context uiContext) {
-		regexesPanel.setRegexes(uiContext.getExcludeFromContextRegexs());
-	}
+    @Override
+    public void initContextData(Session session, Context uiContext) {
+        regexesPanel.setRegexes(uiContext.getExcludeFromContextRegexs());
+    }
 
-	@Override
-	public void validateContextData(Session session) throws Exception {
-		// Nothing to do, the regular expressions are already validated when manually added and
-		// regular expressions added programmatically are expected to be valid.
-	}
+    @Override
+    public void validateContextData(Session session) throws Exception {
+        // Nothing to do, the regular expressions are already validated when manually added and
+        // regular expressions added programmatically are expected to be valid.
+    }
 
-	@Override
-	public void saveContextData(Session session) throws Exception {
-		Context context = session.getContext(getContextIndex());
-		context.setExcludeFromContextRegexs(regexesPanel.getRegexes());
-	}
+    @Override
+    public void saveContextData(Session session) throws Exception {
+        Context context = session.getContext(getContextIndex());
+        context.setExcludeFromContextRegexs(regexesPanel.getRegexes());
+    }
 
-	@Override
-	public void saveTemporaryContextData(Context uiSharedContext) {
-		uiSharedContext.setExcludeFromContextRegexs(regexesPanel.getRegexes());
-	}
-
+    @Override
+    public void saveTemporaryContextData(Context uiSharedContext) {
+        uiSharedContext.setExcludeFromContextRegexs(regexesPanel.getRegexes());
+    }
 }

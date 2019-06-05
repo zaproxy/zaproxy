@@ -23,14 +23,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import net.sf.json.JSONObject;
 import org.junit.Test;
 import org.zaproxy.zap.extension.api.ApiException;
 
-import net.sf.json.JSONObject;
-
-/**
- * Unit test for {@link ApiUtils}.
- */
+/** Unit test for {@link ApiUtils}. */
 public class ApiUtilsUnitTest {
 
     private static final String HOST = "example.com";

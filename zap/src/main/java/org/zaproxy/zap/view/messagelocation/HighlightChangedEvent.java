@@ -36,7 +36,8 @@ public class HighlightChangedEvent<T> extends EventObject {
     private final T entry;
     private final MessageLocationHighlight highlightReference;
 
-    public HighlightChangedEvent(Object source, T entry, MessageLocationHighlight highlightReference) {
+    public HighlightChangedEvent(
+            Object source, T entry, MessageLocationHighlight highlightReference) {
         super(source);
 
         this.entry = entry;
@@ -50,5 +51,4 @@ public class HighlightChangedEvent<T> extends EventObject {
     public MessageLocationHighlight getHighlightReference() {
         return highlightReference;
     }
-
 }

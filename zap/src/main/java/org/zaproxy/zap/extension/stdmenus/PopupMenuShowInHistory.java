@@ -24,55 +24,52 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-
 public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContainer {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private final ExtensionHistory extension;
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuShowInHistory(String label, ExtensionHistory extension) {
         super(label);
         this.extension = extension;
     }
-    
-	@Override
-	public void performAction(HistoryReference href) {
-		extension.showInHistory(href);
-	}
 
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		switch (invoker) {
-		case ACTIVE_SCANNER_PANEL:
-		case FORCED_BROWSE_PANEL:
-		case FUZZER_PANEL:
-		case HISTORY_PANEL:
-		case SPIDER_PANEL:
-			return false;
-		case ALERTS_PANEL:
-		case SITES_PANEL:
-		case SEARCH_PANEL:
-		default:
-			return true;
-		}
-	}
+    @Override
+    public void performAction(HistoryReference href) {
+        extension.showInHistory(href);
+    }
 
-	@Override
-	protected boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
-		switch (historyReference.getHistoryType()) {
-		case HistoryReference.TYPE_ZAP_USER:
-		case HistoryReference.TYPE_PROXIED:
-			return true;
-		default:
-			return false;
-		}
-	}
-	
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        switch (invoker) {
+            case ACTIVE_SCANNER_PANEL:
+            case FORCED_BROWSE_PANEL:
+            case FUZZER_PANEL:
+            case HISTORY_PANEL:
+            case SPIDER_PANEL:
+                return false;
+            case ALERTS_PANEL:
+            case SITES_PANEL:
+            case SEARCH_PANEL:
+            default:
+                return true;
+        }
+    }
+
+    @Override
+    protected boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
+        switch (historyReference.getHistoryType()) {
+            case HistoryReference.TYPE_ZAP_USER:
+            case HistoryReference.TYPE_PROXIED:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

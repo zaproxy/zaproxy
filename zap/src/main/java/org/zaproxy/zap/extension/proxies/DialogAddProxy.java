@@ -20,10 +20,8 @@
 package org.zaproxy.zap.extension.proxies;
 
 import java.awt.Dialog;
-
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
@@ -31,10 +29,11 @@ class DialogAddProxy extends AbstractFormDialog {
 
     private static final long serialVersionUID = 4460797449668634319L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("options.proxy.dialog.proxy.add.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("options.proxy.dialog.proxy.add.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages
-            .getString("options.proxy.dialog.proxy.add.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("options.proxy.dialog.proxy.add.button.confirm");
 
     protected OptionsLocalProxyPanel proxyPanel;
 
@@ -69,7 +68,7 @@ class DialogAddProxy extends AbstractFormDialog {
     @Override
     protected void init() {
         proxy = null;
-        this.getFieldsPanel();  // to initialise proxyPanel
+        this.getFieldsPanel(); // to initialise proxyPanel
         ProxiesParamProxy paramProxy = new ProxiesParamProxy(true);
         proxyPanel.setProxy(paramProxy);
     }
@@ -88,14 +87,19 @@ class DialogAddProxy extends AbstractFormDialog {
         }
 
         if (this.proxy == null
-                || !(this.proxy.getAddress().equals(testProxy.getAddress()) && this.proxy.getPort() == testProxy.getPort())) {
-            // We're adding a proxy or changing the addr:port, so check that we can listen on this combination
+                || !(this.proxy.getAddress().equals(testProxy.getAddress())
+                        && this.proxy.getPort() == testProxy.getPort())) {
+            // We're adding a proxy or changing the addr:port, so check that we can listen on this
+            // combination
             if (!extension.canListenOn(testProxy.getAddress(), testProxy.getPort())) {
                 JOptionPane.showMessageDialog(
                         this,
-                        Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.message",
-                                testProxy.getAddress(), Integer.toString(testProxy.getPort())),
-                        Constant.messages.getString("options.proxy.dialog.proxy.warning.fail.title"),
+                        Constant.messages.getString(
+                                "options.proxy.dialog.proxy.warning.fail.message",
+                                testProxy.getAddress(),
+                                Integer.toString(testProxy.getPort())),
+                        Constant.messages.getString(
+                                "options.proxy.dialog.proxy.warning.fail.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return false;
             }
@@ -110,8 +114,7 @@ class DialogAddProxy extends AbstractFormDialog {
     }
 
     @Override
-    protected void clearFields() {
-    }
+    protected void clearFields() {}
 
     public ProxiesParamProxy getProxy() {
         return proxy;
@@ -120,5 +123,4 @@ class DialogAddProxy extends AbstractFormDialog {
     public void clear() {
         this.proxy = null;
     }
-
 }

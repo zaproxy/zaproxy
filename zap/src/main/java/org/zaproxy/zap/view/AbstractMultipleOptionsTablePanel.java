@@ -24,70 +24,77 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.EnableableInterface;
 
-public abstract class AbstractMultipleOptionsTablePanel<E extends EnableableInterface> extends AbstractMultipleOptionsBaseTablePanel<E> {
-    
+public abstract class AbstractMultipleOptionsTablePanel<E extends EnableableInterface>
+        extends AbstractMultipleOptionsBaseTablePanel<E> {
+
     private static final long serialVersionUID = 1L;
-    private static final String ENABLE_ALL_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.enableAll.button.label");
-    private static final String DISABLE_ALL_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.disableAll.button.label");
-    
-    private JButton enableAllButton;    
+    private static final String ENABLE_ALL_BUTTON_LABEL =
+            Constant.messages.getString("multiple.options.panel.enableAll.button.label");
+    private static final String DISABLE_ALL_BUTTON_LABEL =
+            Constant.messages.getString("multiple.options.panel.disableAll.button.label");
+
+    private JButton enableAllButton;
     private JButton disableAllButton;
-    
+
     public AbstractMultipleOptionsTablePanel(AbstractMultipleOptionsTableModel<E> model) {
         super(model);
-        
+
         final boolean buttonsEnabled = getModel().getRowCount() > 0;
-        
+
         enableAllButton = new JButton(ENABLE_ALL_BUTTON_LABEL);
         enableAllButton.setEnabled(buttonsEnabled);
-        enableAllButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((AbstractMultipleOptionsTableModel<?>)getMultipleOptionsModel()).setAllEnabled(true);
-            }
-        });
-        
+        enableAllButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((AbstractMultipleOptionsTableModel<?>) getMultipleOptionsModel())
+                                .setAllEnabled(true);
+                    }
+                });
+
         disableAllButton = new JButton(DISABLE_ALL_BUTTON_LABEL);
         disableAllButton.setEnabled(buttonsEnabled);
-        disableAllButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((AbstractMultipleOptionsTableModel<?>)getMultipleOptionsModel()).setAllEnabled(false);
-            }
-        });
-        
+        disableAllButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        ((AbstractMultipleOptionsTableModel<?>) getMultipleOptionsModel())
+                                .setAllEnabled(false);
+                    }
+                });
+
         addButtonSpacer();
-        
+
         addButton(enableAllButton);
         addButton(disableAllButton);
-        
-        getModel().addTableModelListener(new TableModelListener() {
-            
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                if (TableModelEvent.ALL_COLUMNS == e.getColumn() ||
-                    TableModelEvent.INSERT == e.getType() ||
-                    TableModelEvent.DELETE == e.getType()) {
-                    boolean enabled = getModel().getRowCount() > 0;
 
-                    enableAllButton.setEnabled(enabled);
-                    disableAllButton.setEnabled(enabled);
-                }
-            }
-        });
+        getModel()
+                .addTableModelListener(
+                        new TableModelListener() {
+
+                            @Override
+                            public void tableChanged(TableModelEvent e) {
+                                if (TableModelEvent.ALL_COLUMNS == e.getColumn()
+                                        || TableModelEvent.INSERT == e.getType()
+                                        || TableModelEvent.DELETE == e.getType()) {
+                                    boolean enabled = getModel().getRowCount() > 0;
+
+                                    enableAllButton.setEnabled(enabled);
+                                    disableAllButton.setEnabled(enabled);
+                                }
+                            }
+                        });
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to also enable/disable the added buttons ("enable all" and "disable all").
-     * </p>
+     *
+     * <p>Overridden to also enable/disable the added buttons ("enable all" and "disable all").
      */
     @Override
     public void setComponentEnabled(boolean enabled) {

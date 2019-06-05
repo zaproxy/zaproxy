@@ -20,15 +20,13 @@
 package org.zaproxy.zap.spider;
 
 import java.util.regex.Pattern;
-
 import org.zaproxy.zap.utils.Enableable;
 
 /**
  * Class that contains rules to checks if a domain is in scope.
- * <p>
- * It supports both plain text and regular expression checks.
- * </p>
- * 
+ *
+ * <p>It supports both plain text and regular expression checks.
+ *
  * @see #matches(String)
  */
 public class DomainAlwaysInScopeMatcher extends Enableable {
@@ -83,7 +81,7 @@ public class DomainAlwaysInScopeMatcher extends Enableable {
 
     /**
      * Tells whether or not the given domain is considered always in scope.
-     * 
+     *
      * @param domain the domain that will be checked
      * @return {@code true} if the domain is considered always in scope, {@code false} otherwise.
      */
@@ -136,5 +134,4 @@ public class DomainAlwaysInScopeMatcher extends Enableable {
     public static Pattern createPattern(String regex) {
         return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
-
 }

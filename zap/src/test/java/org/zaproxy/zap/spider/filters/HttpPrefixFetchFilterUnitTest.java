@@ -30,9 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
-/**
- * Unit test for {@link HttpPrefixFetchFilter}.
- */
+/** Unit test for {@link HttpPrefixFetchFilter}. */
 public class HttpPrefixFetchFilterUnitTest {
 
     @BeforeClass
@@ -339,7 +337,8 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid() throws Exception {
+    public void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid()
+            throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -349,5 +348,4 @@ public class HttpPrefixFetchFilterUnitTest {
         // Then
         assertThat(filterStatus, is(equalTo(FetchStatus.VALID)));
     }
-
 }

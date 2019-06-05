@@ -25,35 +25,32 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.List;
-
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuCopyUrls extends PopupMenuItemHistoryReferenceContainer implements ClipboardOwner {
+public class PopupMenuCopyUrls extends PopupMenuItemHistoryReferenceContainer
+        implements ClipboardOwner {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuCopyUrls(String label) {
         super(label, true);
     }
-    
-	@Override
-	public void performAction(HistoryReference href) {
-	}
-	
-	@Override
-    protected void performHistoryReferenceActions (List<HistoryReference> hrefs) {
-		StringBuilder sb = new StringBuilder();
-    	for (HistoryReference href : hrefs) {
-    	    sb.append(href.getURI().toString());
-    	    sb.append("\n");
-    	}
-    	
+
+    @Override
+    public void performAction(HistoryReference href) {}
+
+    @Override
+    protected void performHistoryReferenceActions(List<HistoryReference> hrefs) {
+        StringBuilder sb = new StringBuilder();
+        for (HistoryReference href : hrefs) {
+            sb.append(href.getURI().toString());
+            sb.append("\n");
+        }
+
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents( new StringSelection(sb.toString()), this );
+        clipboard.setContents(new StringSelection(sb.toString()), this);
     }
 
     @Override
@@ -63,11 +60,11 @@ public class PopupMenuCopyUrls extends PopupMenuItemHistoryReferenceContainer im
 
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 
-	@Override
-	public void lostOwnership(Clipboard clipboard, Transferable contents) {
-		// Ignore
-	}
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        // Ignore
+    }
 }

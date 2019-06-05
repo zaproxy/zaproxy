@@ -20,12 +20,11 @@
 package org.zaproxy.zap.view.messagecontainer;
 
 import java.awt.Component;
-
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
  * An abstract implementation of a {@code MessageContainer}.
- * 
+ *
  * @param <T> the type of message in this container
  * @see MessageContainer
  * @since 2.3.0
@@ -37,11 +36,13 @@ public abstract class AbstractMessageContainer<T extends Message> implements Mes
     private final Component component;
 
     /**
-     * Constructs an {@code AbstractMessageContainer} with the given container {@code name} and {@code component}.
-     * 
+     * Constructs an {@code AbstractMessageContainer} with the given container {@code name} and
+     * {@code component}.
+     *
      * @param name the name of the container
      * @param component the GUI component of the container
-     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code null}.
+     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code
+     *     null}.
      */
     public AbstractMessageContainer(String name, Component component) {
         super();

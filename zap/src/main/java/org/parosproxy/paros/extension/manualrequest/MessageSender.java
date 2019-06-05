@@ -21,9 +21,7 @@ package org.parosproxy.paros.extension.manualrequest;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-/**
- * A message sender knows how to send a given message object.
- */
+/** A message sender knows how to send a given message object. */
 public interface MessageSender {
 
     void handleSendMessage(Message aMessage) throws Exception;

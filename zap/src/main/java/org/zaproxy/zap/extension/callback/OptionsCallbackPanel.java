@@ -25,12 +25,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -58,7 +56,6 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("callback.options.title"));
         this.add(getCallbackPanel(), getCallbackPanel().getName());
-
     }
 
     private JPanel getCallbackPanel() {
@@ -69,62 +66,67 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
 
             int currentRowIndex = -1;
 
-            JLabel localAddrLabel = new JLabel(
-                    Constant.messages
-                            .getString("callback.options.label.localaddress"));
+            JLabel localAddrLabel =
+                    new JLabel(Constant.messages.getString("callback.options.label.localaddress"));
             localAddrLabel.setLabelFor(getLocalAddress());
-            panel.add(localAddrLabel,
+            panel.add(
+                    localAddrLabel,
                     LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
-            panel.add(getLocalAddress(),
+            panel.add(
+                    getLocalAddress(),
                     LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
-            JLabel remoteAddrLabel = new JLabel(
-                    Constant.messages
-                            .getString("callback.options.label.remoteaddress"));
+            JLabel remoteAddrLabel =
+                    new JLabel(Constant.messages.getString("callback.options.label.remoteaddress"));
             remoteAddrLabel.setLabelFor(getRemoteAddress());
-            panel.add(remoteAddrLabel,
+            panel.add(
+                    remoteAddrLabel,
                     LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
-            panel.add(getRemoteAddress(),
+            panel.add(
+                    getRemoteAddress(),
                     LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
-            JLabel secureLabel = new JLabel(
-                    Constant.messages
-                            .getString("callback.options.label.secure"));
+            JLabel secureLabel =
+                    new JLabel(Constant.messages.getString("callback.options.label.secure"));
             secureLabel.setLabelFor(getSecure());
-            panel.add(secureLabel,
+            panel.add(
+                    secureLabel,
                     LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
-            panel.add(getSecure(),
+            panel.add(
+                    getSecure(),
                     LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
-
-            JLabel rndPortLabel = new JLabel(
-                    Constant.messages
-                            .getString("callback.options.label.rndport"));
+            JLabel rndPortLabel =
+                    new JLabel(Constant.messages.getString("callback.options.label.rndport"));
             rndPortLabel.setLabelFor(getSpinnerPort());
-            panel.add(rndPortLabel,
+            panel.add(
+                    rndPortLabel,
                     LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
-            panel.add(this.getRandomPort(),
+            panel.add(
+                    this.getRandomPort(),
                     LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
-            JLabel portLabel = new JLabel(
-                    Constant.messages.getString("callback.options.label.port"));
+            JLabel portLabel =
+                    new JLabel(Constant.messages.getString("callback.options.label.port"));
             portLabel.setLabelFor(getSpinnerPort());
-            panel.add(portLabel,
+            panel.add(
+                    portLabel,
                     LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
-            panel.add(getSpinnerPort(),
+            panel.add(
+                    getSpinnerPort(),
                     LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
-            JLabel testUrlLabel = new JLabel(
-                    Constant.messages
-                            .getString("callback.options.label.testurl"));
+            JLabel testUrlLabel =
+                    new JLabel(Constant.messages.getString("callback.options.label.testurl"));
             testUrlLabel.setLabelFor(getTestURL());
-            panel.add(testUrlLabel,
+            panel.add(
+                    testUrlLabel,
                     LayoutHelper.getGBC(0, ++currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
-            panel.add(getTestURL(),
+            panel.add(
+                    getTestURL(),
                     LayoutHelper.getGBC(1, currentRowIndex, 1, 0.5D, new Insets(2, 2, 2, 2)));
 
             panel.add(new JLabel(), LayoutHelper.getGBC(0, 20, 2, 0.5D, 1.0D));
-
         }
 
         return panel;
@@ -157,12 +159,13 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
     private JCheckBox getRandomPort() {
         if (randomPort == null) {
             randomPort = new JCheckBox();
-            randomPort.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    getSpinnerPort().setEnabled(!randomPort.isSelected());
-                }
-            });
+            randomPort.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent ae) {
+                            getSpinnerPort().setEnabled(!randomPort.isSelected());
+                        }
+                    });
         }
         return randomPort;
     }
@@ -184,8 +187,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         OptionsParam optionsParam = (OptionsParam) obj;
-        CallbackParam proxyParam = optionsParam
-                .getParamSet(CallbackParam.class);
+        CallbackParam proxyParam = optionsParam.getParamSet(CallbackParam.class);
 
         List<String> allAddrs = NetworkUtils.getAvailableAddresses(false);
         localAddress.removeAllItems();
@@ -206,7 +208,7 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
         if (proxyParam.getPort() == 0) {
             getRandomPort().setSelected(true);
             getSpinnerPort().setEnabled(false);
-            getSpinnerPort().setValue(ext.getPort());   // As 0 isn't a valid port
+            getSpinnerPort().setValue(ext.getPort()); // As 0 isn't a valid port
         } else {
             getSpinnerPort().setEnabled(true);
             getSpinnerPort().setValue(proxyParam.getPort());
@@ -215,29 +217,25 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) throws Exception {
-    }
+    public void validateParam(Object obj) throws Exception {}
 
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam optionsParam = (OptionsParam) obj;
-        CallbackParam proxyParam = optionsParam
-                .getParamSet(CallbackParam.class);
+        CallbackParam proxyParam = optionsParam.getParamSet(CallbackParam.class);
 
-        proxyParam.setLocalAddress((String)localAddress.getSelectedItem());
-        proxyParam.setRemoteAddress((String)remoteAddress.getSelectedItem());
+        proxyParam.setLocalAddress((String) localAddress.getSelectedItem());
+        proxyParam.setRemoteAddress((String) remoteAddress.getSelectedItem());
         proxyParam.setSecure(secure.isSelected());
         if (getRandomPort().isSelected()) {
             proxyParam.setPort(0);
         } else {
             proxyParam.setPort(spinnerPort.getValue());
         }
-
     }
 
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.options.callback";
     }
-
 }

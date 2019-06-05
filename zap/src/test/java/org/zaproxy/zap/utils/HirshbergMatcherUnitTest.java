@@ -26,9 +26,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-/**
- * Unit test for {@link HirshbergMatcher}
- */
+/** Unit test for {@link HirshbergMatcher} */
 public class HirshbergMatcherUnitTest {
 
     private static final String EMPTY_STRING = "";

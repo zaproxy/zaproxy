@@ -23,12 +23,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -46,11 +44,11 @@ public class OptionsRuleConfigPanel extends AbstractParamPanel {
     private JButton resetButton;
 
     private RuleConfigTableModel ruleConfigModel;
-    
+
     public OptionsRuleConfigPanel(ExtensionRuleConfig extension) {
         super();
         this.extension = extension;
-         initialize();
+        initialize();
     }
 
     private void initialize() {
@@ -64,16 +62,23 @@ public class OptionsRuleConfigPanel extends AbstractParamPanel {
         gbc.fill = GridBagConstraints.BOTH;
 
         ruleConfigOptionsPanel = new RuleConfigOptionsPanel(getRuleConfigModel());
-        
+
         gbc.weighty = 1.0;
-        this.add(ruleConfigOptionsPanel, 
-                LayoutHelper.getGBC(0, 0, 5, 1.0D, 1.0D, GridBagConstraints.BOTH, 
-                        GridBagConstraints.LINE_START, null));
-        
-        this.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 0.5D, 0));    // Spacer
+        this.add(
+                ruleConfigOptionsPanel,
+                LayoutHelper.getGBC(
+                        0,
+                        0,
+                        5,
+                        1.0D,
+                        1.0D,
+                        GridBagConstraints.BOTH,
+                        GridBagConstraints.LINE_START,
+                        null));
+
+        this.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 0.5D, 0)); // Spacer
         this.add(getResetButton(), LayoutHelper.getGBC(3, 1, 1, 0, 0));
-        this.add(new JLabel(), LayoutHelper.getGBC(4, 1, 1, 0.5D, 0));    // Spacer
-        
+        this.add(new JLabel(), LayoutHelper.getGBC(4, 1, 1, 0.5D, 0)); // Spacer
     }
 
     @Override
@@ -84,15 +89,18 @@ public class OptionsRuleConfigPanel extends AbstractParamPanel {
 
     private JButton getResetButton() {
         if (resetButton == null) {
-            resetButton = new JButton(Constant.messages.getString("ruleconfig.options.button.reset"));
-            resetButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    for (RuleConfig rc : getRuleConfigModel().getElements()) {
-                        rc.reset();
-                    }
-                    getRuleConfigModel().fireTableDataChanged();
-                }});
+            resetButton =
+                    new JButton(Constant.messages.getString("ruleconfig.options.button.reset"));
+            resetButton.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            for (RuleConfig rc : getRuleConfigModel().getElements()) {
+                                rc.reset();
+                            }
+                            getRuleConfigModel().fireTableDataChanged();
+                        }
+                    });
         }
         return resetButton;
     }
@@ -120,51 +128,54 @@ public class OptionsRuleConfigPanel extends AbstractParamPanel {
     }
 
     private static class RuleConfigOptionsPanel extends MultipleOptionsTablePanel {
-        
+
         private static final long serialVersionUID = -115340627058929308L;
-        
+
         private DialogEditRuleConfig modifyDialog = null;
-        
+
         private RuleConfigTableModel model;
-        
+
         public RuleConfigOptionsPanel(final RuleConfigTableModel model) {
             super(model);
-            
+
             this.model = model;
 
             // Sort on the key names
             getTable().setSortOrder(0, SortOrder.ASCENDING);
-            
-            getTable().addMouseListener(new java.awt.event.MouseAdapter() { 
-                @Override
-                public void mousePressed(java.awt.event.MouseEvent e) {
 
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        int row = getTable().getSelectedRow();
-                        if (row >= 0) {
-                            // This is just a single click
-                            showModifyDialogue(model.getElements().get(getTable().convertRowIndexToModel(row)));
-                        }
-                    }
+            getTable()
+                    .addMouseListener(
+                            new java.awt.event.MouseAdapter() {
+                                @Override
+                                public void mousePressed(java.awt.event.MouseEvent e) {
 
-                }
-            });
+                                    if (SwingUtilities.isLeftMouseButton(e)) {
+                                        int row = getTable().getSelectedRow();
+                                        if (row >= 0) {
+                                            // This is just a single click
+                                            showModifyDialogue(
+                                                    model.getElements()
+                                                            .get(
+                                                                    getTable()
+                                                                            .convertRowIndexToModel(
+                                                                                    row)));
+                                        }
+                                    }
+                                }
+                            });
         }
-        
+
         protected void packAll() {
             getTable().packAll();
         }
 
         public void showModifyDialogue(RuleConfig rc) {
             if (modifyDialog == null) {
-                modifyDialog = new DialogEditRuleConfig(
-                        View.getSingleton().getOptionsDialog(null));
+                modifyDialog = new DialogEditRuleConfig(View.getSingleton().getOptionsDialog(null));
                 modifyDialog.pack();
             }
             modifyDialog.init(rc, model);
             modifyDialog.setVisible(true);
         }
-        
     }
-
 }

@@ -25,18 +25,18 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.Respon
 
 public class LargeResponseStringHttpPanelViewModel extends ResponseStringHttpPanelViewModel {
 
-	@Override
-	public String getData() {
-		if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
-			return "";
-		}
-		
-		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF) +
-				Constant.messages.getString("http.panel.view.largeresponse.all.warning", httpMessage.getResponseBody().length());
-	}
+    @Override
+    public String getData() {
+        if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
+            return "";
+        }
 
-	@Override
-	public void setData(String data) {
-	}
+        return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
+                + Constant.messages.getString(
+                        "http.panel.view.largeresponse.all.warning",
+                        httpMessage.getResponseBody().length());
+    }
 
+    @Override
+    public void setData(String data) {}
 }

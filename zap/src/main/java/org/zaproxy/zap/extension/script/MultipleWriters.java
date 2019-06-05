@@ -26,40 +26,40 @@ import java.util.List;
 
 /**
  * A simple way to handle multiple writers
- * @author simon
  *
+ * @author simon
  */
 public class MultipleWriters extends Writer {
-	
-	private List<Writer> writers = new ArrayList<>();
 
-	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
-		String str = new String(cbuf, off, len);
-		for (Writer writer : writers) {
-			writer.append(str);
-		}
-	}
+    private List<Writer> writers = new ArrayList<>();
 
-	@Override
-	public void flush() throws IOException {
-		for (Writer writer : writers) {
-			writer.flush();
-		}
-	}
+    @Override
+    public void write(char[] cbuf, int off, int len) throws IOException {
+        String str = new String(cbuf, off, len);
+        for (Writer writer : writers) {
+            writer.append(str);
+        }
+    }
 
-	@Override
-	public void close() throws IOException {
-		for (Writer writer : writers) {
-			writer.close();
-		}
-	}
+    @Override
+    public void flush() throws IOException {
+        for (Writer writer : writers) {
+            writer.flush();
+        }
+    }
 
-	public void addWriter(Writer writer) {
-		this.writers.add(writer);
-	}
-	
-	public void removeWriter(Writer writer) {
-		this.writers.remove(writer);
-	}
+    @Override
+    public void close() throws IOException {
+        for (Writer writer : writers) {
+            writer.close();
+        }
+    }
+
+    public void addWriter(Writer writer) {
+        this.writers.add(writer);
+    }
+
+    public void removeWriter(Writer writer) {
+        this.writers.remove(writer);
+    }
 }

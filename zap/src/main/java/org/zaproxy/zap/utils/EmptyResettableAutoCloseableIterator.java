@@ -21,25 +21,27 @@ package org.zaproxy.zap.utils;
 
 /**
  * An immutable {@code ResettableAutoCloseableIterator} without behaviour.
- * <p>
- * Useful as placeholder when a non-{@code null} {@code ResettableAutoCloseableIterator} is required but does not to have to do
- * anything.
- * 
+ *
+ * <p>Useful as placeholder when a non-{@code null} {@code ResettableAutoCloseableIterator} is
+ * required but does not to have to do anything.
+ *
  * @param <E> the type of elements returned by this iterator
  * @see #emptyIterator()
  * @see ResettableAutoCloseableIterator
  * @since 2.4.0
  */
-public final class EmptyResettableAutoCloseableIterator<E> implements ResettableAutoCloseableIterator<E> {
+public final class EmptyResettableAutoCloseableIterator<E>
+        implements ResettableAutoCloseableIterator<E> {
 
-    private static final EmptyResettableAutoCloseableIterator<?> EMPTY_ITERATOR = new EmptyResettableAutoCloseableIterator<>();
+    private static final EmptyResettableAutoCloseableIterator<?> EMPTY_ITERATOR =
+            new EmptyResettableAutoCloseableIterator<>();
 
-    private EmptyResettableAutoCloseableIterator() {
-    }
+    private EmptyResettableAutoCloseableIterator() {}
 
     public static <T> EmptyResettableAutoCloseableIterator<T> emptyIterator() {
         @SuppressWarnings("unchecked")
-        EmptyResettableAutoCloseableIterator<T> iterator = (EmptyResettableAutoCloseableIterator<T>) EMPTY_ITERATOR;
+        EmptyResettableAutoCloseableIterator<T> iterator =
+                (EmptyResettableAutoCloseableIterator<T>) EMPTY_ITERATOR;
         return iterator;
     }
 
@@ -54,14 +56,11 @@ public final class EmptyResettableAutoCloseableIterator<E> implements Resettable
     }
 
     @Override
-    public void remove() {
-    }
+    public void remove() {}
 
     @Override
-    public void reset() {
-    }
+    public void reset() {}
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

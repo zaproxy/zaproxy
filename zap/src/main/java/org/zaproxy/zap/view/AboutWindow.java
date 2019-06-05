@@ -23,35 +23,32 @@ import org.parosproxy.paros.view.AbstractFrame;
 
 public class AboutWindow extends AbstractFrame {
 
-	private static final long serialVersionUID = 1L;
-	private AboutPanel aboutPanel = null;
+    private static final long serialVersionUID = 1L;
+    private AboutPanel aboutPanel = null;
 
-	public AboutWindow() {
-		super();
-		initialize();
-	}
+    public AboutWindow() {
+        super();
+        initialize();
+    }
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-		this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
-		this.setResizable(false);
-		this.setContentPane(getAboutPanel());
-		this.pack();
-		centerFrame();
-	}
+    /** This method initializes this */
+    private void initialize() {
+        this.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+        this.setResizable(false);
+        this.setContentPane(getAboutPanel());
+        this.pack();
+        centerFrame();
+    }
 
-	/**
-	 * This method initializes aboutPanel
-	 * 
-	 * @return org.parosproxy.paros.view.AboutPanel
-	 */
-	private AboutPanel getAboutPanel() {
-		if (aboutPanel == null) {
-			aboutPanel = new AboutPanel();
-		}
-		return aboutPanel;
-	}
+    /**
+     * This method initializes aboutPanel
+     *
+     * @return org.parosproxy.paros.view.AboutPanel
+     */
+    private AboutPanel getAboutPanel() {
+        if (aboutPanel == null) {
+            aboutPanel = new AboutPanel();
+        }
+        return aboutPanel;
+    }
 }

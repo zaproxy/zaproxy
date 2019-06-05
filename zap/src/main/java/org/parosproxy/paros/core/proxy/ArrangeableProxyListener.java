@@ -19,26 +19,20 @@
  */
 package org.parosproxy.paros.core.proxy;
 
-/**
- * Defines a listener instance, who's listener order can be defined.
- */
+/** Defines a listener instance, who's listener order can be defined. */
 public interface ArrangeableProxyListener {
 
     /**
      * Gets the order of when this listener should be notified.
-     * 
-     * <p>
-     * The listeners are ordered in a natural order, the greater the order the
-     * later it will be notified.
-     * </p>
-     * 
-     * <p>
-     * <strong>Note:</strong> If two or more listeners have the same order, the
-     * order that those listeners will be notified is undefined.
-     * </p>
-     * 
-     * @return an {@code int} with the value of the order that this listener
-     *         should be notified about
+     *
+     * <p>The listeners are ordered in a natural order, the greater the order the later it will be
+     * notified.
+     *
+     * <p><strong>Note:</strong> If two or more listeners have the same order, the order that those
+     * listeners will be notified is undefined.
+     *
+     * @return an {@code int} with the value of the order that this listener should be notified
+     *     about
      */
     int getArrangeableListenerOrder();
 }

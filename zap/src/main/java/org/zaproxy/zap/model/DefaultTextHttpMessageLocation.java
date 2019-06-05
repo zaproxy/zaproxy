@@ -24,7 +24,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Default implementation of {@code TextHttpMessageLocation}.
- * 
+ *
  * @since 2.4.0
  */
 public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
@@ -39,7 +39,8 @@ public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
             throw new IllegalArgumentException("Parameter location must not be null");
         }
         if (position < 0) {
-            throw new IllegalArgumentException("Parameter position must be greater or equal to zero.");
+            throw new IllegalArgumentException(
+                    "Parameter position must be greater or equal to zero.");
         }
         this.location = location;
         this.start = position;
@@ -83,16 +84,19 @@ public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
     public String getDescription() {
         StringBuffer description = new StringBuffer(25);
         switch (location) {
-        case REQUEST_HEADER:
-        case RESPONSE_HEADER:
-            description.append(Constant.messages.getString("messagelocation.http.text.location.header"));
-            break;
-        case REQUEST_BODY:
-        case RESPONSE_BODY:
-            description.append(Constant.messages.getString("messagelocation.http.text.location.body"));
-            break;
-        default:
-            description.append(Constant.messages.getString("messagelocation.http.text.location.unknown"));
+            case REQUEST_HEADER:
+            case RESPONSE_HEADER:
+                description.append(
+                        Constant.messages.getString("messagelocation.http.text.location.header"));
+                break;
+            case REQUEST_BODY:
+            case RESPONSE_BODY:
+                description.append(
+                        Constant.messages.getString("messagelocation.http.text.location.body"));
+                break;
+            default:
+                description.append(
+                        Constant.messages.getString("messagelocation.http.text.location.unknown"));
         }
 
         description.append(" [").append(start);
@@ -134,7 +138,8 @@ public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
             return true;
         }
 
-        TextHttpMessageLocation otherTextLocation = (TextHttpMessageLocation) otherHttpMessageLocation;
+        TextHttpMessageLocation otherTextLocation =
+                (TextHttpMessageLocation) otherHttpMessageLocation;
         if (start == otherTextLocation.getStart()) {
             if (start == end) {
                 return end == otherTextLocation.getEnd();
@@ -166,7 +171,8 @@ public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
             return 1;
         }
 
-        TextHttpMessageLocation otherTextLocation = (TextHttpMessageLocation) otherHttpMessageLocation;
+        TextHttpMessageLocation otherTextLocation =
+                (TextHttpMessageLocation) otherHttpMessageLocation;
         if (start > otherTextLocation.getStart()) {
             return 1;
         } else if (start < otherTextLocation.getStart()) {
@@ -229,5 +235,4 @@ public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
         }
         return true;
     }
-
 }

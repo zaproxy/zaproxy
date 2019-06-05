@@ -24,11 +24,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.swing.ImageIcon;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
@@ -38,98 +36,106 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 
     private static Logger logger = Logger.getLogger(DefaultEngineWrapper.class);
 
-	/**
-	 * Constructs a {@code DefaultEngineWrapper} with the given engine (to obtain a factory).
-	 *
-	 * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
-	 * @deprecated (2.8.0) Use {@link #DefaultEngineWrapper(ScriptEngineFactory)} instead.
-	 */
-	@Deprecated
-	public DefaultEngineWrapper(ScriptEngine engine) {
-		super(engine);
-	}
+    /**
+     * Constructs a {@code DefaultEngineWrapper} with the given engine (to obtain a factory).
+     *
+     * @param engine an engine to obtain the corresponding {@code ScriptEngineFactory}.
+     * @deprecated (2.8.0) Use {@link #DefaultEngineWrapper(ScriptEngineFactory)} instead.
+     */
+    @Deprecated
+    public DefaultEngineWrapper(ScriptEngine engine) {
+        super(engine);
+    }
 
-	/**
-	 * Constructs a {@code DefaultEngineWrapper} with the given engine factory.
-	 *
-	 * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for example, engine name, language).
-	 * @since 2.8.0
-	 * @see #getEngine()
-	 */
-	public DefaultEngineWrapper(ScriptEngineFactory factory) {
-		super(factory);
-	}
+    /**
+     * Constructs a {@code DefaultEngineWrapper} with the given engine factory.
+     *
+     * @param factory the factory to create {@code ScriptEngine}s and obtain engine data (for
+     *     example, engine name, language).
+     * @since 2.8.0
+     * @see #getEngine()
+     */
+    public DefaultEngineWrapper(ScriptEngineFactory factory) {
+        super(factory);
+    }
 
-	@Override
-	public ImageIcon getIcon() {
-		return null;
-	}
+    @Override
+    public ImageIcon getIcon() {
+        return null;
+    }
 
-	@Override
-	public String getSyntaxStyle() {
-		return null;
-	}
+    @Override
+    public String getSyntaxStyle() {
+        return null;
+    }
 
-	@Override
-	public String getTemplate(String type) {
-		if (! templateMap.containsKey(type)) {
-			templateMap.put(type, this.getStringReource(
-					this.getLanguageName().toLowerCase() + File.separator + type.toLowerCase() + 
-					"-template." + this.getExtensions().get(0)));
-		}
-		return templateMap.get(type);
-	}
-	
-	private String getStringReource(String resourceName) {
-		
+    @Override
+    public String getTemplate(String type) {
+        if (!templateMap.containsKey(type)) {
+            templateMap.put(
+                    type,
+                    this.getStringReource(
+                            this.getLanguageName().toLowerCase()
+                                    + File.separator
+                                    + type.toLowerCase()
+                                    + "-template."
+                                    + this.getExtensions().get(0)));
+        }
+        return templateMap.get(type);
+    }
+
+    private String getStringReource(String resourceName) {
+
         File file = new File(ExtensionScript.TEMPLATES_DIR, resourceName);
-        if ( ! file.exists()) {
-			logger.debug("No template at: " + file.getAbsolutePath());
-	        file = new File(Constant.getZapHome() + File.separator + ExtensionScript.TEMPLATES_DIR, resourceName);
-	        if ( ! file.exists()) {
-				logger.debug("No template at: " + file.getAbsolutePath());
-				return "";
-	        }
+        if (!file.exists()) {
+            logger.debug("No template at: " + file.getAbsolutePath());
+            file =
+                    new File(
+                            Constant.getZapHome() + File.separator + ExtensionScript.TEMPLATES_DIR,
+                            resourceName);
+            if (!file.exists()) {
+                logger.debug("No template at: " + file.getAbsolutePath());
+                return "";
+            }
         }
 
-		StringBuilder sb = new StringBuilder();
-		try {
-		    BufferedReader fr = new BufferedReader(new FileReader(file));
-	        String line;
-	        try {
-				while ((line = fr.readLine()) != null) {
-				    sb.append(line);
-				    sb.append("\n");
-				}
-			} finally {
-		        fr.close();
-			}
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader fr = new BufferedReader(new FileReader(file));
+            String line;
+            try {
+                while ((line = fr.readLine()) != null) {
+                    sb.append(line);
+                    sb.append("\n");
+                }
+            } finally {
+                fr.close();
+            }
             return sb.toString();
 
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			return "";
-		}
-	}
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return "";
+        }
+    }
 
-	@Override
-	public boolean isTextBased() {
-		return true;
-	}
+    @Override
+    public boolean isTextBased() {
+        return true;
+    }
 
-	@Override
-	public boolean isRawEngine() {
-		return true;
-	}
+    @Override
+    public boolean isRawEngine() {
+        return true;
+    }
 
-	@Override
-	public boolean isSupportsMissingTemplates() {
-		return true;
-	}
+    @Override
+    public boolean isSupportsMissingTemplates() {
+        return true;
+    }
 
     @Override
     public boolean isDefaultTemplate(ScriptWrapper script) {
         return false;
     }
-
 }

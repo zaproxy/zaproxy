@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -34,50 +33,49 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 public class PopupExcludeFromSpiderMenu extends PopupMenuItemSiteNodeContainer {
 
-	private static final long serialVersionUID = 2282358266003940700L;
+    private static final long serialVersionUID = 2282358266003940700L;
 
-	/**
-	 * This method initializes 
-	 * 
-	 */
-	public PopupExcludeFromSpiderMenu() {
-		super(Constant.messages.getString("sites.exclude.spider.popup"), true);
-	}
-	    
-   
-   @Override
-   public boolean isSubMenu() {
-   	return true;
-   }
-   
-   @Override
-   public String getParentMenuName() {
-   	return Constant.messages.getString("sites.exclude.popup");
-   }
+    /** This method initializes */
+    public PopupExcludeFromSpiderMenu() {
+        super(Constant.messages.getString("sites.exclude.spider.popup"), true);
+    }
 
-   @Override
-   public int getParentMenuIndex() {
-   	return EXCLUDE_MENU_INDEX;
-   }
-   
-	@Override
-	public void performAction(SiteNode sn) {
+    @Override
+    public boolean isSubMenu() {
+        return true;
+    }
+
+    @Override
+    public String getParentMenuName() {
+        return Constant.messages.getString("sites.exclude.popup");
+    }
+
+    @Override
+    public int getParentMenuIndex() {
+        return EXCLUDE_MENU_INDEX;
+    }
+
+    @Override
+    public void performAction(SiteNode sn) {
         try {
-			Session session = Model.getSingleton().getSession();
-			session.getExcludeFromSpiderRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
-		} catch (DatabaseException e) {
-			// Ignore
-		}
-	}
+            Session session = Model.getSingleton().getSession();
+            session.getExcludeFromSpiderRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
+        } catch (DatabaseException e) {
+            // Ignore
+        }
+    }
 
-	@Override
-    public void performHistoryReferenceActions (List<HistoryReference> hrefs) {
-		super.performHistoryReferenceActions(hrefs);
-        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), SessionExcludeFromSpiderPanel.PANEL_NAME);
-	}
+    @Override
+    public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
+        super.performHistoryReferenceActions(hrefs);
+        View.getSingleton()
+                .showSessionDialog(
+                        Model.getSingleton().getSession(),
+                        SessionExcludeFromSpiderPanel.PANEL_NAME);
+    }
 
-	@Override
+    @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

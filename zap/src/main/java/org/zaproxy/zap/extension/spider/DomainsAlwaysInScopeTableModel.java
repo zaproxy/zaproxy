@@ -21,19 +21,20 @@ package org.zaproxy.zap.extension.spider;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-class DomainsAlwaysInScopeTableModel extends AbstractMultipleOptionsTableModel<DomainAlwaysInScopeMatcher> {
+class DomainsAlwaysInScopeTableModel
+        extends AbstractMultipleOptionsTableModel<DomainAlwaysInScopeMatcher> {
 
     private static final long serialVersionUID = -5411351965957264957L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("spider.options.domains.in.scope.table.header.enabled"),
-            Constant.messages.getString("spider.options.domains.in.scope.table.header.regex"),
-            Constant.messages.getString("spider.options.domains.in.scope.table.header.value") };
+        Constant.messages.getString("spider.options.domains.in.scope.table.header.enabled"),
+        Constant.messages.getString("spider.options.domains.in.scope.table.header.regex"),
+        Constant.messages.getString("spider.options.domains.in.scope.table.header.value")
+    };
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
@@ -66,12 +67,12 @@ class DomainsAlwaysInScopeTableModel extends AbstractMultipleOptionsTableModel<D
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-        case 0:
-            return getElement(rowIndex).isEnabled();
-        case 1:
-            return getElement(rowIndex).isRegex();
-        case 2:
-            return getElement(rowIndex).getValue();
+            case 0:
+                return getElement(rowIndex).isEnabled();
+            case 1:
+                return getElement(rowIndex).isRegex();
+            case 2:
+                return getElement(rowIndex).getValue();
         }
         return null;
     }

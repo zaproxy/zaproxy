@@ -26,21 +26,24 @@ import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 
 /**
- * A {@code PopupMenuItemHistoryReferenceContainer} that exposes the {@code SiteNode}s of {@code HttpMessageContainer}s.
- * 
+ * A {@code PopupMenuItemHistoryReferenceContainer} that exposes the {@code SiteNode}s of {@code
+ * HttpMessageContainer}s.
+ *
  * @since 2.3.0
  * @see PopupMenuItemHistoryReferenceContainer
  * @see HttpMessageContainer
  * @see #isEnableForMessageContainer(MessageContainer)
  */
-public abstract class PopupMenuItemSiteNodeContainer extends PopupMenuItemHistoryReferenceContainer {
+public abstract class PopupMenuItemSiteNodeContainer
+        extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = 4148503304180003730L;
 
     /**
-     * Constructs a {@code PopupMenuItemSiteNodeContainer} with the given label and with no support for multiple selected
-     * messages (the menu item button will not be enabled when the invoker has multiple selected messages).
-     * 
+     * Constructs a {@code PopupMenuItemSiteNodeContainer} with the given label and with no support
+     * for multiple selected messages (the menu item button will not be enabled when the invoker has
+     * multiple selected messages).
+     *
      * @param label the label of the menu
      * @see #isEnableForMessageContainer(MessageContainer)
      */
@@ -49,12 +52,13 @@ public abstract class PopupMenuItemSiteNodeContainer extends PopupMenuItemHistor
     }
 
     /**
-     * Constructs a {@code PopupMenuItemSiteNodeContainer} with the given label and whether or not the menu item supports
-     * multiple selected messages (if {@code false} the menu item button will not be enabled when the invoker has multiple
-     * selected messages).
-     * 
+     * Constructs a {@code PopupMenuItemSiteNodeContainer} with the given label and whether or not
+     * the menu item supports multiple selected messages (if {@code false} the menu item button will
+     * not be enabled when the invoker has multiple selected messages).
+     *
      * @param label the label of the menu
-     * @param multiSelect {@code true} if the menu supports multiple selected messages, {@code false} otherwise.
+     * @param multiSelect {@code true} if the menu supports multiple selected messages, {@code
+     *     false} otherwise.
      * @see #isEnableForMessageContainer(MessageContainer)
      */
     public PopupMenuItemSiteNodeContainer(String label, boolean multiSelect) {
@@ -63,12 +67,13 @@ public abstract class PopupMenuItemSiteNodeContainer extends PopupMenuItemHistor
 
     /**
      * Tells whether or not the button should be enabled for the given selected message.
-     * <p>
-     * Calls the method {@code isButtonEnabledForSiteNode(SitNode)} passing as parameter the site node extracted from the given
-     * {@code historyReference}.
-     * 
+     *
+     * <p>Calls the method {@code isButtonEnabledForSiteNode(SitNode)} passing as parameter the site
+     * node extracted from the given {@code historyReference}.
+     *
      * @param historyReference the selected message, never {@code null}
-     * @return {@code true} if the button should be enabled for the given selected message, {@code false} otherwise.
+     * @return {@code true} if the button should be enabled for the given selected message, {@code
+     *     false} otherwise.
      */
     @Override
     protected final boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
@@ -80,9 +85,9 @@ public abstract class PopupMenuItemSiteNodeContainer extends PopupMenuItemHistor
     }
 
     /**
-     * Convenience method that extracts a {@code SiteNode} from the given {@code historyReference}. If no {@code SiteNode} is
-     * found {@code null} is returned.
-     * 
+     * Convenience method that extracts a {@code SiteNode} from the given {@code historyReference}.
+     * If no {@code SiteNode} is found {@code null} is returned.
+     *
      * @param historyReference the history reference
      * @return the {@code SiteNode} or {@code null} if not found
      * @see #isButtonEnabledForHistoryReference(HistoryReference)
@@ -90,27 +95,32 @@ public abstract class PopupMenuItemSiteNodeContainer extends PopupMenuItemHistor
     protected static SiteNode getSiteNode(HistoryReference historyReference) {
         SiteNode sn = historyReference.getSiteNode();
         if (sn == null) {
-            sn = Model.getSingleton().getSession().getSiteTree().getSiteNode(historyReference.getHistoryId());
+            sn =
+                    Model.getSingleton()
+                            .getSession()
+                            .getSiteTree()
+                            .getSiteNode(historyReference.getHistoryId());
         }
         return sn;
     }
 
     /**
      * Tells whether or not the button should be enabled for the given selected message.
-     * <p>
-     * By default, it returns {@code true}.
-     * 
+     *
+     * <p>By default, it returns {@code true}.
+     *
      * @param siteNode the site node, never {@code null}
-     * @return {@code true} if the button should be enabled for the given selected message, {@code false} otherwise.
+     * @return {@code true} if the button should be enabled for the given selected message, {@code
+     *     false} otherwise.
      */
     protected boolean isButtonEnabledForSiteNode(SiteNode siteNode) {
         return true;
     }
 
     /**
-     * Calls the method {@code performAction(SiteNode)} passing as parameter the {@code SiteNode} extracted from the given
-     * {@code historyReference}.
-     * 
+     * Calls the method {@code performAction(SiteNode)} passing as parameter the {@code SiteNode}
+     * extracted from the given {@code historyReference}.
+     *
      * @see #performAction(SiteNode)
      */
     @Override
@@ -123,7 +133,7 @@ public abstract class PopupMenuItemSiteNodeContainer extends PopupMenuItemHistor
 
     /**
      * Performs an action on the given site node.
-     * 
+     *
      * @param siteNode the site node, never {@code null}
      */
     protected abstract void performAction(SiteNode siteNode);

@@ -20,35 +20,37 @@
 package org.zaproxy.zap.view.messagecontainer.http;
 
 import java.util.List;
-
 import org.parosproxy.paros.model.HistoryReference;
 
 /**
- * A {@code MultipleHttpMessagesContainer} that exposes the {@code HistoryReference}s of the contained messages.
- * 
+ * A {@code MultipleHttpMessagesContainer} that exposes the {@code HistoryReference}s of the
+ * contained messages.
+ *
  * @see HistoryReference
  * @see MultipleHttpMessagesContainer
  * @since 2.3.0
  */
-public interface MultipleHistoryReferencesContainer extends MultipleHttpMessagesContainer, SingleHistoryReferenceContainer {
+public interface MultipleHistoryReferencesContainer
+        extends MultipleHttpMessagesContainer, SingleHistoryReferenceContainer {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * If multiple messages are present the {@code HistoryReference} of the first one is returned.
+     *
+     * <p>If multiple messages are present the {@code HistoryReference} of the first one is
+     * returned.
      */
     @Override
     HistoryReference getHistoryReference();
 
     /**
      * Returns all the {@code HistoryReference}s of the selected messages.
-     * <p>
-     * No assumptions should be made on the actual implementation type of the {@code List} returned by this method (for example,
-     * it might be unmodifiable or its elements lazy loaded).
-     * 
-     * @return a {@code List} with all the {@code HistoryReference}s of the selected messages, never {@code null}.
+     *
+     * <p>No assumptions should be made on the actual implementation type of the {@code List}
+     * returned by this method (for example, it might be unmodifiable or its elements lazy loaded).
+     *
+     * @return a {@code List} with all the {@code HistoryReference}s of the selected messages, never
+     *     {@code null}.
      * @see #getNumberOfMessages()
      */
     List<HistoryReference> getHistoryReferences();
-
 }

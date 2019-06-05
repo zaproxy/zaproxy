@@ -19,24 +19,22 @@
  */
 package org.zaproxy.zap.extension.httppanel.component.all.response;
 
-import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.component.all.request.RequestAllComponent;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 
 public class ResponseAllComponent extends RequestAllComponent {
 
-	public static final String NAME = "ResponseAll";
-	
-	public ResponseAllComponent() {
-	}
+    public static final String NAME = "ResponseAll";
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
-	
-	@Override
-	protected void initViews() {
-		views.addView(new HttpResponseAllPanelTextView(new ResponseStringHttpPanelViewModel()));
-	}
-	
+    public ResponseAllComponent() {}
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    protected void initViews() {
+        views.addView(new HttpResponseAllPanelTextView(new ResponseStringHttpPanelViewModel()));
+    }
 }

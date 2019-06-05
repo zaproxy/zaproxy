@@ -22,9 +22,9 @@ package org.zaproxy.zap.view;
 import org.zaproxy.zap.model.Context;
 
 public interface ContextPanelFactory {
-	AbstractContextPropertiesPanel getContextPanel(Context ctx);
+    AbstractContextPropertiesPanel getContextPanel(Context ctx);
 
-	void discardContext(Context ctx);
+    void discardContext(Context ctx);
 
-	void discardContexts();
+    void discardContexts();
 }

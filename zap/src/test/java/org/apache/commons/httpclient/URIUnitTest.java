@@ -25,9 +25,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-/**
- * Unit test for {@link URI}.
- */
+/** Unit test for {@link URI}. */
 public class URIUnitTest {
 
     @Test

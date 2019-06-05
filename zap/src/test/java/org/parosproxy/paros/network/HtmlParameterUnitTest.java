@@ -27,9 +27,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.zaproxy.zap.network.HttpBodyTestUtils;
 
-/**
- * Unit test for {@link HtmlParameter}.
- */
+/** Unit test for {@link HtmlParameter}. */
 public class HtmlParameterUnitTest extends HttpBodyTestUtils {
 
     private static final HtmlParameter.Type NON_NULL_TYPE = HtmlParameter.Type.url;

@@ -22,12 +22,11 @@ package org.zaproxy.zap.control;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * Helper class that reads a {@link AddOn#MANIFEST_FILE_NAME manifest file}.
- * 
+ *
  * @since 2.4.0
  */
 public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
@@ -41,7 +40,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
     private static final String BUNDLE_ELEMENT = "bundle";
     private static final String BUNDLE_PREFIX_ATT = "bundle/@prefix";
     private static final String HELPSET_ELEMENT = "helpset";
-    private static final String HELPSET_LOCALE_TOKEN_ATT= "helpset/@localetoken";
+    private static final String HELPSET_LOCALE_TOKEN_ATT = "helpset/@localetoken";
 
     private List<String> ascanrules;
     private List<String> pscanrules;

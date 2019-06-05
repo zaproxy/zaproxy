@@ -21,8 +21,7 @@ package org.zaproxy.zap.utils;
 
 public interface EnableableInterface {
 
-	boolean isEnabled();
+    boolean isEnabled();
 
-	void setEnabled(boolean enabled);
-
+    void setEnabled(boolean enabled);
 }

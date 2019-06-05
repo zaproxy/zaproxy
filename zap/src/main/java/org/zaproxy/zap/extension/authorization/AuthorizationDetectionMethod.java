@@ -26,54 +26,49 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.model.Context;
 
-/**
- * Defines the process of identifying how the server responds to unauthorized requests.
- */
+/** Defines the process of identifying how the server responds to unauthorized requests. */
 public interface AuthorizationDetectionMethod {
 
-	public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authorization";
-	public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
+    public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authorization";
+    public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
 
-	/**
-	 * Checks whether the responds received was for an unauthorized request.
-	 */
-	public boolean isResponseForUnauthorizedRequest(HttpMessage message);
+    /** Checks whether the responds received was for an unauthorized request. */
+    public boolean isResponseForUnauthorizedRequest(HttpMessage message);
 
-	/**
-	 * Clones this detection method, creating a deep-copy of it.
-	 * 
-	 * @return a deep copy of the object
-	 */
-	public AuthorizationDetectionMethod clone();
+    /**
+     * Clones this detection method, creating a deep-copy of it.
+     *
+     * @return a deep copy of the object
+     */
+    public AuthorizationDetectionMethod clone();
 
-	/**
-	 * Gets a unique identifier for this authorization detection method.
-	 *
-	 * @return the method id
-	 */
-	public int getMethodUniqueIdentifier();
+    /**
+     * Gets a unique identifier for this authorization detection method.
+     *
+     * @return the method id
+     */
+    public int getMethodUniqueIdentifier();
 
-	/**
-	 * Persists the method in the session database.
-	 *
-	 * @param session the session
-	 * @param contextId the context id
-	 * @throws DatabaseException if an error occurred while reading from the database
-	 */
-	public void persistMethodToSession(Session session, int contextId) throws DatabaseException;
+    /**
+     * Persists the method in the session database.
+     *
+     * @param session the session
+     * @param contextId the context id
+     * @throws DatabaseException if an error occurred while reading from the database
+     */
+    public void persistMethodToSession(Session session, int contextId) throws DatabaseException;
 
-	/**
-	 * Export the method data to the configuration
-	 * 
-	 * @param config
-	 */
-	public void exportMethodData(Configuration config);
+    /**
+     * Export the method data to the configuration
+     *
+     * @param config
+     */
+    public void exportMethodData(Configuration config);
 
-	/**
-	 * Gets the api response representation of the authorization method.
-	 *
-	 * @return the api response representation
-	 */
-	public ApiResponse getApiResponseRepresentation();
-
+    /**
+     * Gets the api response representation of the authorization method.
+     *
+     * @return the api response representation
+     */
+    public ApiResponse getApiResponseRepresentation();
 }

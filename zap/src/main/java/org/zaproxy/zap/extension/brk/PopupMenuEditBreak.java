@@ -20,33 +20,30 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.Component;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-
-
 public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private ExtensionBreak extension;
 
-	
     public PopupMenuEditBreak() {
         super(Constant.messages.getString("brk.edit.popup"));
-        this.addActionListener(new java.awt.event.ActionListener() { 
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
 
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        		extension.editUiSelectedBreakpoint();
-        	}
-        });
-	}
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        extension.editUiSelectedBreakpoint();
+                    }
+                });
+    }
 
-	public void setExtension(ExtensionBreak extension) {
-		this.extension = extension;
-	}
+    public void setExtension(ExtensionBreak extension) {
+        this.extension = extension;
+    }
 
     @Override
     public boolean isEnableForComponent(Component invoker) {
@@ -55,5 +52,4 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
         }
         return false;
     }
-    
 }

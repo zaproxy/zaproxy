@@ -21,27 +21,25 @@ package org.zaproxy.zap.extension.httppanel.view;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-
 public class ImmutableHttpPanelViewModel implements HttpPanelViewModel {
 
     private static ImmutableHttpPanelViewModel instance;
-    
+
     public static ImmutableHttpPanelViewModel getInstance() {
         if (instance == null) {
             createInstance();
         }
         return instance;
     }
-    
+
     private static synchronized void createInstance() {
         if (instance == null) {
             instance = new ImmutableHttpPanelViewModel();
         }
     }
-    
+
     @Override
-    public void setMessage(Message aMessage) {
-    }
+    public void setMessage(Message aMessage) {}
 
     @Override
     public Message getMessage() {
@@ -49,15 +47,11 @@ public class ImmutableHttpPanelViewModel implements HttpPanelViewModel {
     }
 
     @Override
-    public void clear() {
-    }
+    public void clear() {}
 
     @Override
-    public void addHttpPanelViewModelListener(HttpPanelViewModelListener l) {
-    }
+    public void addHttpPanelViewModelListener(HttpPanelViewModelListener l) {}
 
     @Override
-    public void removeHttpPanelViewModelListener(HttpPanelViewModelListener l) {
-    }
-
+    public void removeHttpPanelViewModelListener(HttpPanelViewModelListener l) {}
 }

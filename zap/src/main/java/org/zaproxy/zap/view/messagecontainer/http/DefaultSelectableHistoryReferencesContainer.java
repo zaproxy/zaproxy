@@ -23,59 +23,63 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A default implementation of a {@code SelectableHistoryReferencesContainer}.
- * 
+ *
  * @see SelectableHistoryReferencesContainer
  * @since 2.3.0
  */
-public class DefaultSelectableHistoryReferencesContainer extends DefaultMultipleHistoryReferencesContainer implements
-        SelectableHistoryReferencesContainer {
+public class DefaultSelectableHistoryReferencesContainer
+        extends DefaultMultipleHistoryReferencesContainer
+        implements SelectableHistoryReferencesContainer {
 
     private final List<HistoryReference> selectedHistoryReferences;
     private final List<HttpMessage> selectedHttpMessages;
 
     /**
-     * Constructs a {@code DefaultSelectableHistoryReferencesContainer} with no contained messages and with the given container
-     * {@code name} and {@code component}.
-     * 
+     * Constructs a {@code DefaultSelectableHistoryReferencesContainer} with no contained messages
+     * and with the given container {@code name} and {@code component}.
+     *
      * @param name the name of the container
      * @param component the GUI component of the container
-     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code null}.
+     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code
+     *     null}.
      */
     public DefaultSelectableHistoryReferencesContainer(String name, Component component) {
         this(name, component, null, null);
     }
 
     /**
-     * Constructs a {@code DefaultSelectableHistoryReferencesContainer} with no selected messages and with the given container
-     * {@code name} and {@code component} and {@code HistoryReference}s of contained messages.
-     * 
+     * Constructs a {@code DefaultSelectableHistoryReferencesContainer} with no selected messages
+     * and with the given container {@code name} and {@code component} and {@code HistoryReference}s
+     * of contained messages.
+     *
      * @param name the name of the container
      * @param component the GUI component of the container
      * @param historyReferences the contained HTTP messages, {@code null} or empty list if none
-     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code null}.
+     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code
+     *     null}.
      */
     public DefaultSelectableHistoryReferencesContainer(
-            String name,
-            Component component,
-            List<HistoryReference> historyReferences) {
+            String name, Component component, List<HistoryReference> historyReferences) {
         this(name, component, historyReferences, null);
     }
 
     /**
-     * Constructs a {@code DefaultSelectableHistoryReferencesContainer} with the given container {@code name} and
-     * {@code component}, {@code HistoryReference}s of contained messages and {@code HistoryReference}s of selected messages.
-     * 
+     * Constructs a {@code DefaultSelectableHistoryReferencesContainer} with the given container
+     * {@code name} and {@code component}, {@code HistoryReference}s of contained messages and
+     * {@code HistoryReference}s of selected messages.
+     *
      * @param name the name of the container
      * @param component the GUI component of the container
      * @param historyReferences the contained HTTP messages, {@code null} or empty list if none
-     * @param selectedHistoryReferences the selected HTTP messages, {@code null} or empty list if none
-     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code null}.
+     * @param selectedHistoryReferences the selected HTTP messages, {@code null} or empty list if
+     *     none
+     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code
+     *     null}.
      */
     public DefaultSelectableHistoryReferencesContainer(
             String name,
@@ -88,7 +92,8 @@ public class DefaultSelectableHistoryReferencesContainer extends DefaultMultiple
             this.selectedHistoryReferences = Collections.emptyList();
             this.selectedHttpMessages = Collections.emptyList();
         } else {
-            this.selectedHistoryReferences = Collections.unmodifiableList(new ArrayList<>(selectedHistoryReferences));
+            this.selectedHistoryReferences =
+                    Collections.unmodifiableList(new ArrayList<>(selectedHistoryReferences));
             this.selectedHttpMessages = new PersistedHttpMessagesList(selectedHistoryReferences);
         }
     }
@@ -133,5 +138,4 @@ public class DefaultSelectableHistoryReferencesContainer extends DefaultMultiple
     public List<HistoryReference> getSelectedHistoryReferences() {
         return selectedHistoryReferences;
     }
-
 }

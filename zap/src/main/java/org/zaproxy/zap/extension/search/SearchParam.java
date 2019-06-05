@@ -23,25 +23,24 @@ import org.parosproxy.paros.common.AbstractParam;
 
 /**
  * Manages the search configurations saved in the configuration file.
- * <p>
- * It allows to change, programmatically, the following search options:
+ *
+ * <p>It allows to change, programmatically, the following search options:
+ *
  * <ul>
- * <li>Maximum search results in GUI - allows to set the maximum number of results that should be shown in GUI results panel.</li>
+ *   <li>Maximum search results in GUI - allows to set the maximum number of results that should be
+ *       shown in GUI results panel.
  * </ul>
- * </p>
- * 
+ *
  * @see #getMaximumSearchResultsGUI()
  */
 public class SearchParam extends AbstractParam {
 
-    /**
-     * The base configuration key for all search configurations.
-     */
+    /** The base configuration key for all search configurations. */
     private static final String PARAM_BASE_KEY = "search";
 
     /**
      * The configuration key for the maximum results GUI option.
-     * 
+     *
      * @see #maximumSearchResultsGUI
      */
     private static final String PARAM_MAXIMUM_RESULTS_GUI = PARAM_BASE_KEY + ".maxResultsGUI";
@@ -50,22 +49,21 @@ public class SearchParam extends AbstractParam {
 
     /**
      * The number of maximum results that should be shown in the GUI.
-     * <p>
-     * Default is {@value #DEFAULT_MAXIMUM_RESULTS_GUI}.
-     * </p>
+     *
+     * <p>Default is {@value #DEFAULT_MAXIMUM_RESULTS_GUI}.
      */
     private int maximumSearchResultsGUI = DEFAULT_MAXIMUM_RESULTS_GUI;
 
     /**
      * Parses the search options.
-     * <p>
-     * The following search options are parsed:
+     *
+     * <p>The following search options are parsed:
+     *
      * <ul>
-     * <li>Maximum search results in GUI - allows to set the maximum number of results that should be shown in GUI results
-     * panel.</li>
+     *   <li>Maximum search results in GUI - allows to set the maximum number of results that should
+     *       be shown in GUI results panel.
      * </ul>
-     * </p>
-     * 
+     *
      * @see #getMaximumSearchResultsGUI()
      */
     @Override
@@ -75,8 +73,9 @@ public class SearchParam extends AbstractParam {
 
     /**
      * Sets whether the number of maximum results that should be shown in the results panel.
-     * 
-     * @param maximumSearchResultsGUI the number of maximum results that should be shown in the results panel
+     *
+     * @param maximumSearchResultsGUI the number of maximum results that should be shown in the
+     *     results panel
      * @see #getMaximumSearchResultsGUI()
      */
     public void setMaximumSearchResultsGUI(int maximumSearchResultsGUI) {
@@ -89,12 +88,11 @@ public class SearchParam extends AbstractParam {
 
     /**
      * Returns the number of maximum results that should be shown in the results panel.
-     * 
+     *
      * @return the number of maximum results that should be shown in the results panel
      * @see #setMaximumSearchResultsGUI(int)
      */
     public int getMaximumSearchResultsGUI() {
         return maximumSearchResultsGUI;
     }
-
 }

@@ -20,65 +20,65 @@
 package org.zaproxy.zap.model;
 
 import javax.swing.ListModel;
-
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.users.User;
 
 public interface GenericScanner extends Runnable {
 
-	void stopScan();
+    void stopScan();
 
-	boolean isStopped();
+    boolean isStopped();
 
-	String getSite();
+    String getSite();
 
-	int getProgress();
+    int getProgress();
 
-	int getMaximum();
+    int getMaximum();
 
-	void pauseScan();
+    void pauseScan();
 
-	void resumeScan();
+    void resumeScan();
 
-	boolean isPaused();
+    boolean isPaused();
 
-	boolean isRunning();
+    boolean isRunning();
 
-	void start();
+    void start();
 
-	SiteNode getStartNode();
+    SiteNode getStartNode();
 
-	void setStartNode(SiteNode startNode);
+    void setStartNode(SiteNode startNode);
 
-	/**
-	 * Sets whether the scanner is started with the nodes in scope or in context.
-	 * 
-	 * @param scanInScope the new just scan in scope
-	 * @see GenericScanner#setScanContext(Context)
-	 */
-	void setJustScanInScope(boolean scanInScope);
+    /**
+     * Sets whether the scanner is started with the nodes in scope or in context.
+     *
+     * @param scanInScope the new just scan in scope
+     * @see GenericScanner#setScanContext(Context)
+     */
+    void setJustScanInScope(boolean scanInScope);
 
-	boolean getJustScanInScope();
+    boolean getJustScanInScope();
 
-	ListModel<?> getList();
+    ListModel<?> getList();
 
-	void reset();
+    void reset();
 
-	void setScanChildren(boolean scanChildren);
+    void setScanChildren(boolean scanChildren);
 
-	/**
-	 * Sets the {@link Context} that should be scanned. The value should be used only if
-	 * {@code JustScanInScope} is enabled. If the {@code justScanInScope} property is set, when the scan is
-	 * started, it should be scan all the nodes in scope, if this StartContext is <code>null</code>, or all
-	 * the nodes in context, if this StartContext is not null.
-	 * 
-	 * @param context the new scan context. If null, the scan will be run for all the nodes in scope.
-	 * @see GenericScanner#setJustScanInScope(boolean)
-	 * @see GenericScanner#getJustScanInScope()
-	 */
-	void setScanContext(Context context);
-	
-	void setScanAsUser(User user);
+    /**
+     * Sets the {@link Context} that should be scanned. The value should be used only if {@code
+     * JustScanInScope} is enabled. If the {@code justScanInScope} property is set, when the scan is
+     * started, it should be scan all the nodes in scope, if this StartContext is <code>null</code>,
+     * or all the nodes in context, if this StartContext is not null.
+     *
+     * @param context the new scan context. If null, the scan will be run for all the nodes in
+     *     scope.
+     * @see GenericScanner#setJustScanInScope(boolean)
+     * @see GenericScanner#getJustScanInScope()
+     */
+    void setScanContext(Context context);
 
-	void setTechSet(TechSet techSet);
+    void setScanAsUser(User user);
+
+    void setTechSet(TechSet techSet);
 }

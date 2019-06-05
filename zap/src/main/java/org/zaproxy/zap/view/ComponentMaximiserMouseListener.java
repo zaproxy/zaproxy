@@ -22,9 +22,7 @@ package org.zaproxy.zap.view;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.JOptionPane;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -32,7 +30,8 @@ import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.view.View;
 
 /**
- * A {@code MouseListener} that (un)maximises a component, when clicked twice, using a {@link ComponentMaximiser}.
+ * A {@code MouseListener} that (un)maximises a component, when clicked twice, using a {@link
+ * ComponentMaximiser}.
  *
  * @since 2.5.0
  * @see #triggerMaximisation(Component)
@@ -41,27 +40,29 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
 
     private static final Logger LOGGER = Logger.getLogger(ComponentMaximiserMouseListener.class);
 
-    private static final String DOUBLE_CLICK_WARN_MESSAGE = Constant.messages.getString("tab.doubleClick.warning");
+    private static final String DOUBLE_CLICK_WARN_MESSAGE =
+            Constant.messages.getString("tab.doubleClick.warning");
 
     /**
-     * The view options to check (and update) if it's required a confirmation from the user to maximise the component. Never
-     * {@code null}.
-     * 
+     * The view options to check (and update) if it's required a confirmation from the user to
+     * maximise the component. Never {@code null}.
+     *
      * @see #confirmMaximisation()
      */
     private final OptionsParamView viewOptions;
 
     /**
      * The delegate used to (un)maximise the component, might be {@code null}.
-     * 
+     *
      * @see #triggerMaximisation(Component)
      */
     private ComponentMaximiser componentMaximiser;
 
     /**
      * Constructs a {@code ComponentMaximiserMouseListener} with the given view options.
-     * <p>
-     * The view options to check (and update) if it's required a confirmation from the user to maximise the component.
+     *
+     * <p>The view options to check (and update) if it's required a confirmation from the user to
+     * maximise the component.
      *
      * @param viewOptions the view options
      * @throws IllegalArgumentException if the parameter {@code viewOptions} is {@code null}.
@@ -72,15 +73,19 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
     }
 
     /**
-     * Constructs a {@code ComponentMaximiserMouseListener} with the given view options and given component maximiser.
-     * <p>
-     * The view options to check (and update) if it's required a confirmation from the user to maximise the component.
+     * Constructs a {@code ComponentMaximiserMouseListener} with the given view options and given
+     * component maximiser.
+     *
+     * <p>The view options to check (and update) if it's required a confirmation from the user to
+     * maximise the component.
      *
      * @param viewOptions the view options
-     * @param componentMaximiser the object responsible for maximising the component, might be {@code null}.
+     * @param componentMaximiser the object responsible for maximising the component, might be
+     *     {@code null}.
      * @throws IllegalArgumentException if the parameter {@code viewOptions} is {@code null}.
      */
-    public ComponentMaximiserMouseListener(OptionsParamView viewOptions, ComponentMaximiser componentMaximiser) {
+    public ComponentMaximiserMouseListener(
+            OptionsParamView viewOptions, ComponentMaximiser componentMaximiser) {
         if (viewOptions == null) {
             throw new IllegalArgumentException("Parameter viewOptions must not be null.");
         }
@@ -89,10 +94,11 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
     }
 
     /**
-     * Sets the {@code ComponentMaximiser} that will be used to maximise components. Might be {@code null}, in which case there
-     * will be no maximisation when a component is clicked twice.
+     * Sets the {@code ComponentMaximiser} that will be used to maximise components. Might be {@code
+     * null}, in which case there will be no maximisation when a component is clicked twice.
      *
-     * @param componentMaximiser the {@code ComponentMaximiser} that will be used to maximise components
+     * @param componentMaximiser the {@code ComponentMaximiser} that will be used to maximise
+     *     components
      * @see #getComponentMaximiser()
      * @see #triggerMaximisation(Component)
      */
@@ -103,7 +109,8 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
     /**
      * Gets the {@code ComponentMaximiser} that's used to maximise components.
      *
-     * @return the {@code ComponentMaximiser} that's used to maximise the components, might be {@code null}
+     * @return the {@code ComponentMaximiser} that's used to maximise the components, might be
+     *     {@code null}
      * @see #setComponentMaximiser(ComponentMaximiser)
      */
     public ComponentMaximiser getComponentMaximiser() {
@@ -111,7 +118,8 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
     }
 
     /**
-     * Calls {@link #triggerMaximisation(Component)} when clicked twice, with the source of the event as parameter.
+     * Calls {@link #triggerMaximisation(Component)} when clicked twice, with the source of the
+     * event as parameter.
      */
     @Override
     public void mouseClicked(MouseEvent evt) {
@@ -122,14 +130,16 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
 
     /**
      * Convenience method that programmatically triggers the (un)maximisation logic.
-     * <p>
-     * If a component is already maximised it's unmaximised, otherwise it is maximised the given {@code component}. This is the
-     * same logic that's executed when a component is clicked twice, being the {@code component} the source of the mouse event.
-     * <p>
-     * The call to this method has no effect if there's no {@code ComponentMaximiser}.
-     * 
+     *
+     * <p>If a component is already maximised it's unmaximised, otherwise it is maximised the given
+     * {@code component}. This is the same logic that's executed when a component is clicked twice,
+     * being the {@code component} the source of the mouse event.
+     *
+     * <p>The call to this method has no effect if there's no {@code ComponentMaximiser}.
+     *
      * @param component the component that will be maximised, if none is maximised already
-     * @throws IllegalArgumentException if the given {@code component} is {@code null} and there's no component maximised.
+     * @throws IllegalArgumentException if the given {@code component} is {@code null} and there's
+     *     no component maximised.
      * @see #setComponentMaximiser(ComponentMaximiser)
      */
     public void triggerMaximisation(Component component) {
@@ -146,8 +156,8 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
 
     /**
      * Confirms, by asking the user, if the maximisation should be done.
-     * <p>
-     * After positive confirmation this method returns always {@code true}.
+     *
+     * <p>After positive confirmation this method returns always {@code true}.
      *
      * @return {@code true} if the maximisation should be done, {@code false} otherwise.
      * @see #triggerMaximisation(Component)
@@ -158,7 +168,8 @@ public class ComponentMaximiserMouseListener extends MouseAdapter {
             return true;
         }
 
-        if (View.getSingleton().showConfirmDialog(DOUBLE_CLICK_WARN_MESSAGE) != JOptionPane.OK_OPTION) {
+        if (View.getSingleton().showConfirmDialog(DOUBLE_CLICK_WARN_MESSAGE)
+                != JOptionPane.OK_OPTION) {
             return false;
         }
 

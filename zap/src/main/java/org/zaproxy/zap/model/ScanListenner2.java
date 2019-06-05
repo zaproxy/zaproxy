@@ -21,7 +21,7 @@ package org.zaproxy.zap.model;
 
 public interface ScanListenner2 {
 
-	void scanFinshed(int id, String host);
+    void scanFinshed(int id, String host);
 
-	void scanProgress(int id, String host, int progress, int maximum);
+    void scanProgress(int id, String host, int progress, int maximum);
 }

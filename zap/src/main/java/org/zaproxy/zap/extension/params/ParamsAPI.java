@@ -22,9 +22,7 @@ package org.zaproxy.zap.extension.params;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import net.sf.json.JSONObject;
-
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -36,81 +34,80 @@ import org.zaproxy.zap.utils.ApiUtils;
 
 public class ParamsAPI extends ApiImplementor {
 
-	private static final String PREFIX = "params";
-	private static final String VIEW_PARAMS = "params";
-	private static final String VIEW_PARAMS_PARAM_SITE = "site";
+    private static final String PREFIX = "params";
+    private static final String VIEW_PARAMS = "params";
+    private static final String VIEW_PARAMS_PARAM_SITE = "site";
 
-	private ExtensionParams extension;
-	
-	public ParamsAPI (ExtensionParams extension) {
-		this.extension = extension;
-		this.addApiView(new ApiView(VIEW_PARAMS, new String[]{}, new String[]{VIEW_PARAMS_PARAM_SITE}));
+    private ExtensionParams extension;
 
-	}
+    public ParamsAPI(ExtensionParams extension) {
+        this.extension = extension;
+        this.addApiView(
+                new ApiView(VIEW_PARAMS, new String[] {}, new String[] {VIEW_PARAMS_PARAM_SITE}));
+    }
 
-	@Override
-	public String getPrefix() {
-		return PREFIX;
-	}
+    @Override
+    public String getPrefix() {
+        return PREFIX;
+    }
 
-	@Override
-	public ApiResponse handleApiView(String name, JSONObject params)
-			throws ApiException {
-		if (VIEW_PARAMS.equals(name)) {
-			ApiResponseList result = new ApiResponseList("Parameters");
-			if (params.containsKey(VIEW_PARAMS_PARAM_SITE)) {
-				String paramSite = params.getString(VIEW_PARAMS_PARAM_SITE);
-				if (!paramSite.isEmpty()) {
-					String site = ApiUtils.getAuthority(paramSite);
-					if (!extension.hasSite(site)) {
-						throw new ApiException(ApiException.Type.DOES_NOT_EXIST, paramSite);
-					}
+    @Override
+    public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
+        if (VIEW_PARAMS.equals(name)) {
+            ApiResponseList result = new ApiResponseList("Parameters");
+            if (params.containsKey(VIEW_PARAMS_PARAM_SITE)) {
+                String paramSite = params.getString(VIEW_PARAMS_PARAM_SITE);
+                if (!paramSite.isEmpty()) {
+                    String site = ApiUtils.getAuthority(paramSite);
+                    if (!extension.hasSite(site)) {
+                        throw new ApiException(ApiException.Type.DOES_NOT_EXIST, paramSite);
+                    }
 
-					if (extension.hasParameters(site)) {
-						result.addItem(createSiteParamStatsResponse(extension.getSiteParameters(site)));
-					}
-					return result;
-				}
-			}
+                    if (extension.hasParameters(site)) {
+                        result.addItem(
+                                createSiteParamStatsResponse(extension.getSiteParameters(site)));
+                    }
+                    return result;
+                }
+            }
 
-			Collection<SiteParameters> siteParams = extension.getAllSiteParameters();
-			for (SiteParameters siteParam : siteParams) {
-				result.addItem(createSiteParamStatsResponse(siteParam));
-			}
-			return result;
-			
-		} else {
-			throw new ApiException(ApiException.Type.BAD_VIEW);
-		}
-	}
+            Collection<SiteParameters> siteParams = extension.getAllSiteParameters();
+            for (SiteParameters siteParam : siteParams) {
+                result.addItem(createSiteParamStatsResponse(siteParam));
+            }
+            return result;
 
-	private static ApiResponseList createSiteParamStatsResponse(SiteParameters siteParam) {
-		ApiResponseList stats = new ApiResponseList("Parameter");
-		for (HtmlParameterStats param : siteParam.getParams()) {
-			Map<String, String> map = new HashMap<>();
-			map.put("site", param.getSite());
-			map.put("name", param.getName());
-			map.put("type", param.getType().name());
-			map.put("timesUsed", String.valueOf(param.getTimesUsed()));
-			stats.addItem(new ApiResponseSet<String>("Stats", map));
+        } else {
+            throw new ApiException(ApiException.Type.BAD_VIEW);
+        }
+    }
 
-			ApiResponseList flags = new ApiResponseList("Flags");
-			for (String flag : param.getFlags()) {
-				flags.addItem(new ApiResponseElement("Flag", flag));
-			}
-			if (param.getFlags().size() > 0) {
-				stats.addItem(flags);
-			}
+    private static ApiResponseList createSiteParamStatsResponse(SiteParameters siteParam) {
+        ApiResponseList stats = new ApiResponseList("Parameter");
+        for (HtmlParameterStats param : siteParam.getParams()) {
+            Map<String, String> map = new HashMap<>();
+            map.put("site", param.getSite());
+            map.put("name", param.getName());
+            map.put("type", param.getType().name());
+            map.put("timesUsed", String.valueOf(param.getTimesUsed()));
+            stats.addItem(new ApiResponseSet<String>("Stats", map));
 
-			ApiResponseList vals = new ApiResponseList("Values");
-			for (String value : param.getValues()) {
-				vals.addItem(new ApiResponseElement("Value", value));
-			}
-			if (param.getValues().size() > 0) {
-				stats.addItem(vals);
-			}
-		}
-		return stats;
-	}
+            ApiResponseList flags = new ApiResponseList("Flags");
+            for (String flag : param.getFlags()) {
+                flags.addItem(new ApiResponseElement("Flag", flag));
+            }
+            if (param.getFlags().size() > 0) {
+                stats.addItem(flags);
+            }
 
+            ApiResponseList vals = new ApiResponseList("Values");
+            for (String value : param.getValues()) {
+                vals.addItem(new ApiResponseElement("Value", value));
+            }
+            if (param.getValues().size() > 0) {
+                stats.addItem(vals);
+            }
+        }
+        return stats;
+    }
 }

@@ -19,34 +19,32 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import net.sf.json.JSON;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import net.sf.json.JSON;
-
 public abstract class ApiResponse {
 
-	private String name = null;
+    private String name = null;
 
-	public ApiResponse(String name) {
-		super();
-		this.name = name;
-	}
+    public ApiResponse(String name) {
+        super();
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public abstract JSON toJSON();
+    public abstract JSON toJSON();
 
-	public abstract void toXML(Document doc, Element rootElement);
+    public abstract void toXML(Document doc, Element rootElement);
 
-	public abstract void toHTML(StringBuilder sb);
-	
-	public abstract String toString(int indent);
+    public abstract void toHTML(StringBuilder sb);
 
+    public abstract String toString(int indent);
 }

@@ -23,14 +23,15 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.AbstractStringHttpPanelViewModel;
 
-public abstract class AbstractHttpStringHttpPanelViewModel extends AbstractStringHttpPanelViewModel {
+public abstract class AbstractHttpStringHttpPanelViewModel
+        extends AbstractStringHttpPanelViewModel {
 
     protected HttpMessage httpMessage;
-    
+
     @Override
     public void setMessage(Message aMessage) {
         httpMessage = (HttpMessage) aMessage;
-        
+
         super.setMessage(aMessage);
     }
 }

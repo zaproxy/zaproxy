@@ -23,7 +23,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
  * A {@code MessageContainer} that contains only one message.
- * 
+ *
  * @param <T> the type of message in this container
  * @see MessageContainer
  * @see MultipleMessagesContainer
@@ -33,11 +33,11 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public interface SingleMessageContainer<T extends Message> extends MessageContainer<T> {
 
     /**
-     * Returns the contained message. Might be {@code null} if no message is present or an error occurred while getting the
-     * message (for example, failed to read a persisted message).
-     * 
-     * @return the contained message or {@code null} if not present or an error occurred while getting the message.
+     * Returns the contained message. Might be {@code null} if no message is present or an error
+     * occurred while getting the message (for example, failed to read a persisted message).
+     *
+     * @return the contained message or {@code null} if not present or an error occurred while
+     *     getting the message.
      */
     T getMessage();
-
 }

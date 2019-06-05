@@ -24,146 +24,157 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DbUtils;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.db.TableParam;
 
 public class SqlTableParam extends SqlAbstractTable implements TableParam {
-    
-    private static final String TABLE_NAME 	= DbSQL.getSQL("param.table_name");
+
+    private static final String TABLE_NAME = DbSQL.getSQL("param.table_name");
 
     private static final String PARAMID = DbSQL.getSQL("param.field.paramid");
-    private static final String SITE	= DbSQL.getSQL("param.field.site");
-    private static final String TYPE	= DbSQL.getSQL("param.field.type");
-    private static final String NAME	= DbSQL.getSQL("param.field.name");
-    private static final String USED	= DbSQL.getSQL("param.field.used");
-    private static final String FLAGS	= DbSQL.getSQL("param.field.flags");
-    private static final String VALUES	= DbSQL.getSQL("param.field.vals");
-    
-    public SqlTableParam() {
-        
-    }
-        
+    private static final String SITE = DbSQL.getSQL("param.field.site");
+    private static final String TYPE = DbSQL.getSQL("param.field.type");
+    private static final String NAME = DbSQL.getSQL("param.field.name");
+    private static final String USED = DbSQL.getSQL("param.field.used");
+    private static final String FLAGS = DbSQL.getSQL("param.field.flags");
+    private static final String VALUES = DbSQL.getSQL("param.field.vals");
+
+    public SqlTableParam() {}
+
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {
         try {
-			if (!DbUtils.hasTable(conn, TABLE_NAME)) {
-			    // Need to create the table
-			    DbUtils.execute(conn, DbSQL.getSQL("param.ps.addtable"));
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
-    }
-  
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableParam#read(long)
-	 */
-	@Override
-	public synchronized RecordParam read(long urlId) throws DatabaseException {
-    	SqlPreparedStatementWrapper psRead = null;
-        try {
-        	psRead = DbSQL.getSingleton().getPreparedStatement("param.ps.read");
-			psRead.getPs().setLong(1, urlId);
-			
-			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				return build(rs);
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psRead);
-		}
-	}
-	
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableParam#getAll()
-	 */
-    @Override
-	public List<RecordParam> getAll () throws DatabaseException {
-    	SqlPreparedStatementWrapper psGetAll = null;
-        try {
-        	psGetAll = DbSQL.getSingleton().getPreparedStatement("param.ps.getall");
-			List<RecordParam> result = new ArrayList<>();
-			try (ResultSet rs = psGetAll.getPs().executeQuery()) {
-				while (rs.next()) {
-					result.add(new RecordParam(rs.getLong(PARAMID), rs.getString(SITE), rs.getString(TYPE),  
-							rs.getString(NAME), rs.getInt(USED), rs.getString(FLAGS), rs.getString(VALUES)));
-				}
-			}
-			
-			return result;
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psGetAll);
-		}
+            if (!DbUtils.hasTable(conn, TABLE_NAME)) {
+                // Need to create the table
+                DbUtils.execute(conn, DbSQL.getSQL("param.ps.addtable"));
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableParam#insert(java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String)
-	 */
+     * @see org.parosproxy.paros.db.paros.TableParam#read(long)
+     */
     @Override
-	public synchronized RecordParam insert(String site, String type, String name, int used, String flags,
-			String values) throws DatabaseException {
-    	SqlPreparedStatementWrapper psInsert = null;
+    public synchronized RecordParam read(long urlId) throws DatabaseException {
+        SqlPreparedStatementWrapper psRead = null;
         try {
-        	psInsert = DbSQL.getSingleton().getPreparedStatement("param.ps.insert");
-			psInsert.getPs().setString(1, site);
-			psInsert.getPs().setString(2, type);
-			psInsert.getPs().setString(3, name);
-			psInsert.getPs().setInt(4, used);
-			psInsert.getPs().setString(5, flags);
-			psInsert.getPs().setString(6, values);
-			psInsert.getPs().executeUpdate();
-			
-			long id;
-			try (ResultSet rs = psInsert.getLastInsertedId()) {
-				rs.next();
-				id = rs.getLong(1);
-			}
-			return read(id);
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psInsert);
-		}
+            psRead = DbSQL.getSingleton().getPreparedStatement("param.ps.read");
+            psRead.getPs().setLong(1, urlId);
+
+            try (ResultSet rs = psRead.getPs().executeQuery()) {
+                return build(rs);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psRead);
+        }
     }
-    
+
     /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableParam#update(long, int, java.lang.String, java.lang.String)
-	 */
+     * @see org.parosproxy.paros.db.paros.TableParam#getAll()
+     */
     @Override
-	public synchronized void update(long paramId, int used, String flags,
-			String values) throws DatabaseException {
-    	SqlPreparedStatementWrapper psUpdate = null;
+    public List<RecordParam> getAll() throws DatabaseException {
+        SqlPreparedStatementWrapper psGetAll = null;
         try {
-        	psUpdate = DbSQL.getSingleton().getPreparedStatement("param.ps.update");
-			psUpdate.getPs().setInt(1, used);
-			psUpdate.getPs().setString(2, flags);
-			psUpdate.getPs().setString(3, values);
-			psUpdate.getPs().setLong(4, paramId);
-			psUpdate.getPs().executeUpdate();
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psUpdate);
-		}
+            psGetAll = DbSQL.getSingleton().getPreparedStatement("param.ps.getall");
+            List<RecordParam> result = new ArrayList<>();
+            try (ResultSet rs = psGetAll.getPs().executeQuery()) {
+                while (rs.next()) {
+                    result.add(
+                            new RecordParam(
+                                    rs.getLong(PARAMID),
+                                    rs.getString(SITE),
+                                    rs.getString(TYPE),
+                                    rs.getString(NAME),
+                                    rs.getInt(USED),
+                                    rs.getString(FLAGS),
+                                    rs.getString(VALUES)));
+                }
+            }
+
+            return result;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psGetAll);
+        }
     }
-    
+
+    /* (non-Javadoc)
+     * @see org.parosproxy.paros.db.paros.TableParam#insert(java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String)
+     */
+    @Override
+    public synchronized RecordParam insert(
+            String site, String type, String name, int used, String flags, String values)
+            throws DatabaseException {
+        SqlPreparedStatementWrapper psInsert = null;
+        try {
+            psInsert = DbSQL.getSingleton().getPreparedStatement("param.ps.insert");
+            psInsert.getPs().setString(1, site);
+            psInsert.getPs().setString(2, type);
+            psInsert.getPs().setString(3, name);
+            psInsert.getPs().setInt(4, used);
+            psInsert.getPs().setString(5, flags);
+            psInsert.getPs().setString(6, values);
+            psInsert.getPs().executeUpdate();
+
+            long id;
+            try (ResultSet rs = psInsert.getLastInsertedId()) {
+                rs.next();
+                id = rs.getLong(1);
+            }
+            return read(id);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psInsert);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.parosproxy.paros.db.paros.TableParam#update(long, int, java.lang.String, java.lang.String)
+     */
+    @Override
+    public synchronized void update(long paramId, int used, String flags, String values)
+            throws DatabaseException {
+        SqlPreparedStatementWrapper psUpdate = null;
+        try {
+            psUpdate = DbSQL.getSingleton().getPreparedStatement("param.ps.update");
+            psUpdate.getPs().setInt(1, used);
+            psUpdate.getPs().setString(2, flags);
+            psUpdate.getPs().setString(3, values);
+            psUpdate.getPs().setLong(4, paramId);
+            psUpdate.getPs().executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psUpdate);
+        }
+    }
+
     private RecordParam build(ResultSet rs) throws DatabaseException {
         try {
-			RecordParam rt = null;
-			if (rs.next()) {
-			    rt = new RecordParam(rs.getLong(PARAMID), rs.getString(SITE), rs.getString(TYPE), 
-			    		rs.getString(NAME), rs.getInt(USED), rs.getString(FLAGS), rs.getString(VALUES));            
-			}
-			return rt;
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+            RecordParam rt = null;
+            if (rs.next()) {
+                rt =
+                        new RecordParam(
+                                rs.getLong(PARAMID),
+                                rs.getString(SITE),
+                                rs.getString(TYPE),
+                                rs.getString(NAME),
+                                rs.getInt(USED),
+                                rs.getString(FLAGS),
+                                rs.getString(VALUES));
+            }
+            return rt;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
-
 }

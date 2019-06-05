@@ -21,7 +21,6 @@
 package org.zaproxy.zap.extension.globalexcludeurl;
 
 import java.util.Objects;
-
 import org.zaproxy.zap.utils.Enableable;
 
 class GlobalExcludeURLParamToken extends Enableable {
@@ -47,7 +46,7 @@ class GlobalExcludeURLParamToken extends Enableable {
         this.regex = regex;
         this.description = description;
     }
-    
+
     public GlobalExcludeURLParamToken(GlobalExcludeURLParamToken token) {
         this(token.regex, token.description, token.isEnabled());
     }

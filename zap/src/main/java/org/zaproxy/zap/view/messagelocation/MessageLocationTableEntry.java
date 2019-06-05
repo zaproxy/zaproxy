@@ -23,8 +23,8 @@ import org.zaproxy.zap.model.MessageLocation;
 
 /**
  * An entry message location in a table.
- * <p>
- * Used to manage message locations and the corresponding highlights.
+ *
+ * <p>Used to manage message locations and the corresponding highlights.
  *
  * @since 2.4.0
  */

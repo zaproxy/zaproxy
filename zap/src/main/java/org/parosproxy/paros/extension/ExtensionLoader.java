@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -31,7 +31,7 @@
 // ZAP: 2012/07/23 Removed parameter from View.getSessionDialog call.
 // ZAP: 2012/07/29 Issue 43: added sessionScopeChanged event
 // ZAP: 2012/08/01 Issue 332: added support for Modes
-// ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
+// ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab
 // ZAP: 2012/12/27 Added hookPersistentConnectionListener() method.
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/01/25 Added removeExtension(...) method and further helper methods
@@ -40,7 +40,8 @@
 // ZAP: 2013/01/29 Catch Errors thrown by out of date extensions as well as Exceptions
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/11/16 Issue 807: Error while loading ZAP when Quick Start Tab is closed
-// ZAP: 2013/11/16 Issue 845: AbstractPanel added twice to TabbedPanel2 in ExtensionLoader#addTabPanel
+// ZAP: 2013/11/16 Issue 845: AbstractPanel added twice to TabbedPanel2 in
+// ExtensionLoader#addTabPanel
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2013/12/13 Added support for Full Layout DISPLAY_OPTION_TOP_FULL in the hookView function.
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
@@ -52,16 +53,19 @@
 // ZAP: 2014/10/09 Issue 1359: Added info logging for splash screen
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be loaded by an active scanner.
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
-// ZAP: 2014/11/21 Reviewed foreach loops and commented startup process for splash screen progress bar
+// ZAP: 2014/11/21 Reviewed foreach loops and commented startup process for splash screen progress
+// bar
 // ZAP: 2015/01/04 Issue 1379: Not all extension's listeners are hooked during add-on installation
 // ZAP: 2015/01/19 Remove online menus when removeMenu(View, ExtensionHook) is called.
-// ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
-// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions
+// loaded
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative
+// implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/09 Generify Extension.getExtension(Class) to avoid unnecessary casts
 // ZAP: 2015/09/07 Start GUI on EDT
 // ZAP: 2016/04/06 Fix layouts' issues
-// ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
+// ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory
 // ZAP: 2016/05/30 Notification of installation status of the add-ons
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/08/18 Hook ApiImplementor
@@ -71,12 +75,14 @@
 // ZAP: 2017/07/25 Hook HttpSenderListener.
 // ZAP: 2017/10/11 Include add-on in extensions' initialisation errors.
 // ZAP: 2017/10/31 Add JavaDoc to ExtensionLoader.getExtension(String).
-// ZAP: 2018/04/25 Allow to add ProxyServer to automatically add/remove proxy related listeners to it.
+// ZAP: 2018/04/25 Allow to add ProxyServer to automatically add/remove proxy related listeners to
+// it.
 // ZAP: 2018/07/18 Tweak logging.
 // ZAP: 2018/10/05 Get menu/view hooks without initialising them.
 // ZAP: 2018/10/09 Use managed ExtensionHook when removing extensions.
 // ZAP: 2019/03/15 Issue 3578: Added Helper options for Import menu
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -88,11 +94,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
@@ -121,10 +125,10 @@ import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
-import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
@@ -160,12 +164,11 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).destroy();
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
-
     }
 
     public Extension getExtension(int i) {
@@ -188,7 +191,7 @@ public class ExtensionLoader {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -201,7 +204,7 @@ public class ExtensionLoader {
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -222,14 +225,11 @@ public class ExtensionLoader {
     }
 
     /**
-     * Tells whether or not an {@code Extension} with the given
-     * {@code extensionName} is enabled.
+     * Tells whether or not an {@code Extension} with the given {@code extensionName} is enabled.
      *
      * @param extensionName the name of the extension
-     * @return {@code true} if the extension is enabled, {@code false}
-     * otherwise.
-     * @throws IllegalArgumentException if the {@code extensionName} is
-     * {@code null}.
+     * @return {@code true} if the extension is enabled, {@code false} otherwise.
+     * @throws IllegalArgumentException if the {@code extensionName} is {@code null}.
      * @see #getExtension(String)
      * @see Extension
      */
@@ -242,7 +242,7 @@ public class ExtensionLoader {
         if (extension == null) {
             return false;
         }
-        
+
         return extension.isEnabled();
     }
 
@@ -264,9 +264,15 @@ public class ExtensionLoader {
 
     private static void hookProxyServer(ExtensionHook extHook, ProxyServer proxyServer) {
         process(extHook.getProxyListenerList(), proxyServer::addProxyListener);
-        process(extHook.getOverrideMessageProxyListenerList(), proxyServer::addOverrideMessageProxyListener);
-        process(extHook.getPersistentConnectionListener(), proxyServer::addPersistentConnectionListener);
-        process(extHook.getConnectRequestProxyListeners(), proxyServer::addConnectRequestProxyListener);
+        process(
+                extHook.getOverrideMessageProxyListenerList(),
+                proxyServer::addOverrideMessageProxyListener);
+        process(
+                extHook.getPersistentConnectionListener(),
+                proxyServer::addPersistentConnectionListener);
+        process(
+                extHook.getConnectRequestProxyListeners(),
+                proxyServer::addConnectRequestProxyListener);
     }
 
     private static <T> void process(List<T> elements, Consumer<T> action) {
@@ -297,9 +303,15 @@ public class ExtensionLoader {
 
     private void unhookProxyServer(ExtensionHook extHook, ProxyServer proxyServer) {
         process(extHook.getProxyListenerList(), proxyServer::removeProxyListener);
-        process(extHook.getOverrideMessageProxyListenerList(), proxyServer::removeOverrideMessageProxyListener);
-        process(extHook.getPersistentConnectionListener(), proxyServer::removePersistentConnectionListener);
-        process(extHook.getConnectRequestProxyListeners(), proxyServer::removeConnectRequestProxyListener);
+        process(
+                extHook.getOverrideMessageProxyListenerList(),
+                proxyServer::removeOverrideMessageProxyListener);
+        process(
+                extHook.getPersistentConnectionListener(),
+                proxyServer::removePersistentConnectionListener);
+        process(
+                extHook.getConnectRequestProxyListeners(),
+                proxyServer::removeConnectRequestProxyListener);
     }
 
     private void unhookProxies(ExtensionHook extHook) {
@@ -334,7 +346,7 @@ public class ExtensionLoader {
                 if (listener != null) {
                     proxy.removeProxyListener(listener);
                 }
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -347,7 +359,8 @@ public class ExtensionLoader {
         }
     }
 
-    private static void hookOverrideMessageProxyListeners(Proxy proxy, List<OverrideMessageProxyListener> listeners) {
+    private static void hookOverrideMessageProxyListeners(
+            Proxy proxy, List<OverrideMessageProxyListener> listeners) {
         for (OverrideMessageProxyListener listener : listeners) {
             try {
                 if (listener != null) {
@@ -361,13 +374,14 @@ public class ExtensionLoader {
 
     private void removeOverrideMessageProxyListener(ExtensionHook hook) {
         Proxy proxy = Control.getSingleton().getProxy();
-        List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
+        List<OverrideMessageProxyListener> listenerList =
+                hook.getOverrideMessageProxyListenerList();
         for (OverrideMessageProxyListener listener : listenerList) {
             try {
                 if (listener != null) {
                     proxy.removeOverrideMessageProxyListener(listener);
                 }
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -375,10 +389,11 @@ public class ExtensionLoader {
     }
 
     /**
-     * Hooks (adds) the {@code ConnectRequestProxyListener}s of the loaded extensions to the given {@code proxy}.
-     * <p>
-     * <strong>Note:</strong> even if public this method is expected to be called only by core classes (for example,
-     * {@code Control}).
+     * Hooks (adds) the {@code ConnectRequestProxyListener}s of the loaded extensions to the given
+     * {@code proxy}.
+     *
+     * <p><strong>Note:</strong> even if public this method is expected to be called only by core
+     * classes (for example, {@code Control}).
      *
      * @param proxy the local proxy
      * @since 2.5.0
@@ -389,7 +404,8 @@ public class ExtensionLoader {
         }
     }
 
-    private static void hookConnectRequestProxyListeners(Proxy proxy, List<ConnectRequestProxyListener> listeners) {
+    private static void hookConnectRequestProxyListeners(
+            Proxy proxy, List<ConnectRequestProxyListener> listeners) {
         for (ConnectRequestProxyListener listener : listeners) {
             proxy.addConnectRequestProxyListener(listener);
         }
@@ -408,7 +424,8 @@ public class ExtensionLoader {
         }
     }
 
-    private static void hookPersistentConnectionListeners(Proxy proxy, List<PersistentConnectionListener> listeners) {
+    private static void hookPersistentConnectionListeners(
+            Proxy proxy, List<PersistentConnectionListener> listeners) {
         for (PersistentConnectionListener listener : listeners) {
             try {
                 if (listener != null) {
@@ -428,7 +445,7 @@ public class ExtensionLoader {
                 if (listener != null) {
                     proxy.removePersistentConnectionListener(listener);
                 }
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -442,7 +459,8 @@ public class ExtensionLoader {
         }
     }
 
-    private static void hookSiteMapListeners(SiteMapPanel siteMapPanel, List<SiteMapListener> listeners) {
+    private static void hookSiteMapListeners(
+            SiteMapPanel siteMapPanel, List<SiteMapListener> listeners) {
         for (SiteMapListener listener : listeners) {
             try {
                 if (listener != null) {
@@ -464,7 +482,7 @@ public class ExtensionLoader {
                     if (listener != null) {
                         siteMapPanel.removeSiteMapListener(listener);
                     }
-                    
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -472,7 +490,7 @@ public class ExtensionLoader {
         }
     }
 
-    // ZAP: method called by the scanner to load all scanner hooks. 
+    // ZAP: method called by the scanner to load all scanner hooks.
     public void hookScannerHook(Scanner scan) {
         Iterator<ExtensionHook> iter = extensionHooks.values().iterator();
         while (iter.hasNext()) {
@@ -484,7 +502,7 @@ public class ExtensionLoader {
                     if (hook != null) {
                         scan.addScannerHook(scannerHook);
                     }
-                    
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -500,7 +518,7 @@ public class ExtensionLoader {
                     if (listener != null) {
                         listener.optionsChanged(options);
                     }
-                    
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -541,10 +559,10 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             ext = getExtension(i);
             try {
-				ext.databaseOpen(db);
+                ext.databaseOpen(db);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
-			}
+            }
         }
     }
 
@@ -591,7 +609,7 @@ public class ExtensionLoader {
                     if (listener != null) {
                         listener.sessionModeChanged(mode);
                     }
-                    
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -601,9 +619,9 @@ public class ExtensionLoader {
 
     /**
      * Notifies that the properties (e.g. name, description) of the current session were changed.
-     * <p>
-     * Should be called only by "core" classes.
-     * 
+     *
+     * <p>Should be called only by "core" classes.
+     *
      * @param session the session changed.
      * @since 2.7.0
      */
@@ -629,7 +647,7 @@ public class ExtensionLoader {
             for (AddonFilesChangedListener listener : listenerList) {
                 try {
                     listener.filesAdded();
-                    
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
@@ -643,65 +661,82 @@ public class ExtensionLoader {
             for (AddonFilesChangedListener listener : listenerList) {
                 try {
                     listener.filesRemoved();
-                    
+
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
             }
         }
     }
-    
+
     /**
-     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was installed.
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
+     * was installed.
      *
      * @param addOn the add-on that was installed, must not be {@code null}
      * @since 2.5.0
      */
     public void addOnInstalled(AddOn addOn) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+            for (AddOnInstallationStatusListener listener :
+                    hook.getAddOnInstallationStatusListeners()) {
                 try {
                     listener.addOnInstalled(addOn);
                 } catch (Exception e) {
-                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                    logger.error(
+                            "An error occurred while notifying: "
+                                    + listener.getClass().getCanonicalName(),
+                            e);
                 }
             }
         }
     }
 
     /**
-     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was soft uninstalled.
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
+     * was soft uninstalled.
      *
      * @param addOn the add-on that was soft uninstalled, must not be {@code null}
-     * @param successfully if the soft uninstallation was successful, that is, no errors occurred while uninstalling it
+     * @param successfully if the soft uninstallation was successful, that is, no errors occurred
+     *     while uninstalling it
      * @since 2.5.0
      */
     public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+            for (AddOnInstallationStatusListener listener :
+                    hook.getAddOnInstallationStatusListeners()) {
                 try {
                     listener.addOnSoftUninstalled(addOn, successfully);
                 } catch (Exception e) {
-                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                    logger.error(
+                            "An error occurred while notifying: "
+                                    + listener.getClass().getCanonicalName(),
+                            e);
                 }
             }
         }
     }
 
     /**
-     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was uninstalled.
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
+     * was uninstalled.
      *
      * @param addOn the add-on that was uninstalled, must not be {@code null}
-     * @param successfully if the uninstallation was successful, that is, no errors occurred while uninstalling it
+     * @param successfully if the uninstallation was successful, that is, no errors occurred while
+     *     uninstalling it
      * @since 2.5.0
      */
     public void addOnUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+            for (AddOnInstallationStatusListener listener :
+                    hook.getAddOnInstallationStatusListeners()) {
                 try {
                     listener.addOnUninstalled(addOn, successfully);
                 } catch (Exception e) {
-                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                    logger.error(
+                            "An error occurred while notifying: "
+                                    + listener.getClass().getCanonicalName(),
+                            e);
                 }
             }
         }
@@ -709,7 +744,7 @@ public class ExtensionLoader {
 
     public void startAllExtension(double progressFactor) {
         double factorPerc = progressFactor / getExtensionCount();
-        
+
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
@@ -725,16 +760,15 @@ public class ExtensionLoader {
     }
 
     /**
-     * Initialize and start all Extensions
-     * This function loops for all getExtensionCount() exts
+     * Initialize and start all Extensions This function loops for all getExtensionCount() exts
      * launching each specific initialization element (model, xml, view, hook, etc.)
      */
     public void startLifeCycle() {
-        
+
         // Percentages are passed into the calls as doubles
-    	if (view != null) {
-    		view.setSplashScreenLoadingCompletion(0.0);
-    	}
+        if (view != null) {
+            view.setSplashScreenLoadingCompletion(0.0);
+        }
 
         // Step 3: initialize all (slow)
         initAllExtension(5.0);
@@ -752,17 +786,19 @@ public class ExtensionLoader {
 
     /**
      * Initialize a specific Extension
+     *
      * @param ext the Extension that need to be initialized
-     * @throws DatabaseUnsupportedException 
-     * @throws DatabaseException 
+     * @throws DatabaseUnsupportedException
+     * @throws DatabaseException
      */
-    public void startLifeCycle(Extension ext) throws DatabaseException, DatabaseUnsupportedException {
+    public void startLifeCycle(Extension ext)
+            throws DatabaseException, DatabaseUnsupportedException {
         ext.init();
         ext.databaseOpen(model.getDb());
         ext.initModel(model);
         ext.initXML(model.getSession(), model.getOptionsParam());
         ext.initView(view);
-        
+
         ExtensionHook extHook = new ExtensionHook(model, view);
         extensionHooks.put(ext, extHook);
         try {
@@ -776,7 +812,7 @@ public class ExtensionLoader {
                 hookView(ext, view, extHook);
                 hookMenu(view, extHook);
             }
-            
+
             hookOptions(extHook);
             hookProxies(extHook);
             ext.optionsLoaded();
@@ -784,7 +820,7 @@ public class ExtensionLoader {
         } catch (Exception e) {
             logExtensionInitError(ext, e);
         }
-        
+
         ext.start();
 
         Proxy proxy = Control.getSingleton().getProxy();
@@ -802,12 +838,11 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).stop();
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
-
     }
 
     // ZAP: Added the type argument.
@@ -816,19 +851,18 @@ public class ExtensionLoader {
         for (AbstractParamPanel panel : panelList) {
             try {
                 dialog.addParamPanel(ROOT, panel, true);
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
-
     }
 
     private void removeParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
         for (AbstractParamPanel panel : panelList) {
             try {
                 dialog.removeParamPanel(panel);
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -838,7 +872,7 @@ public class ExtensionLoader {
 
     private void hookAllExtension(double progressFactor) {
         final double factorPerc = progressFactor / getExtensionCount();
-        
+
         for (int i = 0; i < getExtensionCount(); i++) {
             final Extension ext = getExtension(i);
             try {
@@ -852,22 +886,23 @@ public class ExtensionLoader {
                 hookHttpSenderListeners(ext, extHook);
 
                 if (view != null) {
-                    EventQueue.invokeAndWait(new Runnable() {
+                    EventQueue.invokeAndWait(
+                            new Runnable() {
 
-                        @Override
-                        public void run() {
-                            // no need to hook view if no GUI
-                            hookView(ext, view, extHook);
-                            hookMenu(view, extHook);
-                            view.addSplashScreenLoadingCompletion(factorPerc);
-                        }
-                    });
+                                @Override
+                                public void run() {
+                                    // no need to hook view if no GUI
+                                    hookView(ext, view, extHook);
+                                    hookMenu(view, extHook);
+                                    view.addSplashScreenLoadingCompletion(factorPerc);
+                                }
+                            });
                 }
-                
+
                 hookOptions(extHook);
                 hookProxies(extHook);
                 ext.optionsLoaded();
-                
+
             } catch (Throwable e) {
                 // Catch Errors thrown by out of date extensions as well as Exceptions
                 logExtensionInitError(ext, e);
@@ -908,7 +943,10 @@ public class ExtensionLoader {
             try {
                 model.addContextDataFactory(contextDataFactory);
             } catch (Exception e) {
-                logger.error("Error while adding a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while adding a ContextDataFactory from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
     }
@@ -918,7 +956,10 @@ public class ExtensionLoader {
             try {
                 API.getInstance().registerApiImplementor(apiImplementor);
             } catch (Exception e) {
-                logger.error("Error while adding an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while adding an ApiImplementor from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
     }
@@ -928,7 +969,10 @@ public class ExtensionLoader {
             try {
                 HttpSender.addListener(httpSenderListener);
             } catch (Exception e) {
-                logger.error("Error while adding an HttpSenderListener from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while adding an HttpSenderListener from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
     }
@@ -948,7 +992,7 @@ public class ExtensionLoader {
             if (arg.length > 0) {
                 allCommandLineList.add(arg);
             }
-            
+
             Extension extension = entry.getKey();
             if (extension instanceof CommandLineListener) {
                 CommandLineListener cli = (CommandLineListener) extension;
@@ -1086,11 +1130,11 @@ public class ExtensionLoader {
 
     private void hookOptions(ExtensionHook hook) {
         List<AbstractParam> list = hook.getOptionsParamSetList();
-        
+
         for (AbstractParam paramSet : list) {
             try {
                 model.getOptionsParam().addParamSet(paramSet);
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -1103,7 +1147,7 @@ public class ExtensionLoader {
         for (AbstractParam paramSet : list) {
             try {
                 model.getOptionsParam().removeParamSet(paramSet);
-                
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -1124,7 +1168,10 @@ public class ExtensionLoader {
             try {
                 view.addContextPanelFactory(contextPanelFactory);
             } catch (Exception e) {
-                logger.error("Error while adding a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while adding a ContextPanelFactory from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1133,8 +1180,10 @@ public class ExtensionLoader {
             try {
                 mainToolBarPanel.addToolBarComponent(component);
             } catch (Exception e) {
-                logger.error("Error while adding a component to the main tool bar panel, from " +
-                        extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while adding a component to the main tool bar panel, from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1145,11 +1194,13 @@ public class ExtensionLoader {
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
 
-        for (DisplayedMessageChangedListener changedListener : pv.getRequestPanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener :
+                pv.getRequestPanelDisplayedMessageChangedListeners()) {
             view.getRequestPanel().addDisplayedMessageChangedListener(changedListener);
         }
 
-        for (DisplayedMessageChangedListener changedListener : pv.getResponsePanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener :
+                pv.getResponsePanelDisplayedMessageChangedListeners()) {
             view.getResponsePanel().addDisplayedMessageChangedListener(changedListener);
         }
     }
@@ -1168,7 +1219,10 @@ public class ExtensionLoader {
             try {
                 view.removeContextPanelFactory(contextPanelFactory);
             } catch (Exception e) {
-                logger.error("Error while removing a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while removing a ContextPanelFactory from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1177,8 +1231,10 @@ public class ExtensionLoader {
             try {
                 mainToolBarPanel.removeToolBarComponent(component);
             } catch (Exception e) {
-                logger.error("Error while removing a component from the main tool bar panel, from "
-                        + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while removing a component from the main tool bar panel, from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1189,11 +1245,13 @@ public class ExtensionLoader {
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
 
-        for (DisplayedMessageChangedListener changedListener : pv.getRequestPanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener :
+                pv.getRequestPanelDisplayedMessageChangedListeners()) {
             view.getRequestPanel().removeDisplayedMessageChangedListener(changedListener);
         }
 
-        for (DisplayedMessageChangedListener changedListener : pv.getResponsePanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener :
+                pv.getResponsePanelDisplayedMessageChangedListeners()) {
             view.getResponsePanel().removeDisplayedMessageChangedListener(changedListener);
         }
     }
@@ -1202,7 +1260,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getWorkbench().removePanel(panel, WorkbenchPanel.PanelType.STATUS);
     }
 
@@ -1210,7 +1268,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getOptionsDialog("").removeParamPanel(panel);
     }
 
@@ -1222,7 +1280,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getWorkbench().removePanel(panel, WorkbenchPanel.PanelType.WORK);
     }
 
@@ -1230,7 +1288,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getPopupList().remove(popupMenuItem);
     }
 
@@ -1238,7 +1296,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile().remove(menuItem);
     }
 
@@ -1246,7 +1304,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuEdit().remove(menuItem);
     }
 
@@ -1254,7 +1312,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuView().remove(menuItem);
     }
 
@@ -1262,7 +1320,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools().remove(menuItem);
     }
 
@@ -1270,7 +1328,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuHelp().remove(menuItem);
     }
 
@@ -1278,25 +1336,23 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
-        
+
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport().remove(menuItem);
     }
 
-    /**
-     * Init all extensions
-     */
-    private void initAllExtension(double progressFactor) {        
+    /** Init all extensions */
+    private void initAllExtension(double progressFactor) {
         double factorPerc = progressFactor / getExtensionCount();
-        
+
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
                 extension.init();
                 extension.databaseOpen(Model.getSingleton().getDb());
                 if (view != null) {
-                	view.addSplashScreenLoadingCompletion(factorPerc);
+                    view.addSplashScreenLoadingCompletion(factorPerc);
                 }
-                
+
             } catch (Throwable e) {
                 logExtensionInitError(extension, e);
             }
@@ -1305,11 +1361,12 @@ public class ExtensionLoader {
 
     /**
      * Init all extensions with the same Model
+     *
      * @param model the model to apply to all extensions
      */
     private void initModelAllExtension(Model model, double progressFactor) {
         double factorPerc = progressFactor / getExtensionCount();
-        
+
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
@@ -1317,7 +1374,7 @@ public class ExtensionLoader {
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
-                
+
             } catch (Exception e) {
                 logExtensionInitError(extension, e);
             }
@@ -1326,6 +1383,7 @@ public class ExtensionLoader {
 
     /**
      * Init all extensions with the same View
+     *
      * @param view the View that need to be applied
      */
     private void initViewAllExtension(final View view, double progressFactor) {
@@ -1334,19 +1392,20 @@ public class ExtensionLoader {
         }
 
         final double factorPerc = progressFactor / getExtensionCount();
-        
+
         for (int i = 0; i < getExtensionCount(); i++) {
             final Extension extension = getExtension(i);
             try {
-                EventQueue.invokeAndWait(new Runnable() {
+                EventQueue.invokeAndWait(
+                        new Runnable() {
 
-                    @Override
-                    public void run() {
-                        extension.initView(view);
-                        view.addSplashScreenLoadingCompletion(factorPerc);
-                    }
-                });
-                
+                            @Override
+                            public void run() {
+                                extension.initView(view);
+                                view.addSplashScreenLoadingCompletion(factorPerc);
+                            }
+                        });
+
             } catch (Exception e) {
                 logExtensionInitError(extension, e);
             }
@@ -1355,7 +1414,7 @@ public class ExtensionLoader {
 
     private void initXMLAllExtension(Session session, OptionsParam options, double progressFactor) {
         double factorPerc = progressFactor / getExtensionCount();
-        
+
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
@@ -1363,7 +1422,7 @@ public class ExtensionLoader {
                 if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
                 }
-                
+
             } catch (Exception e) {
                 logExtensionInitError(extension, e);
             }
@@ -1372,9 +1431,9 @@ public class ExtensionLoader {
 
     /**
      * Removes the given extension and any components added through its extension hook.
-     * <p>
-     * <strong>Note:</strong> This method should be called only by bootstrap classes.
-     * 
+     *
+     * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
+     *
      * @param extension the extension to remove.
      * @since 2.8.0
      */
@@ -1406,7 +1465,10 @@ public class ExtensionLoader {
             try {
                 model.removeContextDataFactory(contextDataFactory);
             } catch (Exception e) {
-                logger.error("Error while removing a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while removing a ContextDataFactory from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1414,7 +1476,10 @@ public class ExtensionLoader {
             try {
                 API.getInstance().removeApiImplementor(apiImplementor);
             } catch (Exception e) {
-                logger.error("Error while removing an ApiImplementor from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while removing an ApiImplementor from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1422,7 +1487,10 @@ public class ExtensionLoader {
             try {
                 HttpSender.removeListener(httpSenderListener);
             } catch (Exception e) {
-                logger.error("Error while removing an HttpSenderListener from " + extension.getClass().getCanonicalName(), e);
+                logger.error(
+                        "Error while removing an HttpSenderListener from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
             }
         }
 
@@ -1438,20 +1506,22 @@ public class ExtensionLoader {
             removeView(extension, view, hook);
             removeMenu(view, hook);
         } else {
-            EventQueue.invokeLater(new Runnable() {
+            EventQueue.invokeLater(
+                    new Runnable() {
 
-                @Override
-                public void run() {
-                    removeViewInEDT(extension, hook);
-                }
-            });
+                        @Override
+                        public void run() {
+                            removeViewInEDT(extension, hook);
+                        }
+                    });
         }
     }
 
     /**
      * Gets the names of all unsaved resources of all the extensions.
      *
-     * @return a {@code List} containing all the unsaved resources of all add-ons, never {@code null}
+     * @return a {@code List} containing all the unsaved resources of all add-ons, never {@code
+     *     null}
      * @see Extension#getActiveActions()
      */
     public List<String> getUnsavedResources() {
@@ -1464,7 +1534,7 @@ public class ExtensionLoader {
                 list.addAll(l);
             }
         }
-        
+
         return list;
     }
 
@@ -1485,8 +1555,7 @@ public class ExtensionLoader {
                 list.addAll(l);
             }
         }
-        
+
         return list;
     }
-
 }

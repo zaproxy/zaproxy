@@ -25,56 +25,52 @@
  */
 package ch.csnc.extension.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.table.AbstractTableModel;
-
 import ch.csnc.extension.httpclient.AliasCertificate;
 import ch.csnc.extension.httpclient.SSLContextManager;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.table.AbstractTableModel;
 
 public class AliasTableModel extends AbstractTableModel {
-    
-	private static final long serialVersionUID = -4387633069248206563L;
-	
-	private int _ks = -1;
+
+    private static final long serialVersionUID = -4387633069248206563L;
+
+    private int _ks = -1;
     private List<AliasCertificate> _aliases = new ArrayList<AliasCertificate>();
-	private SSLContextManager _sslcm;
-	
-	public AliasTableModel(SSLContextManager contextManager){
-		_sslcm = contextManager;
-	}
-    
+    private SSLContextManager _sslcm;
+
+    public AliasTableModel(SSLContextManager contextManager) {
+        _sslcm = contextManager;
+    }
+
     public void setKeystore(int ks) {
         _ks = ks;
         _aliases.clear();
         if (_ks > -1) {
-        	_aliases = _sslcm.getAliases(_ks);
+            _aliases = _sslcm.getAliases(_ks);
         }
         fireTableDataChanged();
     }
-   
+
     public void removeKeystore() {
         _ks = -1;
         _aliases.clear();
         fireTableDataChanged();
     }
-    
-    
+
     public String getAlias(int row) {
         return _aliases.get(row).getAlias();
     }
-    
+
     public int getColumnCount() {
         return 1;
     }
-    
+
     public int getRowCount() {
         return _aliases.size();
     }
-    
+
     public Object getValueAt(int row, int col) {
         return _aliases.get(row).getName();
     }
-    
 }

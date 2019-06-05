@@ -28,33 +28,33 @@ import org.apache.log4j.Logger;
  */
 public abstract class FetchFilter {
 
-	/**
-	 * The FetchStatus enum is used as the status returned by a FetchFilter, stating if the uri is
-	 * accepted or, if not, why was it not accepted.
-	 */
-	public enum FetchStatus {
-		/** The uri is VALID. */
-		VALID,
-		/** The uri is VALID and is a seed. **/
-		SEED,
-		/** The uri is out of context. */
-		OUT_OF_CONTEXT,
-		/** The uri is out of scope. */
-		OUT_OF_SCOPE,
-		/** The uri has an illegal protocol. */
-		ILLEGAL_PROTOCOL,
-		/** The The uri is skipped because of user rules. */
-		USER_RULES
-	};
+    /**
+     * The FetchStatus enum is used as the status returned by a FetchFilter, stating if the uri is
+     * accepted or, if not, why was it not accepted.
+     */
+    public enum FetchStatus {
+        /** The uri is VALID. */
+        VALID,
+        /** The uri is VALID and is a seed. * */
+        SEED,
+        /** The uri is out of context. */
+        OUT_OF_CONTEXT,
+        /** The uri is out of scope. */
+        OUT_OF_SCOPE,
+        /** The uri has an illegal protocol. */
+        ILLEGAL_PROTOCOL,
+        /** The The uri is skipped because of user rules. */
+        USER_RULES
+    };
 
-	/** The Constant log. */
-	protected static final Logger log = Logger.getLogger(FetchFilter.class);
+    /** The Constant log. */
+    protected static final Logger log = Logger.getLogger(FetchFilter.class);
 
-	/**
-	 * Checks if the uri must be ignored and not processed and return the filter status.
-	 * 
-	 * @param uri the uri to be processed
-	 * @return the fetch status, stating if the uri is accepted or, if not, why was it not accepted.
-	 */
-	public abstract FetchStatus checkFilter(URI uri);
+    /**
+     * Checks if the uri must be ignored and not processed and return the filter status.
+     *
+     * @param uri the uri to be processed
+     * @return the fetch status, stating if the uri is accepted or, if not, why was it not accepted.
+     */
+    public abstract FetchStatus checkFilter(URI uri);
 }

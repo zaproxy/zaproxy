@@ -28,14 +28,16 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
- * A {@code ResourceBundle.Control} that reverts the language mappings done by the {@code Locale} class when
- * {@link #toBundleName(String, Locale) creating bundle names}, so that the resources can have the newer ISO 639 language codes.
- * <p>
- * It does the following mappings:
+ * A {@code ResourceBundle.Control} that reverts the language mappings done by the {@code Locale}
+ * class when {@link #toBundleName(String, Locale) creating bundle names}, so that the resources can
+ * have the newer ISO 639 language codes.
+ *
+ * <p>It does the following mappings:
+ *
  * <ul>
- * <li><code>in</code> to <code>id</code></li>
- * <li><code>iw</code> to <code>he</code></li>
- * <li><code>ji</code> to <code>yi</code></li>
+ *   <li><code>in</code> to <code>id</code>
+ *   <li><code>iw</code> to <code>he</code>
+ *   <li><code>ji</code> to <code>yi</code>
  * </ul>
  *
  * @since 2.8.0
@@ -43,9 +45,7 @@ import java.util.ResourceBundle;
  */
 public class ZapResourceBundleControl extends ResourceBundle.Control {
 
-    /**
-     * The language mappings, from old to new codes.
-     */
+    /** The language mappings, from old to new codes. */
     private static final Map<String, String> LANGUAGE_MAPPINGS = new HashMap<>(3);
 
     static {
@@ -56,7 +56,7 @@ public class ZapResourceBundleControl extends ResourceBundle.Control {
 
     /**
      * The supported formats.
-     * 
+     *
      * @see #getFormats(String)
      */
     private final List<String> formats;
@@ -64,9 +64,10 @@ public class ZapResourceBundleControl extends ResourceBundle.Control {
     private final Locale fallbackLocale;
 
     /**
-     * Constructs a {@code ZapResourceBundleControl} with format {@link java.util.ResourceBundle.Control#FORMAT_PROPERTIES
-     * FORMAT_PROPERTIES} and {@link Locale#getDefault() default locale} as fallback locale.
-     * 
+     * Constructs a {@code ZapResourceBundleControl} with format {@link
+     * java.util.ResourceBundle.Control#FORMAT_PROPERTIES FORMAT_PROPERTIES} and {@link
+     * Locale#getDefault() default locale} as fallback locale.
+     *
      * @see #getFallbackLocale(String, Locale)
      * @see #getFormats(String)
      */
@@ -75,8 +76,8 @@ public class ZapResourceBundleControl extends ResourceBundle.Control {
     }
 
     /**
-     * Constructs a {@code ZapResourceBundleControl} with the given supported formats and {@link Locale#getDefault() default
-     * locale} as fallback locale.
+     * Constructs a {@code ZapResourceBundleControl} with the given supported formats and {@link
+     * Locale#getDefault() default locale} as fallback locale.
      *
      * @param formats the supported formats.
      * @see #getFallbackLocale(String, Locale)
@@ -99,7 +100,8 @@ public class ZapResourceBundleControl extends ResourceBundle.Control {
     }
 
     /**
-     * Constructs a {@code ZapResourceBundleControl} with the given supported formats and fallback locale.
+     * Constructs a {@code ZapResourceBundleControl} with the given supported formats and fallback
+     * locale.
      *
      * @param formats the supported formats.
      * @param fallbackLocale the fallback locale, might be {@code null}.

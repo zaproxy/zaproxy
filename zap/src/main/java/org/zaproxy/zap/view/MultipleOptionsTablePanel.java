@@ -21,7 +21,6 @@ package org.zaproxy.zap.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -30,7 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableModel;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.VerticalLayout;
 
@@ -109,11 +107,11 @@ public class MultipleOptionsTablePanel extends JPanel {
 
     /**
      * Sets whether or not the component and its child components should be enabled.
-     * <p>
-     * Only the table and corresponding scroll bars are enabled/disabled.
-     * </p>
-     * 
-     * @param enabled {@code true} if the component and its child components should be enabled, {@code false} otherwise.
+     *
+     * <p>Only the table and corresponding scroll bars are enabled/disabled.
+     *
+     * @param enabled {@code true} if the component and its child components should be enabled,
+     *     {@code false} otherwise.
      */
     public void setComponentEnabled(boolean enabled) {
         super.setEnabled(enabled);
@@ -133,5 +131,4 @@ public class MultipleOptionsTablePanel extends JPanel {
         }
         return buttonsPanel;
     }
-
 }

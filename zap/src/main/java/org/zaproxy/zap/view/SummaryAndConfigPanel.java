@@ -22,73 +22,73 @@ package org.zaproxy.zap.view;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-
 import org.apache.log4j.Logger;
 
-/**
- * A panel that can be used to show a summary of an entity and a button to configure the entity.
- */
+/** A panel that can be used to show a summary of an entity and a button to configure the entity. */
 public class SummaryAndConfigPanel extends JPanel {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 622131593103359244L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = 622131593103359244L;
 
-	/** The summary area. */
-	private JEditorPane summaryArea;
+    /** The summary area. */
+    private JEditorPane summaryArea;
 
-	/** The summary title text. */
-	private String summaryTitleText;
+    /** The summary title text. */
+    private String summaryTitleText;
 
-	private JButton configButton;
+    private JButton configButton;
 
-	/**
-	 * Instantiates a new summary and config panel.
-	 * 
-	 * @param summaryTitleText the summary title text
-	 * @param configButtonText the config button's text
-	 * @param configButtonActionListener the config button action listener
-	 */
-	public SummaryAndConfigPanel(String summaryTitleText, String configButtonText,
-			ActionListener configButtonActionListener) {
+    /**
+     * Instantiates a new summary and config panel.
+     *
+     * @param summaryTitleText the summary title text
+     * @param configButtonText the config button's text
+     * @param configButtonActionListener the config button action listener
+     */
+    public SummaryAndConfigPanel(
+            String summaryTitleText,
+            String configButtonText,
+            ActionListener configButtonActionListener) {
 
-		super(new GridBagLayout());
+        super(new GridBagLayout());
 
-		this.summaryTitleText = summaryTitleText;
+        this.summaryTitleText = summaryTitleText;
 
-		configButton = new JButton(configButtonText);
-		configButton.setIcon(new ImageIcon(SummaryAndConfigPanel.class
-				.getResource("/resource/icon/16/041.png")));
-		configButton.addActionListener(configButtonActionListener);
-		this.add(configButton, LayoutHelper.getGBC(1, 0, 1, 1, 0.0D, 0.0D));
+        configButton = new JButton(configButtonText);
+        configButton.setIcon(
+                new ImageIcon(
+                        SummaryAndConfigPanel.class.getResource("/resource/icon/16/041.png")));
+        configButton.addActionListener(configButtonActionListener);
+        this.add(configButton, LayoutHelper.getGBC(1, 0, 1, 1, 0.0D, 0.0D));
 
-		summaryArea = new JEditorPane();
-		summaryArea.setContentType("text/html");
-		summaryArea.setEnabled(false);
-		setSummaryContent("");
-		this.add(summaryArea, LayoutHelper.getGBC(0, 0, 1, 2, 1.0D, new Insets(3, 3, 3, 3)));
-	}
+        summaryArea = new JEditorPane();
+        summaryArea.setContentType("text/html");
+        summaryArea.setEnabled(false);
+        setSummaryContent("");
+        this.add(summaryArea, LayoutHelper.getGBC(0, 0, 1, 2, 1.0D, new Insets(3, 3, 3, 3)));
+    }
 
-	/**
-	 * Sets the summary content.
-	 * 
-	 * @param content the new summary content
-	 */
-	public void setSummaryContent(String content) {
-		Logger.getRootLogger().info("New summary: "+content);
-		summaryArea.setText("<html><b>" + summaryTitleText + "</b><br/><br/>" + content + "</html>");
-	}
+    /**
+     * Sets the summary content.
+     *
+     * @param content the new summary content
+     */
+    public void setSummaryContent(String content) {
+        Logger.getRootLogger().info("New summary: " + content);
+        summaryArea.setText(
+                "<html><b>" + summaryTitleText + "</b><br/><br/>" + content + "</html>");
+    }
 
-	/**
-	 * Sets whether the config button is enabled.
-	 *
-	 * @param enabled true, if enabled
-	 */
-	public void setConfigButtonEnabled(boolean enabled) {
-		this.configButton.setEnabled(enabled);
-	}
+    /**
+     * Sets whether the config button is enabled.
+     *
+     * @param enabled true, if enabled
+     */
+    public void setConfigButtonEnabled(boolean enabled) {
+        this.configButton.setEnabled(enabled);
+    }
 }

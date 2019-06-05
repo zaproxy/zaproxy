@@ -21,12 +21,12 @@ package org.zaproxy.zap.view;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 /**
- * Class with helper/utility methods to help testing classes involving {@code TableModel} implementations.
+ * Class with helper/utility methods to help testing classes involving {@code TableModel}
+ * implementations.
  *
  * @see javax.swing.table.TableModel
  */
@@ -56,7 +56,9 @@ public class TableModelTestUtils {
         public boolean isCellChanged(int row, int column) {
             for (TableModelEvent event : events) {
                 if (TableModelEvent.UPDATE == event.getType()) {
-                    if (row >= event.getFirstRow() && row <= event.getLastRow() && event.getColumn() == column) {
+                    if (row >= event.getFirstRow()
+                            && row <= event.getLastRow()
+                            && event.getColumn() == column) {
                         return true;
                     }
                 }
@@ -100,7 +102,8 @@ public class TableModelTestUtils {
         public boolean isDataChanged() {
             for (TableModelEvent event : events) {
                 if (TableModelEvent.UPDATE == event.getType()) {
-                    if (event.getFirstRow() == 0 && event.getLastRow() == Integer.MAX_VALUE
+                    if (event.getFirstRow() == 0
+                            && event.getLastRow() == Integer.MAX_VALUE
                             && event.getColumn() == TableModelEvent.ALL_COLUMNS) {
                         return true;
                     }

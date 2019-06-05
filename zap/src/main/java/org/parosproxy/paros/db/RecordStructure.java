@@ -21,58 +21,65 @@ package org.parosproxy.paros.db;
 
 public class RecordStructure {
 
-	private long sessionId;
-	private long structureId;
-	private long parentId;
-	private int historyId;
-	private String name;
-	private String url;
-	private String method;
-	
-	public RecordStructure(long sessionId, long structureId, long parentId, int historyId, String name, String url, String method) {
-		super();
-		this.sessionId = sessionId;
-		this.structureId = structureId;
-		this.parentId = parentId;
-		this.historyId = historyId;
-		this.name = name;
-		this.url = url;
-		this.method = method;
-	}
-	
-	public long getSessionId() {
-		return sessionId;
-	}
+    private long sessionId;
+    private long structureId;
+    private long parentId;
+    private int historyId;
+    private String name;
+    private String url;
+    private String method;
 
-	public long getStructureId() {
-		return structureId;
-	}
+    public RecordStructure(
+            long sessionId,
+            long structureId,
+            long parentId,
+            int historyId,
+            String name,
+            String url,
+            String method) {
+        super();
+        this.sessionId = sessionId;
+        this.structureId = structureId;
+        this.parentId = parentId;
+        this.historyId = historyId;
+        this.name = name;
+        this.url = url;
+        this.method = method;
+    }
 
-	public long getParentId() {
-		return parentId;
-	}
+    public long getSessionId() {
+        return sessionId;
+    }
 
-	public int getHistoryId() {
-		return historyId;
-	}
+    public long getStructureId() {
+        return structureId;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public long getParentId() {
+        return parentId;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public int getHistoryId() {
+        return historyId;
+    }
 
-	public String getMethod() {
-		return method;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setParentId(long parentId) {
-		this.parentId = parentId;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setHistoryId(int historyId) {
-		this.historyId = historyId;
-	}
+    public String getMethod() {
+        return method;
+    }
+
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
+    }
+
+    public void setHistoryId(int historyId) {
+        this.historyId = historyId;
+    }
 }

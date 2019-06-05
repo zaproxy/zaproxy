@@ -21,15 +21,16 @@ package org.zaproxy.zap.eventBus;
 
 /**
  * A class that can publish event on the event bus
- * @author simon
  *
+ * @author simon
  */
 public interface EventPublisher {
 
-	/**
-	 * The name by which the publisher is know - typically the full class name of the publisher.
-	 * Only one publisher can register with a given name.
-	 * @return the name of the publisher, never {@code null}.
-	 */
-	String getPublisherName();
+    /**
+     * The name by which the publisher is know - typically the full class name of the publisher.
+     * Only one publisher can register with a given name.
+     *
+     * @return the name of the publisher, never {@code null}.
+     */
+    String getPublisherName();
 }

@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
-
+import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
@@ -33,17 +33,14 @@ import org.junit.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
-import net.htmlparser.jericho.Source;
-
-/**
- * Unit test for {@link SpiderSitemapXMLParser}.
- */
+/** Unit test for {@link SpiderSitemapXMLParser}. */
 public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    private static final Path BASE_DIR_TEST_FILES = getResourcePath("sitemapxml", SpiderSitemapXMLParserUnitTest.class);
+    private static final Path BASE_DIR_TEST_FILES =
+            getResourcePath("sitemapxml", SpiderSitemapXMLParserUnitTest.class);
 
     @BeforeClass
     public static void suppressLogging() {
@@ -108,7 +105,8 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
         HttpMessage undefinedMessage = null;
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         // When
-        boolean completelyParsed = spiderParser.parseResource(undefinedMessage, new Source(""), BASE_DEPTH);
+        boolean completelyParsed =
+                spiderParser.parseResource(undefinedMessage, new Source(""), BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
     }
@@ -164,7 +162,8 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     public void shouldNotParseXmlMessageIfServerError() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
-        HttpMessage message = createMessageWith("500 Internal Server Error", "text/xml", "NoUrlsSitemap.xml");
+        HttpMessage message =
+                createMessageWith("500 Internal Server Error", "text/xml", "NoUrlsSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
         // Then
@@ -282,14 +281,21 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
         return createMessageWith("200 OK", contentType, filename);
     }
 
-    private static HttpMessage createMessageWith(String statusCodeMessage, String contentType, String filename) {
+    private static HttpMessage createMessageWith(
+            String statusCodeMessage, String contentType, String filename) {
         HttpMessage message = new HttpMessage();
         try {
             String fileContents = readFile(BASE_DIR_TEST_FILES.resolve(filename));
             message.setRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
-                    "HTTP/1.1 " + statusCodeMessage + "\r\n" + "Content-Type: " + contentType + "; charset=UTF-8\r\n"
-                            + "Content-Length: " + fileContents.length());
+                    "HTTP/1.1 "
+                            + statusCodeMessage
+                            + "\r\n"
+                            + "Content-Type: "
+                            + contentType
+                            + "; charset=UTF-8\r\n"
+                            + "Content-Length: "
+                            + fileContents.length());
             message.setResponseBody(fileContents);
         } catch (Exception e) {
             throw new RuntimeException(e);

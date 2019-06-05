@@ -21,183 +21,181 @@ package org.zaproxy.zap.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 
 public final class Stats {
 
-	private static final List<StatsListener> listeners = new ArrayList<StatsListener>();
+    private static final List<StatsListener> listeners = new ArrayList<StatsListener>();
 
     private static final Logger logger = Logger.getLogger(Stats.class);
-    
-    private Stats() {
+
+    private Stats() {}
+
+    public static void incCounter(String key) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterInc(key);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
     }
 
-	public static void incCounter(String key) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterInc(key);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void incCounter(String site, String key) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterInc(site, key);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+    public static void incCounter(String site, String key) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterInc(site, key);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	public static void incCounter(String key, long inc) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterInc(key, inc);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+    public static void incCounter(String key, long inc) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterInc(key, inc);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	public static void incCounter(String site, String key, long inc) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterInc(site, key, inc);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+    public static void incCounter(String site, String key, long inc) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterInc(site, key, inc);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	public static void decCounter(String key) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterDec(key);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void decCounter(String site, String key) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterDec(site, key);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void decCounter(String key, long dec) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterDec(key, dec);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void decCounter(String site, String key, long dec) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.counterDec(site, key, dec);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void setHighwaterMark(String key, long value) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.highwaterMarkSet(key, value);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void setHighwaterMark(String site, String key, long value) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.highwaterMarkSet(site, key, value);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void setLowwaterMark(String key, long value) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.lowwaterMarkSet(key, value);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void setLowwaterMark(String site, String key, long value) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.lowwaterMarkSet(site, key, value);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void clearAll() {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.allCleared();
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+    public static void decCounter(String key) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterDec(key);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	public static void clearAll(String site) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.allCleared(site);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
+    public static void decCounter(String site, String key) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterDec(site, key);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	public static void clear(String keyPrefix) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.cleared(keyPrefix);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void clear(String site, String keyPrefix) {
-		for (StatsListener listener : listeners) {
-			try {
-				listener.cleared(site, keyPrefix);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-	}
-	
-	public static void addListener(StatsListener listener) {
-		listeners.add(listener);
-	}
-	
-	public static void removeListener(StatsListener listener) {
-		listeners.remove(listener);
-	}
+    public static void decCounter(String key, long dec) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterDec(key, dec);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void decCounter(String site, String key, long dec) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.counterDec(site, key, dec);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void setHighwaterMark(String key, long value) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.highwaterMarkSet(key, value);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void setHighwaterMark(String site, String key, long value) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.highwaterMarkSet(site, key, value);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void setLowwaterMark(String key, long value) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.lowwaterMarkSet(key, value);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void setLowwaterMark(String site, String key, long value) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.lowwaterMarkSet(site, key, value);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void clearAll() {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.allCleared();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void clearAll(String site) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.allCleared(site);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void clear(String keyPrefix) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.cleared(keyPrefix);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void clear(String site, String keyPrefix) {
+        for (StatsListener listener : listeners) {
+            try {
+                listener.cleared(site, keyPrefix);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static void addListener(StatsListener listener) {
+        listeners.add(listener);
+    }
+
+    public static void removeListener(StatsListener listener) {
+        listeners.remove(listener);
+    }
 }

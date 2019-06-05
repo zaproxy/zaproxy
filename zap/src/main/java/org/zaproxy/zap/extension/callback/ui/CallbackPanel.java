@@ -19,24 +19,22 @@
  */
 package org.zaproxy.zap.extension.callback.ui;
 
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.AbstractPanel;
-import org.zaproxy.zap.extension.callback.ExtensionCallback;
-import org.zaproxy.zap.utils.DisplayUtils;
-import org.zaproxy.zap.utils.FontUtils;
-
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
-
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.AbstractPanel;
+import org.zaproxy.zap.extension.callback.ExtensionCallback;
+import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.FontUtils;
 
 public class CallbackPanel extends AbstractPanel {
 
@@ -58,7 +56,8 @@ public class CallbackPanel extends AbstractPanel {
     private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("callback.panel.name"));
-        this.setIcon(new ImageIcon(CallbackPanel.class.getResource("/resource/icon/16/callbacks.png")));
+        this.setIcon(
+                new ImageIcon(CallbackPanel.class.getResource("/resource/icon/16/callbacks.png")));
         this.add(getMainPanel(), getMainPanel().getName());
     }
 
@@ -89,15 +88,22 @@ public class CallbackPanel extends AbstractPanel {
     }
 
     private JButton getClearButton() {
-        JButton clearButton = new JButton(Constant.messages.getString("callback.panel.clear.button.label"));
-        clearButton.setToolTipText(Constant.messages.getString("callback.panel.clear.button.toolTip"));
-        clearButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(CallbackPanel.class.getResource("/resource/icon/fugue/broom.png"))));
-        clearButton.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                deleteAllCallbacks();
-            }
-        });
+        JButton clearButton =
+                new JButton(Constant.messages.getString("callback.panel.clear.button.label"));
+        clearButton.setToolTipText(
+                Constant.messages.getString("callback.panel.clear.button.toolTip"));
+        clearButton.setIcon(
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                CallbackPanel.class.getResource(
+                                        "/resource/icon/fugue/broom.png"))));
+        clearButton.addActionListener(
+                new java.awt.event.ActionListener() {
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        deleteAllCallbacks();
+                    }
+                });
         return clearButton;
     }
 
@@ -106,16 +112,22 @@ public class CallbackPanel extends AbstractPanel {
     }
 
     private JButton getOptionsButton() {
-        JButton optionsButton =  new JButton();
-        optionsButton.setToolTipText(Constant.messages.getString("callback.panel.options.button.label"));
-        optionsButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(CallbackPanel.class.getResource("/resource/icon/16/041.png"))));
-        optionsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Control.getSingleton().getMenuToolsControl()
-                        .options(Constant.messages.getString("callback.options.title"));
-            }
-        });
+        JButton optionsButton = new JButton();
+        optionsButton.setToolTipText(
+                Constant.messages.getString("callback.panel.options.button.label"));
+        optionsButton.setIcon(
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                CallbackPanel.class.getResource("/resource/icon/16/041.png"))));
+        optionsButton.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Control.getSingleton()
+                                .getMenuToolsControl()
+                                .options(Constant.messages.getString("callback.options.title"));
+                    }
+                });
         return optionsButton;
     }
 
@@ -123,14 +135,15 @@ public class CallbackPanel extends AbstractPanel {
         if (scrollPane == null) {
             scrollPane = new JScrollPane();
             scrollPane.setFont(FontUtils.getFont("Dialog"));
-            scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setHorizontalScrollBarPolicy(
+                    javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             scrollPane.setViewportView(getResultsTable());
         }
 
         return scrollPane;
     }
 
-    private CallbackTable getResultsTable () {
+    private CallbackTable getResultsTable() {
         if (this.resultsTable == null) {
             this.model = new CallbackTableModel();
             this.resultsTable = new CallbackTable(model);
@@ -138,7 +151,7 @@ public class CallbackPanel extends AbstractPanel {
         return this.resultsTable;
     }
 
-    public void addCallbackRequest(CallbackRequest callbackRequest){
+    public void addCallbackRequest(CallbackRequest callbackRequest) {
         model.addEntry(callbackRequest);
     }
 

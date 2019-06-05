@@ -20,7 +20,6 @@
 package org.zaproxy.zap.view.popup;
 
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -32,20 +31,14 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.ContextIncludePanel;
 
-
-/**
- * @since 2.3.0
- */
+/** @since 2.3.0 */
 public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 990419495607725846L;
 
     protected Context context;
 
-    /**
-     * This method initializes
-     * 
-     */
+    /** This method initializes */
     public PopupMenuItemIncludeInContext() {
         super(Constant.messages.getString("context.new.title"), true);
         this.context = null;
@@ -70,10 +63,10 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
     @Override
     public void performAction(SiteNode sn) {
         try {
-			performAction(sn.getNodeName(), new StructuralSiteNode(sn).getRegexPattern());
-		} catch (DatabaseException e) {
-			// Ignore
-		}
+            performAction(sn.getNodeName(), new StructuralSiteNode(sn).getRegexPattern());
+        } catch (DatabaseException e) {
+            // Ignore
+        }
     }
 
     protected void performAction(String name, String url) {
@@ -83,7 +76,8 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
             recreateUISharedContexts(session);
         }
 
-        Context uiSharedContext = View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
+        Context uiSharedContext =
+                View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
         uiSharedContext.addIncludeInContextRegex(url);
     }
 
@@ -98,8 +92,9 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
         super.performHistoryReferenceActions(hrefs);
 
         // Show the session dialog without recreating UI Shared contexts
-        View.getSingleton().showSessionDialog(session, ContextIncludePanel.getPanelName(context.getIndex()),
-                false);
+        View.getSingleton()
+                .showSessionDialog(
+                        session, ContextIncludePanel.getPanelName(context.getIndex()), false);
     }
 
     private void recreateUISharedContexts(Session session) {

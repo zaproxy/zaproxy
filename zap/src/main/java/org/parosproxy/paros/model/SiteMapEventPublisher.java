@@ -23,25 +23,29 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.EventPublisher;
 
 public class SiteMapEventPublisher implements EventPublisher {
-	
-	private static SiteMapEventPublisher publisher = null;
-	public static final String SITE_NODE_ADDED_EVENT	= "siteNode.added";
-	public static final String SITE_NODE_REMOVED_EVENT	= "siteNode.removed";
-	public static final String SITE_ADDED_EVENT	= "site.added";
-	public static final String SITE_REMOVED_EVENT	= "site.removed";
-	
-	@Override
-	public String getPublisherName() {
-		return SiteMapEventPublisher.class.getCanonicalName();
-	}
 
-	public static synchronized SiteMapEventPublisher getPublisher() {
-		if (publisher == null) {
-			publisher = new SiteMapEventPublisher(); 
-	        ZAP.getEventBus().registerPublisher(publisher, 
-	        		SITE_NODE_ADDED_EVENT, SITE_NODE_REMOVED_EVENT, SITE_ADDED_EVENT, SITE_REMOVED_EVENT);
+    private static SiteMapEventPublisher publisher = null;
+    public static final String SITE_NODE_ADDED_EVENT = "siteNode.added";
+    public static final String SITE_NODE_REMOVED_EVENT = "siteNode.removed";
+    public static final String SITE_ADDED_EVENT = "site.added";
+    public static final String SITE_REMOVED_EVENT = "site.removed";
 
-		}
-		return publisher;
-	}
+    @Override
+    public String getPublisherName() {
+        return SiteMapEventPublisher.class.getCanonicalName();
+    }
+
+    public static synchronized SiteMapEventPublisher getPublisher() {
+        if (publisher == null) {
+            publisher = new SiteMapEventPublisher();
+            ZAP.getEventBus()
+                    .registerPublisher(
+                            publisher,
+                            SITE_NODE_ADDED_EVENT,
+                            SITE_NODE_REMOVED_EVENT,
+                            SITE_ADDED_EVENT,
+                            SITE_REMOVED_EVENT);
+        }
+        return publisher;
+    }
 }

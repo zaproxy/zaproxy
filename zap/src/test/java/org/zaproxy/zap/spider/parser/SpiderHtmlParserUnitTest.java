@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
-
+import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
@@ -34,17 +34,14 @@ import org.junit.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
-import net.htmlparser.jericho.Source;
-
-/**
- * Unit test for {@link SpiderHtmlParser}.
- */
+/** Unit test for {@link SpiderHtmlParser}. */
 public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    private static final Path BASE_DIR_HTML_FILES = getResourcePath("html", SpiderHtmlParserUnitTest.class);
+    private static final Path BASE_DIR_HTML_FILES =
+            getResourcePath("html", SpiderHtmlParserUnitTest.class);
 
     @BeforeClass
     public static void suppressLogging() {
@@ -135,7 +132,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
     }
@@ -149,7 +147,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("AElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -171,10 +170,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("AElementsWithPingSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("AElementsWithPingSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(23)));
@@ -194,21 +195,21 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://example.com/a/absolute/ping",
                         "ftp://a.example.com/",
                         "https://ping.example.com/ping",
-                        //Ping first, is parsed href before ping
+                        // Ping first, is parsed href before ping
                         "http://b.example.com/",
                         "https://ping.first.com/",
-                        //Ignored anchors but picked pings
+                        // Ignored anchors but picked pings
                         "http://ping.example.com/mailping",
                         "http://ping.example.com/jsping",
                         "http://ping.example.com/ping",
-                        //Multiple ping URLs
+                        // Multiple ping URLs
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/",
-                        //Mutiple ping URLs with tab in the middle
+                        // Mutiple ping URLs with tab in the middle
                         "http://a.example.com/",
                         "http://ping.example.com/",
-                        "http://pong.example.com/"));//Trailing slash is added on host
+                        "http://pong.example.com/")); // Trailing slash is added on host
     }
 
     @Test
@@ -217,10 +218,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("AreaElementsWithPingSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("AreaElementsWithPingSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(23)));
@@ -240,23 +243,22 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://example.com/a/absolute/ping",
                         "ftp://a.example.com/",
                         "https://ping.example.com/ping",
-                        //Ping first, is parsed href before ping
+                        // Ping first, is parsed href before ping
                         "http://b.example.com/",
                         "https://ping.first.com/",
-                        //Ignored anchors but picked pings
+                        // Ignored anchors but picked pings
                         "http://ping.example.com/mailping",
                         "http://ping.example.com/jsping",
                         "http://ping.example.com/ping",
-                        //Multiple ping URLs
+                        // Multiple ping URLs
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/",
-                        //Mutiple ping URLs with tab in the middle
+                        // Mutiple ping URLs with tab in the middle
                         "http://a.example.com/",
                         "http://ping.example.com/",
-                        "http://pong.example.com/"));//Trailing slash is added on host
+                        "http://pong.example.com/")); // Trailing slash is added on host
     }
-
 
     @Test
     public void shouldUseMessageUriIfNoBaseElement() {
@@ -264,10 +266,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("NoBaseWithAElementSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("NoBaseWithAElementSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
@@ -280,16 +284,20 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("BaseWithAbsolutePathHrefAElementSpiderHtmlParser.html", "/a/b");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("BaseWithAbsolutePathHrefAElementSpiderHtmlParser.html", "/a/b");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(2)));
         assertThat(
                 listener.getUrlsFound(),
-                contains("http://example.com/base/absolute/path/relative/a/element", "http://example.com/absolute/a/element"));
+                contains(
+                        "http://example.com/base/absolute/path/relative/a/element",
+                        "http://example.com/absolute/a/element"));
     }
 
     @Test
@@ -298,16 +306,20 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("BaseWithRelativePathHrefAElementSpiderHtmlParser.html", "/a/b");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("BaseWithRelativePathHrefAElementSpiderHtmlParser.html", "/a/b");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(2)));
-        assertThat(listener.getUrlsFound(), contains(
-                "http://example.com/a/base/relative/path/relative/a/element",
-                "http://example.com/absolute/a/element"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/a/base/relative/path/relative/a/element",
+                        "http://example.com/absolute/a/element"));
     }
 
     @Test
@@ -316,10 +328,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("BaseWithoutHrefAElementSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("BaseWithoutHrefAElementSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
@@ -332,10 +346,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("BaseWithEmptyHrefAElementSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("BaseWithEmptyHrefAElementSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
@@ -351,7 +367,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("AreaElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -376,7 +393,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("FrameElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -401,7 +419,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("IFrameElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -426,7 +445,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("LinkElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -451,7 +471,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("ScriptElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -476,7 +497,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("ImgElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
@@ -501,7 +523,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("MetaElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
@@ -527,10 +550,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("CommentWithElementsSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("CommentWithElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(9)));
@@ -556,10 +581,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("CommentWithElementsSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("CommentWithElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(0)));
@@ -572,10 +599,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("CommentWithoutElementsSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("CommentWithoutElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
@@ -602,10 +631,12 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("CommentWithoutElementsSpiderHtmlParser.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("CommentWithoutElementsSpiderHtmlParser.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(0)));
@@ -622,7 +653,9 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
             String fileContents = readFile(BASE_DIR_HTML_FILES.resolve(filename));
             message.setRequestHeader("GET " + requestUri + " HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
-                    "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html; charset=UTF-8\r\n" + "Content-Length: "
+                    "HTTP/1.1 200 OK\r\n"
+                            + "Content-Type: text/html; charset=UTF-8\r\n"
+                            + "Content-Length: "
                             + fileContents.length());
             message.setResponseBody(fileContents);
         } catch (Exception e) {

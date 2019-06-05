@@ -21,32 +21,30 @@ package org.parosproxy.paros.extension.history;
 
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableModel;
 
-/**
- * A {@code DefaultHistoryReferencesTableModel} for History tab.
- */
+/** A {@code DefaultHistoryReferencesTableModel} for History tab. */
 class HistoryTableModel extends DefaultHistoryReferencesTableModel {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructs a {@code HistoryTableModel}.
-     */
+    /** Constructs a {@code HistoryTableModel}. */
     public HistoryTableModel() {
-        super(new Column[] {
-                Column.HREF_ID,
-                Column.REQUEST_TIMESTAMP,
-                Column.RESPONSE_TIMESTAMP,
-                Column.METHOD,
-                Column.URL,
-                Column.STATUS_CODE,
-                Column.STATUS_REASON,
-                Column.RTT,
-                Column.SIZE_REQUEST_HEADER,
-                Column.SIZE_REQUEST_BODY,
-                Column.SIZE_RESPONSE_HEADER,
-                Column.SIZE_RESPONSE_BODY,
-                Column.HIGHEST_ALERT,
-                Column.NOTE,
-                Column.TAGS });
+        super(
+                new Column[] {
+                    Column.HREF_ID,
+                    Column.REQUEST_TIMESTAMP,
+                    Column.RESPONSE_TIMESTAMP,
+                    Column.METHOD,
+                    Column.URL,
+                    Column.STATUS_CODE,
+                    Column.STATUS_REASON,
+                    Column.RTT,
+                    Column.SIZE_REQUEST_HEADER,
+                    Column.SIZE_REQUEST_BODY,
+                    Column.SIZE_RESPONSE_HEADER,
+                    Column.SIZE_RESPONSE_BODY,
+                    Column.HIGHEST_ALERT,
+                    Column.NOTE,
+                    Column.TAGS
+                });
     }
 }

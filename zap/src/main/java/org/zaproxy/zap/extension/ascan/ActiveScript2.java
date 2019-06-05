@@ -20,10 +20,9 @@
 package org.zaproxy.zap.extension.ascan;
 
 import javax.script.ScriptException;
-
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface ActiveScript2 {
 
-	void scanNode(ScriptsActiveScanner sas, HttpMessage msg) throws ScriptException;
+    void scanNode(ScriptsActiveScanner sas, HttpMessage msg) throws ScriptException;
 }

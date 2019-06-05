@@ -24,50 +24,48 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-
 /**
- * @deprecated (2.5.0) No longer used, replaced by {@link org.zaproxy.zap.extension.stdmenus.PopupMenuShowInHistory}.
+ * @deprecated (2.5.0) No longer used, replaced by {@link
+ *     org.zaproxy.zap.extension.stdmenus.PopupMenuShowInHistory}.
  */
 @Deprecated
 public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContainer {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private ExtensionHistory extension = null;
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuShowInHistory(String label) {
         super(label);
     }
-	
-	@Override
-	public void performAction(HistoryReference href) {
-		extension.showInHistory(href);
-	}
 
-	public void setExtension(ExtensionHistory extension) {
-		this.extension = extension;
-	}
+    @Override
+    public void performAction(HistoryReference href) {
+        extension.showInHistory(href);
+    }
 
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		switch (invoker) {
-		case ACTIVE_SCANNER_PANEL:
-		case FORCED_BROWSE_PANEL:
-		case FUZZER_PANEL:
-		case HISTORY_PANEL:
-			return false;
-		case ALERTS_PANEL:
-		case SITES_PANEL:
-		case SEARCH_PANEL:
-		default:
-			return true;
-		}
-	}
+    public void setExtension(ExtensionHistory extension) {
+        this.extension = extension;
+    }
+
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        switch (invoker) {
+            case ACTIVE_SCANNER_PANEL:
+            case FORCED_BROWSE_PANEL:
+            case FUZZER_PANEL:
+            case HISTORY_PANEL:
+                return false;
+            case ALERTS_PANEL:
+            case SITES_PANEL:
+            case SEARCH_PANEL:
+            default:
+                return true;
+        }
+    }
 
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

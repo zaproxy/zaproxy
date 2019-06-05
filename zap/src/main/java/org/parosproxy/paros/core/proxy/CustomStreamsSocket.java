@@ -34,13 +34,15 @@ public class CustomStreamsSocket extends Socket {
     private final InputStream customInputStream;
     private final OutputStream customOutputStream;
 
-    public CustomStreamsSocket(Socket socket, InputStream inputStream, OutputStream outputStream) throws IOException {
+    public CustomStreamsSocket(Socket socket, InputStream inputStream, OutputStream outputStream)
+            throws IOException {
         super((java.net.SocketImpl) null);
         if (socket == null) {
             throw new IllegalArgumentException("Parameter socket must not be null.");
         }
         if (inputStream == null && outputStream == null) {
-            throw new IllegalArgumentException("Parameters inputStream and outputStream must not be both null.");
+            throw new IllegalArgumentException(
+                    "Parameters inputStream and outputStream must not be both null.");
         }
         delegate = socket;
         customInputStream = inputStream != null ? inputStream : socket.getInputStream();

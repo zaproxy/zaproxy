@@ -23,69 +23,65 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-/**
- * A set of Http Session tokens, that is valid for a particular Site, Context etc.
- */
+/** A set of Http Session tokens, that is valid for a particular Site, Context etc. */
 public class HttpSessionTokensSet {
 
-	/** The session tokens. */
-	private LinkedHashSet<String> sessionTokens = new LinkedHashSet<>();
+    /** The session tokens. */
+    private LinkedHashSet<String> sessionTokens = new LinkedHashSet<>();
 
-	public HttpSessionTokensSet() {
-	}
+    public HttpSessionTokensSet() {}
 
-	/**
-	 * Adds the token.
-	 * 
-	 * @param token the token
-	 */
-	protected void addToken(String token) {
-		synchronized (sessionTokens) {
-			sessionTokens.add(token);
-		}
-	}
+    /**
+     * Adds the token.
+     *
+     * @param token the token
+     */
+    protected void addToken(String token) {
+        synchronized (sessionTokens) {
+            sessionTokens.add(token);
+        }
+    }
 
-	public boolean isEmpty() {
-		synchronized (sessionTokens) {
-			return sessionTokens.isEmpty();
-		}
-	}
+    public boolean isEmpty() {
+        synchronized (sessionTokens) {
+            return sessionTokens.isEmpty();
+        }
+    }
 
-	/**
-	 * Removes the token.
-	 * 
-	 * @param token the token
-	 */
-	protected void removeToken(String token) {
-		synchronized (sessionTokens) {
-			sessionTokens.remove(token);
-		}
-	}
+    /**
+     * Removes the token.
+     *
+     * @param token the token
+     */
+    protected void removeToken(String token) {
+        synchronized (sessionTokens) {
+            sessionTokens.remove(token);
+        }
+    }
 
-	/**
-	 * Checks if is session token.
-	 * 
-	 * @param token the token
-	 * @return true, if successful
-	 */
-	public boolean isSessionToken(String token) {
-		synchronized (sessionTokens) {
-			return sessionTokens.contains(token);
-		}
-	}
+    /**
+     * Checks if is session token.
+     *
+     * @param token the token
+     * @return true, if successful
+     */
+    public boolean isSessionToken(String token) {
+        synchronized (sessionTokens) {
+            return sessionTokens.contains(token);
+        }
+    }
 
-	/**
-	 * Returns an unmodifiable view of the tokens in this set. This method provides a "read-only"
-	 * access to the internal set. Query operations on the returned set "read through" to the
-	 * internal set, and attempts to modify the returned set, whether direct or via its iterator,
-	 * result in an {@link UnsupportedOperationException}.
-	 * 
-	 * @return the tokens set
-	 */
-	public Set<String> getTokensSet() {
-		synchronized (sessionTokens) {
-			return Collections.unmodifiableSet(sessionTokens);
-		}
-	}
-
+    /**
+     * Returns an unmodifiable view of the tokens in this set. This method provides a "read-only"
+     * access to the internal set. Query operations on the returned set "read through" to the
+     * internal set, and attempts to modify the returned set, whether direct or via its iterator,
+     * result in an {@link UnsupportedOperationException}.
+     *
+     * @return the tokens set
+     */
+    public Set<String> getTokensSet() {
+        synchronized (sessionTokens) {
+            return Collections.unmodifiableSet(sessionTokens);
+        }
+    }
 }

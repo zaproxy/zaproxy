@@ -21,7 +21,7 @@ package org.zaproxy.zap.model;
 
 /**
  * Signals that a {@code Message} is not valid.
- * 
+ *
  * @see org.zaproxy.zap.extension.httppanel.Message
  * @since 2.4.0
  */
@@ -45,7 +45,11 @@ public class InvalidMessageException extends Exception {
         super(cause);
     }
 
-    protected InvalidMessageException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected InvalidMessageException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

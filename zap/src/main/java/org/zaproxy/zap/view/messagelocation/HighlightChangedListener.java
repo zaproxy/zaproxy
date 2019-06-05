@@ -22,8 +22,9 @@ package org.zaproxy.zap.view.messagelocation;
 import java.util.EventListener;
 
 /**
- * An {@code EventListener} that allows to listen to {@code HighlightChangedEvent} to react to changes in an highlight.
- * 
+ * An {@code EventListener} that allows to listen to {@code HighlightChangedEvent} to react to
+ * changes in an highlight.
+ *
  * @param <T> the type that has/changes the highlight
  * @since 2.4.0
  * @see HighlightChangedEvent

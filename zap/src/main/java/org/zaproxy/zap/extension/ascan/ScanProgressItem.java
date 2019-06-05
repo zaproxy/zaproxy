@@ -21,20 +21,17 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.util.Date;
 import java.util.Locale;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.PluginStats;
 
-/**
- * Class for Visual Plugin Progress management
- */
+/** Class for Visual Plugin Progress management */
 public class ScanProgressItem {
-    
+
     // Inner constants for status management
-    public static final int STATUS_PENDING   = 0x01;
-    public static final int STATUS_RUNNING   = 0x02;
+    public static final int STATUS_PENDING = 0x01;
+    public static final int STATUS_RUNNING = 0x02;
     public static final int STATUS_COMPLETED = 0x03;
 
     private HostProcess hProcess;
@@ -44,7 +41,6 @@ public class ScanProgressItem {
     private final PluginStats pluginStats;
 
     /**
-     *
      * @param plugin
      * @param status
      */
@@ -56,26 +52,18 @@ public class ScanProgressItem {
         this.progressAction = new ScanProgressActionIcon(this);
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public String getNameLabel() {
         return pluginStats.getPluginName();
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public String getAttackStrenghtLabel() {
-        return Constant.messages.getString("ascan.policy.level." + plugin.getAttackStrength().name().toLowerCase(Locale.ROOT));
+        return Constant.messages.getString(
+                "ascan.policy.level." + plugin.getAttackStrength().name().toLowerCase(Locale.ROOT));
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public String getStatusLabel() {
         switch (status) {
             case STATUS_COMPLETED:
@@ -102,19 +90,21 @@ public class ScanProgressItem {
 
     /**
      * Get back the percentage of completion.
-     * 
+     *
      * @return the percentage value from 0 to 100
      */
-    public int getProgressPercentage()  {
+    public int getProgressPercentage() {
         // Implemented using node counts...
         if (isRunning()) {
-            int progress = (hProcess.getTestCurrentCount(plugin) * 100) / hProcess.getTestTotalCount();
+            int progress =
+                    (hProcess.getTestCurrentCount(plugin) * 100) / hProcess.getTestTotalCount();
             // Make sure not return 100 (or more) if still running...
-            // That might happen if more nodes are being scanned that the ones enumerated at the beginning.
+            // That might happen if more nodes are being scanned that the ones enumerated at the
+            // beginning.
             return progress >= 100 ? 99 : progress;
         } else if (isCompleted() || isSkipped()) {
-            return 100;        
-            
+            return 100;
+
         } else {
             return 0;
         }
@@ -128,35 +118,29 @@ public class ScanProgressItem {
     ScanProgressActionIcon getProgressAction() {
         return progressAction;
     }
-    
-    /**
-     * 
-     * @return 
-     */
+
+    /** @return */
     public boolean isRunning() {
         return (status == STATUS_RUNNING);
     }
 
     /**
      * Tells whether or not the plugin is pending.
-     * 
+     *
      * @return {@code true} if the plugin is pending, {@code false} otherwise.
      */
     boolean isPending() {
         return (status == STATUS_PENDING);
     }
 
-    /**
-     * 
-     * @return 
-     */
+    /** @return */
     public boolean isCompleted() {
         return (status == STATUS_COMPLETED);
     }
-    
+
     /**
      * Tells whether or not the plugin was skipped.
-     * 
+     *
      * @return {@code true} if the plugin was skipped, {@code false} otherwise.
      * @since 2.4.0
      * @see #getSkippedReason()
@@ -178,57 +162,54 @@ public class ScanProgressItem {
 
     public void skip() {
         if (!isCompleted() && !isStopped()) {
-            hProcess.pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.user"));
+            hProcess.pluginSkipped(
+                    plugin,
+                    Constant.messages.getString("ascan.progress.label.skipped.reason.user"));
         }
     }
-    
-    /**
-     * 
-     * @return 
-     */
+
+    /** @return */
     protected Plugin getPlugin() {
         return plugin;
     }
 
-	public int getReqCount() {
-		return pluginStats.getMessageCount();
-	}
+    public int getReqCount() {
+        return pluginStats.getMessageCount();
+    }
 
-	/**
-	 * Gets the alert count of this scan progress item.
-	 *
-	 * @return the alert count.
-	 */
-	int getAlertCount() {
-		return pluginStats.getAlertCount();
-	}
+    /**
+     * Gets the alert count of this scan progress item.
+     *
+     * @return the alert count.
+     */
+    int getAlertCount() {
+        return pluginStats.getAlertCount();
+    }
 
-	@Override
-	public String toString() {
-		return Integer.toString(getProgressPercentage());
-	}
+    @Override
+    public String toString() {
+        return Integer.toString(getProgressPercentage());
+    }
 
-	/**
-	 * Refresh the state of this scan progress item.
-	 */
-	void refresh() {
-		if (isCompleted()) {
-			return;
-		}
+    /** Refresh the state of this scan progress item. */
+    void refresh() {
+        if (isCompleted()) {
+            return;
+        }
 
-		if (hProcess.getCompleted().contains(plugin)) {
-			status = STATUS_COMPLETED;
-		} else if (hProcess.getRunning().contains(plugin)) {
-			status = STATUS_RUNNING;
-		}
-	}
+        if (hProcess.getCompleted().contains(plugin)) {
+            status = STATUS_COMPLETED;
+        } else if (hProcess.getRunning().contains(plugin)) {
+            status = STATUS_RUNNING;
+        }
+    }
 
-	/**
-	 * Tells whether or not the scan is stopped.
-	 * 
-	 * @return {@code true} if the scan is stopped, {@code false} otherwise.
-	 */
-	boolean isStopped() {
-		return hProcess.isStop();
-	}
+    /**
+     * Tells whether or not the scan is stopped.
+     *
+     * @return {@code true} if the scan is stopped, {@code false} otherwise.
+     */
+    boolean isStopped() {
+        return hProcess.isStop();
+    }
 }

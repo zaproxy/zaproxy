@@ -23,15 +23,14 @@ import org.parosproxy.paros.network.HttpSender;
 
 public class HttpSenderScriptHelper {
 
-	private HttpSender httpSender;
+    private HttpSender httpSender;
 
-	public HttpSenderScriptHelper(HttpSender httpSender) {
-		super();
-		this.httpSender = httpSender;
-	}
+    public HttpSenderScriptHelper(HttpSender httpSender) {
+        super();
+        this.httpSender = httpSender;
+    }
 
-	public HttpSender getHttpSender() {
-		return httpSender;
-	}
-	
+    public HttpSender getHttpSender() {
+        return httpSender;
+    }
 }

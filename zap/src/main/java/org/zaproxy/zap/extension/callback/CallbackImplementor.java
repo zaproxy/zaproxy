@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.callback;
 
 import java.util.List;
-
 import org.parosproxy.paros.network.HttpMessage;
 
 /**

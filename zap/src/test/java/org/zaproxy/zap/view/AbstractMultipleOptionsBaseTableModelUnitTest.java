@@ -26,18 +26,16 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@code AbstractMultipleOptionsBaseTableModel}.
- */
+/** Unit test for {@code AbstractMultipleOptionsBaseTableModel}. */
 public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils {
 
     @Test(expected = Exception.class)
     public void shouldFailToGetNonExistingElement() {
         // Given
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl();
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl();
         // When
         tableModel.getElement(1);
         // Then = Exception
@@ -47,7 +45,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     public void shouldAddElement() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl();
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl();
         tableModel.addTableModelListener(listener);
         Object element = new Object();
         // When
@@ -63,7 +62,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     @Test(expected = Exception.class)
     public void shouldFailToModifyNonExistingElement() {
         // Given
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl();
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl();
         // When
         tableModel.modifyElement(1, new Object());
         // Then = Exception
@@ -74,7 +74,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         // Given
         List<Object> elements = new ArrayList<>();
         elements.add(new Object());
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl(elements);
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl(elements);
         TestTableModelListener listener = createTestTableModelListener();
         tableModel.addTableModelListener(listener);
         Object element = new Object();
@@ -91,7 +92,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     @Test(expected = Exception.class)
     public void shouldFailToRemoveNonExistingElement() {
         // Given
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl();
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl();
         // When
         tableModel.removeElement(1);
         // Then = Exception
@@ -104,7 +106,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         Object element = new Object();
         elements.add(element);
         elements.add(new Object());
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl(elements);
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl(elements);
         TestTableModelListener listener = createTestTableModelListener();
         tableModel.addTableModelListener(listener);
         // When
@@ -122,7 +125,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         // Given
         List<Object> elements = new ArrayList<>();
         elements.add(new Object());
-        AbstractMultipleOptionsBaseTableModel<Object> tableModel = new MultipleOptionsBaseTableModelImpl(elements);
+        AbstractMultipleOptionsBaseTableModel<Object> tableModel =
+                new MultipleOptionsBaseTableModelImpl(elements);
         TestTableModelListener listener = createTestTableModelListener();
         tableModel.addTableModelListener(listener);
         // When
@@ -133,7 +137,8 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         assertThat(listener.isDataChanged(), is(equalTo(true)));
     }
 
-    private static class MultipleOptionsBaseTableModelImpl extends AbstractMultipleOptionsBaseTableModel<Object> {
+    private static class MultipleOptionsBaseTableModelImpl
+            extends AbstractMultipleOptionsBaseTableModel<Object> {
 
         private static final long serialVersionUID = -7940238455706609659L;
 
@@ -166,6 +171,5 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         public Object getValueAt(int rowIndex, int columnIndex) {
             return null;
         }
-
     }
 }

@@ -28,29 +28,28 @@ import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
 public class PopupMenuOpenUrlInBrowser extends PopupMenuItemHttpMessageContainer {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuOpenUrlInBrowser(String label) {
         super(label);
     }
-    
-	@Override
-	public void performAction(HttpMessage msg) {
-        if ( ! DesktopUtils.openUrlInBrowser(msg.getRequestHeader().getURI())) {
-            View.getSingleton().showWarningDialog(Constant.messages.getString("history.browser.warning"));
+
+    @Override
+    public void performAction(HttpMessage msg) {
+        if (!DesktopUtils.openUrlInBrowser(msg.getRequestHeader().getURI())) {
+            View.getSingleton()
+                    .showWarningDialog(Constant.messages.getString("history.browser.warning"));
         }
-	}
-	
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		return DesktopUtils.canOpenUrlInBrowser();
-	}
-	
+    }
+
+    @Override
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return DesktopUtils.canOpenUrlInBrowser();
+    }
+
     @Override
     public boolean isSafe() {
-    	return true;
+        return true;
     }
 }

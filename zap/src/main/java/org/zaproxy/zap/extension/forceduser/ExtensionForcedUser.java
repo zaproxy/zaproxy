@@ -27,11 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -57,369 +55,388 @@ import org.zaproxy.zap.view.ZapToggleButton;
  * The ForcedUser Extension allows ZAP user to force all requests that correspond to a given Context
  * to be sent from the point of view of a User.
  */
-public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPanelFactory, HttpSenderListener,
-		ContextDataFactory {
+public class ExtensionForcedUser extends ExtensionAdaptor
+        implements ContextPanelFactory, HttpSenderListener, ContextDataFactory {
 
-	/** The Constant EXTENSION DEPENDENCIES. */
-	private static final List<Class<? extends Extension>> EXTENSION_DEPENDENCIES;
-	static {
-		// Prepare a list of Extensions on which this extension depends
-		List<Class<? extends Extension>> dependencies = new ArrayList<>(1);
-		dependencies.add(ExtensionUserManagement.class);
-		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
-	}
+    /** The Constant EXTENSION DEPENDENCIES. */
+    private static final List<Class<? extends Extension>> EXTENSION_DEPENDENCIES;
 
-	private static final String FORCED_USER_MODE_OFF_ICON_RESOURCE = "/resource/icon/16/forcedUserOff.png";
-	private static final String FORCED_USER_MODE_ON_ICON_RESOURCE = "/resource/icon/16/forcedUserOn.png";
-	private static final String BUTTON_LABEL_ON = Constant.messages.getString("forceduser.toolbar.button.on");
-	private static final String BUTTON_LABEL_OFF = Constant.messages
-			.getString("forceduser.toolbar.button.off");
-	private static final String BUTTON_LABEL_DISABLED = Constant.messages
-			.getString("forceduser.toolbar.button.disabled");
-	private static final String MENU_ITEM_LABEL = Constant.messages.getString("forceduser.menuitem.label");
+    static {
+        // Prepare a list of Extensions on which this extension depends
+        List<Class<? extends Extension>> dependencies = new ArrayList<>(1);
+        dependencies.add(ExtensionUserManagement.class);
+        EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
+    }
 
-	/** The NAME of the extension. */
-	public static final String NAME = "ExtensionForcedUser";
+    private static final String FORCED_USER_MODE_OFF_ICON_RESOURCE =
+            "/resource/icon/16/forcedUserOff.png";
+    private static final String FORCED_USER_MODE_ON_ICON_RESOURCE =
+            "/resource/icon/16/forcedUserOn.png";
+    private static final String BUTTON_LABEL_ON =
+            Constant.messages.getString("forceduser.toolbar.button.on");
+    private static final String BUTTON_LABEL_OFF =
+            Constant.messages.getString("forceduser.toolbar.button.off");
+    private static final String BUTTON_LABEL_DISABLED =
+            Constant.messages.getString("forceduser.toolbar.button.disabled");
+    private static final String MENU_ITEM_LABEL =
+            Constant.messages.getString("forceduser.menuitem.label");
 
-	/** The Constant log. */
-	private static final Logger log = Logger.getLogger(ExtensionForcedUser.class);
+    /** The NAME of the extension. */
+    public static final String NAME = "ExtensionForcedUser";
 
-	/** The map of context panels. */
-	private Map<Integer, ContextForcedUserPanel> contextPanelsMap = new HashMap<>();
+    /** The Constant log. */
+    private static final Logger log = Logger.getLogger(ExtensionForcedUser.class);
 
-	/** The map of forced users for each context. */
-	private Map<Integer, User> contextForcedUsersMap = new HashMap<>();
+    /** The map of context panels. */
+    private Map<Integer, ContextForcedUserPanel> contextPanelsMap = new HashMap<>();
 
-	private ExtensionUserManagement extensionUserManagement;
+    /** The map of forced users for each context. */
+    private Map<Integer, User> contextForcedUsersMap = new HashMap<>();
 
-	private boolean forcedUserModeEnabled = false;
+    private ExtensionUserManagement extensionUserManagement;
 
-	private ZapToggleButton forcedUserModeButton;
-	private JCheckBoxMenuItem forcedUserModeMenuItem;
-	private ForcedUserAPI api;
+    private boolean forcedUserModeEnabled = false;
 
-	/**
-	 * Instantiates a new forced user extension.
-	 */
-	public ExtensionForcedUser() {
-		super();
-		initialize();
-	}
+    private ZapToggleButton forcedUserModeButton;
+    private JCheckBoxMenuItem forcedUserModeMenuItem;
+    private ForcedUserAPI api;
 
-	/**
-	 * Initialize the extension.
-	 */
-	private void initialize() {
-		this.setName(NAME);
-		this.setOrder(202);
-	}
-	
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("forcedUser.name");
-	}
+    /** Instantiates a new forced user extension. */
+    public ExtensionForcedUser() {
+        super();
+        initialize();
+    }
 
-	@Override
-	@SuppressWarnings("deprecation")
-	public void hook(ExtensionHook extensionHook) {
-		super.hook(extensionHook);
+    /** Initialize the extension. */
+    private void initialize() {
+        this.setName(NAME);
+        this.setOrder(202);
+    }
 
-		// Register this where needed
-		extensionHook.addContextDataFactory(this);
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("forcedUser.name");
+    }
 
-		if (getView() != null) {
-			// Factory for generating Session Context UserAuth panels
-			extensionHook.getHookView().addContextPanelFactory(this);
+    @Override
+    @SuppressWarnings("deprecation")
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
 
-			extensionHook.getHookView().addMainToolBarComponent(getForcedUserModeToggleButton());
-			extensionHook.getHookMenu().addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
-			extensionHook.getHookMenu().addEditMenuItem(getForcedUserModeMenuItem());
-		}
+        // Register this where needed
+        extensionHook.addContextDataFactory(this);
 
-		// Register as Http Sender listener
-		extensionHook.addHttpSenderListener(this);
+        if (getView() != null) {
+            // Factory for generating Session Context UserAuth panels
+            extensionHook.getHookView().addContextPanelFactory(this);
 
-		// Prepare API
-		this.api = new ForcedUserAPI(this);
-		extensionHook.addApiImplementor(api);
-	}
+            extensionHook.getHookView().addMainToolBarComponent(getForcedUserModeToggleButton());
+            extensionHook
+                    .getHookMenu()
+                    .addEditMenuItem(extensionHook.getHookMenu().getMenuSeparator());
+            extensionHook.getHookMenu().addEditMenuItem(getForcedUserModeMenuItem());
+        }
 
-	private void updateForcedUserModeToggleButtonEnabledState() {
-		if (getView() != null) {
-			forcedUserModeButton.setSelected(forcedUserModeEnabled);
-			forcedUserModeMenuItem.setSelected(forcedUserModeEnabled);
-			forcedUserModeMenuItem.setToolTipText(forcedUserModeEnabled ? BUTTON_LABEL_ON : BUTTON_LABEL_OFF );
-		}
-	}
+        // Register as Http Sender listener
+        extensionHook.addHttpSenderListener(this);
 
-	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
-		this.forcedUserModeEnabled = forcedUserModeEnabled;
-		updateForcedUserModeToggleButtonEnabledState();
-	}
+        // Prepare API
+        this.api = new ForcedUserAPI(this);
+        extensionHook.addApiImplementor(api);
+    }
 
-	private void setForcedUserModeToggleButtonState(boolean enabled) {
-		if (enabled) {
-			updateForcedUserModeToggleButtonEnabledState();
-			this.getForcedUserModeToggleButton().setEnabled(true);
-			this.getForcedUserModeMenuItem().setEnabled(true);
-		} else {
-			this.forcedUserModeEnabled = false;
-			this.getForcedUserModeToggleButton().setSelected(false);
-			this.getForcedUserModeToggleButton().setEnabled(false);
-			this.getForcedUserModeMenuItem().setSelected(false);
-			this.getForcedUserModeMenuItem().setEnabled(false);
-			this.getForcedUserModeMenuItem().setToolTipText(BUTTON_LABEL_DISABLED);
-		}
-	}
+    private void updateForcedUserModeToggleButtonEnabledState() {
+        if (getView() != null) {
+            forcedUserModeButton.setSelected(forcedUserModeEnabled);
+            forcedUserModeMenuItem.setSelected(forcedUserModeEnabled);
+            forcedUserModeMenuItem.setToolTipText(
+                    forcedUserModeEnabled ? BUTTON_LABEL_ON : BUTTON_LABEL_OFF);
+        }
+    }
 
-	private void updateForcedUserModeToggleButtonState() {
-		if (contextForcedUsersMap.isEmpty()) {
-			if (this.getForcedUserModeToggleButton().isEnabled())
-				this.setForcedUserModeToggleButtonState(false);
-		} else {
-			if (!this.getForcedUserModeToggleButton().isEnabled())
-				this.setForcedUserModeToggleButtonState(true);
-		}
-	}
+    protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
+        this.forcedUserModeEnabled = forcedUserModeEnabled;
+        updateForcedUserModeToggleButtonEnabledState();
+    }
 
-	private JToggleButton getForcedUserModeToggleButton() {
-		if (forcedUserModeButton == null) {
-			forcedUserModeButton = new ZapToggleButton();
-			forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
-					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			forcedUserModeButton.setSelectedIcon(new ImageIcon(ExtensionForcedUser.class
-					.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
-			forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
-			forcedUserModeButton.setSelectedToolTipText(BUTTON_LABEL_ON);
-			forcedUserModeButton.setDisabledToolTipText(BUTTON_LABEL_DISABLED);
-			forcedUserModeButton.setEnabled(false); // Disable until login and one indicator flagged
+    private void setForcedUserModeToggleButtonState(boolean enabled) {
+        if (enabled) {
+            updateForcedUserModeToggleButtonEnabledState();
+            this.getForcedUserModeToggleButton().setEnabled(true);
+            this.getForcedUserModeMenuItem().setEnabled(true);
+        } else {
+            this.forcedUserModeEnabled = false;
+            this.getForcedUserModeToggleButton().setSelected(false);
+            this.getForcedUserModeToggleButton().setEnabled(false);
+            this.getForcedUserModeMenuItem().setSelected(false);
+            this.getForcedUserModeMenuItem().setEnabled(false);
+            this.getForcedUserModeMenuItem().setToolTipText(BUTTON_LABEL_DISABLED);
+        }
+    }
 
-			forcedUserModeButton.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					setForcedUserModeEnabled(getForcedUserModeToggleButton().isSelected());
-				}
-			});
-		}
-		return forcedUserModeButton;
-	}
+    private void updateForcedUserModeToggleButtonState() {
+        if (contextForcedUsersMap.isEmpty()) {
+            if (this.getForcedUserModeToggleButton().isEnabled())
+                this.setForcedUserModeToggleButtonState(false);
+        } else {
+            if (!this.getForcedUserModeToggleButton().isEnabled())
+                this.setForcedUserModeToggleButtonState(true);
+        }
+    }
 
-	private JCheckBoxMenuItem getForcedUserModeMenuItem() {
-		if (forcedUserModeMenuItem == null) {
-			forcedUserModeMenuItem = new JCheckBoxMenuItem(MENU_ITEM_LABEL);
-			forcedUserModeMenuItem.setToolTipText(BUTTON_LABEL_DISABLED);
-			forcedUserModeMenuItem.setEnabled(false);
-			forcedUserModeMenuItem.addActionListener(e -> setForcedUserModeEnabled(forcedUserModeMenuItem.isSelected()));
-		}
-		return forcedUserModeMenuItem;
-	}
+    private JToggleButton getForcedUserModeToggleButton() {
+        if (forcedUserModeButton == null) {
+            forcedUserModeButton = new ZapToggleButton();
+            forcedUserModeButton.setIcon(
+                    new ImageIcon(
+                            ExtensionForcedUser.class.getResource(
+                                    FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+            forcedUserModeButton.setSelectedIcon(
+                    new ImageIcon(
+                            ExtensionForcedUser.class.getResource(
+                                    FORCED_USER_MODE_ON_ICON_RESOURCE)));
+            forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
+            forcedUserModeButton.setSelectedToolTipText(BUTTON_LABEL_ON);
+            forcedUserModeButton.setDisabledToolTipText(BUTTON_LABEL_DISABLED);
+            forcedUserModeButton.setEnabled(false); // Disable until login and one indicator flagged
 
-	protected ExtensionUserManagement getUserManagementExtension() {
-		if (extensionUserManagement == null) {
-			extensionUserManagement = Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
-		}
-		return extensionUserManagement;
-	}
+            forcedUserModeButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            setForcedUserModeEnabled(getForcedUserModeToggleButton().isSelected());
+                        }
+                    });
+        }
+        return forcedUserModeButton;
+    }
 
-	public boolean isForcedUserModeEnabled() {
-		return forcedUserModeEnabled;
-	}
+    private JCheckBoxMenuItem getForcedUserModeMenuItem() {
+        if (forcedUserModeMenuItem == null) {
+            forcedUserModeMenuItem = new JCheckBoxMenuItem(MENU_ITEM_LABEL);
+            forcedUserModeMenuItem.setToolTipText(BUTTON_LABEL_DISABLED);
+            forcedUserModeMenuItem.setEnabled(false);
+            forcedUserModeMenuItem.addActionListener(
+                    e -> setForcedUserModeEnabled(forcedUserModeMenuItem.isSelected()));
+        }
+        return forcedUserModeMenuItem;
+    }
 
-	/**
-	 * Sets the forced user for a context.
-	 * 
-	 * @param contextId the context id
-	 * @param user the user
-	 */
-	public void setForcedUser(int contextId, User user) {
-		if (user != null)
-			this.contextForcedUsersMap.put(contextId, user);
-		else
-			this.contextForcedUsersMap.remove(contextId);
-		this.updateForcedUserModeToggleButtonState();
-	}
+    protected ExtensionUserManagement getUserManagementExtension() {
+        if (extensionUserManagement == null) {
+            extensionUserManagement =
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionUserManagement.class);
+        }
+        return extensionUserManagement;
+    }
 
-	/**
-	 * Sets the forced user for a context, based on the user id.
-	 * 
-	 * @param contextId the context id
-	 * @param userId the user id
-	 * @throws IllegalStateException if no user was found that matches the provided id.
-	 */
-	public void setForcedUser(int contextId, int userId) throws IllegalStateException {
-		User user = getUserManagementExtension().getContextUserAuthManager(contextId).getUserById(userId);
-		if (user == null)
-			throw new IllegalStateException("No user matching the provided id was found.");
-		setForcedUser(contextId, user);
-	}
+    public boolean isForcedUserModeEnabled() {
+        return forcedUserModeEnabled;
+    }
 
-	/**
-	 * Gets the forced user for a context.
-	 * 
-	 * @param contextId the context id
-	 * @return the forced user
-	 */
-	public User getForcedUser(int contextId) {
-		return this.contextForcedUsersMap.get(contextId);
-	}
+    /**
+     * Sets the forced user for a context.
+     *
+     * @param contextId the context id
+     * @param user the user
+     */
+    public void setForcedUser(int contextId, User user) {
+        if (user != null) this.contextForcedUsersMap.put(contextId, user);
+        else this.contextForcedUsersMap.remove(contextId);
+        this.updateForcedUserModeToggleButtonState();
+    }
 
-	@Override
-	public List<Class<? extends Extension>> getDependencies() {
-		return EXTENSION_DEPENDENCIES;
-	}
+    /**
+     * Sets the forced user for a context, based on the user id.
+     *
+     * @param contextId the context id
+     * @param userId the user id
+     * @throws IllegalStateException if no user was found that matches the provided id.
+     */
+    public void setForcedUser(int contextId, int userId) throws IllegalStateException {
+        User user =
+                getUserManagementExtension()
+                        .getContextUserAuthManager(contextId)
+                        .getUserById(userId);
+        if (user == null)
+            throw new IllegalStateException("No user matching the provided id was found.");
+        setForcedUser(contextId, user);
+    }
 
-	@Override
-	public AbstractContextPropertiesPanel getContextPanel(Context context) {
-		ContextForcedUserPanel panel = this.contextPanelsMap.get(context.getIndex());
-		if (panel == null) {
-			panel = new ContextForcedUserPanel(this, context.getIndex());
-			this.contextPanelsMap.put(context.getIndex(), panel);
-		}
-		return panel;
-	}
+    /**
+     * Gets the forced user for a context.
+     *
+     * @param contextId the context id
+     * @return the forced user
+     */
+    public User getForcedUser(int contextId) {
+        return this.contextForcedUsersMap.get(contextId);
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
+    @Override
+    public List<Class<? extends Extension>> getDependencies() {
+        return EXTENSION_DEPENDENCIES;
+    }
 
-	@Override
-	public int getOrder() {
-		// Make sure we load this extension after the user management extension so that we hook
-		// after it so that we register as a ContextData factory later so that our loadContextData
-		// is called after the Users' Extension so that the forced user was already loaded after a
-		// session loading
-		return ExtensionUserManagement.EXTENSION_ORDER + 10;
-	}
+    @Override
+    public AbstractContextPropertiesPanel getContextPanel(Context context) {
+        ContextForcedUserPanel panel = this.contextPanelsMap.get(context.getIndex());
+        if (panel == null) {
+            panel = new ContextForcedUserPanel(this, context.getIndex());
+            this.contextPanelsMap.put(context.getIndex(), panel);
+        }
+        return panel;
+    }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 
-	@Override
-	public void discardContexts() {
-		this.contextForcedUsersMap.clear();
-		this.contextPanelsMap.clear();
-		// Make sure the status of the toggle button is properly updated when changing the session
-		updateForcedUserModeToggleButtonState();
-	}
+    @Override
+    public int getOrder() {
+        // Make sure we load this extension after the user management extension so that we hook
+        // after it so that we register as a ContextData factory later so that our loadContextData
+        // is called after the Users' Extension so that the forced user was already loaded after a
+        // session loading
+        return ExtensionUserManagement.EXTENSION_ORDER + 10;
+    }
 
-	@Override
-	public void discardContext(Context ctx) {
-		this.contextForcedUsersMap.remove(ctx.getIndex());
-		this.contextPanelsMap.remove(ctx.getIndex());
-		// Make sure the status of the toggle button is properly updated when changing the session
-		updateForcedUserModeToggleButtonState();
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	@Override
-	public int getListenerOrder() {
-		// Later so any modifications or requested users are visible
-		return 9998;
-	}
+    @Override
+    public void discardContexts() {
+        this.contextForcedUsersMap.clear();
+        this.contextPanelsMap.clear();
+        // Make sure the status of the toggle button is properly updated when changing the session
+        updateForcedUserModeToggleButtonState();
+    }
 
-	@Override
-	public void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender) {
-		if (!forcedUserModeEnabled || msg.getResponseBody() == null || msg.getRequestHeader().isImage()
-				|| (initiator == HttpSender.AUTHENTICATION_INITIATOR || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR)) {
-			// Not relevant
-			return;
-		}
+    @Override
+    public void discardContext(Context ctx) {
+        this.contextForcedUsersMap.remove(ctx.getIndex());
+        this.contextPanelsMap.remove(ctx.getIndex());
+        // Make sure the status of the toggle button is properly updated when changing the session
+        updateForcedUserModeToggleButtonState();
+    }
 
-		// The message is already being sent from the POV of another user
-		if (msg.getRequestingUser() != null)
-			return;
+    @Override
+    public int getListenerOrder() {
+        // Later so any modifications or requested users are visible
+        return 9998;
+    }
 
-		// Is the message in any of the contexts?
-		List<Context> contexts = Model.getSingleton().getSession().getContexts();
-		User requestingUser = null;
-		for (Context context : contexts) {
-			if (context.isInContext(msg.getRequestHeader().getURI().toString())) {
-				// Is there enough info
-				if (contextForcedUsersMap.containsKey(context.getIndex())) {
-					requestingUser = contextForcedUsersMap.get(context.getIndex());
-					break;
-				}
-			}
-		}
+    @Override
+    public void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender) {
+        if (!forcedUserModeEnabled
+                || msg.getResponseBody() == null
+                || msg.getRequestHeader().isImage()
+                || (initiator == HttpSender.AUTHENTICATION_INITIATOR
+                        || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR)) {
+            // Not relevant
+            return;
+        }
 
-		if (requestingUser == null || !requestingUser.isEnabled())
-			return;
+        // The message is already being sent from the POV of another user
+        if (msg.getRequestingUser() != null) return;
 
-		if (log.isDebugEnabled()) {
-			log.debug("Modifying request message (" + msg.getRequestHeader().getURI() + ") to match user: "
-					+ requestingUser);
-		}
-		msg.setRequestingUser(requestingUser);
-	}
+        // Is the message in any of the contexts?
+        List<Context> contexts = Model.getSingleton().getSession().getContexts();
+        User requestingUser = null;
+        for (Context context : contexts) {
+            if (context.isInContext(msg.getRequestHeader().getURI().toString())) {
+                // Is there enough info
+                if (contextForcedUsersMap.containsKey(context.getIndex())) {
+                    requestingUser = contextForcedUsersMap.get(context.getIndex());
+                    break;
+                }
+            }
+        }
 
-	@Override
-	public void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender) {
-		// Nothing to do
-	}
+        if (requestingUser == null || !requestingUser.isEnabled()) return;
 
-	@Override
-	public void loadContextData(Session session, Context context) {
-		try {
-			// Load the forced user id for this context
-			List<String> forcedUserS = session.getContextDataStrings(context.getIndex(),
-					RecordContext.TYPE_FORCED_USER_ID);
-			if (forcedUserS != null && forcedUserS.size() > 0) {
-				int forcedUserId = Integer.parseInt(forcedUserS.get(0));
-				setForcedUser(context.getIndex(), forcedUserId);
-			}
-		} catch (Exception e) {
-			log.error("Unable to load forced user.", e);
-		}
-	}
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "Modifying request message ("
+                            + msg.getRequestHeader().getURI()
+                            + ") to match user: "
+                            + requestingUser);
+        }
+        msg.setRequestingUser(requestingUser);
+    }
 
-	@Override
-	public void persistContextData(Session session, Context context) {
-		try {
-			// Save only if we have anything to save
-			if (getForcedUser(context.getIndex()) != null) {
-				session.setContextData(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID,
-						Integer.toString(getForcedUser(context.getIndex()).getId()));
-				// Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need
-				// for this and the mode can be easily enabled/disabled directly
-			} else {
-				// If we don't have a forced user, force deletion of any previous values
-				session.clearContextDataForType(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID);
-			}
-		} catch (Exception e) {
-			log.error("Unable to persist forced user.", e);
-		}
-	}
+    @Override
+    public void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender) {
+        // Nothing to do
+    }
 
-	@Override
-	public void exportContextData(Context ctx, Configuration config) {
-		User user = getForcedUser(ctx.getIndex());
-		if (user != null) {
-			config.setProperty("context.forceduser", user.getId());
-		} else {
-			config.setProperty("context.forceduser", -1);
-		}
-	}
+    @Override
+    public void loadContextData(Session session, Context context) {
+        try {
+            // Load the forced user id for this context
+            List<String> forcedUserS =
+                    session.getContextDataStrings(
+                            context.getIndex(), RecordContext.TYPE_FORCED_USER_ID);
+            if (forcedUserS != null && forcedUserS.size() > 0) {
+                int forcedUserId = Integer.parseInt(forcedUserS.get(0));
+                setForcedUser(context.getIndex(), forcedUserId);
+            }
+        } catch (Exception e) {
+            log.error("Unable to load forced user.", e);
+        }
+    }
 
-	@Override
-	public void importContextData(Context ctx, Configuration config) {
-		int id = config.getInt("context.forceduser");
-		if (id >= 0) {
-			this.setForcedUser(ctx.getIndex(), id);
-		}
-	}
+    @Override
+    public void persistContextData(Session session, Context context) {
+        try {
+            // Save only if we have anything to save
+            if (getForcedUser(context.getIndex()) != null) {
+                session.setContextData(
+                        context.getIndex(),
+                        RecordContext.TYPE_FORCED_USER_ID,
+                        Integer.toString(getForcedUser(context.getIndex()).getId()));
+                // Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need
+                // for this and the mode can be easily enabled/disabled directly
+            } else {
+                // If we don't have a forced user, force deletion of any previous values
+                session.clearContextDataForType(
+                        context.getIndex(), RecordContext.TYPE_FORCED_USER_ID);
+            }
+        } catch (Exception e) {
+            log.error("Unable to persist forced user.", e);
+        }
+    }
 
+    @Override
+    public void exportContextData(Context ctx, Configuration config) {
+        User user = getForcedUser(ctx.getIndex());
+        if (user != null) {
+            config.setProperty("context.forceduser", user.getId());
+        } else {
+            config.setProperty("context.forceduser", -1);
+        }
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-    	return true;
+    @Override
+    public void importContextData(Context ctx, Configuration config) {
+        int id = config.getInt("context.forceduser");
+        if (id >= 0) {
+            this.setForcedUser(ctx.getIndex(), id);
+        }
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
     }
 }

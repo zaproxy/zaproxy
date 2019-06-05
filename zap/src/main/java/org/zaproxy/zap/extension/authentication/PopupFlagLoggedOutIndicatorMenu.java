@@ -21,10 +21,8 @@ package org.zaproxy.zap.extension.authentication;
 
 import java.awt.Component;
 import java.util.regex.Pattern;
-
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -33,87 +31,93 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.model.Context;
 
-/**
- * The Popup Menu item used for marking a text in the response panel as Logged out indicator.
- */
+/** The Popup Menu item used for marking a text in the response panel as Logged out indicator. */
 public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = -3162691875698199510L;
-	private String selectedText = null;
-	private int contextId;
+    private static final long serialVersionUID = -3162691875698199510L;
+    private String selectedText = null;
+    private int contextId;
 
-	public PopupFlagLoggedOutIndicatorMenu(Context ctx) {
-		this.contextId = ctx.getIndex();
+    public PopupFlagLoggedOutIndicatorMenu(Context ctx) {
+        this.contextId = ctx.getIndex();
 
-		this.setText(Constant.messages.getString("authentication.popup.indicator.loggedOut", ctx.getName()));
-		this.addActionListener(new java.awt.event.ActionListener() {
+        this.setText(
+                Constant.messages.getString(
+                        "authentication.popup.indicator.loggedOut", ctx.getName()));
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
 
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				performAction();
-			}
-		});
-	}
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        performAction();
+                    }
+                });
+    }
 
-	public void performAction() {
-		// Manually create the UI shared contexts so any modifications are done
-		// on an UI shared Context, so changes can be undone by pressing Cancel
-		SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
-		sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
-		Context uiSharedContext = sessionDialog.getUISharedContext(this.contextId);
+    public void performAction() {
+        // Manually create the UI shared contexts so any modifications are done
+        // on an UI shared Context, so changes can be undone by pressing Cancel
+        SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
+        sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
+        Context uiSharedContext = sessionDialog.getUISharedContext(this.contextId);
 
-		uiSharedContext.getAuthenticationMethod().setLoggedOutIndicatorPattern(
-				Pattern.quote(getSelectedText()));
+        uiSharedContext
+                .getAuthenticationMethod()
+                .setLoggedOutIndicatorPattern(Pattern.quote(getSelectedText()));
 
-		// Show the session dialog without recreating UI Shared contexts
-		View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-				ContextAuthenticationPanel.buildName(this.contextId), false);
-	}
+        // Show the session dialog without recreating UI Shared contexts
+        View.getSingleton()
+                .showSessionDialog(
+                        Model.getSingleton().getSession(),
+                        ContextAuthenticationPanel.buildName(this.contextId),
+                        false);
+    }
 
-	@Override
-	public boolean isSubMenu() {
-		return true;
-	}
+    @Override
+    public boolean isSubMenu() {
+        return true;
+    }
 
-	@Override
-	public String getParentMenuName() {
-		return Constant.messages.getString("context.flag.popup");
-	}
+    @Override
+    public String getParentMenuName() {
+        return Constant.messages.getString("context.flag.popup");
+    }
 
-	@Override
-	public int getParentMenuIndex() {
-		return CONTEXT_FLAG_MENU_INDEX;
-	}
+    @Override
+    public int getParentMenuIndex() {
+        return CONTEXT_FLAG_MENU_INDEX;
+    }
 
-	@Override
-	public boolean isEnableForComponent(Component invoker) {
-		if (invoker instanceof JTextComponent) {
-			// Is it the HttpPanelResponse?
-			JTextComponent txtComponent = (JTextComponent) invoker;
-			boolean responsePanel = (SwingUtilities.getAncestorOfClass(HttpPanelResponse.class, txtComponent) != null);
+    @Override
+    public boolean isEnableForComponent(Component invoker) {
+        if (invoker instanceof JTextComponent) {
+            // Is it the HttpPanelResponse?
+            JTextComponent txtComponent = (JTextComponent) invoker;
+            boolean responsePanel =
+                    (SwingUtilities.getAncestorOfClass(HttpPanelResponse.class, txtComponent)
+                            != null);
 
-			if (!responsePanel) {
-				selectedText = null;
-				return false;
-			}
+            if (!responsePanel) {
+                selectedText = null;
+                return false;
+            }
 
-			// Is anything selected?
-			selectedText = txtComponent.getSelectedText();
-			if (selectedText == null || selectedText.length() == 0) {
-				this.setEnabled(false);
-			} else {
-				this.setEnabled(true);
-			}
+            // Is anything selected?
+            selectedText = txtComponent.getSelectedText();
+            if (selectedText == null || selectedText.length() == 0) {
+                this.setEnabled(false);
+            } else {
+                this.setEnabled(true);
+            }
 
-			return true;
-		} else {
-			selectedText = null;
-			return false;
-		}
+            return true;
+        } else {
+            selectedText = null;
+            return false;
+        }
+    }
 
-	}
-
-	public String getSelectedText() {
-		return selectedText;
-	}
+    public String getSelectedText() {
+        return selectedText;
+    }
 }

@@ -28,7 +28,7 @@ public interface ExecutorTerminatedListener {
 
     /**
      * Called when the executor has terminated.
-     * 
+     *
      * @see PausableThreadPoolExecutor#isTerminated()
      */
     void terminated();

@@ -19,13 +19,9 @@
  */
 package org.zaproxy.zap.users;
 
-/**
- * ZAP representation of a web application role.
- */
+/** ZAP representation of a web application role. */
 public class Role {
 
-
-	/** The corresponding context id. */
-	private int contextId;
-
+    /** The corresponding context id. */
+    private int contextId;
 }

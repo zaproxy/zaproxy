@@ -24,21 +24,21 @@ import org.zaproxy.zap.utils.Enableable;
 public class HttpSessionToken extends Enableable {
 
     private String name;
-    
+
     public HttpSessionToken() {
         this("", false);
     }
-    
+
     public HttpSessionToken(String name) {
         this(name, true);
     }
-    
+
     public HttpSessionToken(String name, boolean enabled) {
         super(enabled);
-        
+
         this.name = name;
     }
-    
+
     public HttpSessionToken(HttpSessionToken token) {
         this(token.name, token.isEnabled());
     }
@@ -46,7 +46,7 @@ public class HttpSessionToken extends Enableable {
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -77,5 +77,4 @@ public class HttpSessionToken extends Enableable {
         }
         return true;
     }
-    
 }

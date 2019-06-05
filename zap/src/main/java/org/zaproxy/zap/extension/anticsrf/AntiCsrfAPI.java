@@ -20,108 +20,118 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import net.sf.json.JSONObject;
-
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiOther;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiView;
-import org.zaproxy.zap.extension.api.ApiException.Type;
 
 public class AntiCsrfAPI extends ApiImplementor {
 
-	private static final String PREFIX = "acsrf";
+    private static final String PREFIX = "acsrf";
 
-	private static final String VIEW_TOKENS_NAMES = "optionTokensNames";
+    private static final String VIEW_TOKENS_NAMES = "optionTokensNames";
 
-	private static final String OTHER_GENERATE_FORM = "genForm";
-	private static final String OTHER_GENERATE_FORM_PARAM_HREFID = "hrefId";
+    private static final String OTHER_GENERATE_FORM = "genForm";
+    private static final String OTHER_GENERATE_FORM_PARAM_HREFID = "hrefId";
 
-	private static final String TOKEN_NAME = "tokenName";
-	
-	private ExtensionAntiCSRF extension = null;
-	
-	public AntiCsrfAPI(ExtensionAntiCSRF ext) {
-		this.extension = ext;
-		this.addApiView(new ApiView(VIEW_TOKENS_NAMES));
-		this.addApiOthers(new ApiOther(OTHER_GENERATE_FORM, new String[] {OTHER_GENERATE_FORM_PARAM_HREFID}));
-	}
+    private static final String TOKEN_NAME = "tokenName";
 
-	@Override
-	public String getPrefix() {
-		return PREFIX;
-	}
-	
-	public static String getAntiCsrfFormUrl(int hrefid) {
-		return API.getInstance().getBaseURL(API.Format.OTHER, PREFIX, API.RequestType.other, OTHER_GENERATE_FORM, false) +
-				OTHER_GENERATE_FORM_PARAM_HREFID + "=" + hrefid;
-	}
+    private ExtensionAntiCSRF extension = null;
 
-	@Override
-	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-		ApiResponse result;
-		ApiResponseList resultList;
+    public AntiCsrfAPI(ExtensionAntiCSRF ext) {
+        this.extension = ext;
+        this.addApiView(new ApiView(VIEW_TOKENS_NAMES));
+        this.addApiOthers(
+                new ApiOther(OTHER_GENERATE_FORM, new String[] {OTHER_GENERATE_FORM_PARAM_HREFID}));
+    }
 
-		switch (name) {
-		case VIEW_TOKENS_NAMES:
-			resultList = new ApiResponseList(name);
-			for (String tokenName : extension.getParam().getTokensNames()) {
-				resultList.addItem(new ApiResponseElement(TOKEN_NAME, tokenName));
-			}
-			result = resultList;
-			break;
-		default:
-			throw new ApiException(Type.BAD_VIEW);
-		}
-		return result;
-	}
+    @Override
+    public String getPrefix() {
+        return PREFIX;
+    }
 
-	@Override
-	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
-		if (OTHER_GENERATE_FORM.equals(name)) {
-			String hrefIdStr = params.getString(OTHER_GENERATE_FORM_PARAM_HREFID);
-			if (hrefIdStr == null || hrefIdStr.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID);
-			}
-			int hrefId;
-			try {
-				hrefId = Integer.parseInt(hrefIdStr);
-			} catch (NumberFormatException e) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID, e);
-			}
+    public static String getAntiCsrfFormUrl(int hrefid) {
+        return API.getInstance()
+                        .getBaseURL(
+                                API.Format.OTHER,
+                                PREFIX,
+                                API.RequestType.other,
+                                OTHER_GENERATE_FORM,
+                                false)
+                + OTHER_GENERATE_FORM_PARAM_HREFID
+                + "="
+                + hrefid;
+    }
 
-			try {
-				HttpMessage originalMessage = new HistoryReference(hrefId, true).getHttpMessage();
-				String response = extension.generateForm(originalMessage);
+    @Override
+    public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
+        ApiResponse result;
+        ApiResponseList resultList;
 
-				// Get the charset from the original message
-				String charset = originalMessage.getResponseHeader().getCharset();
-				if (charset == null || charset.length() == 0) {
-				    charset = "";
-				} else {
-				    charset = " charset=" + charset;
-				}
+        switch (name) {
+            case VIEW_TOKENS_NAMES:
+                resultList = new ApiResponseList(name);
+                for (String tokenName : extension.getParam().getTokensNames()) {
+                    resultList.addItem(new ApiResponseElement(TOKEN_NAME, tokenName));
+                }
+                result = resultList;
+                break;
+            default:
+                throw new ApiException(Type.BAD_VIEW);
+        }
+        return result;
+    }
 
-	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset));
-		    	msg.setResponseBody(response);
-		    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
-				
-			} catch (HttpMalformedHeaderException e) {
-				throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr, e);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-			}
-			
-		} else {
-			throw new ApiException(ApiException.Type.BAD_OTHER, name);
-		}
-		return msg;
-	}
+    @Override
+    public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params)
+            throws ApiException {
+        if (OTHER_GENERATE_FORM.equals(name)) {
+            String hrefIdStr = params.getString(OTHER_GENERATE_FORM_PARAM_HREFID);
+            if (hrefIdStr == null || hrefIdStr.length() == 0) {
+                throw new ApiException(
+                        ApiException.Type.MISSING_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID);
+            }
+            int hrefId;
+            try {
+                hrefId = Integer.parseInt(hrefIdStr);
+            } catch (NumberFormatException e) {
+                throw new ApiException(
+                        ApiException.Type.ILLEGAL_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID, e);
+            }
 
+            try {
+                HttpMessage originalMessage = new HistoryReference(hrefId, true).getHttpMessage();
+                String response = extension.generateForm(originalMessage);
+
+                // Get the charset from the original message
+                String charset = originalMessage.getResponseHeader().getCharset();
+                if (charset == null || charset.length() == 0) {
+                    charset = "";
+                } else {
+                    charset = " charset=" + charset;
+                }
+
+                msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset));
+                msg.setResponseBody(response);
+                msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
+
+            } catch (HttpMalformedHeaderException e) {
+                throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr, e);
+            } catch (Exception e) {
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+            }
+
+        } else {
+            throw new ApiException(ApiException.Type.BAD_OTHER, name);
+        }
+        return msg;
+    }
 }

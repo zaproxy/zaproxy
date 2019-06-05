@@ -19,24 +19,22 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Component;
 import java.util.Set;
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 /**
- * An {@link ExtensionPopupMenuItem} that exposes the selected {@link Alert alerts} of the Alerts tree.
- * 
+ * An {@link ExtensionPopupMenuItem} that exposes the selected {@link Alert alerts} of the Alerts
+ * tree.
+ *
  * @since 2.6.0
  * @see #performAction(Alert)
  */
@@ -49,9 +47,10 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
     private static final Logger log = Logger.getLogger(PopupMenuItemAlert.class);
 
     /**
-     * Constructs a {@code PopupMenuItemAlert} with the given label and with no support for multiple selected alerts (the menu
-     * button will not be enabled when the Alerts tree has multiple selected alerts).
-     * 
+     * Constructs a {@code PopupMenuItemAlert} with the given label and with no support for multiple
+     * selected alerts (the menu button will not be enabled when the Alerts tree has multiple
+     * selected alerts).
+     *
      * @param label the label of the menu item
      * @see #isEnableForComponent(Component)
      */
@@ -60,25 +59,29 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
     }
 
     /**
-     * Constructs a {@code PopupMenuItemAlert} with the given label and whether or not the menu item supports multiple selected
-     * alerts (if {@code false} the menu button will not be enabled when the Alerts tree has multiple selected alerts).
-     * 
+     * Constructs a {@code PopupMenuItemAlert} with the given label and whether or not the menu item
+     * supports multiple selected alerts (if {@code false} the menu button will not be enabled when
+     * the Alerts tree has multiple selected alerts).
+     *
      * @param label the label of the menu item
-     * @param multiSelect {@code true} if the menu item supports multiple selected alerts, {@code false} otherwise.
+     * @param multiSelect {@code true} if the menu item supports multiple selected alerts, {@code
+     *     false} otherwise.
      * @see #isEnableForComponent(Component)
      */
     public PopupMenuItemAlert(String label, boolean multiSelect) {
         super(label);
         this.multiSelect = multiSelect;
         addActionListener(new PerformActionsActionListener());
-        this.extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-	}
+        this.extAlert =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+    }
 
     /**
-     * Tells whether or not the menu item supports multiple selected alerts. If {@code false} the menu button will not be
-     * enabled when the Alerts tree has multiple selected alerts.
-     * 
-     * @return {@code true} if the menu item supports multiple selected alerts, {@code false} otherwise.
+     * Tells whether or not the menu item supports multiple selected alerts. If {@code false} the
+     * menu button will not be enabled when the Alerts tree has multiple selected alerts.
+     *
+     * @return {@code true} if the menu item supports multiple selected alerts, {@code false}
+     *     otherwise.
      * @see #isButtonEnabledForNumberOfSelectedAlerts(int)
      */
     public final boolean isMultiSelect() {
@@ -94,8 +97,8 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
 
     /**
      * Performs the action of the menu item for the given selected alert.
-     * <p>
-     * By default, it's called for each selected alert.
+     *
+     * <p>By default, it's called for each selected alert.
      *
      * @param alert the selected alert, never {@code null}
      * @see #performActions(Set)
@@ -104,54 +107,55 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
 
     /**
      * Performs the action of the menu item for each of the given selected alerts.
-     * <p>
-     * Called when the pop up menu item is chosen.
-     * 
+     *
+     * <p>Called when the pop up menu item is chosen.
+     *
      * @param alerts the selected alerts, never {@code null}
      * @see #performAction(Alert)
      */
     protected void performActions(Set<Alert> alerts) {
-        for(Alert alert: alerts) {
+        for (Alert alert : alerts) {
             performAction(alert);
         }
     }
 
     /**
      * Tells whether or not the button should be enabled for the given number of selected alerts.
-     * <p>
-     * If multiple alert nodes are selected the {@code count} corresponds to the number of selected alerts. If just a middle
-     * alert node (that is, the nodes that show the alert name) is selected the {@code count} is only one alert when
-     * {@link #isMultiSelect() multiple selection} is not supported, otherwise it is the number of child nodes (which is one
-     * alert per node).
-     * <p>
-     * By default the button is only enabled if at least one alert is selected. For menu items that do not support multiple
-     * selection it's only enabled if just one alert is selected.
-     * <p>
-     * <strong>Note:</strong> This method is only called if the invoker is the Alerts tree and the root node is not selected.
-     * 
+     *
+     * <p>If multiple alert nodes are selected the {@code count} corresponds to the number of
+     * selected alerts. If just a middle alert node (that is, the nodes that show the alert name) is
+     * selected the {@code count} is only one alert when {@link #isMultiSelect() multiple selection}
+     * is not supported, otherwise it is the number of child nodes (which is one alert per node).
+     *
+     * <p>By default the button is only enabled if at least one alert is selected. For menu items
+     * that do not support multiple selection it's only enabled if just one alert is selected.
+     *
+     * <p><strong>Note:</strong> This method is only called if the invoker is the Alerts tree and
+     * the root node is not selected.
+     *
      * @param count the number of selected alerts
      * @return {@code true} if the button should be enabled, {@code false} otherwise
      */
     protected boolean isButtonEnabledForNumberOfSelectedAlerts(int count) {
-        if(count == 0 ) {
+        if (count == 0) {
             return false;
-        } else if(!isMultiSelect() && count>1 ) {
+        } else if (!isMultiSelect() && count > 1) {
             return false;
         }
         return true;
     }
 
-    /**
-     * @see #isButtonEnabledForNumberOfSelectedAlerts(int)
-     */
+    /** @see #isButtonEnabledForNumberOfSelectedAlerts(int) */
     @Override
     public boolean isEnableForComponent(Component invoker) {
-        if(this.extAlert == null) {
+        if (this.extAlert == null) {
             return false;
         }
         if ("treeAlert".equals(invoker.getName())) {
-            setEnabled(!this.extAlert.getAlertPanel().getTreeAlert().isRowSelected(0) && 
-                    isButtonEnabledForNumberOfSelectedAlerts(getNumberOfSelectedAlerts()));
+            setEnabled(
+                    !this.extAlert.getAlertPanel().getTreeAlert().isRowSelected(0)
+                            && isButtonEnabledForNumberOfSelectedAlerts(
+                                    getNumberOfSelectedAlerts()));
             return true;
         }
         return false;
@@ -159,11 +163,12 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
 
     /**
      * Gets the number of selected alerts in the Alerts tree.
-     * <p>
-     * If multiple alert nodes are selected it returns the corresponding number of alerts. If just a middle alert node (that is,
-     * the nodes that show the alert name) is selected it returns only one selected alert when {@link #isMultiSelect() multiple
-     * selection} is not supported, otherwise it returns the number of child nodes (which is one alert per node).
-     * 
+     *
+     * <p>If multiple alert nodes are selected it returns the corresponding number of alerts. If
+     * just a middle alert node (that is, the nodes that show the alert name) is selected it returns
+     * only one selected alert when {@link #isMultiSelect() multiple selection} is not supported,
+     * otherwise it returns the number of child nodes (which is one alert per node).
+     *
      * @return the number of selected nodes
      */
     private int getNumberOfSelectedAlerts() {
@@ -174,7 +179,8 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
         }
 
         if (count == 1) {
-            DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode) treeAlert.getSelectionPath().getLastPathComponent();
+            DefaultMutableTreeNode alertNode =
+                    (DefaultMutableTreeNode) treeAlert.getSelectionPath().getLastPathComponent();
             if (alertNode.getChildCount() == 0 || !isMultiSelect()) {
                 return 1;
             }
@@ -185,8 +191,12 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
         TreePath[] paths = treeAlert.getSelectionPaths();
         for (int i = 0; i < paths.length; i++) {
             TreePath nodePath = paths[i];
-            int childCount = ((DefaultMutableTreeNode) nodePath.getLastPathComponent()).getChildCount();
-            count += childCount != 0 ? childCount : (treeAlert.isPathSelected(nodePath.getParentPath()) ? 0 : 1);
+            int childCount =
+                    ((DefaultMutableTreeNode) nodePath.getLastPathComponent()).getChildCount();
+            count +=
+                    childCount != 0
+                            ? childCount
+                            : (treeAlert.isPathSelected(nodePath.getParentPath()) ? 0 : 1);
         }
         return count;
     }
@@ -208,9 +218,8 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
                 Set<Alert> alerts = getAlertNodes();
                 performActions(alerts);
             } catch (Exception e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
     }
-
 }

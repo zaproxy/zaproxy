@@ -19,25 +19,25 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.hex;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-
 public class HttpPanelHexModelUnitTest {
-	
-	private HttpPanelHexModel model;
-	
-	@Before
-	public void setup() {
-		model = new HttpPanelHexModel();
-	}
-	
-	@Test
-	public void testGetData() {
-		// setting value 'a0' in Hex view resulted in 'c2 a0'
-		model.setData(new byte[]{(byte) 0xa0});
 
-		assertArrayEquals(new byte[]{(byte) 0xa0}, model.getData());
-	}
+    private HttpPanelHexModel model;
+
+    @Before
+    public void setup() {
+        model = new HttpPanelHexModel();
+    }
+
+    @Test
+    public void testGetData() {
+        // setting value 'a0' in Hex view resulted in 'c2 a0'
+        model.setData(new byte[] {(byte) 0xa0});
+
+        assertArrayEquals(new byte[] {(byte) 0xa0}, model.getData());
+    }
 }

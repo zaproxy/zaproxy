@@ -25,7 +25,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -34,7 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableModel;
-
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.table.ColumnControlButton;
@@ -44,12 +42,16 @@ import org.zaproxy.zap.utils.TableExportAction;
 
 /**
  * An enhanced {@code JXTable}. It has the following enhancements:
+ *
  * <ul>
- * <li>Ensures that the right-clicked row is selected before showing context menu (for installed JPopupMenu);</li>
- * <li>Allows to enable auto-scroll on new values when scroll bar is at bottom of the table (enabled by default);</li>
- * <li>Has an export action, under the {@link org.jdesktop.swingx.table.ColumnControlPopup ColumnControlPopup};</li>
+ *   <li>Ensures that the right-clicked row is selected before showing context menu (for installed
+ *       JPopupMenu);
+ *   <li>Allows to enable auto-scroll on new values when scroll bar is at bottom of the table
+ *       (enabled by default);
+ *   <li>Has an export action, under the {@link org.jdesktop.swingx.table.ColumnControlPopup
+ *       ColumnControlPopup};
  * </ul>
- * 
+ *
  * @since 2.4.1
  * @see JXTable
  * @see #setComponentPopupMenu(JPopupMenu)
@@ -97,10 +99,11 @@ public class ZapTable extends JXTable {
 
     /**
      * Creates the action to change the state of auto scroll on new values.
-     * <p>
-     * Called when customising the {@link ZapColumnControlButton}.
      *
-     * @return the action to change the state of the auto scroll on new values, might be {@code null}.
+     * <p>Called when customising the {@link ZapColumnControlButton}.
+     *
+     * @return the action to change the state of the auto scroll on new values, might be {@code
+     *     null}.
      * @since 2.7.0
      * @see #setAutoScrollOnNewValues(boolean)
      */
@@ -111,7 +114,8 @@ public class ZapTable extends JXTable {
     /**
      * Gets the action to change the state of auto scroll on new values.
      *
-     * @return the action to change the state of the auto scroll on new values, might be {@code null}.
+     * @return the action to change the state of the auto scroll on new values, might be {@code
+     *     null}.
      */
     protected AutoScrollAction getAutoScrollAction() {
         return autoScrollAction;
@@ -119,8 +123,8 @@ public class ZapTable extends JXTable {
 
     /**
      * Creates the action to export the table.
-     * <p>
-     * Called when customising the {@link ZapColumnControlButton}.
+     *
+     * <p>Called when customising the {@link ZapColumnControlButton}.
      *
      * @return the action to export the table, might be {@code null}.
      * @since 2.7.0
@@ -131,12 +135,13 @@ public class ZapTable extends JXTable {
     }
 
     /**
-     * Sets if the vertical scroll bar of the wrapper {@code JScrollPane} should be automatically scrolled on new values.
-     * <p>
-     * Default value is to {@code true}.
-     * 
-     * @param autoScroll {@code true} if vertical scroll bar should be automatically scrolled on new values, {@code false}
-     *            otherwise.
+     * Sets if the vertical scroll bar of the wrapper {@code JScrollPane} should be automatically
+     * scrolled on new values.
+     *
+     * <p>Default value is to {@code true}.
+     *
+     * @param autoScroll {@code true} if vertical scroll bar should be automatically scrolled on new
+     *     values, {@code false} otherwise.
      */
     public void setAutoScrollOnNewValues(boolean autoScroll) {
         if (this.autoScroll == autoScroll) {
@@ -158,9 +163,11 @@ public class ZapTable extends JXTable {
     }
 
     /**
-     * Tells whether or not the vertical scroll bar of the wrapper {@code JScrollPane} is automatically scrolled on new values.
-     * 
-     * @return {@code true} if the vertical scroll bar is automatically scrolled on new values, {@code false} otherwise.
+     * Tells whether or not the vertical scroll bar of the wrapper {@code JScrollPane} is
+     * automatically scrolled on new values.
+     *
+     * @return {@code true} if the vertical scroll bar is automatically scrolled on new values,
+     *     {@code false} otherwise.
      * @see #setAutoScrollOnNewValues(boolean)
      */
     public boolean isAutoScrollOnNewValues() {
@@ -171,23 +178,26 @@ public class ZapTable extends JXTable {
         JScrollPane scrollPane = getEnclosingScrollPane();
         if (scrollPane != null && autoScrollScrollbarAdjustmentListener == null) {
             autoScrollScrollbarAdjustmentListener = new StickyScrollbarAdjustmentListener();
-            scrollPane.getVerticalScrollBar().addAdjustmentListener(autoScrollScrollbarAdjustmentListener);
+            scrollPane
+                    .getVerticalScrollBar()
+                    .addAdjustmentListener(autoScrollScrollbarAdjustmentListener);
         }
     }
 
     private void removeAutoScrollScrollbarAdjustmentListener() {
         JScrollPane scrollPane = getEnclosingScrollPane();
         if (scrollPane != null && autoScrollScrollbarAdjustmentListener != null) {
-            scrollPane.getVerticalScrollBar().removeAdjustmentListener(autoScrollScrollbarAdjustmentListener);
+            scrollPane
+                    .getVerticalScrollBar()
+                    .removeAdjustmentListener(autoScrollScrollbarAdjustmentListener);
             autoScrollScrollbarAdjustmentListener = null;
         }
     }
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to set auto-scroll on new values, if enabled.
-     * </p>
+     *
+     * <p>Overridden to set auto-scroll on new values, if enabled.
      */
     @Override
     protected void configureEnclosingScrollPane() {
@@ -200,9 +210,8 @@ public class ZapTable extends JXTable {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to unset auto-scroll on new values, if enabled.
-     * </p>
+     *
+     * <p>Overridden to unset auto-scroll on new values, if enabled.
      */
     @Override
     protected void unconfigureEnclosingScrollPane() {
@@ -215,14 +224,15 @@ public class ZapTable extends JXTable {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to take into account for possible parent {@code JLayer}s.
-     * </p>
-     * 
+     *
+     * <p>Overridden to take into account for possible parent {@code JLayer}s.
+     *
      * @see javax.swing.JLayer
      */
-    // Note: Same implementation as in JXTable#getEnclosingScrollPane() but changed to get the parent and viewport view using
-    // the methods SwingUtilities#getUnwrappedParent(Component) and SwingUtilities#getUnwrappedView(JViewport) respectively.
+    // Note: Same implementation as in JXTable#getEnclosingScrollPane() but changed to get the
+    // parent and viewport view using
+    // the methods SwingUtilities#getUnwrappedParent(Component) and
+    // SwingUtilities#getUnwrappedView(JViewport) respectively.
     @Override
     protected JScrollPane getEnclosingScrollPane() {
         Container p = SwingUtilities.getUnwrappedParent(this);
@@ -301,7 +311,9 @@ public class ZapTable extends JXTable {
 
         public AutoScrollAction(ZapTable table) {
             super(Constant.messages.getString("view.table.autoscroll.label"));
-            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("view.table.autoscroll.tooltip"));
+            putValue(
+                    Action.SHORT_DESCRIPTION,
+                    Constant.messages.getString("view.table.autoscroll.tooltip"));
 
             this.table = table;
         }

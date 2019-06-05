@@ -29,56 +29,72 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.LayoutStyle;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 public class CertificateView extends AbstractFrame {
 
-	private static final long serialVersionUID = -7284926693579230812L;
+    private static final long serialVersionUID = -7284926693579230812L;
 
-	/**
-	 * Creates new form Certificate
-	 * 
-	 * @param certificate the certificate to view/display.
-	 */
-	public CertificateView(String certificate) {
-		setTitle(Constant.messages.getString("view.cert.title"));
+    /**
+     * Creates new form Certificate
+     *
+     * @param certificate the certificate to view/display.
+     */
+    public CertificateView(String certificate) {
+        setTitle(Constant.messages.getString("view.cert.title"));
 
-		JButton closeButton = new JButton(Constant.messages.getString("view.cert.button.close"));
-		closeButton.addActionListener(e -> {
-			setVisible(false);
-			dispose();
-		});
+        JButton closeButton = new JButton(Constant.messages.getString("view.cert.button.close"));
+        closeButton.addActionListener(
+                e -> {
+                    setVisible(false);
+                    dispose();
+                });
 
-		ZapTextArea certificateTextArea = new ZapTextArea(certificate);
-		certificateTextArea.setEditable(false);
+        ZapTextArea certificateTextArea = new ZapTextArea(certificate);
+        certificateTextArea.setEditable(false);
 
-		JScrollPane certificateScrollPane = new JScrollPane(certificateTextArea);
+        JScrollPane certificateScrollPane = new JScrollPane(certificateTextArea);
 
-		GroupLayout layout = new GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(
-			GroupLayout.Alignment.LEADING).addGroup(
-			GroupLayout.Alignment.TRAILING,
-			layout.createSequentialGroup().addContainerGap().addGroup(
-				layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-						.addComponent(closeButton, GroupLayout.PREFERRED_SIZE,
-							93, GroupLayout.PREFERRED_SIZE).addComponent(
-							certificateScrollPane, GroupLayout.DEFAULT_SIZE,
-							658, Short.MAX_VALUE)).addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(
-			GroupLayout.Alignment.LEADING).addGroup(
-			GroupLayout.Alignment.TRAILING,
-			layout.createSequentialGroup().addContainerGap().addComponent(
-				certificateScrollPane, GroupLayout.DEFAULT_SIZE, 439,
-				Short.MAX_VALUE).addPreferredGap(
-				LayoutStyle.ComponentPlacement.RELATED).addComponent(
-				closeButton).addContainerGap()));
-		pack();
+        GroupLayout layout = new GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(
+                                GroupLayout.Alignment.TRAILING,
+                                layout.createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(
+                                                layout.createParallelGroup(
+                                                                GroupLayout.Alignment.TRAILING)
+                                                        .addComponent(
+                                                                closeButton,
+                                                                GroupLayout.PREFERRED_SIZE,
+                                                                93,
+                                                                GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(
+                                                                certificateScrollPane,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                658,
+                                                                Short.MAX_VALUE))
+                                        .addContainerGap()));
+        layout.setVerticalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(
+                                GroupLayout.Alignment.TRAILING,
+                                layout.createSequentialGroup()
+                                        .addContainerGap()
+                                        .addComponent(
+                                                certificateScrollPane,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                439,
+                                                Short.MAX_VALUE)
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(closeButton)
+                                        .addContainerGap()));
+        pack();
 
-		setVisible(true);
-	}
-
+        setVisible(true);
+    }
 }

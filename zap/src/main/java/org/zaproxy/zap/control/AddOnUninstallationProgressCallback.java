@@ -21,7 +21,7 @@ package org.zaproxy.zap.control;
 
 /**
  * A callback that receives updates of the uninstallation progress of an {@code AddOn}.
- * 
+ *
  * @since 2.4.0
  * @see AddOn
  */
@@ -31,7 +31,8 @@ public interface AddOnUninstallationProgressCallback {
      * Called before uninstalling the add-on.
      *
      * @param addOn the add-on that will be uninstalled
-     * @param updating {@code true} if the add-on is being uninstalled to install a new version, {@code false} otherwise
+     * @param updating {@code true} if the add-on is being uninstalled to install a new version,
+     *     {@code false} otherwise
      */
     void uninstallingAddOn(AddOn addOn, boolean updating);
 
@@ -72,9 +73,7 @@ public interface AddOnUninstallationProgressCallback {
      */
     void filesWillBeRemoved(int numberOfFiles);
 
-    /**
-     * Called after a file has been removed.
-     */
+    /** Called after a file has been removed. */
     void fileRemoved();
 
     /**
@@ -95,7 +94,8 @@ public interface AddOnUninstallationProgressCallback {
     /**
      * Called after uninstalling the add-on.
      *
-     * @param uninstalled {@code true} if the add-on was successfully uninstalled , {@code false} otherwise
+     * @param uninstalled {@code true} if the add-on was successfully uninstalled , {@code false}
+     *     otherwise
      */
     void addOnUninstalled(boolean uninstalled);
 }

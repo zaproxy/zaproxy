@@ -20,27 +20,27 @@
 package org.zaproxy.zap.extension.pscan;
 
 import javax.script.ScriptException;
-
 import net.htmlparser.jericho.Source;
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner;
 
 public interface PassiveScript {
 
-	void scan(ScriptsPassiveScanner scriptsPassiveScanner,
-			HttpMessage msg, Source source) throws ScriptException;
+    void scan(ScriptsPassiveScanner scriptsPassiveScanner, HttpMessage msg, Source source)
+            throws ScriptException;
 
-	/**
-	 * Tells whether or not the scanner applies to the given history type.
-	 * <p>
-	 * By default it scans the {@link PluginPassiveScanner#getDefaultHistoryTypes() default history types}.
-	 *
-	 * @param historyType the history type of the message to be scanned.
-	 * @return {@code true} if the scanner applies to the given history type, {@code false} otherwise.
-	 * @since 2.7.0
-	 */
-	default boolean appliesToHistoryType(int historyType) {
-		return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
-	}
+    /**
+     * Tells whether or not the scanner applies to the given history type.
+     *
+     * <p>By default it scans the {@link PluginPassiveScanner#getDefaultHistoryTypes() default
+     * history types}.
+     *
+     * @param historyType the history type of the message to be scanned.
+     * @return {@code true} if the scanner applies to the given history type, {@code false}
+     *     otherwise.
+     * @since 2.7.0
+     */
+    default boolean appliesToHistoryType(int historyType) {
+        return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
+    }
 }

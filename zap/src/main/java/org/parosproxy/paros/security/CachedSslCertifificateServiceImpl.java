@@ -32,55 +32,54 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is an in-memory cache implementation using {@link SslCertificateServiceImpl}.
- * It's not persisting certificates on hard disk.
- * This class is designed to be thread safe.
+ * This is an in-memory cache implementation using {@link SslCertificateServiceImpl}. It's not
+ * persisting certificates on hard disk. This class is designed to be thread safe.
  *
  * @author MaWoKi
  */
 public final class CachedSslCertifificateServiceImpl implements SslCertificateService {
 
-	private static final SslCertificateService singleton = new CachedSslCertifificateServiceImpl();
-	private final SslCertificateService delegate;
+    private static final SslCertificateService singleton = new CachedSslCertifificateServiceImpl();
+    private final SslCertificateService delegate;
 
-	private CachedSslCertifificateServiceImpl() {
-		// avoid direct creating of instances
-		delegate = SslCertificateServiceImpl.getService();
-	}
+    private CachedSslCertifificateServiceImpl() {
+        // avoid direct creating of instances
+        delegate = SslCertificateServiceImpl.getService();
+    }
 
-	private Map<CertData, KeyStore> cache = new HashMap<>();
+    private Map<CertData, KeyStore> cache = new HashMap<>();
 
-	@Override
-	public KeyStore createCertForHost(String hostname) throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, SignatureException, NoSuchProviderException, InvalidKeyException, IOException {
-		return createCertForHost(new CertData(hostname));
-	}
+    @Override
+    public KeyStore createCertForHost(String hostname)
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
+                    KeyStoreException, SignatureException, NoSuchProviderException,
+                    InvalidKeyException, IOException {
+        return createCertForHost(new CertData(hostname));
+    }
 
-	@Override
-	public synchronized KeyStore createCertForHost(CertData certData)
-			throws NoSuchAlgorithmException, InvalidKeyException,
-			CertificateException, NoSuchProviderException, SignatureException,
-			KeyStoreException, IOException, UnrecoverableKeyException {
+    @Override
+    public synchronized KeyStore createCertForHost(CertData certData)
+            throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
+                    NoSuchProviderException, SignatureException, KeyStoreException, IOException,
+                    UnrecoverableKeyException {
 
-		if (this.cache.containsKey(certData)) {
-			return this.cache.get(certData);
-		}
-		final KeyStore ks = delegate.createCertForHost(certData);
-		this.cache.put(certData, ks);
-		return ks;
-	}
+        if (this.cache.containsKey(certData)) {
+            return this.cache.get(certData);
+        }
+        final KeyStore ks = delegate.createCertForHost(certData);
+        this.cache.put(certData, ks);
+        return ks;
+    }
 
-	/**
-	 * @return return the current {@link SslCertificateService}
-	 */
-	public static SslCertificateService getService() {
-		return singleton;
-	}
+    /** @return return the current {@link SslCertificateService} */
+    public static SslCertificateService getService() {
+        return singleton;
+    }
 
-	@Override
-	public synchronized void initializeRootCA(KeyStore keystore) throws KeyStoreException,
-			UnrecoverableKeyException, NoSuchAlgorithmException {
-		this.cache.clear();
-		this.delegate.initializeRootCA(keystore);
-	}
-
+    @Override
+    public synchronized void initializeRootCA(KeyStore keystore)
+            throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
+        this.cache.clear();
+        this.delegate.initializeRootCA(keystore);
+    }
 }

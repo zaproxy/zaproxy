@@ -21,22 +21,20 @@ package org.zaproxy.zap.extension.httppanel.view;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-
-
 public interface HttpPanelViewModel {
-    
+
     // Add to setMessage and clear something like this:
     //   The implementation of this  method should notify
     //   all registered <code>ListDataListener</code>s that the contents
     //   have changed.
-    
+
     void setMessage(Message aMessage);
-    
+
     Message getMessage();
-    
+
     void clear();
-    
+
     void addHttpPanelViewModelListener(HttpPanelViewModelListener l);
-    
+
     void removeHttpPanelViewModelListener(HttpPanelViewModelListener l);
 }

@@ -26,9 +26,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JButton;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -51,22 +49,23 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_CONTEXT = "spider.custom.label.context";
     private static final String FIELD_USER = "spider.custom.label.user";
     private static final String FIELD_RECURSE = "spider.custom.label.recurse";
-    private static final String FIELD_SUBTREE_ONLY = "spider.custom.label.spiderSubtreeOnly"; 
-    private static final String FIELD_ADVANCED = "spider.custom.label.adv"; 
-    private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
-    private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
-    private static final String FIELD_MAX_DURATION = "spider.custom.label.maxDuration"; 
-    private static final String FIELD_MAX_PARSE_SIZE_BYTES = "spider.custom.label.maxParseSizeBytes";
+    private static final String FIELD_SUBTREE_ONLY = "spider.custom.label.spiderSubtreeOnly";
+    private static final String FIELD_ADVANCED = "spider.custom.label.adv";
+    private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth";
+    private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren";
+    private static final String FIELD_MAX_DURATION = "spider.custom.label.maxDuration";
+    private static final String FIELD_MAX_PARSE_SIZE_BYTES =
+            "spider.custom.label.maxParseSizeBytes";
     private static final String FIELD_SEND_REFERER = "spider.custom.label.sendReferer";
     private static final String FIELD_ACCEPT_COOKIES = "spider.custom.label.acceptcookies";
-    private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
-    private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
-    private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments"; 
-    private static final String FIELD_PARSE_ROBOTS = "spider.custom.label.parseRobots"; 
-    private static final String FIELD_PARSE_SITEMAP = "spider.custom.label.sitemap"; 
-    private static final String FIELD_PARSE_SVN = "spider.custom.label.parseSvn"; 
-    private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit"; 
-    private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata"; 
+    private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms";
+    private static final String FIELD_POST_FORMS = "spider.custom.label.postForms";
+    private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments";
+    private static final String FIELD_PARSE_ROBOTS = "spider.custom.label.parseRobots";
+    private static final String FIELD_PARSE_SITEMAP = "spider.custom.label.sitemap";
+    private static final String FIELD_PARSE_SVN = "spider.custom.label.parseSvn";
+    private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit";
+    private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata";
 
     private static Logger logger = Logger.getLogger(SpiderDialog.class);
 
@@ -75,27 +74,28 @@ public class SpiderDialog extends StandardFieldsDialog {
     private JButton[] extraButtons = null;
 
     private ExtensionSpider extension = null;
-	private SpiderParam spiderParam = null;
+    private SpiderParam spiderParam = null;
 
-	/**
-	 * Flag that holds the previous checked state of the "Subtree Only" checkbox.
-	 * <p>
-	 * Used to restore the previous checked state between dialogue invocations.
-	 * 
-	 * @see #FIELD_SUBTREE_ONLY
-	 */
-	private boolean subtreeOnlyPreviousCheckedState;
-    
-    private ExtensionUserManagement extUserMgmt = Control.getSingleton().getExtensionLoader()
-			.getExtension(ExtensionUserManagement.class);
-    
+    /**
+     * Flag that holds the previous checked state of the "Subtree Only" checkbox.
+     *
+     * <p>Used to restore the previous checked state between dialogue invocations.
+     *
+     * @see #FIELD_SUBTREE_ONLY
+     */
+    private boolean subtreeOnlyPreviousCheckedState;
+
+    private ExtensionUserManagement extUserMgmt =
+            Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
+
     private Target target = null;
 
     public SpiderDialog(ExtensionSpider ext, Frame owner, Dimension dim) {
-        super(owner, "spider.custom.title", dim, new String[]{
-            "spider.custom.tab.scope",
-            "spider.custom.tab.adv"
-        });
+        super(
+                owner,
+                "spider.custom.title",
+                dim,
+                new String[] {"spider.custom.tab.scope", "spider.custom.tab.adv"});
         this.extension = ext;
 
         // The first time init to the default options set, after that keep own copies
@@ -104,8 +104,8 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     public void init(Target target) {
         if (target != null) {
-        	// If one isn't specified then leave the previously selected one
-        	this.target = target;
+            // If one isn't specified then leave the previously selected one
+            this.target = target;
         }
         logger.debug("init " + this.target);
 
@@ -123,9 +123,16 @@ public class SpiderDialog extends StandardFieldsDialog {
 
         // Advanced options
         this.addNumberField(1, FIELD_MAX_DEPTH, 0, 19, getSpiderParam().getMaxDepth());
-        this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
-        this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
-        this.addNumberField(1, FIELD_MAX_PARSE_SIZE_BYTES, 0, Integer.MAX_VALUE, getSpiderParam().getMaxParseSizeBytes());
+        this.addNumberField(
+                1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, getSpiderParam().getMaxChildren());
+        this.addNumberField(
+                1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, getSpiderParam().getMaxDuration());
+        this.addNumberField(
+                1,
+                FIELD_MAX_PARSE_SIZE_BYTES,
+                0,
+                Integer.MAX_VALUE,
+                getSpiderParam().getMaxParseSizeBytes());
         this.addCheckBoxField(1, FIELD_SEND_REFERER, getSpiderParam().isSendRefererHeader());
         this.addCheckBoxField(1, FIELD_ACCEPT_COOKIES, getSpiderParam().isAcceptCookies());
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
@@ -135,74 +142,78 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addCheckBoxField(1, FIELD_PARSE_SITEMAP, getSpiderParam().isParseSitemapXml());
         this.addCheckBoxField(1, FIELD_PARSE_SVN, getSpiderParam().isParseSVNEntries());
         this.addCheckBoxField(1, FIELD_PARSE_GIT, getSpiderParam().isParseGit());
-        this.addCheckBoxField(1, FIELD_HANDLE_ODATA, getSpiderParam().isHandleODataParametersVisited());
+        this.addCheckBoxField(
+                1, FIELD_HANDLE_ODATA, getSpiderParam().isHandleODataParametersVisited());
         this.addPadding(1);
 
-    	if (! getBoolValue(FIELD_PROCESS_FORMS)) {
-        	setFieldValue(FIELD_POST_FORMS, false);
-        	getField(FIELD_POST_FORMS).setEnabled(false);
-    	}
+        if (!getBoolValue(FIELD_PROCESS_FORMS)) {
+            setFieldValue(FIELD_POST_FORMS, false);
+            getField(FIELD_POST_FORMS).setEnabled(false);
+        }
 
-        this.addFieldListener(FIELD_CONTEXT, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setUsers();
-            }
-        });
-        this.addFieldListener(FIELD_PROCESS_FORMS, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	if (getBoolValue(FIELD_PROCESS_FORMS)) {
-                	getField(FIELD_POST_FORMS).setEnabled(true);
-            	} else {
-                	setFieldValue(FIELD_POST_FORMS, false);
-                	getField(FIELD_POST_FORMS).setEnabled(false);
-            	}
-            }
-        });
-        this.addFieldListener(FIELD_ADVANCED, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setAdvancedTabs(getBoolValue(FIELD_ADVANCED));
-            }
-        });
+        this.addFieldListener(
+                FIELD_CONTEXT,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setUsers();
+                    }
+                });
+        this.addFieldListener(
+                FIELD_PROCESS_FORMS,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (getBoolValue(FIELD_PROCESS_FORMS)) {
+                            getField(FIELD_POST_FORMS).setEnabled(true);
+                        } else {
+                            setFieldValue(FIELD_POST_FORMS, false);
+                            getField(FIELD_POST_FORMS).setEnabled(false);
+                        }
+                    }
+                });
+        this.addFieldListener(
+                FIELD_ADVANCED,
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        setAdvancedTabs(getBoolValue(FIELD_ADVANCED));
+                    }
+                });
 
         if (target != null) {
-	        // Set up the fields if a node has been specified, otherwise leave as previously set
-	        this.targetSelected(FIELD_START, this.target);
-	        this.setUsers();
+            // Set up the fields if a node has been specified, otherwise leave as previously set
+            this.targetSelected(FIELD_START, this.target);
+            this.setUsers();
         }
-        
-        if ( ! extension.getSpiderParam().isShowAdvancedDialog()) {
-        	// Remove all but the first tab
-        	this.setAdvancedTabs(false);
+
+        if (!extension.getSpiderParam().isShowAdvancedDialog()) {
+            // Remove all but the first tab
+            this.setAdvancedTabs(false);
         }
-        
+
         setTabScrollable("spider.custom.tab.adv", true);
 
         this.pack();
     }
-    
-	private SpiderParam getSpiderParam() {
-		if (spiderParam == null) {
-			// First time in clone the global options, after that keep the last ones the user set
-			spiderParam = (SpiderParam) extension.getSpiderParam().clone();
-		}
-		return spiderParam;
-	}
 
+    private SpiderParam getSpiderParam() {
+        if (spiderParam == null) {
+            // First time in clone the global options, after that keep the last ones the user set
+            spiderParam = (SpiderParam) extension.getSpiderParam().clone();
+        }
+        return spiderParam;
+    }
 
-	private void setAdvancedTabs(boolean visible) {
-		// Show/hide all except from the first tab
-		this.setTabsVisible (new String[] {
-	            "spider.custom.tab.adv"
-	        }, visible);
-	}
-	
+    private void setAdvancedTabs(boolean visible) {
+        // Show/hide all except from the first tab
+        this.setTabsVisible(new String[] {"spider.custom.tab.adv"}, visible);
+    }
+
     @Override
-	public String getHelpIndex() {
-		return "ui.dialogs.spider";
-	}
+    public String getHelpIndex() {
+        return "ui.dialogs.spider";
+    }
 
     @Override
     public void targetSelected(String field, Target node) {
@@ -214,59 +225,61 @@ public class SpiderDialog extends StandardFieldsDialog {
                 Session session = Model.getSingleton().getSession();
                 List<Context> contexts = session.getContextsForNode(node.getStartNode());
                 for (Context context : contexts) {
-                	ctxNames.add(context.getName());
+                    ctxNames.add(context.getName());
                 }
-            	
+
             } else if (node.getContext() != null) {
-            	ctxNames.add(node.getContext().getName());
+                ctxNames.add(node.getContext().getName());
             }
         }
         this.setComboFields(FIELD_CONTEXT, ctxNames, "");
-       	this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
+        this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
     }
-    
+
     private Context getSelectedContext() {
-    	String ctxName = this.getStringValue(FIELD_CONTEXT);
-    	if (this.extUserMgmt != null && ! this.isEmptyField(FIELD_CONTEXT)) {
+        String ctxName = this.getStringValue(FIELD_CONTEXT);
+        if (this.extUserMgmt != null && !this.isEmptyField(FIELD_CONTEXT)) {
             Session session = Model.getSingleton().getSession();
             return session.getContext(ctxName);
-    	}
-    	return null;
+        }
+        return null;
     }
 
     private User getSelectedUser() {
-    	Context context = this.getSelectedContext();
-    	if (context != null) {
-        	String userName = this.getStringValue(FIELD_USER);
-        	List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
-        	for (User user : users) {
-        		if (userName.equals(user.getName())) {
-        			return user;
-        		}
+        Context context = this.getSelectedContext();
+        if (context != null) {
+            String userName = this.getStringValue(FIELD_USER);
+            List<User> users =
+                    this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+            for (User user : users) {
+                if (userName.equals(user.getName())) {
+                    return user;
+                }
             }
-    	}
-    	return null;
+        }
+        return null;
     }
 
     private void setUsers() {
-    	Context context = this.getSelectedContext();
+        Context context = this.getSelectedContext();
         List<String> userNames = new ArrayList<String>();
-    	if (context != null) {
-        	List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
-        	userNames.add("");	// The default should always be 'not specified'
-        	for (User user : users) {
-        		userNames.add(user.getName());
+        if (context != null) {
+            List<User> users =
+                    this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+            userNames.add(""); // The default should always be 'not specified'
+            for (User user : users) {
+                userNames.add(user.getName());
             }
-    	}
+        }
         this.setComboFields(FIELD_USER, userNames, "");
-       	this.getField(FIELD_USER).setEnabled(userNames.size() > 1);	// Theres always 1..
+        this.getField(FIELD_USER).setEnabled(userNames.size() > 1); // Theres always 1..
     }
 
     private void reset(boolean refreshUi) {
-    	// Reset to the global options
-		spiderParam = null;
-		subtreeOnlyPreviousCheckedState = false;
-    	
+        // Reset to the global options
+        spiderParam = null;
+        subtreeOnlyPreviousCheckedState = false;
+
         if (refreshUi) {
             init(target);
             repaint();
@@ -281,15 +294,17 @@ public class SpiderDialog extends StandardFieldsDialog {
     @Override
     public JButton[] getExtraButtons() {
         if (extraButtons == null) {
-            JButton resetButton = new JButton(Constant.messages.getString("spider.custom.button.reset"));
-            resetButton.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    reset(true);
-                }
-            });
+            JButton resetButton =
+                    new JButton(Constant.messages.getString("spider.custom.button.reset"));
+            resetButton.addActionListener(
+                    new java.awt.event.ActionListener() {
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            reset(true);
+                        }
+                    });
 
-            extraButtons = new JButton[]{resetButton};
+            extraButtons = new JButton[] {resetButton};
         }
         return extraButtons;
     }
@@ -297,51 +312,51 @@ public class SpiderDialog extends StandardFieldsDialog {
     @Override
     public void save() {
         List<Object> contextSpecificObjects = new ArrayList<>();
-		URI startUri = null;
+        URI startUri = null;
         try {
-        	// Always include the startUri, this has the side effect
-        	// of handling URLs that have not been accessed
-			startUri = new URI(this.getStringValue(FIELD_START), true);
-		} catch (Exception e1) {
-			// Ignore - will have been checked in validateParams
-		}
-        if (this.getBoolValue(FIELD_ADVANCED)) {
-        	// Set the advanced options
-        	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
-        	spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
-        	spiderParam.setMaxChildren(this.getIntValue(FIELD_MAX_CHILDREN));
-        	spiderParam.setMaxParseSizeBytes(this.getIntValue(FIELD_MAX_PARSE_SIZE_BYTES));
-        	spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
-        	spiderParam.setAcceptCookies(this.getBoolValue(FIELD_ACCEPT_COOKIES));
-        	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
-        	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
-        	spiderParam.setParseComments(this.getBoolValue(FIELD_PARSE_COMMENTS));
-        	spiderParam.setParseRobotsTxt(this.getBoolValue(FIELD_PARSE_ROBOTS));
-        	spiderParam.setParseSitemapXml(this.getBoolValue(FIELD_PARSE_SITEMAP));
-        	spiderParam.setParseSVNEntries(this.getBoolValue(FIELD_PARSE_SVN));
-        	spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
-        	spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
-        	spiderParam.setThreadCount(extension.getSpiderParam().getThreadCount());
-        	
-        	contextSpecificObjects.add(spiderParam);
-    	}
-
-		if (startUri != null) {
-			contextSpecificObjects.add(startUri);
-
-			if (getBoolValue(FIELD_SUBTREE_ONLY)) {
-				contextSpecificObjects.add(new HttpPrefixFetchFilter(startUri));
-			}
-		}
-        
-        if (target == null || ! this.getStringValue(FIELD_START).equals(getTargetText(target))) {
-       		// Clear the target as it doesn't match the value entered manually
-			target = new Target((StructuralNode)null);
+            // Always include the startUri, this has the side effect
+            // of handling URLs that have not been accessed
+            startUri = new URI(this.getStringValue(FIELD_START), true);
+        } catch (Exception e1) {
+            // Ignore - will have been checked in validateParams
         }
-        
+        if (this.getBoolValue(FIELD_ADVANCED)) {
+            // Set the advanced options
+            spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
+            spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
+            spiderParam.setMaxChildren(this.getIntValue(FIELD_MAX_CHILDREN));
+            spiderParam.setMaxParseSizeBytes(this.getIntValue(FIELD_MAX_PARSE_SIZE_BYTES));
+            spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
+            spiderParam.setAcceptCookies(this.getBoolValue(FIELD_ACCEPT_COOKIES));
+            spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
+            spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
+            spiderParam.setParseComments(this.getBoolValue(FIELD_PARSE_COMMENTS));
+            spiderParam.setParseRobotsTxt(this.getBoolValue(FIELD_PARSE_ROBOTS));
+            spiderParam.setParseSitemapXml(this.getBoolValue(FIELD_PARSE_SITEMAP));
+            spiderParam.setParseSVNEntries(this.getBoolValue(FIELD_PARSE_SVN));
+            spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
+            spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
+            spiderParam.setThreadCount(extension.getSpiderParam().getThreadCount());
+
+            contextSpecificObjects.add(spiderParam);
+        }
+
+        if (startUri != null) {
+            contextSpecificObjects.add(startUri);
+
+            if (getBoolValue(FIELD_SUBTREE_ONLY)) {
+                contextSpecificObjects.add(new HttpPrefixFetchFilter(startUri));
+            }
+        }
+
+        if (target == null || !this.getStringValue(FIELD_START).equals(getTargetText(target))) {
+            // Clear the target as it doesn't match the value entered manually
+            target = new Target((StructuralNode) null);
+        }
+
         // Save the adv option permanently for next time
         extension.getSpiderParam().setShowAdvancedDialog(this.getBoolValue(FIELD_ADVANCED));
-        
+
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
 
         if (target.getContext() == null && getSelectedContext() != null) {
@@ -350,10 +365,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
         subtreeOnlyPreviousCheckedState = getBoolValue(FIELD_SUBTREE_ONLY);
 
-        this.extension.startScan(
-                target,
-                getSelectedUser(), 
-                contextSpecificObjects.toArray());
+        this.extension.startScan(target, getSelectedUser(), contextSpecificObjects.toArray());
     }
 
     @Override
@@ -363,20 +375,20 @@ public class SpiderDialog extends StandardFieldsDialog {
             return Constant.messages.getString("spider.custom.notSafe.error");
         }
 
-    	if (this.isEmptyField(FIELD_START)) {
+        if (this.isEmptyField(FIELD_START)) {
             return Constant.messages.getString("spider.custom.nostart.error");
-    	}
+        }
 
-    	boolean noStartUri = true;
-		if (!getStringValue(FIELD_START).equals(getTargetText(target))) {
-			String url = this.getStringValue(FIELD_START);
-			try {
-				// Need both constructors as they catch slightly different issues ;)
-				new URI(url, true);
-				new URL(url);
-			} catch (Exception e) {
+        boolean noStartUri = true;
+        if (!getStringValue(FIELD_START).equals(getTargetText(target))) {
+            String url = this.getStringValue(FIELD_START);
+            try {
+                // Need both constructors as they catch slightly different issues ;)
+                new URI(url, true);
+                new URL(url);
+            } catch (Exception e) {
                 return Constant.messages.getString("spider.custom.nostart.error");
-			}
+            }
 
             if (Control.getSingleton().getMode() == Control.Mode.protect) {
                 if (!extension.isTargetUriInScope(url)) {
@@ -384,9 +396,9 @@ public class SpiderDialog extends StandardFieldsDialog {
                 }
             }
             noStartUri = false;
-		}
+        }
 
-    	if (this.target != null) {
+        if (this.target != null) {
             if (!this.target.isValid()) {
                 return Constant.messages.getString("spider.custom.nostart.error");
             }
@@ -412,13 +424,13 @@ public class SpiderDialog extends StandardFieldsDialog {
         if (getBoolValue(FIELD_SUBTREE_ONLY) && noStartUri) {
             return Constant.messages.getString("spider.custom.noStartSubtreeOnly.error");
         }
-        
+
         return null;
     }
 
     /**
      * Resets the spider dialogue to its default state.
-     * 
+     *
      * @since 2.5.0
      */
     void reset() {
@@ -428,7 +440,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     @Override
     public void cancelPressed() {
-        this.target=null;
+        this.target = null;
         super.cancelPressed();
     }
 }

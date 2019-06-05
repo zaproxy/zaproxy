@@ -24,25 +24,25 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 
-public class HttpPanelResponse extends HttpPanel  {
-	private static final long serialVersionUID = 1L;
+public class HttpPanelResponse extends HttpPanel {
+    private static final long serialVersionUID = 1L;
 
-	private static final String RESPONSE_KEY = "response.";
-	
-	public HttpPanelResponse(boolean isEditable, String configurationKey) {
+    private static final String RESPONSE_KEY = "response.";
+
+    public HttpPanelResponse(boolean isEditable, String configurationKey) {
         super(isEditable, configurationKey + RESPONSE_KEY);
 
         HttpPanelManager.getInstance().addResponsePanel(this);
         this.setHideable(false);
-	}
+    }
 
-	@Override
-	protected void initComponents() {
-		addComponent(new ResponseSplitComponent<HttpMessage>(), Model.getSingleton().getOptionsParam().getConfig());
-	}
+    @Override
+    protected void initComponents() {
+        addComponent(
+                new ResponseSplitComponent<HttpMessage>(),
+                Model.getSingleton().getOptionsParam().getConfig());
+    }
 
-	@Override
-	protected void initSpecial() {
-		
-	}
+    @Override
+    protected void initSpecial() {}
 }

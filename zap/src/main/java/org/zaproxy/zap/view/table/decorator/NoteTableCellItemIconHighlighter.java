@@ -24,8 +24,10 @@ import javax.swing.ImageIcon;
 
 public class NoteTableCellItemIconHighlighter extends AbstractTableCellItemIconHighlighter {
 
-    private static final Icon NOTE_ICON = new ImageIcon(
-            NoteTableCellItemIconHighlighter.class.getResource("/resource/icon/16/022.png"));
+    private static final Icon NOTE_ICON =
+            new ImageIcon(
+                    NoteTableCellItemIconHighlighter.class.getResource(
+                            "/resource/icon/16/022.png"));
 
     public NoteTableCellItemIconHighlighter(final int columnIndex) {
         super(columnIndex);

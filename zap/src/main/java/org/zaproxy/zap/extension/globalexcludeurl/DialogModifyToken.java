@@ -21,17 +21,19 @@
 package org.zaproxy.zap.extension.globalexcludeurl;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 
 class DialogModifyToken extends DialogAddToken {
 
     private static final long serialVersionUID = 6675509994290748494L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("options.globalexcludeurl.dialog.token.modify.title");
-    
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("options.globalexcludeurl.dialog.token.modify.button.confirm");
-    
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("options.globalexcludeurl.dialog.token.modify.title");
+
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString(
+                    "options.globalexcludeurl.dialog.token.modify.button.confirm");
+
     protected DialogModifyToken(Dialog owner) {
         super(owner, DIALOG_TITLE);
     }
@@ -44,7 +46,7 @@ class DialogModifyToken extends DialogAddToken {
     public void setToken(GlobalExcludeURLParamToken token) {
         this.token = token;
     }
-    
+
     @Override
     protected boolean validateFields() {
         if (token.getRegex().equals(getRegexTextField().getText())) {
@@ -62,5 +64,4 @@ class DialogModifyToken extends DialogAddToken {
         getDescTextField().setText(token.getDescription());
         getDescTextField().discardAllEdits();
     }
-
 }

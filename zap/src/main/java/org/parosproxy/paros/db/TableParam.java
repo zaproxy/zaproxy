@@ -20,24 +20,21 @@
 package org.parosproxy.paros.db;
 
 /**
- * This interface was extracted from the previous Paros class of the same name.
- * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * This interface was extracted from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ *
  * @author psiinon
  */
-
 import java.util.List;
-
 
 public interface TableParam extends DatabaseListener {
 
-	RecordParam read(long urlId) throws DatabaseException;
+    RecordParam read(long urlId) throws DatabaseException;
 
-	List<RecordParam> getAll() throws DatabaseException;
+    List<RecordParam> getAll() throws DatabaseException;
 
-	RecordParam insert(String site, String type, String name,
-			int used, String flags, String values) throws DatabaseException;
+    RecordParam insert(String site, String type, String name, int used, String flags, String values)
+            throws DatabaseException;
 
-	void update(long paramId, int used, String flags,
-			String values) throws DatabaseException;
-
+    void update(long paramId, int used, String flags, String values) throws DatabaseException;
 }

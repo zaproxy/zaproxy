@@ -64,5 +64,4 @@ class HttpSenderScriptListener implements HttpSenderListener {
             }
         }
     }
-
 }

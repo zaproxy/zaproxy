@@ -22,16 +22,12 @@ package org.parosproxy.paros.extension.history;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
-/**
- * A {@code HistoryReferencesTable} for History tab.
- */
+/** A {@code HistoryReferencesTable} for History tab. */
 class HistoryTable extends HistoryReferencesTable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructs a {@code HistoryTable}.
-     */
+    /** Constructs a {@code HistoryTable}. */
     public HistoryTable() {
         super(new HistoryTableModel());
 
@@ -39,9 +35,13 @@ class HistoryTable extends HistoryReferencesTable {
 
         setName("History Table");
 
-        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.responseheader")).setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.responseheader"))
+                .setVisible(false);
     }
 }

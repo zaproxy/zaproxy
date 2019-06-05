@@ -23,85 +23,74 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 
 /**
- * A listener that will be notified when a new request is ready to be forwarded
- * to the server and when a new response is ready to be forwarded to the client.
+ * A listener that will be notified when a new request is ready to be forwarded to the server and
+ * when a new response is ready to be forwarded to the client.
  */
 public interface HttpSenderListener {
 
     /**
      * Gets the order of when this listener should be notified.
-     * 
-     * <p>
-     * The listeners are ordered in a natural order, the greater the order the
-     * later it will be notified.
-     * </p>
-     * 
-     * <p>
-     * <strong>Note:</strong> If two or more listeners have the same order, the
-     * order that those listeners will be notified is undefined.
-     * </p>
-     * 
-     * @return an {@code int} with the value of the order that this listener
-     *         should be notified about
+     *
+     * <p>The listeners are ordered in a natural order, the greater the order the later it will be
+     * notified.
+     *
+     * <p><strong>Note:</strong> If two or more listeners have the same order, the order that those
+     * listeners will be notified is undefined.
+     *
+     * @return an {@code int} with the value of the order that this listener should be notified
+     *     about
      */
     int getListenerOrder();
 
     /**
-     * Notifies the listener that a new request was received from the client and
-     * is ready to be forwarded to the server.
-     * <p>
-     * The {@code HttpMessage} {@code msg} can be modified (only the request
-     * should be modified). If the return value is {@code true} the message
-     * <i>may be</i> forwarded and the following listeners will be notified, if
-     * the value is {@code false} the message <i>will not</i> be forwarded and
-     * no more listeners will be notified.
-     * <p>
-     * <strong>Note:</strong> In the presence of more than one listener there
-     * are <i>no</i> guarantees that:
+     * Notifies the listener that a new request was received from the client and is ready to be
+     * forwarded to the server.
+     *
+     * <p>The {@code HttpMessage} {@code msg} can be modified (only the request should be modified).
+     * If the return value is {@code true} the message <i>may be</i> forwarded and the following
+     * listeners will be notified, if the value is {@code false} the message <i>will not</i> be
+     * forwarded and no more listeners will be notified.
+     *
+     * <p><strong>Note:</strong> In the presence of more than one listener there are <i>no</i>
+     * guarantees that:
+     *
      * <ul>
-     * <li>the {@code HttpMessage} {@code msg} is equal to the one forwarded to
-     * the server, as the following listeners may modify it;</li>
-     * <li>the message will really be forwarded to the server, even if the
-     * return value is {@code true}, as the following listeners may return
-     * {@code false}.</li>
-     * <li>the {@code int} {@code initiator} as defined in the {@code HttpSender}
-     * class. </li>
+     *   <li>the {@code HttpMessage} {@code msg} is equal to the one forwarded to the server, as the
+     *       following listeners may modify it;
+     *   <li>the message will really be forwarded to the server, even if the return value is {@code
+     *       true}, as the following listeners may return {@code false}.
+     *   <li>the {@code int} {@code initiator} as defined in the {@code HttpSender} class.
      * </ul>
-     * 
-     * @param msg
-     *            the {@code HttpMessage} that may be forwarded to the server
+     *
+     * @param msg the {@code HttpMessage} that may be forwarded to the server
      * @param initiator the ID of the entity that's sending the message
      * @param sender the sender of the message
      */
     void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender);
 
     /**
-     * Notifies the listener that a new response was received from the server
-     * and is ready to be forwarded to the client.
-     * <p>
-     * The {@code HttpMessage} {@code msg} can be modified (only the response
-     * should be modified). If the return value is {@code true} the message
-     * <i>may be</i> forwarded and the following listeners will be notified, if
-     * the value is {@code false} the message <i>will not</i> be forwarded and
-     * no more listeners will be notified.
-     * <p>
-     * <strong>Note:</strong> In the presence of more than one listener there
-     * are <i>no</i> guarantees that:
+     * Notifies the listener that a new response was received from the server and is ready to be
+     * forwarded to the client.
+     *
+     * <p>The {@code HttpMessage} {@code msg} can be modified (only the response should be
+     * modified). If the return value is {@code true} the message <i>may be</i> forwarded and the
+     * following listeners will be notified, if the value is {@code false} the message <i>will
+     * not</i> be forwarded and no more listeners will be notified.
+     *
+     * <p><strong>Note:</strong> In the presence of more than one listener there are <i>no</i>
+     * guarantees that:
+     *
      * <ul>
-     * <li>the {@code HttpMessage} {@code msg} is equal to the one forwarded to
-     * the client, as the following listeners may modify it;</li>
-     * <li>the message will really be forwarded to the client, even if the
-     * return value is {@code true}, as the following listeners may return
-     * {@code false}.</li>
-     * <li>the {@code int} {@code initiator} as defined in the {@code HttpSender}
-     * class. </li>
+     *   <li>the {@code HttpMessage} {@code msg} is equal to the one forwarded to the client, as the
+     *       following listeners may modify it;
+     *   <li>the message will really be forwarded to the client, even if the return value is {@code
+     *       true}, as the following listeners may return {@code false}.
+     *   <li>the {@code int} {@code initiator} as defined in the {@code HttpSender} class.
      * </ul>
-     * 
-     * @param msg
-     *            the {@code HttpMessage} that may be forwarded to the client
+     *
+     * @param msg the {@code HttpMessage} that may be forwarded to the client
      * @param initiator the ID of the entity that's sending the message
      * @param sender the sender of the message
      */
     void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender);
-
 }

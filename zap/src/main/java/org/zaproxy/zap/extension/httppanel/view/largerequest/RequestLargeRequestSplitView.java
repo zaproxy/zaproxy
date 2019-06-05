@@ -20,11 +20,9 @@
 package org.zaproxy.zap.extension.httppanel.view.largerequest;
 
 import java.awt.BorderLayout;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -38,7 +36,8 @@ public class RequestLargeRequestSplitView implements HttpPanelView, HttpPanelVie
 
     public static final String NAME = "RequestLargeRequestSplitView";
 
-    public static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.largerequest.name");
+    public static final String CAPTION_NAME =
+            Constant.messages.getString("http.panel.view.largerequest.name");
 
     private JPanel mainPanel;
     private JLabel label;
@@ -50,25 +49,26 @@ public class RequestLargeRequestSplitView implements HttpPanelView, HttpPanelVie
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(label);
 
-        model = new AbstractHttpStringHttpPanelViewModel() {
+        model =
+                new AbstractHttpStringHttpPanelViewModel() {
 
-            @Override
-            public String getData() {
-                return Constant.messages
-                        .getString("http.panel.view.largerequest.split.warning", httpMessage.getRequestBody().length());
-            }
+                    @Override
+                    public String getData() {
+                        return Constant.messages.getString(
+                                "http.panel.view.largerequest.split.warning",
+                                httpMessage.getRequestBody().length());
+                    }
 
-            @Override
-            public void setData(String data) {
-                // Nothing to do, the view is immutable.
-            }
-        };
+                    @Override
+                    public void setData(String data) {
+                        // Nothing to do, the view is immutable.
+                    }
+                };
         model.addHttpPanelViewModelListener(this);
     }
 
     @Override
-    public void save() {
-    }
+    public void save() {}
 
     @Override
     public void setSelected(boolean selected) {
@@ -118,20 +118,16 @@ public class RequestLargeRequestSplitView implements HttpPanelView, HttpPanelVie
     }
 
     @Override
-    public void setEditable(boolean editable) {
-    }
+    public void setEditable(boolean editable) {}
 
     @Override
-    public void setParentConfigurationKey(String configurationKey) {
-    }
+    public void setParentConfigurationKey(String configurationKey) {}
 
     @Override
-    public void loadConfiguration(FileConfiguration fileConfiguration) {
-    }
+    public void loadConfiguration(FileConfiguration fileConfiguration) {}
 
     @Override
-    public void saveConfiguration(FileConfiguration fileConfiguration) {
-    }
+    public void saveConfiguration(FileConfiguration fileConfiguration) {}
 
     @Override
     public HttpPanelViewModel getModel() {
@@ -142,5 +138,4 @@ public class RequestLargeRequestSplitView implements HttpPanelView, HttpPanelVie
     public void dataChanged(HttpPanelViewModelEvent e) {
         label.setText(model.getData());
     }
-
 }

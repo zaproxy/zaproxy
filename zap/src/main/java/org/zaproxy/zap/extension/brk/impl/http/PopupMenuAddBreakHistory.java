@@ -53,8 +53,9 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
             extension.addUiBreakpoint(href.getHttpMessage());
         } catch (HttpMalformedHeaderException | DatabaseException e) {
             logger.error(e.getMessage(), e);
-            extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
+            extension
+                    .getView()
+                    .showWarningDialog(Constant.messages.getString("brk.add.error.history"));
         }
     }
-
 }

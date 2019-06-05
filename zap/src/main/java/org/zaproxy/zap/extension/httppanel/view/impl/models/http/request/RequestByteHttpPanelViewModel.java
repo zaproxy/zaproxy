@@ -26,71 +26,70 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByt
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
-	
-	private static final Logger logger = Logger.getLogger(RequestByteHttpPanelViewModel.class);
 
-	@Override
-	public byte[] getData() {
-		if (httpMessage == null)  {
-			return new byte[0];
-		}
-		
-		byte[] headerBytes = httpMessage.getRequestHeader().toString().getBytes();
-		byte[] bodyBytes = httpMessage.getRequestBody().getBytes();
-		
-		byte[] bytes = new byte[headerBytes.length + bodyBytes.length];
-		
-		System.arraycopy(headerBytes, 0, bytes, 0, headerBytes.length);
-		System.arraycopy(bodyBytes, 0, bytes, headerBytes.length, bodyBytes.length);
-		
-		return bytes;
-	}
+    private static final Logger logger = Logger.getLogger(RequestByteHttpPanelViewModel.class);
 
-	@Override
-	public void setData(byte[] data) {
-		int pos = findHeaderLimit(data);
-		
-		if (pos == -1) {
-			logger.warn("Could not Save Header, limit not found. Header: " + new String(data));
-			return;
-		}
-		
-		try {
-			httpMessage.setRequestHeader(new String(data, 0, pos));
-		} catch (HttpMalformedHeaderException e) {
-			logger.warn("Could not Save Header: " + new String(data, 0, pos), e);
-		}
-		
-		httpMessage.getRequestBody().setBody(ArrayUtils.subarray(data, pos, data.length));
-		HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
-	}
-	
-	private int findHeaderLimit(byte[] data) {
-		boolean lastIsCRLF = false;
-		boolean lastIsCR = false;
-		boolean lastIsLF = false;
-		int pos = -1;
-		
-		for(int i = 0; i < data.length; ++i) {
-			if (!lastIsCR && data[i] == '\r') {
-				lastIsCR = true;
-			} else if (!lastIsLF && data[i] == '\n') {
-				if (lastIsCRLF) {
-					pos = i;
-					break;
-				}
-				
-				lastIsCRLF = true;
-				lastIsCR = false;
-				lastIsLF = false;
-			} else {
-				lastIsCR = false;
-				lastIsLF = false;
-				lastIsCRLF = false;
-			}
-		}
-		
-		return pos;
-	}
+    @Override
+    public byte[] getData() {
+        if (httpMessage == null) {
+            return new byte[0];
+        }
 
+        byte[] headerBytes = httpMessage.getRequestHeader().toString().getBytes();
+        byte[] bodyBytes = httpMessage.getRequestBody().getBytes();
+
+        byte[] bytes = new byte[headerBytes.length + bodyBytes.length];
+
+        System.arraycopy(headerBytes, 0, bytes, 0, headerBytes.length);
+        System.arraycopy(bodyBytes, 0, bytes, headerBytes.length, bodyBytes.length);
+
+        return bytes;
+    }
+
+    @Override
+    public void setData(byte[] data) {
+        int pos = findHeaderLimit(data);
+
+        if (pos == -1) {
+            logger.warn("Could not Save Header, limit not found. Header: " + new String(data));
+            return;
+        }
+
+        try {
+            httpMessage.setRequestHeader(new String(data, 0, pos));
+        } catch (HttpMalformedHeaderException e) {
+            logger.warn("Could not Save Header: " + new String(data, 0, pos), e);
+        }
+
+        httpMessage.getRequestBody().setBody(ArrayUtils.subarray(data, pos, data.length));
+        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+    }
+
+    private int findHeaderLimit(byte[] data) {
+        boolean lastIsCRLF = false;
+        boolean lastIsCR = false;
+        boolean lastIsLF = false;
+        int pos = -1;
+
+        for (int i = 0; i < data.length; ++i) {
+            if (!lastIsCR && data[i] == '\r') {
+                lastIsCR = true;
+            } else if (!lastIsLF && data[i] == '\n') {
+                if (lastIsCRLF) {
+                    pos = i;
+                    break;
+                }
+
+                lastIsCRLF = true;
+                lastIsCR = false;
+                lastIsLF = false;
+            } else {
+                lastIsCR = false;
+                lastIsLF = false;
+                lastIsCRLF = false;
+            }
+        }
+
+        return pos;
+    }
 }

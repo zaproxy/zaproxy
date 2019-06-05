@@ -28,17 +28,13 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Map;
-
 import javax.script.ScriptContext;
 import javax.script.SimpleScriptContext;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Unit test for {@link ScriptVars}.
- */
+/** Unit test for {@link ScriptVars}. */
 public class ScriptVarsUnitTest {
 
     @Before
@@ -397,7 +393,8 @@ public class ScriptVarsUnitTest {
 
     private static ScriptContext createScriptContextWithName(Object scriptName) {
         ScriptContext context = new SimpleScriptContext();
-        context.setAttribute(ExtensionScript.SCRIPT_NAME_ATT, scriptName, ScriptContext.ENGINE_SCOPE);
+        context.setAttribute(
+                ExtensionScript.SCRIPT_NAME_ATT, scriptName, ScriptContext.ENGINE_SCOPE);
         return context;
     }
 }

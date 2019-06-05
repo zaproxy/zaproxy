@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -36,80 +35,84 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStr
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class ResponseStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
-	
-	private static final Logger logger = Logger.getLogger(ResponseStringHttpPanelViewModel.class);
-	
-	@Override
-	public String getData() {
-		if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
-			return "";
-		}
 
-		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF) + getBody();
-	}
-	
-	private String getBody() {
-		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-			// Uncompress gziped content
-			try {
-				ByteArrayInputStream bais = new ByteArrayInputStream(httpMessage.getResponseBody().getBytes());
-				GZIPInputStream gis = new GZIPInputStream(bais);
-				InputStreamReader isr = new InputStreamReader(gis);
-				BufferedReader br = new BufferedReader(isr);
-				StringBuilder sb = new StringBuilder();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					sb.append(line);
-				}
-				br.close();
-				isr.close();
-				gis.close();
-				bais.close();
-				return sb.toString();
-			} catch (IOException e) {
-				//this.log.error(e.getMessage(), e);
-				System.out.println(e);
-			}
-		}
-		return httpMessage.getResponseBody().toString();
-	}
+    private static final Logger logger = Logger.getLogger(ResponseStringHttpPanelViewModel.class);
 
-	@Override
-	public void setData(String data) {
-		String[] parts = data.split(HttpHeader.LF + HttpHeader.LF);
-		String header = parts[0].replaceAll("(?<!\r)\n", HttpHeader.CRLF);
-		//Note that if the body has LF, those characters will not be replaced by CRLF.
-		
-		try {
-			httpMessage.setResponseHeader(header);
-		} catch (HttpMalformedHeaderException e) {
-			logger.warn("Could not Save Header: " + header, e);
-		}
-		
-		if (parts.length > 1) {
-			String body = data.substring(parts[0].length()+2);
-			if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-				// Recompress gziped content
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					GZIPOutputStream gis = new GZIPOutputStream(baos);
-					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
-					bw.write(body);
-					bw.close();
-					gis.close();
-					baos.close();
-					httpMessage.getResponseBody().setBody(baos.toByteArray());
-					HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
-				} catch (IOException e) {
-					//this.log.error(e.getMessage(), e);
-					System.out.println(e);
-				}
-			} else {
-				httpMessage.setResponseBody(body);
-			}
-		} else {
-			httpMessage.setResponseBody("");
-		}
-		HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
-	}
+    @Override
+    public String getData() {
+        if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
+            return "";
+        }
+
+        return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
+                + getBody();
+    }
+
+    private String getBody() {
+        if (HttpHeader.GZIP.equals(
+                httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+            // Uncompress gziped content
+            try {
+                ByteArrayInputStream bais =
+                        new ByteArrayInputStream(httpMessage.getResponseBody().getBytes());
+                GZIPInputStream gis = new GZIPInputStream(bais);
+                InputStreamReader isr = new InputStreamReader(gis);
+                BufferedReader br = new BufferedReader(isr);
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                br.close();
+                isr.close();
+                gis.close();
+                bais.close();
+                return sb.toString();
+            } catch (IOException e) {
+                // this.log.error(e.getMessage(), e);
+                System.out.println(e);
+            }
+        }
+        return httpMessage.getResponseBody().toString();
+    }
+
+    @Override
+    public void setData(String data) {
+        String[] parts = data.split(HttpHeader.LF + HttpHeader.LF);
+        String header = parts[0].replaceAll("(?<!\r)\n", HttpHeader.CRLF);
+        // Note that if the body has LF, those characters will not be replaced by CRLF.
+
+        try {
+            httpMessage.setResponseHeader(header);
+        } catch (HttpMalformedHeaderException e) {
+            logger.warn("Could not Save Header: " + header, e);
+        }
+
+        if (parts.length > 1) {
+            String body = data.substring(parts[0].length() + 2);
+            if (HttpHeader.GZIP.equals(
+                    httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+                // Recompress gziped content
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    GZIPOutputStream gis = new GZIPOutputStream(baos);
+                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
+                    bw.write(body);
+                    bw.close();
+                    gis.close();
+                    baos.close();
+                    httpMessage.getResponseBody().setBody(baos.toByteArray());
+                    HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+                } catch (IOException e) {
+                    // this.log.error(e.getMessage(), e);
+                    System.out.println(e);
+                }
+            } else {
+                httpMessage.setResponseBody(body);
+            }
+        } else {
+            httpMessage.setResponseBody("");
+        }
+        HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+    }
 }

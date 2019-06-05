@@ -24,9 +24,7 @@ import org.apache.commons.httpclient.cookie.CookieSpec;
 import org.apache.commons.httpclient.cookie.MalformedCookieException;
 import org.junit.Test;
 
-/**
- * Unit test for {@link ZapCookieSpec}.
- */
+/** Unit test for {@link ZapCookieSpec}. */
 public class ZapCookieSpecUnitTest {
 
     private static final String HOST = "example.com";
@@ -95,7 +93,8 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test(expected = MalformedCookieException.class)
-    public void shouldBeMalformedWhenValidatingWithNegativeCookieVersion() throws MalformedCookieException {
+    public void shouldBeMalformedWhenValidatingWithNegativeCookieVersion()
+            throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         Cookie cookie = new Cookie(HOST, "name", "value");
@@ -106,7 +105,8 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldBeValidEvenIfCookiePathIsDifferentThanOrigin() throws MalformedCookieException {
+    public void shouldBeValidEvenIfCookiePathIsDifferentThanOrigin()
+            throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         Cookie cookie = new Cookie(HOST, "name", "value");

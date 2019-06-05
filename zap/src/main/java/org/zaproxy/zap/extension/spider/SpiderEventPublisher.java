@@ -55,5 +55,4 @@ public class SpiderEventPublisher extends ScanEventPublisher {
         SpiderEventPublisher publisher = getPublisher();
         publisher.publishScanProgressEvent(publisher, scanId, scanProgress);
     }
-
 }

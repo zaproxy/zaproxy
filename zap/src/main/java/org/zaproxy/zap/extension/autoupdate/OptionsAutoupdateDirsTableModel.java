@@ -22,43 +22,41 @@ package org.zaproxy.zap.extension.autoupdate;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTableModel;
 
 public class OptionsAutoupdateDirsTableModel extends AbstractMultipleOptionsBaseTableModel<File> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("cfu.options.table.header.dir")};
-    
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-	
+        Constant.messages.getString("cfu.options.table.header.dir")
+    };
+
+    private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+
     private List<File> tokens = new ArrayList<>(0);
-    
+
     public OptionsAutoupdateDirsTableModel() {
         super();
     }
-    
+
     @Override
     public List<File> getElements() {
         return tokens;
     }
 
-    /**
-     * @param files The files to set.
-     */
+    /** @param files The files to set. */
     public void setFiles(List<File> files) {
-		this.tokens = new ArrayList<>(tokens.size());
-		
-		for (File file : files) {
-			this.tokens.add(file);
-		}
-    	
-  	  	fireTableDataChanged();
+        this.tokens = new ArrayList<>(tokens.size());
+
+        for (File file : files) {
+            this.tokens.add(file);
+        }
+
+        fireTableDataChanged();
     }
-    
+
     @Override
     public String getColumnName(int col) {
         return COLUMN_NAMES[col];
@@ -68,9 +66,9 @@ public class OptionsAutoupdateDirsTableModel extends AbstractMultipleOptionsBase
     public int getColumnCount() {
         return COLUMN_COUNT;
     }
-    
+
     @Override
-	public Class<?> getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         return String.class;
     }
 
@@ -83,18 +81,16 @@ public class OptionsAutoupdateDirsTableModel extends AbstractMultipleOptionsBase
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
-    
+
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch(columnIndex) {
-        case 0:
-            return getElement(rowIndex).getAbsolutePath();
+        switch (columnIndex) {
+            case 0:
+                return getElement(rowIndex).getAbsolutePath();
         }
         return null;
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-    }
-    
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {}
 }

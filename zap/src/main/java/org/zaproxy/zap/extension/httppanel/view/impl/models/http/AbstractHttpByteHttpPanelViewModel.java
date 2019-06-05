@@ -26,11 +26,11 @@ import org.zaproxy.zap.extension.httppanel.view.AbstractByteHttpPanelViewModel;
 public abstract class AbstractHttpByteHttpPanelViewModel extends AbstractByteHttpPanelViewModel {
 
     protected HttpMessage httpMessage;
-    
+
     @Override
     public void setMessage(Message aMessage) {
         httpMessage = (HttpMessage) aMessage;
-        
+
         super.setMessage(aMessage);
     }
 }

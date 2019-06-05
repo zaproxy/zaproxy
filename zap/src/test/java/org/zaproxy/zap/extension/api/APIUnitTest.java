@@ -30,7 +30,8 @@ import java.net.Inet4Address;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
@@ -49,12 +50,7 @@ import org.w3c.dom.Element;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
-
-/**
- * Unit test for {@link API}.
- */
+/** Unit test for {@link API}. */
 @RunWith(MockitoJUnitRunner.class)
 public class APIUnitTest {
 
@@ -80,10 +76,11 @@ public class APIUnitTest {
         api.setOptionsParamApi(createOptionsParamApi());
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        HttpMessage requestHandled = api.handleApiRequest(
-                createApiRequest(new byte[] { 127, 0, 0, 1 }, "example.com", requestUri),
-                createMockedHttpInputStream(),
-                createMockedHttpOutputStream());
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, "example.com", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
@@ -98,10 +95,11 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        HttpMessage requestHandled = api.handleApiRequest(
-                createApiRequest(new byte[] { 10, 0, 0, 2 }, "example.com", requestUri),
-                createMockedHttpInputStream(),
-                createMockedHttpOutputStream());
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {10, 0, 0, 2}, "example.com", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
@@ -116,10 +114,11 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        HttpMessage requestHandled = api.handleApiRequest(
-                createApiRequest(new byte[] { 127, 0, 0, 1 }, "example.com", requestUri),
-                createMockedHttpInputStream(),
-                createMockedHttpOutputStream());
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, "example.com", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
@@ -134,10 +133,11 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         TestApiImplementor apiImplementor = new TestApiImplementor();
         String requestUri = api.getCallBackUrl(apiImplementor, "http://example.com");
-        HttpMessage requestHandled = api.handleApiRequest(
-                createApiRequest(new byte[] { 10, 0, 0, 8 }, "example.com", requestUri),
-                createMockedHttpInputStream(),
-                createMockedHttpOutputStream());
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {10, 0, 0, 8}, "example.com", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream());
         // Then
         assertThat(requestHandled, is(notNullValue()));
         assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
@@ -206,7 +206,8 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpSchemeZapAddressAndApiNonceIfProxyingNotSecureAndNotView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpSchemeZapAddressAndApiNonceIfProxyingNotSecureAndNotView() {
         // Given
         boolean proxying = true;
         boolean secure = false;
@@ -215,7 +216,8 @@ public class APIUnitTest {
         apiOptions.setSecureOnly(secure);
         api.setOptionsParamApi(apiOptions);
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
         assertThat(baseUrl, startsWith("http://zap/JSON/test/action/test/?apinonce="));
         assertThat(baseUrl, endsWith("&"));
@@ -223,7 +225,8 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpsSchemeZapAddressAndApiNonceIfProxyingIsSecureAndNotView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpsSchemeZapAddressAndApiNonceIfProxyingIsSecureAndNotView() {
         // Given
         boolean proxying = true;
         boolean secure = true;
@@ -232,7 +235,8 @@ public class APIUnitTest {
         apiOptions.setSecureOnly(secure);
         api.setOptionsParamApi(apiOptions);
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
         assertThat(baseUrl, startsWith("https://zap/JSON/test/action/test/?apinonce="));
         assertThat(baseUrl, endsWith("&"));
@@ -240,7 +244,8 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpSchemeProxyAddressAndApiNonceIfNotProxyingNotSecureAndNotView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpSchemeProxyAddressAndApiNonceIfNotProxyingNotSecureAndNotView() {
         // Given
         boolean proxying = false;
         boolean secure = false;
@@ -250,7 +255,8 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         api.setProxyParam(createProxyParam("127.0.0.1", 8080));
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
         assertThat(baseUrl, startsWith("http://127.0.0.1:8080/JSON/test/action/test/?apinonce="));
         assertThat(baseUrl, endsWith("&"));
@@ -258,7 +264,8 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpsSchemeProxyAddressAndApiNonceIfNotProxyingIsSecureAndNotView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpsSchemeProxyAddressAndApiNonceIfNotProxyingIsSecureAndNotView() {
         // Given
         boolean proxying = false;
         boolean secure = true;
@@ -268,7 +275,8 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         api.setProxyParam(createProxyParam("127.0.0.1", 8080));
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.action, "test", proxying);
         // Then
         assertThat(baseUrl, startsWith("https://127.0.0.1:8080/JSON/test/action/test/?apinonce="));
         assertThat(baseUrl, endsWith("&"));
@@ -276,7 +284,8 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpSchemeZapAddressAndNoApiNonceIfProxyingNotSecureAndView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpSchemeZapAddressAndNoApiNonceIfProxyingNotSecureAndView() {
         // Given
         boolean proxying = true;
         boolean secure = false;
@@ -285,13 +294,15 @@ public class APIUnitTest {
         apiOptions.setSecureOnly(secure);
         api.setOptionsParamApi(apiOptions);
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
         assertThat(baseUrl, is(equalTo("http://zap/JSON/test/view/test/")));
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpsSchemeZapAddressAndNoApiNonceIfProxyingIsSecureAndView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpsSchemeZapAddressAndNoApiNonceIfProxyingIsSecureAndView() {
         // Given
         boolean proxying = true;
         boolean secure = true;
@@ -300,13 +311,15 @@ public class APIUnitTest {
         apiOptions.setSecureOnly(secure);
         api.setOptionsParamApi(apiOptions);
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
         assertThat(baseUrl, is(equalTo("https://zap/JSON/test/view/test/")));
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpSchemeProxyAddressAndNoApiNonceIfNotProxyingNotSecureAndView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpSchemeProxyAddressAndNoApiNonceIfNotProxyingNotSecureAndView() {
         // Given
         boolean proxying = false;
         boolean secure = false;
@@ -316,13 +329,15 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         api.setProxyParam(createProxyParam("127.0.0.1", 8080));
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
         assertThat(baseUrl, is(equalTo("http://127.0.0.1:8080/JSON/test/view/test/")));
     }
 
     @Test
-    public void shouldCreateBaseUrlWithApiRequestWithHttpsSchemeProxyAddressAndNoApiNonceIfNotProxyingIsSecureAndView() {
+    public void
+            shouldCreateBaseUrlWithApiRequestWithHttpsSchemeProxyAddressAndNoApiNonceIfNotProxyingIsSecureAndView() {
         // Given
         boolean proxying = false;
         boolean secure = true;
@@ -332,7 +347,8 @@ public class APIUnitTest {
         api.setOptionsParamApi(apiOptions);
         api.setProxyParam(createProxyParam("127.0.0.1", 8080));
         // When
-        String baseUrl = api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
+        String baseUrl =
+                api.getBaseURL(API.Format.JSON, "test", API.RequestType.view, "test", proxying);
         // Then
         assertThat(baseUrl, is(equalTo("https://127.0.0.1:8080/JSON/test/view/test/")));
     }
@@ -385,7 +401,11 @@ public class APIUnitTest {
         // When
         String xmlResponse = API.responseToXml(endpointName, response);
         // Then
-        assertThat(xmlResponse, is(equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><Name>XML</Name>")));
+        assertThat(
+                xmlResponse,
+                is(
+                        equalTo(
+                                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><Name>XML</Name>")));
     }
 
     @Test
@@ -435,11 +455,12 @@ public class APIUnitTest {
             TestApiImplementor apiImplementor = new TestApiImplementor();
             api.registerApiImplementor(apiImplementor);
             // When
-            HttpMessage requestHandled = api.handleApiRequest(
-                    createApiRequest(new byte[] { 127, 0, 0, 1 }, hostHeader, baseUrl),
-                    createMockedHttpInputStream(),
-                    createMockedHttpOutputStream(),
-                    true);
+            HttpMessage requestHandled =
+                    api.handleApiRequest(
+                            createApiRequest(new byte[] {127, 0, 0, 1}, hostHeader, baseUrl),
+                            createMockedHttpInputStream(),
+                            createMockedHttpOutputStream(),
+                            true);
             // Then
             assertThat(requestHandled, is(notNullValue()));
             assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
@@ -460,10 +481,11 @@ public class APIUnitTest {
         return permittedAddresses;
     }
 
-    private static HttpRequestHeader createApiRequest(byte[] remoteAddress, String hostname, String requestUri)
-            throws Exception {
-        HttpRequestHeader httpRequestHeader = new HttpRequestHeader(
-                "GET " + requestUri + " HTTP/1.1\r\n" + "Host: " + hostname + "\r\n");
+    private static HttpRequestHeader createApiRequest(
+            byte[] remoteAddress, String hostname, String requestUri) throws Exception {
+        HttpRequestHeader httpRequestHeader =
+                new HttpRequestHeader(
+                        "GET " + requestUri + " HTTP/1.1\r\n" + "Host: " + hostname + "\r\n");
         httpRequestHeader.setSenderAddress(Inet4Address.getByAddress(remoteAddress));
         return httpRequestHeader;
     }
@@ -514,7 +536,8 @@ public class APIUnitTest {
         }
 
         @Override
-        public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
+        public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params)
+                throws ApiException {
             used = true;
             return new HttpMessage();
         }
@@ -532,7 +555,8 @@ public class APIUnitTest {
         }
 
         @Override
-        public ApiResponse handleApiOptionAction(String name, JSONObject params) throws ApiException {
+        public ApiResponse handleApiOptionAction(String name, JSONObject params)
+                throws ApiException {
             used = true;
             return new ApiResponseElement(name, "value");
         }
@@ -547,5 +571,4 @@ public class APIUnitTest {
             return used;
         }
     }
-
 }

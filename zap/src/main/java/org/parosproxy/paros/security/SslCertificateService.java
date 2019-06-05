@@ -36,71 +36,67 @@ import java.security.cert.CertificateException;
  */
 public interface SslCertificateService {
 
-	/**
-	 * The passphrase which is used for all Paros Proxy SSL crypto stuff
-	 */
-	char[] PASSPHRASE = "0w45P.Z4p".toCharArray();
-	/**
-	 * The alias name used in key stores.
-	 */
-	String ZAPROXY_JKS_ALIAS = "owasp_zap_root_ca";
+    /** The passphrase which is used for all Paros Proxy SSL crypto stuff */
+    char[] PASSPHRASE = "0w45P.Z4p".toCharArray();
+    /** The alias name used in key stores. */
+    String ZAPROXY_JKS_ALIAS = "owasp_zap_root_ca";
 
-	/**
-	 * Generate a certificate signed by our CA's intermediate certificate.
-	 * Thy certificate, private key and public key are returned in one
-	 * {@link KeyStore} available with alias {@link #ZAPROXY_JKS_ALIAS}.
-	 *
-	 * @param hostname
-	 * @return a {@link KeyStore} which contains root certificate, signed
-	 *         certificate, private key and public key of signed certificate
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidKeyException
-	 * @throws CertificateException
-	 * @throws NoSuchProviderException
-	 * @throws SignatureException
-	 * @throws KeyStoreException
-	 * @throws IOException
-	 * @throws UnrecoverableKeyException
-	 * @throws MissingRootCertificateException when it wasn't initialized.
-	 */
-	KeyStore createCertForHost(String hostname)
-			throws NoSuchAlgorithmException, InvalidKeyException,
-			CertificateException, NoSuchProviderException, SignatureException,
-			KeyStoreException, IOException, UnrecoverableKeyException;
+    /**
+     * Generate a certificate signed by our CA's intermediate certificate. Thy certificate, private
+     * key and public key are returned in one {@link KeyStore} available with alias {@link
+     * #ZAPROXY_JKS_ALIAS}.
+     *
+     * @param hostname
+     * @return a {@link KeyStore} which contains root certificate, signed certificate, private key
+     *     and public key of signed certificate
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws CertificateException
+     * @throws NoSuchProviderException
+     * @throws SignatureException
+     * @throws KeyStoreException
+     * @throws IOException
+     * @throws UnrecoverableKeyException
+     * @throws MissingRootCertificateException when it wasn't initialized.
+     */
+    KeyStore createCertForHost(String hostname)
+            throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
+                    NoSuchProviderException, SignatureException, KeyStoreException, IOException,
+                    UnrecoverableKeyException;
 
-	/**
-	 * Generate a certificate signed by our CA's intermediate certificate.
-	 * Thy certificate, private key and public key are returned in one
-	 * {@link KeyStore} available with alias {@link #ZAPROXY_JKS_ALIAS}.
-	 *
-	 * @param certData
-	 * @return a {@link KeyStore} which contains root certificate, signed
-	 *         certificate, private key and public key of signed certificate
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidKeyException
-	 * @throws CertificateException
-	 * @throws NoSuchProviderException
-	 * @throws SignatureException
-	 * @throws KeyStoreException
-	 * @throws IOException
-	 * @throws UnrecoverableKeyException
-	 * @throws MissingRootCertificateException when it wasn't initialized.
-	 */
-	default KeyStore createCertForHost(CertData certData)
-			throws NoSuchAlgorithmException, InvalidKeyException,
-			CertificateException, NoSuchProviderException, SignatureException,
-			KeyStoreException, IOException, UnrecoverableKeyException{
-		return createCertForHost(certData.getCommonName());
-	}
+    /**
+     * Generate a certificate signed by our CA's intermediate certificate. Thy certificate, private
+     * key and public key are returned in one {@link KeyStore} available with alias {@link
+     * #ZAPROXY_JKS_ALIAS}.
+     *
+     * @param certData
+     * @return a {@link KeyStore} which contains root certificate, signed certificate, private key
+     *     and public key of signed certificate
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws CertificateException
+     * @throws NoSuchProviderException
+     * @throws SignatureException
+     * @throws KeyStoreException
+     * @throws IOException
+     * @throws UnrecoverableKeyException
+     * @throws MissingRootCertificateException when it wasn't initialized.
+     */
+    default KeyStore createCertForHost(CertData certData)
+            throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
+                    NoSuchProviderException, SignatureException, KeyStoreException, IOException,
+                    UnrecoverableKeyException {
+        return createCertForHost(certData.getCommonName());
+    }
 
-	/**
-	 * Loads CA's private key, public key and X.509 certificate into this bean.
-	 *
-	 * @param keystore
-	 * @throws KeyStoreException
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnrecoverableKeyException
-	 */
-	void initializeRootCA(KeyStore keystore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException;
-
+    /**
+     * Loads CA's private key, public key and X.509 certificate into this bean.
+     *
+     * @param keystore
+     * @throws KeyStoreException
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     */
+    void initializeRootCA(KeyStore keystore)
+            throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException;
 }

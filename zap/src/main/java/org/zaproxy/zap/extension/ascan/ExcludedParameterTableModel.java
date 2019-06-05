@@ -25,20 +25,18 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.ScannerParamFilter;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTableModel;
 
-/**
- *
- * @author yhawke (2014)
- */
-public class ExcludedParameterTableModel extends AbstractMultipleOptionsBaseTableModel<ScannerParamFilter> {
-    
+/** @author yhawke (2014) */
+public class ExcludedParameterTableModel
+        extends AbstractMultipleOptionsBaseTableModel<ScannerParamFilter> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("variant.options.excludedparam.table.header.url"),
-            Constant.messages.getString("variant.options.excludedparam.table.header.type"),
-            Constant.messages.getString("variant.options.excludedparam.table.header.name")
+        Constant.messages.getString("variant.options.excludedparam.table.header.url"),
+        Constant.messages.getString("variant.options.excludedparam.table.header.type"),
+        Constant.messages.getString("variant.options.excludedparam.table.header.name")
     };
-    
+
     private final List<ScannerParamFilter> tokens = new ArrayList<>();
 
     @Override
@@ -50,12 +48,12 @@ public class ExcludedParameterTableModel extends AbstractMultipleOptionsBaseTabl
     public int getColumnCount() {
         return COLUMN_NAMES.length;
     }
-    
+
     @Override
     public String getColumnName(int col) {
         return COLUMN_NAMES[col];
     }
-    
+
     @Override
     public Class<?> getColumnClass(int c) {
         return String.class;
@@ -63,17 +61,17 @@ public class ExcludedParameterTableModel extends AbstractMultipleOptionsBaseTabl
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (columnIndex) {              
+        switch (columnIndex) {
             case 2:
                 return tokens.get(rowIndex).getParamName();
-                
+
             case 1:
                 return tokens.get(rowIndex).getTypeString();
-                
+
             case 0:
                 return tokens.get(rowIndex).getWildcardedUrl();
         }
-        
+
         return null;
     }
 
@@ -81,10 +79,8 @@ public class ExcludedParameterTableModel extends AbstractMultipleOptionsBaseTabl
     public List<ScannerParamFilter> getElements() {
         return tokens;
     }
-    
-    /**
-     * @param tokens The tokens to set.
-     */
+
+    /** @param tokens The tokens to set. */
     public void setTokens(List<ScannerParamFilter> tokens) {
         this.tokens.clear();
 

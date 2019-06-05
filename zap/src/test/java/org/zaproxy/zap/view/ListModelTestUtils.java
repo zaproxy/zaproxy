@@ -21,12 +21,12 @@ package org.zaproxy.zap.view;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 /**
- * Class with helper/utility methods to help testing classes involving {@code ListModel} implementations.
+ * Class with helper/utility methods to help testing classes involving {@code ListModel}
+ * implementations.
  *
  * @see javax.swing.ListModel
  */
@@ -95,6 +95,5 @@ public class ListModelTestUtils {
             }
             return false;
         }
-
     }
 }

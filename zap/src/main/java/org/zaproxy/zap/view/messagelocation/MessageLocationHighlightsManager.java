@@ -24,7 +24,7 @@ import org.zaproxy.zap.model.MessageLocation;
 
 /**
  * An object responsible to manage highlights of message locations.
- * 
+ *
  * @since 2.4.0
  * @see TextMessageLocationHighlightsManager
  */
@@ -33,5 +33,4 @@ public interface MessageLocationHighlightsManager {
     void init(Message message);
 
     MessageLocationHighlight getHighlight(MessageLocation messageLocation);
-
 }

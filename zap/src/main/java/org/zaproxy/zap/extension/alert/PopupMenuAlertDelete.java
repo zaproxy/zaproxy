@@ -20,32 +20,30 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.util.Set;
-
 import javax.swing.JOptionPane;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
 
-
 /**
  * A {@link PopupMenuItemAlert} that allows to delete {@link Alert alerts}.
- * 
+ *
  * @since 1.4.0
  */
 public class PopupMenuAlertDelete extends PopupMenuItemAlert {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public PopupMenuAlertDelete() {
         super(Constant.messages.getString("scanner.delete.popup"), true);
         setAccelerator(getExtensionAlert().getView().getDefaultDeleteKeyStroke());
-	}
-	
+    }
+
     @Override
     protected void performActions(Set<Alert> alerts) {
         if (View.getSingleton()
-                .showConfirmDialog(Constant.messages.getString("scanner.delete.confirm")) != JOptionPane.OK_OPTION) {
+                        .showConfirmDialog(Constant.messages.getString("scanner.delete.confirm"))
+                != JOptionPane.OK_OPTION) {
             return;
         }
         super.performActions(alerts);

@@ -20,22 +20,16 @@
 package org.zaproxy.zap.extension.callback;
 
 import java.util.List;
-
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.utils.NetworkUtils;
 
-/**
- * @author psiinon
- *
- */
+/** @author psiinon */
 public class CallbackParam extends AbstractParam {
 
     private static final String PROXY_BASE_KEY = "callback";
 
-    private static final String LOCAL_ADDRESS_KEY = PROXY_BASE_KEY
-            + ".localaddr";
-    private static final String REMOTE_ADDRESS_KEY = PROXY_BASE_KEY
-            + ".remoteaddr";
+    private static final String LOCAL_ADDRESS_KEY = PROXY_BASE_KEY + ".localaddr";
+    private static final String REMOTE_ADDRESS_KEY = PROXY_BASE_KEY + ".remoteaddr";
     private static final String PORT_KEY = PROXY_BASE_KEY + ".port";
 
     private static final String SECURE_KEY = PROXY_BASE_KEY + ".secure";
@@ -45,8 +39,7 @@ public class CallbackParam extends AbstractParam {
     private int port;
     private boolean secure;
 
-    public CallbackParam() {
-    }
+    public CallbackParam() {}
 
     @Override
     protected void parse() {
@@ -59,8 +52,7 @@ public class CallbackParam extends AbstractParam {
     private String getDefaultAddress() {
         List<String> addrs = NetworkUtils.getAvailableAddresses(false);
         for (String addr : addrs) {
-            if (!addr.contains(":") && !addr.equals("localhost")
-                    && !addr.equals("127.0.0.1")) {
+            if (!addr.contains(":") && !addr.equals("localhost") && !addr.equals("127.0.0.1")) {
                 // Return the first IPv4 one that's not localhost
                 return addr;
             }
@@ -119,5 +111,4 @@ public class CallbackParam extends AbstractParam {
         this.secure = secure;
         getConfig().setProperty(SECURE_KEY, Boolean.toString(this.secure));
     }
-
 }

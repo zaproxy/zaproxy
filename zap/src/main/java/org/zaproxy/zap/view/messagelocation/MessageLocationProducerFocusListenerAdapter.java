@@ -26,9 +26,10 @@ import java.util.List;
 
 /**
  * A {@code FocusListener} adapter to multiple {@code MessageLocationProducerFocusListener}s.
- * <p>
- * Used to listen to changes in the focus of {@code MessageLocationProducer}s and propagate the event with the custom format.
- * 
+ *
+ * <p>Used to listen to changes in the focus of {@code MessageLocationProducer}s and propagate the
+ * event with the custom format.
+ *
  * @since 2.4.0
  * @see FocusListener
  * @see MessageLocationProducer

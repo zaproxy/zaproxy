@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,19 +42,19 @@
 // ZAP: 2015/10/01 Issue 1944:  Chart responses per second in ascan progress
 // ZAP: 2016/01/20 Issue 1959: Allow to active scan headers of all requests
 // ZAP: 2016/10/24 Issue 2951:  Support active scan rule and scan max duration
-// ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API 
+// ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
 // ZAP: 2019/05/10 Enable custom (script) input vectors by default.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
@@ -65,7 +65,7 @@ public class ScannerParam extends AbstractParam {
 
     // Base path for the Scanner Param tree
     private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
-    
+
     private static final String HOST_PER_SCAN = ACTIVE_SCAN_BASE_KEY + ".hostPerScan";
     private static final String THREAD_PER_HOST = ACTIVE_SCAN_BASE_KEY + ".threadPerHost";
     // ZAP: Added support for delayInMs
@@ -83,8 +83,10 @@ public class ScannerParam extends AbstractParam {
     private static final String ALLOW_ATTACK_ON_START = ACTIVE_SCAN_BASE_KEY + ".attackOnStart";
     private static final String MAX_CHART_TIME_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".chartTimeInMins";
 
-    private static final String MAX_RULE_DURATION_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".maxRuleDurationInMins";
-    private static final String MAX_SCAN_DURATION_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".maxScanDurationInMins";
+    private static final String MAX_RULE_DURATION_IN_MINS =
+            ACTIVE_SCAN_BASE_KEY + ".maxRuleDurationInMins";
+    private static final String MAX_SCAN_DURATION_IN_MINS =
+            ACTIVE_SCAN_BASE_KEY + ".maxScanDurationInMins";
 
     // ZAP: Excluded Parameters
     private static final String EXCLUDED_PARAMS_KEY = ACTIVE_SCAN_BASE_KEY + ".excludedParameters";
@@ -98,15 +100,16 @@ public class ScannerParam extends AbstractParam {
 
     /**
      * Configuration key to write/read the {@code scanHeadersAllRequests} flag.
-     * 
+     *
      * @since 2.5.0
      * @see #scanHeadersAllRequests
      */
-    private static final String SCAN_HEADERS_ALL_REQUESTS = ACTIVE_SCAN_BASE_KEY + ".scanHeadersAllRequests";
+    private static final String SCAN_HEADERS_ALL_REQUESTS =
+            ACTIVE_SCAN_BASE_KEY + ".scanHeadersAllRequests";
 
     /**
      * Configuration key to write/read the {@code addQueryParam} flag.
-     * 
+     *
      * @since 2.8.0
      * @see #addQueryParam
      */
@@ -130,7 +133,8 @@ public class ScannerParam extends AbstractParam {
 
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
-    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR | RPC_CUSTOM;
+    public static final int TARGET_ENABLED_RPC_DEFAULT =
+            RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR | RPC_CUSTOM;
     private static final int DEFAULT_MAX_CHART_TIME_IN_MINS = 10;
 
     // Internal variables
@@ -157,11 +161,11 @@ public class ScannerParam extends AbstractParam {
     private int targetParamsEnabledRPC = TARGET_ENABLED_RPC_DEFAULT;
 
     /**
-     * Flag that indicates if the HTTP Headers of all requests should be scanned, not just requests that send parameters,
-     * through the query or request body.
-     * <p>
-     * Default value is {@code false}.
-     * 
+     * Flag that indicates if the HTTP Headers of all requests should be scanned, not just requests
+     * that send parameters, through the query or request body.
+     *
+     * <p>Default value is {@code false}.
+     *
      * @since 2.5.0
      * @see #SCAN_HEADERS_ALL_REQUESTS
      * @see #isScanHeadersAllRequests()
@@ -171,9 +175,9 @@ public class ScannerParam extends AbstractParam {
 
     /**
      * Flag that indicates if a query param should be added to GET requests that don't have one.
-     * <p>
-     * Default value is {@code false}.
-     * 
+     *
+     * <p>Default value is {@code false}.
+     *
      * @since 2.8.0
      * @see #isAddQueryParam()
      * @see #setAddQueryParam(boolean)
@@ -187,8 +191,7 @@ public class ScannerParam extends AbstractParam {
     // ZAP: internal Logger
     private static final Logger logger = Logger.getLogger(ScannerParam.class);
 
-    public ScannerParam() {
-    }
+    public ScannerParam() {}
 
     @Override
     protected void parse() {
@@ -207,9 +210,9 @@ public class ScannerParam extends AbstractParam {
         this.maxScanDurationInMins = getInt(MAX_SCAN_DURATION_IN_MINS, 0);
 
         this.maxScansInUI = getInt(MAX_SCANS_IN_UI, 5);
-        
+
         this.injectPluginIdInHeader = getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
-        
+
         this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
 
         this.promptInAttackMode = getBoolean(PROMPT_IN_ATTACK_MODE, true);
@@ -239,8 +242,8 @@ public class ScannerParam extends AbstractParam {
         // Parse the parameters that need to be excluded
         // ------------------------------------------------
         try {
-            List<HierarchicalConfiguration> fields
-                    = ((HierarchicalConfiguration) getConfig()).configurationsAt(EXCLUDED_PARAMS_KEY);
+            List<HierarchicalConfiguration> fields =
+                    ((HierarchicalConfiguration) getConfig()).configurationsAt(EXCLUDED_PARAMS_KEY);
 
             this.excludedParams.clear();
             this.excludedParamsMap.clear();
@@ -254,8 +257,7 @@ public class ScannerParam extends AbstractParam {
                     addScannerParamFilter(
                             name,
                             sub.getInt(EXCLUDED_PARAM_TYPE, NameValuePair.TYPE_UNDEFINED),
-                            sub.getString(EXCLUDED_PARAM_URL)
-                    );
+                            sub.getString(EXCLUDED_PARAM_URL));
                 }
             }
 
@@ -315,10 +317,7 @@ public class ScannerParam extends AbstractParam {
         return excludedParamsMap.get(paramType);
     }
 
-    /**
-     *
-     * @param filters
-     */
+    /** @param filters */
     public void setExcludedParamList(List<ScannerParamFilter> filters) {
 
         ((HierarchicalConfiguration) getConfig()).clearTree(EXCLUDED_PARAMS_KEY);
@@ -335,127 +334,95 @@ public class ScannerParam extends AbstractParam {
 
             // And now populate again all parameter list
             addScannerParamFilter(
-                    filter.getParamName(),
-                    filter.getType(),
-                    filter.getWildcardedUrl()
-            );
+                    filter.getParamName(), filter.getType(), filter.getWildcardedUrl());
         }
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public int getThreadPerHost() {
         return threadPerHost;
     }
 
-    /**
-     *
-     * @param threadPerHost
-     */
+    /** @param threadPerHost */
     public void setThreadPerHost(int threadPerHost) {
         this.threadPerHost = threadPerHost;
         getConfig().setProperty(THREAD_PER_HOST, Integer.toString(this.threadPerHost));
-
     }
 
-    /**
-     * @return Returns the thread.
-     */
+    /** @return Returns the thread. */
     public int getHostPerScan() {
         return hostPerScan;
     }
 
-    /**
-     * @param hostPerScan The thread to set.
-     */
+    /** @param hostPerScan The thread to set. */
     public void setHostPerScan(int hostPerScan) {
         this.hostPerScan = hostPerScan;
         getConfig().setProperty(HOST_PER_SCAN, Integer.toString(this.hostPerScan));
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public int getMaxResultsToList() {
         return maxResultsToList;
     }
 
-    /**
-     *
-     * @param maxResultsToList
-     */
+    /** @param maxResultsToList */
     public void setMaxResultsToList(int maxResultsToList) {
         this.maxResultsToList = maxResultsToList;
         getConfig().setProperty(MAX_RESULTS_LIST, Integer.toString(this.maxResultsToList));
     }
 
     public int getMaxRuleDurationInMins() {
-		return maxRuleDurationInMins;
-	}
+        return maxRuleDurationInMins;
+    }
 
-	public void setMaxRuleDurationInMins(int maxRuleDurationInMins) {
-		this.maxRuleDurationInMins = maxRuleDurationInMins;
-        getConfig().setProperty(MAX_RULE_DURATION_IN_MINS, Integer.toString(this.maxRuleDurationInMins));
-	}
+    public void setMaxRuleDurationInMins(int maxRuleDurationInMins) {
+        this.maxRuleDurationInMins = maxRuleDurationInMins;
+        getConfig()
+                .setProperty(
+                        MAX_RULE_DURATION_IN_MINS, Integer.toString(this.maxRuleDurationInMins));
+    }
 
-	public int getMaxScanDurationInMins() {
-		return maxScanDurationInMins;
-	}
+    public int getMaxScanDurationInMins() {
+        return maxScanDurationInMins;
+    }
 
-	public void setMaxScanDurationInMins(int maxScanDurationInMins) {
-		this.maxScanDurationInMins = maxScanDurationInMins;
-        getConfig().setProperty(MAX_SCAN_DURATION_IN_MINS, Integer.toString(this.maxScanDurationInMins));
-	}
+    public void setMaxScanDurationInMins(int maxScanDurationInMins) {
+        this.maxScanDurationInMins = maxScanDurationInMins;
+        getConfig()
+                .setProperty(
+                        MAX_SCAN_DURATION_IN_MINS, Integer.toString(this.maxScanDurationInMins));
+    }
 
-	/**
-     *
-     * @param delayInMs
-     */
+    /** @param delayInMs */
     public void setDelayInMs(int delayInMs) {
         this.delayInMs = delayInMs;
         getConfig().setProperty(DELAY_IN_MS, Integer.toString(this.delayInMs));
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public int getDelayInMs() {
         return delayInMs;
     }
-    
+
     /**
-     * 
      * @return Returns if the option to inject plugin ID in header for ascan requests is turned on
      */
     public boolean isInjectPluginIdInHeader() {
-    	return injectPluginIdInHeader;
+        return injectPluginIdInHeader;
     }
-    
-    /**
-     * 
-     * @param injectPluginIdInHeader
-     */
+
+    /** @param injectPluginIdInHeader */
     public void setInjectPluginIdInHeader(boolean injectPluginIdInHeader) {
-    	this.injectPluginIdInHeader = injectPluginIdInHeader;
-    	getConfig().setProperty(INJECT_PLUGIN_ID_IN_HEADER, injectPluginIdInHeader);
+        this.injectPluginIdInHeader = injectPluginIdInHeader;
+        getConfig().setProperty(INJECT_PLUGIN_ID_IN_HEADER, injectPluginIdInHeader);
     }
-    
-    /**
-     *
-     * @return
-     */
+
+    /** @return */
     public boolean getHandleAntiCSRFTokens() {
         return handleAntiCSRFTokens;
     }
 
-    /**
-     *
-     * @param handleAntiCSRFTokens
-     */
+    /** @param handleAntiCSRFTokens */
     public void setHandleAntiCSRFTokens(boolean handleAntiCSRFTokens) {
         this.handleAntiCSRFTokens = handleAntiCSRFTokens;
         getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
@@ -479,40 +446,28 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(PROMPT_IN_ATTACK_MODE, promptInAttackMode);
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public int getTargetParamsInjectable() {
         return targetParamsInjectable;
     }
 
-    /**
-     *
-     * @param targetParamsInjectable
-     */
+    /** @param targetParamsInjectable */
     public void setTargetParamsInjectable(int targetParamsInjectable) {
         this.targetParamsInjectable = targetParamsInjectable;
         getConfig().setProperty(TARGET_INJECTABLE, this.targetParamsInjectable);
     }
 
-    /**
-     *
-     * @return
-     */
+    /** @return */
     public int getTargetParamsEnabledRPC() {
         return targetParamsEnabledRPC;
     }
 
-    /**
-     *
-     * @param targetParamsEnabledRPC
-     */
+    /** @param targetParamsEnabledRPC */
     public void setTargetParamsEnabledRPC(int targetParamsEnabledRPC) {
         this.targetParamsEnabledRPC = targetParamsEnabledRPC;
         getConfig().setProperty(TARGET_ENABLED_RPC, this.targetParamsEnabledRPC);
     }
-    
+
     public boolean isPromptToClearFinishedScans() {
         return promptToClearFinishedScans;
     }
@@ -558,29 +513,30 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(ATTACK_POLICY, this.attackPolicy);
     }
 
-	public boolean isAllowAttackOnStart() {
-		return allowAttackOnStart;
-	}
+    public boolean isAllowAttackOnStart() {
+        return allowAttackOnStart;
+    }
 
-	public void setAllowAttackOnStart(boolean allowAttackOnStart) {
-		this.allowAttackOnStart = allowAttackOnStart;
+    public void setAllowAttackOnStart(boolean allowAttackOnStart) {
+        this.allowAttackOnStart = allowAttackOnStart;
         getConfig().setProperty(ALLOW_ATTACK_ON_START, this.allowAttackOnStart);
-	}
+    }
 
-	public int getMaxChartTimeInMins() {
-		return maxChartTimeInMins;
-	}
+    public int getMaxChartTimeInMins() {
+        return maxChartTimeInMins;
+    }
 
-	public void setMaxChartTimeInMins(int maxChartTimeInMins) {
-		this.maxChartTimeInMins = maxChartTimeInMins;
+    public void setMaxChartTimeInMins(int maxChartTimeInMins) {
+        this.maxChartTimeInMins = maxChartTimeInMins;
         getConfig().setProperty(MAX_CHART_TIME_IN_MINS, this.maxChartTimeInMins);
-	}
+    }
 
     /**
-     * Tells whether or not the HTTP Headers of all requests should be scanned, not just requests that send parameters, through
-     * the query or request body.
+     * Tells whether or not the HTTP Headers of all requests should be scanned, not just requests
+     * that send parameters, through the query or request body.
      *
-     * @return {@code true} if the HTTP Headers of all requests should be scanned, {@code false} otherwise
+     * @return {@code true} if the HTTP Headers of all requests should be scanned, {@code false}
+     *     otherwise
      * @since 2.5.0
      * @see #setScanHeadersAllRequests(boolean)
      */
@@ -589,10 +545,11 @@ public class ScannerParam extends AbstractParam {
     }
 
     /**
-     * Sets whether or not the HTTP Headers of all requests should be scanned, not just requests that send parameters, through
-     * the query or request body.
+     * Sets whether or not the HTTP Headers of all requests should be scanned, not just requests
+     * that send parameters, through the query or request body.
      *
-     * @param scanAllRequests {@code true} if the HTTP Headers of all requests should be scanned, {@code false} otherwise
+     * @param scanAllRequests {@code true} if the HTTP Headers of all requests should be scanned,
+     *     {@code false} otherwise
      * @since 2.5.0
      * @see #isScanHeadersAllRequests()
      */
@@ -619,7 +576,8 @@ public class ScannerParam extends AbstractParam {
     /**
      * Sets whether or not ZAP should add a parameter to GET requests that don't have one.
      *
-     * @param addQueryParam {@code true} if ZAP should add a parameter to GET requests that don't have one, {@code false} otherwise
+     * @param addQueryParam {@code true} if ZAP should add a parameter to GET requests that don't
+     *     have one, {@code false} otherwise
      * @since 2.8.0
      * @see #isAddQueryParam()
      */
@@ -627,5 +585,4 @@ public class ScannerParam extends AbstractParam {
         this.addQueryParam = addQueryParam;
         getConfig().setProperty(SCAN_ADD_QUERY_PARAM, this.addQueryParam);
     }
-
 }

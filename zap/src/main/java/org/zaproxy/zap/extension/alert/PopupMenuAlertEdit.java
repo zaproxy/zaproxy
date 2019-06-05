@@ -22,24 +22,23 @@ package org.zaproxy.zap.extension.alert;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
-
 /**
  * A {@link PopupMenuItemAlert} that allows to edit an {@link Alert alert}.
- * 
+ *
  * @since 1.4.0
  */
 public class PopupMenuAlertEdit extends PopupMenuItemAlert {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final ExtensionAlert extension; 
+    private final ExtensionAlert extension;
 
     public PopupMenuAlertEdit(ExtensionAlert extension) {
         super(Constant.messages.getString("scanner.edit.popup"));
 
         this.extension = extension;
-	}
-	
+    }
+
     @Override
     protected void performAction(Alert alert) {
         extension.showAlertEditDialog(alert);

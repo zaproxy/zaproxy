@@ -30,96 +30,93 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
 
 public class ExtensionHttpPanelComponentAll extends ExtensionAdaptor {
 
-	public static final String NAME = "ExtensionHttpPanelComponentonentAll";
-	
-	public ExtensionHttpPanelComponentAll() {
-		super(NAME);
-	}
+    public static final String NAME = "ExtensionHttpPanelComponentonentAll";
 
-	@Override
-	public String getUIName() {
-		return Constant.messages.getString("http.panel.name");
-	}
-	
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-		if (getView() != null) {
-			HttpPanelManager panelManager = HttpPanelManager.getInstance();
-			panelManager.addRequestComponentFactory(new RequestAllComponentFactory());
-			panelManager.addResponseComponentFactory(new ResponseAllComponentFactory());
-		}
-	}
-	
-	@Override
-	public boolean canUnload() {
-		// Do not allow the unload until moved to an add-on.
-		return false;
-	}
-	
-	@Override
-	public void unload() {
-		if (getView() != null) {
-			HttpPanelManager panelManager = HttpPanelManager.getInstance();
-			panelManager.removeRequestComponentFactory(RequestAllComponentFactory.NAME);
-			panelManager.removeRequestComponents(RequestAllComponent.NAME);
-			
-			panelManager.removeResponseComponentFactory(ResponseAllComponentFactory.NAME);
-			panelManager.removeResponseComponents(ResponseAllComponent.NAME);
-		}
-	}
+    public ExtensionHttpPanelComponentAll() {
+        super(NAME);
+    }
 
-	private static final class ResponseAllComponentFactory implements HttpPanelComponentFactory {
-		
-		public static final String NAME = "ResponseAllComponentFactory";
-		
-		@Override
-		public String getName() {
-			return NAME;
-		}
-		
-		@Override
-		public HttpPanelComponentInterface getNewComponent() {
-			return new ResponseAllComponent();
-		}
+    @Override
+    public String getUIName() {
+        return Constant.messages.getString("http.panel.name");
+    }
 
-		@Override
-		public String getComponentName() {
-			return ResponseAllComponent.NAME;
-		}
-	}
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        if (getView() != null) {
+            HttpPanelManager panelManager = HttpPanelManager.getInstance();
+            panelManager.addRequestComponentFactory(new RequestAllComponentFactory());
+            panelManager.addResponseComponentFactory(new ResponseAllComponentFactory());
+        }
+    }
 
-	private static final class RequestAllComponentFactory implements HttpPanelComponentFactory {
-		
-		public static final String NAME = "RequestAllComponentFactory";
-		
-		@Override
-		public String getName() {
-			return NAME;
-		}
-		
-		@Override
-		public HttpPanelComponentInterface getNewComponent() {
-			return new RequestAllComponent();
-		}
+    @Override
+    public boolean canUnload() {
+        // Do not allow the unload until moved to an add-on.
+        return false;
+    }
 
-		@Override
-		public String getComponentName() {
-			return RequestAllComponent.NAME;
-		}
-	}
+    @Override
+    public void unload() {
+        if (getView() != null) {
+            HttpPanelManager panelManager = HttpPanelManager.getInstance();
+            panelManager.removeRequestComponentFactory(RequestAllComponentFactory.NAME);
+            panelManager.removeRequestComponents(RequestAllComponent.NAME);
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+            panelManager.removeResponseComponentFactory(ResponseAllComponentFactory.NAME);
+            panelManager.removeResponseComponents(ResponseAllComponent.NAME);
+        }
+    }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    private static final class ResponseAllComponentFactory implements HttpPanelComponentFactory {
+
+        public static final String NAME = "ResponseAllComponentFactory";
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public HttpPanelComponentInterface getNewComponent() {
+            return new ResponseAllComponent();
+        }
+
+        @Override
+        public String getComponentName() {
+            return ResponseAllComponent.NAME;
+        }
+    }
+
+    private static final class RequestAllComponentFactory implements HttpPanelComponentFactory {
+
+        public static final String NAME = "RequestAllComponentFactory";
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public HttpPanelComponentInterface getNewComponent() {
+            return new RequestAllComponent();
+        }
+
+        @Override
+        public String getComponentName() {
+            return RequestAllComponent.NAME;
+        }
+    }
+
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
+
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }
-

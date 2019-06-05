@@ -20,9 +20,7 @@
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
-
 import javax.swing.JTree;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
@@ -33,78 +31,70 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
-
-/**
- * @deprecated No longer used/needed. It will be removed in a future release.
- */
+/** @deprecated No longer used/needed. It will be removed in a future release. */
 @Deprecated
 public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final Logger logger = Logger.getLogger(PopupMenuResendSites.class);
+    private static final Logger logger = Logger.getLogger(PopupMenuResendSites.class);
 
-	private JTree treeSite = null;
-    
+    private JTree treeSite = null;
+
     private ExtensionHistory extension;
 
     public PopupMenuResendSites() {
         super();
- 		initialize();
+        initialize();
     }
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuResendSites(String label) {
         super(label);
     }
 
-	public void setExtension(ExtensionHistory extension) {
-		this.extension = extension;
-	}
+    public void setExtension(ExtensionHistory extension) {
+        this.extension = extension;
+    }
 
-    /**
-	 * This method initialises this
-	 */
-	private void initialize() {
+    /** This method initialises this */
+    private void initialize() {
         this.setText(Constant.messages.getString("sites.resend.popup"));
 
-        this.addActionListener(new java.awt.event.ActionListener() { 
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
 
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent evt) {    
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-                if (treeSite != null) {
-        		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
+                        if (treeSite != null) {
+                            SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
 
-            	    ManualRequestEditorDialog dialog = extension.getResendDialog();
-            	    HistoryReference ref = node.getHistoryReference();
-            	    HttpMessage msg = null;
-            	    try {
-                        msg = ref.getHttpMessage().cloneRequest();
-                        dialog.setMessage(msg);
-                        dialog.setVisible(true);
-                    } catch (HttpMalformedHeaderException | DatabaseException e) {
-                        logger.error(e.getMessage(), e);
+                            ManualRequestEditorDialog dialog = extension.getResendDialog();
+                            HistoryReference ref = node.getHistoryReference();
+                            HttpMessage msg = null;
+                            try {
+                                msg = ref.getHttpMessage().cloneRequest();
+                                dialog.setMessage(msg);
+                                dialog.setVisible(true);
+                            } catch (HttpMalformedHeaderException | DatabaseException e) {
+                                logger.error(e.getMessage(), e);
+                            }
+                        }
                     }
-                }
-        	}
-        });
+                });
+    }
 
-			
-	}
-	
     @Override
     public boolean isEnableForComponent(Component invoker) {
         treeSite = getTree(invoker);
         if (treeSite != null) {
-		    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
-		    if (node != null && ! node.isRoot()) {
-		        this.setEnabled(true);
-		    } else {
-		        this.setEnabled(false);
-		    }
+            SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
+            if (node != null && !node.isRoot()) {
+                this.setEnabled(true);
+            } else {
+                this.setEnabled(false);
+            }
             return true;
         }
         return false;
@@ -120,5 +110,4 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
         return null;
     }
-    
 }

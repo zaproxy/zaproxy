@@ -26,7 +26,8 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
- * @deprecated (2.5.0) No longer used/needed. {@link WorkbenchPanel} now manages the position of the message panels.
+ * @deprecated (2.5.0) No longer used/needed. {@link WorkbenchPanel} now manages the position of the
+ *     message panels.
  */
 @Deprecated
 @SuppressWarnings("javadoc")
@@ -42,11 +43,11 @@ public class MessagePanelsPositionController {
             HttpPanelRequest requestPanel,
             HttpPanelResponse responsePanel,
             MainFrame mainFrame,
-            WorkbenchPanel workbenchPanel) {
-    }
+            WorkbenchPanel workbenchPanel) {}
 
     /**
      * Restores the original parent of the panels and the panel.
+     *
      * @return always {@code null}
      */
     public TabbedPanel restoreOriginalParentTabbedPanel() {
@@ -60,5 +61,4 @@ public class MessagePanelsPositionController {
     public void saveState(MessagePanelsPosition currentPosition) {
         // No longer in use.
     }
-
 }

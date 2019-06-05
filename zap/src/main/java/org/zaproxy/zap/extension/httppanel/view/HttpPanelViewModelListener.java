@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.httppanel.view;
 import java.util.EventListener;
 
 public interface HttpPanelViewModelListener extends EventListener {
-	
-	void dataChanged(HttpPanelViewModelEvent e);
-	
+
+    void dataChanged(HttpPanelViewModelEvent e);
 }

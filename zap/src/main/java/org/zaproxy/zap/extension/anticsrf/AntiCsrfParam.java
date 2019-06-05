@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.anticsrf;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
@@ -34,30 +33,40 @@ public class AntiCsrfParam extends AbstractParam {
     private static final Logger logger = Logger.getLogger(AntiCsrfParam.class);
 
     private static final String ANTI_CSRF_BASE_KEY = "anticsrf";
-    
+
     private static final String ALL_TOKENS_KEY = ANTI_CSRF_BASE_KEY + ".tokens.token";
-    
+
     private static final String TOKEN_NAME_KEY = "name";
     private static final String TOKEN_ENABLED_KEY = "enabled";
-    
-    private static final String CONFIRM_REMOVE_TOKEN_KEY = ANTI_CSRF_BASE_KEY + ".confirmRemoveToken";
-    
-    private static final String[] DEFAULT_TOKENS_NAMES = { "anticsrf",
-            "CSRFToken", "__RequestVerificationToken", "csrfmiddlewaretoken", "authenticity_token", "OWASP_CSRFTOKEN", "anoncsrf",
-            "csrf_token", "_csrf", "_csrfSecret"};
+
+    private static final String CONFIRM_REMOVE_TOKEN_KEY =
+            ANTI_CSRF_BASE_KEY + ".confirmRemoveToken";
+
+    private static final String[] DEFAULT_TOKENS_NAMES = {
+        "anticsrf",
+        "CSRFToken",
+        "__RequestVerificationToken",
+        "csrfmiddlewaretoken",
+        "authenticity_token",
+        "OWASP_CSRFTOKEN",
+        "anoncsrf",
+        "csrf_token",
+        "_csrf",
+        "_csrfSecret"
+    };
 
     private List<AntiCsrfParamToken> tokens = null;
     private List<String> enabledTokensNames = null;
-    
+
     private boolean confirmRemoveToken = true;
 
-    public AntiCsrfParam() {
-    }
+    public AntiCsrfParam() {}
 
     @Override
     protected void parse() {
         try {
-            List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_TOKENS_KEY);
+            List<HierarchicalConfiguration> fields =
+                    ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_TOKENS_KEY);
             this.tokens = new ArrayList<>(fields.size());
             enabledTokensNames = new ArrayList<>(fields.size());
             List<String> tempTokensNames = new ArrayList<>(fields.size());
@@ -77,7 +86,7 @@ public class AntiCsrfParam extends AbstractParam {
             this.tokens = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
             this.enabledTokensNames = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
         }
-        
+
         if (this.tokens.size() == 0) {
             for (String tokenName : DEFAULT_TOKENS_NAMES) {
                 this.tokens.add(new AntiCsrfParamToken(tokenName));
@@ -96,31 +105,31 @@ public class AntiCsrfParam extends AbstractParam {
     @ZapApiIgnore
     public void setTokens(List<AntiCsrfParamToken> tokens) {
         this.tokens = new ArrayList<>(tokens);
-        
+
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_TOKENS_KEY);
 
         ArrayList<String> enabledTokens = new ArrayList<>(tokens.size());
         for (int i = 0, size = tokens.size(); i < size; ++i) {
             String elementBaseKey = ALL_TOKENS_KEY + "(" + i + ").";
             AntiCsrfParamToken token = tokens.get(i);
-            
+
             getConfig().setProperty(elementBaseKey + TOKEN_NAME_KEY, token.getName());
             getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, token.isEnabled());
-            
+
             if (token.isEnabled()) {
                 enabledTokens.add(token.getName());
             }
         }
-        
+
         enabledTokens.trimToSize();
         this.enabledTokensNames = enabledTokens;
     }
 
     /**
      * Adds a new token with the given {@code name}, enabled by default.
-     * <p>
-     * The call to this method has no effect if the given {@code name} is null or empty, or a token with the given name already
-     * exist.
+     *
+     * <p>The call to this method has no effect if the given {@code name} is null or empty, or a
+     * token with the given name already exist.
      *
      * @param name the name of the token that will be added
      */
@@ -129,22 +138,22 @@ public class AntiCsrfParam extends AbstractParam {
             return;
         }
 
-        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext();) {
+        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext(); ) {
             if (name.equals(it.next().getName())) {
                 return;
             }
         }
 
         this.tokens.add(new AntiCsrfParamToken(name));
-        
+
         this.enabledTokensNames.add(name);
     }
 
     /**
      * Removes the token with the given {@code name}.
-     * <p>
-     * The call to this method has no effect if the given {@code name} is null or empty, or a token with the given {@code name}
-     * does not exist.
+     *
+     * <p>The call to this method has no effect if the given {@code name} is null or empty, or a
+     * token with the given {@code name} does not exist.
      *
      * @param name the name of the token that will be removed
      */
@@ -153,7 +162,7 @@ public class AntiCsrfParam extends AbstractParam {
             return;
         }
 
-        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext();) {
+        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext(); ) {
             AntiCsrfParamToken token = it.next();
             if (name.equals(token.getName())) {
                 it.remove();
@@ -169,16 +178,15 @@ public class AntiCsrfParam extends AbstractParam {
     public List<String> getTokensNames() {
         return enabledTokensNames;
     }
-    
+
     @ZapApiIgnore
     public boolean isConfirmRemoveToken() {
         return this.confirmRemoveToken;
     }
-    
+
     @ZapApiIgnore
     public void setConfirmRemoveToken(boolean confirmRemove) {
         this.confirmRemoveToken = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, confirmRemoveToken);
     }
-
 }

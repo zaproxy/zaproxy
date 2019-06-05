@@ -20,17 +20,15 @@
 package org.zaproxy.zap.extension.httppanel.view;
 
 import javax.swing.JComponent;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.zaproxy.zap.extension.httppanel.Message;
-
 
 public interface HttpPanelView {
 
     String getName();
 
     String getCaptionName();
-    
+
     String getTargetViewName();
 
     int getPosition();
@@ -38,15 +36,15 @@ public interface HttpPanelView {
     JComponent getPane();
 
     void setSelected(boolean selected);
-    
+
     void save();
-    
+
     HttpPanelViewModel getModel();
-    
+
     boolean isEnabled(Message aMessage);
 
     boolean hasChanged();
-    
+
     boolean isEditable();
 
     void setEditable(boolean editable);

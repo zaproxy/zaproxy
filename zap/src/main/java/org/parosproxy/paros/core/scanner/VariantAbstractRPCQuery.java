@@ -22,34 +22,33 @@ package org.parosproxy.paros.core.scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Abstract class for HTTP RPC request handling
- * 
+ *
  * @author andy
  */
 public abstract class VariantAbstractRPCQuery implements Variant {
-    
+
     private final Logger logger = Logger.getLogger(this.getClass());
-    
+
     private final List<RPCParameter> listParam = new ArrayList<>();
     private final List<NameValuePair> params = new ArrayList<>();
     private String requestContent;
 
     private final int variantType;
-    
+
     public VariantAbstractRPCQuery() {
-    	this(NameValuePair.TYPE_POST_DATA);
+        this(NameValuePair.TYPE_POST_DATA);
     }
-    
+
     public VariantAbstractRPCQuery(int vt) {
-    	variantType = vt;
+        variantType = vt;
     }
-    
+
     @Override
     public void setMessage(HttpMessage msg) {
         // First check if it's a gwt rpc form data request
@@ -65,14 +64,14 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     }
 
     /**
-     * 
      * @param name the name of the parameter
      * @param beginOffset the begin offset of the parameter value inside the RPC content body
      * @param endOffset the ending offset of the parameter value inside the RPC content body
      * @param toQuote the parameter need to be quoted when used
      * @param escaped the parameter value should be escaped so it has to be unescaped before
      */
-    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote, boolean escaped) {
+    public void addParameter(
+            String name, int beginOffset, int endOffset, boolean toQuote, boolean escaped) {
         RPCParameter param = new RPCParameter();
         String value = requestContent.substring(beginOffset, endOffset);
         param.setName(name);
@@ -84,14 +83,14 @@ public abstract class VariantAbstractRPCQuery implements Variant {
     }
 
     /**
-     * 
      * @param name the name of the parameter
      * @param beginOffset the begin offset of the parameter value inside the RPC content body
      * @param endOffset the ending offset of the parameter value inside the RPC content body
      * @param toQuote the parameter need to be quoted when used
      * @param value the value that need to be set
      */
-    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote, String value) {
+    public void addParameter(
+            String name, int beginOffset, int endOffset, boolean toQuote, String value) {
         RPCParameter param = new RPCParameter();
         param.setName(name);
         param.setValue(value);
@@ -99,78 +98,75 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         param.setEndOffset(endOffset);
         param.setToQuote(toQuote);
         listParam.add(param);
-    }    
-    
+    }
+
     /**
-     * 
      * @param beginOffset
      * @param endOffset
-     * @return 
+     * @return
      */
     public String getToken(int beginOffset, int endOffset) {
         return requestContent.substring(beginOffset, endOffset);
     }
 
-    /**
-     * 
-     * @return 
-     */
+    /** @return */
     @Override
     public List<NameValuePair> getParamList() {
         return params;
     }
 
     /**
-     * 
      * @param msg
      * @param originalPair
      * @param name
      * @param value
-     * @return 
+     * @return
      */
     @Override
-    public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return this.setParameter(msg, originalPair, name, value, false);
+    public String setParameter(
+            HttpMessage msg, NameValuePair originalPair, String name, String value) {
+        return this.setParameter(msg, originalPair, name, value, false);
     }
 
     /**
-     * 
      * @param msg
      * @param originalPair
      * @param name
      * @param value
-     * @return 
+     * @return
      */
     @Override
-    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return this.setParameter(msg, originalPair, name, value, true);
+    public String setEscapedParameter(
+            HttpMessage msg, NameValuePair originalPair, String name, String value) {
+        return this.setParameter(msg, originalPair, name, value, true);
     }
 
     /**
-     * 
      * @param msg
      * @param originalPair
      * @param name
      * @param value
      * @param escaped
-     * @return 
+     * @return
      */
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
+    private String setParameter(
+            HttpMessage msg,
+            NameValuePair originalPair,
+            String name,
+            String value,
+            boolean escaped) {
         RPCParameter param = listParam.get(originalPair.getPosition());
         StringBuilder sb = new StringBuilder();
         sb.append(requestContent.substring(0, param.getBeginOffset()));
         sb.append(escaped ? value : getEscapedValue(value, param.isToQuote()));
         sb.append(requestContent.substring(param.getEndOffset()));
-        
+
         String query = sb.toString();
         msg.getRequestBody().setBody(query);
-        return query;        
+        return query;
     }
 
-    /**
-     * 
-     * @param requestContent 
-     */
+    /** @param requestContent */
     protected void setRequestContent(String requestContent) {
         this.requestContent = requestContent;
         parseContent(requestContent);
@@ -184,62 +180,51 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         for (int i = 0; i < listParam.size(); i++) {
             RPCParameter param = listParam.get(i);
             params.add(new NameValuePair(variantType, param.getName(), param.getValue(), i));
-        }         
+        }
     }
-    
-    /**
-     * 
-     * @return 
-     */
+
+    /** @return */
     public String getReadableParametrizedQuery() {
-       StringBuilder result = new StringBuilder();
-       int begin = 0;
-       int end;
-       
-       for (RPCParameter param : listParam) {
-           end = param.getBeginOffset();
-           result.append(requestContent.substring(begin, end));
-           result.append("__INJECTABLE_PARAM__");
-           begin = param.getEndOffset();
-       }
-       
-       result.append(requestContent.substring(begin));
-       
-       return result.toString();
+        StringBuilder result = new StringBuilder();
+        int begin = 0;
+        int end;
+
+        for (RPCParameter param : listParam) {
+            end = param.getBeginOffset();
+            result.append(requestContent.substring(begin, end));
+            result.append("__INJECTABLE_PARAM__");
+            begin = param.getEndOffset();
+        }
+
+        result.append(requestContent.substring(begin));
+
+        return result.toString();
     }
 
     /**
-     * 
      * @param contentType
-     * @return 
+     * @return
      */
     public abstract boolean isValidContentType(String contentType);
 
-    /**
-     * 
-     * @param content 
-     */
+    /** @param content */
     public abstract void parseContent(String content);
 
     /**
-     * 
      * @param value
      * @param toQuote
-     * @return 
+     * @return
      */
     public abstract String getEscapedValue(String value, boolean toQuote);
 
     /**
-     * 
      * @param value
-     * @return 
+     * @return
      */
     public abstract String getUnescapedValue(String value);
-    
-    /**
-     * Inner support class
-     */
-    protected class RPCParameter implements Comparable<RPCParameter> {                
+
+    /** Inner support class */
+    protected class RPCParameter implements Comparable<RPCParameter> {
         private String name;
         private String value;
         private int beginOffset;
@@ -284,7 +269,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
         public void setToQuote(boolean toQuote) {
             this.toQuote = toQuote;
-        }        
+        }
 
         @Override
         public int compareTo(RPCParameter t) {

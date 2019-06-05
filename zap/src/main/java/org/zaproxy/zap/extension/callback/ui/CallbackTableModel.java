@@ -19,22 +19,23 @@
  */
 package org.zaproxy.zap.extension.callback.ui;
 
+import java.util.ArrayList;
 import org.parosproxy.paros.Constant;
 
-import java.util.ArrayList;
-
-public class CallbackTableModel extends DefaultCustomColumnHistoryReferencesTableModel<CallbackRequest> {
+public class CallbackTableModel
+        extends DefaultCustomColumnHistoryReferencesTableModel<CallbackRequest> {
 
     private static final long serialVersionUID = 1L;
-    public static final Column[] COLUMNS = new Column[] {
-            Column.HREF_ID,
-            Column.REQUEST_TIMESTAMP,
-            Column.METHOD,
-            Column.URL,
-            Column.CUSTOM,
-            Column.CUSTOM,
-            Column.NOTE
-    };
+    public static final Column[] COLUMNS =
+            new Column[] {
+                Column.HREF_ID,
+                Column.REQUEST_TIMESTAMP,
+                Column.METHOD,
+                Column.URL,
+                Column.CUSTOM,
+                Column.CUSTOM,
+                Column.NOTE
+            };
 
     private static final ArrayList<CustomColumn<CallbackRequest>> CUSTOM_COLUMNS;
 
@@ -49,24 +50,24 @@ public class CallbackTableModel extends DefaultCustomColumnHistoryReferencesTabl
     }
 
     private static CustomColumn<CallbackRequest> createHandlerColumn() {
-        return new CustomColumn<CallbackRequest>(String.class, Constant.messages.getString("callback.panel.table.column.handler")){
+        return new CustomColumn<CallbackRequest>(
+                String.class, Constant.messages.getString("callback.panel.table.column.handler")) {
 
             @Override
-            public Object getValue(CallbackRequest model){
+            public Object getValue(CallbackRequest model) {
                 return model.getHandler();
             }
         };
     }
 
     private static CustomColumn<CallbackRequest> createRefererColumn() {
-        return new CustomColumn<CallbackRequest>(String.class, Constant.messages.getString("callback.panel.table.column.referer")){
+        return new CustomColumn<CallbackRequest>(
+                String.class, Constant.messages.getString("callback.panel.table.column.referer")) {
 
             @Override
-            public Object getValue(CallbackRequest model){
+            public Object getValue(CallbackRequest model) {
                 return model.getReferer();
             }
         };
     }
-
-
 }

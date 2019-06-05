@@ -20,15 +20,13 @@
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
-
 import org.zaproxy.zap.network.DomainMatcher;
 
 /**
  * Class that contains rules to check if a domain is excluded from proxy.
- * <p>
- * It supports both plain text and regular expression checks.
- * </p>
- * 
+ *
+ * <p>It supports both plain text and regular expression checks.
+ *
  * @see #matches(String)
  * @deprecated (2.6.0) Replaced By {@link org.zaproxy.zap.network.DomainMatcher}
  */

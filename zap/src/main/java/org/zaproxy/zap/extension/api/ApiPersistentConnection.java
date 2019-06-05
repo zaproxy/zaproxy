@@ -35,14 +35,13 @@ public class ApiPersistentConnection extends ApiElement {
         super(name, paramNames);
     }
 
-    public ApiPersistentConnection(String name,
-            List<String> mandatoryParamNames, List<String> optionalParamNames) {
+    public ApiPersistentConnection(
+            String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
         super(name, mandatoryParamNames, optionalParamNames);
     }
 
-    public ApiPersistentConnection(String name, String[] mandatoryParamNames,
-            String[] optionalParamNames) {
+    public ApiPersistentConnection(
+            String name, String[] mandatoryParamNames, String[] optionalParamNames) {
         super(name, mandatoryParamNames, optionalParamNames);
     }
-
 }

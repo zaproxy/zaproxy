@@ -24,23 +24,22 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewMo
 
 public class RequestBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
-	@Override
-	public byte[] getData() {
-		if (httpMessage == null) {
-			return new byte[0];
-		}
-		
-		return httpMessage.getRequestBody().getBytes();
-	}
+    @Override
+    public byte[] getData() {
+        if (httpMessage == null) {
+            return new byte[0];
+        }
 
-	@Override
-	public void setData(byte[] data) {
-		if (httpMessage == null)  {
-			return ;
-		}
-		
-		httpMessage.getRequestBody().setBody(data);
-		HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
-	}
+        return httpMessage.getRequestBody().getBytes();
+    }
 
+    @Override
+    public void setData(byte[] data) {
+        if (httpMessage == null) {
+            return;
+        }
+
+        httpMessage.getRequestBody().setBody(data);
+        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+    }
 }

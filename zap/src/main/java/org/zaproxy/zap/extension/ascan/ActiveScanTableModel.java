@@ -26,17 +26,18 @@ public class ActiveScanTableModel extends DefaultHistoryReferencesTableModel {
     private static final long serialVersionUID = 5732679524771190690L;
 
     public ActiveScanTableModel() {
-        super(new Column[] {
-                Column.HREF_ID,
-                Column.REQUEST_TIMESTAMP,
-                Column.RESPONSE_TIMESTAMP,
-                Column.METHOD,
-                Column.URL,
-                Column.STATUS_CODE,
-                Column.STATUS_REASON,
-                Column.RTT,
-                Column.SIZE_RESPONSE_HEADER,
-                Column.SIZE_RESPONSE_BODY });
+        super(
+                new Column[] {
+                    Column.HREF_ID,
+                    Column.REQUEST_TIMESTAMP,
+                    Column.RESPONSE_TIMESTAMP,
+                    Column.METHOD,
+                    Column.URL,
+                    Column.STATUS_CODE,
+                    Column.STATUS_REASON,
+                    Column.RTT,
+                    Column.SIZE_RESPONSE_HEADER,
+                    Column.SIZE_RESPONSE_BODY
+                });
     }
-
 }

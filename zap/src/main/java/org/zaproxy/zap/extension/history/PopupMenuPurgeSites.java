@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.history;
 
 import java.util.List;
-
 import javax.swing.JOptionPane;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -57,7 +55,9 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
     @Override
     public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
         if (hrefs.size() > 0) {
-            int result = View.getSingleton().showConfirmDialog(Constant.messages.getString("sites.purge.warning"));
+            int result =
+                    View.getSingleton()
+                            .showConfirmDialog(Constant.messages.getString("sites.purge.warning"));
             if (result != JOptionPane.YES_OPTION) {
                 return;
             }
@@ -75,11 +75,11 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
             extHistory.purge(Model.getSingleton().getSession().getSiteTree(), sn);
         }
     }
-    
+
     /**
-     * @deprecated  As of release 2.5.0, replaced by 
-     * {@link org.parosproxy.paros.extension.history.ExtensionHistory#purge(
-     *      org.parosproxy.paros.model.SiteMap, org.parosproxy.paros.model.SiteNode)} 
+     * @deprecated As of release 2.5.0, replaced by {@link
+     *     org.parosproxy.paros.extension.history.ExtensionHistory#purge(
+     *     org.parosproxy.paros.model.SiteMap, org.parosproxy.paros.model.SiteNode)}
      */
     @Deprecated
     public static void purge(SiteMap map, SiteNode node) {
@@ -95,5 +95,4 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
     public boolean isSafe() {
         return true;
     }
-
 }

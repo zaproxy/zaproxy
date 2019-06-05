@@ -23,40 +23,39 @@ import org.parosproxy.paros.common.AbstractParam;
 
 class EncodeDecodeParam extends AbstractParam {
 
-	private static final String PARAM_BASE64_CHARSET = "encode.param.base64charset";
-	private static final String PARAM_BASE64_DO_BREAK_LINES = "encode.param.base64dobreaklines";
-	
-	private String base64Charset;
-	private boolean base64DoBreakLines;
-	
-	public EncodeDecodeParam() {
-		base64Charset = "UTF-8";
-		base64DoBreakLines = true;
-	}
-	
-	@Override
-	protected void parse() {
-		base64Charset = getString(PARAM_BASE64_CHARSET, base64Charset);
-		
-		base64DoBreakLines = getBoolean(PARAM_BASE64_DO_BREAK_LINES, base64DoBreakLines);
-	}
+    private static final String PARAM_BASE64_CHARSET = "encode.param.base64charset";
+    private static final String PARAM_BASE64_DO_BREAK_LINES = "encode.param.base64dobreaklines";
 
-	public String getBase64Charset() {
-		return base64Charset;
-	}
+    private String base64Charset;
+    private boolean base64DoBreakLines;
 
-	public void setBase64Charset(String base64FromCharset) {
-		this.base64Charset = base64FromCharset;
-		getConfig().setProperty(PARAM_BASE64_CHARSET, base64FromCharset);
-	}
+    public EncodeDecodeParam() {
+        base64Charset = "UTF-8";
+        base64DoBreakLines = true;
+    }
 
-	public boolean isBase64DoBreakLines() {
-		return base64DoBreakLines;
-	}
+    @Override
+    protected void parse() {
+        base64Charset = getString(PARAM_BASE64_CHARSET, base64Charset);
 
-	public void setBase64DoBreakLines(boolean base64OuputBreak) {
-		this.base64DoBreakLines = base64OuputBreak;
-		getConfig().setProperty(PARAM_BASE64_DO_BREAK_LINES, base64OuputBreak);
-	}
+        base64DoBreakLines = getBoolean(PARAM_BASE64_DO_BREAK_LINES, base64DoBreakLines);
+    }
 
+    public String getBase64Charset() {
+        return base64Charset;
+    }
+
+    public void setBase64Charset(String base64FromCharset) {
+        this.base64Charset = base64FromCharset;
+        getConfig().setProperty(PARAM_BASE64_CHARSET, base64FromCharset);
+    }
+
+    public boolean isBase64DoBreakLines() {
+        return base64DoBreakLines;
+    }
+
+    public void setBase64DoBreakLines(boolean base64OuputBreak) {
+        this.base64DoBreakLines = base64OuputBreak;
+        getConfig().setProperty(PARAM_BASE64_DO_BREAK_LINES, base64OuputBreak);
+    }
 }

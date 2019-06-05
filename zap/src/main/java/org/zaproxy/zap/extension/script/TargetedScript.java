@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.script;
 
 import javax.script.ScriptException;
-
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -30,12 +29,11 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface TargetedScript {
 
-	/**
-	 * Called for each HTTP message selected by the user.
-	 * 
-	 * @param msg the HTTP message selected, never {@code null}.
-	 * @throws ScriptException if an error occurred while executing the script.
-	 */
-	void invokeWith(HttpMessage msg) throws ScriptException;
-
+    /**
+     * Called for each HTTP message selected by the user.
+     *
+     * @param msg the HTTP message selected, never {@code null}.
+     * @throws ScriptException if an error occurred while executing the script.
+     */
+    void invokeWith(HttpMessage msg) throws ScriptException;
 }

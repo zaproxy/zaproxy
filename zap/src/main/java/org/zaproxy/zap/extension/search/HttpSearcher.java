@@ -30,17 +30,18 @@ import java.util.regex.Pattern;
 public interface HttpSearcher {
 
     /**
-     * Returns a descriptive name of the searcher, to be shown in UI components. The name must be internationalised.
-     * 
+     * Returns a descriptive name of the searcher, to be shown in UI components. The name must be
+     * internationalised.
+     *
      * @return the name of the searcher, never {@code null}
      */
     String getName();
 
     /**
      * Searches the given pattern in the messages, possibly returning the inverse of the matches.
-     * <p>
-     * The exact HTTP message contents that will be matched depend on the implementations, for example, some might search only
-     * in requests others in responses.
+     *
+     * <p>The exact HTTP message contents that will be matched depend on the implementations, for
+     * example, some might search only in requests others in responses.
      *
      * @param pattern the pattern to search in the messages
      * @param inverse if should return the inverse of the matches
@@ -49,11 +50,11 @@ public interface HttpSearcher {
     List<SearchResult> search(Pattern pattern, boolean inverse);
 
     /**
-     * Searches the given pattern in the messages, possibly returning the inverse of the matches, up to the given maximum of
-     * matches.
-     * <p>
-     * The exact HTTP message contents that will be matched depend on the implementations, for example, some might search only
-     * in requests others in responses.
+     * Searches the given pattern in the messages, possibly returning the inverse of the matches, up
+     * to the given maximum of matches.
+     *
+     * <p>The exact HTTP message contents that will be matched depend on the implementations, for
+     * example, some might search only in requests others in responses.
      *
      * @param pattern the pattern to search in the messages
      * @param inverse if should return the inverse of the matches

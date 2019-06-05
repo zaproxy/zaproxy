@@ -20,7 +20,6 @@
 package org.zaproxy.zap.network;
 
 import java.io.IOException;
-
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
@@ -30,7 +29,7 @@ import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 
 /**
  * An HTTP DELETE method implementation that ignores malformed HTTP response header lines.
- * 
+ *
  * @see DeleteMethod
  */
 public class ZapDeleteMethod extends EntityEnclosingMethod {
@@ -45,8 +44,8 @@ public class ZapDeleteMethod extends EntityEnclosingMethod {
 
     /**
      * Returns <tt>"DELETE"</tt>.
-     * @return <tt>"DELETE"</tt>
      *
+     * @return <tt>"DELETE"</tt>
      * @since 2.0
      */
     @Override
@@ -56,18 +55,22 @@ public class ZapDeleteMethod extends EntityEnclosingMethod {
 
     /**
      * {@inheritDoc}
-     * 
-     * <strong>Note:</strong> Malformed HTTP header lines are ignored (instead of throwing an exception).
+     *
+     * <p><strong>Note:</strong> Malformed HTTP header lines are ignored (instead of throwing an
+     * exception).
      */
     /*
      * Implementation copied from HttpMethodBase#readResponseHeaders(HttpState, HttpConnection) but changed to use a custom
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn) throws IOException, HttpException {
+    protected void readResponseHeaders(HttpState state, HttpConnection conn)
+            throws IOException, HttpException {
         getResponseHeaderGroup().clear();
 
-        Header[] headers = ZapHttpParser.parseHeaders(conn.getResponseInputStream(), getParams().getHttpElementCharset());
+        Header[] headers =
+                ZapHttpParser.parseHeaders(
+                        conn.getResponseInputStream(), getParams().getHttpElementCharset());
         // Wire logging moved to HttpParser
         getResponseHeaderGroup().setHeaders(headers);
     }

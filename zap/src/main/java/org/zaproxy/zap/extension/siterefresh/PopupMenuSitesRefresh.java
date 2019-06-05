@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.siterefresh;
 
 import java.awt.Component;
-
 import javax.swing.JTree;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -31,29 +29,29 @@ import org.parosproxy.paros.model.SiteMap;
 
 public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
-    
+    private static final long serialVersionUID = 1L;
+
     public PopupMenuSitesRefresh() {
         super(Constant.messages.getString("siterefresh.popop"));
-        
-        this.addActionListener(new java.awt.event.ActionListener() { 
 
-        	@Override
-        	public void actionPerformed(java.awt.event.ActionEvent e) {
-        		Session session = Model.getSingleton().getSession();
-        		SiteMap map = session.getSiteTree();
-        		map.reload();
-        	}
-        });
-			
-	}
-	
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
+
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        Session session = Model.getSingleton().getSession();
+                        SiteMap map = session.getSiteTree();
+                        map.reload();
+                    }
+                });
+    }
+
     @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTree) {
             JTree tree = (JTree) invoker;
             if (tree.getName().equals("treeSite")) {
-				this.setEnabled(true);
+                this.setEnabled(true);
                 return true;
             }
         }
@@ -62,7 +60,6 @@ public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
 
     @Override
     public boolean precedeWithSeparator() {
-    	return true;
+        return true;
     }
-
 }

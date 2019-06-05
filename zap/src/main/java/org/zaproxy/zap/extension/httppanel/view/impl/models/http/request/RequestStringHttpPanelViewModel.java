@@ -26,36 +26,36 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStr
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
-	
-	private static final Logger logger = Logger.getLogger(RequestStringHttpPanelViewModel.class);
 
-	@Override
-	public String getData() {
-		if (httpMessage == null)  {
-			return "";
-		}
-		
-		return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF) + httpMessage.getRequestBody().toString();
-	}
+    private static final Logger logger = Logger.getLogger(RequestStringHttpPanelViewModel.class);
 
-	@Override
-	public void setData(String data) {
-		String[] parts = data.split(HttpHeader.LF + HttpHeader.LF);
-		String header = parts[0].replaceAll("(?<!\r)\n", HttpHeader.CRLF);
-		//Note that if the body has LF, those characters will not be replaced by CRLF.
-		
-		try {
-			httpMessage.setRequestHeader(header);
-		} catch (HttpMalformedHeaderException e) {
-			logger.warn("Could not Save Header: " + header, e);
-		}
-		
-		if (parts.length > 1) {
-			httpMessage.setRequestBody(data.substring(parts[0].length()+2));
-		} else {
-			httpMessage.setRequestBody("");
-		}
-		HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
-	}
+    @Override
+    public String getData() {
+        if (httpMessage == null) {
+            return "";
+        }
 
+        return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
+                + httpMessage.getRequestBody().toString();
+    }
+
+    @Override
+    public void setData(String data) {
+        String[] parts = data.split(HttpHeader.LF + HttpHeader.LF);
+        String header = parts[0].replaceAll("(?<!\r)\n", HttpHeader.CRLF);
+        // Note that if the body has LF, those characters will not be replaced by CRLF.
+
+        try {
+            httpMessage.setRequestHeader(header);
+        } catch (HttpMalformedHeaderException e) {
+            logger.warn("Could not Save Header: " + header, e);
+        }
+
+        if (parts.length > 1) {
+            httpMessage.setRequestBody(data.substring(parts[0].length() + 2));
+        } else {
+            httpMessage.setRequestBody("");
+        }
+        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+    }
 }

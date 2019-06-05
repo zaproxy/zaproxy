@@ -28,7 +28,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
 
-	public static String getHash(InputStream in, String algorithm) throws NoSuchAlgorithmException, IOException {
+    public static String getHash(InputStream in, String algorithm)
+            throws NoSuchAlgorithmException, IOException {
         MessageDigest md = MessageDigest.getInstance(algorithm);
         byte[] dataBytes = new byte[1024];
         int nread = 0;
@@ -39,21 +40,22 @@ public class HashUtils {
 
         byte[] mdbytes = md.digest();
 
-        //convert the byte to hex format
+        // convert the byte to hex format
         StringBuilder sb = new StringBuilder("");
         for (int i = 0; i < mdbytes.length; i++) {
             sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
         }
 
         return sb.toString();
-	}
+    }
 
-	public static String getHash(File file, String algorithm) throws NoSuchAlgorithmException, IOException {
-		FileInputStream fis = new FileInputStream(file);
-		try {
-			return getHash(fis, algorithm);
-		} finally {
-			fis.close();
-		}
-	}
+    public static String getHash(File file, String algorithm)
+            throws NoSuchAlgorithmException, IOException {
+        FileInputStream fis = new FileInputStream(file);
+        try {
+            return getHash(fis, algorithm);
+        } finally {
+            fis.close();
+        }
+    }
 }

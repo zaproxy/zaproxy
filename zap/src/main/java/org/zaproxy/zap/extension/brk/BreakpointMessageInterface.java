@@ -21,17 +21,15 @@ package org.zaproxy.zap.extension.brk;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-
 public interface BreakpointMessageInterface {
 
     String getType();
-    
+
     boolean match(Message aMessage, boolean isRequest, boolean onlyIfInScope);
 
     void setEnabled(boolean enabled);
 
     boolean isEnabled();
-    
-    String getDisplayMessage();
 
+    String getDisplayMessage();
 }

@@ -29,7 +29,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,237 +36,233 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 
 public class LicenseFrame extends AbstractFrame {
 
-	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(LicenseFrame.class);
-	
-	private JPanel jPanel = null;
-	private JTextPane txtLicense = null;
-	private JPanel jPanel1 = null;
-	private JButton btnAccept = null;
-	private JButton btnDecline = null;
-	private JScrollPane jScrollPane = null;
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(LicenseFrame.class);
 
-	private boolean accepted = false;
+    private JPanel jPanel = null;
+    private JTextPane txtLicense = null;
+    private JPanel jPanel1 = null;
+    private JButton btnAccept = null;
+    private JButton btnDecline = null;
+    private JScrollPane jScrollPane = null;
 
-	private JPanel jPanel2 = null;
+    private boolean accepted = false;
 
-	private Runnable postTask;
+    private JPanel jPanel2 = null;
+
+    private Runnable postTask;
 
     public LicenseFrame() {
         super();
- 		initialize();
+        initialize();
     }
 
-	/**
-	 * This method initializes this
-	 *
-	 */
-	private void initialize() {
+    /** This method initializes this */
+    private void initialize() {
         this.setDefaultCloseOperation(javax.swing.JFrame.DO_NOTHING_ON_CLOSE);
         this.setContentPane(getJPanel());
-       	this.setPreferredSize(new Dimension(550, 375));
-        this.addWindowListener(new java.awt.event.WindowAdapter() {
+        this.setPreferredSize(new Dimension(550, 375));
+        this.addWindowListener(
+                new java.awt.event.WindowAdapter() {
 
-        	@Override
-			public void windowClosing(java.awt.event.WindowEvent e) {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
 
-        	    btnDecline.doClick();
-        	}
-        });
+                        btnDecline.doClick();
+                    }
+                });
 
         showLicense();
-	}
-
-	public void setPostTask(Runnable postTask) {
-		this.postTask = postTask;
-	}
-
-	/**
-	 * This method initializes jPanel
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel() {
-		if (jPanel == null) {
-			final java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-
-			final java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-
-			final javax.swing.JLabel jLabel = new JLabel();
-
-			final java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 1;
-			gridBagConstraints1.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints1.gridwidth = 1;
-			gridBagConstraints1.weightx = 1.0D;
-			gridBagConstraints1.weighty = 1.0D;
-			jLabel.setText("<html><body><font size=+1>" +
-				"<p>ZAP : Licensed under the Apache License, Version 2.0.</p></font>" +
-				"<p></p>" +
-				"<p>For the other libraries included in ZAP, please refer to respective " +
-				"licenses of the libraries enclosed with this package.</p></body></html>");
-			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints11.gridx = 0;
-			gridBagConstraints11.gridy = 0;
-			gridBagConstraints11.weightx = 1.0D;
-			gridBagConstraints11.gridwidth = 1;
-			gridBagConstraints11.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints12.gridx = 0;
-			gridBagConstraints12.gridy = 2;
-			jPanel.add(jLabel, gridBagConstraints11);
-			jPanel.add(getJPanel1(), gridBagConstraints1);
-			jPanel.add(getJPanel2(), gridBagConstraints12);
-		}
-		return jPanel;
-	}
-	/**
-	 * This method initializes txtLicense
-	 *
-	 * @return javax.swing.JTextPane
-	 */
-	private JTextPane getTxtLicense() {
-		if (txtLicense == null) {
-			txtLicense = new JTextPane();
-			txtLicense.setName("txtLicense");
-			txtLicense.setEditable(false);
-		}
-		return txtLicense;
-	}
-	/**
-	 * This method initializes jPanel1
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
-			jPanel1 = new JPanel();
-			jPanel1.setLayout(new CardLayout());
-			jPanel1.add(getJScrollPane(), getJScrollPane().getName());
-		}
-		return jPanel1;
-	}
-	/**
-	 * This method initializes btnAccept
-	 *
-	 * @return javax.swing.JButton
-	 */
-	private JButton getBtnAccept() {
-		if (btnAccept == null) {
-			btnAccept = new JButton();
-			btnAccept.setText("Accept");
-			btnAccept.addActionListener(new java.awt.event.ActionListener() {
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    accepted = true;
-				    if (postTask != null) {
-				        postTask.run();
-				    }
-
-				}
-			});
-
-		}
-		return btnAccept;
-	}
-	/**
-	 * This method initializes btnDecline
-	 *
-	 * @return javax.swing.JButton
-	 */
-	private JButton getBtnDecline() {
-		if (btnDecline == null) {
-			btnDecline = new JButton();
-			btnDecline.setText("Decline");
-			btnDecline.addActionListener(new java.awt.event.ActionListener() {
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    accepted = false;
-				    if (postTask != null) {
-				        postTask.run();
-				    }
-
-				}
-			});
-
-		}
-		return btnDecline;
-	}
-	/**
-	 * This method initializes jScrollPane
-	 *
-	 * @return javax.swing.JScrollPane
-	 */
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTxtLicense());
-			jScrollPane.setName("jScrollPane");
-			jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		}
-		return jScrollPane;
-	}
-
-	private static URL getUrlLicenseFile() {
-		String licenseFileName = "ApacheLicense-2.0.txt";
-		Path path = Paths.get(Constant.getZapInstall(), "license", licenseFileName);
-		if (Files.exists(path)) {
-			try {
-				return path.toUri().toURL();
-			} catch (MalformedURLException e) {
-				LOGGER.warn("Failed to convert file system path:", e);
-			}
-		}
-		return LicenseFrame.class.getResource("/org/zaproxy/zap/resources/" + licenseFileName);
-	}
-	
-	private void showLicense() {
-	    try{
-	        txtLicense.setPage(getUrlLicenseFile());
-	    } catch (final IOException e){
-            LOGGER.error("Failed to read license from '" + getUrlLicenseFile() + "'", e);
-            JOptionPane.showMessageDialog(null, "Error: unable to show license. Program will exit.");
-            System.exit(1);
-    	}
     }
 
-	@Override
-	public void setVisible(boolean show) {
-	    centerFrame();
-	    super.setVisible(show);
-	}
+    public void setPostTask(Runnable postTask) {
+        this.postTask = postTask;
+    }
 
-	public boolean isAccepted() {
-	    return accepted;
-	}
-	/**
-	 * This method initializes jPanel2
-	 *
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel2() {
-		if (jPanel2 == null) {
-			jPanel2 = new JPanel();
-			jPanel2.add(getBtnAccept(), null);
-			jPanel2.add(getBtnDecline(), null);
-		}
-		return jPanel2;
-	}
-  }
+    /**
+     * This method initializes jPanel
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getJPanel() {
+        if (jPanel == null) {
+            final java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 
+            final java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
+            final javax.swing.JLabel jLabel = new JLabel();
+
+            final java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+
+            jPanel = new JPanel();
+            jPanel.setLayout(new GridBagLayout());
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = 1;
+            gridBagConstraints1.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints1.gridwidth = 1;
+            gridBagConstraints1.weightx = 1.0D;
+            gridBagConstraints1.weighty = 1.0D;
+            jLabel.setText(
+                    "<html><body><font size=+1>"
+                            + "<p>ZAP : Licensed under the Apache License, Version 2.0.</p></font>"
+                            + "<p></p>"
+                            + "<p>For the other libraries included in ZAP, please refer to respective "
+                            + "licenses of the libraries enclosed with this package.</p></body></html>");
+            gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints11.gridx = 0;
+            gridBagConstraints11.gridy = 0;
+            gridBagConstraints11.weightx = 1.0D;
+            gridBagConstraints11.gridwidth = 1;
+            gridBagConstraints11.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints12.gridx = 0;
+            gridBagConstraints12.gridy = 2;
+            jPanel.add(jLabel, gridBagConstraints11);
+            jPanel.add(getJPanel1(), gridBagConstraints1);
+            jPanel.add(getJPanel2(), gridBagConstraints12);
+        }
+        return jPanel;
+    }
+    /**
+     * This method initializes txtLicense
+     *
+     * @return javax.swing.JTextPane
+     */
+    private JTextPane getTxtLicense() {
+        if (txtLicense == null) {
+            txtLicense = new JTextPane();
+            txtLicense.setName("txtLicense");
+            txtLicense.setEditable(false);
+        }
+        return txtLicense;
+    }
+    /**
+     * This method initializes jPanel1
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getJPanel1() {
+        if (jPanel1 == null) {
+            jPanel1 = new JPanel();
+            jPanel1.setLayout(new CardLayout());
+            jPanel1.add(getJScrollPane(), getJScrollPane().getName());
+        }
+        return jPanel1;
+    }
+    /**
+     * This method initializes btnAccept
+     *
+     * @return javax.swing.JButton
+     */
+    private JButton getBtnAccept() {
+        if (btnAccept == null) {
+            btnAccept = new JButton();
+            btnAccept.setText("Accept");
+            btnAccept.addActionListener(
+                    new java.awt.event.ActionListener() {
+
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            accepted = true;
+                            if (postTask != null) {
+                                postTask.run();
+                            }
+                        }
+                    });
+        }
+        return btnAccept;
+    }
+    /**
+     * This method initializes btnDecline
+     *
+     * @return javax.swing.JButton
+     */
+    private JButton getBtnDecline() {
+        if (btnDecline == null) {
+            btnDecline = new JButton();
+            btnDecline.setText("Decline");
+            btnDecline.addActionListener(
+                    new java.awt.event.ActionListener() {
+
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+                            accepted = false;
+                            if (postTask != null) {
+                                postTask.run();
+                            }
+                        }
+                    });
+        }
+        return btnDecline;
+    }
+    /**
+     * This method initializes jScrollPane
+     *
+     * @return javax.swing.JScrollPane
+     */
+    private JScrollPane getJScrollPane() {
+        if (jScrollPane == null) {
+            jScrollPane = new JScrollPane();
+            jScrollPane.setViewportView(getTxtLicense());
+            jScrollPane.setName("jScrollPane");
+            jScrollPane.setHorizontalScrollBarPolicy(
+                    ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        }
+        return jScrollPane;
+    }
+
+    private static URL getUrlLicenseFile() {
+        String licenseFileName = "ApacheLicense-2.0.txt";
+        Path path = Paths.get(Constant.getZapInstall(), "license", licenseFileName);
+        if (Files.exists(path)) {
+            try {
+                return path.toUri().toURL();
+            } catch (MalformedURLException e) {
+                LOGGER.warn("Failed to convert file system path:", e);
+            }
+        }
+        return LicenseFrame.class.getResource("/org/zaproxy/zap/resources/" + licenseFileName);
+    }
+
+    private void showLicense() {
+        try {
+            txtLicense.setPage(getUrlLicenseFile());
+        } catch (final IOException e) {
+            LOGGER.error("Failed to read license from '" + getUrlLicenseFile() + "'", e);
+            JOptionPane.showMessageDialog(
+                    null, "Error: unable to show license. Program will exit.");
+            System.exit(1);
+        }
+    }
+
+    @Override
+    public void setVisible(boolean show) {
+        centerFrame();
+        super.setVisible(show);
+    }
+
+    public boolean isAccepted() {
+        return accepted;
+    }
+    /**
+     * This method initializes jPanel2
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getJPanel2() {
+        if (jPanel2 == null) {
+            jPanel2 = new JPanel();
+            jPanel2.add(getBtnAccept(), null);
+            jPanel2.add(getBtnDecline(), null);
+        }
+        return jPanel2;
+    }
+}

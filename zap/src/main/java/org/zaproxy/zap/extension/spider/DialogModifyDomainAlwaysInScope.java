@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 
@@ -28,9 +27,11 @@ class DialogModifyDomainAlwaysInScope extends DialogAddDomainAlwaysInScope {
 
     private static final long serialVersionUID = -4031122965844883255L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("spider.options.domains.in.scope.modify.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("spider.options.domains.in.scope.modify.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("spider.options.domains.in.scope.modify.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("spider.options.domains.in.scope.modify.button.confirm");
 
     protected DialogModifyDomainAlwaysInScope(Dialog owner) {
         super(owner, DIALOG_TITLE);
@@ -54,5 +55,4 @@ class DialogModifyDomainAlwaysInScope extends DialogAddDomainAlwaysInScope {
 
         getEnabledCheckBox().setSelected(domainAlwaysInScope.isEnabled());
     }
-
 }

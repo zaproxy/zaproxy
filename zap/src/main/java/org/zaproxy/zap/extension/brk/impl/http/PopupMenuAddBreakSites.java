@@ -29,7 +29,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = -7635703590177283587L;
-    
+
     private HttpBreakpointsUiManagerInterface uiManager;
 
     public PopupMenuAddBreakSites(HttpBreakpointsUiManagerInterface uiManager) {
@@ -46,11 +46,9 @@ public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
     @Override
     public void performAction(SiteNode sn) {
         try {
-			uiManager.handleAddBreakpoint(
-					new StructuralSiteNode(sn).getRegexPattern(false));
-		} catch (DatabaseException e) {
-			// Ignore
-		}
+            uiManager.handleAddBreakpoint(new StructuralSiteNode(sn).getRegexPattern(false));
+        } catch (DatabaseException e) {
+            // Ignore
+        }
     }
-
 }

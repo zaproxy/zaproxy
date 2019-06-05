@@ -26,35 +26,37 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
-
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 
 /**
- *
  * @author yhawke (2014)
  * @param <E> the type of the options
  */
 public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleOptionsTablePanel {
-    
+
     protected static final long serialVersionUID = -7609757285865562636L;
-    
-    protected static final String ADD_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.add.button.label");
-    protected static final String MODIFY_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.modify.button.label");
-    protected static final String REMOVE_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.remove.button.label");
-    protected static final String REMOVE_WO_CONFIRMATION_CHECKBOX_LABEL = Constant.messages.getString("multiple.options.panel.removeWithoutConfirmation.checkbox.label");
-    
+
+    protected static final String ADD_BUTTON_LABEL =
+            Constant.messages.getString("multiple.options.panel.add.button.label");
+    protected static final String MODIFY_BUTTON_LABEL =
+            Constant.messages.getString("multiple.options.panel.modify.button.label");
+    protected static final String REMOVE_BUTTON_LABEL =
+            Constant.messages.getString("multiple.options.panel.remove.button.label");
+    protected static final String REMOVE_WO_CONFIRMATION_CHECKBOX_LABEL =
+            Constant.messages.getString(
+                    "multiple.options.panel.removeWithoutConfirmation.checkbox.label");
+
     protected JButton addButton;
     protected JButton modifyButton;
     protected JButton removeButton;
-    
+
     protected AbstractMultipleOptionsBaseTableModel<E> model;
     protected GridBagConstraints gbcFooterPanel;
     protected JCheckBox removeWithoutConfirmationCheckBox;
@@ -63,103 +65,117 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         this(model, true);
     }
 
-    protected AbstractMultipleOptionsBaseTablePanel(AbstractMultipleOptionsBaseTableModel<E> model, boolean allowModification) {
+    protected AbstractMultipleOptionsBaseTablePanel(
+            AbstractMultipleOptionsBaseTableModel<E> model, boolean allowModification) {
         super(model);
-        
+
         getFooterPanel().setLayout(new GridBagLayout());
-        
+
         gbcFooterPanel = new GridBagConstraints();
         gbcFooterPanel.gridx = 0;
         gbcFooterPanel.weightx = 1.0D;
         gbcFooterPanel.weighty = 1.0D;
         gbcFooterPanel.anchor = GridBagConstraints.LINE_START;
-        
+
         addFooterPanelComponent(getRemoveWithoutConfirmationCheckBox());
-        
+
         this.model = model;
-        
+
         addButton = new JButton(ADD_BUTTON_LABEL);
-        addButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                E e = showAddDialogue();
-                
-                if (e != null) {
-                    getMultipleOptionsModel().addElement(e);
-                }
-            }
-        });
-        
+        addButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        E e = showAddDialogue();
+
+                        if (e != null) {
+                            getMultipleOptionsModel().addElement(e);
+                        }
+                    }
+                });
+
         if (allowModification) {
             modifyButton = new JButton(MODIFY_BUTTON_LABEL);
             modifyButton.setEnabled(false);
-            modifyButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent evt) {
-                	modifyElement(getSelectedRow());
-                }
-            });
+            modifyButton.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent evt) {
+                            modifyElement(getSelectedRow());
+                        }
+                    });
         }
-        
+
         removeButton = new JButton(REMOVE_BUTTON_LABEL);
         removeButton.setEnabled(false);
-        removeButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                int row = getSelectedRow();
-                
-                if (!isRemoveWithoutConfirmation()) {
-                    if (!showRemoveDialogue(getMultipleOptionsModel().getElement(row))) {
-                        return;
+        removeButton.addActionListener(
+                new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        int row = getSelectedRow();
+
+                        if (!isRemoveWithoutConfirmation()) {
+                            if (!showRemoveDialogue(getMultipleOptionsModel().getElement(row))) {
+                                return;
+                            }
+                        }
+
+                        getMultipleOptionsModel().removeElement(row);
                     }
-                }
-                
-                getMultipleOptionsModel().removeElement(row);
-            }
-        });
-        
+                });
+
         addButton(addButton);
         if (allowModification) {
             addButton(modifyButton);
         }
         addButton(removeButton);
-                
-        getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    selectionChanged(getTable().getSelectionModel().getMinSelectionIndex() >= 0);
-                }
-            }
-        });
-        
+
+        getTable()
+                .getSelectionModel()
+                .addListSelectionListener(
+                        new ListSelectionListener() {
+
+                            @Override
+                            public void valueChanged(ListSelectionEvent e) {
+                                if (!e.getValueIsAdjusting()) {
+                                    selectionChanged(
+                                            getTable().getSelectionModel().getMinSelectionIndex()
+                                                    >= 0);
+                                }
+                            }
+                        });
+
         if (allowModification) {
-	        getTable().addMouseListener(new MouseAdapter() {
-				@Override
-				public void mousePressed(MouseEvent me) {
-		        	// Bring up the modify dialog if the user double clicks on a row
-			        if (me.getClickCount() == 2 && modifyButton != null && modifyButton.isEnabled()) {
-						JXTable table =(JXTable) me.getSource();
-				        Point p = me.getPoint();
-				        int row = table.rowAtPoint(p);
-				        if (row >= 0) {
-				            modifyElement(getTable().convertRowIndexToModel(row));
-				        }
-			        }
-				}});
+            getTable()
+                    .addMouseListener(
+                            new MouseAdapter() {
+                                @Override
+                                public void mousePressed(MouseEvent me) {
+                                    // Bring up the modify dialog if the user double clicks on a row
+                                    if (me.getClickCount() == 2
+                                            && modifyButton != null
+                                            && modifyButton.isEnabled()) {
+                                        JXTable table = (JXTable) me.getSource();
+                                        Point p = me.getPoint();
+                                        int row = table.rowAtPoint(p);
+                                        if (row >= 0) {
+                                            modifyElement(getTable().convertRowIndexToModel(row));
+                                        }
+                                    }
+                                }
+                            });
         }
     }
-    
+
     private void modifyElement(int row) {
         E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
         if (e != null) {
             getMultipleOptionsModel().modifyElement(row, e);
         }
     }
-    
+
     protected void selectionChanged(boolean entrySelected) {
         if (modifyButton != null) {
             modifyButton.setEnabled(entrySelected);
@@ -173,9 +189,9 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to also enable/disable the added buttons ("add", "modify", "remove" and "remove without confirmation").
-     * </p>
+     *
+     * <p>Overridden to also enable/disable the added buttons ("add", "modify", "remove" and "remove
+     * without confirmation").
      */
     @Override
     public void setComponentEnabled(boolean enabled) {
@@ -230,5 +246,5 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
 
     public abstract E showModifyDialogue(E e);
 
-    public abstract boolean showRemoveDialogue(E e);    
+    public abstract boolean showRemoveDialogue(E e);
 }

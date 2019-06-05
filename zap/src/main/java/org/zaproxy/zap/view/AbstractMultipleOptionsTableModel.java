@@ -21,29 +21,30 @@ package org.zaproxy.zap.view;
 
 import java.util.Iterator;
 import javax.swing.event.TableModelEvent;
-
 import org.zaproxy.zap.utils.EnableableInterface;
 
-public abstract class AbstractMultipleOptionsTableModel<E extends EnableableInterface> extends AbstractMultipleOptionsBaseTableModel<E> {
+public abstract class AbstractMultipleOptionsTableModel<E extends EnableableInterface>
+        extends AbstractMultipleOptionsBaseTableModel<E> {
 
     private static final long serialVersionUID = 1L;
 
     public AbstractMultipleOptionsTableModel() {
         super();
     }
-    
+
     public void setAllEnabled(boolean enabled) {
         final int size = getElements().size();
         if (size > 0) {
-            for (Iterator<E> it = getElements().iterator(); it.hasNext();) {
+            for (Iterator<E> it = getElements().iterator(); it.hasNext(); ) {
                 it.next().setEnabled(enabled);
             }
 
-            fireTableColumnUpdated(0, size-1, 0);
+            fireTableColumnUpdated(0, size - 1, 0);
         }
     }
-    
+
     public void fireTableColumnUpdated(int firstRow, int lastRow, int column) {
-        fireTableChanged(new TableModelEvent(this, firstRow, lastRow, column, TableModelEvent.UPDATE));
+        fireTableChanged(
+                new TableModelEvent(this, firstRow, lastRow, column, TableModelEvent.UPDATE));
     }
 }

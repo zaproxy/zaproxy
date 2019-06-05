@@ -23,7 +23,8 @@ import org.parosproxy.paros.model.SiteNode;
 
 public interface SiteMapListener {
 
-	void nodeSelected(SiteNode node);
+    void nodeSelected(SiteNode node);
 
-	void onReturnNodeRendererComponent(SiteMapTreeCellRenderer component, boolean leaf, SiteNode value);
+    void onReturnNodeRendererComponent(
+            SiteMapTreeCellRenderer component, boolean leaf, SiteNode value);
 }

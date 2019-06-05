@@ -22,22 +22,21 @@ package org.zaproxy.zap.utils;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-/**
- * A class with utility methods related to XML parsing.
- */
+/** A class with utility methods related to XML parsing. */
 public final class XmlUtils {
 
-    private XmlUtils() {
-    }
+    private XmlUtils() {}
 
     /**
-     * Returns a new {@code DocumentBuilderFactory} instance with XML External Entity (XXE) processing disabled.
+     * Returns a new {@code DocumentBuilderFactory} instance with XML External Entity (XXE)
+     * processing disabled.
      *
      * @return the new {@code DocumentBuilderFactory} instance with XXE processing disabled
      * @throws ParserConfigurationException if an error occurred while disabling XXE processing
      * @see DocumentBuilderFactory
      */
-    public static DocumentBuilderFactory newXxeDisabledDocumentBuilderFactory() throws ParserConfigurationException {
+    public static DocumentBuilderFactory newXxeDisabledDocumentBuilderFactory()
+            throws ParserConfigurationException {
         // Disable XXE processing, not required by default.
         // https://www.owasp.org/index.php/XML_External_Entity_%28XXE%29_Processing
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

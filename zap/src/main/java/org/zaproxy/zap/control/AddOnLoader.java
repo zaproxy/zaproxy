@@ -47,7 +47,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
@@ -67,20 +66,16 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
  * This class is heavily based on the original Paros class org.parosproxy.paros.common.DynamicLoader
- * However its been restructured and enhanced to support multiple directories or versioned ZAP addons.
- * The constructor takes an array of directories. 
- * All of the generic jars in the directories are loaded.
- * Only the latest ZAP addons are loaded, so if the following addons are found:
- *  zap-ext-test-alpha-1.zap
- *  zap-ext-test-beta-2.zap
- *  zap-ext-test-alpha-3.zap
- * then only the latest one (zap-ext-test-alpha-3.zap) will be loaded - this is entirely based on the
- * version number.
- * The status (alpha/beta/release) is for informational purposes only. 
+ * However its been restructured and enhanced to support multiple directories or versioned ZAP
+ * addons. The constructor takes an array of directories. All of the generic jars in the directories
+ * are loaded. Only the latest ZAP addons are loaded, so if the following addons are found:
+ * zap-ext-test-alpha-1.zap zap-ext-test-beta-2.zap zap-ext-test-alpha-3.zap then only the latest
+ * one (zap-ext-test-alpha-3.zap) will be loaded - this is entirely based on the version number. The
+ * status (alpha/beta/release) is for informational purposes only.
  */
 public class AddOnLoader extends URLClassLoader {
 
-	public static final String ADDONS_BLOCK_LIST = "addons.block";
+    public static final String ADDONS_BLOCK_LIST = "addons.block";
 
     private static final String ADDONS_RUNNABLE_BASE_KEY = "runnableAddOns";
     private static final String ADDONS_RUNNABLE_KEY = ADDONS_RUNNABLE_BASE_KEY + ".addon";
@@ -89,11 +84,10 @@ public class AddOnLoader extends URLClassLoader {
     private static final String ADDON_RUNNABLE_FULL_VERSION_KEY = "fullversion";
     private static final String ADDON_RUNNABLE_ALL_EXTENSIONS_KEY = "extensions.extension";
 
-    /**
-     * A "null" object, for use when no callback is given during the uninstallation process.
-     */
-    private static final AddOnUninstallationProgressCallback NULL_CALLBACK = new NullUninstallationProgressCallBack();
-	
+    /** A "null" object, for use when no callback is given during the uninstallation process. */
+    private static final AddOnUninstallationProgressCallback NULL_CALLBACK =
+            new NullUninstallationProgressCallBack();
+
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
 
     static {
@@ -104,22 +98,22 @@ public class AddOnLoader extends URLClassLoader {
     private AddOnCollection aoc = null;
     private List<File> jars = new ArrayList<>();
     /**
-     * Addons can be included in the ZAP release, in which case the user might not have permissions to delete the files.
-     * To support the removal of such addons we just maintain a 'block list' in the configs which is a comma separated
-     * list of the addon ids that the user has uninstalled
+     * Addons can be included in the ZAP release, in which case the user might not have permissions
+     * to delete the files. To support the removal of such addons we just maintain a 'block list' in
+     * the configs which is a comma separated list of the addon ids that the user has uninstalled
      */
     private List<String> blockList = new ArrayList<>();
 
     /**
      * The runnable add-ons and its extensions.
-     * <p>
-     * The key is the add-on itself and the value its runnable extensions.
+     *
+     * <p>The key is the add-on itself and the value its runnable extensions.
      */
     private Map<AddOn, List<String>> runnableAddOns;
 
     /**
-     * The list of add-ons' IDs that have running issues (either the add-on itself or one of its extensions) since last run
-     * because of changes in the dependencies.
+     * The list of add-ons' IDs that have running issues (either the add-on itself or one of its
+     * extensions) since last run because of changes in the dependencies.
      */
     private List<String> idsAddOnsWithRunningIssuesSinceLastRun;
 
@@ -128,14 +122,12 @@ public class AddOnLoader extends URLClassLoader {
      */
     private Map<String, AddOnClassLoader> addOnLoaders = new HashMap<>();
 
-    /**
-     * File where the data of runnable state and blocked add-ons is saved.
-     */
+    /** File where the data of runnable state and blocked add-ons is saved. */
     private ZapXmlConfiguration addOnsStateConfig;
 
     public AddOnLoader(File[] dirs) {
         super(new URL[0], AddOnLoader.class.getClassLoader());
-        
+
         addOnsStateConfig = new ZapXmlConfiguration();
         addOnsStateConfig.setRootElementName("addonsstate");
         File configFile = new File(Constant.getZapHome(), "add-ons-state.xml");
@@ -154,33 +146,34 @@ public class AddOnLoader extends URLClassLoader {
         loadAllAddOns();
 
         if (dirs != null) {
-        	for (File dir : dirs) {
+            for (File dir : dirs) {
                 try {
-					this.addDirectory(dir);
-				} catch (Exception e) {
-		    		logger.error(e.getMessage(), e);
-				}
-        	}
+                    this.addDirectory(dir);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
         }
-        
-    	for (File jar : jars) {
-            try {
-				this.addURL(jar.toURI().toURL());
-			} catch (MalformedURLException e) {
-	    		logger.error(e.getMessage(), e);
-			}
-    	}
-    	
-    	// Install any files that are not already present
-		for (Entry<String, AddOnClassLoader> entry : addOnLoaders.entrySet()) {
-			AddOnInstaller.installMissingAddOnFiles(entry.getValue(), getAddOnCollection().getAddOn(entry.getKey()));
-		}
 
+        for (File jar : jars) {
+            try {
+                this.addURL(jar.toURI().toURL());
+            } catch (MalformedURLException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+
+        // Install any files that are not already present
+        for (Entry<String, AddOnClassLoader> entry : addOnLoaders.entrySet()) {
+            AddOnInstaller.installMissingAddOnFiles(
+                    entry.getValue(), getAddOnCollection().getAddOn(entry.getKey()));
+        }
     }
 
     /**
-     * Returns a list with the IDs of add-ons that have running issues since last run, either Java version was changed, or
-     * add-on dependencies are no longer met for the add-on or one of its extensions.
+     * Returns a list with the IDs of add-ons that have running issues since last run, either Java
+     * version was changed, or add-on dependencies are no longer met for the add-on or one of its
+     * extensions.
      *
      * @return a list with the add-ons that are not longer runnable
      * @since 2.4.0
@@ -195,7 +188,7 @@ public class AddOnLoader extends URLClassLoader {
         Map<AddOn, AddOnRunState> oldRunnableAddOns = loadAddOnsRunState(addOnsStateConfig, aoc);
         List<AddOn> runAddons = new ArrayList<>();
         Set<AddOn> updatedAddOns = new HashSet<>();
-        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext();) {
+        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext(); ) {
             AddOn addOn = iterator.next();
             if (canLoadAddOn(addOn)) {
                 AddOnRunRequirements reqs = calculateRunRequirements(addOn, aoc.getAddOns());
@@ -204,9 +197,10 @@ public class AddOnLoader extends URLClassLoader {
                     List<String> runnableExtensions;
                     if (addOn.hasExtensionsWithDeps()) {
                         runnableExtensions = getRunnableExtensionsWithDeps(reqs);
-                        List<String> oldRunnableExtensions = runState != null
-                                ? runState.getExtensions()
-                                : Collections.emptyList();
+                        List<String> oldRunnableExtensions =
+                                runState != null
+                                        ? runState.getExtensions()
+                                        : Collections.emptyList();
                         if (!oldRunnableExtensions.isEmpty()) {
                             oldRunnableExtensions.removeAll(runnableExtensions);
                             if (!oldRunnableExtensions.isEmpty()) {
@@ -242,7 +236,8 @@ public class AddOnLoader extends URLClassLoader {
         }
     }
 
-    private static List<String> getRunnableExtensionsWithDeps(AddOnRunRequirements runRequirements) {
+    private static List<String> getRunnableExtensionsWithDeps(
+            AddOnRunRequirements runRequirements) {
         List<String> runnableExtensions = new ArrayList<>();
         for (ExtensionRunRequirements extReqs : runRequirements.getExtensionRequirements()) {
             if (extReqs.isRunnable()) {
@@ -255,29 +250,41 @@ public class AddOnLoader extends URLClassLoader {
     private boolean canLoadAddOn(AddOn ao) {
         if (blockList.contains(ao.getId())) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Can't load add-on " + ao.getName()
-                        + " it's on the block list (add-on uninstalled but the file couldn't be removed).");
+                logger.debug(
+                        "Can't load add-on "
+                                + ao.getName()
+                                + " it's on the block list (add-on uninstalled but the file couldn't be removed).");
             }
             return false;
         }
 
         if (!ao.canLoadInCurrentVersion()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Can't load add-on " + ao.getName() + " because of ZAP version constraints; Not before="
-                        + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + " Current Version="
-                        + Constant.PROGRAM_VERSION);
+                logger.debug(
+                        "Can't load add-on "
+                                + ao.getName()
+                                + " because of ZAP version constraints; Not before="
+                                + ao.getNotBeforeVersion()
+                                + " Not from="
+                                + ao.getNotFromVersion()
+                                + " Current Version="
+                                + Constant.PROGRAM_VERSION);
             }
             return false;
         }
         return true;
     }
 
-    private static AddOnRunRequirements calculateRunRequirements(AddOn ao, Collection<AddOn> availableAddOns) {
+    private static AddOnRunRequirements calculateRunRequirements(
+            AddOn ao, Collection<AddOn> availableAddOns) {
         AddOnRunRequirements reqs = ao.calculateRunRequirements(availableAddOns);
         if (!reqs.isRunnable()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Can't run add-on " + ao.getName() + " because of missing requirements: "
-                        + AddOnRunIssuesUtils.getRunningIssues(reqs));
+                logger.debug(
+                        "Can't run add-on "
+                                + ao.getName()
+                                + " because of missing requirements: "
+                                + AddOnRunIssuesUtils.getRunningIssues(reqs));
             }
         }
         return reqs;
@@ -292,7 +299,9 @@ public class AddOnLoader extends URLClassLoader {
 
             List<String> idsAddOnDependencies = ao.getIdsAddOnDependencies();
             if (idsAddOnDependencies.isEmpty()) {
-                addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, ao.getAddOnClassnames());
+                addOnClassLoader =
+                        new AddOnClassLoader(
+                                ao.getFile().toURI().toURL(), this, ao.getAddOnClassnames());
                 this.addOnLoaders.put(ao.getId(), addOnClassLoader);
                 ao.setClassLoader(addOnClassLoader);
                 return addOnClassLoader;
@@ -307,13 +316,19 @@ public class AddOnLoader extends URLClassLoader {
                 dependencies.add(addOnClassLoader);
             }
 
-            addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies, ao.getAddOnClassnames());
+            addOnClassLoader =
+                    new AddOnClassLoader(
+                            ao.getFile().toURI().toURL(),
+                            this,
+                            dependencies,
+                            ao.getAddOnClassnames());
             this.addOnLoaders.put(ao.getId(), addOnClassLoader);
             ao.setClassLoader(addOnClassLoader);
             return addOnClassLoader;
         } catch (MalformedURLException e) {
             logger.error(e.getMessage(), e);
-            throw new RuntimeException("Failed to convert URL for AddOnClassLoader " + ao.getFile().toURI(), e);
+            throw new RuntimeException(
+                    "Failed to convert URL for AddOnClassLoader " + ao.getFile().toURI(), e);
         }
     }
 
@@ -321,16 +336,16 @@ public class AddOnLoader extends URLClassLoader {
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
             try {
-    			return loadClass(name, false);
-    		} catch (ClassNotFoundException e) {
-    			// Continue for now
-    		}
+                return loadClass(name, false);
+            } catch (ClassNotFoundException e) {
+                // Continue for now
+            }
             for (AddOnClassLoader loader : addOnLoaders.values()) {
                 try {
-        			return loader.loadClass(name);
-        		} catch (ClassNotFoundException e) {
-        			// Continue for now
-        		}
+                    return loader.loadClass(name);
+                } catch (ClassNotFoundException e) {
+                    // Continue for now
+                }
                 for (AddOnClassLoader childLoader : loader.getChildClassLoaders()) {
                     try {
                         return childLoader.loadClass(name);
@@ -348,92 +363,98 @@ public class AddOnLoader extends URLClassLoader {
         // Allow AddOnClassLoader to use the same locks.
         return super.getClassLoadingLock(className);
     }
-    
+
     @Override
     public URL getResource(String name) {
-		URL url = super.getResource(name);
-		if (url != null) {
-			return url;
-		}
-		for (AddOnClassLoader loader : addOnLoaders.values()) {
-			url = loader.findResourceInAddOn(name);
-			if (url != null) {
-				return url;
-			}
-		}
-		return url;
+        URL url = super.getResource(name);
+        if (url != null) {
+            return url;
+        }
+        for (AddOnClassLoader loader : addOnLoaders.values()) {
+            url = loader.findResourceInAddOn(name);
+            if (url != null) {
+                return url;
+            }
+        }
+        return url;
     }
 
     public AddOnCollection getAddOnCollection() {
-    	return this.aoc;
+        return this.aoc;
     }
-    
-    private void addDirectory (File dir) {
-    	if (dir == null) {
-    		logger.error("Null directory supplied");
-    		return;
-    	}
-    	if (! dir.exists()) {
-    		logger.debug("No such directory: " + dir.getAbsolutePath());
-    		return;
-    	}
-    	if (! dir.isDirectory()) {
-    		logger.warn("Not a directory: " + dir.getAbsolutePath());
-    		return;
-    	}
+
+    private void addDirectory(File dir) {
+        if (dir == null) {
+            logger.error("Null directory supplied");
+            return;
+        }
+        if (!dir.exists()) {
+            logger.debug("No such directory: " + dir.getAbsolutePath());
+            return;
+        }
+        if (!dir.isDirectory()) {
+            logger.warn("Not a directory: " + dir.getAbsolutePath());
+            return;
+        }
 
         // Load the jar files
         File[] listJars = dir.listFiles(new JarFilenameFilter());
         if (listJars != null) {
-        	for (File jar : listJars) {
-        		this.jars.add(jar);
-        	}
+            for (File jar : listJars) {
+                this.jars.add(jar);
+            }
         }
     }
-    
+
     public void addAddon(AddOn ao) {
-    	if (! ao.canLoadInCurrentVersion()) {
-    		throw new IllegalArgumentException("Cant load add-on " + ao.getName() + 
-    				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
-    				" Version=" + Constant.PROGRAM_VERSION);
-    	}
+        if (!ao.canLoadInCurrentVersion()) {
+            throw new IllegalArgumentException(
+                    "Cant load add-on "
+                            + ao.getName()
+                            + " Not before="
+                            + ao.getNotBeforeVersion()
+                            + " Not from="
+                            + ao.getNotFromVersion()
+                            + " Version="
+                            + Constant.PROGRAM_VERSION);
+        }
 
-    	installationLock.lock();
-    	try {
-    		if (!this.aoc.addAddOn(ao)) {
-    			return;
-    		}
+        installationLock.lock();
+        try {
+            if (!this.aoc.addAddOn(ao)) {
+                return;
+            }
 
-    		addAddOnImpl(ao);
-    	} finally {
-    		installationLock.unlock();
-    	}
-	}
+            addAddOnImpl(ao);
+        } finally {
+            installationLock.unlock();
+        }
+    }
 
-	private void addAddOnImpl(AddOn ao) {
-		if (AddOn.InstallationStatus.INSTALLED == ao.getInstallationStatus()) {
-			return;
-		}
+    private void addAddOnImpl(AddOn ao) {
+        if (AddOn.InstallationStatus.INSTALLED == ao.getInstallationStatus()) {
+            return;
+        }
 
-    	if (this.blockList.contains(ao.getId())) {
-    		// Explicitly being added back, so remove from the block list
-    		this.blockList.remove(ao.getId());
-    		this.saveBlockList();
-    	}
+        if (this.blockList.contains(ao.getId())) {
+            // Explicitly being added back, so remove from the block list
+            this.blockList.remove(ao.getId());
+            this.saveBlockList();
+        }
 
-		if (!isDynamicallyInstallable(ao)) {
-			return;
-		}
+        if (!isDynamicallyInstallable(ao)) {
+            return;
+        }
 
-		AddOnRunRequirements reqs = calculateRunRequirements(ao, aoc.getInstalledAddOns());
-		if (!reqs.isRunnable()) {
-		    ao.setInstallationStatus(AddOn.InstallationStatus.NOT_INSTALLED);
-		    return;
-		}
+        AddOnRunRequirements reqs = calculateRunRequirements(ao, aoc.getInstalledAddOns());
+        if (!reqs.isRunnable()) {
+            ao.setInstallationStatus(AddOn.InstallationStatus.NOT_INSTALLED);
+            return;
+        }
 
-		AddOnInstaller.install(createAndAddAddOnClassLoader(ao), ao);
-		ao.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
-		Control.getSingleton().getExtensionLoader().addOnInstalled(ao);
+        AddOnInstaller.install(createAndAddAddOnClassLoader(ao), ao);
+        ao.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
+        Control.getSingleton().getExtensionLoader().addOnInstalled(ao);
 
         if (runnableAddOns.get(ao) == null) {
             runnableAddOns.put(ao, getRunnableExtensionsWithDeps(reqs));
@@ -441,24 +462,25 @@ public class AddOnLoader extends URLClassLoader {
         }
 
         checkAndLoadDependentExtensions();
-		checkAndInstallAddOnsNotInstalled();
+        checkAndInstallAddOnsNotInstalled();
 
         if (View.isInitialised()) {
-            EventQueue.invokeLater(new Runnable() {
-                
-                @Override
-                public void run() {
-                    View.getSingleton().refreshTabViewMenus();
-                }
-            });
+            EventQueue.invokeLater(
+                    new Runnable() {
+
+                        @Override
+                        public void run() {
+                            View.getSingleton().refreshTabViewMenus();
+                        }
+                    });
         }
-	}
+    }
 
     /**
-     * Checks and installs all the add-ons whose installation status is {@code NOT_INSTALLED} that have (now) all required
-     * dependencies fulfilled.
-     * <p>
-     * Should be called after an installation of an add-on.
+     * Checks and installs all the add-ons whose installation status is {@code NOT_INSTALLED} that
+     * have (now) all required dependencies fulfilled.
+     *
+     * <p>Should be called after an installation of an add-on.
      *
      * @see #addAddOnImpl(AddOn)
      * @see AddOn.InstallationStatus#NOT_INSTALLED
@@ -467,8 +489,10 @@ public class AddOnLoader extends URLClassLoader {
     private void checkAndInstallAddOnsNotInstalled() {
         List<AddOn> runnableAddOns = new ArrayList<>();
         for (AddOn addOn : aoc.getAddOns()) {
-            if (AddOn.InstallationStatus.NOT_INSTALLED == addOn.getInstallationStatus() && addOnLoaders.get(addOn.getId()) == null) {
-                AddOnRunRequirements reqs = addOn.calculateRunRequirements(aoc.getInstalledAddOns());
+            if (AddOn.InstallationStatus.NOT_INSTALLED == addOn.getInstallationStatus()
+                    && addOnLoaders.get(addOn.getId()) == null) {
+                AddOnRunRequirements reqs =
+                        addOn.calculateRunRequirements(aoc.getInstalledAddOns());
                 if (reqs.isRunnable()) {
                     runnableAddOns.add(addOn);
                 }
@@ -482,8 +506,8 @@ public class AddOnLoader extends URLClassLoader {
 
     /**
      * Checks and loads all the extensions that have (now) all required dependencies fulfilled.
-     * <p>
-     * Should be called after an installation of an add-on.
+     *
+     * <p>Should be called after an installation of an add-on.
      *
      * @see #addAddOnImpl(AddOn)
      * @since 2.4.0
@@ -492,25 +516,30 @@ public class AddOnLoader extends URLClassLoader {
         boolean changed = false;
         for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
             AddOn runningAddOn = aoc.getAddOn(entry.getKey());
-            if (runningAddOn.getInstallationStatus() == AddOn.InstallationStatus.UNINSTALLATION_FAILED) {
+            if (runningAddOn.getInstallationStatus()
+                    == AddOn.InstallationStatus.UNINSTALLATION_FAILED) {
                 continue;
             }
             for (String extClassName : runningAddOn.getExtensionsWithDeps()) {
                 if (!runningAddOn.isExtensionLoaded(extClassName)) {
-                    AddOn.AddOnRunRequirements reqs = runningAddOn.calculateExtensionRunRequirements(
-                            extClassName,
-                            aoc.getInstalledAddOns());
+                    AddOn.AddOnRunRequirements reqs =
+                            runningAddOn.calculateExtensionRunRequirements(
+                                    extClassName, aoc.getInstalledAddOns());
                     ExtensionRunRequirements extReqs = reqs.getExtensionRequirements().get(0);
                     if (extReqs.isRunnable()) {
-                        List<AddOnClassLoader> dependencies = new ArrayList<>(extReqs.getDependencies().size());
+                        List<AddOnClassLoader> dependencies =
+                                new ArrayList<>(extReqs.getDependencies().size());
                         for (AddOn addOnDep : extReqs.getDependencies()) {
                             dependencies.add(addOnLoaders.get(addOnDep.getId()));
                         }
-                        AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(
-                                entry.getValue(),
-                                dependencies,
-                                runningAddOn.getExtensionAddOnClassnames(extClassName));
-                        Extension ext = loadAddOnExtension(runningAddOn, extReqs.getClassname(), extAddOnClassLoader);
+                        AddOnClassLoader extAddOnClassLoader =
+                                new AddOnClassLoader(
+                                        entry.getValue(),
+                                        dependencies,
+                                        runningAddOn.getExtensionAddOnClassnames(extClassName));
+                        Extension ext =
+                                loadAddOnExtension(
+                                        runningAddOn, extReqs.getClassname(), extAddOnClassLoader);
                         AddOnInstaller.installAddOnExtension(runningAddOn, ext);
                         runnableAddOns.get(runningAddOn).add(extReqs.getClassname());
                         changed = true;
@@ -526,9 +555,10 @@ public class AddOnLoader extends URLClassLoader {
 
     /**
      * Tells whether or not the given {@code addOn} is dynamically installable.
-     * <p>
-     * It checks if the given {@code addOn} is dynamically installable by calling the method {@code AddOn#hasZapAddOnEntry()}.
-     * 
+     *
+     * <p>It checks if the given {@code addOn} is dynamically installable by calling the method
+     * {@code AddOn#hasZapAddOnEntry()}.
+     *
      * @param addOn the add-on that will be checked
      * @return {@code true} if the given add-on is dynamically installable, {@code false} otherwise.
      * @see AddOn#hasZapAddOnEntry()
@@ -538,89 +568,94 @@ public class AddOnLoader extends URLClassLoader {
         return addOn.hasZapAddOnEntry();
     }
 
-	public boolean removeAddOn(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback progressCallback) {
-		installationLock.lock();
-		try {
-			AddOnUninstallationProgressCallback callback = (progressCallback == null) ? NULL_CALLBACK : progressCallback;
+    public boolean removeAddOn(
+            AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback progressCallback) {
+        installationLock.lock();
+        try {
+            AddOnUninstallationProgressCallback callback =
+                    (progressCallback == null) ? NULL_CALLBACK : progressCallback;
 
-			callback.uninstallingAddOn(ao, upgrading);
-			boolean removed = removeAddOnImpl(ao, upgrading, callback);
-			callback.addOnUninstalled(removed);
+            callback.uninstallingAddOn(ao, upgrading);
+            boolean removed = removeAddOnImpl(ao, upgrading, callback);
+            callback.addOnUninstalled(removed);
 
-			return removed;
-		} finally {
-			installationLock.unlock();
-		}
-	}
+            return removed;
+        } finally {
+            installationLock.unlock();
+        }
+    }
 
-	private boolean removeAddOnImpl(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback callback) {
-		if (!isDynamicallyInstallable(ao)) {
-			return false;
-		}
+    private boolean removeAddOnImpl(
+            AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback callback) {
+        if (!isDynamicallyInstallable(ao)) {
+            return false;
+        }
 
-		if (AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == ao.getInstallationStatus()) {
-			if (runnableAddOns.remove(ao) != null) {
-			    saveAddOnsRunState(runnableAddOns);
-			}
-			AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK, runnableAddOns.keySet());
-			removeAddOnClassLoader(ao);
-			deleteAddOnFile(ao, upgrading);
-			ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
-			Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, false);
-			return false;
-		}
+        if (AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == ao.getInstallationStatus()) {
+            if (runnableAddOns.remove(ao) != null) {
+                saveAddOnsRunState(runnableAddOns);
+            }
+            AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK, runnableAddOns.keySet());
+            removeAddOnClassLoader(ao);
+            deleteAddOnFile(ao, upgrading);
+            ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
+            Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, false);
+            return false;
+        }
 
-		if (!this.aoc.includesAddOn(ao.getId())) {
-			logger.warn("Trying to uninstall an add-on that is not installed: " + ao.getId());
-			return false;
-		}
+        if (!this.aoc.includesAddOn(ao.getId())) {
+            logger.warn("Trying to uninstall an add-on that is not installed: " + ao.getId());
+            return false;
+        }
 
-		if (AddOn.InstallationStatus.NOT_INSTALLED == ao.getInstallationStatus()) {
-			if (runnableAddOns.remove(ao) != null) {
-			    saveAddOnsRunState(runnableAddOns);
-			}
-			
-			deleteAddOnFile(ao, upgrading);
-			
-			return this.aoc.removeAddOn(ao);
-		}
+        if (AddOn.InstallationStatus.NOT_INSTALLED == ao.getInstallationStatus()) {
+            if (runnableAddOns.remove(ao) != null) {
+                saveAddOnsRunState(runnableAddOns);
+            }
 
-		unloadDependentExtensions(ao);
-		softUninstallDependentAddOns(ao);
+            deleteAddOnFile(ao, upgrading);
 
-		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao, callback, runnableAddOns.keySet());
+            return this.aoc.removeAddOn(ao);
+        }
 
-		if (uninstalledWithoutErrors && ! this.aoc.removeAddOn(ao)) {
-			uninstalledWithoutErrors = false;
-		}
+        unloadDependentExtensions(ao);
+        softUninstallDependentAddOns(ao);
 
-		if (uninstalledWithoutErrors) {
-			removeAddOnClassLoader(ao);
-		}
+        boolean uninstalledWithoutErrors =
+                AddOnInstaller.uninstall(ao, callback, runnableAddOns.keySet());
 
-		deleteAddOnFile(ao, upgrading);
+        if (uninstalledWithoutErrors && !this.aoc.removeAddOn(ao)) {
+            uninstalledWithoutErrors = false;
+        }
 
-		if (runnableAddOns.remove(ao) != null) {
-		    saveAddOnsRunState(runnableAddOns);
-		}
-		
-		ao.setInstallationStatus(uninstalledWithoutErrors
-				? AddOn.InstallationStatus.AVAILABLE
-				: AddOn.InstallationStatus.UNINSTALLATION_FAILED);
+        if (uninstalledWithoutErrors) {
+            removeAddOnClassLoader(ao);
+        }
 
-		Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, uninstalledWithoutErrors);
-		return uninstalledWithoutErrors;
-	}
-	
-	private void deleteAddOnFile(AddOn addOn, boolean upgrading) {
-		if (addOn.getFile() != null && addOn.getFile().exists()) {
-			if (!addOn.getFile().delete() && !upgrading) {
-				logger.debug("Cant delete " + addOn.getFile().getAbsolutePath());
-				this.blockList.add(addOn.getId());
-				this.saveBlockList();
-			}
-		}
-	}
+        deleteAddOnFile(ao, upgrading);
+
+        if (runnableAddOns.remove(ao) != null) {
+            saveAddOnsRunState(runnableAddOns);
+        }
+
+        ao.setInstallationStatus(
+                uninstalledWithoutErrors
+                        ? AddOn.InstallationStatus.AVAILABLE
+                        : AddOn.InstallationStatus.UNINSTALLATION_FAILED);
+
+        Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, uninstalledWithoutErrors);
+        return uninstalledWithoutErrors;
+    }
+
+    private void deleteAddOnFile(AddOn addOn, boolean upgrading) {
+        if (addOn.getFile() != null && addOn.getFile().exists()) {
+            if (!addOn.getFile().delete() && !upgrading) {
+                logger.debug("Cant delete " + addOn.getFile().getAbsolutePath());
+                this.blockList.add(addOn.getId());
+                this.saveBlockList();
+            }
+        }
+    }
 
     private void removeAddOnClassLoader(AddOn addOn) {
         if (this.addOnLoaders.containsKey(addOn.getId())) {
@@ -630,7 +665,8 @@ public class AddOnLoader extends URLClassLoader {
                 }
                 ResourceBundle.clearCache(addOnClassLoader);
             } catch (Exception e) {
-                logger.error("Failure while closing class loader of " + addOn.getId() + " add-on:", e);
+                logger.error(
+                        "Failure while closing class loader of " + addOn.getId() + " add-on:", e);
             }
             addOn.setClassLoader(null);
         }
@@ -644,13 +680,18 @@ public class AddOnLoader extends URLClassLoader {
                 if (runningAddOn.dependsOn(ext, ao)) {
                     String classname = ext.getClass().getCanonicalName();
                     AddOnInstaller.uninstallAddOnExtension(runningAddOn, ext, NULL_CALLBACK);
-                    try (AddOnClassLoader extensionClassLoader = (AddOnClassLoader) ext.getClass().getClassLoader()) {
+                    try (AddOnClassLoader extensionClassLoader =
+                            (AddOnClassLoader) ext.getClass().getClassLoader()) {
                         ext = null;
                         entry.getValue().removeChildClassLoader(extensionClassLoader);
                         extensionClassLoader.clearDependencies();
                         ResourceBundle.clearCache(extensionClassLoader);
                     } catch (Exception e) {
-                        logger.error("Failure while closing class loader of extension '" + classname + "':", e);
+                        logger.error(
+                                "Failure while closing class loader of extension '"
+                                        + classname
+                                        + "':",
+                                e);
                     }
                     runnableAddOns.get(runningAddOn).remove(classname);
                     changed = true;
@@ -693,58 +734,59 @@ public class AddOnLoader extends URLClassLoader {
                 .addOnSoftUninstalled(addOn, status == AddOn.InstallationStatus.NOT_INSTALLED);
     }
 
-	private void loadBlockList() {
-		blockList = loadList(addOnsStateConfig, ADDONS_BLOCK_LIST);
-	}
-	
-	private void saveBlockList() {
-		saveList(addOnsStateConfig, ADDONS_BLOCK_LIST, this.blockList);
-	}
-
-    private <T> List<ClassNameWrapper> getClassNames (String packageName, Class<T> classType) {
-    	List<ClassNameWrapper> listClassName = new ArrayList<>();
-    	
-    	listClassName.addAll(this.getLocalClassNames(packageName));
-    	for (String addOnId : this.addOnLoaders.keySet()) {
-        	listClassName.addAll(this.getJarClassNames(aoc.getAddOn(addOnId), packageName));
-    	}
-    	for (File jar : jars) {
-    		listClassName.addAll(this.getJarClassNames(this.getClass().getClassLoader(), jar, packageName));
-    	}
-    	return listClassName;
+    private void loadBlockList() {
+        blockList = loadList(addOnsStateConfig, ADDONS_BLOCK_LIST);
     }
 
-	/**
-	 * Returns all the {@code Extension}s of all the installed add-ons.
-	 * <p>
-	 * The discovery of {@code Extension}s is done by resorting to the {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in
-	 * the add-ons.
-	 * <p>
-	 * Extensions with unfulfilled dependencies are not be returned.
-	 *
-	 * @return a list containing all {@code Extension}s of all installed add-ons
-	 * @since 2.4.0
-	 * @see Extension
-	 * @see #getExtensions(AddOn)
-	 */
-	public List<Extension> getExtensions () {
-		List<Extension> list = new ArrayList<Extension>();
-		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			list.addAll(getExtensions(addOn));
+    private void saveBlockList() {
+        saveList(addOnsStateConfig, ADDONS_BLOCK_LIST, this.blockList);
+    }
+
+    private <T> List<ClassNameWrapper> getClassNames(String packageName, Class<T> classType) {
+        List<ClassNameWrapper> listClassName = new ArrayList<>();
+
+        listClassName.addAll(this.getLocalClassNames(packageName));
+        for (String addOnId : this.addOnLoaders.keySet()) {
+            listClassName.addAll(this.getJarClassNames(aoc.getAddOn(addOnId), packageName));
         }
-		
-		return list;
-	}
+        for (File jar : jars) {
+            listClassName.addAll(
+                    this.getJarClassNames(this.getClass().getClassLoader(), jar, packageName));
+        }
+        return listClassName;
+    }
+
+    /**
+     * Returns all the {@code Extension}s of all the installed add-ons.
+     *
+     * <p>The discovery of {@code Extension}s is done by resorting to the {@link
+     * AddOn#MANIFEST_FILE_NAME manifest file} bundled in the add-ons.
+     *
+     * <p>Extensions with unfulfilled dependencies are not be returned.
+     *
+     * @return a list containing all {@code Extension}s of all installed add-ons
+     * @since 2.4.0
+     * @see Extension
+     * @see #getExtensions(AddOn)
+     */
+    public List<Extension> getExtensions() {
+        List<Extension> list = new ArrayList<Extension>();
+        for (AddOn addOn : getAddOnCollection().getAddOns()) {
+            list.addAll(getExtensions(addOn));
+        }
+
+        return list;
+    }
 
     /**
      * Returns all {@code Extension}s of the given {@code addOn}.
-     * <p>
-     * The discovery of {@code Extension}s is done by resorting to {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in the
-     * add-on.
-     * <p>
-     * Extensions with unfulfilled dependencies are not be returned.
-     * <p>
-     * <strong>Note:</strong> If the add-on is not installed the method returns an empty list.
+     *
+     * <p>The discovery of {@code Extension}s is done by resorting to {@link
+     * AddOn#MANIFEST_FILE_NAME manifest file} bundled in the add-on.
+     *
+     * <p>Extensions with unfulfilled dependencies are not be returned.
+     *
+     * <p><strong>Note:</strong> If the add-on is not installed the method returns an empty list.
      *
      * @param addOn the add-on whose extensions will be returned
      * @return a list containing the {@code Extension}s of the given {@code addOn}
@@ -762,31 +804,41 @@ public class AddOnLoader extends URLClassLoader {
         extensions.addAll(loadAddOnExtensions(addOn, addOn.getExtensions(), addOnClassLoader));
 
         if (addOn.hasExtensionsWithDeps()) {
-            AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(aoc.getInstalledAddOns());
+            AddOn.AddOnRunRequirements reqs =
+                    addOn.calculateRunRequirements(aoc.getInstalledAddOns());
             for (ExtensionRunRequirements extReqs : reqs.getExtensionRequirements()) {
                 if (extReqs.isRunnable()) {
-                    List<AddOnClassLoader> dependencies = new ArrayList<>(extReqs.getDependencies().size());
+                    List<AddOnClassLoader> dependencies =
+                            new ArrayList<>(extReqs.getDependencies().size());
                     for (AddOn addOnDep : extReqs.getDependencies()) {
                         dependencies.add(addOnLoaders.get(addOnDep.getId()));
                     }
-                    AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(
-                            addOnClassLoader,
-                            dependencies,
-                            addOn.getExtensionAddOnClassnames(extReqs.getClassname()));
-                    Extension ext = loadAddOnExtension(addOn, extReqs.getClassname(), extAddOnClassLoader);
+                    AddOnClassLoader extAddOnClassLoader =
+                            new AddOnClassLoader(
+                                    addOnClassLoader,
+                                    dependencies,
+                                    addOn.getExtensionAddOnClassnames(extReqs.getClassname()));
+                    Extension ext =
+                            loadAddOnExtension(addOn, extReqs.getClassname(), extAddOnClassLoader);
                     if (ext != null) {
                         extensions.add(ext);
                     }
                 } else if (logger.isDebugEnabled()) {
-                    logger.debug("Can't run extension '" + extReqs.getClassname() + "' of add-on '" + addOn.getName()
-                            + "' because of missing requirements: " + AddOnRunIssuesUtils.getRunningIssues(extReqs));
+                    logger.debug(
+                            "Can't run extension '"
+                                    + extReqs.getClassname()
+                                    + "' of add-on '"
+                                    + addOn.getName()
+                                    + "' because of missing requirements: "
+                                    + AddOnRunIssuesUtils.getRunningIssues(extReqs));
                 }
             }
         }
         return extensions;
     }
 
-    private List<Extension> loadAddOnExtensions(AddOn addOn, List<String> extensions, AddOnClassLoader addOnClassLoader) {
+    private List<Extension> loadAddOnExtensions(
+            AddOn addOn, List<String> extensions, AddOnClassLoader addOnClassLoader) {
         if (extensions == null || extensions.isEmpty()) {
             return Collections.emptyList();
         }
@@ -801,132 +853,136 @@ public class AddOnLoader extends URLClassLoader {
         return list;
     }
 
-    private static Extension loadAddOnExtension(AddOn addOn, String classname, AddOnClassLoader addOnClassLoader) {
-        Extension extension = AddOnLoaderUtils
-                .loadAndInstantiateClass(addOnClassLoader, classname, Extension.class, "extension");
+    private static Extension loadAddOnExtension(
+            AddOn addOn, String classname, AddOnClassLoader addOnClassLoader) {
+        Extension extension =
+                AddOnLoaderUtils.loadAndInstantiateClass(
+                        addOnClassLoader, classname, Extension.class, "extension");
         if (extension != null) {
             addOn.addLoadedExtension(extension);
         }
         return extension;
     }
 
-	/**
-	 * Gets the active scan rules of all the loaded add-ons.
-	 * <p>
-	 * The discovery of active scan rules is done by resorting to  {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in the
-	 * add-ons.
-	 *
-	 * @return an unmodifiable {@code List} with all the active scan rules, never {@code null}
-	 * @since 2.4.0
-	 * @see AbstractPlugin
-	 */
-	public List<AbstractPlugin> getActiveScanRules () {
-		ArrayList<AbstractPlugin> list = new ArrayList<>();
-		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
-			if (addOnClassLoader != null) {
-				list.addAll(AddOnLoaderUtils.getActiveScanRules(addOn, addOnClassLoader));
-			}
+    /**
+     * Gets the active scan rules of all the loaded add-ons.
+     *
+     * <p>The discovery of active scan rules is done by resorting to {@link AddOn#MANIFEST_FILE_NAME
+     * manifest file} bundled in the add-ons.
+     *
+     * @return an unmodifiable {@code List} with all the active scan rules, never {@code null}
+     * @since 2.4.0
+     * @see AbstractPlugin
+     */
+    public List<AbstractPlugin> getActiveScanRules() {
+        ArrayList<AbstractPlugin> list = new ArrayList<>();
+        for (AddOn addOn : getAddOnCollection().getAddOns()) {
+            AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
+            if (addOnClassLoader != null) {
+                list.addAll(AddOnLoaderUtils.getActiveScanRules(addOn, addOnClassLoader));
+            }
         }
-		list.trimToSize();
-		return Collections.unmodifiableList(list);
-	}
-
-	/**
-	 * Gets the passive scan rules of all the loaded add-ons.
-	 * <p>
-	 * The discovery of passive scan rules is done by resorting to {@link AddOn#MANIFEST_FILE_NAME manifest file} bundled in the
-	 * add-ons.
-	 *
-	 * @return an unmodifiable {@code List} with all the passive scan rules, never {@code null}
-	 * @since 2.4.0
-	 * @see PluginPassiveScanner
-	 */
-	public List<PluginPassiveScanner> getPassiveScanRules() {
-		ArrayList<PluginPassiveScanner> list = new ArrayList<>();
-		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
-			if (addOnClassLoader != null) {
-				list.addAll(AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader));
-			}
-        }
-		list.trimToSize();
-		return Collections.unmodifiableList(list);
-	}
-
-	/**
-	 * Gets a list of classes that implement the given type in the given package.
-	 * <p>
-	 * It searches in the dependencies, add-ons, and the ZAP JAR.
-	 *
-	 * @param packageName the name of the package that the classes must be in.
-	 * @param classType the type of the classes.
-	 * @return a list with the classes that implement the given type, never {@code null}.
-	 * @deprecated (2.8.0) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
-	 *             it's preferable to provide means to register/declare the required classes instead of searching "everywhere".
-	 */
-	@Deprecated
-	public <T> List<T> getImplementors (String packageName, Class<T> classType) {
-		return this.getImplementors(null, packageName, classType);
+        list.trimToSize();
+        return Collections.unmodifiableList(list);
     }
 
-	/**
-	 * Gets a list of classes that implement the given type in the given package.
-	 * <p>
-	 * It searches in the given add-on, if not {@code null}, otherwise it searches in the dependencies, add-ons, and the ZAP
-	 * JAR.
-	 *
-	 * @param ao the add-on to search in, might be {@code null}.
-	 * @param packageName the name of the package that the classes must be in.
-	 * @param classType the type of the classes.
-	 * @return a list with the classes that implement the given type, never {@code null}.
-	 * @deprecated (2.8.0) The use of this method is discouraged (specially during ZAP startup, as it's delayed),
-	 *             it's preferable to provide means to register/declare the required classes instead of searching "everywhere".
-	 */
-	@Deprecated
-	public <T> List<T> getImplementors (AddOn ao, String packageName, Class<T> classType) {
+    /**
+     * Gets the passive scan rules of all the loaded add-ons.
+     *
+     * <p>The discovery of passive scan rules is done by resorting to {@link
+     * AddOn#MANIFEST_FILE_NAME manifest file} bundled in the add-ons.
+     *
+     * @return an unmodifiable {@code List} with all the passive scan rules, never {@code null}
+     * @since 2.4.0
+     * @see PluginPassiveScanner
+     */
+    public List<PluginPassiveScanner> getPassiveScanRules() {
+        ArrayList<PluginPassiveScanner> list = new ArrayList<>();
+        for (AddOn addOn : getAddOnCollection().getAddOns()) {
+            AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
+            if (addOnClassLoader != null) {
+                list.addAll(AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader));
+            }
+        }
+        list.trimToSize();
+        return Collections.unmodifiableList(list);
+    }
+
+    /**
+     * Gets a list of classes that implement the given type in the given package.
+     *
+     * <p>It searches in the dependencies, add-ons, and the ZAP JAR.
+     *
+     * @param packageName the name of the package that the classes must be in.
+     * @param classType the type of the classes.
+     * @return a list with the classes that implement the given type, never {@code null}.
+     * @deprecated (2.8.0) The use of this method is discouraged (specially during ZAP startup, as
+     *     it's delayed), it's preferable to provide means to register/declare the required classes
+     *     instead of searching "everywhere".
+     */
+    @Deprecated
+    public <T> List<T> getImplementors(String packageName, Class<T> classType) {
+        return this.getImplementors(null, packageName, classType);
+    }
+
+    /**
+     * Gets a list of classes that implement the given type in the given package.
+     *
+     * <p>It searches in the given add-on, if not {@code null}, otherwise it searches in the
+     * dependencies, add-ons, and the ZAP JAR.
+     *
+     * @param ao the add-on to search in, might be {@code null}.
+     * @param packageName the name of the package that the classes must be in.
+     * @param classType the type of the classes.
+     * @return a list with the classes that implement the given type, never {@code null}.
+     * @deprecated (2.8.0) The use of this method is discouraged (specially during ZAP startup, as
+     *     it's delayed), it's preferable to provide means to register/declare the required classes
+     *     instead of searching "everywhere".
+     */
+    @Deprecated
+    public <T> List<T> getImplementors(AddOn ao, String packageName, Class<T> classType) {
         Class<?> cls = null;
         List<T> listClass = new ArrayList<>();
-        
+
         List<ClassNameWrapper> classNames;
         if (ao != null) {
-        	classNames = this.getJarClassNames(ao, packageName);
+            classNames = this.getJarClassNames(ao, packageName);
         } else {
-        	classNames = this.getClassNames(packageName, classType);
+            classNames = this.getClassNames(packageName, classType);
         }
         for (ClassNameWrapper classWrapper : classNames) {
             try {
                 cls = classWrapper.getCl().loadClass(classWrapper.getClassName());
                 // abstract class or interface cannot be constructed.
-                if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
+                if (Modifier.isAbstract(cls.getModifiers())
+                        || Modifier.isInterface(cls.getModifiers())) {
                     continue;
                 }
                 if (classType.isAssignableFrom(cls)) {
                     @SuppressWarnings("unchecked")
                     Constructor<T> c = (Constructor<T>) cls.getConstructor();
                     listClass.add(c.newInstance());
-
                 }
             } catch (Throwable e) {
-            	// Often not an error
-            	logger.debug(e.getMessage(), e);
+                // Often not an error
+                logger.debug(e.getMessage(), e);
             }
         }
         return listClass;
-	}
+    }
 
     /**
      * Check local jar (zap.jar) or related package if any target file is found.
-     * 
+     *
      * @param packageName the package name that the class must belong too
      * @return a {@code List} with all the classes belonging to the given package
      */
-    private List<ClassNameWrapper> getLocalClassNames (String packageName) {
-    
+    private List<ClassNameWrapper> getLocalClassNames(String packageName) {
+
         if (packageName == null || packageName.equals("")) {
             return Collections.emptyList();
         }
-        
+
         String folder = packageName.replace('.', '/');
         URL local = AddOnLoader.class.getClassLoader().getResource(folder);
         if (local == null) {
@@ -937,22 +993,25 @@ public class AddOnLoader extends URLClassLoader {
             jarFile = local.toString().substring("jar:".length());
             int pos = jarFile.indexOf("!");
             jarFile = jarFile.substring(0, pos);
-            
+
             try {
                 // ZAP: Changed to take into account the package name
-                return getJarClassNames(this.getClass().getClassLoader(), new File(new URI(jarFile)), packageName);
+                return getJarClassNames(
+                        this.getClass().getClassLoader(), new File(new URI(jarFile)), packageName);
             } catch (URISyntaxException e) {
-            	logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         } else {
             try {
                 // ZAP: Changed to pass a FileFilter (ClassRecurseDirFileFilter)
                 // and to pass the "packageName" with the dots already replaced.
-                return parseClassDir(this.getClass().getClassLoader(), new File(new URI(local.toString())),
-                              packageName.replace('.', File.separatorChar),
-                              new ClassRecurseDirFileFilter(true));
+                return parseClassDir(
+                        this.getClass().getClassLoader(),
+                        new File(new URI(local.toString())),
+                        packageName.replace('.', File.separatorChar),
+                        new ClassRecurseDirFileFilter(true));
             } catch (URISyntaxException e) {
-            	logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
         return Collections.emptyList();
@@ -960,29 +1019,33 @@ public class AddOnLoader extends URLClassLoader {
 
     // ZAP: Changed to use only one FileFilter and the packageName is already
     // passed with the dots replaced.
-    private List<ClassNameWrapper> parseClassDir(ClassLoader cl, File file, String packageName, FileFilter fileFilter) {
-    	List<ClassNameWrapper> classNames = new ArrayList<> ();
+    private List<ClassNameWrapper> parseClassDir(
+            ClassLoader cl, File file, String packageName, FileFilter fileFilter) {
+        List<ClassNameWrapper> classNames = new ArrayList<>();
         File[] listFile = file.listFiles(fileFilter);
-        
-        for (int i=0; i<listFile.length; i++) {
+
+        for (int i = 0; i < listFile.length; i++) {
             File entry = listFile[i];
             if (entry.isDirectory()) {
-            	classNames.addAll(parseClassDir (cl, entry, packageName, fileFilter));
-            	continue;
+                classNames.addAll(parseClassDir(cl, entry, packageName, fileFilter));
+                continue;
             }
             String fileName = entry.toString();
             int pos = fileName.indexOf(packageName);
             if (pos > 0) {
-                String className = fileName.substring(pos).replaceAll("\\.class$","").replace(File.separatorChar, '.');
+                String className =
+                        fileName.substring(pos)
+                                .replaceAll("\\.class$", "")
+                                .replace(File.separatorChar, '.');
                 classNames.add(new ClassNameWrapper(cl, className));
             }
         }
         return classNames;
     }
-    
+
     // ZAP: Added to take into account the package name
     private List<ClassNameWrapper> getJarClassNames(ClassLoader cl, File file, String packageName) {
-    	List<ClassNameWrapper> classNames = new ArrayList<> ();
+        List<ClassNameWrapper> classNames = new ArrayList<>();
         ZipEntry entry = null;
         String className = "";
         try (JarFile jarFile = new JarFile(file)) {
@@ -992,19 +1055,19 @@ public class AddOnLoader extends URLClassLoader {
                 if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
                     continue;
                 }
-                className = entry.toString().replaceAll("\\.class$","").replaceAll("/",".");
+                className = entry.toString().replaceAll("\\.class$", "").replaceAll("/", ".");
                 if (className.indexOf(packageName) >= 0) {
                     classNames.add(new ClassNameWrapper(cl, className));
                 }
             }
         } catch (Exception e) {
-        	logger.error("Failed to open file: " + file.getAbsolutePath(), e);
+            logger.error("Failed to open file: " + file.getAbsolutePath(), e);
         }
         return classNames;
     }
 
     private List<ClassNameWrapper> getJarClassNames(AddOn ao, String packageName) {
-    	List<ClassNameWrapper> classNames = new ArrayList<> ();
+        List<ClassNameWrapper> classNames = new ArrayList<>();
         ZipEntry entry = null;
         String className = "";
         try (JarFile jarFile = new JarFile(ao.getFile())) {
@@ -1014,13 +1077,14 @@ public class AddOnLoader extends URLClassLoader {
                 if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
                     continue;
                 }
-                className = entry.toString().replaceAll("\\.class$","").replaceAll("/",".");
+                className = entry.toString().replaceAll("\\.class$", "").replaceAll("/", ".");
                 if (className.indexOf(packageName) >= 0) {
-                    classNames.add(new ClassNameWrapper(this.addOnLoaders.get(ao.getId()), className));
+                    classNames.add(
+                            new ClassNameWrapper(this.addOnLoaders.get(ao.getId()), className));
                 }
             }
         } catch (Exception e) {
-        	logger.error("Failed to open file: " + ao.getFile().getAbsolutePath(), e);
+            logger.error("Failed to open file: " + ao.getFile().getAbsolutePath(), e);
         }
         return classNames;
     }
@@ -1034,43 +1098,45 @@ public class AddOnLoader extends URLClassLoader {
             return false;
         }
     }
-    
+
     // ZAP: Added
     private static final class ClassRecurseDirFileFilter implements FileFilter {
-        
+
         private boolean recurse;
-        
+
         public ClassRecurseDirFileFilter(boolean recurse) {
             this.recurse = recurse;
         }
-        
+
         @Override
         public boolean accept(File file) {
-            if (recurse && file.isDirectory() && ! file.getName().startsWith(".")) {
+            if (recurse && file.isDirectory() && !file.getName().startsWith(".")) {
                 return true;
             } else if (file.isFile() && file.getName().endsWith(".class")) {
                 return true;
             }
-            
+
             return false;
         }
     }
-    
+
     private class ClassNameWrapper {
-    	private ClassLoader cl;
-    	private String className;
-		public ClassNameWrapper(ClassLoader cl, String className) {
-			super();
-			this.cl = cl;
-			this.className = className;
-		}
-		public ClassLoader getCl() {
-			return cl;
-		}
-		public String getClassName() {
-			return className;
-		}
-    	
+        private ClassLoader cl;
+        private String className;
+
+        public ClassNameWrapper(ClassLoader cl, String className) {
+            super();
+            this.cl = cl;
+            this.className = className;
+        }
+
+        public ClassLoader getCl() {
+            return cl;
+        }
+
+        public String getClassName() {
+            return className;
+        }
     }
 
     private static List<String> loadList(Configuration config, String key) {
@@ -1087,7 +1153,7 @@ public class AddOnLoader extends URLClassLoader {
     private static void saveList(FileConfiguration config, String key, List<String> list) {
         StringBuilder sb = new StringBuilder();
 
-        for (String id: list) {
+        for (String id : list) {
             if (sb.length() > 0) {
                 sb.append(',');
             }
@@ -1102,7 +1168,8 @@ public class AddOnLoader extends URLClassLoader {
         }
     }
 
-    private static Map<AddOn, AddOnRunState> loadAddOnsRunState(HierarchicalConfiguration config, AddOnCollection addOnCollection) {
+    private static Map<AddOn, AddOnRunState> loadAddOnsRunState(
+            HierarchicalConfiguration config, AddOnCollection addOnCollection) {
         List<HierarchicalConfiguration> savedAddOns = config.configurationsAt(ADDONS_RUNNABLE_KEY);
 
         Map<AddOn, AddOnRunState> runnableAddOns = new HashMap<>();
@@ -1122,7 +1189,8 @@ public class AddOnLoader extends URLClassLoader {
                 continue;
             }
 
-            int result = addOn.getVersion().compareTo(createLegacyVersion(version, addOn.getName()));
+            int result =
+                    addOn.getVersion().compareTo(createLegacyVersion(version, addOn.getName()));
             if (result != 0) {
                 if (result > 1) {
                     runnableAddOns.put(addOn, new AddOnRunState());
@@ -1133,7 +1201,8 @@ public class AddOnLoader extends URLClassLoader {
 
             List<String> runnableExtensions = new ArrayList<>();
             List<String> currentExtensions = addOn.getExtensionsWithDeps();
-            for (String savedExtension : savedAddOn.getStringArray(ADDON_RUNNABLE_ALL_EXTENSIONS_KEY)) {
+            for (String savedExtension :
+                    savedAddOn.getStringArray(ADDON_RUNNABLE_ALL_EXTENSIONS_KEY)) {
                 if (currentExtensions.contains(savedExtension)) {
                     runnableExtensions.add(savedExtension);
                 }
@@ -1150,7 +1219,11 @@ public class AddOnLoader extends URLClassLoader {
         } catch (IllegalArgumentException e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                        "Failed to create (legacy?) version with [" + version + "] for runnable add-on [" + addOnName + "]",
+                        "Failed to create (legacy?) version with ["
+                                + version
+                                + "] for runnable add-on ["
+                                + addOnName
+                                + "]",
                         e);
             }
         }
@@ -1160,7 +1233,11 @@ public class AddOnLoader extends URLClassLoader {
         } catch (IllegalArgumentException e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(
-                        "Failed to create legacy version with [" + version + ".0.0] for runnable add-on [" + addOnName + "]",
+                        "Failed to create legacy version with ["
+                                + version
+                                + ".0.0] for runnable add-on ["
+                                + addOnName
+                                + "]",
                         e);
             }
         }
@@ -1177,9 +1254,12 @@ public class AddOnLoader extends URLClassLoader {
             AddOn addOn = runnableAddOnEntry.getKey();
 
             addOnsStateConfig.setProperty(elementBaseKey + ADDON_RUNNABLE_ID_KEY, addOn.getId());
-            addOnsStateConfig.setProperty(elementBaseKey + ADDON_RUNNABLE_FULL_VERSION_KEY, addOn.getVersion());
+            addOnsStateConfig.setProperty(
+                    elementBaseKey + ADDON_RUNNABLE_FULL_VERSION_KEY, addOn.getVersion());
             // For older ZAP versions, which can't read the semantic version, just an integer.
-            addOnsStateConfig.setProperty(elementBaseKey + ADDON_RUNNABLE_VERSION_KEY, addOn.getVersion().getMajorVersion());
+            addOnsStateConfig.setProperty(
+                    elementBaseKey + ADDON_RUNNABLE_VERSION_KEY,
+                    addOn.getVersion().getMajorVersion());
 
             String extensionBaseKey = elementBaseKey + ADDON_RUNNABLE_ALL_EXTENSIONS_KEY;
             for (String extension : runnableAddOnEntry.getValue()) {
@@ -1198,7 +1278,8 @@ public class AddOnLoader extends URLClassLoader {
 
     private static boolean migrateOldAddOnsState(ZapXmlConfiguration newConfig) {
         boolean dataMigrated = false;
-        HierarchicalConfiguration oldConfig = (HierarchicalConfiguration) Model.getSingleton().getOptionsParam().getConfig();
+        HierarchicalConfiguration oldConfig =
+                (HierarchicalConfiguration) Model.getSingleton().getOptionsParam().getConfig();
 
         if (oldConfig.containsKey(ADDONS_BLOCK_LIST)) {
             List<String> blockList = loadList(oldConfig, ADDONS_BLOCK_LIST);
@@ -1207,23 +1288,28 @@ public class AddOnLoader extends URLClassLoader {
             dataMigrated = true;
         }
 
-        List<HierarchicalConfiguration> oldAddOnsState = oldConfig.configurationsAt(ADDONS_RUNNABLE_KEY);
+        List<HierarchicalConfiguration> oldAddOnsState =
+                oldConfig.configurationsAt(ADDONS_RUNNABLE_KEY);
         if (!oldAddOnsState.isEmpty()) {
             int i = 0;
             for (HierarchicalConfiguration savedAddOn : oldAddOnsState) {
                 String elementBaseKey = ADDONS_RUNNABLE_KEY + "(" + i + ").";
-                newConfig.setProperty(elementBaseKey + ADDON_RUNNABLE_ID_KEY, savedAddOn.getString(ADDON_RUNNABLE_ID_KEY, ""));
+                newConfig.setProperty(
+                        elementBaseKey + ADDON_RUNNABLE_ID_KEY,
+                        savedAddOn.getString(ADDON_RUNNABLE_ID_KEY, ""));
                 String version = savedAddOn.getString(ADDON_RUNNABLE_FULL_VERSION_KEY, "");
                 if (version.isEmpty()) {
                     newConfig.setProperty(
                             elementBaseKey + ADDON_RUNNABLE_VERSION_KEY,
                             savedAddOn.getString(ADDON_RUNNABLE_VERSION_KEY, ""));
                 } else {
-                    newConfig.setProperty(elementBaseKey + ADDON_RUNNABLE_FULL_VERSION_KEY, version);
+                    newConfig.setProperty(
+                            elementBaseKey + ADDON_RUNNABLE_FULL_VERSION_KEY, version);
                 }
 
                 String extensionBaseKey = elementBaseKey + ADDON_RUNNABLE_ALL_EXTENSIONS_KEY;
-                for (String extension : savedAddOn.getStringArray(ADDON_RUNNABLE_ALL_EXTENSIONS_KEY)) {
+                for (String extension :
+                        savedAddOn.getStringArray(ADDON_RUNNABLE_ALL_EXTENSIONS_KEY)) {
                     newConfig.addProperty(extensionBaseKey, extension);
                 }
             }
@@ -1234,50 +1320,41 @@ public class AddOnLoader extends URLClassLoader {
     }
 
     /**
-     * An {@code UninstallationProgressCallback} that does nothing. A "{@code null}" object, for use when no callback is given
-     * during the uninstallation process.
+     * An {@code UninstallationProgressCallback} that does nothing. A "{@code null}" object, for use
+     * when no callback is given during the uninstallation process.
      */
-    private static class NullUninstallationProgressCallBack implements AddOnUninstallationProgressCallback {
+    private static class NullUninstallationProgressCallBack
+            implements AddOnUninstallationProgressCallback {
 
         @Override
-        public void uninstallingAddOn(AddOn addOn, boolean updating) {
-        }
+        public void uninstallingAddOn(AddOn addOn, boolean updating) {}
 
         @Override
-        public void activeScanRulesWillBeRemoved(int numberOfRules) {
-        }
+        public void activeScanRulesWillBeRemoved(int numberOfRules) {}
 
         @Override
-        public void activeScanRuleRemoved(String name) {
-        }
+        public void activeScanRuleRemoved(String name) {}
 
         @Override
-        public void passiveScanRulesWillBeRemoved(int numberOfRules) {
-        }
+        public void passiveScanRulesWillBeRemoved(int numberOfRules) {}
 
         @Override
-        public void passiveScanRuleRemoved(String name) {
-        }
+        public void passiveScanRuleRemoved(String name) {}
 
         @Override
-        public void filesWillBeRemoved(int numberOfFiles) {
-        }
+        public void filesWillBeRemoved(int numberOfFiles) {}
 
         @Override
-        public void fileRemoved() {
-        }
+        public void fileRemoved() {}
 
         @Override
-        public void extensionsWillBeRemoved(int numberOfExtensions) {
-        }
+        public void extensionsWillBeRemoved(int numberOfExtensions) {}
 
         @Override
-        public void extensionRemoved(String name) {
-        }
+        public void extensionRemoved(String name) {}
 
         @Override
-        public void addOnUninstalled(boolean uninstalled) {
-        }
+        public void addOnUninstalled(boolean uninstalled) {}
     }
 
     private static class AddOnRunState {

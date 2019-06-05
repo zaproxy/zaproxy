@@ -23,23 +23,23 @@ import java.util.List;
 
 public class ApiView extends ApiElement {
 
-	public ApiView(String name) {
-		super(name);
-	}
+    public ApiView(String name) {
+        super(name);
+    }
 
-	public ApiView(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
-		super(name, mandatoryParamNames, optionalParamNames);
-	}
-	
-	public ApiView(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
-		super(name, mandatoryParamNames, optionalParamNames);
-	}
-	
-	public ApiView(String name, List<String> mandatoryParamNames) {
-		super(name, mandatoryParamNames);
-	}
-	
-	public ApiView(String name, String[] mandatoryParamNames) {
-		super(name, mandatoryParamNames);
-	}
+    public ApiView(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
+        super(name, mandatoryParamNames, optionalParamNames);
+    }
+
+    public ApiView(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
+        super(name, mandatoryParamNames, optionalParamNames);
+    }
+
+    public ApiView(String name, List<String> mandatoryParamNames) {
+        super(name, mandatoryParamNames);
+    }
+
+    public ApiView(String name, String[] mandatoryParamNames) {
+        super(name, mandatoryParamNames);
+    }
 }

@@ -36,18 +36,25 @@ public class CallbackRequest extends DefaultHistoryReferencesTableEntry {
         super(historyReference, CallbackTableModel.COLUMNS);
     }
 
-    public static CallbackRequest create(String handler, HttpMessage httpMessage) throws DatabaseException, HttpMalformedHeaderException {
-        HistoryReference historyReference = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_CALLBACK, httpMessage);
+    public static CallbackRequest create(String handler, HttpMessage httpMessage)
+            throws DatabaseException, HttpMalformedHeaderException {
+        HistoryReference historyReference =
+                new HistoryReference(
+                        Model.getSingleton().getSession(),
+                        HistoryReference.TYPE_CALLBACK,
+                        httpMessage);
         historyReference.addTag(handler);
         return create(historyReference);
     }
 
-    public static CallbackRequest create(HistoryReference historyReference) throws DatabaseException, HttpMalformedHeaderException {
+    public static CallbackRequest create(HistoryReference historyReference)
+            throws DatabaseException, HttpMalformedHeaderException {
         CallbackRequest callbackRequest = new CallbackRequest(historyReference);
-        if(historyReference.getTags().size() > 0){
+        if (historyReference.getTags().size() > 0) {
             callbackRequest.handler = historyReference.getTags().get(0);
         }
-        callbackRequest.referer = historyReference.getHttpMessage().getRequestHeader().getHeader(HttpHeader.REFERER);
+        callbackRequest.referer =
+                historyReference.getHttpMessage().getRequestHeader().getHeader(HttpHeader.REFERER);
         return callbackRequest;
     }
 

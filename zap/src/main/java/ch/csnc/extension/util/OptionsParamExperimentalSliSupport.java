@@ -23,23 +23,23 @@ import org.parosproxy.paros.common.AbstractParam;
 
 public class OptionsParamExperimentalSliSupport extends AbstractParam {
 
-	public static final String EXPERIMENTAL_SLOT_LIST_INDEXES = "certificate.experimentalSlotListIndex";	
-	private boolean expSliSupportEnabled = false;
+    public static final String EXPERIMENTAL_SLOT_LIST_INDEXES =
+            "certificate.experimentalSlotListIndex";
+    private boolean expSliSupportEnabled = false;
 
-    public OptionsParamExperimentalSliSupport() {
-    }
+    public OptionsParamExperimentalSliSupport() {}
 
     @Override
     protected void parse() {
-	    expSliSupportEnabled = getBoolean(EXPERIMENTAL_SLOT_LIST_INDEXES, false);
+        expSliSupportEnabled = getBoolean(EXPERIMENTAL_SLOT_LIST_INDEXES, false);
     }
 
-	public boolean isExerimentalSliSupportEnabled() {
-		return expSliSupportEnabled;
-	}
+    public boolean isExerimentalSliSupportEnabled() {
+        return expSliSupportEnabled;
+    }
 
-	public void setSlotListIndexSupport(boolean expSliSupportEnabled) {
-		this.expSliSupportEnabled = expSliSupportEnabled;
-		getConfig().setProperty(EXPERIMENTAL_SLOT_LIST_INDEXES, expSliSupportEnabled);
-	}
+    public void setSlotListIndexSupport(boolean expSliSupportEnabled) {
+        this.expSliSupportEnabled = expSliSupportEnabled;
+        getConfig().setProperty(EXPERIMENTAL_SLOT_LIST_INDEXES, expSliSupportEnabled);
+    }
 }

@@ -15,6 +15,7 @@ allprojects {
         project.plugins.withType(JavaPlugin::class) {
             java {
                 licenseHeaderFile("$rootDir/gradle/spotless/license.java")
+                googleJavaFormat().aosp()
             }
         }
 

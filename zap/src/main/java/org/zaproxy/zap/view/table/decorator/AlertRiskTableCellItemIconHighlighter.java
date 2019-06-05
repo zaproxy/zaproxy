@@ -21,23 +21,23 @@ package org.zaproxy.zap.view.table.decorator;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.zaproxy.zap.view.table.AlertRiskTableCellItem;
 
 /**
  * An highlighter for {@code AlertRiskTableCellItem} showing an appropriate icon for the risk value.
- * 
+ *
  * @see AlertRiskTableCellItem
  */
 public class AlertRiskTableCellItemIconHighlighter extends AbstractTableCellItemIconHighlighter {
 
     private static final Icon[] ALERT_ICONS = {
-            new ImageIcon(Constant.INFO_FLAG_IMAGE_URL),
-            new ImageIcon(Constant.LOW_FLAG_IMAGE_URL),
-            new ImageIcon(Constant.MED_FLAG_IMAGE_URL),
-            new ImageIcon(Constant.HIGH_FLAG_IMAGE_URL) };
+        new ImageIcon(Constant.INFO_FLAG_IMAGE_URL),
+        new ImageIcon(Constant.LOW_FLAG_IMAGE_URL),
+        new ImageIcon(Constant.MED_FLAG_IMAGE_URL),
+        new ImageIcon(Constant.HIGH_FLAG_IMAGE_URL)
+    };
 
     private static final int ALERT_ICONS_LENGTH = ALERT_ICONS.length;
 
@@ -62,13 +62,13 @@ public class AlertRiskTableCellItemIconHighlighter extends AbstractTableCellItem
         final int risk = ((AlertRiskTableCellItem) cellItem).getRisk();
 
         switch (risk) {
-        case Alert.RISK_INFO:
-        case Alert.RISK_LOW:
-        case Alert.RISK_MEDIUM:
-        case Alert.RISK_HIGH:
-            return true;
-        default:
-            return false;
+            case Alert.RISK_INFO:
+            case Alert.RISK_LOW:
+            case Alert.RISK_MEDIUM:
+            case Alert.RISK_HIGH:
+                return true;
+            default:
+                return false;
         }
     }
 }

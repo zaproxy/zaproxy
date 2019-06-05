@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.pscan;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
@@ -28,10 +27,12 @@ class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
 
     private static final long serialVersionUID = 6536266615593275432L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("pscan.options.dialog.scanner.modify.title");
-    
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("pscan.options.dialog.scanner.modify.button.confirm");
-    
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("pscan.options.dialog.scanner.modify.title");
+
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("pscan.options.dialog.scanner.modify.button.confirm");
+
     protected DialogModifyAutoTagScanner(Dialog owner) {
         super(owner, DIALOG_TITLE);
     }
@@ -44,7 +45,7 @@ class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
     public void setApp(RegexAutoTagScanner app) {
         this.scanner = app;
     }
-    
+
     @Override
     protected boolean validateName(String name) {
         if (scanner.getName().equals(name)) {
@@ -57,23 +58,22 @@ class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
     protected void init() {
         getNameTextField().setText(scanner.getName());
         getNameTextField().discardAllEdits();
-        
+
         getConfigurationTextField().setText(scanner.getConf());
         getConfigurationTextField().discardAllEdits();
-        
+
         getRequestUrlRegexTextField().setText(scanner.getRequestUrlRegex());
         getRequestUrlRegexTextField().discardAllEdits();
-        
+
         getRequestHeaderRegexTextField().setText(scanner.getRequestHeaderRegex());
         getRequestHeaderRegexTextField().discardAllEdits();
-        
+
         getResponseHeaderRegexTextField().setText(scanner.getResponseHeaderRegex());
         getResponseHeaderRegexTextField().discardAllEdits();
-        
+
         getResponseBodyRegexTextField().setText(scanner.getResponseBodyRegex());
         getResponseBodyRegexTextField().discardAllEdits();
-        
+
         getEnabledCheckBox().setSelected(scanner.isEnabled());
     }
-
 }

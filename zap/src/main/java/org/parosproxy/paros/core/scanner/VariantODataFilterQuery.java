@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -33,40 +32,39 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Specialized variant able to handle the filter parameters of OData URIs (focused on OData v2)
- * <p>
- * Example of query:<br>
- * http://services.odata.org/OData/OData.svc/Product?$filter=startswith(name,'Foo')
- * and price lt 10
- * <p>
- * References:
- * <ul>
- * <li>http://www.odata.org/documentation/uri-conventions</li>
- * <li>http://msdn.microsoft.com/en-us/library/gg309461.aspx#BKMK_filter</li>
- * </ul>
- * 
- * TODO:<br>
- * - Properly handle escaped vs. unescaped parameters<br/>
- * - Handle OData functions (startwith, substringof, ...)<br/>
  *
+ * <p>Example of query:<br>
+ * http://services.odata.org/OData/OData.svc/Product?$filter=startswith(name,'Foo') and price lt 10
+ *
+ * <p>References:
+ *
+ * <ul>
+ *   <li>http://www.odata.org/documentation/uri-conventions
+ *   <li>http://msdn.microsoft.com/en-us/library/gg309461.aspx#BKMK_filter
+ * </ul>
+ *
+ * TODO:<br>
+ * - Properly handle escaped vs. unescaped parameters<br>
+ * - Handle OData functions (startwith, substringof, ...)<br>
  */
 public class VariantODataFilterQuery implements Variant {
 
     private static final Logger log = Logger.getLogger(VariantODataFilterQuery.class);
 
     // Extract the content of the $filter parameter
-    private static final Pattern patternFilterParameters = Pattern.compile("\\$filter[ ]*=[ ]*([\\w\\s()',./\\-:]*)");
+    private static final Pattern patternFilterParameters =
+            Pattern.compile("\\$filter[ ]*=[ ]*([\\w\\s()',./\\-:]*)");
 
     // Extract the effective parameters from the $filter string
-    // TODO: Support complex expressions 
-    private static final Pattern patternParameters = Pattern.compile("([\\w]+)\\s+(eq|ne|gt|ge|lt|le|and|or|not)\\s+([\\w'/]+)");
+    // TODO: Support complex expressions
+    private static final Pattern patternParameters =
+            Pattern.compile("([\\w]+)\\s+(eq|ne|gt|ge|lt|le|and|or|not)\\s+([\\w'/]+)");
 
-    // Store the URI parts located before and after the filter expression 
+    // Store the URI parts located before and after the filter expression
     private String beforeFilterExpression = null;
     private String afterFilterExpression = null;
 
-    /**
-     * Storage for the operation parameters
-     */
+    /** Storage for the operation parameters */
     private Map<String, OperationParameter> mapParameters = Collections.emptyMap();
 
     @Override
@@ -94,7 +92,7 @@ public class VariantODataFilterQuery implements Variant {
                     beforeFilterExpression = query.substring(0, begin);
                     afterFilterExpression = query.substring(end);
 
-                    // Now scan the expression in order to identify all parameters 
+                    // Now scan the expression in order to identify all parameters
                     mapParameters = new HashMap<>();
 
                     Matcher matcherParameters = patternParameters.matcher(filterExpression);
@@ -111,7 +109,9 @@ public class VariantODataFilterQuery implements Variant {
                         String before = filterExpression.substring(0, begin);
                         String after = filterExpression.substring(end);
 
-                        OperationParameter opParam = new OperationParameter(paramName, operator, paramValue, before, after);
+                        OperationParameter opParam =
+                                new OperationParameter(
+                                        paramName, operator, paramValue, before, after);
                         mapParameters.put(opParam.getParameterName(), opParam);
                     }
 
@@ -130,7 +130,6 @@ public class VariantODataFilterQuery implements Variant {
         } catch (URIException e) {
             log.error(e.getMessage() + uri, e);
         }
-
     }
 
     @Override
@@ -139,15 +138,21 @@ public class VariantODataFilterQuery implements Variant {
 
         int i = 1;
         for (OperationParameter opParam : mapParameters.values()) {
-            out.add(new NameValuePair(NameValuePair.TYPE_QUERY_STRING, opParam.getParameterName(), opParam.getValue(), i++));
+            out.add(
+                    new NameValuePair(
+                            NameValuePair.TYPE_QUERY_STRING,
+                            opParam.getParameterName(),
+                            opParam.getValue(),
+                            i++));
         }
 
         return out;
     }
 
     @Override
-    public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-        // TODO: Implement correctly escaped / non-escaped params 
+    public String setParameter(
+            HttpMessage msg, NameValuePair originalPair, String param, String value) {
+        // TODO: Implement correctly escaped / non-escaped params
 
         OperationParameter opParam = mapParameters.get(param);
         if (opParam != null) {
@@ -156,11 +161,11 @@ public class VariantODataFilterQuery implements Variant {
 
             try {
                 msg.getRequestHeader().getURI().setQuery(modifiedQuery);
-                
+
             } catch (URIException | NullPointerException e) {
                 log.error("Exception with the modified query " + modifiedQuery, e);
             }
-            
+
             return newfilter;
         }
 
@@ -168,14 +173,13 @@ public class VariantODataFilterQuery implements Variant {
     }
 
     @Override
-    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-        // TODO: Implement correctly escaped / non-escaped params 
+    public String setEscapedParameter(
+            HttpMessage msg, NameValuePair originalPair, String param, String value) {
+        // TODO: Implement correctly escaped / non-escaped params
         return setParameter(msg, originalPair, param, value);
     }
 
-    /**
-     * Store a parameter and related data
-     */
+    /** Store a parameter and related data */
     static class OperationParameter {
 
         private String paramName;
@@ -185,15 +189,22 @@ public class VariantODataFilterQuery implements Variant {
         private String stringAfterOperation;
 
         /**
-         * Constructs an {@code OperationParameter} with the given name, operator, value and surrounding strings.
-         * 
+         * Constructs an {@code OperationParameter} with the given name, operator, value and
+         * surrounding strings.
+         *
          * @param name the name
          * @param operator the operator
          * @param value the value
-         * @param stringBeforeOperation the string before the operation (parameter + operator + value)
+         * @param stringBeforeOperation the string before the operation (parameter + operator +
+         *     value)
          * @param stringAfterOperation the string after the operation (parameter + operator + value)
          */
-        public OperationParameter(String name, String operator, String value, String stringBeforeOperation, String stringAfterOperation) {
+        public OperationParameter(
+                String name,
+                String operator,
+                String value,
+                String stringBeforeOperation,
+                String stringAfterOperation) {
             super();
 
             this.paramName = name;
@@ -205,7 +216,7 @@ public class VariantODataFilterQuery implements Variant {
 
         /**
          * Gets the value of the parameter.
-         * 
+         *
          * @return the value of the parameter
          */
         public String getValue() {
@@ -227,7 +238,5 @@ public class VariantODataFilterQuery implements Variant {
                     .append(this.stringAfterOperation);
             return builder.toString();
         }
-
     }
-
 }

@@ -21,7 +21,7 @@ package org.zaproxy.zap.model;
 
 /**
  * A {@code MessageLocation} of an {@code HttpMessage}
- * 
+ *
  * @since 2.4.0
  */
 public interface HttpMessageLocation extends MessageLocation {

@@ -21,90 +21,87 @@ package org.zaproxy.zap.view;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-
 import javax.swing.JPanel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
 
 public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 
-	private static final String PANEL_NAME = Constant.messages.getString("context.technology.title");
-	private static final long serialVersionUID = -8337361808959321380L;
+    private static final String PANEL_NAME =
+            Constant.messages.getString("context.technology.title");
+    private static final long serialVersionUID = -8337361808959321380L;
 
-	private JPanel panelSession = null;
-	private TechnologyTreePanel techPanel;
+    private JPanel panelSession = null;
+    private TechnologyTreePanel techPanel;
 
-	public static String getPanelName(int contextId) {
-		// Panel names have to be unique, so precede with the context id
-		return contextId + ": " + PANEL_NAME;
-	}
+    public static String getPanelName(int contextId) {
+        // Panel names have to be unique, so precede with the context id
+        return contextId + ": " + PANEL_NAME;
+    }
 
-	public ContextTechnologyPanel(Context context) {
-		super(context.getIndex());
-		initialize();
-	}
+    public ContextTechnologyPanel(Context context) {
+        super(context.getIndex());
+        initialize();
+    }
 
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-		this.setLayout(new CardLayout());
-		this.setName(getPanelName(getContextIndex()));
-		this.add(getPanelSession(), getPanelSession().getName());
-	}
+    /** This method initializes this */
+    private void initialize() {
+        this.setLayout(new CardLayout());
+        this.setName(getPanelName(getContextIndex()));
+        this.add(getPanelSession(), getPanelSession().getName());
+    }
 
-	/**
-	 * This method initializes panelSession
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getPanelSession() {
-		if (panelSession == null) {
+    /**
+     * This method initializes panelSession
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getPanelSession() {
+        if (panelSession == null) {
 
-			panelSession = new JPanel();
-			panelSession.setLayout(new BorderLayout());
-			panelSession.setName("SessionTech");
-			panelSession.add(getTechTree(), BorderLayout.CENTER);
-		}
-		return panelSession;
-	}
+            panelSession = new JPanel();
+            panelSession.setLayout(new BorderLayout());
+            panelSession.setName("SessionTech");
+            panelSession.add(getTechTree(), BorderLayout.CENTER);
+        }
+        return panelSession;
+    }
 
-	private TechnologyTreePanel getTechTree() {
-		if (techPanel == null) {
-			techPanel = new TechnologyTreePanel(Constant.messages.getString("context.technology.tree.root"));
-		}
-		return techPanel;
-	}
+    private TechnologyTreePanel getTechTree() {
+        if (techPanel == null) {
+            techPanel =
+                    new TechnologyTreePanel(
+                            Constant.messages.getString("context.technology.tree.root"));
+        }
+        return techPanel;
+    }
 
-	@Override
-	public String getHelpIndex() {
-		return "ui.dialogs.contexts";
-	}
+    @Override
+    public String getHelpIndex() {
+        return "ui.dialogs.contexts";
+    }
 
-	@Override
-	public void initContextData(Session session, Context uiContext) {
-		// Init model from context
-		getTechTree().setTechSet(uiContext.getTechSet());
-	}
+    @Override
+    public void initContextData(Session session, Context uiContext) {
+        // Init model from context
+        getTechTree().setTechSet(uiContext.getTechSet());
+    }
 
-	@Override
-	public void validateContextData(Session session) throws Exception {
-		// Nothing to validate
+    @Override
+    public void validateContextData(Session session) throws Exception {
+        // Nothing to validate
 
-	}
+    }
 
-	@Override
-	public void saveContextData(Session session) throws Exception {
+    @Override
+    public void saveContextData(Session session) throws Exception {
 
-		session.getContext(getContextIndex()).setTechSet(getTechTree().getTechSet());
+        session.getContext(getContextIndex()).setTechSet(getTechTree().getTechSet());
+    }
 
-	}
-
-	@Override
-	public void saveTemporaryContextData(Context uiSharedContext) {
-		uiSharedContext.setTechSet(getTechTree().getTechSet());
-	}
-
+    @Override
+    public void saveTemporaryContextData(Context uiSharedContext) {
+        uiSharedContext.setTechSet(getTechTree().getTechSet());
+    }
 }

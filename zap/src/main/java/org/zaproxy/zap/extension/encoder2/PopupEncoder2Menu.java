@@ -20,40 +20,29 @@
 package org.zaproxy.zap.extension.encoder2;
 
 import java.awt.Component;
-
 import javax.swing.text.JTextComponent;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 
-	private static final long serialVersionUID = 1L;
-	private JTextComponent lastInvoker = null;
-    
-	/**
-     * @return Returns the lastInvoker.
-     */
+    private static final long serialVersionUID = 1L;
+    private JTextComponent lastInvoker = null;
+
+    /** @return Returns the lastInvoker. */
     public JTextComponent getLastInvoker() {
         return lastInvoker;
     }
-    
-    /**
-	 * This method initializes 
-	 * 
-	 */
-	public PopupEncoder2Menu() {
-		super();
-		initialize();
-	}
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
 
-	}
+    /** This method initializes */
+    public PopupEncoder2Menu() {
+        super();
+        initialize();
+    }
+    /** This method initializes this */
+    private void initialize() {
+        this.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
+    }
 
     @Override
     public boolean isEnableForComponent(Component invoker) {
@@ -73,7 +62,6 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
             setLastInvoker(null);
             return false;
         }
-
     }
 
     private boolean isInvokerFromEncodeDecode(Component invoker) {
@@ -83,15 +71,10 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
             return invoker.getName().equals(EncodeDecodeDialog.ENCODE_DECODE_FIELD)
                     || invoker.getName().equals(EncodeDecodeDialog.ENCODE_DECODE_RESULTFIELD);
         }
-
     }
 
-    /**
-     * @param lastInvoker The lastInvoker to set.
-     */
+    /** @param lastInvoker The lastInvoker to set. */
     public void setLastInvoker(JTextComponent lastInvoker) {
         this.lastInvoker = lastInvoker;
     }
-
-    
 }

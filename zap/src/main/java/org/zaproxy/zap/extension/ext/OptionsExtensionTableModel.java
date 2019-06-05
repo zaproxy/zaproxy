@@ -22,9 +22,7 @@ package org.zaproxy.zap.extension.ext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
@@ -32,16 +30,17 @@ import org.zaproxy.zap.control.ExtensionFactory;
 
 public class OptionsExtensionTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static final String[] columnNames = {
-				Constant.messages.getString("options.ext.label.enabled"),
-				Constant.messages.getString("options.ext.label.core"),
-				Constant.messages.getString("options.ext.label.author"),
-				Constant.messages.getString("options.ext.label.extension")};
-    
+    private static final String[] columnNames = {
+        Constant.messages.getString("options.ext.label.enabled"),
+        Constant.messages.getString("options.ext.label.core"),
+        Constant.messages.getString("options.ext.label.author"),
+        Constant.messages.getString("options.ext.label.extension")
+    };
+
     private List<Extension> extensions = ExtensionFactory.getAllExtensions();
-    
+
     private static Logger log = Logger.getLogger(OptionsExtensionTableModel.class);
 
     private Map<String, Boolean> extensionsState = new HashMap<>();
@@ -64,20 +63,23 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     public Object getValueAt(int row, int col) {
         Extension ext = getExtension(row);
         if (ext != null) {
-        	try {
-				switch (col) {
-				case 0:	return getEnabledState(ext);
-				case 1:
-					if (ext.isCore()) {
-						return Constant.messages.getString("options.ext.label.iscore");
-					}
-					return "";
-				case 2: return ext.getAuthor();
-				case 3: return ext.getUIName();
-				}
-			} catch (Exception e) {
-				log.error("Failed on extension " + ext.getName(), e);
-			}
+            try {
+                switch (col) {
+                    case 0:
+                        return getEnabledState(ext);
+                    case 1:
+                        if (ext.isCore()) {
+                            return Constant.messages.getString("options.ext.label.iscore");
+                        }
+                        return "";
+                    case 2:
+                        return ext.getAuthor();
+                    case 3:
+                        return ext.getUIName();
+                }
+            } catch (Exception e) {
+                log.error("Failed on extension " + ext.getName(), e);
+            }
         }
         return null;
     }
@@ -89,84 +91,83 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
         }
         return enabledState;
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-    	if (columnIndex == 0) {
-    	    Extension selectedExtension = getExtension(rowIndex);
-    		// Dont allow enabled core extensions to be edited via the UI (can edit the config file directly;)
-    		if (selectedExtension.isCore() && getEnabledState(selectedExtension)) {
-    			return false;
-    		}
-    		// Check dependencies
-    		List<Class<? extends Extension>> deps = selectedExtension.getDependencies();
-    		for (Class<? extends Extension> dep : deps) {
-    			Extension ext = getExtension(dep);
-    			if (ext == null || ! getEnabledState(ext)) {
-    				return false;
-    			}
-    		}
-    		return true;
-    	}
+        if (columnIndex == 0) {
+            Extension selectedExtension = getExtension(rowIndex);
+            // Dont allow enabled core extensions to be edited via the UI (can edit the config file
+            // directly;)
+            if (selectedExtension.isCore() && getEnabledState(selectedExtension)) {
+                return false;
+            }
+            // Check dependencies
+            List<Class<? extends Extension>> deps = selectedExtension.getDependencies();
+            for (Class<? extends Extension> dep : deps) {
+                Extension ext = getExtension(dep);
+                if (ext == null || !getEnabledState(ext)) {
+                    return false;
+                }
+            }
+            return true;
+        }
         return false;
     }
-    
+
     private Extension getExtension(Class<? extends Extension> c) {
-		for (Extension ext: extensions) {
-			if (ext.getClass().equals(c)) {
-				return ext;
-			}
-		}
-    	return null;
+        for (Extension ext : extensions) {
+            if (ext.getClass().equals(c)) {
+                return ext;
+            }
+        }
+        return null;
     }
-    
+
     @Override
     public void setValueAt(Object value, int row, int col) {
-    	if (col == 0) {
-    		extensionsState.put(getExtension(row).getName(), (Boolean) value);
+        if (col == 0) {
+            extensionsState.put(getExtension(row).getName(), (Boolean) value);
             fireTableCellUpdated(row, col);
-    		// En/Disable dependencies
-    		enableDependants(getExtension(row), (Boolean) value);
-    	}
+            // En/Disable dependencies
+            enableDependants(getExtension(row), (Boolean) value);
+        }
     }
 
     private void enableDependants(Extension extension, Boolean enabled) {
-    	int row = 0;
-		for (Extension ext: extensions) {
-			if (ext.getDependencies().contains(extension.getClass())) {
-				extensionsState.put(ext.getName(), enabled);
-				this.fireTableCellUpdated(row, 0);
-				enableDependants(ext, enabled); 
-			}
-			row++;
-		}
-	}
+        int row = 0;
+        for (Extension ext : extensions) {
+            if (ext.getDependencies().contains(extension.getClass())) {
+                extensionsState.put(ext.getName(), enabled);
+                this.fireTableCellUpdated(row, 0);
+                enableDependants(ext, enabled);
+            }
+            row++;
+        }
+    }
 
-	@Override
-	public String getColumnName(int col) {
+    @Override
+    public String getColumnName(int col) {
         return columnNames[col];
     }
-    
-	@Override
-	public Class<?> getColumnClass(int c) {
-    	if (c == 0) {
-    		return Boolean.class;
-    	}
+
+    @Override
+    public Class<?> getColumnClass(int c) {
+        if (c == 0) {
+            return Boolean.class;
+        }
         return String.class;
-        
     }
-	
-	protected Extension getExtension (int row) {
-        return  extensions.get(row);
-	}
 
-	void setExtensionsState(Map<String, Boolean> extensionsState) {
-		this.extensionsState = extensionsState;
-		fireTableDataChanged();
-	}
+    protected Extension getExtension(int row) {
+        return extensions.get(row);
+    }
 
-	Map<String, Boolean> getExtensionsState() {
-		return extensionsState;
-	}
-    
+    void setExtensionsState(Map<String, Boolean> extensionsState) {
+        this.extensionsState = extensionsState;
+        fireTableDataChanged();
+    }
+
+    Map<String, Boolean> getExtensionsState() {
+        return extensionsState;
+    }
 }

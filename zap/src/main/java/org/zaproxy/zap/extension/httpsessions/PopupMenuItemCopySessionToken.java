@@ -25,15 +25,15 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 /**
- * A {@code ExtensionPopupMenuItem} that allows to copy the value of a session token, show in "Http Sessions" tab, to the
- * clipboard.
+ * A {@code ExtensionPopupMenuItem} that allows to copy the value of a session token, show in "Http
+ * Sessions" tab, to the clipboard.
  */
-public class PopupMenuItemCopySessionToken extends ExtensionPopupMenuItem implements ClipboardOwner {
+public class PopupMenuItemCopySessionToken extends ExtensionPopupMenuItem
+        implements ClipboardOwner {
 
     private static final long serialVersionUID = -2462677795340933336L;
 
@@ -43,19 +43,22 @@ public class PopupMenuItemCopySessionToken extends ExtensionPopupMenuItem implem
         super(Constant.messages.getString("httpsessions.popup.session.copyToken"));
 
         this.httpSessionsPanel = panel;
-        this.addActionListener(new java.awt.event.ActionListener() {
+        this.addActionListener(
+                new java.awt.event.ActionListener() {
 
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                HttpSession item = httpSessionsPanel.getSelectedSession();
-                if (item == null) {
-                    return;
-                }
+                    @Override
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        HttpSession item = httpSessionsPanel.getSelectedSession();
+                        if (item == null) {
+                            return;
+                        }
 
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(new StringSelection(item.getTokenValuesString()), PopupMenuItemCopySessionToken.this);
-            }
-        });
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(
+                                new StringSelection(item.getTokenValuesString()),
+                                PopupMenuItemCopySessionToken.this);
+                    }
+                });
     }
 
     @Override
@@ -73,6 +76,5 @@ public class PopupMenuItemCopySessionToken extends ExtensionPopupMenuItem implem
     }
 
     @Override
-    public void lostOwnership(Clipboard clipboard, Transferable contents) {
-    }
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {}
 }

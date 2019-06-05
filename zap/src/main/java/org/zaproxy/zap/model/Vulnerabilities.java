@@ -26,118 +26,128 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public final class Vulnerabilities {
-	
-	private static final Logger LOGGER = Logger.getLogger(Vulnerabilities.class);
 
-	private static List<Vulnerability> vulnerabilities;
-	private static Map<String, Vulnerability> vulnerabilitiesMap;
-	
-	private Vulnerabilities() {
-	}
+    private static final Logger LOGGER = Logger.getLogger(Vulnerabilities.class);
 
-	private static synchronized void init() {
-		if (vulnerabilities == null) {
-			VulnerabilitiesLoader loader = new VulnerabilitiesLoader(
-					Paths.get(Constant.getZapInstall(), Constant.LANG_DIR),
-					Constant.VULNERABILITIES_PREFIX,
-					Constant.VULNERABILITIES_EXTENSION);
-			List<Vulnerability> vulns = loader.load(Constant.getLocale());
+    private static List<Vulnerability> vulnerabilities;
+    private static Map<String, Vulnerability> vulnerabilitiesMap;
 
-			if (vulns.isEmpty()) {
-				String path = "/org/zaproxy/zap/resources/" + Constant.VULNERABILITIES_PREFIX + Constant.VULNERABILITIES_EXTENSION;
-				LOGGER.debug("Using bundled vulnerabilities file.");
-				try (InputStream in = VulnerabilitiesLoader.class.getResourceAsStream(path)) {
-					if (in == null) {
-						LOGGER.error("The vulnerabilities file was not bundled: " + path);
-					} else {
-						vulns = VulnerabilitiesLoader.loadVulnerabilities(in);
-						if (vulns == null) {
-							vulns = Collections.emptyList();
-							LOGGER.error("Failed to load vulnerabilities from bundled file.");
-						}
-					}
-				} catch (IOException e) {
-					LOGGER.error("Failed to read the bundled vulnerabilities file:", e);
-				}
-			}
+    private Vulnerabilities() {}
 
-			Map<String, Vulnerability> map = new HashMap<>();
-			for (Vulnerability vulnerability : vulns) {
-				map.put(vulnerability.getId(), vulnerability);
-			}
+    private static synchronized void init() {
+        if (vulnerabilities == null) {
+            VulnerabilitiesLoader loader =
+                    new VulnerabilitiesLoader(
+                            Paths.get(Constant.getZapInstall(), Constant.LANG_DIR),
+                            Constant.VULNERABILITIES_PREFIX,
+                            Constant.VULNERABILITIES_EXTENSION);
+            List<Vulnerability> vulns = loader.load(Constant.getLocale());
 
-			vulnerabilitiesMap = Collections.unmodifiableMap(map);
-			vulnerabilities = vulns;
-		}
-	}
+            if (vulns.isEmpty()) {
+                String path =
+                        "/org/zaproxy/zap/resources/"
+                                + Constant.VULNERABILITIES_PREFIX
+                                + Constant.VULNERABILITIES_EXTENSION;
+                LOGGER.debug("Using bundled vulnerabilities file.");
+                try (InputStream in = VulnerabilitiesLoader.class.getResourceAsStream(path)) {
+                    if (in == null) {
+                        LOGGER.error("The vulnerabilities file was not bundled: " + path);
+                    } else {
+                        vulns = VulnerabilitiesLoader.loadVulnerabilities(in);
+                        if (vulns == null) {
+                            vulns = Collections.emptyList();
+                            LOGGER.error("Failed to load vulnerabilities from bundled file.");
+                        }
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("Failed to read the bundled vulnerabilities file:", e);
+                }
+            }
 
-	/**
-	 * Gets an unmodifiable {@code List} containing all the {@code Vulnerability} for the current active Locale. They are loaded
-	 * from a XML file.
-	 * <p>
-	 * An empty {@code List} is returned if any error occurred while opening/parsing the XML file. The returned {@code List} is
-	 * guaranteed to be <i>non</i> {@code null}.
-	 * <p>
-	 * <b>Note:</b> Trying to modify the list will result in an {@code UnsupportedOperationException}.
-	 * 
-	 * @return an unmodifiable {@code List} containing all the {@code Vulnerability} loaded, never {@code null}.
-	 */
-	public static List<Vulnerability> getAllVulnerabilities() {
-		initializeIfEmpty();
-		return vulnerabilities;
-	}
-	
-	/**
-	 * Returns the {@code Vulnerability} for the given WASC ID, or {@code null} if not available.
-	 * <p>
-	 * The WASC ID is in the form: <blockquote>"wasc_" + #ID</blockquote>
-	 * <p>
-	 * For example, "wasc_1", "wasc_2" or "wasc_48".
-	 *
-	 * @param id the WASC ID of the vulnerability, e.g. wasc_1
-	 * @return the {@code Vulnerability} for the given WASC ID, or {@code null} if not available
-	 */
-	public static Vulnerability getVulnerability (String id) {
-		initializeIfEmpty();
-		return vulnerabilitiesMap.get(id);
-	}
+            Map<String, Vulnerability> map = new HashMap<>();
+            for (Vulnerability vulnerability : vulns) {
+                map.put(vulnerability.getId(), vulnerability);
+            }
 
-	private static void initializeIfEmpty() {
-		if (vulnerabilities == null) {
-			init();
-		}
-	}
-	
-	public static String getDescription(Vulnerability vuln) {
-		if (vuln != null) {
-			return vuln.getDescription();
-		}
-		return "Failed to load vulnerability description from file";
-	}
+            vulnerabilitiesMap = Collections.unmodifiableMap(map);
+            vulnerabilities = vulns;
+        }
+    }
 
-	public static String getSolution(Vulnerability vuln) {
-		if (vuln != null) {
-			return vuln.getSolution();
-		}
-		return "Failed to load vulnerability solution from file";
-	}
+    /**
+     * Gets an unmodifiable {@code List} containing all the {@code Vulnerability} for the current
+     * active Locale. They are loaded from a XML file.
+     *
+     * <p>An empty {@code List} is returned if any error occurred while opening/parsing the XML
+     * file. The returned {@code List} is guaranteed to be <i>non</i> {@code null}.
+     *
+     * <p><b>Note:</b> Trying to modify the list will result in an {@code
+     * UnsupportedOperationException}.
+     *
+     * @return an unmodifiable {@code List} containing all the {@code Vulnerability} loaded, never
+     *     {@code null}.
+     */
+    public static List<Vulnerability> getAllVulnerabilities() {
+        initializeIfEmpty();
+        return vulnerabilities;
+    }
 
-	public static String getReference(Vulnerability vuln) {
-		if (vuln != null) {
-			StringBuilder sb = new StringBuilder();
-			for (String ref : vuln.getReferences()) {
-				if (sb.length() > 0) {
-					sb.append('\n');
-				}
-				sb.append(ref);
-			}
-			return sb.toString();
-		}
-		return "Failed to load vulnerability reference from file";
-	}
+    /**
+     * Returns the {@code Vulnerability} for the given WASC ID, or {@code null} if not available.
+     *
+     * <p>The WASC ID is in the form:
+     *
+     * <blockquote>
+     *
+     * "wasc_" + #ID
+     *
+     * </blockquote>
+     *
+     * <p>For example, "wasc_1", "wasc_2" or "wasc_48".
+     *
+     * @param id the WASC ID of the vulnerability, e.g. wasc_1
+     * @return the {@code Vulnerability} for the given WASC ID, or {@code null} if not available
+     */
+    public static Vulnerability getVulnerability(String id) {
+        initializeIfEmpty();
+        return vulnerabilitiesMap.get(id);
+    }
+
+    private static void initializeIfEmpty() {
+        if (vulnerabilities == null) {
+            init();
+        }
+    }
+
+    public static String getDescription(Vulnerability vuln) {
+        if (vuln != null) {
+            return vuln.getDescription();
+        }
+        return "Failed to load vulnerability description from file";
+    }
+
+    public static String getSolution(Vulnerability vuln) {
+        if (vuln != null) {
+            return vuln.getSolution();
+        }
+        return "Failed to load vulnerability solution from file";
+    }
+
+    public static String getReference(Vulnerability vuln) {
+        if (vuln != null) {
+            StringBuilder sb = new StringBuilder();
+            for (String ref : vuln.getReferences()) {
+                if (sb.length() > 0) {
+                    sb.append('\n');
+                }
+                sb.append(ref);
+            }
+            return sb.toString();
+        }
+        return "Failed to load vulnerability reference from file";
+    }
 }

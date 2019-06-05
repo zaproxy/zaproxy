@@ -20,7 +20,6 @@
 package org.zaproxy.zap.view.messagelocation;
 
 import java.awt.Color;
-
 import javax.swing.text.DefaultHighlighter;
 
 /**
@@ -30,8 +29,8 @@ import javax.swing.text.DefaultHighlighter;
  * @see TextMessageLocationHighlightEditor
  * @see TextMessageLocationHighlightRenderer
  */
-public class TextMessageLocationHighlight extends DefaultHighlighter.DefaultHighlightPainter implements
-        MessageLocationHighlight {
+public class TextMessageLocationHighlight extends DefaultHighlighter.DefaultHighlightPainter
+        implements MessageLocationHighlight {
 
     private Object highlightReference;
 

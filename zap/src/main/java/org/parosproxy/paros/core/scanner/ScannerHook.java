@@ -22,25 +22,23 @@ package org.parosproxy.paros.core.scanner;
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface ScannerHook {
-	
-	
-	/**
-	 * Should be run, once an active scan has completed. 
-	 */
-	void scannerComplete();
-	
-	/**
-	 * Method that is run before plugins run their SendAndReceive method.
-	 * @param msg The message that will be scanned, once this method has finished.
-	 * @param plugin The current plugin.
-	 */
-	void beforeScan(HttpMessage msg, AbstractPlugin plugin, Scanner scanner);
-	
-	/**
-	 * Method that is run after plugins run their SendAndReceive method.
-	 * @param msg The message that was scanned by the plugin.
-	 * @param plugin The current plugin.
-	 */
-	void afterScan(HttpMessage msg, AbstractPlugin plugin, Scanner scanner);
 
+    /** Should be run, once an active scan has completed. */
+    void scannerComplete();
+
+    /**
+     * Method that is run before plugins run their SendAndReceive method.
+     *
+     * @param msg The message that will be scanned, once this method has finished.
+     * @param plugin The current plugin.
+     */
+    void beforeScan(HttpMessage msg, AbstractPlugin plugin, Scanner scanner);
+
+    /**
+     * Method that is run after plugins run their SendAndReceive method.
+     *
+     * @param msg The message that was scanned by the plugin.
+     * @param plugin The current plugin.
+     */
+    void afterScan(HttpMessage msg, AbstractPlugin plugin, Scanner scanner);
 }

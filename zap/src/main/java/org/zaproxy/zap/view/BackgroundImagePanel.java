@@ -27,31 +27,25 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-
 import org.zaproxy.zap.utils.DisplayUtils;
 
-/**
- *
- * @author yhawke (2014)
- */
+/** @author yhawke (2014) */
 public class BackgroundImagePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private BufferedImage img;
     private double scale = 1;
 
-    /**
-     * Default constructor 
-     */
+    /** Default constructor */
     public BackgroundImagePanel() {
         img = null;
     }
-        
+
     /**
      * Set the background image
+     *
      * @param imageUrl the url of the image
      */
     public BackgroundImagePanel(URL imageUrl) {
@@ -60,21 +54,23 @@ public class BackgroundImagePanel extends JPanel {
 
     /**
      * set the current Background image
+     *
      * @param imageUrl the url of the image that need to be set
      */
     public final void setBackgroundImage(URL imageUrl) {
         if (imageUrl != null) {
             try {
                 img = ImageIO.read(imageUrl);
-                
+
             } catch (IOException ioe) {
                 // do nothing
             }
-        }        
+        }
     }
 
     /**
      * set the current Background image
+     *
      * @param imageUrl the url of the image that need to be set
      * @param scale the scale that should be applied to the image
      * @since 2.7.0
@@ -86,6 +82,7 @@ public class BackgroundImagePanel extends JPanel {
 
     /**
      * Overridden method to paint a background before the rest
+     *
      * @param g the Graphics context
      */
     @Override
@@ -97,11 +94,15 @@ public class BackgroundImagePanel extends JPanel {
             hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             hints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             ((Graphics2D) g).addRenderingHints(hints);
-            g.drawImage(img, 0, 0, 
-                    (int)(DisplayUtils.getScaledSize(img.getWidth()) * scale),
-                    (int)(DisplayUtils.getScaledSize(img.getHeight()) * scale), null);
+            g.drawImage(
+                    img,
+                    0,
+                    0,
+                    (int) (DisplayUtils.getScaledSize(img.getWidth()) * scale),
+                    (int) (DisplayUtils.getScaledSize(img.getHeight()) * scale),
+                    null);
         }
-        
+
         super.paintComponent(g);
-    }    
+    }
 }

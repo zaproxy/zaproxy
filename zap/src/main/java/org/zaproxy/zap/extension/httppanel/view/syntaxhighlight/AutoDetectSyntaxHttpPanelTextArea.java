@@ -24,58 +24,59 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 public abstract class AutoDetectSyntaxHttpPanelTextArea extends HttpPanelSyntaxHighlightTextArea {
-	
-	private static final long serialVersionUID = 293746373028878338L;
 
-	private static final String AUTO_DETECT = "autodetect";
-	
-	private boolean isAutoDetectSyntax;
-	
-	public AutoDetectSyntaxHttpPanelTextArea() {
-		isAutoDetectSyntax = true;
-	}
-	
-	@Override
-	public void setMessage(Message aMessage) {
-		super.setMessage(aMessage);
+    private static final long serialVersionUID = 293746373028878338L;
 
-		if (isAutoDetectSyntax) {
-			detectAndSetSyntax();
-		}
-	}
-	
-	public boolean isAutoDetectSyntax() {
-		return isAutoDetectSyntax;
-	}
+    private static final String AUTO_DETECT = "autodetect";
 
-	public void setAutoDetectSyntax(boolean enabled) {
-		isAutoDetectSyntax = enabled;
-		if (isAutoDetectSyntax) {
-			detectAndSetSyntax();
-		}
-	}
+    private boolean isAutoDetectSyntax;
 
-	private void detectAndSetSyntax() {
-	    Message message = getMessage();
-	    if (message instanceof HttpMessage) {
-	        final String syntax = detectSyntax((HttpMessage)message);
-	        setSyntaxEditingStyle(syntax);
-	    }
-	}
+    public AutoDetectSyntaxHttpPanelTextArea() {
+        isAutoDetectSyntax = true;
+    }
 
-	protected abstract String detectSyntax(HttpMessage httpMessage);
-	
-	@Override
-	public void loadConfiguration(String key, FileConfiguration fileConfiguration) {
-		super.loadConfiguration(key, fileConfiguration);
-		
-		setAutoDetectSyntax(fileConfiguration.getBoolean(key + "syntax." + AUTO_DETECT, isAutoDetectSyntax));
-	}
-	
-	@Override
-	public void saveConfiguration(String key, FileConfiguration fileConfiguration) {
-		super.saveConfiguration(key, fileConfiguration);
-		
-		fileConfiguration.setProperty(key + "syntax." + AUTO_DETECT, isAutoDetectSyntax);
-	}
+    @Override
+    public void setMessage(Message aMessage) {
+        super.setMessage(aMessage);
+
+        if (isAutoDetectSyntax) {
+            detectAndSetSyntax();
+        }
+    }
+
+    public boolean isAutoDetectSyntax() {
+        return isAutoDetectSyntax;
+    }
+
+    public void setAutoDetectSyntax(boolean enabled) {
+        isAutoDetectSyntax = enabled;
+        if (isAutoDetectSyntax) {
+            detectAndSetSyntax();
+        }
+    }
+
+    private void detectAndSetSyntax() {
+        Message message = getMessage();
+        if (message instanceof HttpMessage) {
+            final String syntax = detectSyntax((HttpMessage) message);
+            setSyntaxEditingStyle(syntax);
+        }
+    }
+
+    protected abstract String detectSyntax(HttpMessage httpMessage);
+
+    @Override
+    public void loadConfiguration(String key, FileConfiguration fileConfiguration) {
+        super.loadConfiguration(key, fileConfiguration);
+
+        setAutoDetectSyntax(
+                fileConfiguration.getBoolean(key + "syntax." + AUTO_DETECT, isAutoDetectSyntax));
+    }
+
+    @Override
+    public void saveConfiguration(String key, FileConfiguration fileConfiguration) {
+        super.saveConfiguration(key, fileConfiguration);
+
+        fileConfiguration.setProperty(key + "syntax." + AUTO_DETECT, isAutoDetectSyntax);
+    }
 }

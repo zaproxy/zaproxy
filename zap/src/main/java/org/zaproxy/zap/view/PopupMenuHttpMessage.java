@@ -25,47 +25,45 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
 /**
- * @deprecated (2.3.0) Superseded by {@link PopupMenuItemHttpMessageContainer}. It will be removed in a future release.
+ * @deprecated (2.3.0) Superseded by {@link PopupMenuItemHttpMessageContainer}. It will be removed
+ *     in a future release.
  */
 @Deprecated
 public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private static final Logger log = Logger.getLogger(PopupMenuHttpMessage.class);
 
-    /**
-     * @param label
-     */
+    /** @param label */
     public PopupMenuHttpMessage(String label) {
         super(label);
     }
 
     @Override
-    public boolean isEnabledForHistoryReference (HistoryReference href) {
-    	try {
-			return href != null && this.isEnabledForHttpMessage(href.getHttpMessage());
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return false;
-		}
+    public boolean isEnabledForHistoryReference(HistoryReference href) {
+        try {
+            return href != null && this.isEnabledForHttpMessage(href.getHttpMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
-    public boolean isEnabledForHttpMessage (HttpMessage msg) {
-    	// Can Override if required 
-    	return msg != null;
+    public boolean isEnabledForHttpMessage(HttpMessage msg) {
+        // Can Override if required
+        return msg != null;
     }
-    
+
     @Override
-    public void performAction (HistoryReference href) throws Exception {
-    	if (href != null) {
-    		this.performAction(href.getHttpMessage());
-    	}
+    public void performAction(HistoryReference href) throws Exception {
+        if (href != null) {
+            this.performAction(href.getHttpMessage());
+        }
     }
 
-    public abstract void performAction (HttpMessage msg) throws Exception;
+    public abstract void performAction(HttpMessage msg) throws Exception;
 
     @Override
     public abstract boolean isEnableForInvoker(Invoker invoker);
-
 }

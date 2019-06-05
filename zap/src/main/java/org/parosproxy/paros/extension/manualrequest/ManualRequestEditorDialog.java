@@ -25,7 +25,7 @@
 // ZAP: 2012/07/02 Wraps no HttpMessage object, but more generalized Message.
 // new map of supported message types; removed history list; removed unused
 // methods.
-// ZAP: 2012/07/16 Issue 326: Add response time and total length to manual request dialog 
+// ZAP: 2012/07/16 Issue 326: Add response time and total length to manual request dialog
 // ZAP: 2012/07/31 Removed the instance variables followRedirect,
 // useTrackingSessionState and httpSender. Removed the methods getHttpSender,
 // getButtonFollowRedirect and getButtonUseTrackingSessionState and changed the
@@ -33,9 +33,10 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -47,11 +48,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.net.ssl.SSLException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -66,190 +65,216 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-/**
- * Send custom crafted messages via HTTP or other TCP based protocols. 
- */
+/** Send custom crafted messages via HTTP or other TCP based protocols. */
 public abstract class ManualRequestEditorDialog extends AbstractFrame implements Tab {
-	private static final long serialVersionUID = 1L;
-	
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger = Logger.getLogger(ManualRequestEditorDialog.class);
-	
-	private boolean isSendEnabled = true;
-	
-	protected String configurationKey;
-	
-	private JPanel panelWindow = null;
 
-	private JButton btnSend = null;
+    private boolean isSendEnabled = true;
 
-	/**
-	 * Non-abstract classes should call {@link #initialize()} in their constructor.
-	 * 
-	 * @param isSendEnabled
-	 * @param configurationKey
-	 * @throws HeadlessException
-	 */
-	public ManualRequestEditorDialog(boolean isSendEnabled, String configurationKey) throws HeadlessException {
-		super();
-		
-		this.isSendEnabled = isSendEnabled;
-		this.configurationKey = OptionsParamView.BASE_VIEW_KEY + "." + configurationKey + ".";
-		
-		this.setPreferredSize(new Dimension(700, 800));
-	}
+    protected String configurationKey;
 
-	protected void initialize() {
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				getMessageSender().cleanup();
-				saveConfig();
-			}
-		});
-		
-		setContentPane(getWindowPanel());
-	}
+    private JPanel panelWindow = null;
 
-	/**
-	 * Returns type of message it handles.
-	 * 
-	 * @return
-	 */
-	public abstract Class<? extends Message> getMessageType();
-	
-	/**
-	 * Message sender for the given {@link #getMessageType()}.
-	 * 
-	 * @return
-	 */
-	protected abstract MessageSender getMessageSender();
-	
-	/**
-	 * Menu item that calls this editor.
-	 * 
-	 * @return
-	 */
-	public abstract ZapMenuItem getMenuItem();
+    private JButton btnSend = null;
 
-	protected JPanel getWindowPanel() {
-		if (panelWindow == null) {
-			panelWindow = new JPanel();
-			panelWindow.setLayout(new BorderLayout());
-			
-			panelWindow.add(getManualSendPanel());
-		}
+    /**
+     * Non-abstract classes should call {@link #initialize()} in their constructor.
+     *
+     * @param isSendEnabled
+     * @param configurationKey
+     * @throws HeadlessException
+     */
+    public ManualRequestEditorDialog(boolean isSendEnabled, String configurationKey)
+            throws HeadlessException {
+        super();
 
-		return panelWindow;
-	}
-	
-	protected abstract Component getManualSendPanel();
-	
-	@Override
-	public void setVisible(boolean show) {
-		if (!show && getMessageSender() != null) {
-           getMessageSender().cleanup();
-		}
-		
-		super.setVisible(show);
-	}
+        this.isSendEnabled = isSendEnabled;
+        this.configurationKey = OptionsParamView.BASE_VIEW_KEY + "." + configurationKey + ".";
 
-	public abstract void setDefaultMessage();
-	
-	public abstract void setMessage(Message aMessage);
+        this.setPreferredSize(new Dimension(700, 800));
+    }
 
-	public abstract Message getMessage();
-
-	public void clear() {
-		getRequestPanel().clearView();
-	}
-
-	protected JButton getBtnSend() {
-		if (btnSend == null) {
-			btnSend = new JButton();
-			btnSend.setText(Constant.messages.getString("manReq.button.send"));
-			btnSend.setEnabled(isSendEnabled);
-			btnSend.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					btnSend.setEnabled(false);
-					
-					// save current message (i.e. set payload/body)
-					getRequestPanel().saveData();
-					
-					Mode mode = Control.getSingleton().getMode();
-					if (mode.equals(Mode.safe)) {
-						// Can happen if the user turns on safe mode with the dialog open
-						View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.safe.warning"));
-						btnSend.setEnabled(true);
-						return;
-					} else if (mode.equals(Mode.protect)) {
-						if (!getMessage().isInScope()) {
-							// In protected mode and not in scope, so fail
-							View.getSingleton().showWarningDialog(Constant.messages.getString("manReq.outofscope.warning"));
-							btnSend.setEnabled(true);
-							return;
-						}
-					}
-					
-					btnSendAction();
-				}
-			});
-		}
-		return btnSend;
-	}
-	
-	/**
-	 * Do not forget to enable the send button again i
-	 */
-	protected abstract void btnSendAction();
-
-	protected void send(final Message aMessage) {
-        final Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                	getMessageSender().handleSendMessage(aMessage);                    
-                    postSend();
-                } catch (SSLException sslEx) {
-                    StringBuilder strBuilder = new StringBuilder();
-
-                    strBuilder.append(Constant.messages.getString("network.ssl.error.connect"));
-                    strBuilder.append(((HttpMessage) aMessage).getRequestHeader().getURI().toString()).append('\n');
-                    strBuilder.append(Constant.messages.getString("network.ssl.error.exception")).append(sslEx.getMessage())
-                        .append('\n');
-                    strBuilder.append(Constant.messages.getString("network.ssl.error.exception.rootcause"))
-                        .append(ExceptionUtils.getRootCauseMessage(sslEx)).append('\n');
-                    strBuilder.append(Constant.messages.getString("network.ssl.error.help",
-                        Constant.messages.getString("network.ssl.error.help.url")));
-                    logger.warn(strBuilder.toString());
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(sslEx, sslEx);
+    protected void initialize() {
+        addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        getMessageSender().cleanup();
+                        saveConfig();
                     }
-                    View.getSingleton().showWarningDialog(strBuilder.toString());
-                } catch (Exception e) {
-                	logger.warn(e.getMessage(), e);
-                    View.getSingleton().showWarningDialog(e.getMessage());
-                } finally {
-                    btnSend.setEnabled(true);
-                }
-            }
-        });
-		t.setPriority(Thread.NORM_PRIORITY);
-		t.start();
-	}
+                });
 
-	protected void postSend() {
-		EventQueue.invokeLater(new Runnable() {
+        setContentPane(getWindowPanel());
+    }
 
-			@Override
-			public void run() {
-				// redraw, as message may have changed after sending
-				getRequestPanel().updateContent();
-			}
-		});
-	}
-	
-	protected abstract void saveConfig();
+    /**
+     * Returns type of message it handles.
+     *
+     * @return
+     */
+    public abstract Class<? extends Message> getMessageType();
 
-	protected abstract HttpPanelRequest getRequestPanel();
+    /**
+     * Message sender for the given {@link #getMessageType()}.
+     *
+     * @return
+     */
+    protected abstract MessageSender getMessageSender();
+
+    /**
+     * Menu item that calls this editor.
+     *
+     * @return
+     */
+    public abstract ZapMenuItem getMenuItem();
+
+    protected JPanel getWindowPanel() {
+        if (panelWindow == null) {
+            panelWindow = new JPanel();
+            panelWindow.setLayout(new BorderLayout());
+
+            panelWindow.add(getManualSendPanel());
+        }
+
+        return panelWindow;
+    }
+
+    protected abstract Component getManualSendPanel();
+
+    @Override
+    public void setVisible(boolean show) {
+        if (!show && getMessageSender() != null) {
+            getMessageSender().cleanup();
+        }
+
+        super.setVisible(show);
+    }
+
+    public abstract void setDefaultMessage();
+
+    public abstract void setMessage(Message aMessage);
+
+    public abstract Message getMessage();
+
+    public void clear() {
+        getRequestPanel().clearView();
+    }
+
+    protected JButton getBtnSend() {
+        if (btnSend == null) {
+            btnSend = new JButton();
+            btnSend.setText(Constant.messages.getString("manReq.button.send"));
+            btnSend.setEnabled(isSendEnabled);
+            btnSend.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            btnSend.setEnabled(false);
+
+                            // save current message (i.e. set payload/body)
+                            getRequestPanel().saveData();
+
+                            Mode mode = Control.getSingleton().getMode();
+                            if (mode.equals(Mode.safe)) {
+                                // Can happen if the user turns on safe mode with the dialog open
+                                View.getSingleton()
+                                        .showWarningDialog(
+                                                Constant.messages.getString("manReq.safe.warning"));
+                                btnSend.setEnabled(true);
+                                return;
+                            } else if (mode.equals(Mode.protect)) {
+                                if (!getMessage().isInScope()) {
+                                    // In protected mode and not in scope, so fail
+                                    View.getSingleton()
+                                            .showWarningDialog(
+                                                    Constant.messages.getString(
+                                                            "manReq.outofscope.warning"));
+                                    btnSend.setEnabled(true);
+                                    return;
+                                }
+                            }
+
+                            btnSendAction();
+                        }
+                    });
+        }
+        return btnSend;
+    }
+
+    /** Do not forget to enable the send button again i */
+    protected abstract void btnSendAction();
+
+    protected void send(final Message aMessage) {
+        final Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    getMessageSender().handleSendMessage(aMessage);
+                                    postSend();
+                                } catch (SSLException sslEx) {
+                                    StringBuilder strBuilder = new StringBuilder();
+
+                                    strBuilder.append(
+                                            Constant.messages.getString(
+                                                    "network.ssl.error.connect"));
+                                    strBuilder
+                                            .append(
+                                                    ((HttpMessage) aMessage)
+                                                            .getRequestHeader()
+                                                            .getURI()
+                                                            .toString())
+                                            .append('\n');
+                                    strBuilder
+                                            .append(
+                                                    Constant.messages.getString(
+                                                            "network.ssl.error.exception"))
+                                            .append(sslEx.getMessage())
+                                            .append('\n');
+                                    strBuilder
+                                            .append(
+                                                    Constant.messages.getString(
+                                                            "network.ssl.error.exception.rootcause"))
+                                            .append(ExceptionUtils.getRootCauseMessage(sslEx))
+                                            .append('\n');
+                                    strBuilder.append(
+                                            Constant.messages.getString(
+                                                    "network.ssl.error.help",
+                                                    Constant.messages.getString(
+                                                            "network.ssl.error.help.url")));
+                                    logger.warn(strBuilder.toString());
+                                    if (logger.isDebugEnabled()) {
+                                        logger.debug(sslEx, sslEx);
+                                    }
+                                    View.getSingleton().showWarningDialog(strBuilder.toString());
+                                } catch (Exception e) {
+                                    logger.warn(e.getMessage(), e);
+                                    View.getSingleton().showWarningDialog(e.getMessage());
+                                } finally {
+                                    btnSend.setEnabled(true);
+                                }
+                            }
+                        });
+        t.setPriority(Thread.NORM_PRIORITY);
+        t.start();
+    }
+
+    protected void postSend() {
+        EventQueue.invokeLater(
+                new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // redraw, as message may have changed after sending
+                        getRequestPanel().updateContent();
+                    }
+                });
+    }
+
+    protected abstract void saveConfig();
+
+    protected abstract HttpPanelRequest getRequestPanel();
 }

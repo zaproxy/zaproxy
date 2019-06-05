@@ -24,7 +24,7 @@ import org.zaproxy.zap.model.MessageLocationConsumer;
 
 /**
  * A {@code MessageLocationConsumer} capable of highlighting locations.
- * 
+ *
  * @since 2.4.0
  * @see MessageLocationHighlight
  * @see MessageLocation
@@ -35,7 +35,8 @@ public interface MessageLocationHighlighter extends MessageLocationConsumer {
      * Highlights the given {@code location}, with an undefined highlight.
      *
      * @param location the location that will be highlighted
-     * @return a reference to the highlight added, {@code null} if it's was not possible to highlight
+     * @return a reference to the highlight added, {@code null} if it's was not possible to
+     *     highlight
      */
     MessageLocationHighlight highlight(MessageLocation location);
 
@@ -44,9 +45,11 @@ public interface MessageLocationHighlighter extends MessageLocationConsumer {
      *
      * @param location the location that will be highlighted
      * @param highlight the highlight applied to the location
-     * @return a reference to the highlight added, {@code null} if it's was not possible to highlight
+     * @return a reference to the highlight added, {@code null} if it's was not possible to
+     *     highlight
      */
-    MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight);
+    MessageLocationHighlight highlight(
+            MessageLocation location, MessageLocationHighlight highlight);
 
     /**
      * Removes a previous highlight.

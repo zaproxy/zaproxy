@@ -24,15 +24,13 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 import org.zaproxy.zap.view.messagelocation.MessageLocationProducer;
 
 /**
- * A {@code SingleMessageContainer} that allows to select content, that is, produces message locations and it's also capable of
- * highlight.
- * 
+ * A {@code SingleMessageContainer} that allows to select content, that is, produces message
+ * locations and it's also capable of highlight.
+ *
  * @param <T> the type of message in this container
  * @since 2.4.0
  * @see MessageLocationProducer
  * @see MessageLocationHighlighter
  */
-public interface SelectableContentMessageContainer<T extends Message> extends SingleMessageContainer<T>,
-        MessageLocationProducer, MessageLocationHighlighter {
-
-}
+public interface SelectableContentMessageContainer<T extends Message>
+        extends SingleMessageContainer<T>, MessageLocationProducer, MessageLocationHighlighter {}

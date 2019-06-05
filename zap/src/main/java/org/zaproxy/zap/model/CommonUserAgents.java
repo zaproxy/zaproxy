@@ -27,65 +27,70 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public class CommonUserAgents {
 
-	private static Map<String, String> nameToString = null;
-	private static Map<String, String> stringToName = null;
+    private static Map<String, String> nameToString = null;
+    private static Map<String, String> stringToName = null;
 
     private static final Logger logger = Logger.getLogger(CommonUserAgents.class);
 
-	static {
+    static {
+        nameToString = new HashMap<String, String>();
+        stringToName = new HashMap<String, String>();
 
-		nameToString = new HashMap<String, String>();
-		stringToName = new HashMap<String, String>();
+        String fileName =
+                Constant.getZapInstall()
+                        + File.separator
+                        + "xml"
+                        + File.separator
+                        + "common-user-agents.txt";
+        File f = new File(fileName);
+        if (f.exists()) {
+            try {
+                for (String line : Files.readAllLines(f.toPath(), Charset.forName("US-ASCII"))) {
+                    if (line.trim().length() == 0 || line.startsWith("#")) {
+                        // Skip blank lines or ones that start with a #
+                        continue;
+                    }
+                    String[] array = line.split("\t");
+                    if (array.length != 3) {
+                        logger.error("Unexpected line in " + f.getAbsolutePath() + " : " + line);
+                    } else {
+                        nameToString.put(array[2], array[1]);
+                        stringToName.put(array[1], array[2]);
+                    }
+                }
 
-		String fileName = Constant.getZapInstall() + File.separator + "xml" + File.separator + "common-user-agents.txt"; 
-		File f = new File(fileName);
-		if (f.exists()) {
-			try {
-				for (String line : Files.readAllLines(f.toPath(), Charset.forName("US-ASCII"))) {
-					if (line.trim().length() == 0 || line.startsWith("#")) {
-						// Skip blank lines or ones that start with a #
-						continue;
-					}
-					String[] array = line.split("\t");
-					if (array.length != 3) {
-						logger.error("Unexpected line in " + f.getAbsolutePath() + " : " + line);
-					} else {
-						nameToString.put(array[2], array[1]);
-						stringToName.put(array[1], array[2]);
-					}
-				}
-				
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
-		} else {
-			logger.info("No common user agents will be suggested, file does not exist: " + f.getAbsolutePath());
-		}
-	}
-	
-	public static String getStringFromName(String name) {
-		return nameToString.get(name);
-	}
-	
-	public static String getNameFromString(String str) {
-		return stringToName.get(str);
-	}
-	
-	public static String[] getNames() {
-		Set<String> keys = nameToString.keySet();
-		String[] names = new String[keys.size()];
-		int i=0;
-		for (String key : keys) {
-			names[i] = key;
-			i++;
-		}
-		Arrays.sort(names);
-		return names;
-	}
+            } catch (IOException e) {
+                logger.error(e.getMessage(), e);
+            }
+        } else {
+            logger.info(
+                    "No common user agents will be suggested, file does not exist: "
+                            + f.getAbsolutePath());
+        }
+    }
+
+    public static String getStringFromName(String name) {
+        return nameToString.get(name);
+    }
+
+    public static String getNameFromString(String str) {
+        return stringToName.get(str);
+    }
+
+    public static String[] getNames() {
+        Set<String> keys = nameToString.keySet();
+        String[] names = new String[keys.size()];
+        int i = 0;
+        for (String key : keys) {
+            names[i] = key;
+            i++;
+        }
+        Arrays.sort(names);
+        return names;
+    }
 }

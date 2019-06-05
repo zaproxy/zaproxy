@@ -20,41 +20,38 @@
 package org.zaproxy.zap;
 
 import java.net.Socket;
-
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpConnection;
 
-/**
- * Custom {@link HttpConnection} that exposes its socket and avoids closing.
- */
+/** Custom {@link HttpConnection} that exposes its socket and avoids closing. */
 public class ZapHttpConnection extends HttpConnection {
 
     /**
      * Creates a new HTTP connection for the given host configuration.
-     * 
+     *
      * @param hostConfiguration the host/proxy/protocol to use
      */
-	public ZapHttpConnection(HostConfiguration hostConfiguration) {
-		super(hostConfiguration);
-	}
-	
-	/**
-	 * Returns the socket of this connection object. Make socket available, as
-	 * parent getSocket() is protected.
-	 * 
-	 * @return Outgoing (remote) socket connection.
-	 */
-	@Override
-	public Socket getSocket() {
-		return super.getSocket();
-	}
-	
-	/**
-	 * Avoid closing in- &amp; output stream as that would close the underlying
-	 * socket also. We have to keep it for our WebSocket connection.
-	 */
-	@Override
+    public ZapHttpConnection(HostConfiguration hostConfiguration) {
+        super(hostConfiguration);
+    }
+
+    /**
+     * Returns the socket of this connection object. Make socket available, as parent getSocket() is
+     * protected.
+     *
+     * @return Outgoing (remote) socket connection.
+     */
+    @Override
+    public Socket getSocket() {
+        return super.getSocket();
+    }
+
+    /**
+     * Avoid closing in- &amp; output stream as that would close the underlying socket also. We have
+     * to keep it for our WebSocket connection.
+     */
+    @Override
     protected void closeSocketAndStreams() {
-    	// do not close anything
+        // do not close anything
     }
 }

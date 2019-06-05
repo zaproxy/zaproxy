@@ -31,25 +31,23 @@ import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 
 public class ResponseSplitComponent<T extends Message> extends RequestSplitComponent<T> {
 
-	public static final String NAME = "ResponseSplit";
-	
-	public ResponseSplitComponent() {
-	}
+    public static final String NAME = "ResponseSplit";
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
-	
-	@Override
-	protected HttpPanelTextView createHttpPanelHeaderTextView() {
-		return new HttpResponseHeaderPanelTextView(new ResponseHeaderStringHttpPanelViewModel());
-	}
+    public ResponseSplitComponent() {}
 
-	
-	@Override
-	protected void initViews() {
-		bodyViews.addView(new HttpResponseBodyPanelTextView(new ResponseBodyStringHttpPanelViewModel()));
-	}
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    protected HttpPanelTextView createHttpPanelHeaderTextView() {
+        return new HttpResponseHeaderPanelTextView(new ResponseHeaderStringHttpPanelViewModel());
+    }
+
+    @Override
+    protected void initViews() {
+        bodyViews.addView(
+                new HttpResponseBodyPanelTextView(new ResponseBodyStringHttpPanelViewModel()));
+    }
 }
-

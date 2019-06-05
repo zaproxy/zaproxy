@@ -20,29 +20,24 @@
 package org.parosproxy.paros.db;
 
 /**
- * This interface was extracted from the previous Paros class of the same name.
- * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * This interface was extracted from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ *
  * @author psiinon
  */
-
 import java.util.List;
-
 
 public interface TableSessionUrl extends DatabaseListener {
 
-	RecordSessionUrl read(long urlId) throws DatabaseException;
+    RecordSessionUrl read(long urlId) throws DatabaseException;
 
-	RecordSessionUrl insert(int type, String url)
-			throws DatabaseException;
+    RecordSessionUrl insert(int type, String url) throws DatabaseException;
 
-	void delete(int type, String url) throws DatabaseException;
+    void delete(int type, String url) throws DatabaseException;
 
-	void deleteAllUrlsForType(int type) throws DatabaseException;
+    void deleteAllUrlsForType(int type) throws DatabaseException;
 
-	List<RecordSessionUrl> getUrlsForType(int type)
-			throws DatabaseException;
+    List<RecordSessionUrl> getUrlsForType(int type) throws DatabaseException;
 
-	void setUrls(int type, List<String> urls)
-			throws DatabaseException;
-
+    void setUrls(int type, List<String> urls) throws DatabaseException;
 }

@@ -26,16 +26,12 @@ import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for {@link ApiResponseElement}.
- */
+/** Unit test for {@link ApiResponseElement}. */
 public class ApiResponseElementUnitTest {
 
     @Test

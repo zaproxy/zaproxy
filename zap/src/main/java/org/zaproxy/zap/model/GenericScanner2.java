@@ -19,30 +19,29 @@
  */
 package org.zaproxy.zap.model;
 
-
 public interface GenericScanner2 extends Runnable {
 
-	void setScanId(int id);
-	
-	int getScanId();
-	
-	void setDisplayName(String name);
-	
-	String getDisplayName();
-	
-	void stopScan();
+    void setScanId(int id);
 
-	boolean isStopped();
+    int getScanId();
 
-	int getProgress();
+    void setDisplayName(String name);
 
-	int getMaximum();
+    String getDisplayName();
 
-	void pauseScan();
+    void stopScan();
 
-	void resumeScan();
+    boolean isStopped();
 
-	boolean isPaused();
+    int getProgress();
 
-	boolean isRunning();
+    int getMaximum();
+
+    void pauseScan();
+
+    void resumeScan();
+
+    boolean isPaused();
+
+    boolean isRunning();
 }

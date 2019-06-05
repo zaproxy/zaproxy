@@ -20,17 +20,18 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.Dialog;
-
 import org.parosproxy.paros.Constant;
 
 class DialogModifyToken extends DialogAddToken {
 
     private static final long serialVersionUID = 182749232809064000L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("httpsessions.options.dialog.token.modify.title");
-    
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("httpsessions.options.dialog.token.modify.button.confirm");
-    
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("httpsessions.options.dialog.token.modify.title");
+
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("httpsessions.options.dialog.token.modify.button.confirm");
+
     protected DialogModifyToken(Dialog owner) {
         super(owner, DIALOG_TITLE);
     }
@@ -43,7 +44,7 @@ class DialogModifyToken extends DialogAddToken {
     public void setToken(HttpSessionToken token) {
         this.token = token;
     }
-    
+
     @Override
     protected boolean validateFields() {
         if (token.getName().equals(getNormalisedName())) {
@@ -59,5 +60,4 @@ class DialogModifyToken extends DialogAddToken {
 
         getEnabledCheckBox().setSelected(token.isEnabled());
     }
-
 }

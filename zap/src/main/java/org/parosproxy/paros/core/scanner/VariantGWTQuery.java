@@ -20,41 +20,33 @@
 package org.parosproxy.paros.core.scanner;
 
 /**
- * Simplified GWT RPC Variant only set to not-empty strings parameter...
- * It takes the RPC call as it has been retrieved, check only for 
- * java.util.String objects, and give back only the one that has a 
- * set value. If a string has been set to null (so it comes in the
- * request with the value 0 inside the index) it's discarded.
- * To manage null string we need to rebuild the overall payload
- * and currently there are some lack of information regarding the
- * real serialization model used by the GWT environment (e.g. how
- * Long are encoded, how can be serialized vectors, how validation
- * classes work, how are managed proxy objects and, finally, 
- * the use of encoded types. 
- * 
+ * Simplified GWT RPC Variant only set to not-empty strings parameter... It takes the RPC call as it
+ * has been retrieved, check only for java.util.String objects, and give back only the one that has
+ * a set value. If a string has been set to null (so it comes in the request with the value 0 inside
+ * the index) it's discarded. To manage null string we need to rebuild the overall payload and
+ * currently there are some lack of information regarding the real serialization model used by the
+ * GWT environment (e.g. how Long are encoded, how can be serialized vectors, how validation classes
+ * work, how are managed proxy objects and, finally, the use of encoded types.
+ *
  * @author yhawke
  */
 public class VariantGWTQuery extends VariantAbstractRPCQuery {
 
     public static final String GWT_RPC_CONTENT_TYPE = "text/x-gwt-rpc";
-    
+
     public static final int RPC_SEPARATOR_CHAR = '|';
     public static final int FLAG_RPC_TOKEN_INCLUDED = 0x2;
 
     /**
-     * 
      * @param contentType
-     * @return 
+     * @return
      */
     @Override
     public boolean isValidContentType(String contentType) {
         return contentType.startsWith(GWT_RPC_CONTENT_TYPE);
     }
 
-    /**
-     * 
-     * @param content 
-     */
+    /** @param content */
     @Override
     public void parseContent(String content) {
         GWTStringTokenizer st = new GWTStringTokenizer(content, RPC_SEPARATOR_CHAR);
@@ -68,7 +60,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
             stringTableIndices[i] = st.getPosition();
             stringTable[i] = st.nextToken();
         }
-   
+
         // Now get the index of the last one
         stringTableIndices[columns] = st.getPosition();
 
@@ -90,9 +82,9 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
         // should be obfuscated but it's not important for
         // this request parser
         String serviceInterfaceName = stringTable[Integer.parseInt(st.nextToken()) - 1];
-        String serviceMethodName = stringTable[Integer.parseInt(st.nextToken()) -1];
+        String serviceMethodName = stringTable[Integer.parseInt(st.nextToken()) - 1];
 
-        // Get the number of parameters        
+        // Get the number of parameters
         int paramCount = Integer.parseInt(st.nextToken());
         // Get each parameter type
         String[] parameterTypes = new String[paramCount];
@@ -104,26 +96,31 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
             // --
             parameterTypes[i] = stringTable[Integer.parseInt(st.nextToken()) - 1];
         }
-        
+
         for (int i = 0; i < paramCount; i++) {
             String strIndex = st.nextToken();
             if (parameterTypes[i].startsWith("java.lang.String")) {
                 int idx = Integer.parseInt(strIndex);
                 if (idx > 0) {
-                    addParameter(String.valueOf(i), stringTableIndices[idx - 1], stringTableIndices[idx] - 1, false, true);
+                    addParameter(
+                            String.valueOf(i),
+                            stringTableIndices[idx - 1],
+                            stringTableIndices[idx] - 1,
+                            false,
+                            true);
                 }
             }
-        }        
+        }
     }
-    
+
     /**
      * Escape a GWT string according to the client implementation found on
      * com.google.gwt.user.client.rpc.impl.ClientSerializationStreamWriter
      * http://www.gwtproject.org/
-     * 
+     *
      * @param value the value that need to be escaped
      * @param toQuote
-     * @return 
+     * @return
      */
     @Override
     public String getEscapedValue(String value, boolean toQuote) {
@@ -159,7 +156,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
      * Unescape a GWT serialized string according to the server implementation found on
      * com.google.gwt.user.server.rpc.impl.ServerSerializationStreamReader
      * http://www.gwtproject.org/
-     * 
+     *
      * @param value the value that need to be deserialized
      * @return the deserialized value
      */
@@ -168,7 +165,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
         // Change quoted characters back
         if (value.indexOf('\\') < 0) {
             return value;
-            
+
         } else {
             StringBuilder buf = new StringBuilder(value.length());
             int idx = 0;
@@ -178,7 +175,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
                 ch = value.charAt(idx++);
                 if (ch == '\\') {
                     if (idx == value.length()) {
-                        //Unmatched backslash, skip the backslash
+                        // Unmatched backslash, skip the backslash
                         break;
                     }
 
@@ -189,7 +186,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
                             break;
 
                         case '!':
-                            buf.append((char)RPC_SEPARATOR_CHAR);
+                            buf.append((char) RPC_SEPARATOR_CHAR);
                             break;
 
                         case '\\':
@@ -199,25 +196,25 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
                         case 'u':
                             try {
                                 if (idx + 4 < value.length()) {
-                                    ch = (char)Integer.parseInt(value.substring(idx, idx + 4), 16);
+                                    ch = (char) Integer.parseInt(value.substring(idx, idx + 4), 16);
                                     buf.append(ch);
-                                    
+
                                 } else {
-                                    //Invalid Unicode hex number
-                                    //skip the sequence
+                                    // Invalid Unicode hex number
+                                    // skip the sequence
                                 }
 
                             } catch (NumberFormatException ex) {
-                                //Invalid Unicode escape sequence
-                                //skip the sequence
+                                // Invalid Unicode escape sequence
+                                // skip the sequence
                             }
-    
+
                             idx += 4;
                             break;
 
                         default:
-                            //Unexpected escape character
-                            //skip the sequence
+                            // Unexpected escape character
+                            // skip the sequence
                     }
                 } else {
                     buf.append(ch);
@@ -239,7 +236,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         if (contentType.startsWith(GWT_RPC_CONTENT_TYPE)) {
             request = RPCRequestHandler.decodeRequest(msg.getRequestBody().toString());
-            
+
             for (RPCParameter p : request.getParameters()) {
                 if (p.getTypeSignature().startsWith("java.lang.String")) {
                     params.add(new NameValuePair(String.valueOf(p.getPosition()), (String)p.getValue(), p.getPosition()));
@@ -247,8 +244,8 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
             }
         }
     }
-    * 
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
+    *
+    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
         String query = RPCRequestHandler.encodeRequest(request, originalPair.getPosition(), value);
         msg.getRequestBody().setBody(query);
         return query;
@@ -256,13 +253,12 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
     */
 
     /**
-     * This is a replacement for the standard StringTokenizer which handles
-     * multiple delimiters differently. Given the input "A,B,,,E", a
-     * StringTokenizer would return three tokens: "A", "B", and "E" (collapsing
-     * the repeated ",,," into a single delimiter ","). A
-     * NoncollapsingStringTokenizer instead returns five tokens: "A", "B", "",
-     * "", "E". The repeated delimiters are taken to indicate empty fields, so
-     * an empty string "" is returned where appropriate.
+     * This is a replacement for the standard StringTokenizer which handles multiple delimiters
+     * differently. Given the input "A,B,,,E", a StringTokenizer would return three tokens: "A",
+     * "B", and "E" (collapsing the repeated ",,," into a single delimiter ","). A
+     * NoncollapsingStringTokenizer instead returns five tokens: "A", "B", "", "", "E". The repeated
+     * delimiters are taken to indicate empty fields, so an empty string "" is returned where
+     * appropriate.
      */
     protected class GWTStringTokenizer {
 
@@ -289,7 +285,7 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
         public boolean hasMoreTokens() {
             return (currentPosition < str.length());
         }
-        
+
         public int getPosition() {
             return currentPosition;
         }

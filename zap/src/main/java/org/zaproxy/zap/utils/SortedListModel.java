@@ -23,36 +23,35 @@ import javax.swing.DefaultListModel;
 
 public class SortedListModel<E extends Comparable<E>> extends DefaultListModel<E> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public SortedListModel() {
-		super();
-	}
+    public SortedListModel() {
+        super();
+    }
 
-	@Override
-	public void addElement(E element) {
-		int size = getSize();
+    @Override
+    public void addElement(E element) {
+        int size = getSize();
 
-		if (size == 0) {
-			super.addElement(element);
-			return;
-		}
+        if (size == 0) {
+            super.addElement(element);
+            return;
+        }
 
-		//  Determine where to insert element to keep list in sorted order
+        //  Determine where to insert element to keep list in sorted order
 
-		int index = 0;
-		for (; index < size; index++) {
-			if (getElementAt(index).compareTo(element) > 0) {
-				break;
-			}
-		}
+        int index = 0;
+        for (; index < size; index++) {
+            if (getElementAt(index).compareTo(element) > 0) {
+                break;
+            }
+        }
 
-		super.insertElementAt(element, index);
-	}
+        super.insertElementAt(element, index);
+    }
 
-	@Override
-	public void insertElementAt(E element, int index) {
-		addElement( element );
-	}
-
+    @Override
+    public void insertElementAt(E element, int index) {
+        addElement(element);
+    }
 }

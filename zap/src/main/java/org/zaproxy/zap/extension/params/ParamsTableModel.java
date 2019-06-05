@@ -23,143 +23,161 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-
 import javax.swing.table.AbstractTableModel;
-
 import org.parosproxy.paros.Constant;
 
 public class ParamsTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = 1L;
-	private static final int COLUMN_COUNT = 7;
-	
-	private final Vector<String> columnNames;
-	private List<HtmlParameterStats> paramStats;
+    private static final long serialVersionUID = 1L;
+    private static final int COLUMN_COUNT = 7;
 
-	private int lastAddedRow;
-	private int lastEditedRow;
-	
-	public ParamsTableModel() {
-		super();
-		columnNames = new Vector<>(COLUMN_COUNT);
-		columnNames.add(Constant.messages.getString("params.table.header.type"));
-		columnNames.add(Constant.messages.getString("params.table.header.name"));
-		columnNames.add(Constant.messages.getString("params.table.header.used"));
-		columnNames.add(Constant.messages.getString("params.table.header.numvals"));
-		columnNames.add(Constant.messages.getString("params.table.header.pcchange"));
-		columnNames.add(Constant.messages.getString("params.table.header.flags"));
-		columnNames.add(Constant.messages.getString("params.table.header.values"));
+    private final Vector<String> columnNames;
+    private List<HtmlParameterStats> paramStats;
 
-		paramStats = Collections.synchronizedList(new ArrayList<HtmlParameterStats>());
-		
-		lastAddedRow = -1;
-		lastEditedRow = -1;
-	}
+    private int lastAddedRow;
+    private int lastEditedRow;
 
-	@Override
-	public int getColumnCount() {
-		return COLUMN_COUNT;
-	}
+    public ParamsTableModel() {
+        super();
+        columnNames = new Vector<>(COLUMN_COUNT);
+        columnNames.add(Constant.messages.getString("params.table.header.type"));
+        columnNames.add(Constant.messages.getString("params.table.header.name"));
+        columnNames.add(Constant.messages.getString("params.table.header.used"));
+        columnNames.add(Constant.messages.getString("params.table.header.numvals"));
+        columnNames.add(Constant.messages.getString("params.table.header.pcchange"));
+        columnNames.add(Constant.messages.getString("params.table.header.flags"));
+        columnNames.add(Constant.messages.getString("params.table.header.values"));
 
-	@Override
-	public int getRowCount() {
-		return paramStats.size();
-	}
+        paramStats = Collections.synchronizedList(new ArrayList<HtmlParameterStats>());
 
-	@Override
-	public String getColumnName(int col) {
-		return columnNames.get(col);
-	}
-	
-	public List<String> getColumnNames() {
-		return new ArrayList<String>(columnNames);
-	}
+        lastAddedRow = -1;
+        lastEditedRow = -1;
+    }
 
-	@Override
-	public Object getValueAt(int row, int col) {
-		Object obj = null;
-		if (row >= paramStats.size()) {
-			return null;
-		}
-		// TODO this doesnt work if resorted??
-		HtmlParameterStats param = paramStats.get(row);
-		switch (col) {
-		case 0: obj = Constant.messages.getString("params.type." + param.getType().name()); break;
-		case 1:	obj = param.getName(); break;
-		case 2:	obj = param.getTimesUsed(); break;
-		case 3:	obj = param.getValues().size(); break;
-		case 4:	obj = getPercentChange(param); break;
-		case 5: obj = param.getAllFlags(); break;
-		case 6: obj = param.getValuesSummary(); break;
-		}
-		return obj;
-	}
-	
-	private int getPercentChange(HtmlParameterStats param) {
-		if (param.getValues().size() == 1) {
-			return 0;
-		}
-		return (param.getValues().size() * 100 / param.getTimesUsed());
-	}
+    @Override
+    public int getColumnCount() {
+        return COLUMN_COUNT;
+    }
 
-	public HtmlParameterStats getHtmlParameterStatsAtRow(int row) {
-		// TODO this doesnt work if resorted??
-		return paramStats.get(row);
-	}
+    @Override
+    public int getRowCount() {
+        return paramStats.size();
+    }
 
-	public void addHtmlParameterStats(HtmlParameterStats param) {
-		lastAddedRow = -1;
-		
-		for (int i = 0; i < paramStats.size(); i++) {
-			int cmp = param.compareTo(paramStats.get(i));
-			if (cmp < 0) {
-				paramStats.add(i, param);
-				this.fireTableRowsInserted(i, i);
+    @Override
+    public String getColumnName(int col) {
+        return columnNames.get(col);
+    }
 
-				lastAddedRow = i;
-				return;
-			} else if (cmp == 0) {
-				// Already matches, so ignore
-				lastAddedRow = i;
-				return;
-			}
-		}
+    public List<String> getColumnNames() {
+        return new ArrayList<String>(columnNames);
+    }
 
-		paramStats.add(param);
-		this.fireTableRowsInserted(paramStats.size()-1, paramStats.size()-1);
-		
-		lastAddedRow = paramStats.size()-1;
-	}
-	
-	public int getLastAddedRow() {
-		return lastAddedRow;
-	}
-	
-	public int getLastEditedRow() {
-		return lastEditedRow;
-	}
-	
-	@Override
-	public boolean isCellEditable(int row, int col) {
-		return false;
-	}
+    @Override
+    public Object getValueAt(int row, int col) {
+        Object obj = null;
+        if (row >= paramStats.size()) {
+            return null;
+        }
+        // TODO this doesnt work if resorted??
+        HtmlParameterStats param = paramStats.get(row);
+        switch (col) {
+            case 0:
+                obj = Constant.messages.getString("params.type." + param.getType().name());
+                break;
+            case 1:
+                obj = param.getName();
+                break;
+            case 2:
+                obj = param.getTimesUsed();
+                break;
+            case 3:
+                obj = param.getValues().size();
+                break;
+            case 4:
+                obj = getPercentChange(param);
+                break;
+            case 5:
+                obj = param.getAllFlags();
+                break;
+            case 6:
+                obj = param.getValuesSummary();
+                break;
+        }
+        return obj;
+    }
 
-	@Override
-	public Class<? extends Object> getColumnClass(int c) {
-		switch (c) {
-		case 0: return String.class;
-		case 1:	return String.class;
-		case 2:	return Integer.class;
-		case 3:	return Integer.class;
-		case 4:	return Integer.class;
-		case 5: return String.class;
-		case 6: return String.class;
-		}
-		return null;
-	}
+    private int getPercentChange(HtmlParameterStats param) {
+        if (param.getValues().size() == 1) {
+            return 0;
+        }
+        return (param.getValues().size() * 100 / param.getTimesUsed());
+    }
 
-	public void removeAllElements() {
-		paramStats.clear();
-	}
+    public HtmlParameterStats getHtmlParameterStatsAtRow(int row) {
+        // TODO this doesnt work if resorted??
+        return paramStats.get(row);
+    }
 
+    public void addHtmlParameterStats(HtmlParameterStats param) {
+        lastAddedRow = -1;
+
+        for (int i = 0; i < paramStats.size(); i++) {
+            int cmp = param.compareTo(paramStats.get(i));
+            if (cmp < 0) {
+                paramStats.add(i, param);
+                this.fireTableRowsInserted(i, i);
+
+                lastAddedRow = i;
+                return;
+            } else if (cmp == 0) {
+                // Already matches, so ignore
+                lastAddedRow = i;
+                return;
+            }
+        }
+
+        paramStats.add(param);
+        this.fireTableRowsInserted(paramStats.size() - 1, paramStats.size() - 1);
+
+        lastAddedRow = paramStats.size() - 1;
+    }
+
+    public int getLastAddedRow() {
+        return lastAddedRow;
+    }
+
+    public int getLastEditedRow() {
+        return lastEditedRow;
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int col) {
+        return false;
+    }
+
+    @Override
+    public Class<? extends Object> getColumnClass(int c) {
+        switch (c) {
+            case 0:
+                return String.class;
+            case 1:
+                return String.class;
+            case 2:
+                return Integer.class;
+            case 3:
+                return Integer.class;
+            case 4:
+                return Integer.class;
+            case 5:
+                return String.class;
+            case 6:
+                return String.class;
+        }
+        return null;
+    }
+
+    public void removeAllElements() {
+        paramStats.clear();
+    }
 }

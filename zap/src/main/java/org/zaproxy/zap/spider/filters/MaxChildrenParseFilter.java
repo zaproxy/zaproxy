@@ -22,7 +22,6 @@ package org.zaproxy.zap.spider.filters;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
-
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -32,73 +31,75 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class MaxChildrenParseFilter extends ParseFilter {
 
-	private int maxChildren = -1;
-	
-	private Model model;
+    private int maxChildren = -1;
 
-	private final FilterResult filtered;
+    private Model model;
 
-	/**
-	 * Constructs a {@code MaxChildrenParseFilter}, with no reason of why the message was filtered.
-	 *
-	 * @deprecated (2.7.0) Use {@link #MaxChildrenParseFilter(ResourceBundle)} instead.
-	 */
-	@Deprecated
-	public MaxChildrenParseFilter() {
-		this(new ResourceBundle() {
+    private final FilterResult filtered;
 
-			@Override
-			public Enumeration<String> getKeys() {
-				return Collections.emptyEnumeration();
-			}
+    /**
+     * Constructs a {@code MaxChildrenParseFilter}, with no reason of why the message was filtered.
+     *
+     * @deprecated (2.7.0) Use {@link #MaxChildrenParseFilter(ResourceBundle)} instead.
+     */
+    @Deprecated
+    public MaxChildrenParseFilter() {
+        this(
+                new ResourceBundle() {
 
-			@Override
-			protected Object handleGetObject(String key) {
-				return "";
-			}
-		});
-	}
+                    @Override
+                    public Enumeration<String> getKeys() {
+                        return Collections.emptyEnumeration();
+                    }
 
-	/**
-	 * Constructs a {@code MaxChildrenParseFilter} with the given resource bundle.
-	 * <p>
-	 * The resource bundle is used to obtain the (internationalised) reason of why the message was filtered.
-	 *
-	 * @param resourceBundle the resource bundle to obtain the internationalised reason.
-	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since 2.7.0
-	 */
-	public MaxChildrenParseFilter(ResourceBundle resourceBundle) {
-		if (resourceBundle == null) {
-			throw new IllegalArgumentException("Parameter resourceBundle must not be null.");
-		}
-		filtered = new FilterResult(resourceBundle.getString("spider.parsefilter.reason.maxchildren"));
-	}
-	
-	@Override
-	public FilterResult filtered(HttpMessage responseMessage) {
+                    @Override
+                    protected Object handleGetObject(String key) {
+                        return "";
+                    }
+                });
+    }
 
-		SiteNode parent = model.getSession().getSiteTree().findClosestParent(responseMessage);
-		if (parent != null) {
-			if (maxChildren > 0 && parent.getChildCount() > maxChildren) {
-				return filtered;
-			}
-		}
+    /**
+     * Constructs a {@code MaxChildrenParseFilter} with the given resource bundle.
+     *
+     * <p>The resource bundle is used to obtain the (internationalised) reason of why the message
+     * was filtered.
+     *
+     * @param resourceBundle the resource bundle to obtain the internationalised reason.
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @since 2.7.0
+     */
+    public MaxChildrenParseFilter(ResourceBundle resourceBundle) {
+        if (resourceBundle == null) {
+            throw new IllegalArgumentException("Parameter resourceBundle must not be null.");
+        }
+        filtered =
+                new FilterResult(resourceBundle.getString("spider.parsefilter.reason.maxchildren"));
+    }
 
-		return FilterResult.NOT_FILTERED;
-	}
+    @Override
+    public FilterResult filtered(HttpMessage responseMessage) {
 
-	public void setMaxChildren(int maxChildren) {
-		this.maxChildren = maxChildren;
-	}
+        SiteNode parent = model.getSession().getSiteTree().findClosestParent(responseMessage);
+        if (parent != null) {
+            if (maxChildren > 0 && parent.getChildCount() > maxChildren) {
+                return filtered;
+            }
+        }
 
-	/**
-	 * Sets the model
-	 * 
-	 * @param model the model used to check the number of children of a node
-	 */
-	public void setModel(Model model) {
-		this.model = model;
-	}
+        return FilterResult.NOT_FILTERED;
+    }
 
+    public void setMaxChildren(int maxChildren) {
+        this.maxChildren = maxChildren;
+    }
+
+    /**
+     * Sets the model
+     *
+     * @param model the model used to check the number of children of a node
+     */
+    public void setModel(Model model) {
+        this.model = model;
+    }
 }

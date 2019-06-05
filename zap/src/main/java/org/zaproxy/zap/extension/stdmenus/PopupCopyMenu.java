@@ -20,54 +20,44 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.awt.Component;
-
 import javax.swing.text.JTextComponent;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 public class PopupCopyMenu extends ExtensionPopupMenuItem {
-	private static final long serialVersionUID = 1L;
-	private JTextComponent lastInvoker = null;
-    
-	/**
-     * @return Returns the lastInvoker.
-     */
+    private static final long serialVersionUID = 1L;
+    private JTextComponent lastInvoker = null;
+
+    /** @return Returns the lastInvoker. */
     public JTextComponent getLastInvoker() {
         return lastInvoker;
     }
-    
-    /**
-	 * This method initializes 
-	 * 
-	 */
-	public PopupCopyMenu() {
-		super();
-		initialize();
-	}
-	
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
+
+    /** This method initializes */
+    public PopupCopyMenu() {
+        super();
+        initialize();
+    }
+
+    /** This method initializes this */
+    private void initialize() {
         this.setText(Constant.messages.getString("copy.copy.popup"));
-	}
-	
-	@Override
+    }
+
+    @Override
     public boolean isEnableForComponent(Component invoker) {
-    	if (invoker instanceof JTextComponent && !(invoker instanceof RSyntaxTextArea)) {
-    	    this.setEnabled(((JTextComponent) invoker).getSelectedText() != null);
-    	    
+        if (invoker instanceof JTextComponent && !(invoker instanceof RSyntaxTextArea)) {
+            this.setEnabled(((JTextComponent) invoker).getSelectedText() != null);
+
             this.lastInvoker = (JTextComponent) invoker;
             return true;
         }
-    	
-    	this.lastInvoker = null;
+
+        this.lastInvoker = null;
         return false;
     }
-    
+
     @Override
     public boolean isSafe() {
         return true;

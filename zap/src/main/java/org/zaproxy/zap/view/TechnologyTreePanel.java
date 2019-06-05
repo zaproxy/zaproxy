@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,7 +35,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
@@ -60,18 +58,19 @@ public class TechnologyTreePanel extends JPanel {
         setLayout(new BorderLayout());
 
         techToNodeMap = new HashMap<>();
-        techTree = new JCheckBoxTree() {
+        techTree =
+                new JCheckBoxTree() {
 
-            private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 1L;
 
-            @Override
-            protected void setExpandedState(TreePath path, boolean state) {
-                // Ignore all collapse requests; collapse events will not be fired
-                if (state) {
-                    super.setExpandedState(path, state);
-                }
-            }
-        };
+                    @Override
+                    protected void setExpandedState(TreePath path, boolean state) {
+                        // Ignore all collapse requests; collapse events will not be fired
+                        if (state) {
+                            super.setExpandedState(path, state);
+                        }
+                    }
+                };
         // Initialise the structure based on all the tech we know about
         TechSet ts = new TechSet(Tech.builtInTech);
         Iterator<Tech> iter = ts.getIncludeTech().iterator();
@@ -151,9 +150,7 @@ public class TechnologyTreePanel extends JPanel {
         return techSet;
     }
 
-    /**
-     * Resets the selection the panel by selecting all technologies.
-     */
+    /** Resets the selection the panel by selecting all technologies. */
     public void reset() {
         techTree.checkSubTree(techTree.getPathForRow(0), true);
     }

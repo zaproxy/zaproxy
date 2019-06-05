@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.history;
 
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -59,5 +58,4 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
     public boolean isSafe() {
         return true;
     }
-
 }

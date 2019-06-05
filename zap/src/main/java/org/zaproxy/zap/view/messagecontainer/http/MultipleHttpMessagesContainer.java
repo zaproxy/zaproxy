@@ -24,12 +24,11 @@ import org.zaproxy.zap.view.messagecontainer.MultipleMessagesContainer;
 
 /**
  * A {@code MultipleMessagesContainer} of {@code HttpMessage}s.
- * 
+ *
  * @see HttpMessage
  * @see HttpMessageContainer
  * @see MultipleMessagesContainer
  * @since 2.3.0
  */
-public interface MultipleHttpMessagesContainer extends MultipleMessagesContainer<HttpMessage>, HttpMessageContainer {
-
-}
+public interface MultipleHttpMessagesContainer
+        extends MultipleMessagesContainer<HttpMessage>, HttpMessageContainer {}

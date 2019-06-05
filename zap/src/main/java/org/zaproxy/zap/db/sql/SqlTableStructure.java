@@ -24,182 +24,187 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DbUtils;
 import org.parosproxy.paros.db.RecordStructure;
 import org.parosproxy.paros.db.TableStructure;
 
 public class SqlTableStructure extends SqlAbstractTable implements TableStructure {
-    
+
     private static final String TABLE_NAME = "STRUCTURE";
-    
-    private static final String STRUCTUREID	= "STRUCTUREID";
-    private static final String SESSIONID	= "SESSIONID";
-    private static final String PARENTID	= "PARENTID";
-    private static final String HISTORYID	= "HISTORYID";
-    private static final String NAME		= "NAME";
-    private static final String URL	= "URL";
-    private static final String METHOD	= "METHOD";
-    
-    public SqlTableStructure() {
-        
-    }
-    
+
+    private static final String STRUCTUREID = "STRUCTUREID";
+    private static final String SESSIONID = "SESSIONID";
+    private static final String PARENTID = "PARENTID";
+    private static final String HISTORYID = "HISTORYID";
+    private static final String NAME = "NAME";
+    private static final String URL = "URL";
+    private static final String METHOD = "METHOD";
+
+    public SqlTableStructure() {}
+
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {
         try {
-			if (!DbUtils.hasTable(conn, TABLE_NAME)) {
-			    // Need to create the table
-			    DbUtils.execute(conn, DbSQL.getSQL("structure.ps.createtable"));
-			}
+            if (!DbUtils.hasTable(conn, TABLE_NAME)) {
+                // Need to create the table
+                DbUtils.execute(conn, DbSQL.getSQL("structure.ps.createtable"));
+            }
 
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
-  
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableParam#read(long)
-	 */
-	@Override
-	public synchronized RecordStructure read(long sessionId, long urlId) throws DatabaseException {
-	    SqlPreparedStatementWrapper psRead = null;
-		try {
-		    psRead = DbSQL.getSingleton().getPreparedStatement("structure.ps.read");
 
-			psRead.getPs().setLong(1, sessionId);
-			psRead.getPs().setLong(2, urlId);
-			
-			try (ResultSet rs = psRead.getPs().executeQuery()) {
-				RecordStructure result = null;
-				if (rs.next()) {
-					result = build(rs);
-				}
-				return result;
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psRead);
-		}
-	}
+    /* (non-Javadoc)
+     * @see org.parosproxy.paros.db.paros.TableParam#read(long)
+     */
+    @Override
+    public synchronized RecordStructure read(long sessionId, long urlId) throws DatabaseException {
+        SqlPreparedStatementWrapper psRead = null;
+        try {
+            psRead = DbSQL.getSingleton().getPreparedStatement("structure.ps.read");
 
-	@Override
-	public RecordStructure insert(long sessionId, long parentId, int historyId, String name, String url, String method) throws DatabaseException {
-		SqlPreparedStatementWrapper psInsert = null;
-		try {
-        	psInsert = DbSQL.getSingleton().getPreparedStatement("structure.ps.insert");
-			psInsert.getPs().setLong(1, sessionId);
-			psInsert.getPs().setLong(2, parentId);
-			psInsert.getPs().setInt(3, historyId);
-			psInsert.getPs().setString(4, name);
-			psInsert.getPs().setLong(5, name.hashCode());
-			psInsert.getPs().setString(6, url);
-			psInsert.getPs().setString(7, method);
-			psInsert.getPs().executeUpdate();
-			
-			long id;
-			try (ResultSet rs = psInsert.getLastInsertedId()) {
-				rs.next();
-				id = rs.getLong(1);
-			}
-			return read(sessionId, id);
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psInsert);
-		}
+            psRead.getPs().setLong(1, sessionId);
+            psRead.getPs().setLong(2, urlId);
+
+            try (ResultSet rs = psRead.getPs().executeQuery()) {
+                RecordStructure result = null;
+                if (rs.next()) {
+                    result = build(rs);
+                }
+                return result;
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psRead);
+        }
     }
-    
 
-	@Override
-	public RecordStructure find(long sessionId, String name, String method) throws DatabaseException {
-		SqlPreparedStatementWrapper psFind = null;
-		try {
-			psFind = DbSQL.getSingleton().getPreparedStatement("structure.ps.find");
-			psFind.getPs().setLong(1, sessionId);
-			psFind.getPs().setLong(2, name.hashCode());
-			psFind.getPs().setString(3, method);
-			try (ResultSet rs = psFind.getPs().executeQuery()) {
-				while (rs.next()) {
-					// We can get multiple records back due to hash collisions,
-					// so double check the actual URL
-					if (name.equals(rs.getString(NAME))) {
-						return build(rs);
-					}
-				}
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psFind);
-		}
-		return null;
-	}
+    @Override
+    public RecordStructure insert(
+            long sessionId, long parentId, int historyId, String name, String url, String method)
+            throws DatabaseException {
+        SqlPreparedStatementWrapper psInsert = null;
+        try {
+            psInsert = DbSQL.getSingleton().getPreparedStatement("structure.ps.insert");
+            psInsert.getPs().setLong(1, sessionId);
+            psInsert.getPs().setLong(2, parentId);
+            psInsert.getPs().setInt(3, historyId);
+            psInsert.getPs().setString(4, name);
+            psInsert.getPs().setLong(5, name.hashCode());
+            psInsert.getPs().setString(6, url);
+            psInsert.getPs().setString(7, method);
+            psInsert.getPs().executeUpdate();
 
-	@Override
-	public List<RecordStructure> getChildren(long sessionId, long parentId)
-			throws DatabaseException {
-		SqlPreparedStatementWrapper psGetChildren = null;
-    	try {
-    		psGetChildren = DbSQL.getSingleton().getPreparedStatement("structure.ps.getchildren");
-    		psGetChildren.getPs().setLong(1, sessionId);
-    		psGetChildren.getPs().setLong(2, parentId);
-			List<RecordStructure> result = new ArrayList<>();
-			try (ResultSet rs = psGetChildren.getPs().executeQuery()) {
-				while (rs.next()) {
-					result.add(build(rs));
-				}
-			}
-			
-			return result;
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psGetChildren);
-		}
-	}
+            long id;
+            try (ResultSet rs = psInsert.getLastInsertedId()) {
+                rs.next();
+                id = rs.getLong(1);
+            }
+            return read(sessionId, id);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psInsert);
+        }
+    }
 
-	@Override
-	public long getChildCount(long sessionId, long parentId) throws DatabaseException {
-		SqlPreparedStatementWrapper psGetChildCount = null;
-    	try {
-    		psGetChildCount = DbSQL.getSingleton().getPreparedStatement("structure.ps.getchildcount");
-    		psGetChildCount.getPs().setLong(1, sessionId);
-    		psGetChildCount.getPs().setLong(2, parentId);
-			try (ResultSet rs = psGetChildCount.getPs().executeQuery()) {
-				if (rs.next()) {
-					return rs.getLong(1);
-				}
-			}
-			return 0;
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		} finally {
-			DbSQL.getSingleton().releasePreparedStatement(psGetChildCount);
-		}
-	}
+    @Override
+    public RecordStructure find(long sessionId, String name, String method)
+            throws DatabaseException {
+        SqlPreparedStatementWrapper psFind = null;
+        try {
+            psFind = DbSQL.getSingleton().getPreparedStatement("structure.ps.find");
+            psFind.getPs().setLong(1, sessionId);
+            psFind.getPs().setLong(2, name.hashCode());
+            psFind.getPs().setString(3, method);
+            try (ResultSet rs = psFind.getPs().executeQuery()) {
+                while (rs.next()) {
+                    // We can get multiple records back due to hash collisions,
+                    // so double check the actual URL
+                    if (name.equals(rs.getString(NAME))) {
+                        return build(rs);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psFind);
+        }
+        return null;
+    }
 
-	@Override
-	public void deleteLeaf(long sessionId, long structureId) throws DatabaseException {
-		// TODO Implement
-		
-	}
+    @Override
+    public List<RecordStructure> getChildren(long sessionId, long parentId)
+            throws DatabaseException {
+        SqlPreparedStatementWrapper psGetChildren = null;
+        try {
+            psGetChildren = DbSQL.getSingleton().getPreparedStatement("structure.ps.getchildren");
+            psGetChildren.getPs().setLong(1, sessionId);
+            psGetChildren.getPs().setLong(2, parentId);
+            List<RecordStructure> result = new ArrayList<>();
+            try (ResultSet rs = psGetChildren.getPs().executeQuery()) {
+                while (rs.next()) {
+                    result.add(build(rs));
+                }
+            }
 
-	@Override
-	public void deleteSubtree(long sessionId, long structureId) throws DatabaseException {
-		// TODO Implement
-		
-	}
+            return result;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psGetChildren);
+        }
+    }
+
+    @Override
+    public long getChildCount(long sessionId, long parentId) throws DatabaseException {
+        SqlPreparedStatementWrapper psGetChildCount = null;
+        try {
+            psGetChildCount =
+                    DbSQL.getSingleton().getPreparedStatement("structure.ps.getchildcount");
+            psGetChildCount.getPs().setLong(1, sessionId);
+            psGetChildCount.getPs().setLong(2, parentId);
+            try (ResultSet rs = psGetChildCount.getPs().executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        } finally {
+            DbSQL.getSingleton().releasePreparedStatement(psGetChildCount);
+        }
+    }
+
+    @Override
+    public void deleteLeaf(long sessionId, long structureId) throws DatabaseException {
+        // TODO Implement
+
+    }
+
+    @Override
+    public void deleteSubtree(long sessionId, long structureId) throws DatabaseException {
+        // TODO Implement
+
+    }
 
     private RecordStructure build(ResultSet rs) throws DatabaseException {
         try {
-		    return new RecordStructure(rs.getLong(SESSIONID), rs.getLong(STRUCTUREID), rs.getLong(PARENTID), rs.getInt(HISTORYID), 
-		    		rs.getString(NAME), rs.getString(URL), rs.getString(METHOD));
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
+            return new RecordStructure(
+                    rs.getLong(SESSIONID),
+                    rs.getLong(STRUCTUREID),
+                    rs.getLong(PARENTID),
+                    rs.getInt(HISTORYID),
+                    rs.getString(NAME),
+                    rs.getString(URL),
+                    rs.getString(METHOD));
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
-
 }

@@ -24,15 +24,13 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import javax.swing.JTextArea;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link HttpTextViewUtils}.
- */
+/** Unit test for {@link HttpTextViewUtils}. */
 public class HttpTextViewUtilsUnitTest {
 
-    private static final String HEADER = "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n";
+    private static final String HEADER =
+            "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n";
     private static final int HEADER_LENGTH = HEADER.length();
     private static final JTextArea VIEW = new JTextArea(HEADER.replace("\r\n", "\n"));
     private static final int VIEW_LENGTH = VIEW.getDocument().getLength();
@@ -67,9 +65,12 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingHeaderToViewPosition() {
+    public void
+            shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingHeaderToViewPosition() {
         // Given / When
-        int pos[] = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, HEADER_LENGTH + 1, HEADER_LENGTH + 2);
+        int pos[] =
+                HttpTextViewUtils.getHeaderToViewPosition(
+                        VIEW, HEADER, HEADER_LENGTH + 1, HEADER_LENGTH + 2);
         // Then
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
@@ -97,7 +98,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingHeaderToViewPosition() throws Exception {
+    public void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingHeaderToViewPosition()
+            throws Exception {
         // Given
         int start = 10;
         int end = 18;
@@ -111,7 +113,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionNotOnFirstLineWhenGettingHeaderToViewPosition() throws Exception {
+    public void shouldOffsetPositionNotOnFirstLineWhenGettingHeaderToViewPosition()
+            throws Exception {
         // Given
         int start = 4;
         int end = 65;
@@ -127,7 +130,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionsPerEachLineHeaderWhenGettingHeaderToViewPosition() throws Exception {
+    public void shouldOffsetPositionsPerEachLineHeaderWhenGettingHeaderToViewPosition()
+            throws Exception {
         // Given
         int start = 20;
         int end = 52;
@@ -137,7 +141,9 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(19)));
         assertThat(pos[1], is(equalTo(50)));
-        assertThat(VIEW.getText(pos[0], pos[1] - pos[0]), is(equalTo("Host: example.com\nX-SomeHeader:")));
+        assertThat(
+                VIEW.getText(pos[0], pos[1] - pos[0]),
+                is(equalTo("Host: example.com\nX-SomeHeader:")));
     }
 
     @Test
@@ -153,7 +159,9 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos[1], is(equalTo(VIEW_LENGTH)));
         assertThat(
                 VIEW.getText(pos[0], pos[1]),
-                is(equalTo("GET /path HTTP/1.1\nHost: example.com\nX-SomeHeader: x-some-value\n\n")));
+                is(
+                        equalTo(
+                                "GET /path HTTP/1.1\nHost: example.com\nX-SomeHeader: x-some-value\n\n")));
     }
 
     @Test
@@ -170,7 +178,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfOffsetStartIsGreaterThanViewLengthWhenGettingHeaderToViewPosition() {
+    public void
+            shouldReturnInvalidPositionIfOffsetStartIsGreaterThanViewLengthWhenGettingHeaderToViewPosition() {
         // Given
         JTextArea view = new JTextArea("ABC");
         int start = 5;
@@ -182,7 +191,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfOffsetEndIsGreaterThanViewLengthWhenGettingHeaderToViewPosition() {
+    public void
+            shouldReturnInvalidPositionIfOffsetEndIsGreaterThanViewLengthWhenGettingHeaderToViewPosition() {
         // Given
         JTextArea view = new JTextArea("ABC");
         int start = 2;
@@ -210,9 +220,11 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderPosition() {
+    public void
+            shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderPosition() {
         // Given / When
-        int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, VIEW_LENGTH + 1, VIEW_LENGTH + 2);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderPosition(VIEW, VIEW_LENGTH + 1, VIEW_LENGTH + 2);
         // Then
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
@@ -280,7 +292,9 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(20)));
         assertThat(pos[1], is(equalTo(52)));
-        assertThat(HEADER.substring(pos[0], pos[1]), is(equalTo("Host: example.com\r\nX-SomeHeader:")));
+        assertThat(
+                HEADER.substring(pos[0], pos[1]),
+                is(equalTo("Host: example.com\r\nX-SomeHeader:")));
     }
 
     @Test
@@ -296,7 +310,9 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
         assertThat(
                 HEADER.substring(pos[0], pos[1]),
-                is(equalTo("GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
+                is(
+                        equalTo(
+                                "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
     }
 
     @Test
@@ -340,7 +356,12 @@ public class HttpTextViewUtilsUnitTest {
     @Test
     public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingBodyToViewPosition() {
         // Given / When
-        int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, VIEW_WITH_BODY_LENGTH + 1, VIEW_WITH_BODY_LENGTH + 2);
+        int[] pos =
+                HttpTextViewUtils.getBodyToViewPosition(
+                        VIEW_WITH_BODY,
+                        HEADER,
+                        VIEW_WITH_BODY_LENGTH + 1,
+                        VIEW_WITH_BODY_LENGTH + 2);
         // Then
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
@@ -355,7 +376,9 @@ public class HttpTextViewUtilsUnitTest {
     @Test
     public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingBodyToViewPosition() {
         // Given / When
-        int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
+        int[] pos =
+                HttpTextViewUtils.getBodyToViewPosition(
+                        VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
         // Then
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
@@ -368,7 +391,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionsPerEachLineHeaderWhenGettingBodyToViewPosition() throws Exception {
+    public void shouldOffsetPositionsPerEachLineHeaderWhenGettingBodyToViewPosition()
+            throws Exception {
         // Given
         int start = 0;
         int end = 12;
@@ -394,7 +418,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfOffsetStartIsGreaterThanViewLengthWhenGettingBodyToViewPosition() {
+    public void
+            shouldReturnInvalidPositionIfOffsetStartIsGreaterThanViewLengthWhenGettingBodyToViewPosition() {
         // Given
         int start = 1;
         int end = 2;
@@ -405,7 +430,8 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfOffsetEndIsGreaterThanViewLengthWhenGettingBodyToViewPosition() {
+    public void
+            shouldReturnInvalidPositionIfOffsetEndIsGreaterThanViewLengthWhenGettingBodyToViewPosition() {
         // Given
         int start = 0;
         int end = 1;
@@ -441,9 +467,15 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
+    public void
+            shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
         // Given / When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, VIEW_WITH_BODY_LENGTH + 1, VIEW_WITH_BODY_LENGTH + 2);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(
+                        VIEW_WITH_BODY,
+                        HEADER,
+                        VIEW_WITH_BODY_LENGTH + 1,
+                        VIEW_WITH_BODY_LENGTH + 2);
         // Then
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
@@ -456,9 +488,12 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
+    public void
+            shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
         // Given / When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(
+                        VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
         // Then
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
@@ -476,7 +511,8 @@ public class HttpTextViewUtilsUnitTest {
         int start = 10;
         int end = 18;
         // When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(10)));
@@ -490,7 +526,8 @@ public class HttpTextViewUtilsUnitTest {
         int start = 4;
         int end = 63;
         // When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(4)));
@@ -506,12 +543,15 @@ public class HttpTextViewUtilsUnitTest {
         int start = 19;
         int end = 50;
         // When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(20)));
         assertThat(pos[1], is(equalTo(52)));
-        assertThat(HEADER.substring(pos[0], pos[1]), is(equalTo("Host: example.com\r\nX-SomeHeader:")));
+        assertThat(
+                HEADER.substring(pos[0], pos[1]),
+                is(equalTo("Host: example.com\r\nX-SomeHeader:")));
     }
 
     @Test
@@ -520,30 +560,37 @@ public class HttpTextViewUtilsUnitTest {
         int start = 0;
         int end = VIEW_LENGTH;
         // When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(0)));
         assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
         assertThat(
                 HEADER.substring(pos[0], pos[1]),
-                is(equalTo("GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
+                is(
+                        equalTo(
+                                "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
     }
 
     @Test
-    public void shouldTruncateEndOffsetIfGreaterThanLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
+    public void
+            shouldTruncateEndOffsetIfGreaterThanLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 0;
         int end = VIEW_WITH_BODY_LENGTH;
         // When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
         assertThat(pos.length, is(equalTo(2)));
         assertThat(pos[0], is(equalTo(0)));
         assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
         assertThat(
                 HEADER.substring(pos[0], pos[1]),
-                is(equalTo("GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
+                is(
+                        equalTo(
+                                "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n")));
     }
 
     @Test
@@ -552,7 +599,8 @@ public class HttpTextViewUtilsUnitTest {
         int start = VIEW_LENGTH;
         int end = VIEW_WITH_BODY_LENGTH;
         // When
-        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
+        int[] pos =
+                HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, start, end);
         // Then
         assertThat(pos.length, is(equalTo(3)));
         assertThat(pos[0], is(equalTo(0)));

@@ -20,82 +20,80 @@
 package org.zaproxy.zap.extension.script;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.parosproxy.paros.Constant;
 
 /**
  * A {@link javax.swing.tree.MutableTreeNode MutableTreeNode} for model of scripts tree.
- * 
+ *
  * @since 2.2.0
  * @see ScriptTreeModel
  */
 public class ScriptNode extends DefaultMutableTreeNode {
-	private static final long serialVersionUID = 1L;
-	private String nodeName = null;
-	private ScriptType type = null;
-	private boolean template = false;
-    
-	public ScriptNode() {
-		// Only use for the root node
+    private static final long serialVersionUID = 1L;
+    private String nodeName = null;
+    private ScriptType type = null;
+    private boolean template = false;
+
+    public ScriptNode() {
+        // Only use for the root node
         super();
         this.nodeName = Constant.messages.getString("script.tree.root");
     }
 
-	public ScriptNode(boolean template) {
-		// Only use for the second level nodes
+    public ScriptNode(boolean template) {
+        // Only use for the second level nodes
         this.template = template;
         if (template) {
             this.nodeName = Constant.messages.getString("script.tree.templates");
         } else {
             this.nodeName = Constant.messages.getString("script.tree.scripts");
         }
-        
     }
 
-	public ScriptNode(ScriptType type, boolean template) {
-		this.nodeName = Constant.messages.getString(type.getI18nKey());
-		this.type = type;
+    public ScriptNode(ScriptType type, boolean template) {
+        this.nodeName = Constant.messages.getString(type.getI18nKey());
+        this.type = type;
         this.template = template;
-	}
+    }
 
-	public ScriptNode(String name) {
-		this.nodeName = name;
-	}
+    public ScriptNode(String name) {
+        this.nodeName = name;
+    }
 
-	public ScriptNode(ScriptWrapper script) {
-		this(script, false);
-	}
+    public ScriptNode(ScriptWrapper script) {
+        this(script, false);
+    }
 
-	public ScriptNode(ScriptWrapper script, boolean template) {
-		this.nodeName = script.getName();
-		this.type  = script.getType();
-		this.template = template;
-		this.setUserObject(script);
-	}
+    public ScriptNode(ScriptWrapper script, boolean template) {
+        this.nodeName = script.getName();
+        this.type = script.getType();
+        this.template = template;
+        this.setUserObject(script);
+    }
 
     @Override
     public String toString() {
         return nodeName;
     }
 
-	public String getNodeName() {
-		return nodeName;
-	}
-	
-	public void setNodeName(String name) {
-		this.nodeName = name;
-	}
-	
-	@Override
-	public ScriptNode getParent() {
-		return (ScriptNode) super.getParent();
-	}
+    public String getNodeName() {
+        return nodeName;
+    }
 
-	public ScriptType getType() {
-		return type;
-	}
+    public void setNodeName(String name) {
+        this.nodeName = name;
+    }
 
-	public boolean isTemplate() {
-		return template;
-	}
+    @Override
+    public ScriptNode getParent() {
+        return (ScriptNode) super.getParent();
+    }
+
+    public ScriptType getType() {
+        return type;
+    }
+
+    public boolean isTemplate() {
+        return template;
+    }
 }

@@ -21,13 +21,12 @@ package org.zaproxy.zap.view.messagelocation;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 /**
  * A container of editors and renderers of {@code MessageLocationHighlight}s.
- * 
+ *
  * @since 2.4.0
  * @see MessageLocationHighlight
  * @see TableCellEditor
@@ -58,7 +57,8 @@ public final class MessageLocationHighlightRenderersEditors {
         }
     }
 
-    public void addEditor(Class<? extends MessageLocationHighlight> classHighlight, TableCellEditor editor) {
+    public void addEditor(
+            Class<? extends MessageLocationHighlight> classHighlight, TableCellEditor editor) {
         editors.put(classHighlight, editor);
     }
 
@@ -70,7 +70,8 @@ public final class MessageLocationHighlightRenderersEditors {
         editors.remove(classHighlight);
     }
 
-    public void addRenderer(Class<? extends MessageLocationHighlight> classHighlight, TableCellRenderer renderer) {
+    public void addRenderer(
+            Class<? extends MessageLocationHighlight> classHighlight, TableCellRenderer renderer) {
         renderers.put(classHighlight, renderer);
     }
 

@@ -20,29 +20,24 @@
 package org.parosproxy.paros.db;
 
 /**
- * This interface was extracted from the previous Paros class of the same name.
- * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * This interface was extracted from the previous Paros class of the same name. The Paros class that
+ * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ *
  * @author psiinon
  */
-
 import java.util.List;
-
 
 public interface TableTag extends DatabaseListener {
 
-	RecordTag read(long tagId) throws DatabaseException;
+    RecordTag read(long tagId) throws DatabaseException;
 
-	RecordTag insert(long historyId, String tag)
-			throws DatabaseException;
+    RecordTag insert(long historyId, String tag) throws DatabaseException;
 
-	void delete(long historyId, String tag) throws DatabaseException;
+    void delete(long historyId, String tag) throws DatabaseException;
 
-	List<RecordTag> getTagsForHistoryID(long historyId)
-			throws DatabaseException;
+    List<RecordTag> getTagsForHistoryID(long historyId) throws DatabaseException;
 
-	List<String> getAllTags() throws DatabaseException;
+    List<String> getAllTags() throws DatabaseException;
 
-	void deleteTagsForHistoryID(long historyId)
-			throws DatabaseException;
-
+    void deleteTagsForHistoryID(long historyId) throws DatabaseException;
 }

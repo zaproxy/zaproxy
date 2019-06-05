@@ -20,21 +20,21 @@
 package org.zaproxy.zap.extension.httppanel.view.paramtable.addins;
 
 public class ParamAddinMagic implements ParamAddinInterface {
-	
-	private static final String INSERT_MAGIC = "Insert Magic";
 
-	@Override
-	public String convertData(String data) {
-		return data + "__ZAP__";
-	}
+    private static final String INSERT_MAGIC = "Insert Magic";
 
-	@Override
-	public String getName() {
-		return INSERT_MAGIC;
-	}
-	
-	@Override
-	public String toString() {
-		return INSERT_MAGIC;
-	}
+    @Override
+    public String convertData(String data) {
+        return data + "__ZAP__";
+    }
+
+    @Override
+    public String getName() {
+        return INSERT_MAGIC;
+    }
+
+    @Override
+    public String toString() {
+        return INSERT_MAGIC;
+    }
 }

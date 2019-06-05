@@ -23,47 +23,51 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A default implementation of a {@code MultipleHttpMessagesContainer}.
- * <p>
- * <strong>Note:</strong> Users of this class should provide list of {@code HttpMessage}s that are loaded/read as needed (for
- * example, from database with {@code PersistedHttpMessagesList}) to avoid keeping the {@code HttpMessage}s in memory or
- * alternatively use {@code MultipleHistoryReferencesContainer}.
- * 
+ *
+ * <p><strong>Note:</strong> Users of this class should provide list of {@code HttpMessage}s that
+ * are loaded/read as needed (for example, from database with {@code PersistedHttpMessagesList}) to
+ * avoid keeping the {@code HttpMessage}s in memory or alternatively use {@code
+ * MultipleHistoryReferencesContainer}.
+ *
  * @see MultipleHttpMessagesContainer
  * @see MultipleHistoryReferencesContainer
  * @see PersistedHttpMessagesList
  * @since 2.3.0
  */
-public class DefaultMultipleHttpMessagesContainer extends AbstractHttpMessageContainer implements MultipleHttpMessagesContainer {
+public class DefaultMultipleHttpMessagesContainer extends AbstractHttpMessageContainer
+        implements MultipleHttpMessagesContainer {
 
     private final List<HttpMessage> httpMessages;
 
     /**
-     * Constructs a {@code DefaultMultipleHttpMessagesContainer} with no contained {@code HttpMessage}s and with the given
-     * container {@code name} and {@code component}.
-     * 
+     * Constructs a {@code DefaultMultipleHttpMessagesContainer} with no contained {@code
+     * HttpMessage}s and with the given container {@code name} and {@code component}.
+     *
      * @param name the name of the container
      * @param component the GUI component of the container
-     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code null}.
+     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code
+     *     null}.
      */
     public DefaultMultipleHttpMessagesContainer(String name, Component component) {
         this(name, component, null);
     }
 
     /**
-     * Constructs a {@code DefaultMultipleHttpMessagesContainer} with the given container {@code name} and {@code component} and
-     * contained {@code httpMessages}.
-     * 
+     * Constructs a {@code DefaultMultipleHttpMessagesContainer} with the given container {@code
+     * name} and {@code component} and contained {@code httpMessages}.
+     *
      * @param name the name of the container
      * @param component the GUI component of the container
      * @param httpMessages the contained HTTP messages, {@code null} or empty list if none
-     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code null}.
+     * @throws IllegalArgumentException if the given {@code name} or {@code component} is {@code
+     *     null}.
      */
-    public DefaultMultipleHttpMessagesContainer(String name, Component component, List<HttpMessage> httpMessages) {
+    public DefaultMultipleHttpMessagesContainer(
+            String name, Component component, List<HttpMessage> httpMessages) {
         super(name, component);
 
         if (httpMessages == null || httpMessages.isEmpty()) {
@@ -71,7 +75,6 @@ public class DefaultMultipleHttpMessagesContainer extends AbstractHttpMessageCon
         } else {
             this.httpMessages = Collections.unmodifiableList(new ArrayList<>(httpMessages));
         }
-
     }
 
     @Override
@@ -96,5 +99,4 @@ public class DefaultMultipleHttpMessagesContainer extends AbstractHttpMessageCon
     public List<HttpMessage> getMessages() {
         return httpMessages;
     }
-
 }

@@ -28,55 +28,53 @@ public class KeyboardShortcut {
     private KeyStroke keyStroke;
     private boolean changed = false;
 
-    public KeyboardShortcut() {
-    }
+    public KeyboardShortcut() {}
 
     public KeyboardShortcut(String identifier, String name, KeyStroke keyStroke) {
-    	this.identifier = identifier;
-    	this.name = name;
-    	this.keyStroke = keyStroke;
+        this.identifier = identifier;
+        this.name = name;
+        this.keyStroke = keyStroke;
     }
 
     public String getName() {
-    	return this.name;
+        return this.name;
     }
-    
+
     public String getIdentifier() {
-    	return this.identifier;
-    	
+        return this.identifier;
     }
 
     public KeyStroke getKeyStroke() {
-    	return keyStroke;
+        return keyStroke;
     }
 
     public String getKeyStrokeKeyCodeString() {
-    	if (this.keyStroke == null) {
-    		return "";
-    	}
-    	return KeyboardMapping.keyString(this.keyStroke.getKeyCode());
+        if (this.keyStroke == null) {
+            return "";
+        }
+        return KeyboardMapping.keyString(this.keyStroke.getKeyCode());
     }
 
     public String getKeyStrokeModifiersString() {
-    	if (this.keyStroke == null) {
-    		return "";
-    	}
-    	return KeyboardMapping.modifiersString(this.keyStroke.getModifiers());
+        if (this.keyStroke == null) {
+            return "";
+        }
+        return KeyboardMapping.modifiersString(this.keyStroke.getModifiers());
     }
 
     public String getKeyStrokeString() {
-    	if (this.keyStroke == null) {
-    		return "";
-    	}
-		return getKeyStrokeModifiersString() + " " + getKeyStrokeKeyCodeString();
-    }
-    
-    public void setKeyStroke(KeyStroke keyStroke) {
-    	this.keyStroke = keyStroke;
-    	this.changed = true;
+        if (this.keyStroke == null) {
+            return "";
+        }
+        return getKeyStrokeModifiersString() + " " + getKeyStrokeKeyCodeString();
     }
 
-	public boolean isChanged() {
-		return changed;
-	}
+    public void setKeyStroke(KeyStroke keyStroke) {
+        this.keyStroke = keyStroke;
+        this.changed = true;
+    }
+
+    public boolean isChanged() {
+        return changed;
+    }
 }

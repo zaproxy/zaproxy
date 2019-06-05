@@ -25,36 +25,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScannerList {
 
-	private static final Logger logger = Logger.getLogger(PassiveScannerList.class);
+    private static final Logger logger = Logger.getLogger(PassiveScannerList.class);
 
-	private List<PassiveScanner> passiveScanners = new CopyOnWriteArrayList<>();
-	private Set<String> scannerNames = new HashSet<>();
+    private List<PassiveScanner> passiveScanners = new CopyOnWriteArrayList<>();
+    private Set<String> scannerNames = new HashSet<>();
 
-	protected boolean add (PassiveScanner scanner) {
-		if (scannerNames.contains(scanner.getName())) {
-			// Prevent duplicates, log error?
-			return false;
-		}
-		passiveScanners.add(scanner);
-		scannerNames.add(scanner.getName());
+    protected boolean add(PassiveScanner scanner) {
+        if (scannerNames.contains(scanner.getName())) {
+            // Prevent duplicates, log error?
+            return false;
+        }
+        passiveScanners.add(scanner);
+        scannerNames.add(scanner.getName());
 
-		return true;
-	}
-	
-	protected List<PassiveScanner> list () {
-		return this.passiveScanners;
-	}
-	
-	public void setAutoTagScanners(List<RegexAutoTagScanner> autoTagScanners) {
-		List<PassiveScanner> tempScanners = new ArrayList<>(passiveScanners.size() + autoTagScanners.size());
-        
-        for (Iterator<PassiveScanner> it = passiveScanners.iterator(); it.hasNext();) {
+        return true;
+    }
+
+    protected List<PassiveScanner> list() {
+        return this.passiveScanners;
+    }
+
+    public void setAutoTagScanners(List<RegexAutoTagScanner> autoTagScanners) {
+        List<PassiveScanner> tempScanners =
+                new ArrayList<>(passiveScanners.size() + autoTagScanners.size());
+
+        for (Iterator<PassiveScanner> it = passiveScanners.iterator(); it.hasNext(); ) {
             PassiveScanner scanner = it.next();
             if (!(scanner instanceof RegexAutoTagScanner)) {
                 tempScanners.add(scanner);
@@ -62,33 +62,34 @@ public class PassiveScannerList {
                 this.scannerNames.remove(scanner.getName());
             }
         }
-        
-        for (Iterator<RegexAutoTagScanner> it = autoTagScanners.iterator(); it.hasNext();) {
+
+        for (Iterator<RegexAutoTagScanner> it = autoTagScanners.iterator(); it.hasNext(); ) {
             PassiveScanner scanner = it.next();
             if (scannerNames.contains(scanner.getName())) {
-            	logger.error("Duplicate passive scanner name: " + scanner.getName());
+                logger.error("Duplicate passive scanner name: " + scanner.getName());
             } else {
-            	tempScanners.add(scanner);
-            	scannerNames.add(scanner.getName());
+                tempScanners.add(scanner);
+                scannerNames.add(scanner.getName());
             }
         }
-        
+
         this.passiveScanners = new CopyOnWriteArrayList<>(tempScanners);
     }
 
-	public PassiveScanner removeScanner(String className) {
-		for (PassiveScanner scanner : passiveScanners) {
-			if (scanner.getClass().getName().equals(className)) {
-				scannerNames.remove(scanner.getName());
-				passiveScanners.remove(scanner);
-				return scanner;
-			}
-		}
-		return null;
-	}
+    public PassiveScanner removeScanner(String className) {
+        for (PassiveScanner scanner : passiveScanners) {
+            if (scanner.getClass().getName().equals(className)) {
+                scannerNames.remove(scanner.getName());
+                passiveScanners.remove(scanner);
+                return scanner;
+            }
+        }
+        return null;
+    }
 
     /**
-     * Returns the PassiveScan rule with the given id 
+     * Returns the PassiveScan rule with the given id
+     *
      * @param pluginId
      * @return the PassiveScan rule with the given id, or null if not found
      * @since 2.8.0
@@ -96,12 +97,11 @@ public class PassiveScannerList {
     public PassiveScanner getScanner(int pluginId) {
         for (PassiveScanner scanner : passiveScanners) {
             if (scanner instanceof PluginPassiveScanner) {
-                if (((PluginPassiveScanner)scanner).getPluginId() == pluginId) {
+                if (((PluginPassiveScanner) scanner).getPluginId() == pluginId) {
                     return scanner;
                 }
             }
         }
         return null;
     }
-
 }

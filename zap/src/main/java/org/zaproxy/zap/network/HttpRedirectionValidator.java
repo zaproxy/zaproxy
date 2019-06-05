@@ -24,10 +24,10 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A validator of redirections, called for each redirection of a HTTP request.
- * <p>
- * As convenience the validator will also be notified of the HTTP messages sent and received (first message and followed
- * redirections, if any).
- * 
+ *
+ * <p>As convenience the validator will also be notified of the HTTP messages sent and received
+ * (first message and followed redirections, if any).
+ *
  * @since 2.6.0
  */
 @FunctionalInterface
@@ -42,10 +42,10 @@ public interface HttpRedirectionValidator {
     boolean isValid(URI redirection);
 
     /**
-     * Notifies that a new message was sent and received (called for the first message and followed redirections, if any).
+     * Notifies that a new message was sent and received (called for the first message and followed
+     * redirections, if any).
      *
      * @param message the HTTP message that was received, never {@code null}.
      */
-    default void notifyMessageReceived(HttpMessage message) {
-    }
+    default void notifyMessageReceived(HttpMessage message) {}
 }

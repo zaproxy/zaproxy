@@ -22,36 +22,34 @@ package org.zaproxy.zap.model;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
 import javax.swing.tree.TreeNode;
-
 import org.parosproxy.paros.model.SiteNode;
 
 public class StructuralSiteNodeIterator implements Iterator<StructuralNode> {
 
-	private Enumeration<TreeNode> children;
-	
-	public StructuralSiteNodeIterator(StructuralSiteNode parent){
-	    @SuppressWarnings("unchecked")
-	    Enumeration<TreeNode> children = parent.getSiteNode().children();
-	    this.children = children;
-	}
-	
-	@Override
-	public boolean hasNext() {
-		return children.hasMoreElements();
-	}
+    private Enumeration<TreeNode> children;
 
-	@Override
-	public StructuralSiteNode next() {
-		if (! hasNext()) {
-			throw new NoSuchElementException();
-		}
-		return new StructuralSiteNode((SiteNode) children.nextElement());
-	}
+    public StructuralSiteNodeIterator(StructuralSiteNode parent) {
+        @SuppressWarnings("unchecked")
+        Enumeration<TreeNode> children = parent.getSiteNode().children();
+        this.children = children;
+    }
 
-	@Override
-	public void remove() {
-		// TODO 
-	}
+    @Override
+    public boolean hasNext() {
+        return children.hasMoreElements();
+    }
+
+    @Override
+    public StructuralSiteNode next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        return new StructuralSiteNode((SiteNode) children.nextElement());
+    }
+
+    @Override
+    public void remove() {
+        // TODO
+    }
 }

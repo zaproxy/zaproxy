@@ -29,21 +29,16 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import javax.xml.transform.stream.StreamSource;
-
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.zaproxy.zap.testutils.TestUtils;
 
-/**
- * Unit test for {@link ReportGenerator}.
- */
+/** Unit test for {@link ReportGenerator}. */
 public class ReportGeneratorUnitTest extends TestUtils {
 
-    @ClassRule
-    public static TemporaryFolder tempDir = new TemporaryFolder();
+    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
 
     @Test
     public void shouldNotEntityEncodeHigherUnicodeChars() {
@@ -124,13 +119,14 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     private static StreamSource identityXsl() {
-        String xslt = "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n"
-                + "  <xsl:template match=\"@*|node()\">\n"
-                + "    <xsl:copy>\n"
-                + "      <xsl:apply-templates select=\"@*|node()\"/>\n"
-                + "    </xsl:copy>\n"
-                + "  </xsl:template>\n"
-                + "</xsl:stylesheet>";
+        String xslt =
+                "<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\">\n"
+                        + "  <xsl:template match=\"@*|node()\">\n"
+                        + "    <xsl:copy>\n"
+                        + "      <xsl:apply-templates select=\"@*|node()\"/>\n"
+                        + "    </xsl:copy>\n"
+                        + "  </xsl:template>\n"
+                        + "</xsl:stylesheet>";
         return new StreamSource(new StringReader(xslt));
     }
 }

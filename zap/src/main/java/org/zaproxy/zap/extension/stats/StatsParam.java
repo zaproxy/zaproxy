@@ -28,35 +28,24 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public class StatsParam extends AbstractParam {
 
-    /**
-     * The base configuration key for all stats configurations.
-     */
+    /** The base configuration key for all stats configurations. */
     private static final String STATS_BASE_KEY = "stats";
 
-    /**
-     * The configuration key used to configure if in memory stats should be used.
-     */
+    /** The configuration key used to configure if in memory stats should be used. */
     private static final String IN_MEMORY_STATS_KEY = STATS_BASE_KEY + ".inmemory";
-    /**
-     * The configuration key used for the statsd host name - if empty statsd wont be used.
-     */
+    /** The configuration key used for the statsd host name - if empty statsd wont be used. */
     private static final String STATSD_HOST_KEY = STATS_BASE_KEY + ".statsd.host";
     /**
-     * The configuration key used for the statsd port - if empty will default to DEFAULT_STATSD_PORT.
+     * The configuration key used for the statsd port - if empty will default to
+     * DEFAULT_STATSD_PORT.
      */
     private static final String STATSD_PORT_KEY = STATS_BASE_KEY + ".statsd.port";
-    /**
-     * The configuration key used for the statsd prefix.
-     */
+    /** The configuration key used for the statsd prefix. */
     private static final String STATSD_PREFIX_KEY = STATS_BASE_KEY + ".statsd.prefix";
 
-    /**
-     * The default statsd port.
-     */
+    /** The default statsd port. */
     private static final int DEFAULT_STATSD_PORT = 8125;
-    /**
-     * The default statsd prefix.
-     */
+    /** The default statsd prefix. */
     private static final String DEFAULT_STATSD_PREFIX = "zap";
 
     private boolean inMemory = true;
@@ -65,51 +54,50 @@ public class StatsParam extends AbstractParam {
     private String statsdPrefix = DEFAULT_STATSD_PREFIX;
 
     public boolean isInMemoryEnabled() {
-		return inMemory;
-	}
-
-	public void setInMemoryEnabled(boolean inMemory) {
-		this.inMemory = inMemory;
-        getConfig().setProperty(IN_MEMORY_STATS_KEY, inMemory);
-	}
-
-    public boolean isStatsdEnabled() {
-		return statsdHost != null && statsdHost.length() > 0;
-	}
-
-	public String getStatsdHost() {
-		return statsdHost;
-	}
-
-	public void setStatsdHost(String statsdHost) {
-		this.statsdHost = statsdHost;
-        getConfig().setProperty(STATSD_HOST_KEY, statsdHost);
-	}
-
-	public int getStatsdPort() {
-		return statsdPort;
-	}
-
-	public void setStatsdPort(int statsdPort) {
-		this.statsdPort = statsdPort;
-        getConfig().setProperty(STATSD_PORT_KEY, statsdPort);
-	}
-
-	public String getStatsdPrefix() {
-		return statsdPrefix;
-	}
-
-	public void setStatsdPrefix(String statsdPrefix) {
-		this.statsdPrefix = statsdPrefix;
-        getConfig().setProperty(STATSD_PREFIX_KEY, statsdPrefix);
-	}
-
-	@Override
-    protected void parse() {
-		inMemory = getBoolean(IN_MEMORY_STATS_KEY, true);
-		statsdHost = getString(STATSD_HOST_KEY, "");
-		statsdPort = getInt(STATSD_PORT_KEY, DEFAULT_STATSD_PORT);
-		statsdPrefix = getString(STATSD_PREFIX_KEY, DEFAULT_STATSD_PREFIX);
+        return inMemory;
     }
 
+    public void setInMemoryEnabled(boolean inMemory) {
+        this.inMemory = inMemory;
+        getConfig().setProperty(IN_MEMORY_STATS_KEY, inMemory);
+    }
+
+    public boolean isStatsdEnabled() {
+        return statsdHost != null && statsdHost.length() > 0;
+    }
+
+    public String getStatsdHost() {
+        return statsdHost;
+    }
+
+    public void setStatsdHost(String statsdHost) {
+        this.statsdHost = statsdHost;
+        getConfig().setProperty(STATSD_HOST_KEY, statsdHost);
+    }
+
+    public int getStatsdPort() {
+        return statsdPort;
+    }
+
+    public void setStatsdPort(int statsdPort) {
+        this.statsdPort = statsdPort;
+        getConfig().setProperty(STATSD_PORT_KEY, statsdPort);
+    }
+
+    public String getStatsdPrefix() {
+        return statsdPrefix;
+    }
+
+    public void setStatsdPrefix(String statsdPrefix) {
+        this.statsdPrefix = statsdPrefix;
+        getConfig().setProperty(STATSD_PREFIX_KEY, statsdPrefix);
+    }
+
+    @Override
+    protected void parse() {
+        inMemory = getBoolean(IN_MEMORY_STATS_KEY, true);
+        statsdHost = getString(STATSD_HOST_KEY, "");
+        statsdPort = getInt(STATSD_PORT_KEY, DEFAULT_STATSD_PORT);
+        statsdPrefix = getString(STATSD_PREFIX_KEY, DEFAULT_STATSD_PREFIX);
+    }
 }

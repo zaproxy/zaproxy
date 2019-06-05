@@ -23,14 +23,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import net.htmlparser.jericho.Config;
 import org.zaproxy.zap.ZAP;
 
-import net.htmlparser.jericho.Config;
-
-/**
- * Class with utility/helper methods for general tests.
- */
+/** Class with utility/helper methods for general tests. */
 public class TestUtils {
 
     static {
@@ -40,8 +36,9 @@ public class TestUtils {
 
     /**
      * Gets the (file system) path to the given resource.
-     * <p>
-     * The resource path is obtained with the caller class using {@link Class#getResource(String)}.
+     *
+     * <p>The resource path is obtained with the caller class using {@link
+     * Class#getResource(String)}.
      *
      * @param resourcePath the path to the resource.
      * @return the path, never {@code null}.
@@ -52,9 +49,10 @@ public class TestUtils {
 
     /**
      * Gets the (file system) path to the given resource using the given class.
-     * <p>
-     * The resource path is obtained with the given class using {@link Class#getResource(String)}.
-     * 
+     *
+     * <p>The resource path is obtained with the given class using {@link
+     * Class#getResource(String)}.
+     *
      * @param resourcePath the path to the resource.
      * @param clazz the class used to obtain the resource.
      * @return the path, never {@code null}.
