@@ -8,6 +8,7 @@ plugins {
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
     org.zaproxy.zap.publish
+    org.zaproxy.zap.spotless
 }
 
 group = "org.zaproxy"

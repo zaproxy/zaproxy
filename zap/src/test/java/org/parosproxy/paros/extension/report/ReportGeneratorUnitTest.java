@@ -1,7 +1,7 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
  *
- * ZAP is an HTTP/HTTPassiveScanner proxy for assessing web application security.
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
  * Copyright 2018 The ZAP Development Team
  *

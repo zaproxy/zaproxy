@@ -1,6 +1,6 @@
 /*
  * This class is adopted from Htmlunit with the following copyright:
- * 
+ *
  * Copyright (c) 2002-2012 Gargoyle Software Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,6 @@
  * 
  * ZAP: Based on work by Gargoyle Software and adopted from Htmlunit (as stated above).
  */
-
 package org.zaproxy.zap.spider;
 
 /**
