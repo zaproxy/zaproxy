@@ -26,7 +26,6 @@
  */
 package ch.csnc.extension.httpclient;
 
-import ch.csnc.extension.util.Encoding;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,6 +61,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -262,7 +262,7 @@ public class SSLContextManager {
         X509Certificate x509 = (X509Certificate) cert;
 
         try {
-            String fingerprint = Encoding.hashMD5(cert.getEncoded());
+            String fingerprint = DigestUtils.md5Hex(cert.getEncoded());
             for (int i = 0; i < fingerprint.length(); i += 2) {
                 buff.append(fingerprint.substring(i, i + 1)).append(":");
             }
