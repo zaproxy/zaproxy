@@ -79,6 +79,13 @@ public class RuleConfigParam extends AbstractParam {
     public static final String RULE_DOMAINS_TRUSTED = "rules.domains.trusted";
 
     /**
+     * The name of the rule to obtain the ID of the browser to use in DOM XSS scans.
+     *
+     * @since 2.8.0
+     */
+    public static final String RULE_DOMXSS_BROWSER_ID = "rules.domxss.browserid";
+
+    /**
      * The default time, in seconds, to use for time-based attacks
      *
      * @see #RULE_COMMON_SLEEP_TIME
@@ -103,6 +110,7 @@ public class RuleConfigParam extends AbstractParam {
         this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_ATT_VALUE, ""));
         this.addRuleConfig(new RuleConfig(RULE_COOKIE_IGNORE_LIST, ""));
         this.addRuleConfig(new RuleConfig(RULE_DOMAINS_TRUSTED, ""));
+        this.addRuleConfig(new RuleConfig(RULE_DOMXSS_BROWSER_ID, ""));
 
         Iterator<String> iter = this.getConfig().getKeys(RULES_BASE_KEY);
         RuleConfig rc;
