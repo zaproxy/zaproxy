@@ -1,26 +1,27 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2011/04/16 Support for running ZAP as a daemon
 // ZAP: 2012/03/15 Removed unnecessary castings from methods parse, getArgument and getHelp.
-//      Changed to use the class StringBuilder instead of the class StringBuffer in the method getHelp.
+//      Changed to use the class StringBuilder instead of the class StringBuffer in the method
+// getHelp.
 // ZAP: 2012/10/15 Issue 397: Support weekly builds
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
@@ -35,13 +36,15 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/07 Allow to disable default standard output logging
 // ZAP: 2017/03/26 Allow to obtain configs in the order specified
-// ZAP: 2017/05/12 Issue 3460: Support -suppinfo 
+// ZAP: 2017/05/12 Issue 3460: Support -suppinfo
 // ZAP: 2017/05/31 Handle null args and include a message in all exceptions.
 // ZAP: 2017/08/31 Use helper method I18N.getString(String, Object...).
-// ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually exclusive).
+// ZAP: 2017/11/21 Validate that -cmd and -daemon are not set at the same time (they are mutually
+// exclusive).
 // ZAP: 2017/12/26 Remove unused command line arg SP.
 // ZAP: 2018/06/29 Add command line to run ZAP in dev mode.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -52,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -61,7 +63,7 @@ import org.zaproxy.zap.ZAP;
 
 public class CommandLine {
 
-	private static final Logger logger = Logger.getLogger(CommandLine.class);
+    private static final Logger logger = Logger.getLogger(CommandLine.class);
 
     // ZAP: Made public
     public static final String SESSION = "-session";
@@ -84,7 +86,7 @@ public class CommandLine {
 
     /**
      * Command line option to disable the default logging through standard output.
-     * 
+     *
      * @see #isNoStdOutLog()
      * @since 2.6.0
      */
@@ -92,14 +94,14 @@ public class CommandLine {
 
     /**
      * Command line option to enable "dev mode".
-     * <p>
-     * With this option development related utilities/functionalities are enabled. For example, it's shown an error counter in
-     * the footer tool bar and license is implicitly accepted (thus not requiring to show/accept the license each time a new
-     * home is used).
-     * <p>
-     * <strong>Note:</strong> this mode is always enabled when running ZAP directly from source (i.e. not packaged in a JAR) or
-     * using a dev build.
-     * 
+     *
+     * <p>With this option development related utilities/functionalities are enabled. For example,
+     * it's shown an error counter in the footer tool bar and license is implicitly accepted (thus
+     * not requiring to show/accept the license each time a new home is used).
+     *
+     * <p><strong>Note:</strong> this mode is always enabled when running ZAP directly from source
+     * (i.e. not packaged in a JAR) or using a dev build.
+     *
      * @see #isDevMode()
      * @since 2.8.0
      */
@@ -122,13 +124,12 @@ public class CommandLine {
     private List<CommandLineArgument[]> commandList = null;
 
     /**
-     * Flag that indicates whether or not the default logging through standard output should be disabled.
+     * Flag that indicates whether or not the default logging through standard output should be
+     * disabled.
      */
     private boolean noStdOutLog;
 
-    /**
-     * Flag that indicates whether or not the "dev mode" is enabled.
-     */
+    /** Flag that indicates whether or not the "dev mode" is enabled. */
     private boolean devMode;
 
     public CommandLine(String[] args) throws Exception {
@@ -137,7 +138,10 @@ public class CommandLine {
 
         if (isEnabled(CommandLine.CMD) && isEnabled(CommandLine.DAEMON)) {
             throw new IllegalArgumentException(
-                    "Command line arguments " + CommandLine.CMD + " and " + CommandLine.DAEMON
+                    "Command line arguments "
+                            + CommandLine.CMD
+                            + " and "
+                            + CommandLine.DAEMON
                             + " cannot be used at the same time.");
         }
     }
@@ -148,19 +152,19 @@ public class CommandLine {
         if (key == null) {
             return false;
         }
-        
+
         if (key.equalsIgnoreCase(paramName)) {
             value = args[i + 1];
             if (value == null) {
                 throw new Exception("Missing parameter for keyword '" + paramName + "'.");
             }
-            
+
             keywords.put(paramName, value);
             args[i] = null;
             args[i + 1] = null;
             return true;
         }
-        
+
         return false;
     }
 
@@ -187,12 +191,12 @@ public class CommandLine {
             if (parseKeywords(args, i)) {
                 continue;
             }
-
         }
-
     }
 
-    public void parse(List<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap) throws Exception {
+    public void parse(
+            List<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap)
+            throws Exception {
         this.commandList = commandList;
         CommandLineArgument lastArg = null;
         boolean found = false;
@@ -202,7 +206,7 @@ public class CommandLine {
             if (args[i] == null) {
                 continue;
             }
-            
+
             found = false;
 
             for (int j = 0; j < commandList.size() && !found; j++) {
@@ -212,7 +216,8 @@ public class CommandLine {
 
                         // check if previous keyword satisfied its required no. of parameters
                         if (remainingValueCount > 0) {
-                            throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
+                            throw new Exception(
+                                    "Missing parameters for keyword '" + lastArg.getName() + "'.");
                         }
 
                         // process this keyword
@@ -247,7 +252,6 @@ public class CommandLine {
                     throw new Exception(lastArg.getErrorMessage());
                 }
             }
-
         }
 
         // check if the last keyword satisfied its no. of parameters.
@@ -286,19 +290,22 @@ public class CommandLine {
             if (arg != null) {
                 if (arg.startsWith("-")) {
                     throw new Exception(Constant.messages.getString("start.cmdline.badparam", arg));
-                    
+
                 } else {
                     // Assume they were trying to specify a file
                     File f = new File(arg);
                     if (!f.exists()) {
-                        throw new Exception(Constant.messages.getString("start.cmdline.nofile", arg));
-                    
+                        throw new Exception(
+                                Constant.messages.getString("start.cmdline.nofile", arg));
+
                     } else if (!f.canRead()) {
-                        throw new Exception(Constant.messages.getString("start.cmdline.noread", arg));
-                    
+                        throw new Exception(
+                                Constant.messages.getString("start.cmdline.noread", arg));
+
                     } else {
                         // We probably dont handle this sort of file
-                        throw new Exception(Constant.messages.getString("start.cmdline.badfile", arg));
+                        throw new Exception(
+                                Constant.messages.getString("start.cmdline.badfile", arg));
                     }
                 }
             }
@@ -317,25 +324,25 @@ public class CommandLine {
         } else if (checkSwitch(args, CMD, i)) {
             setDaemon(false);
             setGUI(false);
-            
+
         } else if (checkSwitch(args, DAEMON, i)) {
             setDaemon(true);
             setGUI(false);
-            
+
         } else if (checkSwitch(args, LOWMEM, i)) {
             setLowMem(true);
-            
+
         } else if (checkSwitch(args, EXPERIMENTALDB, i)) {
             setExperimentalDb(true);
-            
+
         } else if (checkSwitch(args, HELP, i)) {
             result = true;
             setGUI(false);
-            
+
         } else if (checkSwitch(args, HELP2, i)) {
             result = true;
             setGUI(false);
-            
+
         } else if (checkSwitch(args, VERSION, i)) {
             reportVersion = true;
             setDaemon(false);
@@ -361,26 +368,26 @@ public class CommandLine {
         boolean result = false;
         if (checkPair(args, NEW_SESSION, i)) {
             result = true;
-            
+
         } else if (checkPair(args, SESSION, i)) {
             result = true;
-            
+
         } else if (checkPair(args, DIR, i)) {
             Constant.setZapHome(keywords.get(DIR));
             result = true;
-            
+
         } else if (checkPair(args, INSTALL_DIR, i)) {
             Constant.setZapInstall(keywords.get(INSTALL_DIR));
             result = true;
-            
+
         } else if (checkPair(args, HOST, i)) {
             this.host = keywords.get(HOST);
             result = true;
-            
+
         } else if (checkPair(args, PORT, i)) {
             this.port = Integer.parseInt(keywords.get(PORT));
             result = true;
-            
+
         } else if (checkPair(args, CONFIG, i)) {
             String pair = keywords.get(CONFIG);
             if (pair != null && pair.indexOf("=") > 0) {
@@ -391,10 +398,10 @@ public class CommandLine {
         } else if (checkPair(args, CONFIG_FILE, i)) {
             String conf = keywords.get(CONFIG_FILE);
             File confFile = new File(conf);
-            if (! confFile.isFile()) {
+            if (!confFile.isFile()) {
                 // We cant use i18n here as the messages wont have been loaded
                 throw new Exception("No such file: " + confFile.getAbsolutePath());
-            } else if (! confFile.canRead()) {
+            } else if (!confFile.canRead()) {
                 // We cant use i18n here as the messages wont have been loaded
                 throw new Exception("File not readable: " + confFile.getAbsolutePath());
             }
@@ -402,18 +409,18 @@ public class CommandLine {
             try (FileInputStream inStream = new FileInputStream(confFile)) {
                 prop.load(inStream);
             }
-            
+
             for (Entry<Object, Object> keyValue : prop.entrySet()) {
-                this.configs.put((String)keyValue.getKey(), (String)keyValue.getValue());
+                this.configs.put((String) keyValue.getKey(), (String) keyValue.getValue());
             }
         }
-        
+
         return result;
     }
 
     /**
      * Tells whether or not ZAP was started with GUI.
-     * 
+     *
      * @return {@code true} if ZAP was started with GUI, {@code false} otherwise
      */
     public boolean isGUI() {
@@ -422,7 +429,7 @@ public class CommandLine {
 
     /**
      * Sets whether or not ZAP was started with GUI.
-     * 
+     *
      * @param GUI {@code true} if ZAP was started with GUI, {@code false} otherwise
      */
     public void setGUI(boolean GUI) {
@@ -438,22 +445,22 @@ public class CommandLine {
     }
 
     public boolean isLowMem() {
-		return lowMem;
-	}
+        return lowMem;
+    }
 
-	public void setLowMem(boolean lowMem) {
-		this.lowMem = lowMem;
-	}
+    public void setLowMem(boolean lowMem) {
+        this.lowMem = lowMem;
+    }
 
-	public boolean isExperimentalDb() {
-		return experimentalDb;
-	}
+    public boolean isExperimentalDb() {
+        return experimentalDb;
+    }
 
-	public void setExperimentalDb(boolean experimentalDb) {
-		this.experimentalDb = experimentalDb;
-	}
+    public void setExperimentalDb(boolean experimentalDb) {
+        this.experimentalDb = experimentalDb;
+    }
 
-	public boolean isReportVersion() {
+    public boolean isReportVersion() {
         return this.reportVersion;
     }
 
@@ -473,7 +480,8 @@ public class CommandLine {
      * Gets the {@code config} command line arguments, in no specific order.
      *
      * @return the {@code config} command line arguments.
-     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they were specified.
+     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they
+     *     were specified.
      */
     @Deprecated
     public Hashtable<String, String> getConfigs() {
@@ -495,21 +503,23 @@ public class CommandLine {
     }
 
     public String getHelp() {
-    	return CommandLine.getHelp(commandList);
+        return CommandLine.getHelp(commandList);
     }
 
     /**
      * Tells whether or not the default logging through standard output should be disabled.
      *
-     * @return {@code true} if the default logging through standard output should be disabled, {@code false} otherwise.
+     * @return {@code true} if the default logging through standard output should be disabled,
+     *     {@code false} otherwise.
      * @since 2.6.0
      */
     public boolean isNoStdOutLog() {
         return noStdOutLog;
     }
-    
+
     /**
      * Returns true if ZAP should not make any unsolicited requests, eg check-for-updates etc
+     *
      * @since 2.8.0
      */
     public boolean isSilent() {
@@ -531,7 +541,7 @@ public class CommandLine {
         String zap;
         if (Constant.isWindows()) {
             zap = "zap.bat";
-            
+
         } else {
             zap = "zap.sh";
         }
@@ -539,12 +549,12 @@ public class CommandLine {
         sb.append(Constant.messages.getString("cmdline.help", zap));
 
         if (cmdList != null) {
-	        for (CommandLineArgument[] extArgs : cmdList) {
-	            for (CommandLineArgument extArg : extArgs) {
-	                sb.append("\t");
-	                sb.append(extArg.getHelpMessage()).append("\n");
-	            }
-	        }
+            for (CommandLineArgument[] extArgs : cmdList) {
+                for (CommandLineArgument extArg : extArgs) {
+                    sb.append("\t");
+                    sb.append(extArg.getHelpMessage()).append("\n");
+                }
+            }
         }
         return sb.toString();
     }
@@ -553,48 +563,59 @@ public class CommandLine {
         Object obj = keywords.get(keyword);
         return (obj != null) && (obj instanceof String);
     }
-    
+
     /**
-     * A method for reporting informational messages in {@link CommandLineListener#execute(CommandLineArgument[])}
-     * implementations. It ensures that messages are written to the log file and/or written to stdout as appropriate.
+     * A method for reporting informational messages in {@link
+     * CommandLineListener#execute(CommandLineArgument[])} implementations. It ensures that messages
+     * are written to the log file and/or written to stdout as appropriate.
+     *
      * @param str the informational message
      */
     public static void info(String str) {
-    	switch (ZAP.getProcessType()) {
-    	case cmdline:	System.out.println(str); break;
-    	default:		// Ignore
-    	}
-    	// Always write to the log
-    	logger.info(str);
+        switch (ZAP.getProcessType()) {
+            case cmdline:
+                System.out.println(str);
+                break;
+            default: // Ignore
+        }
+        // Always write to the log
+        logger.info(str);
     }
-    
+
     /**
-     * A method for reporting error messages in {@link CommandLineListener#execute(CommandLineArgument[])} implementations.
-     * It ensures that messages are written to the log file and/or written to stderr as appropriate.
+     * A method for reporting error messages in {@link
+     * CommandLineListener#execute(CommandLineArgument[])} implementations. It ensures that messages
+     * are written to the log file and/or written to stderr as appropriate.
+     *
      * @param str the error message
      */
     public static void error(String str) {
-    	switch (ZAP.getProcessType()) {
-    	case cmdline:	System.err.println(str); break;
-    	default:		// Ignore
-    	}
-    	// Always write to the log
-		logger.error(str);
+        switch (ZAP.getProcessType()) {
+            case cmdline:
+                System.err.println(str);
+                break;
+            default: // Ignore
+        }
+        // Always write to the log
+        logger.error(str);
     }
-    
+
     /**
-     * A method for reporting error messages in {@link CommandLineListener#execute(CommandLineArgument[])} implementations.
-     * It ensures that messages are written to the log file and/or written to stderr as appropriate.
+     * A method for reporting error messages in {@link
+     * CommandLineListener#execute(CommandLineArgument[])} implementations. It ensures that messages
+     * are written to the log file and/or written to stderr as appropriate.
+     *
      * @param str the error message
      * @param e the cause of the error
      */
     public static void error(String str, Throwable e) {
-    	switch (ZAP.getProcessType()) {
-    	case cmdline:	System.err.println(str); break;
-    	default:		// Ignore
-    	}
-    	// Always write to the log
-		logger.error(str, e);
+        switch (ZAP.getProcessType()) {
+            case cmdline:
+                System.err.println(str);
+                break;
+            default: // Ignore
+        }
+        // Always write to the log
+        logger.error(str, e);
     }
-    
 }

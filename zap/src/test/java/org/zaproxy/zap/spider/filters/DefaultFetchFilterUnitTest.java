@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,6 @@ import static org.mockito.Matchers.anyString;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -42,14 +41,11 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
-/**
- * Unit test for {@link DefaultFetchFilter}.
- */
+/** Unit test for {@link DefaultFetchFilter}. */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultFetchFilterUnitTest {
 
-    @Mock
-    Context context;
+    @Mock Context context;
 
     private DefaultFetchFilter filter;
 

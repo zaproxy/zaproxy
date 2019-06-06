@@ -1,10 +1,22 @@
 plugins {
     `kotlin-dsl`
+    id("com.diffplug.gradle.spotless") version "3.23.0"
 }
 
 repositories {
     jcenter()
     gradlePluginPortal()
+}
+
+spotless {
+    java {
+        licenseHeaderFile(file("../gradle/spotless/license.java"))
+        googleJavaFormat().aosp()
+    }
+
+    kotlinGradle {
+        ktlint()
+    }
 }
 
 dependencies {
@@ -15,6 +27,7 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")
     implementation("org.kohsuke:github-api:1.95")
     // Gradle Plugins
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:3.23.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:6.2.0")
     implementation("de.undercouch:gradle-download-task:3.4.3")
     implementation("edu.sc.seis.launch4j:launch4j:2.4.6")

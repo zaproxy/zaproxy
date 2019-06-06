@@ -1,27 +1,27 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.proxies;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import net.sf.json.JSONObject;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -30,8 +30,6 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
-
-import net.sf.json.JSONObject;
 
 public class ProxiesAPI extends ApiImplementor {
 
@@ -54,9 +52,12 @@ public class ProxiesAPI extends ApiImplementor {
         this.addApiAction(
                 new ApiAction(
                         ACTION_ADD_PROXY,
-                        new String[] { PARAM_ADDRESS, PARAM_PORT },
-                        new String[] { PARAM_BEHIND_NAT, PARAM_DECODE_ZIP, PARAM_REM_UNSUPPORTED_ENC }));
-        this.addApiAction(new ApiAction(ACTION_REMOVE_PROXY, new String[] { PARAM_ADDRESS, PARAM_PORT }));
+                        new String[] {PARAM_ADDRESS, PARAM_PORT},
+                        new String[] {
+                            PARAM_BEHIND_NAT, PARAM_DECODE_ZIP, PARAM_REM_UNSUPPORTED_ENC
+                        }));
+        this.addApiAction(
+                new ApiAction(ACTION_REMOVE_PROXY, new String[] {PARAM_ADDRESS, PARAM_PORT}));
     }
 
     @Override
@@ -76,7 +77,9 @@ public class ProxiesAPI extends ApiImplementor {
                 map.put("enabled", Boolean.toString(p.isEnabled()));
                 map.put("behindNat", Boolean.toString(p.isBehindNat()));
                 map.put("alwaysDecodeZip", Boolean.toString(p.isAlwaysDecodeGzip()));
-                map.put("removeUnsupportedEncodings", Boolean.toString(p.isRemoveUnsupportedEncodings()));
+                map.put(
+                        "removeUnsupportedEncodings",
+                        Boolean.toString(p.isRemoveUnsupportedEncodings()));
                 response.addItem(new ApiResponseSet<String>("proxy", map));
             }
 

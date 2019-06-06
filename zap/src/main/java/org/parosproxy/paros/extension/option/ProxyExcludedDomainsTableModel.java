@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,19 +21,20 @@ package org.parosproxy.paros.extension.option;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
-public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTableModel<DomainMatcher> {
+public class ProxyExcludedDomainsTableModel
+        extends AbstractMultipleOptionsTableModel<DomainMatcher> {
 
     private static final long serialVersionUID = -5411351965957264957L;
 
     private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.enabled"),
-            Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.regex"),
-            Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.value") };
+        Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.enabled"),
+        Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.regex"),
+        Constant.messages.getString("conn.options.proxy.excluded.domain.table.header.value")
+    };
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
@@ -66,12 +67,12 @@ public class ProxyExcludedDomainsTableModel extends AbstractMultipleOptionsTable
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-        case 0:
-            return getElement(rowIndex).isEnabled();
-        case 1:
-            return getElement(rowIndex).isRegex();
-        case 2:
-            return getElement(rowIndex).getValue();
+            case 0:
+                return getElement(rowIndex).isEnabled();
+            case 1:
+                return getElement(rowIndex).isRegex();
+            case 2:
+                return getElement(rowIndex).getValue();
         }
         return null;
     }

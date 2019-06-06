@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
@@ -38,28 +37,24 @@ final class AddOnLoaderUtils {
 
     private static final Logger LOGGER = Logger.getLogger(AddOnLoaderUtils.class);
 
-    private AddOnLoaderUtils() {
-    }
+    private AddOnLoaderUtils() {}
 
     /**
-     * Loads, using the given {@code addOnClassLoader}, and creates an instance with the given {@code classname} of the
-     * (expected) given {@code clazz}. The {@code type} is used in error log messages, to indicate the expected type being
-     * loaded.
+     * Loads, using the given {@code addOnClassLoader}, and creates an instance with the given
+     * {@code classname} of the (expected) given {@code clazz}. The {@code type} is used in error
+     * log messages, to indicate the expected type being loaded.
      *
      * @param <T> the type of the class that will be instantiated
      * @param addOnClassLoader the class loader of the add-on that contains the classes
      * @param classname the binary name of the class that will be loaded
      * @param clazz the type of the instance that will be created using the class loaded
      * @param type the expected type being loaded (for example, "extension", "ascanrule"...)
-     * @return an instance of the given {@code clazz}, or {@code null} if an error occurred (for example, not being of the
-     *         expected type)
+     * @return an instance of the given {@code clazz}, or {@code null} if an error occurred (for
+     *     example, not being of the expected type)
      * @throws IllegalArgumentException if any of the parameters is {@code null}.
      */
     public static <T> T loadAndInstantiateClass(
-            AddOnClassLoader addOnClassLoader,
-            String classname,
-            Class<T> clazz,
-            String type) {
+            AddOnClassLoader addOnClassLoader, String classname, Class<T> clazz, String type) {
         validateNotNull(addOnClassLoader, "addOnClassLoader");
         validateNotNull(classname, "classname");
         validateNotNull(clazz, "clazz");
@@ -69,25 +64,26 @@ final class AddOnLoaderUtils {
     }
 
     /**
-     * Loads, using the given {@code addOnClassLoader}, and creates an instance with the given {@code classname} of the
-     * (expected) given {@code clazz}. The {@code type} is used in error log messages, to indicate the expected type being
-     * loaded.
-     * <p>
-     * <strong>Note:</strong> Internal method that does not validate that the parameters are not {@code null}.
+     * Loads, using the given {@code addOnClassLoader}, and creates an instance with the given
+     * {@code classname} of the (expected) given {@code clazz}. The {@code type} is used in error
+     * log messages, to indicate the expected type being loaded.
+     *
+     * <p><strong>Note:</strong> Internal method that does not validate that the parameters are not
+     * {@code null}.
      *
      * @param <T> the type of the class that will be instantiated
-     * @param addOnClassLoader the class loader of the add-on that contains the classes, must not be {@code null}
+     * @param addOnClassLoader the class loader of the add-on that contains the classes, must not be
+     *     {@code null}
      * @param classname the binary name of the class that will be loaded, must not be {@code null}
-     * @param clazz the type of the instance that will be created using the class loaded, must not be {@code null}
-     * @param type the expected type being loaded (for example, "extension", "ascanrule"...), must not be {@code null}
-     * @return an instance of the given {@code clazz}, or {@code null} if an error occurred (for example, not being of the
-     *         expected type)
+     * @param clazz the type of the instance that will be created using the class loaded, must not
+     *     be {@code null}
+     * @param type the expected type being loaded (for example, "extension", "ascanrule"...), must
+     *     not be {@code null}
+     * @return an instance of the given {@code clazz}, or {@code null} if an error occurred (for
+     *     example, not being of the expected type)
      */
     private static <T> T loadAndInstantiateClassImpl(
-            AddOnClassLoader addOnClassLoader,
-            String classname,
-            Class<T> clazz,
-            String type) {
+            AddOnClassLoader addOnClassLoader, String classname, Class<T> clazz, String type) {
         Class<?> cls;
         try {
             cls = addOnClassLoader.loadClass(classname);
@@ -105,7 +101,13 @@ final class AddOnLoaderUtils {
         }
 
         if (!clazz.isAssignableFrom(cls)) {
-            LOGGER.error("Declared \"" + type + "\" is not of type \"" + clazz.getName() + "\": " + classname);
+            LOGGER.error(
+                    "Declared \""
+                            + type
+                            + "\" is not of type \""
+                            + clazz.getName()
+                            + "\": "
+                            + classname);
             return null;
         }
 
@@ -120,10 +122,11 @@ final class AddOnLoaderUtils {
     }
 
     /**
-     * Loads, using the given {@code addOnClassLoader}, and creates instances with the given {@code classnames} of the
-     * (expected) given {@code clazz}. The {@code type} is used in error log messages, to indicate the expected type being
-     * loaded. Any classname that leads to an error (for example, not being of the expected type or if it was not found) it will
-     * be ignored (after logging the error).
+     * Loads, using the given {@code addOnClassLoader}, and creates instances with the given {@code
+     * classnames} of the (expected) given {@code clazz}. The {@code type} is used in error log
+     * messages, to indicate the expected type being loaded. Any classname that leads to an error
+     * (for example, not being of the expected type or if it was not found) it will be ignored
+     * (after logging the error).
      *
      * @param <T> the type of the class that will be instantiated
      * @param addOnClassLoader the class loader of the add-on that contains the classes
@@ -160,14 +163,16 @@ final class AddOnLoaderUtils {
     }
 
     /**
-     * Gets the active scan rules of the given {@code addOn}. The active scan rules are first loaded, if they weren't already.
+     * Gets the active scan rules of the given {@code addOn}. The active scan rules are first
+     * loaded, if they weren't already.
      *
      * @param addOn the add-on whose active scan rules will be returned
      * @param addOnClassLoader the {@code AddOnClassLoader} of the given {@code addOn}
      * @return an unmodifiable {@code List} with the active scan rules, never {@code null}
      * @throws IllegalArgumentException if any of the parameters is {@code null}.
      */
-    public static List<AbstractPlugin> getActiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
+    public static List<AbstractPlugin> getActiveScanRules(
+            AddOn addOn, AddOnClassLoader addOnClassLoader) {
         validateNotNull(addOn, "addOn");
         validateNotNull(addOnClassLoader, "addOnClassLoader");
 
@@ -176,11 +181,12 @@ final class AddOnLoaderUtils {
                 return addOn.getLoadedAscanrules();
             }
 
-            List<AbstractPlugin> ascanrules = loadDeclaredClasses(
-                    addOnClassLoader,
-                    addOn.getAscanrules(),
-                    AbstractPlugin.class,
-                    "ascanrule");
+            List<AbstractPlugin> ascanrules =
+                    loadDeclaredClasses(
+                            addOnClassLoader,
+                            addOn.getAscanrules(),
+                            AbstractPlugin.class,
+                            "ascanrule");
             addOn.setLoadedAscanrules(ascanrules);
             addOn.setLoadedAscanrulesSet(true);
             return Collections.unmodifiableList(ascanrules);
@@ -188,14 +194,16 @@ final class AddOnLoaderUtils {
     }
 
     /**
-     * Gets the passive scan rules of the given {@code addOn}. The passive scan rules are first loaded, if they weren't already.
+     * Gets the passive scan rules of the given {@code addOn}. The passive scan rules are first
+     * loaded, if they weren't already.
      *
      * @param addOn the add-on whose passive scan rules will be returned
      * @param addOnClassLoader the {@code AddOnClassLoader} of the given {@code addOn}
      * @return an unmodifiable {@code List} with the passive scan rules, never {@code null}
      * @throws IllegalArgumentException if any of the parameters is {@code null}.
      */
-    public static List<PluginPassiveScanner> getPassiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
+    public static List<PluginPassiveScanner> getPassiveScanRules(
+            AddOn addOn, AddOnClassLoader addOnClassLoader) {
         validateNotNull(addOn, "addOn");
         validateNotNull(addOnClassLoader, "addOnClassLoader");
 
@@ -204,11 +212,12 @@ final class AddOnLoaderUtils {
                 return addOn.getLoadedPscanrules();
             }
 
-            List<PluginPassiveScanner> pscanrules = loadDeclaredClasses(
-                    addOnClassLoader,
-                    addOn.getPscanrules(),
-                    PluginPassiveScanner.class,
-                    "pscanrule");
+            List<PluginPassiveScanner> pscanrules =
+                    loadDeclaredClasses(
+                            addOnClassLoader,
+                            addOn.getPscanrules(),
+                            PluginPassiveScanner.class,
+                            "pscanrule");
             addOn.setLoadedPscanrules(pscanrules);
             addOn.setLoadedPscanrulesSet(true);
             return Collections.unmodifiableList(pscanrules);
@@ -228,5 +237,4 @@ final class AddOnLoaderUtils {
             throw new IllegalArgumentException("Parameter " + name + " must not be null.");
         }
     }
-
 }

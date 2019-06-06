@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -38,59 +37,56 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
  * Base class that reads common {@code ZapAddOn} XML data.
- * <p>
- * Reads:
+ *
+ * <p>Reads:
+ *
  * <ul>
- * <li>name;</li>
- * <li>status (since 2.6.0);</li>
- * <li>version;</li>
- * <li>semver (since 2.7.0, deprecated in favour of using version);</li>
- * <li>description;</li>
- * <li>author;</li>
- * <li>url;</li>
- * <li>changes;</li>
- * <li>not-before-version;</li>
- * <li>not-from-version;</li>
- * <li>dependencies:
- * <ul>
- * <li>javaversion;</li>
- * <li>addon:
- * <ul>
- * <li>id;</li>
- * <li>version;</li>
- * <li>not-before-version (since 2.7.0, deprecated in favour of using version);</li>
- * <li>not-from-version (since 2.7.0, deprecated in favour of using version);</li>
- * <li>semver (since 2.7.0, deprecated in favour of using version).</li>
+ *   <li>name;
+ *   <li>status (since 2.6.0);
+ *   <li>version;
+ *   <li>semver (since 2.7.0, deprecated in favour of using version);
+ *   <li>description;
+ *   <li>author;
+ *   <li>url;
+ *   <li>changes;
+ *   <li>not-before-version;
+ *   <li>not-from-version;
+ *   <li>dependencies:
+ *       <ul>
+ *         <li>javaversion;
+ *         <li>addon:
+ *             <ul>
+ *               <li>id;
+ *               <li>version;
+ *               <li>not-before-version (since 2.7.0, deprecated in favour of using version);
+ *               <li>not-from-version (since 2.7.0, deprecated in favour of using version);
+ *               <li>semver (since 2.7.0, deprecated in favour of using version).
+ *             </ul>
+ *       </ul>
+ *   <li>extensions
+ *       <ul>
+ *         <li>extension
+ *         <li>extension v=1:
+ *             <ul>
+ *               <li>classname;
+ *               <li>dependencies:
+ *                   <ul>
+ *                     <li>javaversion;
+ *                     <li>addon:
+ *                         <ul>
+ *                           <li>id;
+ *                           <li>version;
+ *                           <li>not-before-version (since 2.7.0, deprecated in favour of using
+ *                               version);
+ *                           <li>not-from-version (since 2.7.0, deprecated in favour of using
+ *                               version);
+ *                           <li>semver (since 2.7.0, deprecated in favour of using version).
+ *                         </ul>
+ *                   </ul>
+ *             </ul>
+ *       </ul>
  * </ul>
- * </li>
- * </ul>
- * </li>
- * <li>extensions
- * <ul>
- * <li>extension</li>
- * <li>extension v=1:
- * <ul>
- * <li>classname;</li>
- * <li>dependencies:
- * <ul>
- * <li>javaversion;</li>
- * <li>addon:
- * <ul>
- * <li>id;</li>
- * <li>version;</li>
- * <li>not-before-version (since 2.7.0, deprecated in favour of using version);</li>
- * <li>not-from-version (since 2.7.0, deprecated in favour of using version);</li>
- * <li>semver (since 2.7.0, deprecated in favour of using version).</li>
- * </ul>
- * </li>
- * </ul>
- * </li>
- * </ul>
- * </li>
- * </ul>
- * </li>
- * </ul>
- * 
+ *
  * @since 2.4.0
  */
 public abstract class BaseZapAddOnXmlData {
@@ -119,20 +115,24 @@ public abstract class BaseZapAddOnXmlData {
     private static final String ZAPADDON_VERSION_ELEMENT = "version";
     /**
      * Alias of {@link #ZAPADDON_VERSION_ELEMENT}.
-     * <p>
-     * To be deprecated/removed in future versions of ZAP.
+     *
+     * <p>To be deprecated/removed in future versions of ZAP.
      */
     private static final String ZAPADDON_SEMVER_ELEMENT = "semver";
 
     private static final String EXTENSION_ELEMENT = "extension";
     private static final String EXTENSIONS_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT;
-    private static final String EXTENSIONS_V1_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT + "[@v='1']";
+    private static final String EXTENSIONS_V1_ALL_ELEMENTS =
+            "extensions/" + EXTENSION_ELEMENT + "[@v='1']";
     private static final String EXTENSION_CLASS_NAME = "classname";
-    private static final String EXTENSION_DEPENDENCIES = DEPENDENCIES_ELEMENT + "/" + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
+    private static final String EXTENSION_DEPENDENCIES =
+            DEPENDENCIES_ELEMENT + "/" + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
     private static final String CLASSNAMES_ALLOWED_ELEMENT = "allowed";
-    private static final String CLASSNAMES_ALLOWED_ALL_ELEMENTS = "classnames/" + CLASSNAMES_ALLOWED_ELEMENT;
+    private static final String CLASSNAMES_ALLOWED_ALL_ELEMENTS =
+            "classnames/" + CLASSNAMES_ALLOWED_ELEMENT;
     private static final String CLASSNAMES_RESTRICTED_ELEMENT = "restricted";
-    private static final String CLASSNAMES_RESTRICTED_ALL_ELEMENTS = "classnames/" + CLASSNAMES_RESTRICTED_ELEMENT;
+    private static final String CLASSNAMES_RESTRICTED_ALL_ELEMENTS =
+            "classnames/" + CLASSNAMES_RESTRICTED_ELEMENT;
 
     private String name;
     private String status;
@@ -154,9 +154,9 @@ public abstract class BaseZapAddOnXmlData {
     private List<ExtensionWithDeps> extensionsWithDeps;
 
     /**
-     * Constructs a {@code BaseZapAddOnXmlData} with the given {@code inputStream} as the source of the {@code ZapAddOn} XML
-     * data.
-     * 
+     * Constructs a {@code BaseZapAddOnXmlData} with the given {@code inputStream} as the source of
+     * the {@code ZapAddOn} XML data.
+     *
      * @param inputStream the source of the {@code ZapAddOn} XML data.
      * @throws NullPointerException if the given input stream is {@code null}.
      * @throws IOException if an error occurs while reading the data
@@ -176,11 +176,12 @@ public abstract class BaseZapAddOnXmlData {
     }
 
     /**
-     * Constructs a {@code BaseZapAddOnXmlData} with the given {@code zapAddOnXml} {@code HierarchicalConfiguration} as the
-     * source of the {@code ZapAddOn} XML data.
-     * <p>
-     * The given {@code HierarchicalConfiguration} must have a {@code XPathExpressionEngine} installed.
-     * 
+     * Constructs a {@code BaseZapAddOnXmlData} with the given {@code zapAddOnXml} {@code
+     * HierarchicalConfiguration} as the source of the {@code ZapAddOn} XML data.
+     *
+     * <p>The given {@code HierarchicalConfiguration} must have a {@code XPathExpressionEngine}
+     * installed.
+     *
      * @param zapAddOnXml the source of the {@code ZapAddOn} XML data.
      * @see XPathExpressionEngine
      */
@@ -205,12 +206,18 @@ public abstract class BaseZapAddOnXmlData {
         if (status == null) {
             LOGGER.log(
                     Constant.isDevMode() ? Level.ERROR : Level.WARN,
-                    "No status specified for " + name
+                    "No status specified for "
+                            + name
                             + ", defaulting to \"alpha\". Add-ons should declare its status in the manifest.");
             status = "alpha";
         } else if (!ADDON_STATUSES.contains(status)) {
             throw new IllegalArgumentException(
-                    "Unrecognised status \"" + status + "\" in " + name + ", expected one of " + ADDON_STATUSES);
+                    "Unrecognised status \""
+                            + status
+                            + "\" in "
+                            + name
+                            + ", expected one of "
+                            + ADDON_STATUSES);
         }
         semVer = createVersion(zapAddOnXml.getString(SEM_VER_ELEMENT, ""));
         description = zapAddOnXml.getString(DESCRIPTION_ELEMENT, "");
@@ -233,13 +240,12 @@ public abstract class BaseZapAddOnXmlData {
 
     /**
      * Reads additional data from the {@code ZapAddOn} XML.
-     * <p>
-     * Called after reading the common data.
+     *
+     * <p>Called after reading the common data.
      *
      * @param zapAddOnData the source of the {@code ZapAddOn} XML data.
      */
-    protected void readAdditionalData(HierarchicalConfiguration zapAddOnData) {
-    }
+    protected void readAdditionalData(HierarchicalConfiguration zapAddOnData) {}
 
     private static Version createVersion(String version) {
         if (!version.isEmpty()) {
@@ -284,7 +290,7 @@ public abstract class BaseZapAddOnXmlData {
     public Version getVersion() {
         return version;
     }
-    
+
     public Version getSemVer() {
         return semVer;
     }
@@ -300,7 +306,7 @@ public abstract class BaseZapAddOnXmlData {
     public Dependencies getDependencies() {
         return dependencies;
     }
-    
+
     public AddOnClassnames getAddOnClassnames() {
         return addOnClassnames;
     }
@@ -321,7 +327,8 @@ public abstract class BaseZapAddOnXmlData {
         return extensionsWithDeps;
     }
 
-    protected List<String> getStrings(HierarchicalConfiguration zapAddOnXml, String element, String elementName) {
+    protected List<String> getStrings(
+            HierarchicalConfiguration zapAddOnXml, String element, String elementName) {
         String[] fields = zapAddOnXml.getStringArray(element);
         if (fields.length == 0) {
             return Collections.emptyList();
@@ -332,7 +339,8 @@ public abstract class BaseZapAddOnXmlData {
             if (!field.isEmpty()) {
                 strings.add(field);
             } else {
-                LOGGER.warn("Ignoring empty \"" + elementName + "\" entry in add-on \"" + name + "\".");
+                LOGGER.warn(
+                        "Ignoring empty \"" + elementName + "\" entry in add-on \"" + name + "\".");
             }
         }
 
@@ -345,23 +353,29 @@ public abstract class BaseZapAddOnXmlData {
     }
 
     private Dependencies readDependencies(HierarchicalConfiguration currentNode, String element) {
-        List<HierarchicalConfiguration> dependencies = currentNode.configurationsAt(DEPENDENCIES_ELEMENT);
+        List<HierarchicalConfiguration> dependencies =
+                currentNode.configurationsAt(DEPENDENCIES_ELEMENT);
         if (dependencies.isEmpty()) {
             return null;
         }
 
         if (dependencies.size() > 1) {
-            malformedFile("expected at most one \"dependencies\" element for \"" + element + "\" element, found "
-                    + dependencies.size() + ".");
+            malformedFile(
+                    "expected at most one \"dependencies\" element for \""
+                            + element
+                            + "\" element, found "
+                            + dependencies.size()
+                            + ".");
         }
 
         HierarchicalConfiguration node = dependencies.get(0);
         String javaVersion = node.getString(DEPENDENCIES_JAVA_VERSION_ELEMENT, "");
-        List<HierarchicalConfiguration> fields = node.configurationsAt(DEPENDENCIES_ADDONS_ALL_ELEMENTS);
+        List<HierarchicalConfiguration> fields =
+                node.configurationsAt(DEPENDENCIES_ADDONS_ALL_ELEMENTS);
         if (fields.isEmpty()) {
-            return new Dependencies(javaVersion, Collections.<AddOnDep> emptyList());
+            return new Dependencies(javaVersion, Collections.<AddOnDep>emptyList());
         }
-     
+
         List<AddOnDep> addOns = readAddOnDependencies(fields);
         return new Dependencies(javaVersion, addOns);
     }
@@ -380,8 +394,12 @@ public abstract class BaseZapAddOnXmlData {
                 version = sub.getString(ZAPADDON_SEMVER_ELEMENT, "");
             }
 
-            AddOnDep addOnDep = new AddOnDep(id, sub.getString(ZAPADDON_NOT_BEFORE_VERSION_ELEMENT, ""), sub.getString(
-                    ZAPADDON_NOT_FROM_VERSION_ELEMENT, ""), version);
+            AddOnDep addOnDep =
+                    new AddOnDep(
+                            id,
+                            sub.getString(ZAPADDON_NOT_BEFORE_VERSION_ELEMENT, ""),
+                            sub.getString(ZAPADDON_NOT_FROM_VERSION_ELEMENT, ""),
+                            version);
 
             addOns.add(addOnDep);
         }
@@ -390,7 +408,8 @@ public abstract class BaseZapAddOnXmlData {
     }
 
     private List<ExtensionWithDeps> readExtensionsWithDeps(HierarchicalConfiguration currentNode) {
-        List<HierarchicalConfiguration> extensions = currentNode.configurationsAt(EXTENSIONS_V1_ALL_ELEMENTS);
+        List<HierarchicalConfiguration> extensions =
+                currentNode.configurationsAt(EXTENSIONS_V1_ALL_ELEMENTS);
         if (extensions.isEmpty()) {
             return Collections.emptyList();
         }
@@ -402,7 +421,8 @@ public abstract class BaseZapAddOnXmlData {
                 malformedFile("a v1 extension has empty \"" + EXTENSION_CLASS_NAME + "\".");
             }
 
-            List<HierarchicalConfiguration> fields = extensionNode.configurationsAt(EXTENSION_DEPENDENCIES);
+            List<HierarchicalConfiguration> fields =
+                    extensionNode.configurationsAt(EXTENSION_DEPENDENCIES);
             if (fields.isEmpty()) {
                 // Extension v1 without dependencies, handle as normal extension.
                 if (this.extensions.isEmpty()) {
@@ -422,8 +442,10 @@ public abstract class BaseZapAddOnXmlData {
     }
 
     private AddOnClassnames readAddOnClassnames(HierarchicalConfiguration node) {
-        List<String> allowed = getStrings(node, CLASSNAMES_ALLOWED_ALL_ELEMENTS, CLASSNAMES_ALLOWED_ELEMENT);
-        List<String> restricted = getStrings(node, CLASSNAMES_RESTRICTED_ALL_ELEMENTS, CLASSNAMES_RESTRICTED_ELEMENT);
+        List<String> allowed =
+                getStrings(node, CLASSNAMES_ALLOWED_ALL_ELEMENTS, CLASSNAMES_ALLOWED_ELEMENT);
+        List<String> restricted =
+                getStrings(node, CLASSNAMES_RESTRICTED_ALL_ELEMENTS, CLASSNAMES_RESTRICTED_ELEMENT);
         if (allowed.isEmpty() && restricted.isEmpty()) {
             return AddOnClassnames.ALL_ALLOWED;
         }
@@ -432,7 +454,12 @@ public abstract class BaseZapAddOnXmlData {
 
     private void malformedFile(String reason) {
         throw new IllegalArgumentException(
-                "Add-on \"" + name + "\" contains malformed " + AddOn.MANIFEST_FILE_NAME + " file, " + reason);
+                "Add-on \""
+                        + name
+                        + "\" contains malformed "
+                        + AddOn.MANIFEST_FILE_NAME
+                        + " file, "
+                        + reason);
     }
 
     public static class Dependencies {
@@ -496,7 +523,8 @@ public abstract class BaseZapAddOnXmlData {
             try {
                 return Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Expected integer for element \"" + element + "\" but was: " + value);
+                throw new IllegalArgumentException(
+                        "Expected integer for element \"" + element + "\" but was: " + value);
             }
         }
 
@@ -505,8 +533,8 @@ public abstract class BaseZapAddOnXmlData {
         }
 
         /**
-         * Gets the required version of the add-on, might not be an exact version (e.g. {@literal 1.*} or
-         * {@literal >= 1.4.0 & < 2.0.0}).
+         * Gets the required version of the add-on, might not be an exact version (e.g. {@literal
+         * 1.*} or {@literal >= 1.4.0 & < 2.0.0}).
          *
          * @return the required version of the add-on, never {@code null}.
          * @since 2.7.0
@@ -538,7 +566,8 @@ public abstract class BaseZapAddOnXmlData {
         }
 
         /**
-         * Gets the required version of the add-on, might not be an exact version (e.g. {@literal 1.*}).
+         * Gets the required version of the add-on, might not be an exact version (e.g. {@literal
+         * 1.*}).
          *
          * @return the required version of the add-on.
          * @deprecated (2.7.0) Use {@link #getVersion()} instead.
@@ -555,7 +584,10 @@ public abstract class BaseZapAddOnXmlData {
         private final List<AddOnDep> addOnDependencies;
         private final AddOnClassnames addOnClassnames;
 
-        public ExtensionWithDeps(String classname, List<AddOnDep> addOnDependencies, AddOnClassnames addOnClassnames) {
+        public ExtensionWithDeps(
+                String classname,
+                List<AddOnDep> addOnDependencies,
+                AddOnClassnames addOnClassnames) {
             this.classname = classname;
             this.addOnDependencies = addOnDependencies;
             this.addOnClassnames = addOnClassnames;

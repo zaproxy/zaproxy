@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,15 +20,15 @@
 package org.zaproxy.zap.view.table;
 
 import java.util.Date;
-
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
  * An abstract implementation of {@code HistoryReferencesTableEntry}.
- * <p>
- * Returns default values except for history reference, which returns the {@code HistoryReference} passed in the constructor.
+ *
+ * <p>Returns default values except for history reference, which returns the {@code
+ * HistoryReference} passed in the constructor.
  */
 public abstract class AbstractHistoryReferencesTableEntry implements HistoryReferencesTableEntry {
 
@@ -54,7 +54,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         PLACE_HOLDER_VALUES[Column.SIZE_RESPONSE_HEADER.ordinal()] = 0;
         PLACE_HOLDER_VALUES[Column.SIZE_RESPONSE_BODY.ordinal()] = 0;
         PLACE_HOLDER_VALUES[Column.SESSION_ID.ordinal()] = 0L;
-        PLACE_HOLDER_VALUES[Column.HIGHEST_ALERT.ordinal()] = AlertRiskTableCellItem.NO_RISK_CELL_ITEM;
+        PLACE_HOLDER_VALUES[Column.HIGHEST_ALERT.ordinal()] =
+                AlertRiskTableCellItem.NO_RISK_CELL_ITEM;
         PLACE_HOLDER_VALUES[Column.NOTE.ordinal()] = Boolean.FALSE;
         PLACE_HOLDER_VALUES[Column.TAGS.ordinal()] = EMPTY_STRING;
         PLACE_HOLDER_VALUES[Column.CUSTOM.ordinal()] = null;
@@ -146,128 +147,128 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
     @Override
     public Object getValue(Column column) {
         switch (column) {
-        case HREF_ID:
-            return this.getHistoryId();
-        case REQUEST_TIMESTAMP:
-            return this.getRequestTimestamp();
-        case RESPONSE_TIMESTAMP:
-            return this.getResponseTimestamp();
-        case HREF_TYPE:
-            return this.getHistoryType();
-        case METHOD:
-            return this.getMethod();
-        case URL:
-            return this.getUri();
-        case STATUS_CODE:
-            return this.getStatusCode();
-        case STATUS_REASON:
-            return this.getReason();
-        case RTT:
-            return this.getRtt();
-        case SIZE_MESSAGE:
-            return this.getMessageSize();
-        case SIZE_REQUEST_HEADER:
-            return this.getRequestHeaderSize();
-        case SIZE_REQUEST_BODY:
-            return this.getRequestBodySize();
-        case SIZE_RESPONSE_HEADER:
-            return this.getResponseHeaderSize();
-        case SIZE_RESPONSE_BODY:
-            return this.getResponseBodySize();
-        case SESSION_ID:
-            return this.getSessionId();
-        case HIGHEST_ALERT:
-            return this.getHighestAlert();
-        case NOTE:
-            return this.hasNote();
-        case TAGS:
-            return this.getTags();
-        case CUSTOM:
-            return null;
-        default:
-            return EMPTY_STRING;
+            case HREF_ID:
+                return this.getHistoryId();
+            case REQUEST_TIMESTAMP:
+                return this.getRequestTimestamp();
+            case RESPONSE_TIMESTAMP:
+                return this.getResponseTimestamp();
+            case HREF_TYPE:
+                return this.getHistoryType();
+            case METHOD:
+                return this.getMethod();
+            case URL:
+                return this.getUri();
+            case STATUS_CODE:
+                return this.getStatusCode();
+            case STATUS_REASON:
+                return this.getReason();
+            case RTT:
+                return this.getRtt();
+            case SIZE_MESSAGE:
+                return this.getMessageSize();
+            case SIZE_REQUEST_HEADER:
+                return this.getRequestHeaderSize();
+            case SIZE_REQUEST_BODY:
+                return this.getRequestBodySize();
+            case SIZE_RESPONSE_HEADER:
+                return this.getResponseHeaderSize();
+            case SIZE_RESPONSE_BODY:
+                return this.getResponseBodySize();
+            case SESSION_ID:
+                return this.getSessionId();
+            case HIGHEST_ALERT:
+                return this.getHighestAlert();
+            case NOTE:
+                return this.hasNote();
+            case TAGS:
+                return this.getTags();
+            case CUSTOM:
+                return null;
+            default:
+                return EMPTY_STRING;
         }
     }
 
     public static Object getPrototypeValue(Column column) {
         switch (column) {
-        case HREF_ID:
-            return 1000;
-        case REQUEST_TIMESTAMP:
-            return new Date(System.currentTimeMillis());
-        case RESPONSE_TIMESTAMP:
-            return new Date(System.currentTimeMillis());
-        case HREF_TYPE:
-            return Integer.toString(0);
-        case METHOD:
-            return "GET";
-        case URL:
-            return "http://example.com/some/path?param=value";
-        case STATUS_CODE:
-            return 200;
-        case STATUS_REASON:
-            return "Not Found";
-        case RTT:
-            return 1000;
-        case SIZE_MESSAGE:
-        case SIZE_REQUEST_HEADER:
-        case SIZE_REQUEST_BODY:
-        case SIZE_RESPONSE_HEADER:
-        case SIZE_RESPONSE_BODY:
-            return 1000;
-        case SESSION_ID:
-            return System.currentTimeMillis();
-        case HIGHEST_ALERT:
-            return AlertRiskTableCellItem.getItemForRisk(Alert.RISK_MEDIUM);
-        case NOTE:
-            return Boolean.FALSE;
-        case TAGS:
-            return "Tag1, Tag2, Tag3";
-        case CUSTOM:
-            return null;
-        default:
-            return EMPTY_STRING;
+            case HREF_ID:
+                return 1000;
+            case REQUEST_TIMESTAMP:
+                return new Date(System.currentTimeMillis());
+            case RESPONSE_TIMESTAMP:
+                return new Date(System.currentTimeMillis());
+            case HREF_TYPE:
+                return Integer.toString(0);
+            case METHOD:
+                return "GET";
+            case URL:
+                return "http://example.com/some/path?param=value";
+            case STATUS_CODE:
+                return 200;
+            case STATUS_REASON:
+                return "Not Found";
+            case RTT:
+                return 1000;
+            case SIZE_MESSAGE:
+            case SIZE_REQUEST_HEADER:
+            case SIZE_REQUEST_BODY:
+            case SIZE_RESPONSE_HEADER:
+            case SIZE_RESPONSE_BODY:
+                return 1000;
+            case SESSION_ID:
+                return System.currentTimeMillis();
+            case HIGHEST_ALERT:
+                return AlertRiskTableCellItem.getItemForRisk(Alert.RISK_MEDIUM);
+            case NOTE:
+                return Boolean.FALSE;
+            case TAGS:
+                return "Tag1, Tag2, Tag3";
+            case CUSTOM:
+                return null;
+            default:
+                return EMPTY_STRING;
         }
     }
 
     public static Class<?> getColumnClass(Column column) {
         switch (column) {
-        case HREF_ID:
-            return Integer.class;
-        case REQUEST_TIMESTAMP:
-            return Date.class;
-        case RESPONSE_TIMESTAMP:
-            return Date.class;
-        case HREF_TYPE:
-            return Integer.class;
-        case METHOD:
-            return String.class;
-        case URL:
-            return String.class;
-        case STATUS_CODE:
-            return Integer.class;
-        case STATUS_REASON:
-            return String.class;
-        case RTT:
-            return Integer.class;
-        case SIZE_MESSAGE:
-        case SIZE_REQUEST_HEADER:
-        case SIZE_REQUEST_BODY:
-        case SIZE_RESPONSE_HEADER:
-        case SIZE_RESPONSE_BODY:
-            return Integer.class;
-        case SESSION_ID:
-            return Long.class;
-        case HIGHEST_ALERT:
-            return AlertRiskTableCellItem.class;
-        case NOTE:
-            return Boolean.class;
-        case TAGS:
-            return String.class;
-        case CUSTOM:
-            return null;
-        default:
-            return String.class;
+            case HREF_ID:
+                return Integer.class;
+            case REQUEST_TIMESTAMP:
+                return Date.class;
+            case RESPONSE_TIMESTAMP:
+                return Date.class;
+            case HREF_TYPE:
+                return Integer.class;
+            case METHOD:
+                return String.class;
+            case URL:
+                return String.class;
+            case STATUS_CODE:
+                return Integer.class;
+            case STATUS_REASON:
+                return String.class;
+            case RTT:
+                return Integer.class;
+            case SIZE_MESSAGE:
+            case SIZE_REQUEST_HEADER:
+            case SIZE_REQUEST_BODY:
+            case SIZE_RESPONSE_HEADER:
+            case SIZE_RESPONSE_BODY:
+                return Integer.class;
+            case SESSION_ID:
+                return Long.class;
+            case HIGHEST_ALERT:
+                return AlertRiskTableCellItem.class;
+            case NOTE:
+                return Boolean.class;
+            case TAGS:
+                return String.class;
+            case CUSTOM:
+                return null;
+            default:
+                return String.class;
         }
     }
 

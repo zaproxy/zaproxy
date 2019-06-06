@@ -2,19 +2,19 @@
  * Created on Jun 14, 2004
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -23,7 +23,7 @@
 // ZAP: 2012/03/15 Removed an unnecessary try catch block and unnecessary casting.
 // Reworked the method getCharset.
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
-// ZAP: 2012/10/04 Changed to initialise the instance variable mVersion with a 
+// ZAP: 2012/10/04 Changed to initialise the instance variable mVersion with a
 // valid version (HttpHeader.HTTP10).
 // ZAP: 2012/11/01 Issue 410: charset wrapped in quotation marks
 // ZAP: 2013/04/08 Issue 605: Force intercepts via header
@@ -34,11 +34,13 @@
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2016/06/17 Be lenient when parsing charset and accept single quote chars around the value
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
-// ZAP: 2017/02/08 Change isEmpty to check start line instead of headers (if it has the status/request line it's not empty).
+// ZAP: 2017/02/08 Change isEmpty to check start line instead of headers (if it has the
+// status/request line it's not empty).
 // ZAP: 2017/03/02 Issue 3226: Added API Key and Nonce headers
 // ZAP: 2018/02/06 Make the lower/upper case changes locale independent (Issue 4327).
 // ZAP: 2018/04/24 Add JSON Content-Type.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -102,7 +104,10 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks
-    private static final Pattern patternCharset = Pattern.compile("charset *= *(?:(?:'([^';\\s]+))|(?:\"?([^\";\\s]+)\"?))", Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternCharset =
+            Pattern.compile(
+                    "charset *= *(?:(?:'([^';\\s]+))|(?:\"?([^\";\\s]+)\"?))",
+                    Pattern.CASE_INSENSITIVE);
     protected static final String p_TEXT = "[^\\x00-\\x1f\\r\\n]*";
     protected static final String p_METHOD = "(\\w+)";
     protected static final String p_SP = " +";
@@ -121,20 +126,20 @@ public abstract class HttpHeader implements java.io.Serializable {
     protected String mVersion;
     // ZAP: added CORS headers
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
-	public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
-	public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
-	public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
-	//ZAP: added "Allow" and "Public" Headers, for response to "OPTIONS" method
-	public static final String METHODS_ALLOW = "Allow";
-	public static final String METHODS_PUBLIC = "Public";  //IIS specific?
-	public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
-	public static final String X_ZAP_API_KEY = "X-ZAP-API-Key";
-	public static final String X_ZAP_API_NONCE = "X-ZAP-API-Nonce";
-	//ZAP: additional standard/defacto headers
-	public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
-	public static final String X_CSRF_TOKEN = "X-Csrf-Token";
-	public static final String X_CSRFTOKEN = "X-CsrfToken";
-	public static final String X_XSRF_TOKEN = "X-Xsrf-Token";
+    public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    // ZAP: added "Allow" and "Public" Headers, for response to "OPTIONS" method
+    public static final String METHODS_ALLOW = "Allow";
+    public static final String METHODS_PUBLIC = "Public"; // IIS specific?
+    public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
+    public static final String X_ZAP_API_KEY = "X-ZAP-API-Key";
+    public static final String X_ZAP_API_NONCE = "X-ZAP-API-Nonce";
+    // ZAP: additional standard/defacto headers
+    public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
+    public static final String X_CSRF_TOKEN = "X-Csrf-Token";
+    public static final String X_CSRFTOKEN = "X-CsrfToken";
+    public static final String X_XSRF_TOKEN = "X-Xsrf-Token";
 
     public HttpHeader() {
         init();
@@ -150,9 +155,7 @@ public abstract class HttpHeader implements java.io.Serializable {
         setMessage(data);
     }
 
-    /**
-     * Inititialization.
-     */
+    /** Inititialization. */
     private void init() {
         mHeaderFields = new Hashtable<>();
         mStartLine = "";
@@ -182,7 +185,6 @@ public abstract class HttpHeader implements java.io.Serializable {
         if (mMalformedHeader) {
             throw new HttpMalformedHeaderException();
         }
-
     }
 
     public void clear() {
@@ -190,8 +192,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Get the first header value using the name given. If there are multiple
-     * occurrence, only the first one will be returned as String.
+     * Get the first header value using the name given. If there are multiple occurrence, only the
+     * first one will be returned as String.
      *
      * @param name
      * @return the header value. null if not found.
@@ -229,8 +231,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Add a header with the name and value given. It will be appended to the
-     * header string.
+     * Add a header with the name and value given. It will be appended to the header string.
      *
      * @param name
      * @param val
@@ -241,15 +242,15 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Set a header name and value. If the name is not found, it will be added.
-     * If the value is null, the header will be removed.
+     * Set a header name and value. If the name is not found, it will be added. If the value is
+     * null, the header will be removed.
      *
      * @param name
      * @param value
      */
     public void setHeader(String name, String value) {
-//		int pos = 0;
-//		int crlfpos = 0;
+        //		int pos = 0;
+        //		int crlfpos = 0;
         Pattern pattern = null;
 
         if (getHeaders(name) == null && value != null) {
@@ -274,7 +275,9 @@ public abstract class HttpHeader implements java.io.Serializable {
 
     private Pattern getHeaderRegex(String name) throws PatternSyntaxException {
         // Added character quoting to avoid troubles with "-" char or similar
-        return Pattern.compile("^ *\\Q" + name + "\\E *: *[^\\r\\n]*" + mLineDelimiter, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+        return Pattern.compile(
+                "^ *\\Q" + name + "\\E *: *[^\\r\\n]*" + mLineDelimiter,
+                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
     }
 
     /**
@@ -315,8 +318,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Check if this header expect connection to be closed. HTTP/1.0 default to
-     * close. HTTP/1.1 default to keep-alive.
+     * Check if this header expect connection to be closed. HTTP/1.0 default to close. HTTP/1.1
+     * default to keep-alive.
      *
      * @return
      */
@@ -330,7 +333,8 @@ public abstract class HttpHeader implements java.io.Serializable {
             // HTTP 1.0 default to close unless keep alive.
             result = true;
             try {
-                if (getHeader(CONNECTION).equalsIgnoreCase(_KEEP_ALIVE) || getHeader(PROXY_CONNECTION).equalsIgnoreCase(_KEEP_ALIVE)) {
+                if (getHeader(CONNECTION).equalsIgnoreCase(_KEEP_ALIVE)
+                        || getHeader(PROXY_CONNECTION).equalsIgnoreCase(_KEEP_ALIVE)) {
                     return false;
                 }
             } catch (NullPointerException e) {
@@ -409,9 +413,7 @@ public abstract class HttpHeader implements java.io.Serializable {
         String[] split = patternCRLF.split(newData);
         mStartLine = split[0];
 
-        String token = null,
-                name = null,
-                value = null;
+        String token = null, name = null, value = null;
         int pos = 0;
 
         StringBuilder sb = new StringBuilder(2048);
@@ -436,14 +438,14 @@ public abstract class HttpHeader implements java.io.Serializable {
             }
 
             /*
-             if (name.equalsIgnoreCase(PROXY_CONNECTION)) {
-             sb.append(name + ": " + _CLOSE + mLineDelimiter);
-             } else if (name.equalsIgnoreCase(CONNECTION)) {
-             sb.append(name + ": " + _CLOSE + mLineDelimiter);
-             } else {
-             */
+            if (name.equalsIgnoreCase(PROXY_CONNECTION)) {
+            sb.append(name + ": " + _CLOSE + mLineDelimiter);
+            } else if (name.equalsIgnoreCase(CONNECTION)) {
+            sb.append(name + ": " + _CLOSE + mLineDelimiter);
+            } else {
+            */
             sb.append(name + ": " + value + mLineDelimiter);
-            //}
+            // }
 
             addInternalHeaderFields(name, value);
         }
@@ -497,8 +499,8 @@ public abstract class HttpHeader implements java.io.Serializable {
 
     /**
      * Gets the header name normalised, to obtain the value(s) from {@link #mHeaderFields}.
-     * <p>
-     * The normalisation is done by changing all characters to upper case.
+     *
+     * <p>The normalisation is done by changing all characters to upper case.
      *
      * @param name the name of the header to normalise.
      * @return the normalised header name.
@@ -516,9 +518,7 @@ public abstract class HttpHeader implements java.io.Serializable {
         return mMalformedHeader;
     }
 
-    /**
-     * Get a string representation of this header.
-     */
+    /** Get a string representation of this header. */
     @Override
     public String toString() {
         return getPrimeHeader() + mLineDelimiter + mMsgHeader + mLineDelimiter;
@@ -551,12 +551,12 @@ public abstract class HttpHeader implements java.io.Serializable {
 
     /**
      * Tells whether or not the HTTP header contains any of the given {@code Content-Type} values.
-     * <p>
-     * The values are expected to be in lower case.
+     *
+     * <p>The values are expected to be in lower case.
      *
      * @param contentTypes the values to check.
-     * @return {@code true} if any of the given values is contained in the (first) {@code Content-Type} header, {@code false}
-     *         otherwise.
+     * @return {@code true} if any of the given values is contained in the (first) {@code
+     *     Content-Type} header, {@code false} otherwise.
      * @since 2.8.0
      * @see #getNormalisedContentTypeValue()
      */
@@ -580,9 +580,9 @@ public abstract class HttpHeader implements java.io.Serializable {
 
     /**
      * Gets the normalised value of the (first) {@code Content-Type} header.
-     * <p>
-     * The normalisation is done by changing all characters to lower case.
-     * 
+     *
+     * <p>The normalisation is done by changing all characters to lower case.
+     *
      * @return the value normalised, might be {@code null}.
      * @since 2.8.0
      * @see #hasContentType(String...)
@@ -605,8 +605,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Get the headers as string. All the headers name value pair is
-     * concatenated and delimited.
+     * Get the headers as string. All the headers name value pair is concatenated and delimited.
      *
      * @return Eg "Host: www.example.com\r\nUser-agent: some agent\r\n"
      */
@@ -616,8 +615,8 @@ public abstract class HttpHeader implements java.io.Serializable {
 
     /**
      * Tells whether or not the header is empty.
-     * <p>
-     * A header is empty if it has no content (for example, no start line nor headers).
+     *
+     * <p>A header is empty if it has no content (for example, no start line nor headers).
      *
      * @return {@code true} if the header is empty, {@code false} otherwise.
      */

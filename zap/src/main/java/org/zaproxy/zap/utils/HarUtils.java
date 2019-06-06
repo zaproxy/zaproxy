@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2013 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,28 +18,6 @@
  * limitations under the License.
  */
 package org.zaproxy.zap.utils;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.HttpCookie;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.encoder.Base64;
-import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HttpHeader;
-import org.parosproxy.paros.network.HttpHeaderField;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.network.HttpResponseHeader;
-import org.zaproxy.zap.network.HttpRequestBody;
 
 import edu.umass.cs.benchlab.har.HarCache;
 import edu.umass.cs.benchlab.har.HarContent;
@@ -60,10 +38,30 @@ import edu.umass.cs.benchlab.har.HarQueryString;
 import edu.umass.cs.benchlab.har.HarRequest;
 import edu.umass.cs.benchlab.har.HarResponse;
 import edu.umass.cs.benchlab.har.tools.HarFileWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.HttpCookie;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.encoder.Base64;
+import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpHeaderField;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpResponseHeader;
+import org.zaproxy.zap.network.HttpRequestBody;
 
 /**
- * Utility class to parse/create HTTP Archives (HAR) and do conversions between HAR Java classes and {@code HttpMessage}s
- * (request and response).
+ * Utility class to parse/create HTTP Archives (HAR) and do conversions between HAR Java classes and
+ * {@code HttpMessage}s (request and response).
  *
  * @see <a href="http://www.softwareishard.com/blog/har-12-spec/">HTTP Archive 1.2</a>
  * @since 2.3.0
@@ -75,34 +73,33 @@ public final class HarUtils {
 
     /**
      * The prefix for custom HAR fields produced by ZAP.
-     * 
+     *
      * @since 2.8.0
      */
     public static final String CUSTOM_FIELD_PREFIX = "_zap";
 
     /**
      * The name of the custom field that contains the message ID.
-     * 
+     *
      * @since 2.8.0
      */
     public static final String MESSAGE_ID_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageId";
 
     /**
      * The name of the custom field that contains the message type.
-     * 
+     *
      * @since 2.8.0
      */
     public static final String MESSAGE_TYPE_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageType";
 
     /**
      * The name of the custom field that contains the message note.
-     * 
+     *
      * @since 2.8.0
      */
     public static final String MESSAGE_NOTE_CUSTOM_FIELD = CUSTOM_FIELD_PREFIX + "MessageNote";
 
-    private HarUtils() {
-    }
+    private HarUtils() {}
 
     public static HarLog createZapHarLog() {
         return new HarLog(new HarCreator(Constant.PROGRAM_NAME, Constant.PROGRAM_VERSION));
@@ -131,10 +128,12 @@ public final class HarUtils {
         return harRequest;
     }
 
-    public static HttpMessage createHttpMessage(HarRequest harRequest) throws HttpMalformedHeaderException {
+    public static HttpMessage createHttpMessage(HarRequest harRequest)
+            throws HttpMalformedHeaderException {
         StringBuilder strBuilderReqHeader = new StringBuilder();
 
-        strBuilderReqHeader.append(harRequest.getMethod())
+        strBuilderReqHeader
+                .append(harRequest.getMethod())
                 .append(' ')
                 .append(harRequest.getUrl())
                 .append(' ')
@@ -142,7 +141,11 @@ public final class HarUtils {
                 .append("\r\n");
 
         for (HarHeader harHeader : harRequest.getHeaders().getHeaders()) {
-            strBuilderReqHeader.append(harHeader.getName()).append(": ").append(harHeader.getValue()).append("\r\n");
+            strBuilderReqHeader
+                    .append(harHeader.getName())
+                    .append(": ")
+                    .append(harHeader.getValue())
+                    .append("\r\n");
         }
         strBuilderReqHeader.append("\r\n");
 
@@ -152,8 +155,10 @@ public final class HarUtils {
             final String text = harPostData.getText();
             if (text != null && !text.isEmpty()) {
                 strBuilderReqBody.append(harRequest.getPostData().getText());
-            } else if (harPostData.getParams() != null && !harPostData.getParams().getPostDataParams().isEmpty()) {
-                for (HarPostDataParam param : harRequest.getPostData().getParams().getPostDataParams()) {
+            } else if (harPostData.getParams() != null
+                    && !harPostData.getParams().getPostDataParams().isEmpty()) {
+                for (HarPostDataParam param :
+                        harRequest.getPostData().getParams().getPostDataParams()) {
                     if (strBuilderReqBody.length() > 0) {
                         strBuilderReqBody.append('&');
                     }
@@ -162,8 +167,9 @@ public final class HarUtils {
             }
         }
 
-        return new HttpMessage(new HttpRequestHeader(strBuilderReqHeader.toString()), new HttpRequestBody(
-                strBuilderReqBody.toString()));
+        return new HttpMessage(
+                new HttpRequestHeader(strBuilderReqHeader.toString()),
+                new HttpRequestBody(strBuilderReqBody.toString()));
     }
 
     /**
@@ -187,8 +193,9 @@ public final class HarUtils {
     }
 
     /**
-     * Creates a {@code HarEntry} from the given message with additional custom fields for the history ID/type and note.
-     * 
+     * Creates a {@code HarEntry} from the given message with additional custom fields for the
+     * history ID/type and note.
+     *
      * @param historyId the history ID of the HTTP message.
      * @param historyType the history type of the HTTP message.
      * @param httpMessage the HTTP message.
@@ -198,7 +205,8 @@ public final class HarUtils {
      */
     public static HarEntry createHarEntry(int historyId, int historyType, HttpMessage httpMessage) {
         HarEntry entry = createHarEntry(httpMessage);
-        entry.setCustomFields(createMessageHarCustomFields(historyId, historyType, httpMessage.getNote()));
+        entry.setCustomFields(
+                createMessageHarCustomFields(historyId, historyType, httpMessage.getNote()));
         return entry;
     }
 
@@ -212,7 +220,8 @@ public final class HarUtils {
      * @since 2.8.0
      * @see #createHarEntry(int, int, HttpMessage)
      */
-    public static HarCustomFields createMessageHarCustomFields(int historyId, int historyType, String messageNote) {
+    public static HarCustomFields createMessageHarCustomFields(
+            int historyId, int historyType, String messageNote) {
         HarCustomFields customFields = new HarCustomFields();
         customFields.addCustomField(MESSAGE_ID_CUSTOM_FIELD, Integer.toString(historyId));
         customFields.addCustomField(MESSAGE_TYPE_CUSTOM_FIELD, Integer.toString(historyType));
@@ -229,8 +238,9 @@ public final class HarUtils {
                 harCookies.addCookie(new HarCookie(cookie.getName(), cookie.getValue()));
             }
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Ignoring cookies for HAR (\"request\") \"cookies\" list. Request contains invalid cookie: "
-                    + e.getMessage());
+            LOGGER.warn(
+                    "Ignoring cookies for HAR (\"request\") \"cookies\" list. Request contains invalid cookie: "
+                            + e.getMessage());
         }
 
         HarQueryString harQueryString = new HarQueryString();
@@ -249,9 +259,11 @@ public final class HarUtils {
                 contentType = "";
                 text = requestBody.toString();
             } else {
-                if (StringUtils.startsWithIgnoreCase(contentType.trim(), HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
+                if (StringUtils.startsWithIgnoreCase(
+                        contentType.trim(), HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
                     for (HtmlParameter param : httpMessage.getFormParams()) {
-                        params.addPostDataParam(new HarPostDataParam(param.getName(), param.getValue()));
+                        params.addPostDataParam(
+                                new HarPostDataParam(param.getName(), param.getValue()));
                     }
                 } else {
                     text = requestBody.toString();
@@ -278,24 +290,29 @@ public final class HarUtils {
         HarCookies harCookies = new HarCookies();
 
         long whenCreated = System.currentTimeMillis();
-        for (HttpCookie cookie : responseHeader.getHttpCookies(httpMessage.getRequestHeader().getHostName())) {
+        for (HttpCookie cookie :
+                responseHeader.getHttpCookies(httpMessage.getRequestHeader().getHostName())) {
             Date expires;
             if (cookie.getVersion() == 0) {
                 expires = new Date(whenCreated + (cookie.getMaxAge() * 1000));
             } else {
-                expires = new Date(httpMessage.getTimeSentMillis() + httpMessage.getTimeElapsedMillis()
-                        + (cookie.getMaxAge() * 1000));
+                expires =
+                        new Date(
+                                httpMessage.getTimeSentMillis()
+                                        + httpMessage.getTimeElapsedMillis()
+                                        + (cookie.getMaxAge() * 1000));
             }
 
-            harCookies.addCookie(new HarCookie(
-                    cookie.getName(),
-                    cookie.getValue(),
-                    cookie.getPath(),
-                    cookie.getDomain(),
-                    expires,
-                    cookie.isHttpOnly(),
-                    cookie.getSecure(),
-                    null));
+            harCookies.addCookie(
+                    new HarCookie(
+                            cookie.getName(),
+                            cookie.getValue(),
+                            cookie.getPath(),
+                            cookie.getDomain(),
+                            expires,
+                            cookie.isHttpOnly(),
+                            cookie.getSecure(),
+                            null));
         }
 
         String text = null;
@@ -318,7 +335,14 @@ public final class HarUtils {
             }
         }
 
-        HarContent harContent = new HarContent(httpMessage.getResponseBody().length(), 0, contentType, text, encoding, null);
+        HarContent harContent =
+                new HarContent(
+                        httpMessage.getResponseBody().length(),
+                        0,
+                        contentType,
+                        text,
+                        encoding,
+                        null);
 
         String redirectUrl = responseHeader.getHeader(HttpHeader.LOCATION);
 

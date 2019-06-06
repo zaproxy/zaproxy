@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,6 @@ package org.zaproxy.zap.network;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.hamcrest.BaseMatcher;
@@ -30,7 +29,8 @@ import org.hamcrest.Matcher;
 import org.junit.BeforeClass;
 
 /**
- * Class with helper/utility methods to help testing classes involving {@code HttpBody} class and its implementations.
+ * Class with helper/utility methods to help testing classes involving {@code HttpBody} class and
+ * its implementations.
  *
  * @see org.parosproxy.paros.network.HttpBody HttpBody
  */
@@ -45,27 +45,36 @@ public class HttpBodyTestUtils {
 
     protected static final String BODY_1_STRING = "[Body1 A B C ぁ]";
 
-    protected static final byte[] BODY_1_BYTES_DEFAULT_CHARSET = BODY_1_STRING.getBytes(DEFAULT_CHARSET);
-    protected static final String BODY_1_STRING_DEFAULT_CHARSET = new String(BODY_1_BYTES_DEFAULT_CHARSET, DEFAULT_CHARSET);
+    protected static final byte[] BODY_1_BYTES_DEFAULT_CHARSET =
+            BODY_1_STRING.getBytes(DEFAULT_CHARSET);
+    protected static final String BODY_1_STRING_DEFAULT_CHARSET =
+            new String(BODY_1_BYTES_DEFAULT_CHARSET, DEFAULT_CHARSET);
 
-    protected static final byte[] BODY_1_BYTES_UTF_8 = BODY_1_STRING.getBytes(StandardCharsets.UTF_8);
-    protected static final String BODY_1_STRING_UTF_8 = new String(BODY_1_BYTES_UTF_8, StandardCharsets.UTF_8);
+    protected static final byte[] BODY_1_BYTES_UTF_8 =
+            BODY_1_STRING.getBytes(StandardCharsets.UTF_8);
+    protected static final String BODY_1_STRING_UTF_8 =
+            new String(BODY_1_BYTES_UTF_8, StandardCharsets.UTF_8);
 
     protected static final String BODY_2_STRING = "[Body2 X Y Z ぁ]";
 
-    protected static final byte[] BODY_2_BYTES_DEFAULT_CHARSET = BODY_2_STRING.getBytes(DEFAULT_CHARSET);
-    protected static final String BODY_2_STRING_DEFAULT_CHARSET = new String(BODY_2_BYTES_DEFAULT_CHARSET, DEFAULT_CHARSET);
+    protected static final byte[] BODY_2_BYTES_DEFAULT_CHARSET =
+            BODY_2_STRING.getBytes(DEFAULT_CHARSET);
+    protected static final String BODY_2_STRING_DEFAULT_CHARSET =
+            new String(BODY_2_BYTES_DEFAULT_CHARSET, DEFAULT_CHARSET);
 
-    protected static final byte[] BODY_2_BYTES_UTF_8 = BODY_2_STRING.getBytes(StandardCharsets.UTF_8);
-    protected static final String BODY_2_STRING_UTF_8 = new String(BODY_2_BYTES_UTF_8, StandardCharsets.UTF_8);
+    protected static final byte[] BODY_2_BYTES_UTF_8 =
+            BODY_2_STRING.getBytes(StandardCharsets.UTF_8);
+    protected static final String BODY_2_STRING_UTF_8 =
+            new String(BODY_2_BYTES_UTF_8, StandardCharsets.UTF_8);
 
-    protected static final byte[] BODY_1_AND_2_BYTES_DEFAULT_CHARSET = concatenate(
-            BODY_1_BYTES_DEFAULT_CHARSET,
-            BODY_2_BYTES_DEFAULT_CHARSET);
-    protected static final String BODY_1_AND_2_STRING_DEFAULT_CHARSET = BODY_1_STRING_DEFAULT_CHARSET
-            + BODY_2_STRING_DEFAULT_CHARSET;
-    protected static final byte[] BODY_1_AND_2_BYTES_UTF_8 = concatenate(BODY_1_BYTES_UTF_8, BODY_2_BYTES_UTF_8);
-    protected static final String BODY_1_AND_2_STRING_UTF_8 = BODY_1_STRING_UTF_8 + BODY_2_STRING_UTF_8;
+    protected static final byte[] BODY_1_AND_2_BYTES_DEFAULT_CHARSET =
+            concatenate(BODY_1_BYTES_DEFAULT_CHARSET, BODY_2_BYTES_DEFAULT_CHARSET);
+    protected static final String BODY_1_AND_2_STRING_DEFAULT_CHARSET =
+            BODY_1_STRING_DEFAULT_CHARSET + BODY_2_STRING_DEFAULT_CHARSET;
+    protected static final byte[] BODY_1_AND_2_BYTES_UTF_8 =
+            concatenate(BODY_1_BYTES_UTF_8, BODY_2_BYTES_UTF_8);
+    protected static final String BODY_1_AND_2_STRING_UTF_8 =
+            BODY_1_STRING_UTF_8 + BODY_2_STRING_UTF_8;
 
     @BeforeClass
     public static void suppressLogging() {

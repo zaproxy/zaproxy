@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,6 @@ package org.zaproxy.zap.view.renderer;
 
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-
 import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
@@ -30,26 +29,31 @@ public class TimeDurationStringValue implements StringValue {
 
     private static final long serialVersionUID = -2071582450216282057L;
 
-    private static final MessageFormat TIME_DURATION_WITH_UNIT_FORMAT = new MessageFormat(
-            Constant.messages.getString("generic.value.time.duration.value.unit"));
+    private static final MessageFormat TIME_DURATION_WITH_UNIT_FORMAT =
+            new MessageFormat(
+                    Constant.messages.getString("generic.value.time.duration.value.unit"));
 
     // Use the same NumberFormat instance since the renderes are used in EDT only.
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
+
     static {
         NUMBER_FORMAT.setMaximumFractionDigits(2);
     }
 
-    private static final String UNIT_MILLISECONDS = Constant.messages.getString("generic.value.time.duration.unit.milliseconds");
-    private static final String UNIT_SECONDS = Constant.messages.getString("generic.value.time.duration.unit.seconds");
-    private static final String UNIT_MINUTES = Constant.messages.getString("generic.value.time.duration.unit.minutes");
-    private static final String UNIT_HOURS = Constant.messages.getString("generic.value.time.duration.unit.hours");
+    private static final String UNIT_MILLISECONDS =
+            Constant.messages.getString("generic.value.time.duration.unit.milliseconds");
+    private static final String UNIT_SECONDS =
+            Constant.messages.getString("generic.value.time.duration.unit.seconds");
+    private static final String UNIT_MINUTES =
+            Constant.messages.getString("generic.value.time.duration.unit.minutes");
+    private static final String UNIT_HOURS =
+            Constant.messages.getString("generic.value.time.duration.unit.hours");
 
     private static final int ONE_SECOND_IN_MS = 1000;
     private static final int ONE_MINUTE_IN_MS = 60 * ONE_SECOND_IN_MS;
     private static final int ONE_HOUR_IN_MS = 60 * ONE_MINUTE_IN_MS;
 
-    public TimeDurationStringValue() {
-    }
+    public TimeDurationStringValue() {}
 
     @Override
     public String getString(Object value) {
@@ -68,7 +72,8 @@ public class TimeDurationStringValue implements StringValue {
                 duration = duration / ONE_HOUR_IN_MS;
                 unit = UNIT_HOURS;
             }
-            return TIME_DURATION_WITH_UNIT_FORMAT.format(new Object[] { NUMBER_FORMAT.format(duration), unit });
+            return TIME_DURATION_WITH_UNIT_FORMAT.format(
+                    new Object[] {NUMBER_FORMAT.format(duration), unit});
         }
         return StringValues.TO_STRING.getString(value);
     }

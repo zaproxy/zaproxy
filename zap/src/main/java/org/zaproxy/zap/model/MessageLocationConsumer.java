@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,12 +19,12 @@
  */
 package org.zaproxy.zap.model;
 
-
 public interface MessageLocationConsumer {
 
     /**
-     * If this replacer handles the given type of location, for example, when using a AMF replacer it would not
-     * handle other locations than AMFLocation and a "text" replacer would not handle AMF locations
+     * If this replacer handles the given type of location, for example, when using a AMF replacer
+     * it would not handle other locations than AMFLocation and a "text" replacer would not handle
+     * AMF locations
      *
      * @param location the location being checked
      * @return {@code true} if the location is supported, {@code false} otherwise
@@ -32,8 +32,9 @@ public interface MessageLocationConsumer {
     boolean supports(MessageLocation location);
 
     /**
-     * If this replacer handles the given type of location, for example, when using a AMF replacer it would not
-     * handle other locations than AMFLocation and a "text" replacer would not handle AMF locations
+     * If this replacer handles the given type of location, for example, when using a AMF replacer
+     * it would not handle other locations than AMFLocation and a "text" replacer would not handle
+     * AMF locations
      *
      * @param classLocation the class of the location being checked
      * @return {@code true} if the location is supported, {@code false} otherwise

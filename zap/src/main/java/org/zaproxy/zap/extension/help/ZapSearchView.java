@@ -22,15 +22,15 @@ package org.zaproxy.zap.extension.help;
 import java.awt.Component;
 import java.util.Hashtable;
 import java.util.Locale;
-
 import javax.help.HelpModel;
 import javax.help.HelpSet;
 import javax.help.JHelpSearchNavigator;
 import javax.help.SearchView;
 
 /**
- * A {@code SearchView} that uses a {@link ZapBasicSearchNavigatorUI} for its {@code JHelpSearchNavigator}.
- * 
+ * A {@code SearchView} that uses a {@link ZapBasicSearchNavigatorUI} for its {@code
+ * JHelpSearchNavigator}.
+ *
  * @since 2.5.0
  */
 public class ZapSearchView extends SearchView {
@@ -41,7 +41,8 @@ public class ZapSearchView extends SearchView {
         super(hs, name, label, params);
     }
 
-    public ZapSearchView(HelpSet hs, String name, String label, Locale locale, Hashtable<?, ?> params) {
+    public ZapSearchView(
+            HelpSet hs, String name, String label, Locale locale, Hashtable<?, ?> params) {
         super(hs, name, label, locale, params);
     }
 
@@ -57,5 +58,4 @@ public class ZapSearchView extends SearchView {
             }
         };
     }
-
 }

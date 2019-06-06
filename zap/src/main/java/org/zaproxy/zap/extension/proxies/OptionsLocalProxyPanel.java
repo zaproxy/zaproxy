@@ -1,35 +1,32 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.zaproxy.zap.extension.proxies;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
-
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import org.jdesktop.swingx.JXLabel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.FontUtils;
@@ -70,26 +67,36 @@ public class OptionsLocalProxyPanel extends JPanel {
 
     private JCheckBox getChkBehindNat() {
         if (chkBehindNat == null) {
-            chkBehindNat = new JCheckBox(Constant.messages.getString("options.proxy.local.label.behindnat"));
-            chkBehindNat.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.behindnat"));
+            chkBehindNat =
+                    new JCheckBox(
+                            Constant.messages.getString("options.proxy.local.label.behindnat"));
+            chkBehindNat.setToolTipText(
+                    Constant.messages.getString("options.proxy.local.tooltip.behindnat"));
         }
         return chkBehindNat;
     }
 
     public JCheckBox getChkRemoveUnsupportedEncodings() {
         if (chkRemoveUnsupportedEncodings == null) {
-            chkRemoveUnsupportedEncodings = new JCheckBox(
-                    Constant.messages.getString("options.proxy.local.label.removeUnsupportedEncodings"));
-            chkRemoveUnsupportedEncodings
-                    .setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.removeUnsupportedEncodings"));
+            chkRemoveUnsupportedEncodings =
+                    new JCheckBox(
+                            Constant.messages.getString(
+                                    "options.proxy.local.label.removeUnsupportedEncodings"));
+            chkRemoveUnsupportedEncodings.setToolTipText(
+                    Constant.messages.getString(
+                            "options.proxy.local.tooltip.removeUnsupportedEncodings"));
         }
         return chkRemoveUnsupportedEncodings;
     }
 
     private JCheckBox getChkAlwaysDecodeGzip() {
         if (chkAlwaysDecodeGzip == null) {
-            chkAlwaysDecodeGzip = new JCheckBox(Constant.messages.getString("options.proxy.local.label.alwaysDecodeGzip"));
-            chkAlwaysDecodeGzip.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.alwaysDecodeGzip"));
+            chkAlwaysDecodeGzip =
+                    new JCheckBox(
+                            Constant.messages.getString(
+                                    "options.proxy.local.label.alwaysDecodeGzip"));
+            chkAlwaysDecodeGzip.setToolTipText(
+                    Constant.messages.getString("options.proxy.local.tooltip.alwaysDecodeGzip"));
         }
         return chkAlwaysDecodeGzip;
     }
@@ -119,13 +126,14 @@ public class OptionsLocalProxyPanel extends JPanel {
 
         JPanel panelLocalProxy = new JPanel(new GridBagLayout());
         panelLocalProxy.setFont(FontUtils.getFont(FontUtils.Size.standard));
-        panelLocalProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(
-                null,
-                Constant.messages.getString("options.proxy.local.title"),
-                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-                javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                FontUtils.getFont(FontUtils.Size.standard),
-                java.awt.Color.black));
+        panelLocalProxy.setBorder(
+                javax.swing.BorderFactory.createTitledBorder(
+                        null,
+                        Constant.messages.getString("options.proxy.local.title"),
+                        javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                        javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard),
+                        java.awt.Color.black));
 
         jLabel.setText(Constant.messages.getString("options.proxy.local.label.address"));
 
@@ -206,10 +214,11 @@ public class OptionsLocalProxyPanel extends JPanel {
     }
 
     public ProxiesParamProxy getProxy() {
-        ProxiesParamProxy proxy = new ProxiesParamProxy(
-                (String) getLocalAddress().getSelectedItem(),
-                getSpinnerProxyPort().getValue(),
-                true);
+        ProxiesParamProxy proxy =
+                new ProxiesParamProxy(
+                        (String) getLocalAddress().getSelectedItem(),
+                        getSpinnerProxyPort().getValue(),
+                        true);
         proxy.setBehindNat(getChkBehindNat().isSelected());
         proxy.setAlwaysDecodeGzip(getChkAlwaysDecodeGzip().isSelected());
         proxy.setRemoveUnsupportedEncodings(getChkRemoveUnsupportedEncodings().isSelected());

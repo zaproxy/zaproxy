@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -28,12 +28,11 @@
 // ZAP: 2017/10/20 Allow to obtain default delete keyboard shortcut (Issue 3626).
 // ZAP: 2018/07/17 Allow to obtain a KeyStroke with menu shortcut key mask.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension;
 
 import java.awt.Toolkit;
-
 import javax.swing.KeyStroke;
-
 import org.parosproxy.paros.view.MainFrame;
 import org.parosproxy.paros.view.MainPopupMenu;
 import org.parosproxy.paros.view.OutputPanel;
@@ -48,46 +47,47 @@ import org.zaproxy.zap.view.ContextPanelFactory;
 public interface ViewDelegate {
 
     MainFrame getMainFrame();
-    
+
     SiteMapPanel getSiteTreePanel();
-    
+
     OutputPanel getOutputPanel();
-    
+
     // ZAP: expose dialog
     SessionDialog getSessionDialog();
-    
+
     int showConfirmDialog(String msg);
 
     int showYesNoCancelDialog(String msg);
-    
+
     void showWarningDialog(String msg);
-    
+
     void showMessageDialog(String msg);
-    
+
     WaitMessageDialog getWaitMessageDialog(String msg);
-    
+
     MainPopupMenu getPopupMenu();
-    
+
     // ZAP: Removed the method setStatus(String), no longer used.
-    
+
     HttpPanelRequest getRequestPanel();
-    
+
     HttpPanelResponse getResponsePanel();
-    
+
     /**
      * Adds the given context panel factory to the view delegate.
-     * <p>
-     * The factory will be called whenever a panel is required for a context and notified when a context (or contexts) are no
-     * longer needed.
+     *
+     * <p>The factory will be called whenever a panel is required for a context and notified when a
+     * context (or contexts) are no longer needed.
      *
      * @param contextPanelFactory the context panel factory that should be added
      * @throws IllegalArgumentException if the context panel factory is {@code null}.
      * @see #removeContextPanelFactory(ContextPanelFactory)
      */
-    void addContextPanelFactory (ContextPanelFactory contextPanelFactory);
-    
+    void addContextPanelFactory(ContextPanelFactory contextPanelFactory);
+
     /**
-     * Removes the given context panel factory from the view delegate, and any previously created panels for the contexts.
+     * Removes the given context panel factory from the view delegate, and any previously created
+     * panels for the contexts.
      *
      * @param contextPanelFactory the context panel factory that should be removed
      * @throws IllegalArgumentException if the context panel factory is {@code null}.
@@ -98,8 +98,8 @@ public interface ViewDelegate {
 
     /**
      * Displays the given {@code message} in the main message panels (Request/Response).
-     * <p>
-     * If the given {@code message} is {@code null} the panels are cleared.
+     *
+     * <p>If the given {@code message} is {@code null} the panels are cleared.
      *
      * @param message the message to display
      * @since 2.5.0
@@ -109,8 +109,8 @@ public interface ViewDelegate {
     void displayMessage(Message message);
 
     /**
-     * Gets the default {@link KeyStroke} used to delete items (e.g. {@code HistoryReference}, {@code Alert}) show in the
-     * view (e.g. History tab, Alerts tree).
+     * Gets the default {@link KeyStroke} used to delete items (e.g. {@code HistoryReference},
+     * {@code Alert}) show in the view (e.g. History tab, Alerts tree).
      *
      * @return the {@code KeyStroke} to delete items.
      * @since 2.7.0
@@ -118,8 +118,9 @@ public interface ViewDelegate {
     KeyStroke getDefaultDeleteKeyStroke();
 
     /**
-     * Convenience method that returns a key stroke with the menu shortcut key mask already applied along with the given values.
-     * 
+     * Convenience method that returns a key stroke with the menu shortcut key mask already applied
+     * along with the given values.
+     *
      * @param keyCode the keyboard key.
      * @param modifiers the key modifiers.
      * @param onKeyRelease {@code true} if on key release, {@code false} otherwise.
@@ -130,6 +131,9 @@ public interface ViewDelegate {
     @SuppressWarnings("deprecation")
     default KeyStroke getMenuShortcutKeyStroke(int keyCode, int modifiers, boolean onKeyRelease) {
         // XXX Use getMenuShortcutKeyMaskEx() (and remove warn suppression) when targeting Java 10+
-        return KeyStroke.getKeyStroke(keyCode, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | modifiers, onKeyRelease);
+        return KeyStroke.getKeyStroke(
+                keyCode,
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | modifiers,
+                onKeyRelease);
     }
 }

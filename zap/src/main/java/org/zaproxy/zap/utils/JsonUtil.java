@@ -22,7 +22,6 @@ package org.zaproxy.zap.utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
@@ -33,34 +32,31 @@ import net.sf.json.util.JSONUtils;
  * @since 2.8.0
  */
 public final class JsonUtil {
-	
-	private JsonUtil() {
-	}
 
-	/**
-	 * Gets the given value in a form that can be safely put in a {@code JSONObject}.
-	 * <p>
-	 * {@code JSONObject} automatically parses strings that look like JSON arrays/objects, so they need to be processed (quoted)
-	 * to prevent that behaviour.
-	 *
-	 * @param value the value to process.
-	 * @return the value that can be safely put in a {@code JSONObject}.
-	 */
-	public static String getJsonFriendlyString(String value) {
-		if (!"null".equals(value) && JSONUtils.mayBeJSON(value)) {
-			return "'" + value + "'";
-		}
-		return value;
-	}
-	
-	
-	public static List<String> toStringList(JSONArray array) {
-		List<String> list = new ArrayList<String>();
-		Iterator<?> iter = JSONArray.toCollection(array).iterator();
-		while (iter.hasNext()) {
-			list.add(iter.next().toString());
-		}
-		return list;
-	}
+    private JsonUtil() {}
 
+    /**
+     * Gets the given value in a form that can be safely put in a {@code JSONObject}.
+     *
+     * <p>{@code JSONObject} automatically parses strings that look like JSON arrays/objects, so
+     * they need to be processed (quoted) to prevent that behaviour.
+     *
+     * @param value the value to process.
+     * @return the value that can be safely put in a {@code JSONObject}.
+     */
+    public static String getJsonFriendlyString(String value) {
+        if (!"null".equals(value) && JSONUtils.mayBeJSON(value)) {
+            return "'" + value + "'";
+        }
+        return value;
+    }
+
+    public static List<String> toStringList(JSONArray array) {
+        List<String> list = new ArrayList<String>();
+        Iterator<?> iter = JSONArray.toCollection(array).iterator();
+        while (iter.hasNext()) {
+            list.add(iter.next().toString());
+        }
+        return list;
+    }
 }

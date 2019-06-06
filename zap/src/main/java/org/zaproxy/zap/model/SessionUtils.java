@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,6 @@ package org.zaproxy.zap.model;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.parosproxy.paros.Constant;
 
 /**
@@ -33,14 +32,15 @@ public final class SessionUtils {
 
     public static final String SESSION_EXTENSION = ".session";
 
-    private SessionUtils() {
-    }
+    private SessionUtils() {}
 
     public static Path getSessionPath(String session) {
         String normalisedSession = getNormalisedSessionName(session);
         Path sessionPath = Paths.get(normalisedSession);
         if (!sessionPath.isAbsolute()) {
-            sessionPath = Paths.get(Constant.getZapHome(), Constant.FOLDER_SESSION_DEFAULT).resolve(sessionPath);
+            sessionPath =
+                    Paths.get(Constant.getZapHome(), Constant.FOLDER_SESSION_DEFAULT)
+                            .resolve(sessionPath);
         }
         return sessionPath;
     }

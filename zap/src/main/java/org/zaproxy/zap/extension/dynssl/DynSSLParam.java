@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,62 +20,53 @@
 package org.zaproxy.zap.extension.dynssl;
 
 import java.security.KeyStore;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
-/**
- * @author MaWoKi
- */
+/** @author MaWoKi */
 public class DynSSLParam extends AbstractParam {
 
-	/*default*/ static final String PARAM_ROOT_CA = "dynssl.param.rootca";
+    /*default*/ static final String PARAM_ROOT_CA = "dynssl.param.rootca";
 
-	private KeyStore rootca = null;
+    private KeyStore rootca = null;
 
-	private static final Logger logger = Logger.getLogger(DynSSLParam.class);
+    private static final Logger logger = Logger.getLogger(DynSSLParam.class);
 
-	@Override
-	protected void parse() {
-		String rootcastr = getString(PARAM_ROOT_CA, null);
-		if (rootcastr != null) {
-			rootca = createKeyStore(rootcastr);
-		}
-	}
+    @Override
+    protected void parse() {
+        String rootcastr = getString(PARAM_ROOT_CA, null);
+        if (rootcastr != null) {
+            rootca = createKeyStore(rootcastr);
+        }
+    }
 
-	private static KeyStore createKeyStore(String rootcastr) {
-		try {
-			return SslCertificateUtils.string2Keystore(rootcastr);
-		} catch (final Exception e) {
-			logger.error("Couldn't create Root CA KeyStore from String: " + rootcastr, e);
-		}
-		return null;
-	}
+    private static KeyStore createKeyStore(String rootcastr) {
+        try {
+            return SslCertificateUtils.string2Keystore(rootcastr);
+        } catch (final Exception e) {
+            logger.error("Couldn't create Root CA KeyStore from String: " + rootcastr, e);
+        }
+        return null;
+    }
 
-	/**
-	 * @param rootca
-	 */
-	public void setRootca(String rootca) {
-		setRootca(createKeyStore(rootca));
-	}
+    /** @param rootca */
+    public void setRootca(String rootca) {
+        setRootca(createKeyStore(rootca));
+    }
 
-	public KeyStore getRootca() {
-		return rootca;
-	}
+    public KeyStore getRootca() {
+        return rootca;
+    }
 
-	/**
-	 * @param rootca
-	 */
-	public void setRootca(KeyStore rootca) {
-		this.rootca = rootca;
-		if (rootca != null) {
-			try {
-				getConfig().setProperty(PARAM_ROOT_CA, SslCertificateUtils.keyStore2String(rootca));
-			} catch (final Exception e) {
-				logger.error("Couldn't save Root CA parameter.", e);
-			}
-		}
-	}
-
+    /** @param rootca */
+    public void setRootca(KeyStore rootca) {
+        this.rootca = rootca;
+        if (rootca != null) {
+            try {
+                getConfig().setProperty(PARAM_ROOT_CA, SslCertificateUtils.keyStore2String(rootca));
+            } catch (final Exception e) {
+                logger.error("Couldn't save Root CA parameter.", e);
+            }
+        }
+    }
 }
-

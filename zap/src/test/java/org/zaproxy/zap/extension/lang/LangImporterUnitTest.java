@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,30 +24,28 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.regex.Pattern;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link LangImporter}.
- */
+/** Unit test for {@link LangImporter}. */
 public class LangImporterUnitTest {
 
     @Test
     public void shouldIncludeMessagesAndVulnerabilitiesFiles() {
         // Given
         String[] resourceFiles = {
-                "Messages.properties",
-                "Messages_en.properties",
-                "Messages_en_GB.properties",
-                "Messages_ar_SA.properties",
-                "Messages_fil_PH.properties",
-                "Messages_zh_CN.properties",
-                "vulnerabilities.xml",
-                "vulnerabilities_en.xml",
-                "vulnerabilities_en_GB.xml",
-                "vulnerabilities_ar_SA.xml",
-                "vulnerabilities_fil_PH.xml",
-                "vulnerabilities_zh_CN.xml" };
+            "Messages.properties",
+            "Messages_en.properties",
+            "Messages_en_GB.properties",
+            "Messages_ar_SA.properties",
+            "Messages_fil_PH.properties",
+            "Messages_zh_CN.properties",
+            "vulnerabilities.xml",
+            "vulnerabilities_en.xml",
+            "vulnerabilities_en_GB.xml",
+            "vulnerabilities_ar_SA.xml",
+            "vulnerabilities_fil_PH.xml",
+            "vulnerabilities_zh_CN.xml"
+        };
         // When
         Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then
@@ -60,10 +58,11 @@ public class LangImporterUnitTest {
     public void shouldNotMatchOtherFilesThanMessagesAndVulnerabilitiesFiles() {
         // Given
         String[] resourceFiles = {
-                "Vulnerabilities.xml",
-                "Vulnerabilities_en_GB.xml",
-                "OtherFile_ar_SA.properties",
-                "messages.properties" };
+            "Vulnerabilities.xml",
+            "Vulnerabilities_en_GB.xml",
+            "OtherFile_ar_SA.properties",
+            "messages.properties"
+        };
         // When
         Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then

@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,6 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Date;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -76,7 +75,8 @@ public class PluginTestUtils {
         return new TestPlugin(id, codeName);
     }
 
-    protected static AbstractPlugin createAbstractPlugin(int id, String codeName, String... dependencies) {
+    protected static AbstractPlugin createAbstractPlugin(
+            int id, String codeName, String... dependencies) {
         return new TestPlugin(id, codeName, dependencies);
     }
 
@@ -175,12 +175,10 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void scan() {
-        }
+        public void scan() {}
 
         @Override
-        public void notifyPluginCompleted(HostProcess parent) {
-        }
+        public void notifyPluginCompleted(HostProcess parent) {}
 
         @Override
         public int getRisk() {
@@ -209,8 +207,7 @@ public class PluginTestUtils {
 
     private static class NonVisibleTestPlugin extends TestPlugin {
 
-        public NonVisibleTestPlugin() {
-        }
+        public NonVisibleTestPlugin() {}
 
         @Override
         public boolean isVisible() {
@@ -220,8 +217,7 @@ public class PluginTestUtils {
 
     private static class DeprecatedTestPlugin extends TestPlugin {
 
-        public DeprecatedTestPlugin() {
-        }
+        public DeprecatedTestPlugin() {}
 
         @Override
         public boolean isDepreciated() {
@@ -232,8 +228,7 @@ public class PluginTestUtils {
     private static class PluginImpl implements Plugin {
 
         @Override
-        public void run() {
-        }
+        public void run() {}
 
         @Override
         public int getId() {
@@ -261,12 +256,10 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void init(HttpMessage msg, HostProcess parent) {
-        }
+        public void init(HttpMessage msg, HostProcess parent) {}
 
         @Override
-        public void scan() {
-        }
+        public void scan() {}
 
         @Override
         public String[] getDependency() {
@@ -274,8 +267,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setEnabled(boolean enabled) {
-        }
+        public void setEnabled(boolean enabled) {}
 
         @Override
         public boolean isEnabled() {
@@ -298,8 +290,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void notifyPluginCompleted(HostProcess parent) {
-        }
+        public void notifyPluginCompleted(HostProcess parent) {}
 
         @Override
         public boolean isVisible() {
@@ -307,9 +298,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setConfig(Configuration config) {
-
-        }
+        public void setConfig(Configuration config) {}
 
         @Override
         public Configuration getConfig() {
@@ -317,20 +306,16 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void saveTo(Configuration conf) {
-        }
+        public void saveTo(Configuration conf) {}
 
         @Override
-        public void loadFrom(Configuration conf) {
-        }
+        public void loadFrom(Configuration conf) {}
 
         @Override
-        public void cloneInto(Plugin plugin) {
-        }
+        public void cloneInto(Plugin plugin) {}
 
         @Override
-        public void createParamIfNotExist() {
-        }
+        public void createParamIfNotExist() {}
 
         @Override
         public boolean isDepreciated() {
@@ -343,8 +328,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setDelayInMs(int delay) {
-        }
+        public void setDelayInMs(int delay) {}
 
         @Override
         public AlertThreshold getAlertThreshold(boolean incDefault) {
@@ -357,12 +341,10 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setAlertThreshold(AlertThreshold level) {
-        }
+        public void setAlertThreshold(AlertThreshold level) {}
 
         @Override
-        public void setDefaultAlertThreshold(AlertThreshold level) {
-        }
+        public void setDefaultAlertThreshold(AlertThreshold level) {}
 
         @Override
         public AlertThreshold[] getAlertThresholdsSupported() {
@@ -380,12 +362,10 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setAttackStrength(AttackStrength level) {
-        }
+        public void setAttackStrength(AttackStrength level) {}
 
         @Override
-        public void setDefaultAttackStrength(AttackStrength strength) {
-        }
+        public void setDefaultAttackStrength(AttackStrength strength) {}
 
         @Override
         public AttackStrength[] getAttackStrengthsSupported() {
@@ -393,8 +373,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setTechSet(TechSet ts) {
-        }
+        public void setTechSet(TechSet ts) {}
 
         @Override
         public boolean inScope(Tech tech) {
@@ -407,8 +386,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setTimeStarted() {
-        }
+        public void setTimeStarted() {}
 
         @Override
         public Date getTimeStarted() {
@@ -416,8 +394,7 @@ public class PluginTestUtils {
         }
 
         @Override
-        public void setTimeFinished() {
-        }
+        public void setTimeFinished() {}
 
         @Override
         public Date getTimeFinished() {
@@ -439,5 +416,4 @@ public class PluginTestUtils {
             return null;
         }
     }
-
 }

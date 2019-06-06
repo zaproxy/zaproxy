@@ -23,13 +23,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import net.sf.json.JSONObject;
 import org.junit.Test;
 
-import net.sf.json.JSONObject;
-
-/**
- * Unit test for {@link JsonUtil}.
- */
+/** Unit test for {@link JsonUtil}. */
 public class JsonUtilUnitTest {
 
     @Test
@@ -122,5 +119,4 @@ public class JsonUtilUnitTest {
     private static String quoted(String value) {
         return "'" + value + "'";
     }
-
 }

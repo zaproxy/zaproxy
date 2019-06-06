@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,9 +33,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.event.ListDataListener;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,9 +44,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.view.ListModelTestUtils;
 
-/**
- * Unit test for {@code UsersListModel}.
- */
+/** Unit test for {@code UsersListModel}. */
 @RunWith(MockitoJUnitRunner.class)
 public class UsersListModelUnitTest extends ListModelTestUtils {
 
@@ -106,7 +102,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldFailToGetCustomUserIfIndexIsMoreThanAvailableCustomUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
         // When
         usersListModel.getElementAt(2);
         // Then = ArrayIndexOutOfBoundsException
@@ -131,7 +127,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         usersListModel.addListDataListener(listener);
         User customUser1 = createUser();
         User customUser2 = createUser();
-        User[] customUsers = new User[] { customUser1, customUser2 };
+        User[] customUsers = new User[] {customUser1, customUser2};
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
@@ -151,7 +147,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         usersListModel.addListDataListener(listener);
         User customUser1 = createUser();
         User customUser2 = createUser();
-        User[] customUsers = new User[] { customUser1, customUser2 };
+        User[] customUsers = new User[] {customUser1, customUser2};
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
@@ -168,12 +164,12 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldReplaceCustomUsersEvenWithoutExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser(), createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         User customUser1 = createUser();
         User customUser2 = createUser();
-        User[] customUsers = new User[] { customUser1, customUser2 };
+        User[] customUsers = new User[] {customUser1, customUser2};
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
@@ -189,12 +185,12 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldReplaceCustomUsersEvenWithExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser(), createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         User customUser1 = createUser();
         User customUser2 = createUser();
-        User[] customUsers = new User[] { customUser1, customUser2 };
+        User[] customUsers = new User[] {customUser1, customUser2};
         // When
         usersListModel.setCustomUsers(customUsers);
         // Then
@@ -236,7 +232,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldRemoveCustomUsersEvenWithoutExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -252,7 +248,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldRemoveCustomUsersEvenWithExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -269,7 +265,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldRemoveCustomUsersWithEmptyArrayEvenWithExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -296,7 +292,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldGetSizeAsNumberOfTableUsersAndCustomUsersSet() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(3));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
         // When
         int size = usersListModel.getSize();
         // Then
@@ -307,7 +303,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     public void shouldGetSizeAsNumberOfCustomUsersIfNoTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
-        usersListModel.setCustomUsers(new User[] { createUser(), createUser() });
+        usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
         // When
         int size = usersListModel.getSize();
         // Then
@@ -340,7 +336,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         User customUser = createUser();
-        usersListModel.setCustomUsers(new User[] { customUser, createUser() });
+        usersListModel.setCustomUsers(new User[] {customUser, createUser()});
         // When
         int index = usersListModel.getIndexOf(customUser);
         // Then
@@ -352,7 +348,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         User customUser = createUser();
-        usersListModel.setCustomUsers(new User[] { customUser, createUser() });
+        usersListModel.setCustomUsers(new User[] {customUser, createUser()});
         // When
         int index = usersListModel.getIndexOf(customUser);
         // Then
@@ -407,7 +403,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(1))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(1))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
     }
@@ -423,7 +421,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(1))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(1))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(false)));
     }
@@ -439,7 +439,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedItem(tableModel.getUsers().get(0));
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
     }
@@ -499,7 +501,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(createUser());
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
     }
@@ -514,7 +518,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // When
         usersListModel.setSelectedInternalItem(copyUser(tableModel.getUsers().get(1)));
         // Then
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(1))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(1))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
     }
@@ -524,7 +530,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         User customUser = createUser();
-        usersListModel.setCustomUsers(new User[] { customUser, createUser() });
+        usersListModel.setCustomUsers(new User[] {customUser, createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -540,7 +546,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         User customUser = createUser();
-        usersListModel.setCustomUsers(new User[] { customUser, createUser() });
+        usersListModel.setCustomUsers(new User[] {customUser, createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -566,7 +572,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // Then
         assertThat(usersListModel.getSize(), is(equalTo(3)));
         assertThat(usersListModel.getElementAt(2), is(equalTo((Object) user)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
         assertThat(listener.isListItemAdded(2), is(equalTo(true)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
@@ -586,7 +594,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         // Then
         assertThat(usersListModel.getSize(), is(equalTo(3)));
         assertThat(usersListModel.getElementAt(2), is(equalTo((Object) user)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemAdded(2), is(equalTo(true)));
     }
@@ -603,7 +613,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         tableModel.modifyElement(1, user);
         // Then
         assertThat(usersListModel.getElementAt(1), is(equalTo((Object) user)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
         assertThat(listener.isListItemChanged(1), is(equalTo(true)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
@@ -622,7 +634,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         tableModel.modifyElement(1, user);
         // Then
         assertThat(usersListModel.getElementAt(1), is(equalTo((Object) user)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(2))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(2))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemChanged(1), is(equalTo(true)));
     }
@@ -672,7 +686,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         UsersListModel usersListModel = new UsersListModel(tableModel);
         usersListModel.setSelectedItem(tableModel.getUsers().get(1));
         User customUser = createUser();
-        usersListModel.setCustomUsers(new User[] { customUser, createUser() });
+        usersListModel.setCustomUsers(new User[] {customUser, createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -716,7 +730,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         tableModel.removeElement(1);
         // Then
         assertThat(usersListModel.getSize(), is(equalTo(1)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(2)));
         assertThat(listener.isListItemRemoved(1), is(equalTo(true)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(true)));
@@ -729,7 +745,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         UsersListModel usersListModel = new UsersListModel(tableModel);
         usersListModel.setSelectedItem(tableModel.getUsers().get(0));
         User customUser = createUser();
-        usersListModel.setCustomUsers(new User[] { customUser, createUser() });
+        usersListModel.setCustomUsers(new User[] {customUser, createUser()});
         TestListDataListener listener = createTestListDataListener();
         usersListModel.addListDataListener(listener);
         // When
@@ -754,7 +770,9 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         tableModel.removeElement(0);
         // Then
         assertThat(usersListModel.getSize(), is(equalTo(1)));
-        assertThat(usersListModel.getSelectedItem(), is(equalTo((Object) tableModel.getUsers().get(0))));
+        assertThat(
+                usersListModel.getSelectedItem(),
+                is(equalTo((Object) tableModel.getUsers().get(0))));
         assertThat(listener.getNumberOfEvents(), is(equalTo(1)));
         assertThat(listener.isListItemRemoved(0), is(equalTo(true)));
         assertThat(listener.isListItemChanged(-1), is(equalTo(false)));

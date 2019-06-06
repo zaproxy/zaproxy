@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -35,7 +35,8 @@
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
-// ZAP: 2015/01/04 Issue 1484: NullPointerException during uninstallation of an add-on with active scanners
+// ZAP: 2015/01/04 Issue 1484: NullPointerException during uninstallation of an add-on with active
+// scanners
 // ZAP: 2015/01/04 Issue 1486: Add-on components leak
 // ZAP: 2015/07/25 Do not log error if the duplicated scanner is (apparently) a newer/older version
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
@@ -48,10 +49,12 @@
 // ZAP: 2016/07/25 Fix to correct handling of lists in plugins
 // ZAP: 2017/06/20 Allow to obtain a Plugin by ID.
 // ZAP: 2017/07/05 Log an error if the Plugin does not have a defined ID.
-// ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status comparison.
+// ZAP: 2017/07/12 Order dependencies before dependent plugins (Issue 3154) and tweak status
+// comparison.
 // ZAP: 2017/10/05 Replace usage of Class.newInstance (deprecated in Java 9).
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -63,7 +66,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -77,10 +79,12 @@ public class PluginFactory {
     private static Logger log = Logger.getLogger(PluginFactory.class);
     private static List<AbstractPlugin> loadedPlugins = null;
     private static Map<Integer, Plugin> mapLoadedPlugins;
-    
+
     private List<Plugin> listAllPlugin = new ArrayList<Plugin>();
-    private LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
-    private LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
+    private LinkedHashMap<Integer, Plugin> mapAllPlugin =
+            new LinkedHashMap<>(); // insertion-ordered
+    private LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName =
+            new LinkedHashMap<>(); // insertion-ordered
     private List<Plugin> listPending = new ArrayList<Plugin>();
     private List<Plugin> listRunning = new ArrayList<Plugin>();
     private List<Plugin> listCompleted = new ArrayList<Plugin>();
@@ -94,11 +98,11 @@ public class PluginFactory {
         configuration.setDelimiterParsingDisabled(true);
         config = configuration;
     }
-    
+
     private static synchronized void initPlugins() {
-    	if (loadedPlugins == null) {
-    	    init(true);
-    	}
+        if (loadedPlugins == null) {
+            init(true);
+        }
     }
 
     // Helper method to ease tests.
@@ -107,7 +111,7 @@ public class PluginFactory {
         if (includeAddOns) {
             loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
         }
-        //sort by the criteria below.
+        // sort by the criteria below.
         Collections.sort(loadedPlugins, riskComparator);
 
         mapLoadedPlugins = new HashMap<>();
@@ -119,7 +123,10 @@ public class PluginFactory {
 
     private static void checkPluginId(Plugin plugin) {
         if (plugin.getId() == -1) {
-            log.error("The active scan rule [" + plugin.getClass().getCanonicalName() + "] does not have a defined ID.");
+            log.error(
+                    "The active scan rule ["
+                            + plugin.getClass().getCanonicalName()
+                            + "] does not have a defined ID.");
         }
     }
 
@@ -134,14 +141,14 @@ public class PluginFactory {
         initPlugins();
         return mapLoadedPlugins.get(id);
     }
-    
+
     private static List<AbstractPlugin> getLoadedPlugins() {
-    	if (loadedPlugins == null) {
-    		initPlugins();
-    	}
-    	return loadedPlugins;
+        if (loadedPlugins == null) {
+            initPlugins();
+        }
+        return loadedPlugins;
     }
-    
+
     /**
      * Tells whether or not the given {@code plugin} was already loaded.
      *
@@ -166,10 +173,10 @@ public class PluginFactory {
     }
 
     /**
-     * Adds the given loaded {@code plugin} to the {@code PluginFactory}. Loaded plugins, are used by the active scanner, if
-     * enabled.
-     * <p>
-     * Call to this method has not effect it the {@code plugin} was already added.
+     * Adds the given loaded {@code plugin} to the {@code PluginFactory}. Loaded plugins, are used
+     * by the active scanner, if enabled.
+     *
+     * <p>Call to this method has not effect it the {@code plugin} was already added.
      *
      * @param plugin the plugin that should be loaded
      * @since 2.4.0
@@ -183,30 +190,30 @@ public class PluginFactory {
             Collections.sort(loadedPlugins, riskComparator);
         }
     }
-    
+
     /**
-     * @deprecated (2.4.3) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the scanner is not
-     *             properly set.
+     * @deprecated (2.4.3) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the
+     *     scanner is not properly set.
      * @see AbstractPlugin#getStatus()
      */
     @Deprecated
     @SuppressWarnings("javadoc")
     public static boolean loadedPlugin(String className) {
         try {
-        	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
-        	loadedPlugin((AbstractPlugin) c.getDeclaredConstructor().newInstance());
-        	return true;
+            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
+            loadedPlugin((AbstractPlugin) c.getDeclaredConstructor().newInstance());
+            return true;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }
     }
-    
+
     public static void unloadedPlugin(AbstractPlugin plugin) {
         if (loadedPlugins == null) {
             return;
         }
-        for (Iterator<AbstractPlugin> it = getLoadedPlugins().iterator(); it.hasNext();) {
+        for (Iterator<AbstractPlugin> it = getLoadedPlugins().iterator(); it.hasNext(); ) {
             if (it.next() == plugin) {
                 it.remove();
                 mapLoadedPlugins.remove(plugin.getId());
@@ -214,10 +221,10 @@ public class PluginFactory {
             }
         }
     }
-    
+
     /**
-     * @deprecated (2.4.3) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that the exact scanner
-     *             instance is unloaded.
+     * @deprecated (2.4.3) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that
+     *     the exact scanner instance is unloaded.
      */
     @Deprecated
     @SuppressWarnings("javadoc")
@@ -226,50 +233,53 @@ public class PluginFactory {
             return true;
         }
 
-    	for (AbstractPlugin plugin : loadedPlugins) {
+        for (AbstractPlugin plugin : loadedPlugins) {
             if (plugin.getClass().getName().equals(className)) {
-            	loadedPlugins.remove(plugin);
-            	mapLoadedPlugins.remove(plugin.getId());
-            	return true;
-            }
-    	}
-    	return false;
-    }
-    
-    //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
-    private static final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
-        @Override
-        public int compare(AbstractPlugin e1, AbstractPlugin e2) {
-            // Run stable plugins first
-            int res = e1.getStatus().compareTo(e2.getStatus());
-            if (res != 0) {
-                return -res;
-            }
-
-            if (e1.getRisk() > e2.getRisk()) {
-            	//High Risk alerts are checked before low risk alerts
-                return -1;
-                
-            } else if (e1.getRisk() < e2.getRisk()) {
-                return 1;
-                
-            } else {
-                //need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
-                if (e1.getId() < e2.getId()) {
-                	//log numbered (older) plugins are run before newer plugins
-                    return -1;
-                    
-                } else if (e1.getId() > e2.getId()) {
-                    return 1;
-                    
-                } else {
-                    return 0;
-                }
+                loadedPlugins.remove(plugin);
+                mapLoadedPlugins.remove(plugin.getId());
+                return true;
             }
         }
-    };
+        return false;
+    }
 
-    public void reset () {
+    // now order the list by the highest risk thrown, in descending order (to execute the more
+    // critical checks first)
+    private static final Comparator<AbstractPlugin> riskComparator =
+            new Comparator<AbstractPlugin>() {
+                @Override
+                public int compare(AbstractPlugin e1, AbstractPlugin e2) {
+                    // Run stable plugins first
+                    int res = e1.getStatus().compareTo(e2.getStatus());
+                    if (res != 0) {
+                        return -res;
+                    }
+
+                    if (e1.getRisk() > e2.getRisk()) {
+                        // High Risk alerts are checked before low risk alerts
+                        return -1;
+
+                    } else if (e1.getRisk() < e2.getRisk()) {
+                        return 1;
+
+                    } else {
+                        // need to look at a secondary factor (the Id of the plugin) to decide. Run
+                        // older plugins first, followed by newer plugins
+                        if (e1.getId() < e2.getId()) {
+                            // log numbered (older) plugins are run before newer plugins
+                            return -1;
+
+                        } else if (e1.getId() > e2.getId()) {
+                            return 1;
+
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+            };
+
+    public void reset() {
         Iterator<Plugin> iterator;
         Plugin plugin;
         synchronized (mapAllPlugin) {
@@ -299,11 +309,10 @@ public class PluginFactory {
                     }
                 }
             }
-            
+
             totalPluginToRun = listPending.size();
         }
         this.init = true;
-    	
     }
 
     private void enableDependency(Plugin plugin) {
@@ -312,7 +321,7 @@ public class PluginFactory {
         if (dependency == null || dependency.length == 0) {
             return;
         }
-        
+
         List<Plugin> dependencies = new ArrayList<>(dependency.length);
         if (addAllDependencies(plugin, dependencies)) {
             for (Plugin dep : dependencies) {
@@ -323,7 +332,10 @@ public class PluginFactory {
         } else {
             plugin.setEnabled(false);
             plugin.setAlertThreshold(Plugin.AlertThreshold.OFF);
-            log.warn("Disabled scanner '" + plugin.getName() + "' because of unfulfilled dependencies.");
+            log.warn(
+                    "Disabled scanner '"
+                            + plugin.getName()
+                            + "' because of unfulfilled dependencies.");
         }
     }
 
@@ -387,18 +399,15 @@ public class PluginFactory {
         return depsPlugins;
     }
 
-    /**
-     * 
-     * @param config 
-     */
+    /** @param config */
     public synchronized void loadAllPlugin(Configuration config) {
-    	log.debug("loadAllPlugin");
-    	this.config = config;
+        log.debug("loadAllPlugin");
+        this.config = config;
 
-        //mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is used 
-        //when mapAllPlugin is iterated
+        // mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is
+        // used
+        // when mapAllPlugin is iterated
         synchronized (mapAllPlugin) {
-
             mapAllPlugin.clear();
             listAllPlugin.clear();
             mapAllPluginOrderCodeName.clear();
@@ -411,28 +420,32 @@ public class PluginFactory {
                         log.info("Plugin " + loadedPlugin.getName() + " not visible");
                         continue;
                     }
-                    
+
                     if (loadedPlugin.isDepreciated()) {
                         // ZAP: ignore all depreciated plugins
                         log.info("Plugin " + loadedPlugin.getName() + " depricated");
                         continue;
                     }
-                    
+
                     if (!canAddPlugin(mapAllPlugin, loadedPlugin)) {
                         continue;
                     }
 
                     Plugin plugin = createNewPlugin(loadedPlugin, config);
                     if (log.isDebugEnabled()) {
-                        log.debug("loaded plugin " + plugin.getName() +
-                        " with: Threshold=" + plugin.getAlertThreshold().name() +
-                        " Strength=" + plugin.getAttackStrength().toString());
+                        log.debug(
+                                "loaded plugin "
+                                        + plugin.getName()
+                                        + " with: Threshold="
+                                        + plugin.getAlertThreshold().name()
+                                        + " Strength="
+                                        + plugin.getAttackStrength().toString());
                     }
-                    
+
                     // ZAP: Changed to use the method Integer.valueOf.
                     mapAllPlugin.put(plugin.getId(), plugin);
                     mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
-                    
+
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -444,7 +457,8 @@ public class PluginFactory {
         }
     }
 
-    private static Plugin createNewPlugin(Plugin plugin, Configuration config) throws ReflectiveOperationException {
+    private static Plugin createNewPlugin(Plugin plugin, Configuration config)
+            throws ReflectiveOperationException {
         Plugin newPlugin = plugin.getClass().getDeclaredConstructor().newInstance();
         newPlugin.setConfig(new BaseConfiguration());
         plugin.cloneInto(newPlugin);
@@ -464,69 +478,93 @@ public class PluginFactory {
         // Check if it has also the same name, might be the same scanner but a newer/older version
         if (existingPlugin.getName().equals(plugin.getName())) {
             if (existingPlugin.getStatus().compareTo(plugin.getStatus()) > 0) {
-                log.info("Ignoring (apparently) less stable scanner version, id=" + plugin.getId() + ", ExistingPlugin[Status="
-                        + existingPlugin.getStatus() + ", Class=" + existingPlugin.getClass().getCanonicalName()
-                        + "], LessStablePlugin[Status=" + plugin.getStatus() + ", Class="
-                        + plugin.getClass().getCanonicalName() + "]");
+                log.info(
+                        "Ignoring (apparently) less stable scanner version, id="
+                                + plugin.getId()
+                                + ", ExistingPlugin[Status="
+                                + existingPlugin.getStatus()
+                                + ", Class="
+                                + existingPlugin.getClass().getCanonicalName()
+                                + "], LessStablePlugin[Status="
+                                + plugin.getStatus()
+                                + ", Class="
+                                + plugin.getClass().getCanonicalName()
+                                + "]");
                 return false;
             }
 
             if (existingPlugin.getStatus() != plugin.getStatus()) {
-                log.info("Replacing existing scanner with (apparently) stabler version, id=" + plugin.getId()
-                        + ", ExistingPlugin[Status=" + existingPlugin.getStatus() + ", Class="
-                        + existingPlugin.getClass().getCanonicalName() + "], StablerPlugin[Status=" + plugin.getStatus()
-                        + ", Class=" + plugin.getClass().getCanonicalName() + "]");
+                log.info(
+                        "Replacing existing scanner with (apparently) stabler version, id="
+                                + plugin.getId()
+                                + ", ExistingPlugin[Status="
+                                + existingPlugin.getStatus()
+                                + ", Class="
+                                + existingPlugin.getClass().getCanonicalName()
+                                + "], StablerPlugin[Status="
+                                + plugin.getStatus()
+                                + ", Class="
+                                + plugin.getClass().getCanonicalName()
+                                + "]");
                 return true;
             }
         }
 
-        log.error("Duplicate id " + plugin.getId() + " " + plugin.getClass().getCanonicalName() + " "
-                + existingPlugin.getClass().getCanonicalName());
+        log.error(
+                "Duplicate id "
+                        + plugin.getId()
+                        + " "
+                        + plugin.getClass().getCanonicalName()
+                        + " "
+                        + existingPlugin.getClass().getCanonicalName());
         return true;
     }
 
     public synchronized void loadFrom(PluginFactory pf) {
-    	log.debug("loadFrom " + pf.listAllPlugin.size());
-    	for (Plugin plugin : pf.listAllPlugin) {
-    		Plugin p = this.mapAllPlugin.get(plugin.getId());
-    		if (p != null) {
-    			plugin.cloneInto(p);
-    		}
-    	}
+        log.debug("loadFrom " + pf.listAllPlugin.size());
+        for (Plugin plugin : pf.listAllPlugin) {
+            Plugin p = this.mapAllPlugin.get(plugin.getId());
+            if (p != null) {
+                plugin.cloneInto(p);
+            }
+        }
     }
 
     public List<Plugin> getAllPlugin() {
         return listAllPlugin;
     }
-    
+
     @Override
-    public PluginFactory clone () {
-    	PluginFactory clone = new PluginFactory();
-    	Plugin pluginCopy;
-    	for (Plugin plugin : listAllPlugin) {
-    		try {
-				pluginCopy  = plugin.getClass().getDeclaredConstructor().newInstance();
-				pluginCopy.setConfig(clone.config);
-				plugin.cloneInto(pluginCopy);
-				clone.addPlugin(pluginCopy);
-			} catch (Exception e) {
+    public PluginFactory clone() {
+        PluginFactory clone = new PluginFactory();
+        Plugin pluginCopy;
+        for (Plugin plugin : listAllPlugin) {
+            try {
+                pluginCopy = plugin.getClass().getDeclaredConstructor().newInstance();
+                pluginCopy.setConfig(clone.config);
+                plugin.cloneInto(pluginCopy);
+                clone.addPlugin(pluginCopy);
+            } catch (Exception e) {
                 log.error(e.getMessage(), e);
-			}
-    	}
-    	return clone;
+            }
+        }
+        return clone;
     }
 
     public boolean addPlugin(String name) {
         try {
-        	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
-        	Plugin plugin = (AbstractPlugin) c.getDeclaredConstructor().newInstance();
+            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
+            Plugin plugin = (AbstractPlugin) c.getDeclaredConstructor().newInstance();
 
             boolean duplicatedId = mapAllPlugin.get(plugin.getId()) != null;
             if (this.addPlugin(plugin)) {
                 log.info("loaded plugin " + plugin.getName());
                 if (duplicatedId) {
-                    log.error("Duplicate id " + plugin.getName() + " "
-                            + mapAllPlugin.get(plugin.getId()).getName());
+                    log.error(
+                            "Duplicate id "
+                                    + plugin.getName()
+                                    + " "
+                                    + mapAllPlugin.get(plugin.getId()).getName());
                 }
                 return true;
             }
@@ -555,11 +593,11 @@ public class PluginFactory {
         if (!plugin.isVisible()) {
             return false;
         }
-        
+
         if (plugin.isDepreciated()) {
             return false;
         }
-        
+
         mapAllPlugin.put(plugin.getId(), plugin);
         mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
 
@@ -576,7 +614,7 @@ public class PluginFactory {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -595,9 +633,9 @@ public class PluginFactory {
     }
 
     synchronized boolean existPluginToRun() {
-    	if (!init) {
-    		this.reset();
-    	}
+        if (!init) {
+            this.reset();
+        }
         if (probeNextPlugin() != null) {
             return true;
         }
@@ -611,8 +649,7 @@ public class PluginFactory {
     }
 
     /**
-     * Get next test ready to be run. Null = none. Test dependendent on others
-     * will not be obtained.
+     * Get next test ready to be run. Null = none. Test dependendent on others will not be obtained.
      *
      * @return
      */
@@ -627,7 +664,7 @@ public class PluginFactory {
             }
             i++;
         }
-        
+
         return null;
     }
 
@@ -637,15 +674,15 @@ public class PluginFactory {
      * @return new instance of next plugin to be run.
      */
     synchronized Plugin nextPlugin() {
-    	if (!init) {
-    		this.reset();
-    	}
-    	
+        if (!init) {
+            this.reset();
+        }
+
         Plugin plugin = probeNextPlugin();
         if (plugin == null) {
             return null;
         }
-        
+
         listPending.remove(plugin);
         plugin.setTimeStarted();
         listRunning.add(plugin);
@@ -654,13 +691,14 @@ public class PluginFactory {
     }
 
     private boolean isAllDependencyCompleted(Plugin plugin) {
-        // note the plugin object checked may not be the exact plugin object stored in the completed list.
+        // note the plugin object checked may not be the exact plugin object stored in the completed
+        // list.
         // but the comparison is basing on pluginId (see equals method) so it will work.
         String[] dependency = plugin.getDependency();
         if (dependency == null || dependency.length == 0) {
             return true;
         }
-        
+
         synchronized (listCompleted) {
             for (int i = 0; i < dependency.length; i++) {
                 boolean isFound = false;
@@ -676,22 +714,21 @@ public class PluginFactory {
                     return false;
                 }
             }
-
         }
-        
+
         return true;
     }
-    
+
     public void saveTo(Configuration conf) throws ConfigurationException {
-    	for (Plugin plugin : listAllPlugin) {
-    		plugin.saveTo(conf);
-    	}
+        for (Plugin plugin : listAllPlugin) {
+            plugin.saveTo(conf);
+        }
     }
-    
+
     public void loadFrom(Configuration config) throws ConfigurationException {
-    	for (Plugin plugin : listAllPlugin) {
-    		plugin.loadFrom(config);
-    	}
+        for (Plugin plugin : listAllPlugin) {
+            plugin.loadFrom(config);
+        }
     }
 
     synchronized void setRunningPluginCompleted(Plugin plugin) {
@@ -725,16 +762,14 @@ public class PluginFactory {
     List<Plugin> getCompleted() {
         return this.listCompleted;
     }
-    
-    public int getEnabledPluginCount () {
-    	int count = 0;
-    	for (Plugin plugin : listAllPlugin) {
-    		if (plugin.isEnabled()) {
-    			count ++;
-    		}
-    	}
-    	return count;
-    }
 
-    
+    public int getEnabledPluginCount() {
+        int count = 0;
+        for (Plugin plugin : listAllPlugin) {
+            if (plugin.isEnabled()) {
+                count++;
+            }
+        }
+        return count;
+    }
 }

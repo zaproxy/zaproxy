@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -27,8 +27,10 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 // ZAP: 2017/06/05 Return AlertThreshold.OFF if the plugin is disabled.
-// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is
+// not important).
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
@@ -36,9 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.swing.table.DefaultTableModel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
@@ -47,52 +47,51 @@ import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.StatusUI;
 
-
 public class CategoryTableModel extends DefaultTableModel {
 
-	private static final long serialVersionUID = 1L;
-	private Map<String, String> i18nToStr = null;
-	
-	// ZAP: i18n
-	private static final String[] columnNames = {
-		Constant.messages.getString("ascan.policy.table.testname"), 
-		Constant.messages.getString("ascan.policy.table.threshold"), 
-		Constant.messages.getString("ascan.policy.table.strength"),
-		Constant.messages.getString("ascan.policy.table.quality")};
+    private static final long serialVersionUID = 1L;
+    private Map<String, String> i18nToStr = null;
 
-	private static final int QUALITY_COLUMN_IDX = 3;
-	
+    // ZAP: i18n
+    private static final String[] columnNames = {
+        Constant.messages.getString("ascan.policy.table.testname"),
+        Constant.messages.getString("ascan.policy.table.threshold"),
+        Constant.messages.getString("ascan.policy.table.strength"),
+        Constant.messages.getString("ascan.policy.table.quality")
+    };
+
+    private static final int QUALITY_COLUMN_IDX = 3;
+
     private List<PluginWrapper> listTestCategory;
 
     private PluginFactory pluginFactory;
     private int category;
     private AlertThreshold defaultThreshold;
-    
-    public CategoryTableModel() {
-    }
-    
-    public void setTable(int category, PluginFactory pluginFactory, AlertThreshold defaultThreshold) {
-        
+
+    public CategoryTableModel() {}
+
+    public void setTable(
+            int category, PluginFactory pluginFactory, AlertThreshold defaultThreshold) {
+
         listTestCategory.clear();
         this.pluginFactory = pluginFactory;
-        this.category = category ;
+        this.category = category;
         this.defaultThreshold = defaultThreshold;
         for (Plugin test : pluginFactory.getAllPlugin()) {
             if (test.getCategory() == category) {
-                listTestCategory.add(new PluginWrapper(test, View.getSingleton().getStatusUI(test.getStatus())));
+                listTestCategory.add(
+                        new PluginWrapper(test, View.getSingleton().getStatusUI(test.getStatus())));
             }
         }
         fireTableDataChanged();
-        
     }
 
     @Override
-	public Class<?> getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         if (c == QUALITY_COLUMN_IDX) {
             return StatusUI.class;
         }
         return String.class;
-        
     }
 
     @Override
@@ -103,16 +102,16 @@ public class CategoryTableModel extends DefaultTableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         switch (columnIndex) {
-	        case 0: // Name 
-	        	return false;
-	        case 1: // Strength
-	        	return true;
-	        case 2: // Alert
-	        	return true;
-	        case QUALITY_COLUMN_IDX:
-	        	return false;
-	        default:
-	        	return false;
+            case 0: // Name
+                return false;
+            case 1: // Strength
+                return true;
+            case 2: // Alert
+                return true;
+            case QUALITY_COLUMN_IDX:
+                return false;
+            default:
+                return false;
         }
     }
 
@@ -120,56 +119,61 @@ public class CategoryTableModel extends DefaultTableModel {
     public void setValueAt(Object value, int row, int col) {
         Plugin test = listTestCategory.get(row).getPlugin();
         switch (col) {
-        	case 0:	break;
-        	case 1: AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
-                    boolean enable = !AlertThreshold.OFF.equals(af);
-                    if (test.isEnabled() != enable) {
-                        if (enable) {
-                            String[] dependencies = test.getDependency();
-                            if (dependencies != null && dependencies.length != 0) {
-                                List<Plugin> allDeps = new ArrayList<>(dependencies.length);
-                                if (!pluginFactory.addAllDependencies(test, allDeps)) {
-                                    View.getSingleton().showWarningDialog(
-                                            Constant.messages.getString("ascan.policy.unfulfilled.dependencies"));
-                                    return;
-                                }
+            case 0:
+                break;
+            case 1:
+                AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String) value));
+                boolean enable = !AlertThreshold.OFF.equals(af);
+                if (test.isEnabled() != enable) {
+                    if (enable) {
+                        String[] dependencies = test.getDependency();
+                        if (dependencies != null && dependencies.length != 0) {
+                            List<Plugin> allDeps = new ArrayList<>(dependencies.length);
+                            if (!pluginFactory.addAllDependencies(test, allDeps)) {
+                                View.getSingleton()
+                                        .showWarningDialog(
+                                                Constant.messages.getString(
+                                                        "ascan.policy.unfulfilled.dependencies"));
+                                return;
+                            }
 
-                                List<Plugin> disabledDependencies = new ArrayList<>();
-                                for (Plugin plugin : allDeps) {
-                                    if (!plugin.isEnabled()) {
-                                        disabledDependencies.add(plugin);
-                                    }
-                                }
-
-                                if (!disabledDependencies.isEmpty()) {
-                                    setPluginsEnabled(disabledDependencies, true);
+                            List<Plugin> disabledDependencies = new ArrayList<>();
+                            for (Plugin plugin : allDeps) {
+                                if (!plugin.isEnabled()) {
+                                    disabledDependencies.add(plugin);
                                 }
                             }
-                        } else {
-                            List<Plugin> enabledDependents = new ArrayList<>();
-                            for (Plugin plugin : pluginFactory.getDependentPlugins(test)) {
-                                if (plugin.isEnabled()) {
-                                    enabledDependents.add(plugin);
-                                }
-                            }
-    
-                            if (!enabledDependents.isEmpty()) {
-                                setPluginsEnabled(enabledDependents, false);
+
+                            if (!disabledDependencies.isEmpty()) {
+                                setPluginsEnabled(disabledDependencies, true);
                             }
                         }
+                    } else {
+                        List<Plugin> enabledDependents = new ArrayList<>();
+                        for (Plugin plugin : pluginFactory.getDependentPlugins(test)) {
+                            if (plugin.isEnabled()) {
+                                enabledDependents.add(plugin);
+                            }
+                        }
+
+                        if (!enabledDependents.isEmpty()) {
+                            setPluginsEnabled(enabledDependents, false);
+                        }
                     }
+                }
 
-                    test.setAlertThreshold(af);
-                    test.setEnabled(enable);
-                    fireTableCellUpdated(row, col);
+                test.setAlertThreshold(af);
+                test.setEnabled(enable);
+                fireTableCellUpdated(row, col);
 
-        			break;
-        	case 2: test.setAttackStrength(AttackStrength.valueOf(i18nToStr((String)value)));
-                	fireTableCellUpdated(row, col);
-                	break;
+                break;
+            case 2:
+                test.setAttackStrength(AttackStrength.valueOf(i18nToStr((String) value)));
+                fireTableCellUpdated(row, col);
+                break;
         }
     }
-    
+
     private void setPluginsEnabled(List<Plugin> plugins, boolean enabled) {
         AlertThreshold alertThreshold = enabled ? defaultThreshold : AlertThreshold.OFF;
         for (Plugin plugin : plugins) {
@@ -194,23 +198,23 @@ public class CategoryTableModel extends DefaultTableModel {
         return -1;
     }
 
-    private String strToI18n (String str) {
-    	// I18n's threshold and strength enums
-    	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase(Locale.ROOT));
+    private String strToI18n(String str) {
+        // I18n's threshold and strength enums
+        return Constant.messages.getString("ascan.policy.level." + str.toLowerCase(Locale.ROOT));
     }
 
-    private String i18nToStr (String str) {
-    	// Converts to i18n'ed names back to the enum names
-    	if (i18nToStr == null) {
-    		i18nToStr = new HashMap<>();
-    		for (AlertThreshold at : AlertThreshold.values()) {
-    			i18nToStr.put(this.strToI18n(at.name()), at.name());
-    		}
-    		for (AttackStrength as : AttackStrength.values()) {
-    			i18nToStr.put(this.strToI18n(as.name()), as.name());
-    		}
-    	}
-    	return i18nToStr.get(str);
+    private String i18nToStr(String str) {
+        // Converts to i18n'ed names back to the enum names
+        if (i18nToStr == null) {
+            i18nToStr = new HashMap<>();
+            for (AlertThreshold at : AlertThreshold.values()) {
+                i18nToStr.put(this.strToI18n(at.name()), at.name());
+            }
+            for (AttackStrength as : AttackStrength.values()) {
+                i18nToStr.put(this.strToI18n(as.name()), as.name());
+            }
+        }
+        return i18nToStr.get(str);
     }
 
     @Override
@@ -227,29 +231,29 @@ public class CategoryTableModel extends DefaultTableModel {
     public Object getValueAt(int row, int col) {
         PluginWrapper wrapper = listTestCategory.get(row);
         switch (col) {
-        	case 0:
-        		return wrapper.getPlugin().getName();
-        	case 1:
-        		if (!wrapper.getPlugin().isEnabled()) {
-        			return AlertThreshold.OFF;
-        		}
-        		return strToI18n(wrapper.getPlugin().getAlertThreshold(true).name());
-        	case 2:
-        		return strToI18n(wrapper.getPlugin().getAttackStrength(true).name());
-        	case QUALITY_COLUMN_IDX:
-        		return wrapper.getQuality();
-        	default:
-        		return "";
+            case 0:
+                return wrapper.getPlugin().getName();
+            case 1:
+                if (!wrapper.getPlugin().isEnabled()) {
+                    return AlertThreshold.OFF;
+                }
+                return strToI18n(wrapper.getPlugin().getAlertThreshold(true).name());
+            case 2:
+                return strToI18n(wrapper.getPlugin().getAttackStrength(true).name());
+            case QUALITY_COLUMN_IDX:
+                return wrapper.getQuality();
+            default:
+                return "";
         }
     }
-    
+
     private List<PluginWrapper> getTestList() {
         if (listTestCategory == null) {
             listTestCategory = new ArrayList<>();
         }
         return listTestCategory;
     }
-    
+
     private static class PluginWrapper {
 
         private final Plugin plugin;

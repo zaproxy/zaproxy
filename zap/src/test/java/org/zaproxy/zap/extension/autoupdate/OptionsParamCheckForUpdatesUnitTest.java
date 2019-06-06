@@ -26,15 +26,12 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.junit.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- * Unit test for {@link OptionsParamCheckForUpdates}.
- */
+/** Unit test for {@link OptionsParamCheckForUpdates}. */
 public class OptionsParamCheckForUpdatesUnitTest {
 
     @Test
@@ -65,7 +62,7 @@ public class OptionsParamCheckForUpdatesUnitTest {
         assertThat(param.isReportBetaAddons(), is(false));
         assertThat(param.isReportAlphaAddons(), is(false));
         assertThat(param.getAddonDirectories(), is(empty()));
-        assertThat(param.getDownloadDirectory(), is(equalTo(new File(Constant.FOLDER_LOCAL_PLUGIN))));
+        assertThat(
+                param.getDownloadDirectory(), is(equalTo(new File(Constant.FOLDER_LOCAL_PLUGIN))));
     }
-
 }

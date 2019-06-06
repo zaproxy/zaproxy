@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2014 The ZAP Development Team
- * 
+ *
+ * Copyright 2015 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,11 +28,8 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import org.zaproxy.zap.Version;
 
-/**
- * Unit test for {@link Version}.
- */
+/** Unit test for {@link org.zaproxy.zap.Version}. */
 public class VersionUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
@@ -202,7 +199,8 @@ public class VersionUnitTest {
     @Test
     public void shouldMatchAllVersionsWithWildcardRange() {
         // Given
-        List<Version> versions = Arrays.asList(new Version("0.0.1"), new Version("0.2.0"), new Version("3.0.0"));
+        List<Version> versions =
+                Arrays.asList(new Version("0.0.1"), new Version("0.2.0"), new Version("3.0.0"));
         String rangeVersion = "*";
         for (Version version : versions) {
             // When
@@ -246,7 +244,8 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentMinorAndPatchVersion() {
+    public void
+            shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentMinorAndPatchVersion() {
         // Given
         Version version = new Version("1.9.3");
         String rangeVersion = "1.*";

@@ -1,42 +1,40 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2011 The ZAP Development team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2011 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.alert;
 
 import java.util.Collections;
 import java.util.Comparator;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
-
-import org.parosproxy.paros.core.scanner.Alert;
 import javax.swing.tree.TreeNode;
+import org.parosproxy.paros.core.scanner.Alert;
 
 public class AlertNode extends DefaultMutableTreeNode {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private final Comparator<TreeNode> childComparator;
-	private String nodeName = null;
+    private String nodeName = null;
     private int risk = -1;
     private Alert alert;
-    
-	public AlertNode(int risk, String nodeName) {
+
+    public AlertNode(int risk, String nodeName) {
         this(risk, nodeName, null);
     }
 
@@ -46,7 +44,7 @@ public class AlertNode extends DefaultMutableTreeNode {
         this.setRisk(risk);
         this.childComparator = new AlertNodeComparatorWrapper(childComparator);
     }
-    
+
     @Override
     public void setUserObject(Object userObject) {
         if (!(userObject instanceof Alert)) {
@@ -111,7 +109,8 @@ public class AlertNode extends DefaultMutableTreeNode {
             return -1;
         }
         // Safe, only child AlertNode are allowed to be added/inserted to AlertNode;
-        // Variable idx is only used to add the @SuppressWarnings annotation locally (instead of the whole method).
+        // Variable idx is only used to add the @SuppressWarnings annotation locally (instead of the
+        // whole method).
         @SuppressWarnings("unchecked")
         int idx = Collections.binarySearch(children, aChild, childComparator);
         return idx;
@@ -119,35 +118,35 @@ public class AlertNode extends DefaultMutableTreeNode {
 
     @Override
     public String toString() {
-    	if (this.getChildCount() > 1) {
+        if (this.getChildCount() > 1) {
             return nodeName + " (" + this.getChildCount() + ")";
-    	}
+        }
         return nodeName;
     }
 
-	public String getNodeName() {
-		return nodeName;
-	}
-	
-	public void setRisk(int risk) {
-		this.risk = risk;
-	}
+    public String getNodeName() {
+        return nodeName;
+    }
 
-	public int getRisk() {
-		return risk;
-	}
+    public void setRisk(int risk) {
+        this.risk = risk;
+    }
 
-	private static class AlertNodeComparatorWrapper implements Comparator<TreeNode> {
+    public int getRisk() {
+        return risk;
+    }
 
-		private final Comparator<AlertNode> comparator;
+    private static class AlertNodeComparatorWrapper implements Comparator<TreeNode> {
 
-		public AlertNodeComparatorWrapper(Comparator<AlertNode> comparator) {
-			this.comparator = comparator;
-		}
+        private final Comparator<AlertNode> comparator;
 
-		@Override
-		public int compare(TreeNode o1, TreeNode o2) {
-			return comparator.compare((AlertNode) o1, (AlertNode) o2);
-		}
-	}
+        public AlertNodeComparatorWrapper(Comparator<AlertNode> comparator) {
+            this.comparator = comparator;
+        }
+
+        @Override
+        public int compare(TreeNode o1, TreeNode o2) {
+            return comparator.compare((AlertNode) o1, (AlertNode) o2);
+        }
+    }
 }

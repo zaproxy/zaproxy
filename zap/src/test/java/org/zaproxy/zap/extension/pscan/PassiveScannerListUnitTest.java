@@ -1,7 +1,7 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
  *
- * ZAP is an HTTP/HTTPassiveScanner proxy for assessing web application security.
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
  * Copyright 2018 The ZAP Development Team
  *
@@ -31,14 +31,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
-/**
- * Unit test for {@link PassiveScannerList}.
- */
+/** Unit test for {@link PassiveScannerList}. */
 public class PassiveScannerListUnitTest {
 
     private PassiveScannerList psl;
@@ -164,10 +161,12 @@ public class PassiveScannerListUnitTest {
         when(scanner2.getName()).thenReturn("RegexAutoTagScanner");
         psl.add(scanner2);
         // When
-        psl.list().forEach(e -> {
-            psl.removeScanner(e.getClass().getName());
-            psl.add(e);
-        });
+        psl.list()
+                .forEach(
+                        e -> {
+                            psl.removeScanner(e.getClass().getName());
+                            psl.add(e);
+                        });
         // Then = No exception (but check the state is the expected).
         assertThat(psl.list(), contains(scanner1, scanner2));
     }
@@ -183,17 +182,17 @@ public class PassiveScannerListUnitTest {
         autoTagScanners.add(scanner2);
         psl.setAutoTagScanners(autoTagScanners);
         // When
-        psl.list().forEach(e -> {
-            psl.removeScanner(e.getClass().getName());
-            psl.add(e);
-        });
+        psl.list()
+                .forEach(
+                        e -> {
+                            psl.removeScanner(e.getClass().getName());
+                            psl.add(e);
+                        });
         // Then = No exception (but check the state is the expected).
         assertThat(psl.list(), contains(scanner1, scanner2));
     }
 
-    /**
-     * An interface to mock {@code PassiveScanner}s with different class name.
-     */
+    /** An interface to mock {@code PassiveScanner}s with different class name. */
     private static interface TestPassiveScanner extends PassiveScanner {
         // Nothing to do.
     }

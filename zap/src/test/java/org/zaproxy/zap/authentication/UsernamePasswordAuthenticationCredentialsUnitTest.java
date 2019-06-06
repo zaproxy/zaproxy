@@ -19,25 +19,22 @@
  */
 package org.zaproxy.zap.authentication;
 
-import net.sf.json.JSON;
-import org.junit.Before;
-import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-
-import org.zaproxy.zap.extension.api.ApiResponse;
+import static org.hamcrest.Matchers.equalToIgnoringCase;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.Arrays;
 import java.util.List;
+import net.sf.json.JSON;
+import org.junit.Before;
+import org.junit.Test;
+import org.zaproxy.zap.extension.api.ApiResponse;
 
-/**
- * @author Vahid Rafiei (@vahid_r)
- */
+/** @author Vahid Rafiei (@vahid_r) */
 public class UsernamePasswordAuthenticationCredentialsUnitTest {
 
     private UsernamePasswordAuthenticationCredentials usernamePasswordAuthenticationCredentials;
@@ -47,7 +44,8 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
 
     @Before
     public void setUp() {
-        this.usernamePasswordAuthenticationCredentials = new UsernamePasswordAuthenticationCredentials(username, password);
+        this.usernamePasswordAuthenticationCredentials =
+                new UsernamePasswordAuthenticationCredentials(username, password);
         this.notConfiguredInstance = new UsernamePasswordAuthenticationCredentials();
     }
 
@@ -72,7 +70,8 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     @Test
     public void shouldNotBeConfiguredIfPasswordIsNull() {
         // Given
-        UsernamePasswordAuthenticationCredentials credentials = new UsernamePasswordAuthenticationCredentials(username, null);
+        UsernamePasswordAuthenticationCredentials credentials =
+                new UsernamePasswordAuthenticationCredentials(username, null);
         // When
         boolean isConfigured = credentials.isConfigured();
         // Then
@@ -83,7 +82,8 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     public void shouldThrowExceptionWhileEncodeWithFieldSeparator() {
         // Given
         String fieldSeparator = "~";
-        usernamePasswordAuthenticationCredentials = new UsernamePasswordAuthenticationCredentials(username, password);
+        usernamePasswordAuthenticationCredentials =
+                new UsernamePasswordAuthenticationCredentials(username, password);
 
         // When
         usernamePasswordAuthenticationCredentials.encode(fieldSeparator);
@@ -98,7 +98,8 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
         username = null;
         password = "something";
         String stringSeparator = "|";
-        usernamePasswordAuthenticationCredentials = new UsernamePasswordAuthenticationCredentials(username, password);
+        usernamePasswordAuthenticationCredentials =
+                new UsernamePasswordAuthenticationCredentials(username, password);
 
         // When
         String encodedResult = usernamePasswordAuthenticationCredentials.encode(stringSeparator);
@@ -114,9 +115,13 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
 
         // When/Then
         for (String correctSeparator : someCorrectSeparators) {
-            String encodedUsernamePassword = usernamePasswordAuthenticationCredentials.encode(correctSeparator);
+            String encodedUsernamePassword =
+                    usernamePasswordAuthenticationCredentials.encode(correctSeparator);
 
-            assertThat(String.format("Failed to encode with '%s'", correctSeparator), encodedUsernamePassword, notNullValue());
+            assertThat(
+                    String.format("Failed to encode with '%s'", correctSeparator),
+                    encodedUsernamePassword,
+                    notNullValue());
             assertThat(
                     String.format("Failed to properly encode with '%s'", correctSeparator),
                     encodedUsernamePassword,
@@ -128,7 +133,8 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     public void shouldDecodeEmptyUsernameAndPassword() {
         // Given
         String encodedCredentials = "~~";
-        UsernamePasswordAuthenticationCredentials authCredentials = new UsernamePasswordAuthenticationCredentials();
+        UsernamePasswordAuthenticationCredentials authCredentials =
+                new UsernamePasswordAuthenticationCredentials();
         // When
         authCredentials.decode(encodedCredentials);
         // Then
@@ -139,19 +145,21 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     @Test
     public void shouldApiResponseRepresentationReturnApiResponseWithValidNameAndJsonFormat() {
         // Given/When
-        ApiResponse apiResponse = usernamePasswordAuthenticationCredentials.getApiResponseRepresentation();
+        ApiResponse apiResponse =
+                usernamePasswordAuthenticationCredentials.getApiResponseRepresentation();
         JSON jsonRepresentation = apiResponse.toJSON();
 
         // Then
         assertThat(apiResponse, notNullValue());
         assertThat(apiResponse.getName(), equalToIgnoringCase("credentials"));
-        assertThat(jsonRepresentation.toString(), allOf(
-                containsString("username"),
-                containsString(username),
-                containsString("password"),
-                containsString(password),
-                containsString("type"),
-                containsString("UsernamePasswordAuthenticationCredentials")));
-
+        assertThat(
+                jsonRepresentation.toString(),
+                allOf(
+                        containsString("username"),
+                        containsString(username),
+                        containsString("password"),
+                        containsString(password),
+                        containsString("type"),
+                        containsString("UsernamePasswordAuthenticationCredentials")));
     }
 }

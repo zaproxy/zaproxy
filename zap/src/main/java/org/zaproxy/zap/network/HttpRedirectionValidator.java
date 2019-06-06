@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,10 +24,10 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A validator of redirections, called for each redirection of a HTTP request.
- * <p>
- * As convenience the validator will also be notified of the HTTP messages sent and received (first message and followed
- * redirections, if any).
- * 
+ *
+ * <p>As convenience the validator will also be notified of the HTTP messages sent and received
+ * (first message and followed redirections, if any).
+ *
  * @since 2.6.0
  */
 @FunctionalInterface
@@ -42,10 +42,10 @@ public interface HttpRedirectionValidator {
     boolean isValid(URI redirection);
 
     /**
-     * Notifies that a new message was sent and received (called for the first message and followed redirections, if any).
+     * Notifies that a new message was sent and received (called for the first message and followed
+     * redirections, if any).
      *
      * @param message the HTTP message that was received, never {@code null}.
      */
-    default void notifyMessageReceived(HttpMessage message) {
-    }
+    default void notifyMessageReceived(HttpMessage message) {}
 }

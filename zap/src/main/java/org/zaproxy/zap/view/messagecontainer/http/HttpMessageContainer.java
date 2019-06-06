@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,8 +23,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 
 /**
- * A {@code MessageContainer} of {@code HttpMessage}s and base interface for containers of {@code HttpMessage}s.
- * 
+ * A {@code MessageContainer} of {@code HttpMessage}s and base interface for containers of {@code
+ * HttpMessage}s.
+ *
  * @see HttpMessage
  * @see MessageContainer
  * @see SingleHttpMessageContainer
@@ -34,5 +35,4 @@ import org.zaproxy.zap.view.messagecontainer.MessageContainer;
  * @see SelectableHistoryReferencesContainer
  * @since 2.3.0
  */
-public interface HttpMessageContainer extends MessageContainer<HttpMessage> {
-}
+public interface HttpMessageContainer extends MessageContainer<HttpMessage> {}

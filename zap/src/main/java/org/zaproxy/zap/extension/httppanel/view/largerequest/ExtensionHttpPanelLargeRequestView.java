@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,10 +38,10 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
     public ExtensionHttpPanelLargeRequestView() {
         super(NAME);
     }
-    
+
     @Override
     public String getUIName() {
-    	return Constant.messages.getString("http.panel.view.largerequest.ext.name");
+        return Constant.messages.getString("http.panel.view.largerequest.ext.name");
     }
 
     @Override
@@ -49,15 +49,15 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         super.hook(extensionHook);
         if (getView() != null) {
             HttpPanelManager panelManager = HttpPanelManager.getInstance();
-            panelManager.addRequestViewFactory(RequestSplitComponent.NAME, new RequestLargeRequestSplitViewFactory());
+            panelManager.addRequestViewFactory(
+                    RequestSplitComponent.NAME, new RequestLargeRequestSplitViewFactory());
             panelManager.addRequestDefaultViewSelectorFactory(
-                    RequestSplitComponent.NAME,
-                    new LargeRequestDefaultSplitViewSelectorFactory());
+                    RequestSplitComponent.NAME, new LargeRequestDefaultSplitViewSelectorFactory());
 
-            panelManager.addRequestViewFactory(RequestAllComponent.NAME, new RequestLargeRequestAllViewFactory());
+            panelManager.addRequestViewFactory(
+                    RequestAllComponent.NAME, new RequestLargeRequestAllViewFactory());
             panelManager.addRequestDefaultViewSelectorFactory(
-                    RequestAllComponent.NAME,
-                    new LargeRequestDefaultAllViewSelectorFactory());
+                    RequestAllComponent.NAME, new LargeRequestDefaultAllViewSelectorFactory());
         }
     }
 
@@ -71,28 +71,27 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
     public void unload() {
         if (getView() != null) {
             HttpPanelManager panelManager = HttpPanelManager.getInstance();
-            panelManager.removeRequestViewFactory(RequestSplitComponent.NAME, RequestLargeRequestSplitViewFactory.NAME);
+            panelManager.removeRequestViewFactory(
+                    RequestSplitComponent.NAME, RequestLargeRequestSplitViewFactory.NAME);
             panelManager.removeRequestViews(
                     RequestSplitComponent.NAME,
                     RequestLargeRequestSplitView.NAME,
                     RequestSplitComponent.ViewComponent.BODY);
             panelManager.removeRequestDefaultViewSelectorFactory(
-                    RequestSplitComponent.NAME,
-                    LargeRequestDefaultSplitViewSelectorFactory.NAME);
+                    RequestSplitComponent.NAME, LargeRequestDefaultSplitViewSelectorFactory.NAME);
             panelManager.removeRequestDefaultViewSelectors(
                     RequestSplitComponent.NAME,
                     LargeRequestDefaultSplitViewSelector.NAME,
                     RequestSplitComponent.ViewComponent.BODY);
 
-            panelManager.removeRequestViewFactory(RequestAllComponent.NAME, RequestLargeRequestAllViewFactory.NAME);
-            panelManager.removeRequestViews(RequestAllComponent.NAME, RequestLargeRequestAllView.NAME, null);
+            panelManager.removeRequestViewFactory(
+                    RequestAllComponent.NAME, RequestLargeRequestAllViewFactory.NAME);
+            panelManager.removeRequestViews(
+                    RequestAllComponent.NAME, RequestLargeRequestAllView.NAME, null);
             panelManager.removeRequestDefaultViewSelectorFactory(
-                    RequestAllComponent.NAME,
-                    LargeRequestDefaultAllViewSelectorFactory.NAME);
+                    RequestAllComponent.NAME, LargeRequestDefaultAllViewSelectorFactory.NAME);
             panelManager.removeRequestDefaultViewSelectors(
-                    RequestAllComponent.NAME,
-                    LargeRequestDefaultAllViewSelector.NAME,
-                    null);
+                    RequestAllComponent.NAME, LargeRequestDefaultAllViewSelector.NAME, null);
         }
     }
 
@@ -116,7 +115,8 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         }
     }
 
-    private static final class LargeRequestDefaultSplitViewSelector implements HttpPanelDefaultViewSelector {
+    private static final class LargeRequestDefaultSplitViewSelector
+            implements HttpPanelDefaultViewSelector {
 
         public static final String NAME = "LargeRequestDefaultSplitViewSelector";
 
@@ -161,7 +161,8 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         }
     }
 
-    private static final class LargeRequestDefaultAllViewSelector implements HttpPanelDefaultViewSelector {
+    private static final class LargeRequestDefaultAllViewSelector
+            implements HttpPanelDefaultViewSelector {
 
         public static final String NAME = "LargeRequestDefaultAllViewSelector";
 
@@ -186,7 +187,8 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         }
     }
 
-    private static final class LargeRequestDefaultSplitViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+    private static final class LargeRequestDefaultSplitViewSelectorFactory
+            implements HttpPanelDefaultViewSelectorFactory {
 
         private static HttpPanelDefaultViewSelector defaultViewSelector = null;
 
@@ -221,7 +223,8 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         }
     }
 
-    private static final class LargeRequestDefaultAllViewSelectorFactory implements HttpPanelDefaultViewSelectorFactory {
+    private static final class LargeRequestDefaultAllViewSelectorFactory
+            implements HttpPanelDefaultViewSelectorFactory {
 
         private static HttpPanelDefaultViewSelector defaultViewSelector = null;
 
@@ -254,7 +257,6 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         public Object getOptions() {
             return null;
         }
-
     }
 
     @Override
@@ -262,11 +264,9 @@ public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
         return Constant.ZAP_TEAM;
     }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }

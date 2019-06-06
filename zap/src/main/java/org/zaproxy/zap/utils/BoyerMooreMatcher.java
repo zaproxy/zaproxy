@@ -3,11 +3,13 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
+ * Copyright 2013 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Reads in two strings, the pattern and the input text, and searches for the
- * pattern in the input text using the bad-character rule part of the
- * Boyer-Moore algorithm.
+ * Reads in two strings, the pattern and the input text, and searches for the pattern in the input
+ * text using the bad-character rule part of the Boyer-Moore algorithm.
  *
- * Adapded from the implementation found in:
+ * <p>Adapded from the implementation found in:
  * http://www.params.me/2013/06/boyer-moore-string-search.html
  *
  * @author yhawke 2013
@@ -52,8 +53,8 @@ public class BoyerMooreMatcher {
     }
 
     /**
-     * Returns the index within this string of the first occurrence of the
-     * specified substring. If it is not a substring, return -1.
+     * Returns the index within this string of the first occurrence of the specified substring. If
+     * it is not a substring, return -1.
      *
      * @param content the content where we've to search into
      * @return the index of the occurrence or -1 if no occurrence has been found
@@ -70,9 +71,10 @@ public class BoyerMooreMatcher {
                 if (pattern.charAt(j) != content.charAt(i + j)) {
                     val = content.charAt(i + j);
 
-                    skip = (occurrence.get(val) != null) ?
-                            Math.max(1, j - occurrence.get(val)) :
-                            j + 1;
+                    skip =
+                            (occurrence.get(val) != null)
+                                    ? Math.max(1, j - occurrence.get(val))
+                                    : j + 1;
 
                     break;
                 }
@@ -82,7 +84,7 @@ public class BoyerMooreMatcher {
                 return i;
             }
         }
-        
+
         return -1;
     }
 

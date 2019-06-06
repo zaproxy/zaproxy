@@ -1,24 +1,24 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2011/08/04 Changed to support new HttpPanel interface 
+// ZAP: 2011/08/04 Changed to support new HttpPanel interface
 // ZAP: 2011/05/15 Support for exclusions
 // ZAP: 2011/05/31 Added option to dynamically change the display
 // ZAP: 2012/02/18 Changed default to be 'bottom full'
@@ -36,18 +36,21 @@
 // ZAP: 2012/10/03 Issue 388: Added support for technologies
 // ZAP: 2012/12/18 Issue 441: Prevent view being initialised in daemon mode
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons - added helper methods
-// ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same 
+// ZAP: 2013/02/17 Issue 496: Allow to see the request and response at the same
 // time in the main window
 // ZAP: 2013/02/26 Issue 540: Maximised work tabs hidden when response tab
 // position changed
 // ZAP: 2013/04/15 Issue 627: Allow add-ons to remove main tool bar buttons/separators
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
-// ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to accomodate the 'Full Layout' functionality.
+// ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to
+// accomodate the 'Full Layout' functionality.
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
-// ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session dialog
-// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
-// ZAP: 2014/03/23 Issue 1085: Do not add/remove pop up menu items through the method View#getPopupMenu()
+// ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session
+// dialog
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts
+// ZAP: 2014/03/23 Issue 1085: Do not add/remove pop up menu items through the method
+// View#getPopupMenu()
 // ZAP: 2014/04/17 Issue 1155: Historical Request Tab Doesn't allow formatting changes
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
@@ -65,7 +68,8 @@
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 // ZAP: 2016/03/16 Add StatusUI handling
 // ZAP: 2016/03/22 Allow to remove ContextPanelFactory
-// ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
+// ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after
+// installation of add-on
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/14 Allow to display a message
@@ -81,6 +85,7 @@
 // ZAP: 2018/07/17 Use getMenuShortcutKeyStroke.
 // ZAP: 2019/01/04 Keep Show Tab menu item in the position it was added.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -94,7 +99,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -106,7 +110,6 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -155,22 +158,19 @@ public class View implements ViewDelegate {
      * @see #getMainFrame()
      * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
      */
-    @Deprecated
-    public static final int DISPLAY_OPTION_LEFT_FULL = 0;
+    @Deprecated public static final int DISPLAY_OPTION_LEFT_FULL = 0;
     /**
      * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#EXPAND_STATUS} instead.
      * @see #getMainFrame()
      * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
      */
-    @Deprecated
-    public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
+    @Deprecated public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
     /**
      * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#FULL} instead.
      * @see #getMainFrame()
      * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
      */
-    @Deprecated
-    public static final int DISPLAY_OPTION_TOP_FULL = 2;
+    @Deprecated public static final int DISPLAY_OPTION_TOP_FULL = 2;
 
     public static final int DISPLAY_OPTION_ICONNAMES = 0;
     public static final int DISPLAY_OPTION_ONLYICONS = 1;
@@ -182,7 +182,7 @@ public class View implements ViewDelegate {
     private SessionDialog sessionDialog = null;
     private OptionsDialog optionsDialog = null;
 
-    //private LogPanel logPanel = null;
+    // private LogPanel logPanel = null;
     private MainFrame mainFrame = null;
     private HttpPanelRequest requestPanel = null;
     private HttpPanelResponse responsePanel = null;
@@ -198,12 +198,14 @@ public class View implements ViewDelegate {
     private List<AbstractContextPropertiesPanel> contextPanels = new ArrayList<>();
     private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
     /**
-     * A map containing the {@link AbstractContextPropertiesPanel context panels} created by a {@link ContextPanelFactory
-     * context panel factory}, being the latter the key and the former the value (a {@code List} with the panels).
-     * <p>
-     * The map is used to remove the panels created when the factory is removed.
+     * A map containing the {@link AbstractContextPropertiesPanel context panels} created by a
+     * {@link ContextPanelFactory context panel factory}, being the latter the key and the former
+     * the value (a {@code List} with the panels).
+     *
+     * <p>The map is used to remove the panels created when the factory is removed.
      */
-    private Map<ContextPanelFactory, List<AbstractContextPropertiesPanel>> contextPanelFactoriesPanels = new HashMap<>();
+    private Map<ContextPanelFactory, List<AbstractContextPropertiesPanel>>
+            contextPanelFactoriesPanels = new HashMap<>();
 
     private static final Logger logger = Logger.getLogger(View.class);
 
@@ -216,46 +218,45 @@ public class View implements ViewDelegate {
 
     /**
      * The default {@link KeyStroke} to delete view items.
-     * <p>
-     * Lazily initialised in {@link #getDefaultDeleteKeyStroke()}.
+     *
+     * <p>Lazily initialised in {@link #getDefaultDeleteKeyStroke()}.
      */
     private KeyStroke defaultDeleteKeyStroke;
-    
+
     /**
      * If true then the UI can request focus from other applications, if false then it should not
      */
     private boolean canGetFocus = true;
 
-    /**
-     * @return Returns the mainFrame.
-     */
+    /** @return Returns the mainFrame. */
     @Override
     public MainFrame getMainFrame() {
         return mainFrame;
     }
-	///**
+    /// **
     // * @return Returns the requestPanel.
     // */
-    //public HttpPanel getRequestPanel() {
+    // public HttpPanel getRequestPanel() {
     //	return requestPanel;
-    //}
-    ///**
+    // }
+    /// **
     // * @return Returns the responsePanel.
     // */
-    //public HttpPanel getResponsePanel() {
+    // public HttpPanel getResponsePanel() {
     //	return responsePanel;
-    //}
-
+    // }
 
     /**
-     * @deprecated (2.5.0) Use {@link MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)}
-     *             instead.
+     * @deprecated (2.5.0) Use {@link
+     *     MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)} instead.
      * @see #getMainFrame()
      */
     @Deprecated
     @SuppressWarnings("javadoc")
     public static void setDisplayOption(int displayOption) {
-        View.getSingleton().getMainFrame().setWorkbenchLayout(WorkbenchPanel.Layout.getLayout(displayOption));
+        View.getSingleton()
+                .getMainFrame()
+                .setWorkbenchLayout(WorkbenchPanel.Layout.getLayout(displayOption));
     }
 
     /**
@@ -268,30 +269,34 @@ public class View implements ViewDelegate {
         return View.getSingleton().getMainFrame().getWorkbenchLayout().getId();
     }
 
-//  ZAP: Removed method changeDisplayOption(int)
+    //  ZAP: Removed method changeDisplayOption(int)
     public void init() {
         OptionsParam options = Model.getSingleton().getOptionsParam();
         mainFrame = new MainFrame(options, getRequestPanel(), getResponsePanel());
-        mainFrame.getWorkbench().addPanel(View.getSingleton().getSiteTreePanel(), WorkbenchPanel.PanelType.SELECT);
+        mainFrame
+                .getWorkbench()
+                .addPanel(View.getSingleton().getSiteTreePanel(), WorkbenchPanel.PanelType.SELECT);
 
         // Install default editor and renderer for TextMessageLocationHighlight
-        MessageLocationHighlightRenderersEditors.getInstance().addEditor(
-                TextMessageLocationHighlight.class,
-                new TextMessageLocationHighlightEditor());
-        MessageLocationHighlightRenderersEditors.getInstance().addRenderer(
-                TextMessageLocationHighlight.class,
-                new TextMessageLocationHighlightRenderer());
-        
+        MessageLocationHighlightRenderersEditors.getInstance()
+                .addEditor(
+                        TextMessageLocationHighlight.class,
+                        new TextMessageLocationHighlightEditor());
+        MessageLocationHighlightRenderersEditors.getInstance()
+                .addRenderer(
+                        TextMessageLocationHighlight.class,
+                        new TextMessageLocationHighlightRenderer());
+
         String statusString;
-        for(Status status : AddOn.Status.values()) {     	
-        	// Handle the case AddOn.Status gets out of sync with cfu.status i18n entries
-        	String i18nKey = "cfu.status." + status.toString();
-        	if (Constant.messages.containsKey(i18nKey)) {
-        		statusString = Constant.messages.getString(i18nKey);
-        	} else {
-        		statusString = status.toString();
-        	}
-        	statusMap.put(status, new StatusUI(status, statusString));
+        for (Status status : AddOn.Status.values()) {
+            // Handle the case AddOn.Status gets out of sync with cfu.status i18n entries
+            String i18nKey = "cfu.status." + status.toString();
+            if (Constant.messages.containsKey(i18nKey)) {
+                statusString = Constant.messages.getString(i18nKey);
+            } else {
+                statusString = status.toString();
+            }
+            statusMap.put(status, new StatusUI(status, statusString));
         }
     }
 
@@ -300,57 +305,62 @@ public class View implements ViewDelegate {
 
         refreshTabViewMenus();
 
-        // Add the 'tab' menu items 
+        // Add the 'tab' menu items
         JMenuItem showAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.show"));
-        showAllMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showAllTabs();
-            }
-        });
+        showAllMenu.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        showAllTabs();
+                    }
+                });
 
         mainFrame.getMainMenuBar().getMenuView().add(showAllMenu);
 
         JMenuItem hideAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.hide"));
-        hideAllMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                hideAllTabs();
-            }
-        });
+        hideAllMenu.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        hideAllTabs();
+                    }
+                });
         mainFrame.getMainMenuBar().getMenuView().add(hideAllMenu);
 
         JMenuItem pinAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.pin"));
-        pinAllMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                pinAllTabs();
-            }
-        });
+        pinAllMenu.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        pinAllTabs();
+                    }
+                });
         mainFrame.getMainMenuBar().getMenuView().add(pinAllMenu);
 
         JMenuItem unpinAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.unpin"));
-        unpinAllMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                unpinAllTabs();
-            }
-        });
+        unpinAllMenu.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        unpinAllTabs();
+                    }
+                });
         mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
 
         postInitialisation = true;
     }
 
     /**
-     * @deprecated (2.5.0) No longer in use/working, use
-     *             {@link MainFrame#setResponsePanelPosition(org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition)}
-     *             instead.
+     * @deprecated (2.5.0) No longer in use/working, use {@link
+     *     MainFrame#setResponsePanelPosition(org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition)}
+     *     instead.
      * @since 2.1.0
      * @see #getMainFrame()
      */
     @Deprecated
     @SuppressWarnings("javadoc")
-    public org.zaproxy.zap.view.MessagePanelsPositionController getMessagePanelsPositionController() {
+    public org.zaproxy.zap.view.MessagePanelsPositionController
+            getMessagePanelsPositionController() {
         return new org.zaproxy.zap.view.MessagePanelsPositionController(null, null, null, null);
     }
 
@@ -370,9 +380,11 @@ public class View implements ViewDelegate {
             menuShowTabs.removeAll();
         }
 
-        ExtensionKeyboard extKey = Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.class);
+        ExtensionKeyboard extKey =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.class);
 
-        for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.SELECT)) {
+        for (AbstractPanel panel :
+                getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.SELECT)) {
             registerMenu(extKey, panel);
         }
         menuShowTabs.addSeparator();
@@ -380,25 +392,29 @@ public class View implements ViewDelegate {
             registerMenu(extKey, panel);
         }
         menuShowTabs.addSeparator();
-        for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.STATUS)) {
+        for (AbstractPanel panel :
+                getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.STATUS)) {
             registerMenu(extKey, panel);
         }
     }
 
     private void registerMenu(ExtensionKeyboard extKey, final AbstractPanel ap) {
-        ZapMenuItem tabMenu = new ZapMenuItem(
-                ap.getClass().getName(), Constant.messages.getString("menu.view.tab", ap.getName()),
-                ap.getDefaultAccelerator());
+        ZapMenuItem tabMenu =
+                new ZapMenuItem(
+                        ap.getClass().getName(),
+                        Constant.messages.getString("menu.view.tab", ap.getName()),
+                        ap.getDefaultAccelerator());
         tabMenu.setMnemonic(ap.getMnemonic());
         if (ap.getIcon() != null) {
             tabMenu.setIcon(DisplayUtils.getScaledIcon(ap.getIcon()));
         }
-        tabMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                getWorkbench().showPanel(ap);
-            }
-        });
+        tabMenu.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        getWorkbench().showPanel(ap);
+                    }
+                });
 
         menuShowTabs.add(tabMenu);
         if (extKey != null) {
@@ -422,58 +438,58 @@ public class View implements ViewDelegate {
         getWorkbench().unpinVisiblePanels();
     }
 
-    /**
-     * Open the splash screen
-     */
+    /** Open the splash screen */
     public void showSplashScreen() {
-        // Show the splashscreen only if it's been enabled by the user 
+        // Show the splashscreen only if it's been enabled by the user
         if (Model.getSingleton().getOptionsParam().getViewParam().isShowSplashScreen()) {
             // Show the splash screen to show the user something is happening..
             splashScreen = new SplashScreen();
-        }        
+        }
     }
 
-    /**
-     * Close the current splash screen and remove all resources
-     */
+    /** Close the current splash screen and remove all resources */
     public void hideSplashScreen() {
         if (splashScreen != null) {
             splashScreen.close();
             splashScreen = null;
         }
     }
-    
+
     /**
      * Set the current loading completion
+     *
      * @param percentage the percentage of completion from 0 to 100
      */
     public void setSplashScreenLoadingCompletion(double percentage) {
         if (splashScreen != null) {
             splashScreen.setLoadingCompletion(percentage);
-        }        
+        }
     }
-    
+
     /**
      * Add the current loading completion
+     *
      * @param percentage the percentage of completion from 0 to 100 that need to be added
      */
     public void addSplashScreenLoadingCompletion(double percentage) {
         if (splashScreen != null) {
             splashScreen.addLoadingCompletion(percentage);
-        }        
+        }
     }
-    
+
     @Override
     public int showConfirmDialog(String msg) {
         return showConfirmDialog(getMainFrame(), msg);
     }
 
     public int showConfirmDialog(JPanel parent, String msg) {
-        return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
     }
 
     public int showConfirmDialog(Window parent, String msg) {
-        return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
     }
 
     @Override
@@ -482,11 +498,13 @@ public class View implements ViewDelegate {
     }
 
     public int showYesNoCancelDialog(JPanel parent, String msg) {
-        return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
     public int showYesNoCancelDialog(Window parent, String msg) {
-        return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
     @Override
@@ -495,11 +513,13 @@ public class View implements ViewDelegate {
     }
 
     public void showWarningDialog(JPanel parent, String msg) {
-        JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
     public void showWarningDialog(Window parent, String msg) {
-        JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
     @Override
@@ -508,11 +528,13 @@ public class View implements ViewDelegate {
     }
 
     public void showMessageDialog(JPanel parent, String msg) {
-        JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void showMessageDialog(Window parent, String msg) {
-        JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JCheckBox getRememberCheckbox() {
@@ -529,17 +551,22 @@ public class View implements ViewDelegate {
     public int showYesNoRememberDialog(Window parent, String msg) {
         // The checkbox is used for all related dialogs, so always reset
         this.getRememberCheckbox().setSelected(false);
-        return JOptionPane.showConfirmDialog(parent,
-                new Object[]{msg + "\n", this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent,
+                new Object[] {msg + "\n", this.getRememberCheckbox()},
+                Constant.PROGRAM_NAME,
+                JOptionPane.YES_NO_OPTION);
     }
 
     public int showYesNoDialog(Window parent, Object[] objs) {
-        return JOptionPane.showConfirmDialog(parent, objs, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent, objs, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
     }
 
     private JCheckBox getDontPromptCheckbox() {
         if (dontPromptCheckbox == null) {
-            dontPromptCheckbox = new JCheckBox(Constant.messages.getString("view.dialog.dontPrompt"));
+            dontPromptCheckbox =
+                    new JCheckBox(Constant.messages.getString("view.dialog.dontPrompt"));
         }
         return dontPromptCheckbox;
     }
@@ -551,19 +578,25 @@ public class View implements ViewDelegate {
     public int showConfirmDontPromptDialog(Window parent, String msg) {
         // The checkbox is used for all related dialogs, so always reset
         this.getDontPromptCheckbox().setSelected(false);
-        return JOptionPane.showConfirmDialog(parent,
-                new Object[]{msg + "\n", this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(
+                parent,
+                new Object[] {msg + "\n", this.getDontPromptCheckbox()},
+                Constant.PROGRAM_NAME,
+                JOptionPane.OK_CANCEL_OPTION);
     }
 
     public void showWarningDontPromptDialog(Window parent, String msg) {
         // The checkbox is used for all related dialogs, so always reset
         this.getDontPromptCheckbox().setSelected(false);
-        JOptionPane.showMessageDialog(parent, 
-        		new Object[]{msg + "\n", this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(
+                parent,
+                new Object[] {msg + "\n", this.getDontPromptCheckbox()},
+                Constant.PROGRAM_NAME,
+                JOptionPane.WARNING_MESSAGE);
     }
 
     public void showWarningDontPromptDialog(String msg) {
-    	showWarningDontPromptDialog(getMainFrame(), msg);
+        showWarningDontPromptDialog(getMainFrame(), msg);
     }
 
     // ZAP: FindBugs fix - make method synchronised
@@ -574,12 +607,12 @@ public class View implements ViewDelegate {
                 logger.error(e.getMessage(), e);
                 return null;
             }
-            
+
             logger.info("Initialising View");
             view = new View();
             view.init();
         }
-        
+
         return view;
     }
 
@@ -591,16 +624,14 @@ public class View implements ViewDelegate {
         View.daemon = daemon;
     }
 
-//	public void showFindDialog() {
-//	    if (findDialog == null) {
-//	        findDialog = new FindDialog(mainFrame, false);
-//	    }
-//	    
-//	    findDialog.setVisible(true);
-//	}
-    /**
-     * @return Returns the siteTreePanel.
-     */
+    //	public void showFindDialog() {
+    //	    if (findDialog == null) {
+    //	        findDialog = new FindDialog(mainFrame, false);
+    //	    }
+    //
+    //	    findDialog.setVisible(true);
+    //	}
+    /** @return Returns the siteTreePanel. */
     @Override
     public SiteMapPanel getSiteTreePanel() {
         if (siteMapPanel == null) {
@@ -624,13 +655,15 @@ public class View implements ViewDelegate {
             // ZAP: constructor changed
             requestPanel = new HttpPanelRequest(false, OptionsParamView.BASE_VIEW_KEY + ".main.");
             // ZAP: Added 'right arrow' icon
-            requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
-            requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
+            requestPanel.setIcon(
+                    new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
+            requestPanel.setName(
+                    Constant.messages.getString("http.panel.request.title")); // ZAP: i18n
             requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
-            requestPanel.setDefaultAccelerator(getMenuShortcutKeyStroke(KeyEvent.VK_R, KeyEvent.SHIFT_DOWN_MASK, false));
+            requestPanel.setDefaultAccelerator(
+                    getMenuShortcutKeyStroke(KeyEvent.VK_R, KeyEvent.SHIFT_DOWN_MASK, false));
             requestPanel.setMnemonic(Constant.messages.getChar("http.panel.request.mnemonic"));
-
         }
         return requestPanel;
     }
@@ -641,12 +674,17 @@ public class View implements ViewDelegate {
             // ZAP: constructor changed
             responsePanel = new HttpPanelResponse(false, OptionsParamView.BASE_VIEW_KEY + ".main.");
             // ZAP: Added 'left arrow' icon
-            responsePanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/106.png")));
-            responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n
+            responsePanel.setIcon(
+                    new ImageIcon(View.class.getResource("/resource/icon/16/106.png")));
+            responsePanel.setName(
+                    Constant.messages.getString("http.panel.response.title")); // ZAP: i18n
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             responsePanel.setDefaultAccelerator(
-                    getMenuShortcutKeyStroke(KeyEvent.VK_R, KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK, false));
+                    getMenuShortcutKeyStroke(
+                            KeyEvent.VK_R,
+                            KeyEvent.ALT_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK,
+                            false));
             responsePanel.setMnemonic(Constant.messages.getChar("http.panel.response.mnemonic"));
         }
         return responsePanel;
@@ -679,35 +717,37 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * Shows the session properties dialog. If a panel is specified, the dialog
-     * is opened showing that panel. If {@code recreateUISharedContexts} is
-     * {@code true}, any old UI shared contexts are discarded and new ones are
-     * created as copies of the contexts. If a {@code postInitRunnable} is
-     * provided, its {@link Runnable#run} method is called after the
+     * Shows the session properties dialog. If a panel is specified, the dialog is opened showing
+     * that panel. If {@code recreateUISharedContexts} is {@code true}, any old UI shared contexts
+     * are discarded and new ones are created as copies of the contexts. If a {@code
+     * postInitRunnable} is provided, its {@link Runnable#run} method is called after the
      * initialization of all the panels of the session properties dialog.
      *
      * @param session the session
      * @param panel the panel name to be shown
-     * @param recreateUISharedContexts if true, any old UI shared contexts are
-     * discarded and new ones are created as copies of the contexts
-     * @param postInitRunnable if provided, its {@link Runnable#run} method is
-     * called after the initialization of all the panels of the session
-     * properties dialog.
+     * @param recreateUISharedContexts if true, any old UI shared contexts are discarded and new
+     *     ones are created as copies of the contexts
+     * @param postInitRunnable if provided, its {@link Runnable#run} method is called after the
+     *     initialization of all the panels of the session properties dialog.
      */
-    public void showSessionDialog(Session session, String panel, boolean recreateUISharedContexts, Runnable postInitRunnable) {
-    	if (sessionDialog == null) {
-    		this.getSessionDialog();
-    	}
-    	
+    public void showSessionDialog(
+            Session session,
+            String panel,
+            boolean recreateUISharedContexts,
+            Runnable postInitRunnable) {
+        if (sessionDialog == null) {
+            this.getSessionDialog();
+        }
+
         if (recreateUISharedContexts) {
             sessionDialog.recreateUISharedContexts(session);
         }
-        
+
         sessionDialog.initParam(session);
         if (postInitRunnable != null) {
             postInitRunnable.run();
         }
-        
+
         sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
         sessionDialog.showDialog(false, panel);
     }
@@ -719,10 +759,10 @@ public class View implements ViewDelegate {
         String contextsNodeName = Constant.messages.getString("context.list");
         ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
         contextGenPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(new String[]{ contextsNodeName }, contextGenPanel, false);
+        getSessionDialog().addParamPanel(new String[] {contextsNodeName}, contextGenPanel, false);
         this.contextPanels.add(contextGenPanel);
 
-        String[] contextPanelPath = new String[] { contextsNodeName, contextGenPanel.getName() };
+        String[] contextPanelPath = new String[] {contextsNodeName, contextGenPanel.getName()};
         ContextIncludePanel contextIncPanel = new ContextIncludePanel(c);
         contextIncPanel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(contextPanelPath, contextIncPanel, false);
@@ -754,20 +794,23 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * Adds a custom context panel for the given context, created form the given context panel factory and placed under the
-     * given path.
+     * Adds a custom context panel for the given context, created form the given context panel
+     * factory and placed under the given path.
      *
-     * @param contextPanelFactory context panel factory used to create the panel, must not be {@code null}
+     * @param contextPanelFactory context panel factory used to create the panel, must not be {@code
+     *     null}
      * @param panelPath the path where to add the created panel, must not be {@code null}
      * @param context the target context, must not be {@code null}
      */
-    private void addPanelForContext(Context context, ContextPanelFactory contextPanelFactory, String[] panelPath) {
+    private void addPanelForContext(
+            Context context, ContextPanelFactory contextPanelFactory, String[] panelPath) {
         AbstractContextPropertiesPanel panel = contextPanelFactory.getContextPanel(context);
         panel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(panelPath, panel, false);
         this.contextPanels.add(panel);
 
-        List<AbstractContextPropertiesPanel> panels = contextPanelFactoriesPanels.get(contextPanelFactory);
+        List<AbstractContextPropertiesPanel> panels =
+                contextPanelFactoriesPanels.get(contextPanelFactory);
         if (panels == null) {
             panels = new ArrayList<>();
             contextPanelFactoriesPanels.put(contextPanelFactory, panels);
@@ -817,7 +860,10 @@ public class View implements ViewDelegate {
             for (Context context : Model.getSingleton().getSession().getContexts()) {
                 ContextGeneralPanel contextGeneralPanel = getContextGeneralPanel(context);
                 if (contextGeneralPanel != null) {
-                    addPanelForContext(context, contextPanelFactory, new String[] { contextsNodeName, contextGeneralPanel.getName() });
+                    addPanelForContext(
+                            context,
+                            contextPanelFactory,
+                            new String[] {contextsNodeName, contextGeneralPanel.getName()});
                 }
             }
         }
@@ -832,7 +878,8 @@ public class View implements ViewDelegate {
         if (contextPanelFactories.remove(contextPanelFactory)) {
             contextPanelFactory.discardContexts();
 
-            List<AbstractContextPropertiesPanel> panels = contextPanelFactoriesPanels.remove(contextPanelFactory);
+            List<AbstractContextPropertiesPanel> panels =
+                    contextPanelFactoriesPanels.remove(contextPanelFactory);
             if (panels != null) {
                 for (AbstractContextPropertiesPanel panel : panels) {
                     getSessionDialog().removeParamPanel(panel);
@@ -844,13 +891,14 @@ public class View implements ViewDelegate {
 
     public void deleteContext(Context c) {
         List<AbstractContextPropertiesPanel> removedPanels = new ArrayList<>();
-        for (Iterator<AbstractContextPropertiesPanel> it = contextPanels.iterator(); it.hasNext();) {
+        for (Iterator<AbstractContextPropertiesPanel> it = contextPanels.iterator();
+                it.hasNext(); ) {
             AbstractContextPropertiesPanel panel = it.next();
-        	if (panel.getContextIndex() == c.getIndex()) {
+            if (panel.getContextIndex() == c.getIndex()) {
                 getSessionDialog().removeParamPanel(panel);
                 it.remove();
                 removedPanels.add(panel);
-        	}
+            }
         }
         for (ContextPanelFactory cpf : this.contextPanelFactories) {
             cpf.discardContext(c);
@@ -876,7 +924,7 @@ public class View implements ViewDelegate {
 
     public OptionsDialog getOptionsDialog(String title) {
         // ZAP: FindBugs fix - dont need ROOT
-        //String[] ROOT = {};
+        // String[] ROOT = {};
         if (optionsDialog == null) {
             optionsDialog = new OptionsDialog(getMainFrame(), true, title);
         }
@@ -891,22 +939,19 @@ public class View implements ViewDelegate {
 
     // ZAP: Removed the method setStatus(String), no longer used.
     /**
-     * Returns a new {@code MainPopupMenu} instance with the pop pup menu items
-     * returned by the method {@code getPopupList()}.
-     * <p>
-     * <strong>Note:</strong> Pop up menu items ({@code JMenuItem},
-     * {@code JMenu}, {@code ExtensionPopupMenuItem} and
-     * {@code ExtensionPopupMenu}) should be added/removed to/from the list
-     * returned by the method {@code getPopupList()} not by calling the methods
-     * {@code MainPopupMenu#addMenu(...)} on the returned {@code MainPopupMenu}
-     * instance. Adding pop up menu items to the returned {@code MainPopupMenu}
-     * instance relies on current implementation of {@code MainPopupMenu} which
-     * may change without notice (moreover a new instance is created each time
-     * the method is called).
-     * </p>
+     * Returns a new {@code MainPopupMenu} instance with the pop pup menu items returned by the
+     * method {@code getPopupList()}.
      *
-     * @return a {@code MainPopupMenu} containing the pop up menu items that are
-     * in the list returned by the method {@code getPopupList()}.
+     * <p><strong>Note:</strong> Pop up menu items ({@code JMenuItem}, {@code JMenu}, {@code
+     * ExtensionPopupMenuItem} and {@code ExtensionPopupMenu}) should be added/removed to/from the
+     * list returned by the method {@code getPopupList()} not by calling the methods {@code
+     * MainPopupMenu#addMenu(...)} on the returned {@code MainPopupMenu} instance. Adding pop up
+     * menu items to the returned {@code MainPopupMenu} instance relies on current implementation of
+     * {@code MainPopupMenu} which may change without notice (moreover a new instance is created
+     * each time the method is called).
+     *
+     * @return a {@code MainPopupMenu} containing the pop up menu items that are in the list
+     *     returned by the method {@code getPopupList()}.
      * @see #getPopupList()
      * @see MainPopupMenu
      * @see ExtensionPopupMenu
@@ -919,17 +964,14 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * Returns the list of pop up menu items that will have the
-     * {@code MainPopupMenu} instance returned by the method
-     * {@code getPopupMenu()}.
-     * <p>
-     * Should be used to dynamically add/remove pop up menu items
-     * ({@code JMenuItem}, {@code JMenu}, {@code ExtensionPopupMenuItem} and
-     * {@code ExtensionPopupMenu}) to the main pop up menu at runtime.
-     * </p>
+     * Returns the list of pop up menu items that will have the {@code MainPopupMenu} instance
+     * returned by the method {@code getPopupMenu()}.
      *
-     * @return the list of pop up menu items that will have the main pop up
-     * menu.
+     * <p>Should be used to dynamically add/remove pop up menu items ({@code JMenuItem}, {@code
+     * JMenu}, {@code ExtensionPopupMenuItem} and {@code ExtensionPopupMenu}) to the main pop up
+     * menu at runtime.
+     *
+     * @return the list of pop up menu items that will have the main pop up menu.
      * @see #getPopupMenu()
      * @see ExtensionHookMenu#addPopupMenuItem(ExtensionPopupMenu)
      * @see ExtensionHookMenu#addPopupMenuItem(ExtensionPopupMenuItem)
@@ -986,8 +1028,8 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * Gets the splash screen as {@code Component}. It should be used only as a parent for error/warning dialogues shown during
-     * initialisation.
+     * Gets the splash screen as {@code Component}. It should be used only as a parent for
+     * error/warning dialogues shown during initialisation.
      *
      * @return the splash screen, {@code null} when the splash screen is/was not displayed.
      * @since 2.4.0
@@ -995,15 +1037,16 @@ public class View implements ViewDelegate {
     public Component getSplashScreen() {
         return splashScreen;
     }
-    
+
     /**
      * Returns a StatusUI for the given AddOn.Status
+     *
      * @param status the Status for which a StatusUI is wanted
      * @return a StatusUI
      * @since 2.5.0
      */
     public StatusUI getStatusUI(AddOn.Status status) {
-    	return statusMap.get(status);
+        return statusMap.get(status);
     }
 
     /**
@@ -1018,9 +1061,9 @@ public class View implements ViewDelegate {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * <strong>Note:</strong> Current implementation just supports {@link HttpMessage HTTP messages}. Attempting to display
-     * other message types has no effect.
+     *
+     * <p><strong>Note:</strong> Current implementation just supports {@link HttpMessage HTTP
+     * messages}. Attempting to display other message types has no effect.
      */
     @Override
     public void displayMessage(Message message) {
@@ -1051,6 +1094,7 @@ public class View implements ViewDelegate {
 
     /**
      * If true then the UI can request focus from other applications, if false then it should not
+     *
      * @return true if the UI can request focus from other applications
      * @since 2.8.0
      */
@@ -1060,7 +1104,9 @@ public class View implements ViewDelegate {
 
     /**
      * Set whether the UI can request focus from other applications
-     * @param canGetFocus if true then the UI can request focus from other applications, otherwise it should not
+     *
+     * @param canGetFocus if true then the UI can request focus from other applications, otherwise
+     *     it should not
      * @since 2.8.0
      */
     public void setCanGetFocus(boolean canGetFocus) {

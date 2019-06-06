@@ -1,19 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2013 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.parosproxy.paros.core.scanner;
 
@@ -22,54 +24,53 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Specialized variant able to handles OData URIs for the resource ID part<p/>
- * It's focused on OData v2
+ * Specialized variant able to handles OData URIs for the resource ID part
  *
- * Example of query having a single unnamed id:<br/>
+ * <p>It's focused on OData v2
+ *
+ * <p>Example of query having a single unnamed id:<br>
  * {@literal http://services.odata.org/OData/OData.svc/Category(1)/Products?$top=2&$orderby=name}
- * <p/>
- * Example of query having a composite (named) id:<br/>
- * http://services.odata.org/OData/OData.svc/DisplayItem(key1=2L,key2='B0EB1CA')
- * <p/>
- * Reference: <br/>
- * http://www.odata.org/documentation/uri-conventions
  *
+ * <p>Example of query having a composite (named) id:<br>
+ * http://services.odata.org/OData/OData.svc/DisplayItem(key1=2L,key2='B0EB1CA')
+ *
+ * <p>Reference: <br>
+ * http://www.odata.org/documentation/uri-conventions
  */
 public class VariantODataIdQuery implements Variant {
 
     private static final Logger log = Logger.getLogger(VariantODataIdQuery.class);
 
-    /**
-     * In order to identify the unnamed id we add this prefix to the resource
-     * name *
-     */
+    /** In order to identify the unnamed id we add this prefix to the resource name * */
     public static final String RESOURCE_ID_PREFIX = "__ID__";
 
     /**
-     * It's optional to have a resource parameter Set it to null of there is no
-     * such parameter in the URI
+     * It's optional to have a resource parameter Set it to null of there is no such parameter in
+     * the URI
      */
     private ResourceParameter resourceParameter = null;
 
-	// Extract the ID of a resource including the surrounding quote
+    // Extract the ID of a resource including the surrounding quote
     // First group is the resource_name
     // Second group is the ID (quote will be taken as part of the value)
-    private static final Pattern patternResourceIdentifierUnquoted = Pattern.compile("/(\\w*)\\(([\\w']*)\\)");
+    private static final Pattern patternResourceIdentifierUnquoted =
+            Pattern.compile("/(\\w*)\\(([\\w']*)\\)");
 
     // Detect a section containing a composite IDs
-    private static final Pattern patternResourceMultipleIdentifier = Pattern.compile("/\\w*\\((.*)\\)");
+    private static final Pattern patternResourceMultipleIdentifier =
+            Pattern.compile("/\\w*\\((.*)\\)");
 
     // Extract the detail of the multiples IDs
-    private static final Pattern patternResourceMultipleIdentifierDetail = Pattern.compile("(\\w*)=([\\w']*)");
+    private static final Pattern patternResourceMultipleIdentifierDetail =
+            Pattern.compile("(\\w*)=([\\w']*)");
 
-	// Not very clean, should be improved.
+    // Not very clean, should be improved.
     // Save part of the URI before and after the section containing the composite IDs
     private String beforeMultipleIDs = null;
     private String afterMultipleIDs = null;
@@ -95,7 +96,7 @@ public class VariantODataIdQuery implements Variant {
 
             if (path != null) {
 
-		// Detection of the resource and resource id (if any)
+                // Detection of the resource and resource id (if any)
                 String resourceName = "";
                 String resourceID;
 
@@ -112,13 +113,15 @@ public class VariantODataIdQuery implements Variant {
                     String beforeSubstring = path.substring(0, begin);
                     String afterSubstring = path.substring(end);
 
-                    resourceParameter = new ResourceParameter(resourceName, resourceID, beforeSubstring, afterSubstring);
+                    resourceParameter =
+                            new ResourceParameter(
+                                    resourceName, resourceID, beforeSubstring, afterSubstring);
 
                 } else {
 
                     matcher = patternResourceMultipleIdentifier.matcher(path);
                     if (matcher.find()) {
-			// We've found a composite identifier. i.e: /Resource(field1=a,field2=3)
+                        // We've found a composite identifier. i.e: /Resource(field1=a,field2=3)
 
                         String multipleIdentifierSection = matcher.group(1);
 
@@ -130,17 +133,20 @@ public class VariantODataIdQuery implements Variant {
 
                         listParams = new ArrayList<>();
 
-                        matcher = patternResourceMultipleIdentifierDetail.matcher(multipleIdentifierSection);
+                        matcher =
+                                patternResourceMultipleIdentifierDetail.matcher(
+                                        multipleIdentifierSection);
                         int i = 1;
                         while (matcher.find()) {
 
                             String paramName = matcher.group(1);
                             String value = matcher.group(2);
 
-                            NameValuePair vp = new NameValuePair(NameValuePair.TYPE_QUERY_STRING, paramName, value, i++);
+                            NameValuePair vp =
+                                    new NameValuePair(
+                                            NameValuePair.TYPE_QUERY_STRING, paramName, value, i++);
                             listParams.add(vp);
                         }
-
                     }
                 }
             }
@@ -148,7 +154,6 @@ public class VariantODataIdQuery implements Variant {
         } catch (URIException e) {
             log.error(e.getMessage() + uri, e);
         }
-
     }
 
     @Override
@@ -156,8 +161,12 @@ public class VariantODataIdQuery implements Variant {
         Vector<NameValuePair> params = new Vector<>();
 
         if (resourceParameter != null) {
-            params.add(new NameValuePair(NameValuePair.TYPE_QUERY_STRING,
-                    resourceParameter.getParameterName(), resourceParameter.getValue(), 1));
+            params.add(
+                    new NameValuePair(
+                            NameValuePair.TYPE_QUERY_STRING,
+                            resourceParameter.getParameterName(),
+                            resourceParameter.getValue(),
+                            1));
         }
 
         if (listParams != null) {
@@ -168,10 +177,11 @@ public class VariantODataIdQuery implements Variant {
     }
 
     @Override
-    public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-	// TODO: Implement correctly escaped vs. non-escaped params 
+    public String setParameter(
+            HttpMessage msg, NameValuePair originalPair, String param, String value) {
+        // TODO: Implement correctly escaped vs. non-escaped params
 
-	// Check if the parameter is a resource parameter
+        // Check if the parameter is a resource parameter
         if (resourceParameter != null && resourceParameter.getParameterName().equals(param)) {
 
             String query = value;
@@ -179,10 +189,10 @@ public class VariantODataIdQuery implements Variant {
 
             try {
                 msg.getRequestHeader().getURI().setPath(modifiedPath);
-                
+
             } catch (URIException e) {
                 throw new RuntimeException("Error with uri " + modifiedPath, e);
-                
+
             } catch (NullPointerException e) {
                 throw new RuntimeException("Error with uri " + modifiedPath, e);
             }
@@ -200,16 +210,16 @@ public class VariantODataIdQuery implements Variant {
             for (NameValuePair nv : listParams) {
                 if (firstPass) {
                     firstPass = false;
-                
+
                 } else {
                     sbQuery.append(",");
                 }
-                
+
                 sbQuery.append(nv.getName()).append("=");
 
                 if (nv.getName().equals(param)) {
                     sbQuery.append(value);
-                    
+
                 } else {
                     sbQuery.append(nv.getValue());
                 }
@@ -223,27 +233,25 @@ public class VariantODataIdQuery implements Variant {
 
             try {
                 msg.getRequestHeader().getURI().setPath(path);
-                
+
             } catch (URIException | NullPointerException e) {
                 throw new RuntimeException("Error with uri " + path, e);
             }
 
             return query;
-
         }
 
         return "";
     }
 
     @Override
-    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-        // TODO: Implement correctly escaped vs. non-escaped params 
+    public String setEscapedParameter(
+            HttpMessage msg, NameValuePair originalPair, String param, String value) {
+        // TODO: Implement correctly escaped vs. non-escaped params
         return setParameter(msg, originalPair, param, value);
     }
 
-    /**
-     * Store the ID of a resource and related data
-     */
+    /** Store the ID of a resource and related data */
     static class ResourceParameter {
 
         private String parameterName;
@@ -258,7 +266,11 @@ public class VariantODataIdQuery implements Variant {
          * @param pathBeforeParameter
          * @param pathAfterParameter
          */
-        public ResourceParameter(String resourceName, String originalValue, String pathBeforeParameter, String pathAfterParameter) {
+        public ResourceParameter(
+                String resourceName,
+                String originalValue,
+                String pathBeforeParameter,
+                String pathAfterParameter) {
             super();
 
             this.resourceName = resourceName;
@@ -268,9 +280,7 @@ public class VariantODataIdQuery implements Variant {
             this.pathAfterParamter = pathAfterParameter;
         }
 
-        /**
-         * @return
-         */
+        /** @return */
         public String getValue() {
             return this.originalValue;
         }
@@ -287,10 +297,8 @@ public class VariantODataIdQuery implements Variant {
                     .append(newIdValue)
                     .append(")")
                     .append(this.pathAfterParamter);
-            
+
             return builder.toString();
         }
-
     }
-
 }

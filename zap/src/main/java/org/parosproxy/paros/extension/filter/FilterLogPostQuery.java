@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -27,21 +27,18 @@
 // ZAP: 2016/06/07 Use Constant.FOLDER_FILTER
 // ZAP: 2017/12/28 Add deprecated annotation and JavaDoc tag.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension.filter;
 
 import java.nio.file.Paths;
 import java.util.Hashtable;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
-
-/**
- * @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on.
- */
+/** @deprecated (2.8.0) Filters were superseded by scripts and Replacer add-on. */
 @Deprecated
 public class FilterLogPostQuery extends FilterLogGetQuery {
 
@@ -56,29 +53,28 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
     @Override
     public String getName() {
         return Constant.messages.getString("filter.logposts.name") + getLogFileName();
-        
     }
 
     @Override
     protected String getLogFileName() {
         return LOG_FILE;
     }
-    
+
     @Override
     public void onHttpRequestSend(HttpMessage httpMessage) {
 
         HttpRequestHeader reqHeader = httpMessage.getRequestHeader();
-        
-        if (reqHeader != null && reqHeader.isText() && !reqHeader.isImage()){
-            if (reqHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.POST)){
-                try{
-                    
+
+        if (reqHeader != null && reqHeader.isText() && !reqHeader.isImage()) {
+            if (reqHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+                try {
+
                     URI uri = reqHeader.getURI();
-                    
+
                     // ZAP: Removed unused variable (int pos).
-                    
+
                     String firstline;
-                    
+
                     URI newURI = (URI) uri.clone();
                     String query = httpMessage.getRequestBody().toString();
                     if (query != null) {
@@ -86,20 +82,16 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
                         firstline = newURI.toString();
                         // ZAP: Added type arguments.
                         Hashtable<String, String> param = parseParameter(query);
-                        writeLogFile(firstline,param);
+                        writeLogFile(firstline, param);
                     } else {
                         firstline = uri.toString();
-                        writeLogFile(firstline,null);				
+                        writeLogFile(firstline, null);
                     }
-                    
-                    
-                    
-                }catch(Exception e){
+
+                } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
             }
-            
         }
     }
-    
 }

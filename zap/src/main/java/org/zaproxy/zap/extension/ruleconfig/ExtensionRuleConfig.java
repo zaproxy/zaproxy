@@ -3,13 +3,13 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2016 The ZAP Development team
- * 
+ * Copyright 2016 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.ruleconfig;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -30,7 +29,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 public class ExtensionRuleConfig extends ExtensionAdaptor {
 
     public static final String NAME = "ExtensionRuleConfig";
-    
+
     private OptionsRuleConfigPanel optionsRuleConfigPanel;
     private RuleConfigParam ruleConfigParam;
 
@@ -40,10 +39,10 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
 
     @Override
     public String getUIName() {
-    	return Constant.messages.getString("ruleconfig.name");
+        return Constant.messages.getString("ruleconfig.name");
     }
-    
-    public void addRuleconfig (RuleConfig rc) {
+
+    public void addRuleconfig(RuleConfig rc) {
         this.getRuleConfigParam().addRuleConfig(rc);
     }
 
@@ -53,10 +52,10 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
         if (extensionHook.getView() != null) {
             extensionHook.getHookView().addOptionPanel(getOptionsRuleConfigPanel());
         }
-        
+
         extensionHook.addApiImplementor(new RuleConfigAPI(this));
     }
-    
+
     public RuleConfigParam getRuleConfigParam() {
         if (ruleConfigParam == null) {
             ruleConfigParam = new RuleConfigParam();
@@ -68,7 +67,7 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
         return this.getRuleConfigParam().getAllRuleConfigs();
     }
 
-    public RuleConfig getRuleConfig (String key) {
+    public RuleConfig getRuleConfig(String key) {
         RuleConfig rc = this.getRuleConfigParam().getRuleConfig(key);
         if (rc != null) {
             return rc.clone();
@@ -94,7 +93,7 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
         }
         return optionsRuleConfigPanel;
     }
-    
+
     @Override
     public String getAuthor() {
         return Constant.ZAP_TEAM;
@@ -114,9 +113,7 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
         }
     }
 
-    /**
-     * No database tables used, so all supported
-     */
+    /** No database tables used, so all supported */
     @Override
     public boolean supportsDb(String type) {
         return true;

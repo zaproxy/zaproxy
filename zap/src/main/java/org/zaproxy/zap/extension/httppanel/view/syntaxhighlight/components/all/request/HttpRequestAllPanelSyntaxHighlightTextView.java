@@ -1,19 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2012 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.all.request;
 
@@ -22,7 +24,6 @@ import java.awt.Component;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -34,8 +35,8 @@ import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFo
 import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
-import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.model.HttpMessageLocation;
+import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.model.TextHttpMessageLocation;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableContentHttpMessageContainer;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
@@ -45,80 +46,94 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListener
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager;
 
-public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView implements SelectableContentHttpMessageContainer {
+public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView
+        implements SelectableContentHttpMessageContainer {
 
-	public static final String NAME = "HttpRequestSyntaxTextView";
+    public static final String NAME = "HttpRequestSyntaxTextView";
 
-	private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
+    private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
 
-	public HttpRequestAllPanelSyntaxHighlightTextView(RequestStringHttpPanelViewModel model) {
-		super(model);
+    public HttpRequestAllPanelSyntaxHighlightTextView(RequestStringHttpPanelViewModel model) {
+        super(model);
 
-		getHttpPanelTextArea().setComponentPopupMenu(new CustomPopupMenu() {
+        getHttpPanelTextArea()
+                .setComponentPopupMenu(
+                        new CustomPopupMenu() {
 
+                            private static final long serialVersionUID = 377256890518967680L;
 
-			private static final long serialVersionUID = 377256890518967680L;
+                            @Override
+                            public void show(Component invoker, int x, int y) {
+                                if (!getHttpPanelTextArea().isFocusOwner()) {
+                                    getHttpPanelTextArea().requestFocusInWindow();
+                                }
 
-			@Override
-			public void show(Component invoker, int x, int y) {
-				if (!getHttpPanelTextArea().isFocusOwner()) {
-					getHttpPanelTextArea().requestFocusInWindow();
-				}
+                                View.getSingleton()
+                                        .getPopupMenu()
+                                        .show(
+                                                HttpRequestAllPanelSyntaxHighlightTextView.this,
+                                                x,
+                                                y);
+                            };
+                        });
+    }
 
-				View.getSingleton().getPopupMenu().show(HttpRequestAllPanelSyntaxHighlightTextView.this, x, y);
-			};
-		});
-	}
-	
-	@Override
-	protected HttpRequestAllPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-		return new HttpRequestAllPanelSyntaxHighlightTextArea();
-	}
+    @Override
+    protected HttpRequestAllPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
+        return new HttpRequestAllPanelSyntaxHighlightTextArea();
+    }
 
-	@Override
-	protected HttpRequestAllPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
-		return (HttpRequestAllPanelSyntaxHighlightTextArea) super.getHttpPanelTextArea();
-	}
-	
-	protected static class HttpRequestAllPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea {
+    @Override
+    protected HttpRequestAllPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
+        return (HttpRequestAllPanelSyntaxHighlightTextArea) super.getHttpPanelTextArea();
+    }
 
-		private static final long serialVersionUID = 923466158533211593L;
-		
-		private static final Logger log = Logger.getLogger(HttpRequestAllPanelSyntaxHighlightTextArea.class);
-		
-		//private static final String HTTP_REQUEST_HEADER_AND_BODY = "HTTP Request Header and Body";
+    protected static class HttpRequestAllPanelSyntaxHighlightTextArea
+            extends HttpPanelSyntaxHighlightTextArea {
 
-		//private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY = "text/http-request-header-body";
-		
-		private static RequestAllTokenMakerFactory tokenMakerFactory = null;
+        private static final long serialVersionUID = 923466158533211593L;
 
-		private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
-		
-		public HttpRequestAllPanelSyntaxHighlightTextArea() {
-			//addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
-		
-			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
-		}
-		
-		@Override
-		public HttpMessage getMessage() {
-			return (HttpMessage) super.getMessage();
-		}
-		
-		@Override
-		public void setMessage(Message aMessage) {
-			super.setMessage(aMessage);
-			
-			caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
-		}
+        private static final Logger log =
+                Logger.getLogger(HttpRequestAllPanelSyntaxHighlightTextArea.class);
+
+        // private static final String HTTP_REQUEST_HEADER_AND_BODY = "HTTP Request Header and
+        // Body";
+
+        // private static final String SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY =
+        // "text/http-request-header-body";
+
+        private static RequestAllTokenMakerFactory tokenMakerFactory = null;
+
+        private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
+
+        public HttpRequestAllPanelSyntaxHighlightTextArea() {
+            // addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY,
+            // SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
+
+            caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+        }
+
+        @Override
+        public HttpMessage getMessage() {
+            return (HttpMessage) super.getMessage();
+        }
+
+        @Override
+        public void setMessage(Message aMessage) {
+            super.setMessage(aMessage);
+
+            caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
+        }
 
         protected MessageLocation getSelection() {
             String header = getMessage().getRequestHeader().toString();
 
-            int[] position = HttpTextViewUtils
-                    .getViewToHeaderBodyPosition(this, header, getSelectionStart(), getSelectionEnd());
+            int[] position =
+                    HttpTextViewUtils.getViewToHeaderBodyPosition(
+                            this, header, getSelectionStart(), getSelectionEnd());
             if (position.length == 0) {
-                return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, 0);
+                return new DefaultTextHttpMessageLocation(
+                        HttpMessageLocation.Location.REQUEST_HEADER, 0);
             }
 
             int start = position[0];
@@ -135,32 +150,34 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
             }
 
             return new DefaultTextHttpMessageLocation(location, start, end, value);
-		}
+        }
 
-		protected MessageLocationHighlightsManager create() {
+        protected MessageLocationHighlightsManager create() {
             return new TextMessageLocationHighlightsManager();
         }
 
         protected MessageLocationHighlight highlightImpl(
-                TextHttpMessageLocation textLocation,
-                TextMessageLocationHighlight textHighlight) {
+                TextHttpMessageLocation textLocation, TextMessageLocationHighlight textHighlight) {
             if (getMessage() == null) {
                 return null;
             }
 
             int[] pos;
-            if (TextHttpMessageLocation.Location.REQUEST_HEADER.equals(textLocation.getLocation())) {
-                pos = HttpTextViewUtils.getHeaderToViewPosition(
-                        this,
-                        getMessage().getRequestHeader().toString(),
-                        textLocation.getStart(),
-                        textLocation.getEnd());
+            if (TextHttpMessageLocation.Location.REQUEST_HEADER.equals(
+                    textLocation.getLocation())) {
+                pos =
+                        HttpTextViewUtils.getHeaderToViewPosition(
+                                this,
+                                getMessage().getRequestHeader().toString(),
+                                textLocation.getStart(),
+                                textLocation.getEnd());
             } else {
-                pos = HttpTextViewUtils.getBodyToViewPosition(
-                        this,
-                        getMessage().getRequestHeader().toString(),
-                        textLocation.getStart(),
-                        textLocation.getEnd());
+                pos =
+                        HttpTextViewUtils.getBodyToViewPosition(
+                                this,
+                                getMessage().getRequestHeader().toString(),
+                                textLocation.getStart(),
+                                textLocation.getEnd());
             }
 
             if (pos.length == 0) {
@@ -172,71 +189,77 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
             return textHighlight;
         }
 
-		@Override
-		public void search(Pattern p, List<SearchMatch> matches) {
-			String header = getMessage().getRequestHeader().toString();
-			Matcher m = p.matcher(getText());
-			while (m.find()) {
+        @Override
+        public void search(Pattern p, List<SearchMatch> matches) {
+            String header = getMessage().getRequestHeader().toString();
+            Matcher m = p.matcher(getText());
+            while (m.find()) {
 
-                int[] position = HttpTextViewUtils.getViewToHeaderBodyPosition(this, header, m.start(), m.end());
+                int[] position =
+                        HttpTextViewUtils.getViewToHeaderBodyPosition(
+                                this, header, m.start(), m.end());
                 if (position.length == 0) {
                     return;
                 }
 
-                SearchMatch.Location location = position.length == 2
-                        ? SearchMatch.Location.REQUEST_HEAD
-                        : SearchMatch.Location.REQUEST_BODY;
+                SearchMatch.Location location =
+                        position.length == 2
+                                ? SearchMatch.Location.REQUEST_HEAD
+                                : SearchMatch.Location.REQUEST_BODY;
                 matches.add(new SearchMatch(location, position[0], position[1]));
-			}
-		}
-		
-		@Override
-		public void highlight(SearchMatch sm) {
-			if (!(SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation()) ||
-				SearchMatch.Location.REQUEST_BODY.equals(sm.getLocation()))) {
-				return;
-			}
-			
-			int[] pos;
-			if (SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation())) {
-				pos = HttpTextViewUtils.getHeaderToViewPosition(
-						this,
-						sm.getMessage().getRequestHeader().toString(),
-						sm.getStart(),
-						sm.getEnd());
-			} else {
-				pos = HttpTextViewUtils.getBodyToViewPosition(
-						this,
-						sm.getMessage().getRequestHeader().toString(),
-						sm.getStart(),
-						sm.getEnd());
-			}
+            }
+        }
 
-			if (pos.length == 0) {
-				return;
-			}
-			
-			highlight(pos[0], pos[1]);
-		}
-		
-		@Override
-		protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
-			if (tokenMakerFactory == null) {
-				tokenMakerFactory = new RequestAllTokenMakerFactory();
-			}
-			return tokenMakerFactory;
-		}
-		
-		private static class RequestAllTokenMakerFactory extends CustomTokenMakerFactory {
-			
-			public RequestAllTokenMakerFactory() {
-				//String pkg = "";
+        @Override
+        public void highlight(SearchMatch sm) {
+            if (!(SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation())
+                    || SearchMatch.Location.REQUEST_BODY.equals(sm.getLocation()))) {
+                return;
+            }
 
-				//putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY, pkg + "HttpRequestHeaderAndBodyTokenMaker");
-			}
-		}
-	}
-	
+            int[] pos;
+            if (SearchMatch.Location.REQUEST_HEAD.equals(sm.getLocation())) {
+                pos =
+                        HttpTextViewUtils.getHeaderToViewPosition(
+                                this,
+                                sm.getMessage().getRequestHeader().toString(),
+                                sm.getStart(),
+                                sm.getEnd());
+            } else {
+                pos =
+                        HttpTextViewUtils.getBodyToViewPosition(
+                                this,
+                                sm.getMessage().getRequestHeader().toString(),
+                                sm.getStart(),
+                                sm.getEnd());
+            }
+
+            if (pos.length == 0) {
+                return;
+            }
+
+            highlight(pos[0], pos[1]);
+        }
+
+        @Override
+        protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
+            if (tokenMakerFactory == null) {
+                tokenMakerFactory = new RequestAllTokenMakerFactory();
+            }
+            return tokenMakerFactory;
+        }
+
+        private static class RequestAllTokenMakerFactory extends CustomTokenMakerFactory {
+
+            public RequestAllTokenMakerFactory() {
+                // String pkg = "";
+
+                // putMapping(SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY, pkg +
+                // "HttpRequestHeaderAndBodyTokenMaker");
+            }
+        }
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -269,11 +292,13 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
         }
         TextHttpMessageLocation textLocation = (TextHttpMessageLocation) location;
 
-        return getHttpPanelTextArea().highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
+        return getHttpPanelTextArea()
+                .highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
     }
 
     @Override
-    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+    public MessageLocationHighlight highlight(
+            MessageLocation location, MessageLocationHighlight highlight) {
         if (!supports(location) || !(highlight instanceof TextMessageLocationHighlight)) {
             return null;
         }
@@ -284,11 +309,15 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
     }
 
     @Override
-    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+    public void removeHighlight(
+            MessageLocation location, MessageLocationHighlight highlightReference) {
         if (!(highlightReference instanceof TextMessageLocationHighlight)) {
             return;
         }
-        getHttpPanelTextArea().removeHighlight(((TextMessageLocationHighlight) highlightReference).getHighlightReference());
+        getHttpPanelTextArea()
+                .removeHighlight(
+                        ((TextMessageLocationHighlight) highlightReference)
+                                .getHighlightReference());
     }
 
     @Override
@@ -296,7 +325,8 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
         if (!(location instanceof TextHttpMessageLocation)) {
             return false;
         }
-        TextHttpMessageLocation.Location msgLocation = ((TextHttpMessageLocation) location).getLocation();
+        TextHttpMessageLocation.Location msgLocation =
+                ((TextHttpMessageLocation) location).getLocation();
         return msgLocation == TextHttpMessageLocation.Location.REQUEST_HEADER
                 || msgLocation == TextHttpMessageLocation.Location.REQUEST_BODY;
     }

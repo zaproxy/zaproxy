@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,18 +25,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.I18N;
 
 /**
  * The base class for ZAP API client generators.
- * 
+ *
  * @since 2.6.0
  */
 public abstract class AbstractAPIGenerator {
 
-    protected static final String OPTIONAL_MESSAGE = "This component is optional and therefore the API will only work if it is installed";
+    protected static final String OPTIONAL_MESSAGE =
+            "This component is optional and therefore the API will only work if it is installed";
 
     protected static final String VIEW_ENDPOINT = "view";
     protected static final String ACTION_ENDPOINT = "action";
@@ -67,19 +67,22 @@ public abstract class AbstractAPIGenerator {
     }
 
     /**
-     * Constructs an {@code AbstractAPIGenerator} with the given directory, optional state, and {@code ResourceBundle}.
+     * Constructs an {@code AbstractAPIGenerator} with the given directory, optional state, and
+     * {@code ResourceBundle}.
      *
      * @param directory the directory where the API client files should be generated
      * @param optional {@code true} if the API client files are optional, {@code false} otherwise
      * @param resourceBundle the {@code ResourceBundle} used for doc of the generated classes.
      * @since 2.8.0
      */
-    protected AbstractAPIGenerator(String directory, boolean optional, ResourceBundle resourceBundle) {
+    protected AbstractAPIGenerator(
+            String directory, boolean optional, ResourceBundle resourceBundle) {
         this.directory = Paths.get(directory);
         this.optional = optional;
 
         Constant.messages = new I18N(Locale.ENGLISH);
-        messages = resourceBundle != null ? resourceBundle : Constant.messages.getCoreResourceBundle();
+        messages =
+                resourceBundle != null ? resourceBundle : Constant.messages.getCoreResourceBundle();
     }
 
     /**

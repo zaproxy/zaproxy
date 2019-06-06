@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,12 +22,11 @@ package org.zaproxy.zap.control;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * Helper class that reads a {@link AddOn#MANIFEST_FILE_NAME manifest file}.
- * 
+ *
  * @since 2.4.0
  */
 public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
@@ -41,7 +40,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
     private static final String BUNDLE_ELEMENT = "bundle";
     private static final String BUNDLE_PREFIX_ATT = "bundle/@prefix";
     private static final String HELPSET_ELEMENT = "helpset";
-    private static final String HELPSET_LOCALE_TOKEN_ATT= "helpset/@localetoken";
+    private static final String HELPSET_LOCALE_TOKEN_ATT = "helpset/@localetoken";
 
     private List<String> ascanrules;
     private List<String> pscanrules;

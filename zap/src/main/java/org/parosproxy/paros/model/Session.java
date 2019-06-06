@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -38,7 +38,8 @@
 // ZAP: 2013/09/26 Issue 747: Error opening session files on directories with special characters
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
-// ZAP: 2014/01/31 Issue 979: Sites and Alerts trees can get corrupted - load session on EventDispatchThread
+// ZAP: 2014/01/31 Issue 979: Sites and Alerts trees can get corrupted - load session on
+// EventDispatchThread
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert bug/issue list here.
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
@@ -48,7 +49,8 @@
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/30 Set default context name
-// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative
+// implementations
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/08/19 Change to use ZapXmlConfiguration instead of extending FileXML
 // ZAP: 2015/08/19 Issue 1789: Forced Browse/AJAX Spider messages not restored to Sites tab
@@ -76,6 +78,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -93,9 +96,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-
 import javax.swing.tree.TreeNode;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -121,545 +122,588 @@ import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-
 public class Session {
-	
+
     // ZAP: Added logger
     private static Logger log = Logger.getLogger(Session.class);
 
-	private static final String ROOT = "session";
-	
-	private static final String SESSION_DESC = "sessionDesc";
-	private static final String SESSION_ID = "sessionId";
-	private static final String SESSION_NAME = "sessionName";
-	
-	private ZapXmlConfiguration configuration;
+    private static final String ROOT = "session";
 
-	// other runtime members
-	private Model model = null;
-	private String fileName = "";
-	private String sessionDesc = "";
-	private List<String> excludeFromProxyRegexs = new ArrayList<>();
-	private List<String> excludeFromScanRegexs = new ArrayList<>();
-	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
+    private static final String SESSION_DESC = "sessionDesc";
+    private static final String SESSION_ID = "sessionId";
+    private static final String SESSION_NAME = "sessionName";
+
+    private ZapXmlConfiguration configuration;
+
+    // other runtime members
+    private Model model = null;
+    private String fileName = "";
+    private String sessionDesc = "";
+    private List<String> excludeFromProxyRegexs = new ArrayList<>();
+    private List<String> excludeFromScanRegexs = new ArrayList<>();
+    private List<String> excludeFromSpiderRegexs = new ArrayList<>();
 
     private List<Context> contexts = new ArrayList<>();
     private int nextContextIndex = 1;
 
-	// parameters in XML
-	private long sessionId = 0;
-	private String sessionName = "";
-	private SiteMap siteTree = null;
-	
-	private ParameterParser defaultParamParser = new StandardParameterParser();
-	
-	/**
-	 * Constructor for the current session.  The current system time will be used as the session ID.
-	 * @param model
-	 */
-	protected Session(Model model) {
-		configuration = new ZapXmlConfiguration();
-		configuration.setRootElementName(ROOT);
+    // parameters in XML
+    private long sessionId = 0;
+    private String sessionName = "";
+    private SiteMap siteTree = null;
 
-		// add session variable here
-		setSessionId(System.currentTimeMillis());
-		setSessionName(Constant.messages.getString("session.untitled"));
-		setSessionDesc("");
+    private ParameterParser defaultParamParser = new StandardParameterParser();
 
-    	if (! Constant.isLowMemoryOptionSet()) {
-    		// create default object
-    		this.siteTree = SiteMap.createTree(model);
-    	}
-		
-		this.model = model;
-		
-		discardContexts();
-	    
-	    Stats.clearAll();
-
-	}
-	
-	private void discardContexts() {
-	    this.contexts.clear();
-	    if (View.isInitialised()) {
-	        View.getSingleton().discardContexts();
-	    }
-	    for(OnContextsChangedListener l:contextsChangedListeners)
-	    	l.contextsChanged();
-	    nextContextIndex = 1;
-	}
-
-	protected void discard() {
-	    try {
-	        model.getDb().discardSession(getSessionId());
-        } catch (DatabaseException e) {
-        	// ZAP: Log exceptions
-        	log.warn(e.getMessage(), e);
-        }
-		discardContexts();
-	}
-
-	protected void close() {
-		discardContexts();
-	}
-	
     /**
-     * @return Returns the sessionDesc.
+     * Constructor for the current session. The current system time will be used as the session ID.
+     *
+     * @param model
      */
+    protected Session(Model model) {
+        configuration = new ZapXmlConfiguration();
+        configuration.setRootElementName(ROOT);
+
+        // add session variable here
+        setSessionId(System.currentTimeMillis());
+        setSessionName(Constant.messages.getString("session.untitled"));
+        setSessionDesc("");
+
+        if (!Constant.isLowMemoryOptionSet()) {
+            // create default object
+            this.siteTree = SiteMap.createTree(model);
+        }
+
+        this.model = model;
+
+        discardContexts();
+
+        Stats.clearAll();
+    }
+
+    private void discardContexts() {
+        this.contexts.clear();
+        if (View.isInitialised()) {
+            View.getSingleton().discardContexts();
+        }
+        for (OnContextsChangedListener l : contextsChangedListeners) l.contextsChanged();
+        nextContextIndex = 1;
+    }
+
+    protected void discard() {
+        try {
+            model.getDb().discardSession(getSessionId());
+        } catch (DatabaseException e) {
+            // ZAP: Log exceptions
+            log.warn(e.getMessage(), e);
+        }
+        discardContexts();
+    }
+
+    protected void close() {
+        discardContexts();
+    }
+
+    /** @return Returns the sessionDesc. */
     public String getSessionDesc() {
         return sessionDesc;
     }
-	
-	/**
-	 * @return Returns the sessionId.
-	 */
-	public long getSessionId() {
-		return sessionId;
-	}
-	/**
-	 * @return Returns the name.
-	 */
-	public String getSessionName() {
-		return sessionName;
-	}
-    /**
-     * @return Returns the siteTree.
-     */
+
+    /** @return Returns the sessionId. */
+    public long getSessionId() {
+        return sessionId;
+    }
+    /** @return Returns the name. */
+    public String getSessionName() {
+        return sessionName;
+    }
+    /** @return Returns the siteTree. */
     public SiteMap getSiteTree() {
         return siteTree;
     }
 
     /**
-     * Tells whether this session is in a new state or not. A session is in a
-     * new state if it was never saved or it was not loaded from an existing
-     * session.
-     * 
-     * @return {@code true} if this session is in a new state, {@code false}
-     *         otherwise.
+     * Tells whether this session is in a new state or not. A session is in a new state if it was
+     * never saved or it was not loaded from an existing session.
+     *
+     * @return {@code true} if this session is in a new state, {@code false} otherwise.
      */
     // ZAP: Changed the JavaDoc.
     public boolean isNewState() {
         return fileName.equals("");
     }
 
-    
     protected void open(final File file, final SessionListener callback) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Exception thrownException = null;
-                try {
-                    open(file.getAbsolutePath());
-                } catch (Exception e) {
-                    thrownException = e;
-                }
-                if (callback != null) {
-                    callback.sessionOpened(file, thrownException);
-                }
-            }
-        });
-        t.setPriority(Thread.NORM_PRIORITY-2);
+        Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                Exception thrownException = null;
+                                try {
+                                    open(file.getAbsolutePath());
+                                } catch (Exception e) {
+                                    thrownException = e;
+                                }
+                                if (callback != null) {
+                                    callback.sessionOpened(file, thrownException);
+                                }
+                            }
+                        });
+        t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
 
     protected void open(final String sessionFile, final SessionListener callback) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Exception thrownException = null;
-                try {
-                    open(sessionFile);
-                } catch (Exception e) {
-                    thrownException = e;
-                }
-                if (callback != null) {
-                    callback.sessionOpened(null, thrownException);
-                }
-            }
-        });
-        t.setPriority(Thread.NORM_PRIORITY-2);
+        Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                Exception thrownException = null;
+                                try {
+                                    open(sessionFile);
+                                } catch (Exception e) {
+                                    thrownException = e;
+                                }
+                                if (callback != null) {
+                                    callback.sessionOpened(null, thrownException);
+                                }
+                            }
+                        });
+        t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
 
-	protected void open(String fileName) throws DatabaseException, IOException, Exception {
+    protected void open(String fileName) throws DatabaseException, IOException, Exception {
 
-		// TODO extract into db specific classes??
-		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
-			configuration = new ZapXmlConfiguration(new File(fileName));
-			sessionId = configuration.getLong(SESSION_ID);
-			sessionName = configuration.getString(SESSION_NAME, "");
-			sessionDesc = configuration.getString(SESSION_DESC, "");
-		} else {
-			this.setSessionId(Long.parseLong(fileName));
-		}
-		model.getDb().close(false, isCleanUpRequired());
-		model.getDb().open(fileName);
-		this.fileName = fileName;
-		
-		//historyList.removeAllElements();
+        // TODO extract into db specific classes??
+        if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+            configuration = new ZapXmlConfiguration(new File(fileName));
+            sessionId = configuration.getLong(SESSION_ID);
+            sessionName = configuration.getString(SESSION_NAME, "");
+            sessionDesc = configuration.getString(SESSION_DESC, "");
+        } else {
+            this.setSessionId(Long.parseLong(fileName));
+        }
+        model.getDb().close(false, isCleanUpRequired());
+        model.getDb().open(fileName);
+        this.fileName = fileName;
 
-		if (View.isInitialised()) {
-			// Detach the siteTree model from the Sites tree, to reduce notification changes to the UI while loading
-			View.getSingleton().getSiteTreePanel().getTreeSite().setModel(new SiteMap(null, null));
-		}
+        // historyList.removeAllElements();
 
-    	if (! Constant.isLowMemoryOptionSet()) {
-			SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
-			siteTree.setRoot(newRoot);
-    	}
+        if (View.isInitialised()) {
+            // Detach the siteTree model from the Sites tree, to reduce notification changes to the
+            // UI while loading
+            View.getSingleton().getSiteTreePanel().getTreeSite().setModel(new SiteMap(null, null));
+        }
 
-		// update history reference
-		List<Integer> list = model.getDb().getTableHistory().getHistoryIdsOfHistType(
-			getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
-		
-		HistoryReference historyRef = null;
+        if (!Constant.isLowMemoryOptionSet()) {
+            SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
+            siteTree.setRoot(newRoot);
+        }
 
-		discardContexts();
-		
-	    // Load the session urls
-	    this.setExcludeFromProxyRegexs(
-	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY)));
+        // update history reference
+        List<Integer> list =
+                model.getDb()
+                        .getTableHistory()
+                        .getHistoryIdsOfHistType(
+                                getSessionId(),
+                                HistoryReference.TYPE_PROXIED,
+                                HistoryReference.TYPE_ZAP_USER);
 
-	    this.setExcludeFromScanRegexs(
-	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN)));
+        HistoryReference historyRef = null;
 
-	    this.setExcludeFromSpiderRegexs(
-	    		sessionUrlListToStingList(model.getDb().getTableSessionUrl().getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER)));
-	    
-	    
-		for (int i=0; i<list.size(); i++) {
-			// ZAP: Removed unnecessary cast.
-			int historyId = list.get(i);
+        discardContexts();
 
-			try {
-				historyRef = new HistoryReference(historyId);
+        // Load the session urls
+        this.setExcludeFromProxyRegexs(
+                sessionUrlListToStingList(
+                        model.getDb()
+                                .getTableSessionUrl()
+                                .getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY)));
 
-				if (View.isInitialised()) {
-					final HistoryReference hRef = historyRef;
-					final HttpMessage msg = historyRef.getHttpMessage();
-					EventQueue.invokeAndWait(new Runnable() {
+        this.setExcludeFromScanRegexs(
+                sessionUrlListToStingList(
+                        model.getDb()
+                                .getTableSessionUrl()
+                                .getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN)));
 
-						@Override
-						public void run() {
-							SiteNode sn = getSiteTree().addPath(hRef, msg);
-							if (sn != null) {
-								sn.setIncludedInScope(isIncludedInScope(sn), false);
-								sn.setExcludedFromScope(isExcludedFromScope(sn), false);
-							}
-						}
-					});
-				} else {
-					SiteNode sn = getSiteTree().addPath(historyRef);
-					if (sn != null) {
-						sn.setIncludedInScope(this.isIncludedInScope(sn), false);
-						sn.setExcludedFromScope(this.isExcludedFromScope(sn), false);
-					}
-				}
-				// ZAP: Load alerts from db
-				historyRef.loadAlerts();
+        this.setExcludeFromSpiderRegexs(
+                sessionUrlListToStingList(
+                        model.getDb()
+                                .getTableSessionUrl()
+                                .getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER)));
 
-				if (i % 100 == 99) Thread.yield();
-			} catch (Exception e) {
-            	// ZAP: Log exceptions
-            	log.warn(e.getMessage(), e);
-			}
-			
-		}
-		
-		// update siteTree reference
-		list = model.getDb().getTableHistory().getHistoryIdsOfHistType(getSessionId(), HistoryReference.TYPE_SPIDER,
-				HistoryReference.TYPE_BRUTE_FORCE, HistoryReference.TYPE_SPIDER_AJAX,
-				HistoryReference.TYPE_SCANNER);
-		
-		for (int i=0; i<list.size(); i++) {
-			// ZAP: Removed unnecessary cast.
-			int historyId = list.get(i);
+        for (int i = 0; i < list.size(); i++) {
+            // ZAP: Removed unnecessary cast.
+            int historyId = list.get(i);
 
-			try {
-				historyRef = new HistoryReference(historyId);
+            try {
+                historyRef = new HistoryReference(historyId);
 
-				if (View.isInitialised()) {
-					final HistoryReference hRef = historyRef;
-					final HttpMessage msg = historyRef.getHttpMessage();
-					EventQueue.invokeAndWait(new Runnable() {
+                if (View.isInitialised()) {
+                    final HistoryReference hRef = historyRef;
+                    final HttpMessage msg = historyRef.getHttpMessage();
+                    EventQueue.invokeAndWait(
+                            new Runnable() {
 
-						@Override
-						public void run() {
-							getSiteTree().addPath(hRef, msg);
-						}
-					});
-				} else {
-					getSiteTree().addPath(historyRef);
-				}
+                                @Override
+                                public void run() {
+                                    SiteNode sn = getSiteTree().addPath(hRef, msg);
+                                    if (sn != null) {
+                                        sn.setIncludedInScope(isIncludedInScope(sn), false);
+                                        sn.setExcludedFromScope(isExcludedFromScope(sn), false);
+                                    }
+                                }
+                            });
+                } else {
+                    SiteNode sn = getSiteTree().addPath(historyRef);
+                    if (sn != null) {
+                        sn.setIncludedInScope(this.isIncludedInScope(sn), false);
+                        sn.setExcludedFromScope(this.isExcludedFromScope(sn), false);
+                    }
+                }
+                // ZAP: Load alerts from db
+                historyRef.loadAlerts();
 
-				historyRef.loadAlerts();
+                if (i % 100 == 99) Thread.yield();
+            } catch (Exception e) {
+                // ZAP: Log exceptions
+                log.warn(e.getMessage(), e);
+            }
+        }
 
-				if (i % 100 == 99) Thread.yield();
+        // update siteTree reference
+        list =
+                model.getDb()
+                        .getTableHistory()
+                        .getHistoryIdsOfHistType(
+                                getSessionId(),
+                                HistoryReference.TYPE_SPIDER,
+                                HistoryReference.TYPE_BRUTE_FORCE,
+                                HistoryReference.TYPE_SPIDER_AJAX,
+                                HistoryReference.TYPE_SCANNER);
 
-			} catch (Exception e) {
-            	// ZAP: Log exceptions
-            	log.warn(e.getMessage(), e);
-			}
-			
-			
-		}
-	    List<RecordContext> contextData = model.getDb().getTableContext().getAllData();
-	    for (RecordContext data : contextData) {
-	    	Context ctx = this.getContext(data.getContextId());
-	    	if (ctx == null) {
-	    		ctx = new Context(this, data.getContextId());
-	    		this.addContext(ctx);
-	    		if (nextContextIndex <= data.getContextId()) {
-	    			nextContextIndex = data.getContextId() + 1;
-	    		}
-	    	}
-	    	switch (data.getType()) {
-	    		case RecordContext.TYPE_NAME:			ctx.setName(data.getData());
-	    												if (View.isInitialised() && !ctx.getName().equals(String.valueOf(ctx.getIndex()))) {
-	    													View.getSingleton().renameContext(ctx);
-	    												}
-	    												break;
-	    		case RecordContext.TYPE_DESCRIPTION:	ctx.setDescription(data.getData()); break;
-	    		case RecordContext.TYPE_INCLUDE:		ctx.addIncludeInContextRegex(data.getData()); break;
-	    		case RecordContext.TYPE_EXCLUDE:		ctx.addExcludeFromContextRegex(data.getData()); break;
-	    		case RecordContext.TYPE_IN_SCOPE:		ctx.setInScope(Boolean.parseBoolean(data.getData())); break;
-	    		case RecordContext.TYPE_INCLUDE_TECH:	ctx.getTechSet().include(new Tech(data.getData())); break;
-	    		case RecordContext.TYPE_EXCLUDE_TECH:	ctx.getTechSet().exclude(new Tech(data.getData())); break;
-	    	}
-	    }
-		for (Context ctx : contexts) {
-	    	try {
-	    		// Set up the URL parameter parser
-				List<String> strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
-				if (strs.size() == 1) {
-					Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
-					if (c == null) {
-						log.error("Failed to load URL parser for context " + ctx.getIndex() + " : " + strs.get(0));
-					} else {
-						ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
-						strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CONFIG);
-				    	if (strs.size() == 1) {
-				    		parser.init(strs.get(0));
-				    	}
-				    	parser.setContext(ctx);
-				    	ctx.setUrlParamParser(parser);
-					}
-				}
-			} catch (Exception e) {
-				log.error("Failed to load URL parser for context " + ctx.getIndex(), e);
-			}
-	    	try {
-	    		// Set up the URL parameter parser
-				List<String> strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
-				if (strs.size() == 1) {
-					Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
-					if (c == null) {
-						log.error("Failed to load POST parser for context " + ctx.getIndex() + " : " + strs.get(0));
-					} else {
-						ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
-						strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG);
-				    	if (strs.size() == 1) {
-				    		parser.init(strs.get(0));
-				    	}
-				    	parser.setContext(ctx);
-				    	ctx.setPostParamParser(parser);
-					}
-				}
-			} catch (Exception e) {
-				log.error("Failed to load POST parser for context " + ctx.getIndex(), e);
-			}
-	    	
-	    	try {
-	    		// Set up the Data Driven Nodes
-				List<String> strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_DATA_DRIVEN_NODES);
-				for (String str : strs) {
-					ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
-				}
-			} catch (Exception e) {
-				log.error("Failed to load data driven nodes for context " + ctx.getIndex(), e);
-			}
-	    	
-	    	ctx.restructureSiteTree();
-		}
-		
-		if (View.isInitialised()) {
-		    View.getSingleton().getSiteTreePanel().getTreeSite().setModel(siteTree);
-		    View.getSingleton().getSiteTreePanel().expandRoot();
-		}
-	    this.refreshScope();
-	    Stats.clearAll();
+        for (int i = 0; i < list.size(); i++) {
+            // ZAP: Removed unnecessary cast.
+            int historyId = list.get(i);
 
-		System.gc();
-	}
-	
-	/**
-	 * Tells whether or not the session requires a clean up (for example, to remove temporary messages).
-	 * <p>
-	 * The session requires a clean up if it's not a new session or, if it is, the database used is not HSQLDB (file based).
-	 *
-	 * @return {@code true} if a clean up is required, {@code false} otherwise.
-	 */
-	boolean isCleanUpRequired() {
-		if (!isNewState()) {
-			return true;
-		}
+            try {
+                historyRef = new HistoryReference(historyId);
 
-		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
-			return false;
-		}
+                if (View.isInitialised()) {
+                    final HistoryReference hRef = historyRef;
+                    final HttpMessage msg = historyRef.getHttpMessage();
+                    EventQueue.invokeAndWait(
+                            new Runnable() {
 
-		return true;
-	}
+                                @Override
+                                public void run() {
+                                    getSiteTree().addPath(hRef, msg);
+                                }
+                            });
+                } else {
+                    getSiteTree().addPath(historyRef);
+                }
 
-	private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
-	    List<String> urlList = new ArrayList<>(rsuList.size());
-	    for (RecordSessionUrl url : rsuList) {
-	    	urlList.add(url.getUrl());
-	    }
-	    return urlList;
-	}
+                historyRef.loadAlerts();
 
-	/**
-	 * Asynchronous call to save a session.
-	 * @param fileName
-	 * @param callback
-	 */
+                if (i % 100 == 99) Thread.yield();
+
+            } catch (Exception e) {
+                // ZAP: Log exceptions
+                log.warn(e.getMessage(), e);
+            }
+        }
+        List<RecordContext> contextData = model.getDb().getTableContext().getAllData();
+        for (RecordContext data : contextData) {
+            Context ctx = this.getContext(data.getContextId());
+            if (ctx == null) {
+                ctx = new Context(this, data.getContextId());
+                this.addContext(ctx);
+                if (nextContextIndex <= data.getContextId()) {
+                    nextContextIndex = data.getContextId() + 1;
+                }
+            }
+            switch (data.getType()) {
+                case RecordContext.TYPE_NAME:
+                    ctx.setName(data.getData());
+                    if (View.isInitialised()
+                            && !ctx.getName().equals(String.valueOf(ctx.getIndex()))) {
+                        View.getSingleton().renameContext(ctx);
+                    }
+                    break;
+                case RecordContext.TYPE_DESCRIPTION:
+                    ctx.setDescription(data.getData());
+                    break;
+                case RecordContext.TYPE_INCLUDE:
+                    ctx.addIncludeInContextRegex(data.getData());
+                    break;
+                case RecordContext.TYPE_EXCLUDE:
+                    ctx.addExcludeFromContextRegex(data.getData());
+                    break;
+                case RecordContext.TYPE_IN_SCOPE:
+                    ctx.setInScope(Boolean.parseBoolean(data.getData()));
+                    break;
+                case RecordContext.TYPE_INCLUDE_TECH:
+                    ctx.getTechSet().include(new Tech(data.getData()));
+                    break;
+                case RecordContext.TYPE_EXCLUDE_TECH:
+                    ctx.getTechSet().exclude(new Tech(data.getData()));
+                    break;
+            }
+        }
+        for (Context ctx : contexts) {
+            try {
+                // Set up the URL parameter parser
+                List<String> strs =
+                        this.getContextDataStrings(
+                                ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
+                if (strs.size() == 1) {
+                    Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
+                    if (c == null) {
+                        log.error(
+                                "Failed to load URL parser for context "
+                                        + ctx.getIndex()
+                                        + " : "
+                                        + strs.get(0));
+                    } else {
+                        ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
+                        strs =
+                                this.getContextDataStrings(
+                                        ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CONFIG);
+                        if (strs.size() == 1) {
+                            parser.init(strs.get(0));
+                        }
+                        parser.setContext(ctx);
+                        ctx.setUrlParamParser(parser);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Failed to load URL parser for context " + ctx.getIndex(), e);
+            }
+            try {
+                // Set up the URL parameter parser
+                List<String> strs =
+                        this.getContextDataStrings(
+                                ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
+                if (strs.size() == 1) {
+                    Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
+                    if (c == null) {
+                        log.error(
+                                "Failed to load POST parser for context "
+                                        + ctx.getIndex()
+                                        + " : "
+                                        + strs.get(0));
+                    } else {
+                        ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
+                        strs =
+                                this.getContextDataStrings(
+                                        ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG);
+                        if (strs.size() == 1) {
+                            parser.init(strs.get(0));
+                        }
+                        parser.setContext(ctx);
+                        ctx.setPostParamParser(parser);
+                    }
+                }
+            } catch (Exception e) {
+                log.error("Failed to load POST parser for context " + ctx.getIndex(), e);
+            }
+
+            try {
+                // Set up the Data Driven Nodes
+                List<String> strs =
+                        this.getContextDataStrings(
+                                ctx.getIndex(), RecordContext.TYPE_DATA_DRIVEN_NODES);
+                for (String str : strs) {
+                    ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
+                }
+            } catch (Exception e) {
+                log.error("Failed to load data driven nodes for context " + ctx.getIndex(), e);
+            }
+
+            ctx.restructureSiteTree();
+        }
+
+        if (View.isInitialised()) {
+            View.getSingleton().getSiteTreePanel().getTreeSite().setModel(siteTree);
+            View.getSingleton().getSiteTreePanel().expandRoot();
+        }
+        this.refreshScope();
+        Stats.clearAll();
+
+        System.gc();
+    }
+
+    /**
+     * Tells whether or not the session requires a clean up (for example, to remove temporary
+     * messages).
+     *
+     * <p>The session requires a clean up if it's not a new session or, if it is, the database used
+     * is not HSQLDB (file based).
+     *
+     * @return {@code true} if a clean up is required, {@code false} otherwise.
+     */
+    boolean isCleanUpRequired() {
+        if (!isNewState()) {
+            return true;
+        }
+
+        if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
+        List<String> urlList = new ArrayList<>(rsuList.size());
+        for (RecordSessionUrl url : rsuList) {
+            urlList.add(url.getUrl());
+        }
+        return urlList;
+    }
+
+    /**
+     * Asynchronous call to save a session.
+     *
+     * @param fileName
+     * @param callback
+     */
     protected void save(final String fileName, final SessionListener callback) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Exception thrownException = null;
-                try {
-                    save(fileName);
-                } catch (Exception e) {
-                	// ZAP: Log exceptions
-                	log.warn(e.getMessage(), e);
-                    thrownException = e;
-                }
-                if (callback != null) {
-                    callback.sessionSaved(thrownException);
-                }
-            }
-        });
-        t.setPriority(Thread.NORM_PRIORITY-2);
+        Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                Exception thrownException = null;
+                                try {
+                                    save(fileName);
+                                } catch (Exception e) {
+                                    // ZAP: Log exceptions
+                                    log.warn(e.getMessage(), e);
+                                    thrownException = e;
+                                }
+                                if (callback != null) {
+                                    callback.sessionSaved(thrownException);
+                                }
+                            }
+                        });
+        t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
-    
+
     /**
      * Synchronous call to save a session.
+     *
      * @param fileName
      * @throws Exception
      */
-	protected void save(String fileName) throws Exception {
-	    configuration.save(new File(fileName));
-		if (isNewState()) {
-		    model.moveSessionDb(fileName);
-		} else {
-		    if (!this.fileName.equals(fileName)) {
-		        // copy file to new fileName
-		        model.copySessionDb(this.fileName, fileName);
-		    }
-		}
-	    this.fileName = fileName;
-		
-    	if (! Constant.isLowMemoryOptionSet()) {
-			synchronized (siteTree) {
-			    saveSiteTree(siteTree.getRoot());
-			}
-    	}
-		
-		model.getDb().getTableSession().update(getSessionId(), getSessionName());
-	}
-
-	/**
-	 * Persists the properties (e.g. name, description) of the session.
-	 * <p>
-	 * Should be called only by "core" classes.
-	 *
-	 * @throws Exception if an error occurred while persisting the properties.
-	 * @since 2.7.0
-	 * @see #setSessionName(String)
-	 * @see #setSessionDesc(String)
-	 */
-	protected void persistProperties() throws Exception {
-		if (isNewState()) {
-			return;
-		}
-
-		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
-			configuration.save(new File(fileName));
-		}
-		model.getDb().getTableSession().update(getSessionId(), getSessionName());
-	}
-	
-	/**
-	 * Asynchronous call to snapshot a session.
-	 * @param fileName
-	 * @param callback
-	 */
-    protected void snapshot(final String fileName, final SessionListener callback) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Exception thrownException = null;
-                try {
-                    snapshot(fileName);
-                } catch (Exception e) {
-                	// ZAP: Log exceptions
-                	log.warn(e.getMessage(), e);
-                    thrownException = e;
-                }
-                if (callback != null) {
-                    callback.sessionSnapshot(thrownException);
-                }
+    protected void save(String fileName) throws Exception {
+        configuration.save(new File(fileName));
+        if (isNewState()) {
+            model.moveSessionDb(fileName);
+        } else {
+            if (!this.fileName.equals(fileName)) {
+                // copy file to new fileName
+                model.copySessionDb(this.fileName, fileName);
             }
-        });
-        t.setPriority(Thread.NORM_PRIORITY-2);
+        }
+        this.fileName = fileName;
+
+        if (!Constant.isLowMemoryOptionSet()) {
+            synchronized (siteTree) {
+                saveSiteTree(siteTree.getRoot());
+            }
+        }
+
+        model.getDb().getTableSession().update(getSessionId(), getSessionName());
+    }
+
+    /**
+     * Persists the properties (e.g. name, description) of the session.
+     *
+     * <p>Should be called only by "core" classes.
+     *
+     * @throws Exception if an error occurred while persisting the properties.
+     * @since 2.7.0
+     * @see #setSessionName(String)
+     * @see #setSessionDesc(String)
+     */
+    protected void persistProperties() throws Exception {
+        if (isNewState()) {
+            return;
+        }
+
+        if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+            configuration.save(new File(fileName));
+        }
+        model.getDb().getTableSession().update(getSessionId(), getSessionName());
+    }
+
+    /**
+     * Asynchronous call to snapshot a session.
+     *
+     * @param fileName
+     * @param callback
+     */
+    protected void snapshot(final String fileName, final SessionListener callback) {
+        Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                Exception thrownException = null;
+                                try {
+                                    snapshot(fileName);
+                                } catch (Exception e) {
+                                    // ZAP: Log exceptions
+                                    log.warn(e.getMessage(), e);
+                                    thrownException = e;
+                                }
+                                if (callback != null) {
+                                    callback.sessionSnapshot(thrownException);
+                                }
+                            }
+                        });
+        t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
-    
+
     /**
      * Synchronous call to snapshot a session.
+     *
      * @param fileName
      * @throws Exception
      */
-	protected void snapshot(String fileName) throws Exception {
-	    configuration.save(new File(fileName));
+    protected void snapshot(String fileName) throws Exception {
+        configuration.save(new File(fileName));
         model.snapshotSessionDb(this.fileName, fileName);
-	}
+    }
 
-    /**
-     * @param sessionDesc The sessionDesc to set.
-     */
+    /** @param sessionDesc The sessionDesc to set. */
     public void setSessionDesc(String sessionDesc) {
         this.sessionDesc = sessionDesc;
         configuration.setProperty(SESSION_DESC, sessionDesc);
     }
-	
-	/**
-	 * @param sessionId The sessionId to set.
-	 */
-	public void setSessionId(long sessionId) {
-		this.sessionId = sessionId;
-		//setText(SESSION_ID, Long.toString(sessionId));
-		configuration.setProperty(SESSION_ID, Long.toString(sessionId));
 
-	}
-	/**
-	 * @param name The name to set.
-	 */
-	public void setSessionName(String name) {
-		this.sessionName = name;
-		//setText(SESSION_NAME, name);
-		configuration.setProperty(SESSION_NAME, name);
-		
-	}
+    /** @param sessionId The sessionId to set. */
+    public void setSessionId(long sessionId) {
+        this.sessionId = sessionId;
+        // setText(SESSION_ID, Long.toString(sessionId));
+        configuration.setProperty(SESSION_ID, Long.toString(sessionId));
+    }
+    /** @param name The name to set. */
+    public void setSessionName(String name) {
+        this.sessionName = name;
+        // setText(SESSION_NAME, name);
+        configuration.setProperty(SESSION_NAME, name);
+    }
 
-    
     public String getFileName() {
         return fileName;
     }
-    
+
     private void saveSiteTree(SiteNode node) {
         HttpMessage msg = null;
 
@@ -669,26 +713,25 @@ public class Session {
                 saveNodeMsg(msg);
             }
         }
-        
-        for (int i=0; i<node.getChildCount(); i++) {
+
+        for (int i = 0; i < node.getChildCount(); i++) {
             try {
                 saveSiteTree((SiteNode) node.getChildAt(i));
             } catch (Exception e) {
-            	// ZAP: Log exceptions
-            	log.warn(e.getMessage(), e);
+                // ZAP: Log exceptions
+                log.warn(e.getMessage(), e);
             }
         }
-        
     }
-    
+
     private void saveNodeMsg(HttpMessage msg) {
         // nothing need to be done
     }
-    
+
     public String getSessionFolder() {
         String result = "";
         if (fileName.equals("")) {
-//            result = Constant.FOLDER_SESSION;
+            //            result = Constant.FOLDER_SESSION;
             result = Constant.getInstance().FOLDER_SESSION;
         } else {
             File file = new File(fileName);
@@ -697,912 +740,962 @@ public class Session {
         return result;
     }
 
-	public List<String> getExcludeFromProxyRegexs() {
-		return excludeFromProxyRegexs;
-	}
-	
-	
-	private List<String> stripEmptyLines(List<String> list) {
-		List<String> slist = new ArrayList<>();
-		for (String str : list) {
-			if (str.length() > 0) {
-				slist.add(str);
-			}
-		}
-		return slist;
-	}
-	
-	private void refreshScope(SiteNode node) {
-		if (node == null) {
-			return;
-		}
-		if (node.isIncludedInScope() == ! this.isIncludedInScope(node)) {
-			// Its 'scope' state has changed, so switch it!
-			node.setIncludedInScope(!node.isIncludedInScope(), false);
-		}
-		if (node.isExcludedFromScope() == ! this.isExcludedFromScope(node)) {
-			// Its 'scope' state has changed, so switch it!
-			node.setExcludedFromScope(!node.isExcludedFromScope(), false);
-		}
-		// Recurse down
-		if (node.getChildCount() > 0) {
-	    	SiteNode c = (SiteNode) node.getFirstChild();
-	    	while (c != null) {
-	    		refreshScope(c);
-	    		c = (SiteNode) node.getChildAfter(c);
-	    	}
-		}
-	}
+    public List<String> getExcludeFromProxyRegexs() {
+        return excludeFromProxyRegexs;
+    }
 
-	private void refreshScope() {
-		// log.debug("refreshScope");
-    	if (Constant.isLowMemoryOptionSet()) {
-    		// Nothing to do
-    		return;
-    	}
+    private List<String> stripEmptyLines(List<String> list) {
+        List<String> slist = new ArrayList<>();
+        for (String str : list) {
+            if (str.length() > 0) {
+                slist.add(str);
+            }
+        }
+        return slist;
+    }
+
+    private void refreshScope(SiteNode node) {
+        if (node == null) {
+            return;
+        }
+        if (node.isIncludedInScope() == !this.isIncludedInScope(node)) {
+            // Its 'scope' state has changed, so switch it!
+            node.setIncludedInScope(!node.isIncludedInScope(), false);
+        }
+        if (node.isExcludedFromScope() == !this.isExcludedFromScope(node)) {
+            // Its 'scope' state has changed, so switch it!
+            node.setExcludedFromScope(!node.isExcludedFromScope(), false);
+        }
+        // Recurse down
+        if (node.getChildCount() > 0) {
+            SiteNode c = (SiteNode) node.getFirstChild();
+            while (c != null) {
+                refreshScope(c);
+                c = (SiteNode) node.getChildAfter(c);
+            }
+        }
+    }
+
+    private void refreshScope() {
+        // log.debug("refreshScope");
+        if (Constant.isLowMemoryOptionSet()) {
+            // Nothing to do
+            return;
+        }
 
         if (EventQueue.isDispatchThread()) {
-        	refreshScope(siteTree.getRoot());
-        	Control.getSingleton().sessionScopeChanged();
+            refreshScope(siteTree.getRoot());
+            Control.getSingleton().sessionScopeChanged();
         } else {
             try {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                    	refreshScope(siteTree.getRoot());
-                    	Control.getSingleton().sessionScopeChanged();
-                    }
-                });
+                EventQueue.invokeLater(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshScope(siteTree.getRoot());
+                                Control.getSingleton().sessionScopeChanged();
+                            }
+                        });
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
         }
-	}
+    }
 
-	protected boolean isIncludedInScope(SiteNode sn) {
-		if (sn == null) {
-			return false;
-		}
-		return isIncludedInScope(sn.getHierarchicNodeName());
-	}
-	
-	private boolean isIncludedInScope(String url) {
-		if (url == null) {
-			return false;
-		}
-		if (url.indexOf("?") > 0) {
-			// Strip off any parameters
-			url = url.substring(0, url.indexOf("?"));
-		}
-		for (Context context : contexts) {
-			if (context.isInScope() && context.isIncluded(url)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    protected boolean isIncludedInScope(SiteNode sn) {
+        if (sn == null) {
+            return false;
+        }
+        return isIncludedInScope(sn.getHierarchicNodeName());
+    }
 
-	protected boolean isExcludedFromScope(SiteNode sn) {
-		if (sn == null) {
-			return false;
-		}
-		return isExcludedFromScope(sn.getHierarchicNodeName());
-	}
-	
-	private boolean isExcludedFromScope(String url) {
-		if (url == null) {
-			return false;
-		}
-		if (url.indexOf("?") > 0) {
-			// Strip off any parameters
-			url = url.substring(0, url.indexOf("?"));
-		}
-		for (Context context : contexts) {
-			if (context.isInScope() && context.isExcluded(url)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private boolean isIncludedInScope(String url) {
+        if (url == null) {
+            return false;
+        }
+        if (url.indexOf("?") > 0) {
+            // Strip off any parameters
+            url = url.substring(0, url.indexOf("?"));
+        }
+        for (Context context : contexts) {
+            if (context.isInScope() && context.isIncluded(url)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public boolean isInScope(HistoryReference href) {
-		if (href == null) {
-			return false;
-		}
-		if (href.getSiteNode() != null) {
-			return this.isInScope(href.getSiteNode());
-		}
-		try {
-			return this.isInScope(href.getURI().toString());
+    protected boolean isExcludedFromScope(SiteNode sn) {
+        if (sn == null) {
+            return false;
+        }
+        return isExcludedFromScope(sn.getHierarchicNodeName());
+    }
+
+    private boolean isExcludedFromScope(String url) {
+        if (url == null) {
+            return false;
+        }
+        if (url.indexOf("?") > 0) {
+            // Strip off any parameters
+            url = url.substring(0, url.indexOf("?"));
+        }
+        for (Context context : contexts) {
+            if (context.isInScope() && context.isExcluded(url)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isInScope(HistoryReference href) {
+        if (href == null) {
+            return false;
+        }
+        if (href.getSiteNode() != null) {
+            return this.isInScope(href.getSiteNode());
+        }
+        try {
+            return this.isInScope(href.getURI().toString());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-		}
-		return false;
-	}
-	
-	public boolean isInScope(SiteNode sn) {
-		if (sn == null) {
-			return false;
-		}
-		return isInScope(sn.getHierarchicNodeName());
-	}
-	
-	public boolean isInScope(String url) {
-		if (url.indexOf("?") > 0) {
-			// String off any parameters
-			url = url.substring(0, url.indexOf("?"));
-		}
-		if (! this.isIncludedInScope(url)) {
-			// Not explicitly included
-			return false;
-		}
-		// Check to see if its explicitly excluded
-		return ! this.isExcludedFromScope(url);
-	}
+        }
+        return false;
+    }
 
-	/**
-	 * Gets the nodes from the site tree which are "In Scope". Searches recursively starting from
-	 * the root node. Should be used with care, as it is time-consuming, querying the database for
-	 * every node in the Site Tree.
-	 * 
-	 * @return the nodes in scope from site tree
-	 */
-	public List<SiteNode> getNodesInScopeFromSiteTree() {
-		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = getSiteTree().getRoot();
-		fillNodesInScope(rootNode, nodes);
-		return nodes;
-	}
-	
-	/**
-	 * Gets the top nodes from the site tree which contain nodes that are "In Scope". 
-	 * Searches recursively starting from the root node. 
-	 * Should be used with care, as it is time-consuming, querying the database for
-	 * every node in the Site Tree.
-	 * 
-	 * @return the nodes in scope from site tree
-	 */
-	public List<SiteNode> getTopNodesInScopeFromSiteTree() {
-		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = getSiteTree().getRoot();
-		@SuppressWarnings("unchecked")
-		Enumeration<TreeNode> en = rootNode.children();
-		while (en.hasMoreElements()) {
-			SiteNode sn = (SiteNode) en.nextElement();
-			if (isContainsNodesInScope(sn)) {
-				nodes.add(sn);
-			}
-		}
-		return nodes;
-	}
+    public boolean isInScope(SiteNode sn) {
+        if (sn == null) {
+            return false;
+        }
+        return isInScope(sn.getHierarchicNodeName());
+    }
 
-	private boolean isContainsNodesInScope(SiteNode node) {
-		if (node.isIncludedInScope()) {
-			return true;
-		}
-		@SuppressWarnings("unchecked")
-		Enumeration<TreeNode> en = node.children();
-		while (en.hasMoreElements()) {
-			SiteNode sn = (SiteNode) en.nextElement();
-			if (isContainsNodesInScope(sn)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    public boolean isInScope(String url) {
+        if (url.indexOf("?") > 0) {
+            // String off any parameters
+            url = url.substring(0, url.indexOf("?"));
+        }
+        if (!this.isIncludedInScope(url)) {
+            // Not explicitly included
+            return false;
+        }
+        // Check to see if its explicitly excluded
+        return !this.isExcludedFromScope(url);
+    }
 
-	/**
-	 * Fills a given list with nodes in scope, searching recursively.
-	 * 
-	 * @param rootNode the root node
-	 * @param nodesList the nodes list
-	 */
-	private void fillNodesInScope(SiteNode rootNode, List<SiteNode> nodesList) {
-		@SuppressWarnings("unchecked")
-		Enumeration<TreeNode> en = rootNode.children();
-		while (en.hasMoreElements()) {
-			SiteNode sn = (SiteNode) en.nextElement();
-			if (isInScope(sn))
-				nodesList.add(sn);
-			fillNodesInScope(sn, nodesList);
-		}
-	}
-	
-	/**
-	 * Gets the nodes from the site tree which are "In Scope" in a given context. Searches recursively
-	 * starting from the root node. Should be used with care, as it is time-consuming, querying the database
-	 * for every node in the Site Tree.
-	 * 
-	 * @param context the context
-	 * @return the nodes in scope from site tree
-	 */
-	public List<SiteNode> getNodesInContextFromSiteTree(Context context) {
-		List<SiteNode> nodes = new LinkedList<>();
-		SiteNode rootNode = getSiteTree().getRoot();
-		fillNodesInContext(rootNode, nodes, context);
-		return nodes;
-	}
-	
-	/**
-	 * Fills a given list with nodes in context, searching recursively.
-	 * 
-	 * @param rootNode the root node
-	 * @param nodesList the nodes list
-	 * @param context the context
-	 */
-	private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList, Context context) {
-		@SuppressWarnings("unchecked")
-		Enumeration<TreeNode> en = rootNode.children();
-		while (en.hasMoreElements()) {
-			SiteNode sn = (SiteNode) en.nextElement();
-			if (context.isInContext(sn))
-				nodesList.add(sn);
-			fillNodesInContext(sn, nodesList, context);
-		}
-	}
+    /**
+     * Gets the nodes from the site tree which are "In Scope". Searches recursively starting from
+     * the root node. Should be used with care, as it is time-consuming, querying the database for
+     * every node in the Site Tree.
+     *
+     * @return the nodes in scope from site tree
+     */
+    public List<SiteNode> getNodesInScopeFromSiteTree() {
+        List<SiteNode> nodes = new LinkedList<>();
+        SiteNode rootNode = getSiteTree().getRoot();
+        fillNodesInScope(rootNode, nodes);
+        return nodes;
+    }
 
-	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws DatabaseException {
-		// Validate its a valid regex first
-	    for (String url : ignoredRegexs) {
-			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-	    }
+    /**
+     * Gets the top nodes from the site tree which contain nodes that are "In Scope". Searches
+     * recursively starting from the root node. Should be used with care, as it is time-consuming,
+     * querying the database for every node in the Site Tree.
+     *
+     * @return the nodes in scope from site tree
+     */
+    public List<SiteNode> getTopNodesInScopeFromSiteTree() {
+        List<SiteNode> nodes = new LinkedList<>();
+        SiteNode rootNode = getSiteTree().getRoot();
+        @SuppressWarnings("unchecked")
+        Enumeration<TreeNode> en = rootNode.children();
+        while (en.hasMoreElements()) {
+            SiteNode sn = (SiteNode) en.nextElement();
+            if (isContainsNodesInScope(sn)) {
+                nodes.add(sn);
+            }
+        }
+        return nodes;
+    }
 
-		this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
+    private boolean isContainsNodesInScope(SiteNode node) {
+        if (node.isIncludedInScope()) {
+            return true;
+        }
+        @SuppressWarnings("unchecked")
+        Enumeration<TreeNode> en = node.children();
+        while (en.hasMoreElements()) {
+            SiteNode sn = (SiteNode) en.nextElement();
+            if (isContainsNodesInScope(sn)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-		setExcludeFromProxyUrls();
-		
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
-	}
+    /**
+     * Fills a given list with nodes in scope, searching recursively.
+     *
+     * @param rootNode the root node
+     * @param nodesList the nodes list
+     */
+    private void fillNodesInScope(SiteNode rootNode, List<SiteNode> nodesList) {
+        @SuppressWarnings("unchecked")
+        Enumeration<TreeNode> en = rootNode.children();
+        while (en.hasMoreElements()) {
+            SiteNode sn = (SiteNode) en.nextElement();
+            if (isInScope(sn)) nodesList.add(sn);
+            fillNodesInScope(sn, nodesList);
+        }
+    }
 
-	/**
-	 * Sets, into the Local Proxy, the URLs that should be excluded from it (URLs set in the session and global exclude URLs).
-	 */
-	private void setExcludeFromProxyUrls() {
-		List<String> fullList = new ArrayList<>();
-		fullList.addAll(this.excludeFromProxyRegexs);
-		fullList.addAll(getGlobalExcludeURLRegexs());
+    /**
+     * Gets the nodes from the site tree which are "In Scope" in a given context. Searches
+     * recursively starting from the root node. Should be used with care, as it is time-consuming,
+     * querying the database for every node in the Site Tree.
+     *
+     * @param context the context
+     * @return the nodes in scope from site tree
+     */
+    public List<SiteNode> getNodesInContextFromSiteTree(Context context) {
+        List<SiteNode> nodes = new LinkedList<>();
+        SiteNode rootNode = getSiteTree().getRoot();
+        fillNodesInContext(rootNode, nodes, context);
+        return nodes;
+    }
 
-		Control.getSingleton().setExcludeFromProxyUrls(fullList);
-	}
+    /**
+     * Fills a given list with nodes in context, searching recursively.
+     *
+     * @param rootNode the root node
+     * @param nodesList the nodes list
+     * @param context the context
+     */
+    private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList, Context context) {
+        @SuppressWarnings("unchecked")
+        Enumeration<TreeNode> en = rootNode.children();
+        while (en.hasMoreElements()) {
+            SiteNode sn = (SiteNode) en.nextElement();
+            if (context.isInContext(sn)) nodesList.add(sn);
+            fillNodesInContext(sn, nodesList, context);
+        }
+    }
 
-	public void addExcludeFromProxyRegex(String ignoredRegex) throws DatabaseException {
-		// Validate its a valid regex first
-		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
-		
-		this.excludeFromProxyRegexs.add(ignoredRegex);
-		Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
-	}
+    public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws DatabaseException {
+        // Validate its a valid regex first
+        for (String url : ignoredRegexs) {
+            Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+        }
 
-	public List<String> getExcludeFromScanRegexs() {
-		return excludeFromScanRegexs;
-	}
+        this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
 
-	public void addExcludeFromScanRegexs(String ignoredRegex) throws DatabaseException {
-		// Validate its a valid regex first
-		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
-		
-		this.excludeFromScanRegexs.add(ignoredRegex);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
-	}
+        setExcludeFromProxyUrls();
 
-	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws DatabaseException {
-		// Validate its a valid regex first
-	    for (String url : ignoredRegexs) {
-			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-	    }
+        model.getDb()
+                .getTableSessionUrl()
+                .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
+    }
 
-		this.excludeFromScanRegexs = stripEmptyLines(ignoredRegexs);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
-	}
+    /**
+     * Sets, into the Local Proxy, the URLs that should be excluded from it (URLs set in the session
+     * and global exclude URLs).
+     */
+    private void setExcludeFromProxyUrls() {
+        List<String> fullList = new ArrayList<>();
+        fullList.addAll(this.excludeFromProxyRegexs);
+        fullList.addAll(getGlobalExcludeURLRegexs());
 
-	/**
-	 * Gets the regular expressions used to exclude URLs from the spiders (e.g. traditional, AJAX).
-	 *
-	 * @return a {@code List} containing the regular expressions, never {@code null}.
-	 */
-	public List<String> getExcludeFromSpiderRegexs() {
-		return excludeFromSpiderRegexs;
-	}
+        Control.getSingleton().setExcludeFromProxyUrls(fullList);
+    }
 
-	/**
-	 * Adds the given regular expression to the list of regular expressions used to exclude URLs from the spiders (e.g.
-	 * traditional, AJAX).
-	 *
-	 * @param ignoredRegex the regular expression to be added
-	 * @throws IllegalArgumentException if the regular expression is not valid.
-	 * @throws DatabaseException if an error occurred while persisting the list.
-	 */
-	public void addExcludeFromSpiderRegex(String ignoredRegex) throws DatabaseException {
-		// Validate its a valid regex first
-		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
+    public void addExcludeFromProxyRegex(String ignoredRegex) throws DatabaseException {
+        // Validate its a valid regex first
+        Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 
-		this.excludeFromSpiderRegexs.add(ignoredRegex);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
-	}
+        this.excludeFromProxyRegexs.add(ignoredRegex);
+        Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
+        model.getDb()
+                .getTableSessionUrl()
+                .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
+    }
 
+    public List<String> getExcludeFromScanRegexs() {
+        return excludeFromScanRegexs;
+    }
 
-	/**
-	 * Sets the given regular expressions as the list of regular expressions used to exclude URLs from the spiders (e.g.
-	 * traditional, AJAX).
-	 *
-	 * @param ignoredRegexs the regular expressions to be set
-	 * @throws IllegalArgumentException if any of the regular expressions is not valid.
-	 * @throws DatabaseException if an error occurred while persisting the list.
-	 */
-	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws DatabaseException {
-		// Validate its a valid regex first
-	    for (String url : ignoredRegexs) {
-			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-	    }
+    public void addExcludeFromScanRegexs(String ignoredRegex) throws DatabaseException {
+        // Validate its a valid regex first
+        Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 
-		this.excludeFromSpiderRegexs = stripEmptyLines(ignoredRegexs);
-		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
-	}
+        this.excludeFromScanRegexs.add(ignoredRegex);
+        model.getDb()
+                .getTableSessionUrl()
+                .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
+    }
 
-	/**
-	 * Resets the global exclude URLs of the Local Proxy.
-	 * <p>
-	 * This should be considered an internal method, to be called only by core code.
-	 * 
-	 * @since 2.3.0
-	 */
-	public void forceGlobalExcludeURLRefresh() {
-		setExcludeFromProxyUrls();
-	}
+    public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws DatabaseException {
+        // Validate its a valid regex first
+        for (String url : ignoredRegexs) {
+            Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+        }
 
-	/**
-	 * Gets the global exclude URLs.
-	 * <p>
-	 * <strong>Note:</strong> This method is only provided as a convenience, the global exclude URLs are not saved in the
-	 * session.
-	 *
-	 * @return an unmodifiable {@code List} containing the URLs that should be excluded globally.
-	 * @since 2.3.0
-	 */
-	public List<String> getGlobalExcludeURLRegexs() {
-		return Collections.unmodifiableList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
-	}
+        this.excludeFromScanRegexs = stripEmptyLines(ignoredRegexs);
+        model.getDb()
+                .getTableSessionUrl()
+                .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
+    }
 
-	/**
-	 * Adds the given regular expression to the list of global exclude URLs.
-	 * <p>
-	 * <strong>Note:</strong> The changes are lost after changing the session.
-	 *
-	 * @param regex the regular expression to add.
-	 * @deprecated (2.6.0) No longer works, modification of global exclude URLs should not be done through the
-	 *             session.
-	 * @since 2.3.0
-	 */
-	@Deprecated
-	public void addGlobalExcludeURLRegexs(String regex) {
-	}
+    /**
+     * Gets the regular expressions used to exclude URLs from the spiders (e.g. traditional, AJAX).
+     *
+     * @return a {@code List} containing the regular expressions, never {@code null}.
+     */
+    public List<String> getExcludeFromSpiderRegexs() {
+        return excludeFromSpiderRegexs;
+    }
 
-	/**
-	 * Sets the global exclude URLs.
-	 * <p>
-	 * <strong>Note:</strong> The changes are lost after changing the session.
-	 *
-	 * @param ignoredRegexs the global exclude URLs
-	 * @deprecated (2.6.0) No longer works, when needed, the global exclude URLs are obtained from the options.
-	 * @since 2.3.0
-	 */
-	@Deprecated
-	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) {
-	}
-	
-	public void setSessionUrls(int type, List<String> urls) throws DatabaseException {
-		model.getDb().getTableSessionUrl().setUrls(type, urls);
-	}
-	
-	public void setSessionUrl(int type, String url) throws DatabaseException {
-		List<String> list = new ArrayList<>(1);
-		list.add(url);
-		this.setSessionUrls(type, list);
-	}
+    /**
+     * Adds the given regular expression to the list of regular expressions used to exclude URLs
+     * from the spiders (e.g. traditional, AJAX).
+     *
+     * @param ignoredRegex the regular expression to be added
+     * @throws IllegalArgumentException if the regular expression is not valid.
+     * @throws DatabaseException if an error occurred while persisting the list.
+     */
+    public void addExcludeFromSpiderRegex(String ignoredRegex) throws DatabaseException {
+        // Validate its a valid regex first
+        Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 
-	public List<String> getSessionUrls(int type) throws DatabaseException {
-		List<RecordSessionUrl> urls = model.getDb().getTableSessionUrl().getUrlsForType(type);
-		List<String> list = new ArrayList<>(urls.size());
-		for (RecordSessionUrl url : urls) {
-			list.add(url.getUrl());
-		}
-		return list;
-	}
-	
-	public List<String> getContextDataStrings(int contextId, int type) throws DatabaseException {
-	    List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
-		List<String> list = new ArrayList<>();
-		for (RecordContext data : dataList) {
-			list.add(data.getData());
-		}
-		return list;
-	}
+        this.excludeFromSpiderRegexs.add(ignoredRegex);
+        model.getDb()
+                .getTableSessionUrl()
+                .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
+    }
 
-	public void setContextData(int contextId, int type, String data) throws DatabaseException {
-		List<String> list = new ArrayList<>();
-		list.add(data);
-		this.setContextData(contextId, type, list);
-	}
+    /**
+     * Sets the given regular expressions as the list of regular expressions used to exclude URLs
+     * from the spiders (e.g. traditional, AJAX).
+     *
+     * @param ignoredRegexs the regular expressions to be set
+     * @throws IllegalArgumentException if any of the regular expressions is not valid.
+     * @throws DatabaseException if an error occurred while persisting the list.
+     */
+    public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws DatabaseException {
+        // Validate its a valid regex first
+        for (String url : ignoredRegexs) {
+            Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+        }
 
-	public void setContextData(int contextId, int type, List<String> dataList) throws DatabaseException {
-		model.getDb().getTableContext().setData(contextId, type, dataList);
-	}
-	
-	public void clearContextDataForType(int contextId, int type) throws DatabaseException{
-		model.getDb().getTableContext().deleteAllDataForContextAndType(contextId, type);
-	}
-	
-	public void clearContextData(int contextId) throws DatabaseException{
-		model.getDb().getTableContext().deleteAllDataForContext(contextId);
-	}
-	
-	private List<String> techListToStringList (TreeSet<Tech> techList) {
-		List<String> strList = new ArrayList<>();
-		Iterator<Tech> iter = techList.iterator();
-		while (iter.hasNext()) {
-			strList.add(iter.next().toString());
-		}
-		return strList;
-	}
-	
-	private List<String> snmListToStringList (List<StructuralNodeModifier> list) {
-		List<String> strList = new ArrayList<>();
-		for (StructuralNodeModifier snm : list) {
-			strList.add(snm.getConfig());
-		}
-		return strList;
-	}
-	
-	public void saveContext (Context c) {
-		try {
-			this.setContextData(c.getIndex(), RecordContext.TYPE_NAME, c.getName());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_DESCRIPTION, c.getDescription());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_IN_SCOPE, Boolean.toString(c.isInScope()));
-			this.setContextData(c.getIndex(), RecordContext.TYPE_INCLUDE, c.getIncludeInContextRegexs());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_INCLUDE_TECH, techListToStringList(c.getTechSet().getIncludeTech()));
-			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE_TECH, techListToStringList(c.getTechSet().getExcludeTech()));
-			this.setContextData(c.getIndex(), RecordContext.TYPE_URL_PARSER_CLASSNAME, 
-					c.getUrlParamParser().getClass().getCanonicalName());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_URL_PARSER_CONFIG, c.getUrlParamParser().getConfig());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME, 
-					c.getPostParamParser().getClass().getCanonicalName());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG, c.getPostParamParser().getConfig());
-			this.setContextData(c.getIndex(), RecordContext.TYPE_DATA_DRIVEN_NODES, 
-					snmListToStringList(c.getDataDrivenNodes()));
+        this.excludeFromSpiderRegexs = stripEmptyLines(ignoredRegexs);
+        model.getDb()
+                .getTableSessionUrl()
+                .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
+    }
 
-			model.saveContext(c);
-		} catch (DatabaseException e) {
+    /**
+     * Resets the global exclude URLs of the Local Proxy.
+     *
+     * <p>This should be considered an internal method, to be called only by core code.
+     *
+     * @since 2.3.0
+     */
+    public void forceGlobalExcludeURLRefresh() {
+        setExcludeFromProxyUrls();
+    }
+
+    /**
+     * Gets the global exclude URLs.
+     *
+     * <p><strong>Note:</strong> This method is only provided as a convenience, the global exclude
+     * URLs are not saved in the session.
+     *
+     * @return an unmodifiable {@code List} containing the URLs that should be excluded globally.
+     * @since 2.3.0
+     */
+    public List<String> getGlobalExcludeURLRegexs() {
+        return Collections.unmodifiableList(
+                model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
+    }
+
+    /**
+     * Adds the given regular expression to the list of global exclude URLs.
+     *
+     * <p><strong>Note:</strong> The changes are lost after changing the session.
+     *
+     * @param regex the regular expression to add.
+     * @deprecated (2.6.0) No longer works, modification of global exclude URLs should not be done
+     *     through the session.
+     * @since 2.3.0
+     */
+    @Deprecated
+    public void addGlobalExcludeURLRegexs(String regex) {}
+
+    /**
+     * Sets the global exclude URLs.
+     *
+     * <p><strong>Note:</strong> The changes are lost after changing the session.
+     *
+     * @param ignoredRegexs the global exclude URLs
+     * @deprecated (2.6.0) No longer works, when needed, the global exclude URLs are obtained from
+     *     the options.
+     * @since 2.3.0
+     */
+    @Deprecated
+    public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) {}
+
+    public void setSessionUrls(int type, List<String> urls) throws DatabaseException {
+        model.getDb().getTableSessionUrl().setUrls(type, urls);
+    }
+
+    public void setSessionUrl(int type, String url) throws DatabaseException {
+        List<String> list = new ArrayList<>(1);
+        list.add(url);
+        this.setSessionUrls(type, list);
+    }
+
+    public List<String> getSessionUrls(int type) throws DatabaseException {
+        List<RecordSessionUrl> urls = model.getDb().getTableSessionUrl().getUrlsForType(type);
+        List<String> list = new ArrayList<>(urls.size());
+        for (RecordSessionUrl url : urls) {
+            list.add(url.getUrl());
+        }
+        return list;
+    }
+
+    public List<String> getContextDataStrings(int contextId, int type) throws DatabaseException {
+        List<RecordContext> dataList =
+                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        List<String> list = new ArrayList<>();
+        for (RecordContext data : dataList) {
+            list.add(data.getData());
+        }
+        return list;
+    }
+
+    public void setContextData(int contextId, int type, String data) throws DatabaseException {
+        List<String> list = new ArrayList<>();
+        list.add(data);
+        this.setContextData(contextId, type, list);
+    }
+
+    public void setContextData(int contextId, int type, List<String> dataList)
+            throws DatabaseException {
+        model.getDb().getTableContext().setData(contextId, type, dataList);
+    }
+
+    public void clearContextDataForType(int contextId, int type) throws DatabaseException {
+        model.getDb().getTableContext().deleteAllDataForContextAndType(contextId, type);
+    }
+
+    public void clearContextData(int contextId) throws DatabaseException {
+        model.getDb().getTableContext().deleteAllDataForContext(contextId);
+    }
+
+    private List<String> techListToStringList(TreeSet<Tech> techList) {
+        List<String> strList = new ArrayList<>();
+        Iterator<Tech> iter = techList.iterator();
+        while (iter.hasNext()) {
+            strList.add(iter.next().toString());
+        }
+        return strList;
+    }
+
+    private List<String> snmListToStringList(List<StructuralNodeModifier> list) {
+        List<String> strList = new ArrayList<>();
+        for (StructuralNodeModifier snm : list) {
+            strList.add(snm.getConfig());
+        }
+        return strList;
+    }
+
+    public void saveContext(Context c) {
+        try {
+            this.setContextData(c.getIndex(), RecordContext.TYPE_NAME, c.getName());
+            this.setContextData(c.getIndex(), RecordContext.TYPE_DESCRIPTION, c.getDescription());
+            this.setContextData(
+                    c.getIndex(), RecordContext.TYPE_IN_SCOPE, Boolean.toString(c.isInScope()));
+            this.setContextData(
+                    c.getIndex(), RecordContext.TYPE_INCLUDE, c.getIncludeInContextRegexs());
+            this.setContextData(
+                    c.getIndex(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_INCLUDE_TECH,
+                    techListToStringList(c.getTechSet().getIncludeTech()));
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_EXCLUDE_TECH,
+                    techListToStringList(c.getTechSet().getExcludeTech()));
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_URL_PARSER_CLASSNAME,
+                    c.getUrlParamParser().getClass().getCanonicalName());
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_URL_PARSER_CONFIG,
+                    c.getUrlParamParser().getConfig());
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_POST_PARSER_CLASSNAME,
+                    c.getPostParamParser().getClass().getCanonicalName());
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_POST_PARSER_CONFIG,
+                    c.getPostParamParser().getConfig());
+            this.setContextData(
+                    c.getIndex(),
+                    RecordContext.TYPE_DATA_DRIVEN_NODES,
+                    snmListToStringList(c.getDataDrivenNodes()));
+
+            model.saveContext(c);
+        } catch (DatabaseException e) {
             log.error(e.getMessage(), e);
-		}
-		
-		if (View.isInitialised()) {
-			View.getSingleton().changeContext(c);
-			refreshScope();
-		}
-	}
-	
-	public void saveAllContexts(){
-		for(Context c: contexts) {
-			this.saveContext(c);
-		}
-	}
-	
-	/**
-	 * Gets a newly created context with the given name.
-	 * <p>
-	 * The context is automatically added to the session.
-	 *
-	 * @param name the name of the context
-	 * @return the new {@code Context}.
-	 * @throws IllegalContextNameException (since 2.6.0) if the given name is {@code null} or empty or if a context
-	 *             with the given name already exists.
-	 */
-	public Context getNewContext(String name) {
-		validateContextName(name);
-		Context c = createContext(name);
-		this.addContext(c);
-		return c;
-	}
+        }
 
-	/**
-	 * Creates a new context with the given name.
-	 *
-	 * @param name the name of the context
-	 * @return the new {@code Context}.
-	 * @see #getNewContext(String)
-	 */
-	private Context createContext(String name) {
-		Context context = new Context(this, this.nextContextIndex++);
-		context.setName(name);
-		return context;
-	}
+        if (View.isInitialised()) {
+            View.getSingleton().changeContext(c);
+            refreshScope();
+        }
+    }
 
-	/**
-	 * Validates the given name is not {@code null} nor empty and that no context already exists with the given name.
-	 *
-	 * @param name the name to be validated
-	 * @throws IllegalContextNameException if the given name is {@code null} or empty or if a context with the given name
-	 *             already exists.
-	 */
-	private void validateContextName(String name) {
-		if (name == null || name.isEmpty()) {
-			throw new IllegalContextNameException(
-					IllegalContextNameException.Reason.EMPTY_NAME,
-					"The context name must not be null nor empty.");
-		}
+    public void saveAllContexts() {
+        for (Context c : contexts) {
+            this.saveContext(c);
+        }
+    }
 
-		if (getContext(name) != null) {
-			throw new IllegalContextNameException(
-					IllegalContextNameException.Reason.DUPLICATED_NAME,
-					"A context with the given name [" + name + "] already exists.");
-		}
-	}
+    /**
+     * Gets a newly created context with the given name.
+     *
+     * <p>The context is automatically added to the session.
+     *
+     * @param name the name of the context
+     * @return the new {@code Context}.
+     * @throws IllegalContextNameException (since 2.6.0) if the given name is {@code null} or empty
+     *     or if a context with the given name already exists.
+     */
+    public Context getNewContext(String name) {
+        validateContextName(name);
+        Context c = createContext(name);
+        this.addContext(c);
+        return c;
+    }
 
-	/**
-	 * Adds the given context.
-	 *
-	 * @param c the context to be added
-	 * @throws IllegalArgumentException (since 2.6.0) if the given context is {@code null}.
-	 * @throws IllegalContextNameException (since 2.6.0) if context's name is {@code null} or empty or if a context
-	 *             with the same name already exists.
-	 */
-	public void addContext(Context c) {
-		if (c == null) {
-			throw new IllegalArgumentException("The context must not be null. ");
-		}
-		validateContextName(c.getName());
+    /**
+     * Creates a new context with the given name.
+     *
+     * @param name the name of the context
+     * @return the new {@code Context}.
+     * @see #getNewContext(String)
+     */
+    private Context createContext(String name) {
+        Context context = new Context(this, this.nextContextIndex++);
+        context.setName(name);
+        return context;
+    }
 
-		this.contexts.add(c);
-		this.model.loadContext(c);
+    /**
+     * Validates the given name is not {@code null} nor empty and that no context already exists
+     * with the given name.
+     *
+     * @param name the name to be validated
+     * @throws IllegalContextNameException if the given name is {@code null} or empty or if a
+     *     context with the given name already exists.
+     */
+    private void validateContextName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalContextNameException(
+                    IllegalContextNameException.Reason.EMPTY_NAME,
+                    "The context name must not be null nor empty.");
+        }
 
-		for (OnContextsChangedListener l : contextsChangedListeners) {
-			l.contextAdded(c);
-		}
-		
-		if (View.isInitialised()) {
-			View.getSingleton().addContext(c);
-		}
-	}
+        if (getContext(name) != null) {
+            throw new IllegalContextNameException(
+                    IllegalContextNameException.Reason.DUPLICATED_NAME,
+                    "A context with the given name [" + name + "] already exists.");
+        }
+    }
 
-	public void deleteContext(Context c) {
-		this.contexts.remove(c);
-		try {
-			this.clearContextData(c.getIndex());
-		} catch (DatabaseException e) {
+    /**
+     * Adds the given context.
+     *
+     * @param c the context to be added
+     * @throws IllegalArgumentException (since 2.6.0) if the given context is {@code null}.
+     * @throws IllegalContextNameException (since 2.6.0) if context's name is {@code null} or empty
+     *     or if a context with the same name already exists.
+     */
+    public void addContext(Context c) {
+        if (c == null) {
+            throw new IllegalArgumentException("The context must not be null. ");
+        }
+        validateContextName(c.getName());
+
+        this.contexts.add(c);
+        this.model.loadContext(c);
+
+        for (OnContextsChangedListener l : contextsChangedListeners) {
+            l.contextAdded(c);
+        }
+
+        if (View.isInitialised()) {
+            View.getSingleton().addContext(c);
+        }
+    }
+
+    public void deleteContext(Context c) {
+        this.contexts.remove(c);
+        try {
+            this.clearContextData(c.getIndex());
+        } catch (DatabaseException e) {
             log.error(e.getMessage(), e);
-		}
+        }
 
-		for (OnContextsChangedListener l : contextsChangedListeners) {
-			l.contextDeleted(c);
-		}
+        for (OnContextsChangedListener l : contextsChangedListeners) {
+            l.contextDeleted(c);
+        }
 
-		if (View.isInitialised()) {
-			View.getSingleton().deleteContext(c);
-			refreshScope();
-		}
-	}
+        if (View.isInitialised()) {
+            View.getSingleton().deleteContext(c);
+            refreshScope();
+        }
+    }
 
-	public Context getContext(int index) {
-		for (Context context : contexts) {
-			if (context.getIndex() == index) {
-				return context;
-			}
-		}
-		return null;
-	}
+    public Context getContext(int index) {
+        for (Context context : contexts) {
+            if (context.getIndex() == index) {
+                return context;
+            }
+        }
+        return null;
+    }
 
-	public Context getContext(String name) {
-		for (Context context : contexts) {
-			if (context.getName().equals(name)) {
-				return context;
-			}
-		}
-		return null;
-	}
+    public Context getContext(String name) {
+        for (Context context : contexts) {
+            if (context.getName().equals(name)) {
+                return context;
+            }
+        }
+        return null;
+    }
 
-	public List<Context> getContexts() {
-		return contexts;
-	}
+    public List<Context> getContexts() {
+        return contexts;
+    }
 
-	public List<Context> getContextsForNode(SiteNode sn) {
-		if (sn == null) {
-			return new ArrayList<>();
-		}
-		return getContextsForUrl(sn.getHierarchicNodeName());
-	}
-	
-	public List<Context> getContextsForUrl(String url) {
-		List<Context> ctxList = new ArrayList<>();
-		if (url.indexOf("?") > 0) {
-			// String off any parameters
-			url = url.substring(0, url.indexOf("?"));
-		}
-		for (Context context : contexts) {
-			if (context.isInContext(url)) {
-				ctxList.add(context);
-			}
-		}
-		return ctxList;
-	}
+    public List<Context> getContextsForNode(SiteNode sn) {
+        if (sn == null) {
+            return new ArrayList<>();
+        }
+        return getContextsForUrl(sn.getHierarchicNodeName());
+    }
 
-	/**
-	 * Export the specified context to a file
-	 * @param contextIndex
-	 * @param file
-	 * @throws ConfigurationException
-	 */
-	public void exportContext (int contextIndex, File file) throws ConfigurationException {
-		this.exportContext(this.getContext(contextIndex), file);
-	}
+    public List<Context> getContextsForUrl(String url) {
+        List<Context> ctxList = new ArrayList<>();
+        if (url.indexOf("?") > 0) {
+            // String off any parameters
+            url = url.substring(0, url.indexOf("?"));
+        }
+        for (Context context : contexts) {
+            if (context.isInContext(url)) {
+                ctxList.add(context);
+            }
+        }
+        return ctxList;
+    }
 
-	/**
-	 * Export the specified context to a file
-	 * @param c
-	 * @param file
-	 * @throws ConfigurationException
-	 */
-	public void exportContext (Context c, File file) throws ConfigurationException {
-		ZapXmlConfiguration config = new ZapXmlConfiguration();
+    /**
+     * Export the specified context to a file
+     *
+     * @param contextIndex
+     * @param file
+     * @throws ConfigurationException
+     */
+    public void exportContext(int contextIndex, File file) throws ConfigurationException {
+        this.exportContext(this.getContext(contextIndex), file);
+    }
 
-		config.setProperty(Context.CONTEXT_CONFIG_NAME, c.getName());
-		config.setProperty(Context.CONTEXT_CONFIG_DESC, c.getDescription());
-		config.setProperty(Context.CONTEXT_CONFIG_INSCOPE, c.isInScope());
-		config.setProperty(Context.CONTEXT_CONFIG_INC_REGEXES, c.getIncludeInContextRegexs());
-		config.setProperty(Context.CONTEXT_CONFIG_EXC_REGEXES, c.getExcludeFromContextRegexs());
-		config.setProperty(Context.CONTEXT_CONFIG_TECH_INCLUDE, techListToStringList(c.getTechSet().getIncludeTech()));
-		config.setProperty(Context.CONTEXT_CONFIG_TECH_EXCLUDE, techListToStringList(c.getTechSet().getExcludeTech()));
-		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER_CLASS, c.getUrlParamParser().getClass().getCanonicalName());
-		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER_CONFIG, c.getUrlParamParser().getConfig());
-		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CLASS, c.getPostParamParser().getClass().getCanonicalName());
-		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
-		for (StructuralNodeModifier snm : c.getDataDrivenNodes()) {
-			config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
-		}
-		
-		model.exportContext(c, config);
-		config.save(file);
-	}
+    /**
+     * Export the specified context to a file
+     *
+     * @param c
+     * @param file
+     * @throws ConfigurationException
+     */
+    public void exportContext(Context c, File file) throws ConfigurationException {
+        ZapXmlConfiguration config = new ZapXmlConfiguration();
 
-	/**
-	 * Imports a context from the specified (XML) file.
-	 * 
-	 * @param file the (XML) file that contains the context data
-	 * @return the imported {@code Context}, already added to the session.
-	 * @throws ConfigurationException
-	 * @throws ClassNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
-	 * @throws NoSuchMethodException
-	 * @throws SecurityException
-	 * @throws IllegalContextNameException (since 2.6.0) if context's name is not provided or it's empty or if a
-	 *             context with the same name already exists.
-	 */
-	public Context importContext (File file) throws ConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		ZapXmlConfiguration config = new ZapXmlConfiguration(file);
-		
-		String name = config.getString(Context.CONTEXT_CONFIG_NAME);
-		validateContextName(name);
+        config.setProperty(Context.CONTEXT_CONFIG_NAME, c.getName());
+        config.setProperty(Context.CONTEXT_CONFIG_DESC, c.getDescription());
+        config.setProperty(Context.CONTEXT_CONFIG_INSCOPE, c.isInScope());
+        config.setProperty(Context.CONTEXT_CONFIG_INC_REGEXES, c.getIncludeInContextRegexs());
+        config.setProperty(Context.CONTEXT_CONFIG_EXC_REGEXES, c.getExcludeFromContextRegexs());
+        config.setProperty(
+                Context.CONTEXT_CONFIG_TECH_INCLUDE,
+                techListToStringList(c.getTechSet().getIncludeTech()));
+        config.setProperty(
+                Context.CONTEXT_CONFIG_TECH_EXCLUDE,
+                techListToStringList(c.getTechSet().getExcludeTech()));
+        config.setProperty(
+                Context.CONTEXT_CONFIG_URLPARSER_CLASS,
+                c.getUrlParamParser().getClass().getCanonicalName());
+        config.setProperty(
+                Context.CONTEXT_CONFIG_URLPARSER_CONFIG, c.getUrlParamParser().getConfig());
+        config.setProperty(
+                Context.CONTEXT_CONFIG_POSTPARSER_CLASS,
+                c.getPostParamParser().getClass().getCanonicalName());
+        config.setProperty(
+                Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
+        for (StructuralNodeModifier snm : c.getDataDrivenNodes()) {
+            config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
+        }
 
-		Context c = createContext(name);
+        model.exportContext(c, config);
+        config.save(file);
+    }
 
-		c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
-		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
-		for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
-			c.addIncludeInContextRegex(obj.toString());
-		}
-		for (Object obj : config.getList(Context.CONTEXT_CONFIG_EXC_REGEXES)) {
-			c.addExcludeFromContextRegex(obj.toString());
-		}
+    /**
+     * Imports a context from the specified (XML) file.
+     *
+     * @param file the (XML) file that contains the context data
+     * @return the imported {@code Context}, already added to the session.
+     * @throws ConfigurationException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws SecurityException
+     * @throws IllegalContextNameException (since 2.6.0) if context's name is not provided or it's
+     *     empty or if a context with the same name already exists.
+     */
+    public Context importContext(File file)
+            throws ConfigurationException, ClassNotFoundException, InstantiationException,
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+                    NoSuchMethodException, SecurityException {
+        ZapXmlConfiguration config = new ZapXmlConfiguration(file);
 
-		TechSet techSet = new TechSet();
-		for (Object obj : config.getList(Context.CONTEXT_CONFIG_TECH_INCLUDE)) {
-			techSet.include(new Tech(obj.toString()));
-		}
-		for (Object obj : config.getList(Context.CONTEXT_CONFIG_TECH_EXCLUDE)) {
-			techSet.exclude(new Tech(obj.toString()));
-		}
-		c.setTechSet(techSet );
-		
-		String urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS);
-		if (urlParserClass == null) {
-			// Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
-			urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER);
-		}
-		Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(urlParserClass);
-		if (cl == null) {
-			throw new ConfigurationException("Failed to load URL parser for context " + urlParserClass);
-		} else {
-			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
-    		parser.init(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG));
-    		parser.setContext(c);
-	    	c.setUrlParamParser(parser);
-		}
+        String name = config.getString(Context.CONTEXT_CONFIG_NAME);
+        validateContextName(name);
 
-		String postParserClass = config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS);
-		String postParserConfig = config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG);
-		if (postParserClass == null) {
-			// Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
-			postParserClass = config.getString(urlParserClass);
-			postParserConfig = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG);
-		}
-		cl = ExtensionFactory.getAddOnLoader().loadClass(postParserClass);
-		if (cl == null) {
-			throw new ConfigurationException("Failed to load POST parser for context " + postParserClass);
-		} else {
-			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
-    		parser.init(postParserConfig);
-    		parser.setContext(c);
-	    	c.setPostParamParser(parser);
-		}
-		for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES)) {
-			c.addDataDrivenNodes(new StructuralNodeModifier(obj.toString()));
-		}
+        Context c = createContext(name);
 
-		model.importContext(c, config);
-		
-		c.restructureSiteTree();
-		
-		addContext(c);
-		saveContext(c);
-		return c;
-	}
+        c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
+        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
+        for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
+            c.addIncludeInContextRegex(obj.toString());
+        }
+        for (Object obj : config.getList(Context.CONTEXT_CONFIG_EXC_REGEXES)) {
+            c.addExcludeFromContextRegex(obj.toString());
+        }
 
-	/**
-	 * Returns the url parameter parser associated with the first context found that includes the URL,
-	 * or the default parser if it is not
-	 * in a context
-	 * @param url
-	 * @return
-	 */
-	public ParameterParser getUrlParamParser(String url) {
-		List<Context> contexts = getContextsForUrl(url);
-		if (contexts.size() > 0) {
-			return contexts.get(0).getUrlParamParser();
-		}
-		return this.defaultParamParser;
-	}
+        TechSet techSet = new TechSet();
+        for (Object obj : config.getList(Context.CONTEXT_CONFIG_TECH_INCLUDE)) {
+            techSet.include(new Tech(obj.toString()));
+        }
+        for (Object obj : config.getList(Context.CONTEXT_CONFIG_TECH_EXCLUDE)) {
+            techSet.exclude(new Tech(obj.toString()));
+        }
+        c.setTechSet(techSet);
 
-	/**
-	 * Returns the form parameter parser associated with the first context found that includes the URL,
-	 * or the default parser if it is not
-	 * in a context
-	 * @param url
-	 * @return
-	 */
-	public ParameterParser getFormParamParser(String url) {
-		List<Context> contexts = getContextsForUrl(url);
-		if (contexts.size() > 0) {
-			return contexts.get(0).getPostParamParser();
-		}
-		return this.defaultParamParser;
-	}
+        String urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS);
+        if (urlParserClass == null) {
+            // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
+            urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER);
+        }
+        Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(urlParserClass);
+        if (cl == null) {
+            throw new ConfigurationException(
+                    "Failed to load URL parser for context " + urlParserClass);
+        } else {
+            ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
+            parser.init(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG));
+            parser.setContext(c);
+            c.setUrlParamParser(parser);
+        }
 
-	/**
-	 * Returns the specified parameters for the given message based on the parser associated with the
-	 * first context found that includes the URL for the message, or the default parser if it is not
-	 * in a context
-	 * @param msg
-	 * @param type
-	 * @return
-	 */
-	public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
-		switch (type) {
-		case form:	return this.getFormParamParser(msg.getRequestHeader().getURI().toString()).getParams(msg, type);
-		case url:	return this.getUrlParamParser(msg.getRequestHeader().getURI().toString()).getParams(msg, type);
-		default:
-					throw new InvalidParameterException("Type not supported: " + type);
-		}
-	}
+        String postParserClass = config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS);
+        String postParserConfig = config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG);
+        if (postParserClass == null) {
+            // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
+            postParserClass = config.getString(urlParserClass);
+            postParserConfig = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG);
+        }
+        cl = ExtensionFactory.getAddOnLoader().loadClass(postParserClass);
+        if (cl == null) {
+            throw new ConfigurationException(
+                    "Failed to load POST parser for context " + postParserClass);
+        } else {
+            ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
+            parser.init(postParserConfig);
+            parser.setContext(c);
+            c.setPostParamParser(parser);
+        }
+        for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES)) {
+            c.addDataDrivenNodes(new StructuralNodeModifier(obj.toString()));
+        }
 
-	/**
-	 * Gets the parameters of the given {@code type} from the given {@code message}.
-	 * <p>
-	 * Parameters' names and values are in decoded form.
-	 *
-	 * @param msg the message whose parameters will be extracted from
-	 * @param type the type of parameters to extract
-	 * @return a {@code List} containing the parameters
-	 * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given {@code type} is not
-	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
-	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
-	 * @since 2.5.0
-	 * @see StandardParameterParser#getParameters(HttpMessage, org.parosproxy.paros.network.HtmlParameter.Type)
-	 */
-	public List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type) {
-		if (msg == null) {
-			throw new IllegalArgumentException("Parameter msg must not be null.");
-		}
-		if (type == null) {
-			throw new IllegalArgumentException("Parameter type must not be null.");
-		}
+        model.importContext(c, config);
 
-		switch (type) {
-		case form:
-			return this.getFormParamParser(msg.getRequestHeader().getURI().toString()).getParameters(msg, type);
-		case url:
-			return this.getUrlParamParser(msg.getRequestHeader().getURI().toString()).getParameters(msg, type);
-		default:
-			throw new IllegalArgumentException("The provided type is not supported: " + type);
-		}
-	}
+        c.restructureSiteTree();
 
-	/**
-	 * Returns the URL parameters for the given URL based on the parser associated with the
-	 * first context found that includes the URL, or the default parser if it is not
-	 * in a context
-	 * @param uri
-	 * @return
-	 * @throws URIException
-	 */
-	public Map<String, String> getUrlParams(URI uri) throws URIException {
-		Map<String, String> map = new HashMap<>();
-		for (NameValuePair parameter : getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
-			String value = parameter.getValue();
-			if (value == null) {
-				value = "";
-			}
-			map.put(parameter.getName(), value);
-		}
-		return map;
-	}
+        addContext(c);
+        saveContext(c);
+        return c;
+    }
 
-	/**
-	 * Returns the FORM parameters for the given URL based on the parser associated with the
-	 * first context found that includes the URL, or the default parser if it is not
-	 * in a context
-	 * @param uri
-	 * @param formData
-	 * @return
-	 * @throws URIException
-	 */
-	public Map<String, String> getFormParams(URI uri, String formData) throws URIException {
-		return this.getFormParamParser(uri.toString()).parse(formData);
-	}
+    /**
+     * Returns the url parameter parser associated with the first context found that includes the
+     * URL, or the default parser if it is not in a context
+     *
+     * @param url
+     * @return
+     */
+    public ParameterParser getUrlParamParser(String url) {
+        List<Context> contexts = getContextsForUrl(url);
+        if (contexts.size() > 0) {
+            return contexts.get(0).getUrlParamParser();
+        }
+        return this.defaultParamParser;
+    }
 
-	public List<String> getTreePath(URI uri) throws URIException {
-		return this.getUrlParamParser(uri.toString()).getTreePath(uri);
-	}
+    /**
+     * Returns the form parameter parser associated with the first context found that includes the
+     * URL, or the default parser if it is not in a context
+     *
+     * @param url
+     * @return
+     */
+    public ParameterParser getFormParamParser(String url) {
+        List<Context> contexts = getContextsForUrl(url);
+        if (contexts.size() > 0) {
+            return contexts.get(0).getPostParamParser();
+        }
+        return this.defaultParamParser;
+    }
 
-	public List<String> getTreePath(HttpMessage msg) throws URIException {
-		URI uri = msg.getRequestHeader().getURI();
-		return this.getUrlParamParser(uri.toString()).getTreePath(msg);
-	}
-	
-	// ZAP: Added listeners for contexts changed events.
-	// TODO: Might be better structured elsewhere, so maybe just a temporary solution.
-	private static List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
+    /**
+     * Returns the specified parameters for the given message based on the parser associated with
+     * the first context found that includes the URL for the message, or the default parser if it is
+     * not in a context
+     *
+     * @param msg
+     * @param type
+     * @return
+     */
+    public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
+        switch (type) {
+            case form:
+                return this.getFormParamParser(msg.getRequestHeader().getURI().toString())
+                        .getParams(msg, type);
+            case url:
+                return this.getUrlParamParser(msg.getRequestHeader().getURI().toString())
+                        .getParams(msg, type);
+            default:
+                throw new InvalidParameterException("Type not supported: " + type);
+        }
+    }
 
-	public void addOnContextsChangedListener(OnContextsChangedListener l) {
-		contextsChangedListeners.add(l);
-	}
+    /**
+     * Gets the parameters of the given {@code type} from the given {@code message}.
+     *
+     * <p>Parameters' names and values are in decoded form.
+     *
+     * @param msg the message whose parameters will be extracted from
+     * @param type the type of parameters to extract
+     * @return a {@code List} containing the parameters
+     * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given
+     *     {@code type} is not {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
+     *     {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
+     * @since 2.5.0
+     * @see StandardParameterParser#getParameters(HttpMessage,
+     *     org.parosproxy.paros.network.HtmlParameter.Type)
+     */
+    public List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type) {
+        if (msg == null) {
+            throw new IllegalArgumentException("Parameter msg must not be null.");
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("Parameter type must not be null.");
+        }
 
-	public void removeOnContextsChangedListener(OnContextsChangedListener l) {
-		contextsChangedListeners.remove(l);
-	}
-	
-	/**
-	 * Listener notified whenever the registered list of contexts changes.
-	 */
-	public interface OnContextsChangedListener {
+        switch (type) {
+            case form:
+                return this.getFormParamParser(msg.getRequestHeader().getURI().toString())
+                        .getParameters(msg, type);
+            case url:
+                return this.getUrlParamParser(msg.getRequestHeader().getURI().toString())
+                        .getParameters(msg, type);
+            default:
+                throw new IllegalArgumentException("The provided type is not supported: " + type);
+        }
+    }
 
-		/**
-		 * Called whenever a new context is created and added.
-		 */
-		public void contextAdded(Context context);
+    /**
+     * Returns the URL parameters for the given URL based on the parser associated with the first
+     * context found that includes the URL, or the default parser if it is not in a context
+     *
+     * @param uri
+     * @return
+     * @throws URIException
+     */
+    public Map<String, String> getUrlParams(URI uri) throws URIException {
+        Map<String, String> map = new HashMap<>();
+        for (NameValuePair parameter :
+                getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
+            String value = parameter.getValue();
+            if (value == null) {
+                value = "";
+            }
+            map.put(parameter.getName(), value);
+        }
+        return map;
+    }
 
-		/**
-		 * Called whenever a new context is deleted.
-		 */
-		public void contextDeleted(Context context);
+    /**
+     * Returns the FORM parameters for the given URL based on the parser associated with the first
+     * context found that includes the URL, or the default parser if it is not in a context
+     *
+     * @param uri
+     * @param formData
+     * @return
+     * @throws URIException
+     */
+    public Map<String, String> getFormParams(URI uri, String formData) throws URIException {
+        return this.getFormParamParser(uri.toString()).parse(formData);
+    }
 
-		/**
-		 * Called whenever the whole contexts list was changed.
-		 */
-		public void contextsChanged();
-	}
+    public List<String> getTreePath(URI uri) throws URIException {
+        return this.getUrlParamParser(uri.toString()).getTreePath(uri);
+    }
+
+    public List<String> getTreePath(HttpMessage msg) throws URIException {
+        URI uri = msg.getRequestHeader().getURI();
+        return this.getUrlParamParser(uri.toString()).getTreePath(msg);
+    }
+
+    // ZAP: Added listeners for contexts changed events.
+    // TODO: Might be better structured elsewhere, so maybe just a temporary solution.
+    private static List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
+
+    public void addOnContextsChangedListener(OnContextsChangedListener l) {
+        contextsChangedListeners.add(l);
+    }
+
+    public void removeOnContextsChangedListener(OnContextsChangedListener l) {
+        contextsChangedListeners.remove(l);
+    }
+
+    /** Listener notified whenever the registered list of contexts changes. */
+    public interface OnContextsChangedListener {
+
+        /** Called whenever a new context is created and added. */
+        public void contextAdded(Context context);
+
+        /** Called whenever a new context is deleted. */
+        public void contextDeleted(Context context);
+
+        /** Called whenever the whole contexts list was changed. */
+        public void contextsChanged();
+    }
 }
- 

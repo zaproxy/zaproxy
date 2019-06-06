@@ -3,11 +3,13 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
+ * Copyright 2018 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.parosproxy.paros.security;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class CertData {
     public CertData(String commonName) {
         this();
         this.commonName = commonName;
-        if(commonName != null){
+        if (commonName != null) {
             addSubjectAlternativeName(new Name(Name.DNS, commonName));
         }
     }
@@ -42,7 +43,7 @@ public class CertData {
         return commonName;
     }
 
-    public void addSubjectAlternativeName(Name subjectAlternativeName){
+    public void addSubjectAlternativeName(Name subjectAlternativeName) {
         subjectAlternativeNames.add(subjectAlternativeName);
     }
 
@@ -58,7 +59,11 @@ public class CertData {
     @Override
     public int hashCode() {
         int result = commonName != null ? commonName.hashCode() : 0;
-        result = 31 * result + (subjectAlternativeNames != null ? subjectAlternativeNames.hashCode() : 0);
+        result =
+                31 * result
+                        + (subjectAlternativeNames != null
+                                ? subjectAlternativeNames.hashCode()
+                                : 0);
         return result;
     }
 
@@ -67,8 +72,8 @@ public class CertData {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         CertData certData = (CertData) obj;
-        return Objects.equals(commonName, certData.commonName) &&
-               Objects.equals(subjectAlternativeNames, certData.subjectAlternativeNames);
+        return Objects.equals(commonName, certData.commonName)
+                && Objects.equals(subjectAlternativeNames, certData.subjectAlternativeNames);
     }
 
     public static class Name {
@@ -99,7 +104,9 @@ public class CertData {
             Name name = (Name) o;
 
             if (getType() != name.getType()) return false;
-            return getValue() != null ? getValue().equals(name.getValue()) : name.getValue() == null;
+            return getValue() != null
+                    ? getValue().equals(name.getValue())
+                    : name.getValue() == null;
         }
 
         @Override

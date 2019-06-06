@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2012 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2013 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.autoupdate;
 
@@ -25,27 +25,27 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.extension.autoupdate.AddOnWrapper.Status;
 
-
 public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
-	private static final long serialVersionUID = 1L;
-	
-	private static final String[] COLUMN_NAMES = {
-		"", // Column for warning of running issues (e.g. incorrect Java version, missing dependency...)
-		Constant.messages.getString("cfu.table.header.name"),
-		Constant.messages.getString("cfu.table.header.version"),
-		Constant.messages.getString("cfu.table.header.desc"),
-		Constant.messages.getString("cfu.table.header.update"),
-		""};
-    
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+    private static final long serialVersionUID = 1L;
+
+    private static final String[] COLUMN_NAMES = {
+        "", // Column for warning of running issues (e.g. incorrect Java version, missing
+        // dependency...)
+        Constant.messages.getString("cfu.table.header.name"),
+        Constant.messages.getString("cfu.table.header.version"),
+        Constant.messages.getString("cfu.table.header.desc"),
+        Constant.messages.getString("cfu.table.header.update"),
+        ""
+    };
+
+    private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
     private AddOnCollection availableAddOns;
 
@@ -68,7 +68,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
     @Override
     public String getColumnName(int col) {
-   		return COLUMN_NAMES[col];
+        return COLUMN_NAMES[col];
     }
 
     @Override
@@ -88,36 +88,38 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         AddOnWrapper aow = getAddOnWrapper(rowIndex);
         switch (columnIndex) {
-        case COLUMN_ADD_ON_WRAPPER:
-             return aow;
-        case 0:
-            return aow.hasRunningIssues();
-        case 1:
-            return aow.getAddOn().getName();
-        case 2:
-            return aow.getAddOn().getVersion();
-        case 3:
-            return aow.getAddOn().getDescription();
-        case 4:
-        	int progress = aow.getProgress();
-        	if (aow.isFailed()) {
-        		return Constant.messages.getString("cfu.table.label.failed");
-            } else if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == aow.getInstallationStatus()
-                    || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == aow.getInstallationStatus()) {
-                return Constant.messages.getString("cfu.table.label.restartRequired");
-        	} else if (progress > 0) {
-        		return progress + "%";
-        	} else if (AddOnWrapper.Status.newVersion == aow.getStatus()) {
-        		return Constant.messages.getString("cfu.table.label.update");
-        	} else {
-        		return "";
-        	}
-        case 5:
-            return getAddOnWrapper(rowIndex).isEnabled();
+            case COLUMN_ADD_ON_WRAPPER:
+                return aow;
+            case 0:
+                return aow.hasRunningIssues();
+            case 1:
+                return aow.getAddOn().getName();
+            case 2:
+                return aow.getAddOn().getVersion();
+            case 3:
+                return aow.getAddOn().getDescription();
+            case 4:
+                int progress = aow.getProgress();
+                if (aow.isFailed()) {
+                    return Constant.messages.getString("cfu.table.label.failed");
+                } else if (AddOn.InstallationStatus.UNINSTALLATION_FAILED
+                                == aow.getInstallationStatus()
+                        || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED
+                                == aow.getInstallationStatus()) {
+                    return Constant.messages.getString("cfu.table.label.restartRequired");
+                } else if (progress > 0) {
+                    return progress + "%";
+                } else if (AddOnWrapper.Status.newVersion == aow.getStatus()) {
+                    return Constant.messages.getString("cfu.table.label.update");
+                } else {
+                    return "";
+                }
+            case 5:
+                return getAddOnWrapper(rowIndex).isEnabled();
         }
         return null;
     }
-    
+
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         if (columnIndex != 5) {
@@ -126,7 +128,8 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
         AddOnWrapper addOnWrapper = getAddOnWrapper(rowIndex);
         if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == addOnWrapper.getInstallationStatus()
-                || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == addOnWrapper.getInstallationStatus()) {
+                || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED
+                        == addOnWrapper.getInstallationStatus()) {
             return;
         }
 
@@ -137,7 +140,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
             }
         }
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex != 5) {
@@ -146,48 +149,49 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
         AddOnWrapper addOnWrapper = getAddOnWrapper(rowIndex);
         if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == addOnWrapper.getInstallationStatus()
-                || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == addOnWrapper.getInstallationStatus()) {
+                || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED
+                        == addOnWrapper.getInstallationStatus()) {
             return false;
         }
 
         if (addOnWrapper.getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
-    		// Its the 'enabled' checkbox, and no download is in progress
-    		return true;
-    	}
+            // Its the 'enabled' checkbox, and no download is in progress
+            return true;
+        }
         return false;
     }
-    
+
     public boolean canUpdateSelected() {
-    	boolean enable = false;
-    	for (AddOnWrapper addon : getAddOnWrappers()) {
-    		if (addon.isEnabled()) {
-    			if (Status.newVersion == addon.getStatus()) {
-    				enable = true;
-    			} else {
-    				return false;
-    			}
-    		}
-    	}
-    	return enable;
+        boolean enable = false;
+        for (AddOnWrapper addon : getAddOnWrappers()) {
+            if (addon.isEnabled()) {
+                if (Status.newVersion == addon.getStatus()) {
+                    enable = true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return enable;
     }
-    
+
     public boolean canUninstallSelected() {
-    	boolean enable = false;
-    	for (AddOnWrapper addon : getAddOnWrappers()) {
-    		if (addon.isEnabled()) {
-   				return true;
-    		}
-    	}
-    	return enable;
+        boolean enable = false;
+        for (AddOnWrapper addon : getAddOnWrappers()) {
+            if (addon.isEnabled()) {
+                return true;
+            }
+        }
+        return enable;
     }
-    
+
     public void addOrRefreshAddOn(AddOn addOn) {
         for (int idx = 0; idx < getAddOnWrappers().size(); idx++) {
             AddOnWrapper aow = getAddOnWrappers().get(idx);
             if (addOn.isSameAddOn(getAddOnForDownload(aow))) {
                 aow.setAddOn(addOn);
                 fireTableRowsUpdated(idx, idx);
-                
+
                 refreshEntries();
                 return;
             }
@@ -222,7 +226,8 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     }
 
     private boolean refreshUpdateIssues(AddOnWrapper aow) {
-        AddOnRunRequirements reqs = aow.getAddOnUpdate().calculateRunRequirements(availableAddOns.getAddOns());
+        AddOnRunRequirements reqs =
+                aow.getAddOnUpdate().calculateRunRequirements(availableAddOns.getAddOns());
         String issues = getAddOnRunningIssues(reqs);
         aow.setUpdateIssues(issues, !reqs.hasExtensionsWithRunningIssues());
         return !issues.isEmpty();
@@ -293,7 +298,7 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     }
 
     public static void removeAddOn(List<AddOn> addOns, String id) {
-        for (Iterator<AddOn> it = addOns.iterator(); it.hasNext();) {
+        for (Iterator<AddOn> it = addOns.iterator(); it.hasNext(); ) {
             AddOn addOn = it.next();
             if (addOn.getId().equals(id)) {
                 it.remove();

@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2013 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,13 +34,15 @@ public class CustomStreamsSocket extends Socket {
     private final InputStream customInputStream;
     private final OutputStream customOutputStream;
 
-    public CustomStreamsSocket(Socket socket, InputStream inputStream, OutputStream outputStream) throws IOException {
+    public CustomStreamsSocket(Socket socket, InputStream inputStream, OutputStream outputStream)
+            throws IOException {
         super((java.net.SocketImpl) null);
         if (socket == null) {
             throw new IllegalArgumentException("Parameter socket must not be null.");
         }
         if (inputStream == null && outputStream == null) {
-            throw new IllegalArgumentException("Parameters inputStream and outputStream must not be both null.");
+            throw new IllegalArgumentException(
+                    "Parameters inputStream and outputStream must not be both null.");
         }
         delegate = socket;
         customInputStream = inputStream != null ? inputStream : socket.getInputStream();

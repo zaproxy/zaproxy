@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
@@ -41,7 +40,8 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * @see MessageLocationProducer
  * @see MessageLocationHighlighter
  */
-public class SelectMessageLocationsPanel extends HttpPanel implements MessageLocationProducer, MessageLocationHighlighter {
+public class SelectMessageLocationsPanel extends HttpPanel
+        implements MessageLocationProducer, MessageLocationHighlighter {
 
     private static final long serialVersionUID = -1511437565770653938L;
 
@@ -73,13 +73,18 @@ public class SelectMessageLocationsPanel extends HttpPanel implements MessageLoc
     }
 
     @Override
-    public void addComponent(HttpPanelComponentInterface component, FileConfiguration fileConfiguration) {
+    public void addComponent(
+            HttpPanelComponentInterface component, FileConfiguration fileConfiguration) {
         // User another file configuration, no need to persist the options
         super.addComponent(component, this.fileConfiguration);
     }
 
     @Override
-    public void addView(String componentName, HttpPanelView view, Object options, FileConfiguration fileConfiguration) {
+    public void addView(
+            String componentName,
+            HttpPanelView view,
+            Object options,
+            FileConfiguration fileConfiguration) {
         if (!(view instanceof MessageLocationProducer)) {
             return;
         }
@@ -93,59 +98,63 @@ public class SelectMessageLocationsPanel extends HttpPanel implements MessageLoc
 
     @Override
     public void removeView(String componentName, String viewName, Object options) {
-        for (Iterator<HttpPanelView> it = views.iterator(); it.hasNext();) {
+        for (Iterator<HttpPanelView> it = views.iterator(); it.hasNext(); ) {
             HttpPanelView httpPanelView = it.next();
             if (viewName.equals(httpPanelView.getName())) {
                 ((MessageLocationProducer) httpPanelView).removeFocusListener(focusListeners);
                 it.remove();
                 break;
             }
-
         }
         super.removeView(componentName, viewName, options);
     }
 
     @Override
-    public void addDefaultViewSelector(String componentName, HttpPanelDefaultViewSelector defaultViewSelector, Object options) {
-    }
+    public void addDefaultViewSelector(
+            String componentName,
+            HttpPanelDefaultViewSelector defaultViewSelector,
+            Object options) {}
 
     @Override
-    public void removeDefaultViewSelector(String componentName, String defaultViewSelectorName, Object options) {
-    }
+    public void removeDefaultViewSelector(
+            String componentName, String defaultViewSelectorName, Object options) {}
 
     @Override
-    protected void initComponents() {
-    }
+    protected void initComponents() {}
 
     @Override
-    protected void initSpecial() {
-    }
+    protected void initSpecial() {}
 
     @Override
     public MessageLocationHighlight highlight(MessageLocation location) {
         if (getCurrentComponent() instanceof MessageLocationHighlighter) {
 
-            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) getCurrentComponent();
+            MessageLocationHighlighter highlighter =
+                    (MessageLocationHighlighter) getCurrentComponent();
             return highlighter.highlight(location);
         }
         return null;
     }
 
     @Override
-    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+    public MessageLocationHighlight highlight(
+            MessageLocation location, MessageLocationHighlight highlight) {
         if (getCurrentComponent() instanceof MessageLocationHighlighter) {
 
-            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) getCurrentComponent();
+            MessageLocationHighlighter highlighter =
+                    (MessageLocationHighlighter) getCurrentComponent();
             return highlighter.highlight(location, highlight);
         }
         return null;
     }
 
     @Override
-    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+    public void removeHighlight(
+            MessageLocation location, MessageLocationHighlight highlightReference) {
         if (getCurrentComponent() instanceof MessageLocationHighlighter) {
 
-            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) getCurrentComponent();
+            MessageLocationHighlighter highlighter =
+                    (MessageLocationHighlighter) getCurrentComponent();
             highlighter.removeHighlight(location, highlightReference);
         }
     }
@@ -197,7 +206,8 @@ public class SelectMessageLocationsPanel extends HttpPanel implements MessageLoc
     @Override
     public MessageLocationHighlightsManager create() {
         if (selectedProducer != null) {
-            MessageLocationHighlightsManager highlightsManager = highlightsManagers.get(selectedProducer);
+            MessageLocationHighlightsManager highlightsManager =
+                    highlightsManagers.get(selectedProducer);
             if (highlightsManager == null) {
                 highlightsManager = selectedProducer.create();
                 highlightsManagers.put(selectedProducer, highlightsManager);
@@ -209,7 +219,8 @@ public class SelectMessageLocationsPanel extends HttpPanel implements MessageLoc
 
     public boolean setSelectedView(String viewName) {
         if (viewName == null || viewName.isEmpty()) {
-            throw new IllegalArgumentException("Parameter containerName must not be null nor empty.");
+            throw new IllegalArgumentException(
+                    "Parameter containerName must not be null nor empty.");
         }
         for (HttpPanelComponentInterface component : getEnabledComponents()) {
             HttpPanelView selectedView = component.setSelectedView(viewName);
@@ -254,7 +265,5 @@ public class SelectMessageLocationsPanel extends HttpPanel implements MessageLoc
         }
     }
 
-    public void reset() {
-    }
-
+    public void reset() {}
 }

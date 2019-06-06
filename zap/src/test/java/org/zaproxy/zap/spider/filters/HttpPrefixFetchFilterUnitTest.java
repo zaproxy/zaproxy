@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,9 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
-/**
- * Unit test for {@link HttpPrefixFetchFilter}.
- */
+/** Unit test for {@link HttpPrefixFetchFilter}. */
 public class HttpPrefixFetchFilterUnitTest {
 
     @BeforeClass
@@ -339,7 +337,8 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid() throws Exception {
+    public void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid()
+            throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -349,5 +348,4 @@ public class HttpPrefixFetchFilterUnitTest {
         // Then
         assertThat(filterStatus, is(equalTo(FetchStatus.VALID)));
     }
-
 }

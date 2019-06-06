@@ -1,19 +1,19 @@
 /*
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -21,7 +21,7 @@
 // ZAP: 2011/08/30 Support for scanner levels
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2012/03/03 Added getLevel(boolean incDefault)
-// ZAP: 2102/03/15 Changed the type of the parameter "sb" of the method matchBodyPattern to 
+// ZAP: 2102/03/15 Changed the type of the parameter "sb" of the method matchBodyPattern to
 // StringBuilder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/08/07 Renamed Level to AlertThreshold and added support for AttackStrength
@@ -34,14 +34,15 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
-// ZAP: 2013/11/16 Issue 842: NullPointerException while active scanning with ExtensionAntiCSRF disabled
+// ZAP: 2013/11/16 Issue 842: NullPointerException while active scanning with ExtensionAntiCSRF
+// disabled
 // ZAP: 2014/01/16 Add support to plugin skipping
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/05/15 Issue 1196: AbstractPlugin.bingo incorrectly sets evidence to attack
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
-// ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandrecieve also invoke scanner 
+// ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandrecieve also invoke scanner
 // hook before and after message update
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
@@ -61,6 +62,7 @@
 // ZAP: 2018/08/15 Implemented hashCode
 // ZAP: 2019/03/22 Add bingo with references.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -73,7 +75,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
@@ -91,14 +92,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     private static final String[] NO_DEPENDENCIES = {};
 
-    /**
-     * Default pattern used in pattern check for most plugins.
-     */
+    /** Default pattern used in pattern check for most plugins. */
     protected static final int PATTERN_PARAM = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
-    /**
-     * CRLF string.
-     */
+    /** CRLF string. */
     protected static final String CRLF = "\r\n";
+
     private HostProcess parent = null;
     private HttpMessage msg = null;
     private boolean enabled = true;
@@ -109,17 +107,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private ExtensionAntiCSRF extAntiCSRF = null;
     private Encoder encoder = new Encoder();
     private AlertThreshold defaultAttackThreshold = AlertThreshold.MEDIUM;
-    private static final AlertThreshold[] alertThresholdsSupported = new AlertThreshold[]{AlertThreshold.MEDIUM};
+    private static final AlertThreshold[] alertThresholdsSupported =
+            new AlertThreshold[] {AlertThreshold.MEDIUM};
     private AttackStrength defaultAttackStrength = AttackStrength.MEDIUM;
-    private static final AttackStrength[] attackStrengthsSupported = new AttackStrength[]{AttackStrength.MEDIUM};
+    private static final AttackStrength[] attackStrengthsSupported =
+            new AttackStrength[] {AttackStrength.MEDIUM};
     private TechSet techSet;
     private Date started = null;
     private Date finished = null;
     private AddOn.Status status = AddOn.Status.unknown;
 
-    /**
-     * Default Constructor
-     */
+    /** Default Constructor */
     public AbstractPlugin() {
         this.techSet = TechSet.AllTech;
     }
@@ -136,7 +134,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Returns no dependencies by default.
-     * 
+     *
      * @since 2.5.0
      * @return an empty array (that is, no dependencies)
      */
@@ -153,21 +151,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Finishes the initialisation of the plugin, subclasses should add any initialisation logic/code to this method.
-     * <p>
-     * Called after the plugin has been initialised with the message being scanned. By default it does nothing.
-     * <p>
-     * Since 2.5.0 it is no longer abstract.
-     * 
+     * Finishes the initialisation of the plugin, subclasses should add any initialisation
+     * logic/code to this method.
+     *
+     * <p>Called after the plugin has been initialised with the message being scanned. By default it
+     * does nothing.
+     *
+     * <p>Since 2.5.0 it is no longer abstract.
+     *
      * @see #init(HttpMessage, HostProcess)
      */
-    public void init() {
-    }
+    public void init() {}
 
     /**
-     * Obtain a new HttpMessage with the same request as the base. The response
-     * is empty. This is used by plugin to build/craft a new message to
-     * send/receive. It does not affect the base message.
+     * Obtain a new HttpMessage with the same request as the base. The response is empty. This is
+     * used by plugin to build/craft a new message to send/receive. It does not affect the base
+     * message.
      *
      * @return A new HttpMessage with cloned request. Response is empty.
      */
@@ -176,9 +175,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Get the base reference HttpMessage for this check. Both request and
-     * response is present. It should not be modified during when the plugin
-     * runs.
+     * Get the base reference HttpMessage for this check. Both request and response is present. It
+     * should not be modified during when the plugin runs.
      *
      * @return The base HttpMessage with request/response.
      */
@@ -188,14 +186,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Sends and receives the given {@code message}, always following redirections.
-     * <p>
-     * The following changes are made to the request before being sent:
+     *
+     * <p>The following changes are made to the request before being sent:
+     *
      * <ul>
-     * <li>The anti-CSRF token contained in the message will be handled/regenerated, if any;</li>
-     * <li>The request headers {@link HttpHeader#IF_MODIFIED_SINCE} and {@link HttpHeader#IF_NONE_MATCH} are removed, to always
-     * obtain a fresh response;</li>
-     * <li>The header {@link HttpHeader#CONTENT_LENGTH} is updated, to match the length of the request body.</li>
-     * <li>Changes done by {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener} (for example, scripts).</li>
+     *   <li>The anti-CSRF token contained in the message will be handled/regenerated, if any;
+     *   <li>The request headers {@link HttpHeader#IF_MODIFIED_SINCE} and {@link
+     *       HttpHeader#IF_NONE_MATCH} are removed, to always obtain a fresh response;
+     *   <li>The header {@link HttpHeader#CONTENT_LENGTH} is updated, to match the length of the
+     *       request body.
+     *   <li>Changes done by {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener}
+     *       (for example, scripts).
      * </ul>
      *
      * @param message the message to be sent and received
@@ -210,53 +211,67 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Sends and receives the given {@code message}, optionally following redirections.
-     * <p>
-     * The following changes are made to the request before being sent:
+     *
+     * <p>The following changes are made to the request before being sent:
+     *
      * <ul>
-     * <li>The anti-CSRF token contained in the message will be handled/regenerated, if any;</li>
-     * <li>The request headers {@link HttpHeader#IF_MODIFIED_SINCE} and {@link HttpHeader#IF_NONE_MATCH} are removed, to always
-     * obtain a fresh response;</li>
-     * <li>The header {@link HttpHeader#CONTENT_LENGTH} is updated, to match the length of the request body.</li>
-     * <li>Changes done by {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener} (for example, scripts).</li>
+     *   <li>The anti-CSRF token contained in the message will be handled/regenerated, if any;
+     *   <li>The request headers {@link HttpHeader#IF_MODIFIED_SINCE} and {@link
+     *       HttpHeader#IF_NONE_MATCH} are removed, to always obtain a fresh response;
+     *   <li>The header {@link HttpHeader#CONTENT_LENGTH} is updated, to match the length of the
+     *       request body.
+     *   <li>Changes done by {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener}
+     *       (for example, scripts).
      * </ul>
      *
      * @param message the message to be sent and received
-     * @param isFollowRedirect {@code true} if redirections should be followed, {@code false} otherwise
+     * @param isFollowRedirect {@code true} if redirections should be followed, {@code false}
+     *     otherwise
      * @throws HttpException if a HTTP error occurred
      * @throws IOException if an I/O error occurred (for example, read time out)
      * @see #sendAndReceive(HttpMessage)
      * @see #sendAndReceive(HttpMessage, boolean, boolean)
      */
-    protected void sendAndReceive(HttpMessage message, boolean isFollowRedirect) throws IOException {
+    protected void sendAndReceive(HttpMessage message, boolean isFollowRedirect)
+            throws IOException {
         sendAndReceive(message, isFollowRedirect, true);
     }
 
     /**
-     * Sends and receives the given {@code message}, optionally following redirections and optionally regenerating anti-CSRF
-     * token, if any.
-     * <p>
-     * The following changes are made to the request before being sent:
+     * Sends and receives the given {@code message}, optionally following redirections and
+     * optionally regenerating anti-CSRF token, if any.
+     *
+     * <p>The following changes are made to the request before being sent:
+     *
      * <ul>
-     * <li>The request headers {@link HttpHeader#IF_MODIFIED_SINCE} and {@link HttpHeader#IF_NONE_MATCH} are removed, to always
-     * obtain a fresh response;</li>
-     * <li>The header {@link HttpHeader#CONTENT_LENGTH} is updated, to match the length of the request body.</li>
-     * <li>Changes done by {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener} (for example, scripts).</li>
+     *   <li>The request headers {@link HttpHeader#IF_MODIFIED_SINCE} and {@link
+     *       HttpHeader#IF_NONE_MATCH} are removed, to always obtain a fresh response;
+     *   <li>The header {@link HttpHeader#CONTENT_LENGTH} is updated, to match the length of the
+     *       request body.
+     *   <li>Changes done by {@link org.zaproxy.zap.network.HttpSenderListener HttpSenderListener}
+     *       (for example, scripts).
      * </ul>
      *
      * @param message the message to be sent and received
-     * @param isFollowRedirect {@code true} if redirections should be followed, {@code false} otherwise
-     * @param handleAntiCSRF {@code true} if the anti-CSRF token present in the request should be handled/regenerated,
-     *            {@code false} otherwise
+     * @param isFollowRedirect {@code true} if redirections should be followed, {@code false}
+     *     otherwise
+     * @param handleAntiCSRF {@code true} if the anti-CSRF token present in the request should be
+     *     handled/regenerated, {@code false} otherwise
      * @throws HttpException if a HTTP error occurred
      * @throws IOException if an I/O error occurred (for example, read time out)
      * @see #sendAndReceive(HttpMessage)
      * @see #sendAndReceive(HttpMessage, boolean)
      */
-    protected void sendAndReceive(HttpMessage message, boolean isFollowRedirect, boolean handleAntiCSRF) throws IOException {
+    protected void sendAndReceive(
+            HttpMessage message, boolean isFollowRedirect, boolean handleAntiCSRF)
+            throws IOException {
 
         if (parent.handleAntiCsrfTokens() && handleAntiCSRF) {
             if (extAntiCSRF == null) {
-                extAntiCSRF = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
+                extAntiCSRF =
+                        Control.getSingleton()
+                                .getExtensionLoader()
+                                .getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
                 List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(message);
@@ -272,8 +287,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         }
 
         if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
-    		this.msg.getRequestHeader().setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
-    	}
+            this.msg
+                    .getRequestHeader()
+                    .setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
+        }
 
         // always get the fresh copy
         message.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
@@ -287,8 +304,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 // Ignore
             }
         }
-        
-        //ZAP: Runs the "beforeScan" methods of any ScannerHooks
+
+        // ZAP: Runs the "beforeScan" methods of any ScannerHooks
         parent.performScannerHookBeforeScan(message, this);
 
         if (isFollowRedirect) {
@@ -296,11 +313,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         } else {
             parent.getHttpSender().sendAndReceive(message, false);
         }
-        
+
         // ZAP: Notify parent
         parent.notifyNewMessage(this, message);
-        
-        //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
+
+        // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
     }
 
@@ -308,7 +325,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         if (antiCsrfToken == null) {
             return;
         }
-        
+
         String tokenValue = null;
         try {
             HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
@@ -321,28 +338,40 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-        
+
         if (tokenValue != null) {
             // Replace token value - only supported in the body right now
-            log.debug("regenerateAntiCsrfToken replacing " + antiCsrfToken.getValue() + " with " + encoder.getURLEncode(tokenValue));
+            log.debug(
+                    "regenerateAntiCsrfToken replacing "
+                            + antiCsrfToken.getValue()
+                            + " with "
+                            + encoder.getURLEncode(tokenValue));
             String replaced = msg.getRequestBody().toString();
-            replaced = replaced.replace(encoder.getURLEncode(antiCsrfToken.getValue()), encoder.getURLEncode(tokenValue));
+            replaced =
+                    replaced.replace(
+                            encoder.getURLEncode(antiCsrfToken.getValue()),
+                            encoder.getURLEncode(tokenValue));
             msg.setRequestBody(replaced);
-            extAntiCSRF.registerAntiCsrfToken(new AntiCsrfToken(msg, antiCsrfToken.getName(), tokenValue, antiCsrfToken.getFormIndex()));
+            extAntiCSRF.registerAntiCsrfToken(
+                    new AntiCsrfToken(
+                            msg,
+                            antiCsrfToken.getName(),
+                            tokenValue,
+                            antiCsrfToken.getFormIndex()));
         }
     }
 
     @Override
     public void run() {
         // ZAP : set skipped to false otherwise the plugin shoud stop continously
-        //this.skipped = false;
-        
+        // this.skipped = false;
+
         try {
             if (!isStop()) {
                 this.started = new Date();
                 scan();
             }
-            
+
         } catch (Exception e) {
             getLog().error(e.getMessage(), e);
         } finally {
@@ -352,8 +381,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Generate an alert when a security issue (risk/info) is found. Default
-     * name, description, solution of this Plugin will be used.
+     * Generate an alert when a security issue (risk/info) is found. Default name, description,
+     * solution of this Plugin will be used.
      *
      * @param risk the risk of the new alert
      * @param confidence the confidence of the new alert
@@ -363,16 +392,31 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo other information about the issue
      * @param msg the message that shows the issue
      */
-    protected void bingo(int risk, int confidence, String uri, String param, String attack, String otherInfo,
+    protected void bingo(
+            int risk,
+            int confidence,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
             HttpMessage msg) {
-        
-        bingo(risk, confidence, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(),
+
+        bingo(
+                risk,
+                confidence,
+                this.getName(),
+                this.getDescription(),
+                uri,
+                param,
+                attack,
+                otherInfo,
+                this.getSolution(),
                 msg);
     }
 
     /**
-     * Generate an alert when a security issue (risk/info) is found. Custom
-     * alert name, description and solution will be used.
+     * Generate an alert when a security issue (risk/info) is found. Custom alert name, description
+     * and solution will be used.
      *
      * @param risk the risk of the new alert
      * @param confidence the confidence of the new alert
@@ -385,30 +429,48 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param solution the solution for the issue
      * @param msg the message that shows the issue
      */
-    protected void bingo(int risk, int confidence, String name, String description, String uri,
-            String param, String attack, String otherInfo, String solution,
+    protected void bingo(
+            int risk,
+            int confidence,
+            String name,
+            String description,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String solution,
             HttpMessage msg) {
-        
+
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
-        
+
         Alert alert = new Alert(this.getId(), risk, confidence, name);
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();
         }
-        
+
         if (param == null) {
             param = "";
         }
-        
-        alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(),
-                "", this.getCweId(), this.getWascId(), msg);
-        
+
+        alert.setDetail(
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                this.getReference(),
+                "",
+                this.getCweId(),
+                this.getWascId(),
+                msg);
+
         parent.alertFound(alert);
     }
 
     /**
-     * Generate an alert when a security issue (risk/info) is found. Default
-     * name, description, solution of this Plugin will be used.
+     * Generate an alert when a security issue (risk/info) is found. Default name, description,
+     * solution of this Plugin will be used.
      *
      * @param risk the risk of the new alert
      * @param confidence the confidence of the new alert
@@ -419,16 +481,33 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param evidence the evidence (in the response) that shows the issue
      * @param msg the message that shows the issue
      */
-    protected void bingo(int risk, int confidence, String uri, String param, String attack, String otherInfo,
-            String evidence, HttpMessage msg) {
-        
-        bingo(risk, confidence, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(),
-                evidence, msg);
+    protected void bingo(
+            int risk,
+            int confidence,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String evidence,
+            HttpMessage msg) {
+
+        bingo(
+                risk,
+                confidence,
+                this.getName(),
+                this.getDescription(),
+                uri,
+                param,
+                attack,
+                otherInfo,
+                this.getSolution(),
+                evidence,
+                msg);
     }
 
     /**
-     * Generate an alert when a security issue (risk/info) is found. Custom
-     * alert name, description and solution will be used.
+     * Generate an alert when a security issue (risk/info) is found. Custom alert name, description
+     * and solution will be used.
      *
      * @param risk the risk of the new alert
      * @param confidence the confidence of the new alert
@@ -442,51 +521,116 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param evidence the evidence (in the response) that shows the issue
      * @param msg the message that shows the issue
      */
-    protected void bingo(int risk, int confidence, String name, String description, String uri,
-            String param, String attack, String otherInfo, String solution,
-            String evidence, HttpMessage msg) {
-        
+    protected void bingo(
+            int risk,
+            int confidence,
+            String name,
+            String description,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String solution,
+            String evidence,
+            HttpMessage msg) {
+
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
         Alert alert = new Alert(this.getId(), risk, confidence, name);
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();
         }
-        
+
         if (param == null) {
             param = "";
         }
-        
-        alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(),
-                evidence, this.getCweId(), this.getWascId(), msg);
-        
+
+        alert.setDetail(
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                this.getReference(),
+                evidence,
+                this.getCweId(),
+                this.getWascId(),
+                msg);
+
         parent.alertFound(alert);
     }
 
-    protected void bingo(int risk, int confidence, String name, String description, String uri,
-            String param, String attack, String otherInfo, String solution,
-            String evidence, int cweId, int wascId, HttpMessage msg) {
-        bingo(risk, confidence, name, description, uri, param, attack,
-                otherInfo, solution, evidence, this.getReference(), cweId, wascId, msg);
+    protected void bingo(
+            int risk,
+            int confidence,
+            String name,
+            String description,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String solution,
+            String evidence,
+            int cweId,
+            int wascId,
+            HttpMessage msg) {
+        bingo(
+                risk,
+                confidence,
+                name,
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                evidence,
+                this.getReference(),
+                cweId,
+                wascId,
+                msg);
     }
 
-    protected void bingo(int risk, int confidence, String name, String description, String uri,
-            String param, String attack, String otherInfo, String solution,
-            String evidence, String reference, int cweId, int wascId, HttpMessage msg) {
-       
+    protected void bingo(
+            int risk,
+            int confidence,
+            String name,
+            String description,
+            String uri,
+            String param,
+            String attack,
+            String otherInfo,
+            String solution,
+            String evidence,
+            String reference,
+            int cweId,
+            int wascId,
+            HttpMessage msg) {
+
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
         Alert alert = new Alert(this.getId(), risk, confidence, name);
-        
+
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();
         }
-        
+
         if (param == null) {
             param = "";
         }
-        
-        alert.setDetail(description, uri, param, attack, otherInfo, solution, reference,
-                evidence, cweId, wascId, msg);
-        
+
+        alert.setDetail(
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                reference,
+                evidence,
+                cweId,
+                wascId,
+                msg);
+
         parent.alertFound(alert);
     }
 
@@ -501,9 +645,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Check if this test should be stopped. It should be checked periodically
-     * in Plugin (eg when in loops) so the HostProcess can stop this Plugin
-     * cleanly.
+     * Check if this test should be stopped. It should be checked periodically in Plugin (eg when in
+     * loops) so the HostProcess can stop this Plugin cleanly.
      *
      * @return {@code true} if the scanner should stop, {@code false} otherwise
      */
@@ -515,7 +658,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public boolean isEnabled() {
         return enabled;
-
     }
 
     @Override
@@ -523,9 +665,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return true;
     }
 
-    /**
-     * Enable this test
-     */
+    /** Enable this test */
     @Override
     public void setEnabled(boolean enabled) {
         if (this.enabled != enabled) {
@@ -547,39 +687,39 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         AlertThreshold level = null;
         try {
             level = AlertThreshold.valueOf(getProperty("level"));
-            //log.debug("getAlertThreshold from configs: " + level.name());
-            
+            // log.debug("getAlertThreshold from configs: " + level.name());
+
         } catch (Exception e) {
             // Ignore
         }
-        
+
         if (level == null) {
             if (this.isEnabled()) {
                 if (incDefault) {
                     level = AlertThreshold.DEFAULT;
-                
+
                 } else {
                     level = defaultAttackThreshold;
                 }
-                
-                //log.debug("getAlertThreshold default: " + level.name());
-                
+
+                // log.debug("getAlertThreshold default: " + level.name());
+
             } else {
                 level = AlertThreshold.OFF;
-                //log.debug("getAlertThreshold not enabled: " + level.name());
+                // log.debug("getAlertThreshold not enabled: " + level.name());
             }
-            
+
         } else if (level.equals(AlertThreshold.DEFAULT)) {
             if (incDefault) {
                 level = AlertThreshold.DEFAULT;
-                
+
             } else {
                 level = defaultAttackThreshold;
             }
-            
-            //log.debug("getAlertThreshold default: " + level.name());
+
+            // log.debug("getAlertThreshold default: " + level.name());
         }
-        
+
         return level;
     }
 
@@ -594,9 +734,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         this.defaultAttackThreshold = level;
     }
 
-    /**
-     * Override this if you plugin supports other levels.
-     */
+    /** Override this if you plugin supports other levels. */
     @Override
     public AlertThreshold[] getAlertThresholdsSupported() {
         return alertThresholdsSupported;
@@ -607,33 +745,33 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         AttackStrength level = null;
         try {
             level = AttackStrength.valueOf(getProperty("strength"));
-            //log.debug("getAttackStrength from configs: " + level.name());
-            
+            // log.debug("getAttackStrength from configs: " + level.name());
+
         } catch (Exception e) {
             // Ignore
         }
-        
+
         if (level == null) {
             if (incDefault) {
                 level = AttackStrength.DEFAULT;
-            
+
             } else {
                 level = this.defaultAttackStrength;
             }
 
-            //log.debug("getAttackStrength default: " + level.name());
-            
+            // log.debug("getAttackStrength default: " + level.name());
+
         } else if (level.equals(AttackStrength.DEFAULT)) {
             if (incDefault) {
                 level = AttackStrength.DEFAULT;
-            
+
             } else {
                 level = this.defaultAttackStrength;
             }
-            
-            //log.debug("getAttackStrength default: " + level.name());
+
+            // log.debug("getAttackStrength default: " + level.name());
         }
-        
+
         return level;
     }
 
@@ -652,17 +790,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         this.defaultAttackStrength = strength;
     }
 
-    /**
-     * Override this if you plugin supports other levels.
-     */
+    /** Override this if you plugin supports other levels. */
     @Override
     public AttackStrength[] getAttackStrengthsSupported() {
         return attackStrengthsSupported;
     }
 
-    /**
-     * Compare if 2 plugin is the same.
-     */
+    /** Compare if 2 plugin is the same. */
     @Override
     public int compareTo(Object obj) {
         int result = -1;
@@ -670,15 +804,15 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             AbstractPlugin test = (AbstractPlugin) obj;
             if (getId() < test.getId()) {
                 result = -1;
-                
+
             } else if (getId() > test.getId()) {
                 result = 1;
-                
+
             } else {
                 result = 0;
             }
         }
-        
+
         return result;
     }
 
@@ -695,7 +829,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public int hashCode() {
         return Objects.hash(this.getId());
     }
-    
+
     /**
      * Check if the given pattern can be found in the header.
      *
@@ -719,15 +853,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Check if the given pattern can be found in the msg body. If the supplied
-     * StringBuilder is not null, append the result to the StringBuilder.
+     * Check if the given pattern can be found in the msg body. If the supplied StringBuilder is not
+     * null, append the result to the StringBuilder.
      *
      * @param msg the message that will be checked
      * @param pattern the pattern that will be used
      * @param sb where the regex match should be appended
      * @return true if the pattern can be found.
      */
-    protected boolean matchBodyPattern(HttpMessage msg, Pattern pattern, StringBuilder sb) { // ZAP: Changed the type of the parameter "sb" to StringBuilder.
+    protected boolean matchBodyPattern(
+            HttpMessage msg,
+            Pattern pattern,
+            StringBuilder sb) { // ZAP: Changed the type of the parameter "sb" to StringBuilder.
         Matcher matcher = pattern.matcher(msg.getResponseBody().toString());
         boolean result = matcher.find();
         if (result) {
@@ -739,13 +876,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Write a progress update message. Currently this just display in
-     * System.out
+     * Write a progress update message. Currently this just display in System.out
      *
      * @param msg the progress message
      */
     protected void writeProgress(String msg) {
-        //System.out.println(msg);
+        // System.out.println(msg);
     }
 
     /**
@@ -753,16 +889,15 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @return the parent HostProcess
      */
-    //ZAP: Changed from protected to public access modifier.
+    // ZAP: Changed from protected to public access modifier.
     public HostProcess getParent() {
         return parent;
     }
 
     /**
-     * Replace body by stripping of pattern string. The URLencoded and
-     * URLdecoded pattern will also be stripped off. This is mainly used for
-     * stripping off a testing string in HTTP response for comparison against
-     * the original response. Reference: TestInjectionSQL
+     * Replace body by stripping of pattern string. The URLencoded and URLdecoded pattern will also
+     * be stripped off. This is mainly used for stripping off a testing string in HTTP response for
+     * comparison against the original response. Reference: TestInjectionSQL
      *
      * @param body the body that will be used
      * @param pattern the pattern used for the removals
@@ -774,8 +909,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         String htmlEncodePattern1 = getHTMLEncode(pattern);
         String htmlEncodePattern2 = getHTMLEncode(urlEncodePattern);
         String htmlEncodePattern3 = getHTMLEncode(urlDecodePattern);
-        String result = body.replaceAll("\\Q" + pattern + "\\E", "").replaceAll("\\Q" + urlEncodePattern + "\\E", "").replaceAll("\\Q" + urlDecodePattern + "\\E", "");
-        result = result.replaceAll("\\Q" + htmlEncodePattern1 + "\\E", "").replaceAll("\\Q" + htmlEncodePattern2 + "\\E", "").replaceAll("\\Q" + htmlEncodePattern3 + "\\E", "");
+        String result =
+                body.replaceAll("\\Q" + pattern + "\\E", "")
+                        .replaceAll("\\Q" + urlEncodePattern + "\\E", "")
+                        .replaceAll("\\Q" + urlDecodePattern + "\\E", "");
+        result =
+                result.replaceAll("\\Q" + htmlEncodePattern1 + "\\E", "")
+                        .replaceAll("\\Q" + htmlEncodePattern2 + "\\E", "")
+                        .replaceAll("\\Q" + htmlEncodePattern3 + "\\E", "");
         return result;
     }
 
@@ -818,7 +959,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     public String getProperty(String key) {
-    	return this.getProperty(config, key);
+        return this.getProperty(config, key);
     }
 
     private String getProperty(Configuration conf, String key) {
@@ -832,7 +973,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private void setProperty(Configuration conf, String key, String value) {
         conf.setProperty("plugins." + "p" + getId() + "." + key, value);
     }
-    
+
     @Override
     public void setConfig(Configuration config) {
         this.config = config;
@@ -842,14 +983,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public Configuration getConfig() {
         return config;
     }
-    
+
     @Override
     public void saveTo(Configuration conf) {
         setProperty(conf, "enabled", Boolean.toString(enabled));
         setProperty(conf, "level", getProperty("level"));
         setProperty(conf, "strength", getProperty("strength"));
     }
-    
+
     @Override
     public void loadFrom(Configuration conf) {
         setProperty("level", getProperty(conf, "level"));
@@ -866,26 +1007,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void cloneInto(Plugin plugin) {
-    	if (plugin instanceof AbstractPlugin) {
-    		AbstractPlugin ap = (AbstractPlugin) plugin;
-    		ap.setAlertThreshold(this.getAlertThreshold(true));
-    		ap.setEnabled(this.isEnabled());
-    		ap.setAttackStrength(this.getAttackStrength(true));
-    		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
-    		ap.setDefaultAttackStrength(this.defaultAttackStrength);
-    		ap.setTechSet(this.getTechSet());
-    		ap.setStatus(this.getStatus());
-    		ap.saveTo(plugin.getConfig());
-    	} else {
-    		throw new InvalidParameterException("Not an AbstractPlugin");
-    	}
+        if (plugin instanceof AbstractPlugin) {
+            AbstractPlugin ap = (AbstractPlugin) plugin;
+            ap.setAlertThreshold(this.getAlertThreshold(true));
+            ap.setEnabled(this.isEnabled());
+            ap.setAttackStrength(this.getAttackStrength(true));
+            ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
+            ap.setDefaultAttackStrength(this.defaultAttackStrength);
+            ap.setTechSet(this.getTechSet());
+            ap.setStatus(this.getStatus());
+            ap.saveTo(plugin.getConfig());
+        } else {
+            throw new InvalidParameterException("Not an AbstractPlugin");
+        }
     }
 
-    /**
-     * Check and create necessary parameter in config file if not already
-     * present.
-     *
-     */
+    /** Check and create necessary parameter in config file if not already present. */
     @Override
     public void createParamIfNotExist() {
         if (getProperty("enabled") == null) {
@@ -899,9 +1036,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return false;
     }
 
-    /**
-     * @since 2.2.0
-     */
+    /** @since 2.2.0 */
     @Override
     public int getRisk() {
         return Alert.RISK_MEDIUM;
@@ -917,9 +1052,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         this.delayInMs = delayInMs;
     }
 
-    /**
-     * @see #isAnyInScope(Tech...)
-     */
+    /** @see #isAnyInScope(Tech...) */
     @Override
     public boolean inScope(Tech tech) {
         return this.techSet.includes(tech);
@@ -927,15 +1060,19 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Tells whether or not any of the given technologies is enabled for the scan.
-     * <p>
-     * Helper method to check if any of the related technologies is enabled before performing a test/scan. For example:
-     * <pre> {@code
+     *
+     * <p>Helper method to check if any of the related technologies is enabled before performing a
+     * test/scan. For example:
+     *
+     * <pre>{@code
      * if (isAnyInScope(Tech.Linux, Tech.MacOS)) {
      *     // Perform nix test...
-     * }}</pre>
-     * 
+     * }
+     * }</pre>
+     *
      * @param techs the technologies that will be checked.
-     * @return {@code true} if any of the technologies is enabled for the scan, {@code false} otherwise.
+     * @return {@code true} if any of the technologies is enabled for the scan, {@code false}
+     *     otherwise.
      * @since 2.8.0
      * @see #inScope(Tech)
      * @see #targets(TechSet)
@@ -951,22 +1088,23 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         }
         this.techSet = ts;
     }
-    
+
     /**
      * Returns the technologies enabled for the scan.
      *
-     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null} (since 2.6.0).
+     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null}
+     *     (since 2.6.0).
      * @since 2.4.0
      * @see #inScope(Tech)
      * @see #targets(TechSet)
      */
     public TechSet getTechSet() {
-    	return this.techSet;
+        return this.techSet;
     }
 
     /**
      * Returns {@code true} by default.
-     * 
+     *
      * @since 2.4.1
      * @see #getTechSet()
      */
@@ -1008,13 +1146,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return 0;
     }
 
-	@Override
-	public AddOn.Status getStatus() {
-		return status;
-	}
+    @Override
+    public AddOn.Status getStatus() {
+        return status;
+    }
 
-	public void setStatus(AddOn.Status status) {
-		this.status = status;
-	}
-    
+    public void setStatus(AddOn.Status status) {
+        this.status = status;
+    }
 }

@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,36 +23,38 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
-
 import org.junit.Test;
 
 public class HttpMethodBaseUnitTest {
 
-	@Test
-	public void testParseCookieHeaderEmpty() {
-		List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com", "");
-		assertThat(cookies.size(), is(0));
-	}
+    @Test
+    public void testParseCookieHeaderEmpty() {
+        List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com", "");
+        assertThat(cookies.size(), is(0));
+    }
 
-	@Test
-	public void testParseCookieHeaderWithOneCookie() {
-		List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com",
-		        "JSESSIONID=5DFA94B903A0063839E0440118808875");
-		assertThat(cookies.size(), is(1));
-	}
+    @Test
+    public void testParseCookieHeaderWithOneCookie() {
+        List<Cookie> cookies =
+                HttpMethodBase.parseCookieHeader(
+                        "example.com", "JSESSIONID=5DFA94B903A0063839E0440118808875");
+        assertThat(cookies.size(), is(1));
+    }
 
-	@Test
-	public void testParseCookieHeaderWithTwoCookie() {
-		List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com",
-		        "has_js=1;JSESSIONID=5DFA94B903A0063839E0440118808875");
-		assertThat(cookies.size(), is(2));
-		cookies = HttpMethodBase.parseCookieHeader("example.com",
-		        "has_js=1; JSESSIONID=5DFA94B903A0063839E0440118808875");
-		assertThat(cookies.size(), is(2));
-		// empty value
-		cookies = HttpMethodBase.parseCookieHeader("example.com",
-		        "has_js=;JSESSIONID=5DFA94B903A0063839E0440118808875");
-		assertThat(cookies.size(), is(2));
-	}
-
+    @Test
+    public void testParseCookieHeaderWithTwoCookie() {
+        List<Cookie> cookies =
+                HttpMethodBase.parseCookieHeader(
+                        "example.com", "has_js=1;JSESSIONID=5DFA94B903A0063839E0440118808875");
+        assertThat(cookies.size(), is(2));
+        cookies =
+                HttpMethodBase.parseCookieHeader(
+                        "example.com", "has_js=1; JSESSIONID=5DFA94B903A0063839E0440118808875");
+        assertThat(cookies.size(), is(2));
+        // empty value
+        cookies =
+                HttpMethodBase.parseCookieHeader(
+                        "example.com", "has_js=;JSESSIONID=5DFA94B903A0063839E0440118808875");
+        assertThat(cookies.size(), is(2));
+    }
 }

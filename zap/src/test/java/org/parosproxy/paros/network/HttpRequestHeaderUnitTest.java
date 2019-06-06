@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,13 +26,10 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.TreeSet;
-
 import org.apache.commons.httpclient.URI;
 import org.junit.Test;
 
-/**
- * Unit test for {@link HttpRequestHeader}.
- */
+/** Unit test for {@link HttpRequestHeader}. */
 public class HttpRequestHeaderUnitTest {
 
     @Test
@@ -48,7 +45,8 @@ public class HttpRequestHeaderUnitTest {
     @Test
     public void shouldNotBeEmptyIfItHasRequestLine() throws Exception {
         // Given
-        HttpRequestHeader header = new HttpRequestHeader("GET http://example.com/ HTTP/1.1\r\n\r\n");
+        HttpRequestHeader header =
+                new HttpRequestHeader("GET http://example.com/ HTTP/1.1\r\n\r\n");
         // When
         boolean empty = header.isEmpty();
         // Then
@@ -58,7 +56,8 @@ public class HttpRequestHeaderUnitTest {
     @Test
     public void shouldNotBeEmptyIfItHasRequestLineAndHeaders() throws Exception {
         // Given
-        HttpRequestHeader header = new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+        HttpRequestHeader header =
+                new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
         // When
         boolean empty = header.isEmpty();
         // Then
@@ -89,7 +88,7 @@ public class HttpRequestHeaderUnitTest {
     @Test
     public void shouldBeImageIfRequestUriHasPathWithImageExtension() throws Exception {
         // Given
-        String[] extensions = { "bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png" };
+        String[] extensions = {"bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png"};
         HttpRequestHeader header = new HttpRequestHeader();
         for (String extension : extensions) {
             header.setURI(new URI("http://example.com/image." + extension, true));
@@ -116,7 +115,8 @@ public class HttpRequestHeaderUnitTest {
     public void shouldSetCookieParams() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
-        TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"), cookieParam("c2", "v2"), cookieParam("", "v3"));
+        TreeSet<HtmlParameter> cookies =
+                parameters(cookieParam("c1", "v1"), cookieParam("c2", "v2"), cookieParam("", "v3"));
         // When
         header.setCookieParams(cookies);
         // Then
@@ -162,7 +162,8 @@ public class HttpRequestHeaderUnitTest {
     public void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
-        TreeSet<HtmlParameter> paramsWithouCookies = parameters(urlParam("p1", "v1"), formParam("p2", "v2"));
+        TreeSet<HtmlParameter> paramsWithouCookies =
+                parameters(urlParam("p1", "v1"), formParam("p2", "v2"));
         // When
         header.setCookieParams(paramsWithouCookies);
         // Then
@@ -173,7 +174,8 @@ public class HttpRequestHeaderUnitTest {
     public void shouldReplaceAnyCookieHeaderWhenSettingCookieParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
-        TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"), cookieParam("c2", "v2"), cookieParam("", "v3"));
+        TreeSet<HtmlParameter> cookies =
+                parameters(cookieParam("c1", "v1"), cookieParam("c2", "v2"), cookieParam("", "v3"));
         // When
         header.setCookieParams(cookies);
         // Then
@@ -210,9 +212,11 @@ public class HttpRequestHeaderUnitTest {
 
     private static HttpRequestHeader createRequestHeaderWithCookies() {
         try {
-            HttpRequestHeader header = new HttpRequestHeader(
-                    "GET / HTTP/1.1\r\n" + "Cookie: cookie1=value1; cookie2=value2\r\n"
-                            + "Cookie: cookie3=value3; cookie4=value4\r\n");
+            HttpRequestHeader header =
+                    new HttpRequestHeader(
+                            "GET / HTTP/1.1\r\n"
+                                    + "Cookie: cookie1=value1; cookie2=value2\r\n"
+                                    + "Cookie: cookie3=value3; cookie4=value4\r\n");
             return header;
         } catch (HttpMalformedHeaderException e) {
             throw new RuntimeException(e);

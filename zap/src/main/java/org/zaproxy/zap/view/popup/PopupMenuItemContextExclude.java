@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,9 +21,7 @@ package org.zaproxy.zap.view.popup;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JMenuItem;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -32,9 +30,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
-/**
- * @since 2.3.0
- */
+/** @since 2.3.0 */
 public class PopupMenuItemContextExclude extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 2282358266003940700L;
@@ -96,5 +92,4 @@ public class PopupMenuItemContextExclude extends PopupMenuItemSiteNodeContainer 
     public boolean isSafe() {
         return true;
     }
-
 }

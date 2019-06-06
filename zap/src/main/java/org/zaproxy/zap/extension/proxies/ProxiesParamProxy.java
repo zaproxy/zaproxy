@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.proxies;
 
@@ -26,28 +26,25 @@ class ProxiesParamProxy extends Enableable {
     private String address = "localhost";
     private int port = 8080;
 
-    /**
-     * Flag that indicates if the proxy ip is any local address.
-     */
+    /** Flag that indicates if the proxy ip is any local address. */
     private boolean proxyIpAnyLocalAddress;
 
     /**
-     * Flag that controls whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding"
-     * request-header field.
-     * <p>
-     * Default is {@code true}.
+     * Flag that controls whether or not the local proxy should remove unsupported encodings from
+     * the "Accept-Encoding" request-header field.
+     *
+     * <p>Default is {@code true}.
+     *
      * @see #setRemoveUnsupportedEncodings(boolean)
      */
     private boolean removeUnsupportedEncodings = true;
-    /**
-     * The option that controls whether the proxy should always decode gzipped content or not.
-     */
+    /** The option that controls whether the proxy should always decode gzipped content or not. */
     private boolean alwaysDecodeGzip = true;
 
     /**
      * Flag that controls whether or not the local proxy is behind NAT.
-     * <p>
-     * Default is {@code false}.
+     *
+     * <p>Default is {@code false}.
      */
     private boolean behindNat;
 
@@ -80,13 +77,14 @@ class ProxiesParamProxy extends Enableable {
     }
 
     public ProxiesParamProxy(ProxiesParamProxy proxy) {
-        this(proxy.address,
-             proxy.port,
-             proxy.isEnabled(),
-             proxy.proxyIpAnyLocalAddress,
-             proxy.removeUnsupportedEncodings,
-             proxy.alwaysDecodeGzip,
-             proxy.behindNat);
+        this(
+                proxy.address,
+                proxy.port,
+                proxy.isEnabled(),
+                proxy.proxyIpAnyLocalAddress,
+                proxy.removeUnsupportedEncodings,
+                proxy.alwaysDecodeGzip,
+                proxy.behindNat);
     }
 
     public String getAddress() {

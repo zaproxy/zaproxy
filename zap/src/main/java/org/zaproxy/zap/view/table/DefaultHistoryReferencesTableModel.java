@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,32 +25,33 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
 import javax.swing.event.TableModelEvent;
-
 import org.parosproxy.paros.model.HistoryReference;
 
 /**
  * A default implementation of {@code HistoryReferencesTableModel}.
- * 
+ *
  * @see HistoryReferencesTableModel
  */
-public class DefaultHistoryReferencesTableModel extends AbstractHistoryReferencesTableModel<DefaultHistoryReferencesTableEntry> {
+public class DefaultHistoryReferencesTableModel
+        extends AbstractHistoryReferencesTableModel<DefaultHistoryReferencesTableEntry> {
 
     private static final long serialVersionUID = -8628528927411108669L;
 
-    private static final Column[] DEFAULT_COLUMNS = new Column[] {
-            Column.HREF_ID,
-            Column.REQUEST_TIMESTAMP,
-            Column.METHOD,
-            Column.URL,
-            Column.STATUS_CODE,
-            Column.STATUS_REASON,
-            Column.RTT,
-            Column.SIZE_RESPONSE_BODY,
-            Column.HIGHEST_ALERT,
-            Column.NOTE,
-            Column.TAGS };
+    private static final Column[] DEFAULT_COLUMNS =
+            new Column[] {
+                Column.HREF_ID,
+                Column.REQUEST_TIMESTAMP,
+                Column.METHOD,
+                Column.URL,
+                Column.STATUS_CODE,
+                Column.STATUS_REASON,
+                Column.RTT,
+                Column.SIZE_RESPONSE_BODY,
+                Column.HIGHEST_ALERT,
+                Column.NOTE,
+                Column.TAGS
+            };
 
     public static Column[] getDefaultColumns() {
         return Arrays.copyOf(DEFAULT_COLUMNS, DEFAULT_COLUMNS.length);
@@ -63,7 +64,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     /**
      * Constructs a {@code DefaultHistoryReferencesTableModel} with the default columns.
-     * 
+     *
      * @see #getDefaultColumns()
      */
     public DefaultHistoryReferencesTableModel() {
@@ -71,8 +72,9 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
 
     /**
-     * Constructs a {@code DefaultHistoryReferencesTableModel} with the specified columns (in the specified order).
-     * 
+     * Constructs a {@code DefaultHistoryReferencesTableModel} with the specified columns (in the
+     * specified order).
+     *
      * @param columns the columns that will have the model
      * @throws IllegalArgumentException if {@code columns} is null or empty.
      */
@@ -90,7 +92,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     /**
      * Returns the {@code Class} of the given column.
-     * 
+     *
      * @param column the column being queried
      * @return the {@code Class} of the column
      */
@@ -110,7 +112,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     /**
      * Returns the prototype value of the given column.
-     * 
+     *
      * @param column the column being queried
      * @return the prototype value of the column
      */
@@ -166,8 +168,9 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
 
     /**
-     * Decreases, by one unit, all the row indexes greater than or equal to {@code fromRowIndex} contained in {@code rowIndexes}.
-     * 
+     * Decreases, by one unit, all the row indexes greater than or equal to {@code fromRowIndex}
+     * contained in {@code rowIndexes}.
+     *
      * @param fromRowIndex the start row index
      * @see #rowIndexes
      */
@@ -180,8 +183,9 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
 
     /**
-     * Removes and returns all the row indexes greater than or equal to {@code fromRowIndex} contained in {@code rowIndexes}.
-     * 
+     * Removes and returns all the row indexes greater than or equal to {@code fromRowIndex}
+     * contained in {@code rowIndexes}.
+     *
      * @param fromRowIndex the start row index
      * @return the removed row indexes
      * @see #rowIndexes
@@ -229,9 +233,9 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
 
     /**
-     * Convenience method that creates a {@code DefaultHistoryReferencesTableEntry} with the given history reference and adds it
-     * to the model.
-     * 
+     * Convenience method that creates a {@code DefaultHistoryReferencesTableEntry} with the given
+     * history reference and adds it to the model.
+     *
      * @param historyReference the history reference that will be added to the model
      * @see DefaultHistoryReferencesTableEntry
      * @see HistoryReference
@@ -241,25 +245,26 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
 
     /**
-     * Convenience method that removes a {@code DefaultHistoryReferencesTableEntry} with the given history reference
-     * from the model. If the provided {@code HistoryReference} is {@code null} the function will return without having 
-     * done anything.
-     * 
+     * Convenience method that removes a {@code DefaultHistoryReferencesTableEntry} with the given
+     * history reference from the model. If the provided {@code HistoryReference} is {@code null}
+     * the function will return without having done anything.
+     *
      * @param historyReference the history reference that will be removed from the model
      * @see DefaultHistoryReferencesTableEntry
      * @see HistoryReference
      * @since 2.7.0
      */
     public void removeHistoryReference(HistoryReference historyReference) {
-        if (historyReference== null) {
-        	return;
+        if (historyReference == null) {
+            return;
         }
         removeEntry(historyReference.getHistoryId());
     }
-    
+
     /**
-     * Returns the history reference with the given ID. If the history reference is not found {@code null} is returned.
-     * 
+     * Returns the history reference with the given ID. If the history reference is not found {@code
+     * null} is returned.
+     *
      * @param historyReferenceId the ID of the history reference that will be searched
      * @return the history reference, or {@code null} if not found
      */
@@ -273,9 +278,9 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     /**
      * A row index, as opposed to an {@code Integer} it allows to change its value.
-     * <p>
-     * Used for mappings between history IDs and row indexes.
-     * 
+     *
+     * <p>Used for mappings between history IDs and row indexes.
+     *
      * @see DefaultHistoryReferencesTableModel#historyIdToRow
      * @see DefaultHistoryReferencesTableModel#rowIndexes
      */

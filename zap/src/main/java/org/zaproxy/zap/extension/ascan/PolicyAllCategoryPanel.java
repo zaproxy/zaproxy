@@ -24,8 +24,10 @@
 // ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 // ZAP: 2016/07/25 Use new AllCategoryTableModel's constructor
 // ZAP: 2017/06/22 Focus the component that contains validation errors.
-// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is not important).
+// ZAP: 2018/01/30 Do not rely on default locale for upper/lower case conversions (when locale is
+// not important).
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
@@ -39,7 +41,6 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Locale;
-
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -51,7 +52,6 @@ import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.TableColumn;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -67,11 +67,11 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
-    //private static final String ILLEGAL_CHRS = "/`?*\\<>|\":\t\n\r";
+    // private static final String ILLEGAL_CHRS = "/`?*\\<>|\":\t\n\r";
 
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(PolicyAllCategoryPanel.class);
-    
+
     private ZapTextField policyName = null;
     private JTable tableTest = null;
     private JScrollPane jScrollPane = null;
@@ -90,26 +90,25 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private ScanPolicy policy;
     private String currentName;
     private boolean switchable = false;
-    
+
     private static final int[] width = {300, 100, 100};
 
     public PolicyAllCategoryPanel(Window parent, ExtensionActiveScan extension, ScanPolicy policy) {
-    	this(parent, extension, policy, false);
+        this(parent, extension, policy, false);
     }
-    
-    public PolicyAllCategoryPanel(Window parent, ExtensionActiveScan extension, ScanPolicy policy, boolean switchable) {
+
+    public PolicyAllCategoryPanel(
+            Window parent, ExtensionActiveScan extension, ScanPolicy policy, boolean switchable) {
         super();
         this.extension = extension;
         this.policy = policy;
-       	this.currentName = policy.getName();
-       	this.switchable = switchable;
+        this.currentName = policy.getName();
+        this.switchable = switchable;
 
-       	initialize();
+        initialize();
     }
 
-    /**
-     * This method initializes this
-     */
+    /** This method initializes this */
     private void initialize() {
         this.setLayout(new GridBagLayout());
         this.setSize(375, 205);
@@ -117,131 +116,182 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
         // Add Attack settings section - a copy of the options dialog
         // ---------------------------------------------
-        
+
         int row = 0;
-        this.add(new JLabel(Constant.messages.getString("ascan.policy.name.label")),
-                LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                new JLabel(Constant.messages.getString("ascan.policy.name.label")),
+                LayoutHelper.getGBC(
+                        0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
         if (this.switchable) {
-        	this.add(getPolicySelector(),
-        			LayoutHelper.getGBC(1, row, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            this.add(
+                    getPolicySelector(),
+                    LayoutHelper.getGBC(
+                            1,
+                            row,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
         } else {
-        	this.add(getPolicyName(),
-        			LayoutHelper.getGBC(1, row, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            this.add(
+                    getPolicyName(),
+                    LayoutHelper.getGBC(
+                            1,
+                            row,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
         }
 
         row++;
-        this.add(new JLabel(Constant.messages.getString("ascan.options.level.label")),
-                LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-        this.add(getComboThreshold(),
-                LayoutHelper.getGBC(1, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-        this.add(getThresholdNotes(),
-                LayoutHelper.getGBC(2, row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                new JLabel(Constant.messages.getString("ascan.options.level.label")),
+                LayoutHelper.getGBC(
+                        0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                getComboThreshold(),
+                LayoutHelper.getGBC(
+                        1, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                getThresholdNotes(),
+                LayoutHelper.getGBC(
+                        2, row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
         row++;
-        this.add(new JLabel(Constant.messages.getString("ascan.options.strength.label")),
-                LayoutHelper.getGBC(0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-        this.add(getComboStrength(),
-                LayoutHelper.getGBC(1, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-        this.add(getStrengthNotes(),
-                LayoutHelper.getGBC(2, row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                new JLabel(Constant.messages.getString("ascan.options.strength.label")),
+                LayoutHelper.getGBC(
+                        0, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                getComboStrength(),
+                LayoutHelper.getGBC(
+                        1, row, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(
+                getStrengthNotes(),
+                LayoutHelper.getGBC(
+                        2, row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
         // 'Apply to' controls
         JPanel applyToPanel = new JPanel();
         applyToPanel.setLayout(new GridBagLayout());
-        applyToPanel.add(new JLabel(Constant.messages.getString("ascan.options.apply.label")), 
-        		LayoutHelper.getGBC(0, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
+        applyToPanel.add(
+                new JLabel(Constant.messages.getString("ascan.options.apply.label")),
+                LayoutHelper.getGBC(0, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
         applyToPanel.add(getApplyToThreshold(), LayoutHelper.getGBC(1, 0, 1, 0.0));
-        applyToPanel.add(new JLabel(Constant.messages.getString("ascan.options.thresholdTo.label")), 
-        		LayoutHelper.getGBC(2, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
+        applyToPanel.add(
+                new JLabel(Constant.messages.getString("ascan.options.thresholdTo.label")),
+                LayoutHelper.getGBC(2, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
         applyToPanel.add(getApplyToThresholdTarget(), LayoutHelper.getGBC(3, 0, 1, 0.0));
-        applyToPanel.add(new JLabel(Constant.messages.getString("ascan.options.rules.label")), LayoutHelper.getGBC(4, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
-        JButton applyThresholdButton = new JButton(Constant.messages.getString("ascan.options.go.button"));
-        applyThresholdButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				applyThreshold (strToThreshold((String)getApplyToThreshold().getSelectedItem()),
-						(String)getApplyToThresholdTarget().getSelectedItem());
-				getAllCategoryTableModel().fireTableDataChanged();
-				
-			}});
+        applyToPanel.add(
+                new JLabel(Constant.messages.getString("ascan.options.rules.label")),
+                LayoutHelper.getGBC(4, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
+        JButton applyThresholdButton =
+                new JButton(Constant.messages.getString("ascan.options.go.button"));
+        applyThresholdButton.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        applyThreshold(
+                                strToThreshold((String) getApplyToThreshold().getSelectedItem()),
+                                (String) getApplyToThresholdTarget().getSelectedItem());
+                        getAllCategoryTableModel().fireTableDataChanged();
+                    }
+                });
         applyToPanel.add(applyThresholdButton, LayoutHelper.getGBC(5, 0, 1, 0.0));
-        applyToPanel.add(new JLabel(""), LayoutHelper.getGBC(6, 0, 1, 1.0));	// Spacer
-        
-        applyToPanel.add(new JLabel(Constant.messages.getString("ascan.options.apply.label")), 
-        		LayoutHelper.getGBC(0, 1, 1, 0.0, new Insets(2, 2, 2, 2)));
+        applyToPanel.add(new JLabel(""), LayoutHelper.getGBC(6, 0, 1, 1.0)); // Spacer
+
+        applyToPanel.add(
+                new JLabel(Constant.messages.getString("ascan.options.apply.label")),
+                LayoutHelper.getGBC(0, 1, 1, 0.0, new Insets(2, 2, 2, 2)));
         applyToPanel.add(getApplyToStrength(), LayoutHelper.getGBC(1, 1, 1, 0.0));
-        applyToPanel.add(new JLabel(Constant.messages.getString("ascan.options.strengthTo.label")), LayoutHelper.getGBC(2, 1, 1, 0.0, new Insets(2, 2, 2, 2)));
+        applyToPanel.add(
+                new JLabel(Constant.messages.getString("ascan.options.strengthTo.label")),
+                LayoutHelper.getGBC(2, 1, 1, 0.0, new Insets(2, 2, 2, 2)));
         applyToPanel.add(getApplyToStrengthTarget(), LayoutHelper.getGBC(3, 1, 1, 0.0));
-        applyToPanel.add(new JLabel(Constant.messages.getString("ascan.options.rules.label")), LayoutHelper.getGBC(4, 1, 1, 0.0, new Insets(2, 2, 2, 2)));
-        JButton applyStrengthButton = new JButton(Constant.messages.getString("ascan.options.go.button"));
-        applyStrengthButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				applyStrength (strToStrength((String)getApplyToStrength().getSelectedItem()),
-						(String)getApplyToStrengthTarget().getSelectedItem());
-				getAllCategoryTableModel().fireTableDataChanged();
-				
-			}});
+        applyToPanel.add(
+                new JLabel(Constant.messages.getString("ascan.options.rules.label")),
+                LayoutHelper.getGBC(4, 1, 1, 0.0, new Insets(2, 2, 2, 2)));
+        JButton applyStrengthButton =
+                new JButton(Constant.messages.getString("ascan.options.go.button"));
+        applyStrengthButton.addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        applyStrength(
+                                strToStrength((String) getApplyToStrength().getSelectedItem()),
+                                (String) getApplyToStrengthTarget().getSelectedItem());
+                        getAllCategoryTableModel().fireTableDataChanged();
+                    }
+                });
         applyToPanel.add(applyStrengthButton, LayoutHelper.getGBC(5, 1, 1, 0.0));
-        applyToPanel.add(new JLabel(""), LayoutHelper.getGBC(6, 1, 1, 1.0));	// Spacer
-        
+        applyToPanel.add(new JLabel(""), LayoutHelper.getGBC(6, 1, 1, 1.0)); // Spacer
+
         row++;
-        this.add(applyToPanel,
-                LayoutHelper.getGBC(0, row, 3, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
-    
+        this.add(
+                applyToPanel,
+                LayoutHelper.getGBC(
+                        0, row, 3, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
+
         // Add the scrolling list of active plugin categories
         row++;
-        this.add(getJScrollPane(),
-                LayoutHelper.getGBC(0, row, 3, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
+        this.add(
+                getJScrollPane(),
+                LayoutHelper.getGBC(
+                        0, row, 3, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
         this.setThreshold(policy.getDefaultThreshold());
         this.setStrength(policy.getDefaultStrength());
     }
-    
+
     public void initialise(ScanPolicy policy) {
-    	this.getPolicyName().setText(policy.getName());
+        this.getPolicyName().setText(policy.getName());
     }
-    
+
     private ZapTextField getPolicyName() {
-    	if (policyName == null) {
-    		policyName = new ZapTextField();
-    		policyName.setText(policy.getName());
-    	}
-    	return policyName;
+        if (policyName == null) {
+            policyName = new ZapTextField();
+            policyName.setText(policy.getName());
+        }
+        return policyName;
     }
 
     private JComboBox<String> getPolicySelector() {
-    	if (policySelector == null) {
-    		policySelector = new JComboBox<>();
-    		for (String policy : extension.getPolicyManager().getAllPolicyNames()) {
-    			policySelector.addItem(policy);
-    		}
-    		policySelector.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					String policyName = (String) policySelector.getSelectedItem();
-					if (policyName == null) {
-						return;
-					}
+        if (policySelector == null) {
+            policySelector = new JComboBox<>();
+            for (String policy : extension.getPolicyManager().getAllPolicyNames()) {
+                policySelector.addItem(policy);
+            }
+            policySelector.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String policyName = (String) policySelector.getSelectedItem();
+                            if (policyName == null) {
+                                return;
+                            }
 
-					ScanPolicy policy;
-					try {
-						policy = extension.getPolicyManager().getPolicy(policyName);
-						if (policy != null) {
-							setScanPolicy(policy);
-							fireScanPolicyChanged(policy);
-						}
-					} catch (ConfigurationException e1) {
-						logger.error(e1.getMessage(), e1);
-					}
-				}});
-    	}
-    	return policySelector;
+                            ScanPolicy policy;
+                            try {
+                                policy = extension.getPolicyManager().getPolicy(policyName);
+                                if (policy != null) {
+                                    setScanPolicy(policy);
+                                    fireScanPolicyChanged(policy);
+                                }
+                            } catch (ConfigurationException e1) {
+                                logger.error(e1.getMessage(), e1);
+                            }
+                        }
+                    });
+        }
+        return policySelector;
     }
-    
+
     /**
-     * Reloads the scan policies, which will pick any new ones that have been defined and selects the policy with the given
-     * name.
-     * 
+     * Reloads the scan policies, which will pick any new ones that have been defined and selects
+     * the policy with the given name.
+     *
      * @param scanPolicyName the name of the policy that should be selected
      * @since 2.5.0
      */
@@ -254,29 +304,27 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         getPolicySelector().setSelectedItem(scanPolicyName);
     }
 
-    /**
-     * Reloads the scan policies, which will pick any new ones that have been defined
-     */
+    /** Reloads the scan policies, which will pick any new ones that have been defined */
     public void reloadPolicies() {
-    	// Ensure policySelector is initialized
-    	Object selected = getPolicySelector().getSelectedItem(); 
-    	reloadPolicies((String) selected);
+        // Ensure policySelector is initialized
+        Object selected = getPolicySelector().getSelectedItem();
+        reloadPolicies((String) selected);
     }
-    
+
     private AlertThreshold strToThreshold(String str) {
-    	if (str.equals(Constant.messages.getString("ascan.options.level.off"))) {
-    		return AlertThreshold.OFF;
-    	}
-    	if (str.equals(Constant.messages.getString("ascan.options.level.low"))) {
-    		return AlertThreshold.LOW;
-    	}
-    	if (str.equals(Constant.messages.getString("ascan.options.level.medium"))) {
-    		return AlertThreshold.MEDIUM;
-    	}
-    	if (str.equals(Constant.messages.getString("ascan.options.level.high"))) {
-    		return AlertThreshold.HIGH;
-    	}
-		return AlertThreshold.DEFAULT;
+        if (str.equals(Constant.messages.getString("ascan.options.level.off"))) {
+            return AlertThreshold.OFF;
+        }
+        if (str.equals(Constant.messages.getString("ascan.options.level.low"))) {
+            return AlertThreshold.LOW;
+        }
+        if (str.equals(Constant.messages.getString("ascan.options.level.medium"))) {
+            return AlertThreshold.MEDIUM;
+        }
+        if (str.equals(Constant.messages.getString("ascan.options.level.high"))) {
+            return AlertThreshold.HIGH;
+        }
+        return AlertThreshold.DEFAULT;
     }
 
     private JComboBox<String> getApplyToThreshold() {
@@ -297,7 +345,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         }
         return applyToThresholdTarget;
     }
-    
+
     /**
      * Creates a {@code JComboBox} with scanners' statuses, "all", release, beta and alpha.
      *
@@ -314,17 +362,17 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     }
 
     private void applyThreshold(AlertThreshold threshold, String target) {
-    	for (Plugin plugin : policy.getPluginFactory().getAllPlugin()) {
-    		if (hasSameStatus(plugin, target)) {
-    			plugin.setAlertThreshold(threshold);
-    		}
-    	}
+        for (Plugin plugin : policy.getPluginFactory().getAllPlugin()) {
+            if (hasSameStatus(plugin, target)) {
+                plugin.setAlertThreshold(threshold);
+            }
+        }
     }
 
     /**
      * Tells whether or not the given {@code scanner} has the given {@code status}.
-     * <p>
-     * If the given {@code status} represents all statuses it returns always {@code true}.
+     *
+     * <p>If the given {@code status} represents all statuses it returns always {@code true}.
      *
      * @param scanner the scanner that will be checked
      * @param status the status to check
@@ -339,19 +387,19 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     }
 
     private AttackStrength strToStrength(String str) {
-    	if (str.equals(Constant.messages.getString("ascan.options.strength.low"))) {
-    		return AttackStrength.LOW;
-    	}
-    	if (str.equals(Constant.messages.getString("ascan.options.strength.medium"))) {
-    		return AttackStrength.MEDIUM;
-    	}
-    	if (str.equals(Constant.messages.getString("ascan.options.strength.high"))) {
-    		return AttackStrength.HIGH;
-    	}
-    	if (str.equals(Constant.messages.getString("ascan.options.strength.insane"))) {
-    		return AttackStrength.INSANE;
-    	}
-		return AttackStrength.DEFAULT;
+        if (str.equals(Constant.messages.getString("ascan.options.strength.low"))) {
+            return AttackStrength.LOW;
+        }
+        if (str.equals(Constant.messages.getString("ascan.options.strength.medium"))) {
+            return AttackStrength.MEDIUM;
+        }
+        if (str.equals(Constant.messages.getString("ascan.options.strength.high"))) {
+            return AttackStrength.HIGH;
+        }
+        if (str.equals(Constant.messages.getString("ascan.options.strength.insane"))) {
+            return AttackStrength.INSANE;
+        }
+        return AttackStrength.DEFAULT;
     }
 
     private JComboBox<String> getApplyToStrength() {
@@ -372,29 +420,43 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         }
         return applyToStrengthTarget;
     }
-    
+
     private void applyStrength(AttackStrength strength, String target) {
-    	for (Plugin plugin : policy.getPluginFactory().getAllPlugin()) {
-    		if (hasSameStatus(plugin, target)) {
-    			plugin.setAttackStrength(strength);
-    		}
-    	}
+        for (Plugin plugin : policy.getPluginFactory().getAllPlugin()) {
+            if (hasSameStatus(plugin, target)) {
+                plugin.setAttackStrength(strength);
+            }
+        }
     }
 
     private void setThreshold(AlertThreshold threshold) {
-        getComboThreshold().setSelectedItem(
-        		Constant.messages.getString("ascan.options.level." + threshold.name().toLowerCase(Locale.ROOT)));
-        getThresholdNotes().setText(
-        		Constant.messages.getString("ascan.options.level." + threshold.name().toLowerCase(Locale.ROOT) + ".label"));
+        getComboThreshold()
+                .setSelectedItem(
+                        Constant.messages.getString(
+                                "ascan.options.level."
+                                        + threshold.name().toLowerCase(Locale.ROOT)));
+        getThresholdNotes()
+                .setText(
+                        Constant.messages.getString(
+                                "ascan.options.level."
+                                        + threshold.name().toLowerCase(Locale.ROOT)
+                                        + ".label"));
     }
-    
+
     private void setStrength(AttackStrength strength) {
-        getComboStrength().setSelectedItem(
-        		Constant.messages.getString("ascan.options.strength." + strength.name().toLowerCase(Locale.ROOT)));
-        getStrengthNotes().setText(
-        		Constant.messages.getString("ascan.options.strength." + strength.name().toLowerCase(Locale.ROOT) + ".label"));
+        getComboStrength()
+                .setSelectedItem(
+                        Constant.messages.getString(
+                                "ascan.options.strength."
+                                        + strength.name().toLowerCase(Locale.ROOT)));
+        getStrengthNotes()
+                .setText(
+                        Constant.messages.getString(
+                                "ascan.options.strength."
+                                        + strength.name().toLowerCase(Locale.ROOT)
+                                        + ".label"));
     }
-    
+
     /**
      * This method initializes tableTest
      *
@@ -407,74 +469,80 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             tableTest.setRowHeight(DisplayUtils.getScaledSize(18));
             tableTest.setIntercellSpacing(new java.awt.Dimension(1, 1));
             tableTest.setAutoCreateRowSorter(true);
-            
-            //Default sort by name (column 0)
+
+            // Default sort by name (column 0)
             List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
             tableTest.getRowSorter().setSortKeys(sortKeys);
-            
-            for (int i = 0; i < tableTest.getColumnCount()-1; i++) {
+
+            for (int i = 0; i < tableTest.getColumnCount() - 1; i++) {
                 TableColumn column = tableTest.getColumnModel().getColumn(i);
                 column.setPreferredWidth(width[i]);
             }
-            
+
             JComboBox<String> jcb1 = new JComboBox<>();
-            jcb1.addItem("");	// Always show a blank one for where they are not all the same
+            jcb1.addItem(""); // Always show a blank one for where they are not all the same
             for (AlertThreshold level : AlertThreshold.values()) {
-                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
+                jcb1.addItem(
+                        Constant.messages.getString(
+                                "ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
-            
+
             tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
 
             JComboBox<String> jcb2 = new JComboBox<>();
-            jcb2.addItem("");	// Always show a blank one for where they are not all the same
+            jcb2.addItem(""); // Always show a blank one for where they are not all the same
             for (AttackStrength level : AttackStrength.values()) {
-                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
+                jcb2.addItem(
+                        Constant.messages.getString(
+                                "ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
-            
+
             tableTest.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(jcb2));
         }
-        
+
         return tableTest;
     }
-    
+
     public void setScanPolicy(ScanPolicy scanPolicy) {
-    	if (! switchable) {
-    		throw new InvalidParameterException("Cannot change policy if the panel has not been defined as switchable");
-    	}
-    	this.policy = scanPolicy;
-   		this.getPolicySelector().setSelectedItem(scanPolicy.getName());
-   		this.setThreshold(scanPolicy.getDefaultThreshold());
-   		this.setStrength(scanPolicy.getDefaultStrength());
-   		this.getAllCategoryTableModel().setPluginFactory(scanPolicy.getPluginFactory());
+        if (!switchable) {
+            throw new InvalidParameterException(
+                    "Cannot change policy if the panel has not been defined as switchable");
+        }
+        this.policy = scanPolicy;
+        this.getPolicySelector().setSelectedItem(scanPolicy.getName());
+        this.setThreshold(scanPolicy.getDefaultThreshold());
+        this.setStrength(scanPolicy.getDefaultStrength());
+        this.getAllCategoryTableModel().setPluginFactory(scanPolicy.getPluginFactory());
     }
 
     @Override
-    public void initParam(Object obj) {
-    }
+    public void initParam(Object obj) {}
 
     @Override
     public void validateParam(Object obj) throws Exception {
-    	String newName = getPolicyName().getText();
-    	if (newName.length() == 0) {
-    		getPolicyName().requestFocusInWindow();
-    		throw new Exception(Constant.messages.getString("ascan.policy.warn.noname"));
-    	} else if (! extension.getPolicyManager().isLegalPolicyName(newName)) {
-    		getPolicyName().requestFocusInWindow();
-    		throw new Exception(Constant.messages.getString("ascan.policy.warn.badname", PolicyManager.ILLEGAL_POLICY_NAME_CHRS));
-			
-		} else if (! newName.equals(currentName)) {
-			// Name changed
-			if (extension.getPolicyManager().getAllPolicyNames().contains(newName)) {
-				getPolicyName().requestFocusInWindow();
-	    		throw new Exception(Constant.messages.getString("ascan.policy.warn.exists"));
-			}
-		}
+        String newName = getPolicyName().getText();
+        if (newName.length() == 0) {
+            getPolicyName().requestFocusInWindow();
+            throw new Exception(Constant.messages.getString("ascan.policy.warn.noname"));
+        } else if (!extension.getPolicyManager().isLegalPolicyName(newName)) {
+            getPolicyName().requestFocusInWindow();
+            throw new Exception(
+                    Constant.messages.getString(
+                            "ascan.policy.warn.badname", PolicyManager.ILLEGAL_POLICY_NAME_CHRS));
+
+        } else if (!newName.equals(currentName)) {
+            // Name changed
+            if (extension.getPolicyManager().getAllPolicyNames().contains(newName)) {
+                getPolicyName().requestFocusInWindow();
+                throw new Exception(Constant.messages.getString("ascan.policy.warn.exists"));
+            }
+        }
     }
 
-	@Override
+    @Override
     public void saveParam(Object obj) throws Exception {
-    	this.policy.setName(getPolicyName().getText());
+        this.policy.setName(getPolicyName().getText());
     }
 
     /**
@@ -486,7 +554,9 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
             jScrollPane.setViewportView(getTableTest());
-            jScrollPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+            jScrollPane.setBorder(
+                    javax.swing.BorderFactory.createEtchedBorder(
+                            javax.swing.border.EtchedBorder.RAISED));
         }
 
         return jScrollPane;
@@ -501,7 +571,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         if (allCategoryTableModel == null) {
             allCategoryTableModel = new AllCategoryTableModel(policy.getPluginFactory());
         }
-        
+
         return allCategoryTableModel;
     }
 
@@ -509,7 +579,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         if (labelThresholdNotes == null) {
             labelThresholdNotes = new JLabel();
         }
-        
+
         return labelThresholdNotes;
     }
 
@@ -519,24 +589,42 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             comboThreshold.addItem(Constant.messages.getString("ascan.options.level.low"));
             comboThreshold.addItem(Constant.messages.getString("ascan.options.level.medium"));
             comboThreshold.addItem(Constant.messages.getString("ascan.options.level.high"));
-            comboThreshold.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Set the explanation and save
-                    if (comboThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.low"))) {
-                        getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
-                        policy.setDefaultThreshold(AlertThreshold.LOW);
+            comboThreshold.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            // Set the explanation and save
+                            if (comboThreshold
+                                    .getSelectedItem()
+                                    .equals(
+                                            Constant.messages.getString(
+                                                    "ascan.options.level.low"))) {
+                                getThresholdNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.level.low.label"));
+                                policy.setDefaultThreshold(AlertThreshold.LOW);
 
-                    } else if (comboThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.medium"))) {
-                        getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
-                        policy.setDefaultThreshold(AlertThreshold.MEDIUM);
+                            } else if (comboThreshold
+                                    .getSelectedItem()
+                                    .equals(
+                                            Constant.messages.getString(
+                                                    "ascan.options.level.medium"))) {
+                                getThresholdNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.level.medium.label"));
+                                policy.setDefaultThreshold(AlertThreshold.MEDIUM);
 
-                    } else {
-                        getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
-                        policy.setDefaultThreshold(AlertThreshold.HIGH);
-                    }
-                }
-            });
+                            } else {
+                                getThresholdNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.level.high.label"));
+                                policy.setDefaultThreshold(AlertThreshold.HIGH);
+                            }
+                        }
+                    });
         }
 
         return comboThreshold;
@@ -557,30 +645,55 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             comboStrength.addItem(Constant.messages.getString("ascan.options.strength.medium"));
             comboStrength.addItem(Constant.messages.getString("ascan.options.strength.high"));
             comboStrength.addItem(Constant.messages.getString("ascan.options.strength.insane"));
-            comboStrength.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Set the explanation and save
-                    if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.low"))) {
-                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.low.label"));
-                        policy.setDefaultStrength(AttackStrength.LOW);
+            comboStrength.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            // Set the explanation and save
+                            if (comboStrength
+                                    .getSelectedItem()
+                                    .equals(
+                                            Constant.messages.getString(
+                                                    "ascan.options.strength.low"))) {
+                                getStrengthNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.strength.low.label"));
+                                policy.setDefaultStrength(AttackStrength.LOW);
 
-                    } else if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.medium"))) {
-                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
-                        policy.setDefaultStrength(AttackStrength.MEDIUM);
+                            } else if (comboStrength
+                                    .getSelectedItem()
+                                    .equals(
+                                            Constant.messages.getString(
+                                                    "ascan.options.strength.medium"))) {
+                                getStrengthNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.strength.medium.label"));
+                                policy.setDefaultStrength(AttackStrength.MEDIUM);
 
-                    } else if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.high"))) {
-                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.high.label"));
-                        policy.setDefaultStrength(AttackStrength.HIGH);
+                            } else if (comboStrength
+                                    .getSelectedItem()
+                                    .equals(
+                                            Constant.messages.getString(
+                                                    "ascan.options.strength.high"))) {
+                                getStrengthNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.strength.high.label"));
+                                policy.setDefaultStrength(AttackStrength.HIGH);
 
-                    } else {
-                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.insane.label"));
-                        policy.setDefaultStrength(AttackStrength.INSANE);
-                    }
-                }
-            });
+                            } else {
+                                getStrengthNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.strength.insane.label"));
+                                policy.setDefaultStrength(AttackStrength.INSANE);
+                            }
+                        }
+                    });
         }
-        
+
         return comboStrength;
     }
 
@@ -588,9 +701,10 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     public String getHelpIndex() {
         return "ui.dialogs.scanpolicy";
     }
-    
+
     /**
-     * Adds the given {@code listener} to the list that's notified of each change in the selected scan policy.
+     * Adds the given {@code listener} to the list that's notified of each change in the selected
+     * scan policy.
      *
      * @param listener the listener that will be added
      * @since 2.5.0
@@ -600,7 +714,8 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     }
 
     /**
-     * Removes the given {@code listener} from the list that's notified of each change in the selected scan policy.
+     * Removes the given {@code listener} from the list that's notified of each change in the
+     * selected scan policy.
      *
      * @param listener the listener that will be removed
      * @since 2.5.0
@@ -620,10 +735,11 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
     /**
      * The listener interface for receiving notifications of changes in the selected scan policy.
-     * 
+     *
      * @since 2.5.0
      * @see PolicyAllCategoryPanel#addScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
-     * @see PolicyAllCategoryPanel#removeScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
+     * @see
+     *     PolicyAllCategoryPanel#removeScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
      */
     public interface ScanPolicyChangedEventListener extends EventListener {
 

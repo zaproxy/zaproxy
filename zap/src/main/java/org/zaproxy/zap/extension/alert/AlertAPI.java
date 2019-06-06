@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2018 The ZAP Development team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2018 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.alert;
 
@@ -25,7 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -44,9 +45,6 @@ import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.utils.ApiUtils;
-
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
 
 public class AlertAPI extends ApiImplementor {
 
@@ -72,7 +70,7 @@ public class AlertAPI extends ApiImplementor {
 
     /**
      * The constant that indicates that no risk ID is being provided.
-     * 
+     *
      * @see #getRiskId(JSONObject)
      * @see #processAlerts(String, int, int, int, Processor)
      */
@@ -83,15 +81,24 @@ public class AlertAPI extends ApiImplementor {
 
     public AlertAPI(ExtensionAlert ext) {
         this.extension = ext;
-        this.addApiView(new ApiView(VIEW_ALERT, new String[] { PARAM_ID }));
-        this.addApiView(new ApiView(VIEW_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK }));
-        this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] { PARAM_BASE_URL }));
-        this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }));
-        this.addApiView(new ApiView(VIEW_ALERTS_BY_RISK, null, new String[] { PARAM_URL, PARAM_RECURSE }));
-        this.addApiView(new ApiView(VIEW_ALERT_COUNTS_BY_RISK, null, new String[] { PARAM_URL, PARAM_RECURSE }));
+        this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
+        this.addApiView(
+                new ApiView(
+                        VIEW_ALERTS,
+                        null,
+                        new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK}));
+        this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
+        this.addApiView(
+                new ApiView(
+                        VIEW_NUMBER_OF_ALERTS, null, new String[] {PARAM_BASE_URL, PARAM_RISK}));
+        this.addApiView(
+                new ApiView(VIEW_ALERTS_BY_RISK, null, new String[] {PARAM_URL, PARAM_RECURSE}));
+        this.addApiView(
+                new ApiView(
+                        VIEW_ALERT_COUNTS_BY_RISK, null, new String[] {PARAM_URL, PARAM_RECURSE}));
 
         this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
-        this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID }));
+        this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID}));
     }
 
     @Override
@@ -142,29 +149,36 @@ public class AlertAPI extends ApiImplementor {
 
             result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
         } else if (VIEW_ALERTS_SUMMARY.equals(name)) {
-            final int[] riskSummary = { 0, 0, 0, 0 };
-            Processor<Alert> counter = new Processor<Alert>() {
+            final int[] riskSummary = {0, 0, 0, 0};
+            Processor<Alert> counter =
+                    new Processor<Alert>() {
 
-                @Override
-                public void process(Alert alert) {
-                    riskSummary[alert.getRisk()]++;
-                }
-            };
-            processAlerts(this.getParam(params, PARAM_BASE_URL, (String) null), -1, -1, NO_RISK_ID, counter);
+                        @Override
+                        public void process(Alert alert) {
+                            riskSummary[alert.getRisk()]++;
+                        }
+                    };
+            processAlerts(
+                    this.getParam(params, PARAM_BASE_URL, (String) null),
+                    -1,
+                    -1,
+                    NO_RISK_ID,
+                    counter);
 
             Map<String, Object> alertData = new HashMap<>();
             for (int i = 0; i < riskSummary.length; i++) {
                 alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
             }
-            result = new ApiResponseSet<Object>("risk", alertData) {
+            result =
+                    new ApiResponseSet<Object>("risk", alertData) {
 
-                @Override
-                public JSON toJSON() {
-                    JSONObject response = new JSONObject();
-                    response.put(name, super.toJSON());
-                    return response;
-                }
-            };
+                        @Override
+                        public JSON toJSON() {
+                            JSONObject response = new JSONObject();
+                            response.put(name, super.toJSON());
+                            return response;
+                        }
+                    };
         } else if (VIEW_ALERTS_BY_RISK.equals(name)) {
             String url = this.getParam(params, PARAM_URL, "");
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
@@ -197,7 +211,7 @@ public class AlertAPI extends ApiImplementor {
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
 
             // 0 (RISK_INFO) -> 3 (RISK_HIGH)
-            int[] counts = new int[] { 0, 0, 0, 0 };
+            int[] counts = new int[] {0, 0, 0, 0};
 
             AlertTreeModel model = extension.getTreeModel();
             AlertNode root = (AlertNode) model.getRoot();
@@ -241,7 +255,8 @@ public class AlertAPI extends ApiImplementor {
                 throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
             }
 
-            final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+            final ExtensionAlert extAlert =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
             if (extAlert != null) {
                 extAlert.deleteAlert(new Alert(recAlert));
             } else {
@@ -253,7 +268,8 @@ public class AlertAPI extends ApiImplementor {
                 }
             }
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
-            final ExtensionAlert extAlert = Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+            final ExtensionAlert extAlert =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
             if (extAlert != null) {
                 extAlert.deleteAllAlerts();
             } else {
@@ -311,13 +327,15 @@ public class AlertAPI extends ApiImplementor {
         return alertList;
     }
 
-    private void processAlerts(String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
+    private void processAlerts(
+            String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
             throws ApiException {
         List<Alert> alerts = new ArrayList<>();
         try {
             TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
             // TODO this doesn't work, but should be used when its fixed :/
-            // Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+            // Vector<Integer> v =
+            // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
             Vector<Integer> v = tableAlert.getAlertList();
 
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
@@ -326,7 +344,8 @@ public class AlertAPI extends ApiImplementor {
                 RecordAlert recAlert = tableAlert.read(alertId);
                 Alert alert = new Alert(recAlert);
 
-                if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE && !alerts.contains(alert)) {
+                if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE
+                        && !alerts.contains(alert)) {
                     if (baseUrl != null && !alert.getUri().startsWith(baseUrl)) {
                         // Not subordinate to the specified URL
                         continue;
@@ -358,7 +377,10 @@ public class AlertAPI extends ApiImplementor {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(alert.getAlertId()));
         map.put("pluginId", String.valueOf(alert.getPluginId()));
-        map.put("alert", alert.getName()); // Deprecated in 2.5.0, maintain for compatibility with custom code
+        map.put(
+                "alert",
+                alert.getName()); // Deprecated in 2.5.0, maintain for compatibility with custom
+        // code
         map.put("name", alert.getName());
         map.put("description", alert.getDescription());
         map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
@@ -374,7 +396,11 @@ public class AlertAPI extends ApiImplementor {
         map.put("wascid", String.valueOf(alert.getWascId()));
         map.put("sourceid", String.valueOf(alert.getSource().getId()));
         map.put("solution", alert.getSolution());
-        map.put("messageId", (alert.getHistoryRef() != null) ? String.valueOf(alert.getHistoryRef().getHistoryId()) : "");
+        map.put(
+                "messageId",
+                (alert.getHistoryRef() != null)
+                        ? String.valueOf(alert.getHistoryRef().getHistoryId())
+                        : "");
 
         return new ApiResponseSet<String>("alert", map);
     }
@@ -394,15 +420,19 @@ public class AlertAPI extends ApiImplementor {
     private static void throwInvalidRiskId() throws ApiException {
         throw new ApiException(
                 ApiException.Type.ILLEGAL_PARAMETER,
-                "Parameter " + PARAM_RISK + " is not a valid risk ID (integer in interval [0, 3]).");
+                "Parameter "
+                        + PARAM_RISK
+                        + " is not a valid risk ID (integer in interval [0, 3]).");
     }
 
     /**
-     * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK} as parameter name.
+     * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK} as parameter
+     * name.
      *
      * @param parameters the parameters of the API request.
      * @return the ID of the risk, or {@link #NO_RISK_ID} if none provided.
-     * @throws ApiException if the provided risk ID is not valid (not an integer nor a valid risk ID).
+     * @throws ApiException if the provided risk ID is not valid (not an integer nor a valid risk
+     *     ID).
      */
     private int getRiskId(JSONObject parameters) throws ApiException {
         String riskIdParam = getParam(parameters, PARAM_RISK, "").trim();
@@ -496,5 +526,4 @@ public class AlertAPI extends ApiImplementor {
             return pageEnded;
         }
     }
-
 }

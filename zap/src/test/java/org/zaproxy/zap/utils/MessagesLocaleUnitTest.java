@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2018 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
@@ -45,11 +44,13 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /**
- * Unit test to verify that the {@code Messages.properties} files are loaded with expected {@code Locale}.
+ * Unit test to verify that the {@code Messages.properties} files are loaded with expected {@code
+ * Locale}.
  */
 public class MessagesLocaleUnitTest extends TestUtils {
 
-    private static final Path DIRECTORY = getResourcePath("/" + Constant.LANG_DIR, MessagesLocaleUnitTest.class);
+    private static final Path DIRECTORY =
+            getResourcePath("/" + Constant.LANG_DIR, MessagesLocaleUnitTest.class);
     private static final String BASE_NAME = Constant.MESSAGES_PREFIX;
     private static final String FILE_NAME = BASE_NAME + "_";
     private static final String FILE_EXTENSION = ".properties";
@@ -61,16 +62,20 @@ public class MessagesLocaleUnitTest extends TestUtils {
 
     @Test
     public void shouldLoadAllMessagesFilesAvailable() throws Exception {
-        try (URLClassLoader classLoader = new URLClassLoader(new URL[] { DIRECTORY.toUri().toURL() })) {
+        try (URLClassLoader classLoader =
+                new URLClassLoader(new URL[] {DIRECTORY.toUri().toURL()})) {
             List<String> brokenLocales = new ArrayList<>();
             for (Path file : getMessagesFiles()) {
                 String fileName = file.getFileName().toString();
-                String[] localeParts = fileName.substring(FILE_NAME.length(), fileName.indexOf(FILE_EXTENSION)).split("_");
+                String[] localeParts =
+                        fileName.substring(FILE_NAME.length(), fileName.indexOf(FILE_EXTENSION))
+                                .split("_");
 
                 if (localeParts.length > 1) {
                     Locale locale = new Locale(localeParts[0], localeParts[1]);
-                    ResourceBundle rb = ResourceBundle
-                            .getBundle(BASE_NAME, locale, classLoader, new ZapResourceBundleControl());
+                    ResourceBundle rb =
+                            ResourceBundle.getBundle(
+                                    BASE_NAME, locale, classLoader, new ZapResourceBundleControl());
                     if (!rb.getLocale().equals(locale)) {
                         brokenLocales.add(buildMessage(fileName, locale, rb.getLocale()));
                     }
@@ -83,25 +88,37 @@ public class MessagesLocaleUnitTest extends TestUtils {
     }
 
     private static String buildMessage(String fileName, Locale expected, Locale actual) {
-        return fileName + " uses '" + ((actual == Locale.ROOT) ? "ROOT" : actual) + "' instead of '" + expected + "'";
+        return fileName
+                + " uses '"
+                + ((actual == Locale.ROOT) ? "ROOT" : actual)
+                + "' instead of '"
+                + expected
+                + "'";
     }
 
     private static List<Path> getMessagesFiles() {
         final List<Path> files = new ArrayList<>();
         try {
-            Files.walkFileTree(DIRECTORY, Collections.<FileVisitOption> emptySet(), 1, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(
+                    DIRECTORY,
+                    Collections.<FileVisitOption>emptySet(),
+                    1,
+                    new SimpleFileVisitor<Path>() {
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    String fileName = file.getFileName().toString();
-                    if (fileName.startsWith(FILE_NAME) && fileName.endsWith(FILE_EXTENSION)) {
-                        files.add(file);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                                throws IOException {
+                            String fileName = file.getFileName().toString();
+                            if (fileName.startsWith(FILE_NAME)
+                                    && fileName.endsWith(FILE_EXTENSION)) {
+                                files.add(file);
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
         } catch (IOException e) {
-            throw new RuntimeException("An error occurred while walking directory: " + DIRECTORY, e);
+            throw new RuntimeException(
+                    "An error occurred while walking directory: " + DIRECTORY, e);
         }
         return files;
     }

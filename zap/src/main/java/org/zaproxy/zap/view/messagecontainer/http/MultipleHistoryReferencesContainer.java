@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,35 +20,37 @@
 package org.zaproxy.zap.view.messagecontainer.http;
 
 import java.util.List;
-
 import org.parosproxy.paros.model.HistoryReference;
 
 /**
- * A {@code MultipleHttpMessagesContainer} that exposes the {@code HistoryReference}s of the contained messages.
- * 
+ * A {@code MultipleHttpMessagesContainer} that exposes the {@code HistoryReference}s of the
+ * contained messages.
+ *
  * @see HistoryReference
  * @see MultipleHttpMessagesContainer
  * @since 2.3.0
  */
-public interface MultipleHistoryReferencesContainer extends MultipleHttpMessagesContainer, SingleHistoryReferenceContainer {
+public interface MultipleHistoryReferencesContainer
+        extends MultipleHttpMessagesContainer, SingleHistoryReferenceContainer {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * If multiple messages are present the {@code HistoryReference} of the first one is returned.
+     *
+     * <p>If multiple messages are present the {@code HistoryReference} of the first one is
+     * returned.
      */
     @Override
     HistoryReference getHistoryReference();
 
     /**
      * Returns all the {@code HistoryReference}s of the selected messages.
-     * <p>
-     * No assumptions should be made on the actual implementation type of the {@code List} returned by this method (for example,
-     * it might be unmodifiable or its elements lazy loaded).
-     * 
-     * @return a {@code List} with all the {@code HistoryReference}s of the selected messages, never {@code null}.
+     *
+     * <p>No assumptions should be made on the actual implementation type of the {@code List}
+     * returned by this method (for example, it might be unmodifiable or its elements lazy loaded).
+     *
+     * @return a {@code List} with all the {@code HistoryReference}s of the selected messages, never
+     *     {@code null}.
      * @see #getNumberOfMessages()
      */
     List<HistoryReference> getHistoryReferences();
-
 }

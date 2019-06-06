@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,8 +24,10 @@ import javax.swing.ImageIcon;
 
 public class NoteTableCellItemIconHighlighter extends AbstractTableCellItemIconHighlighter {
 
-    private static final Icon NOTE_ICON = new ImageIcon(
-            NoteTableCellItemIconHighlighter.class.getResource("/resource/icon/16/022.png"));
+    private static final Icon NOTE_ICON =
+            new ImageIcon(
+                    NoteTableCellItemIconHighlighter.class.getResource(
+                            "/resource/icon/16/022.png"));
 
     public NoteTableCellItemIconHighlighter(final int columnIndex) {
         super(columnIndex);

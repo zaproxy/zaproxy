@@ -21,96 +21,92 @@ package org.zaproxy.zap.spider.parser;
 
 import java.util.Objects;
 import java.util.StringTokenizer;
-
 import net.htmlparser.jericho.Source;
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The Class SpiderRobotstxtParser used for parsing Robots.txt files.
- * 
+ *
  * @since 2.0.0
  */
 public class SpiderRobotstxtParser extends SpiderParser {
 
-	private static final String COMMENT_TOKEN = "#";
+    private static final String COMMENT_TOKEN = "#";
 
-	private static final String PATTERNS_DISALLOW = "(?i)Disallow:.*";
-	private static final String PATTERNS_ALLOW = "(?i)Allow:.*";
+    private static final String PATTERNS_DISALLOW = "(?i)Disallow:.*";
+    private static final String PATTERNS_ALLOW = "(?i)Allow:.*";
 
-	private static final int PATTERNS_DISALLOW_LENGTH = 9;
-	private static final int PATTERNS_ALLOW_LENGTH = 6;
+    private static final int PATTERNS_DISALLOW_LENGTH = 9;
+    private static final int PATTERNS_ALLOW_LENGTH = 6;
 
-	/** The params. */
-	private SpiderParam params;
+    /** The params. */
+    private SpiderParam params;
 
-	/**
-	 * Instantiates a new spider robotstxt parser.
-	 * 
-	 * @param params the params
-	 * @throws NullPointerException if {@code params} is null.
-	 */
-	public SpiderRobotstxtParser(SpiderParam params) {
-		super();
-		this.params = Objects.requireNonNull(params, "Parameter params must not be null.");
-	}
+    /**
+     * Instantiates a new spider robotstxt parser.
+     *
+     * @param params the params
+     * @throws NullPointerException if {@code params} is null.
+     */
+    public SpiderRobotstxtParser(SpiderParam params) {
+        super();
+        this.params = Objects.requireNonNull(params, "Parameter params must not be null.");
+    }
 
-	/**
-	 * @throws NullPointerException if {@code message} is null.
-	 */
-	@Override
-	public boolean parseResource(HttpMessage message, Source source, int depth) {
-		if (!params.isParseRobotsTxt()) {
-			return false;
-		}
-		log.debug("Parsing a robots.txt resource...");
+    /** @throws NullPointerException if {@code message} is null. */
+    @Override
+    public boolean parseResource(HttpMessage message, Source source, int depth) {
+        if (!params.isParseRobotsTxt()) {
+            return false;
+        }
+        log.debug("Parsing a robots.txt resource...");
 
-		String baseURL = message.getRequestHeader().getURI().toString();
+        String baseURL = message.getRequestHeader().getURI().toString();
 
-		StringTokenizer st = new StringTokenizer(message.getResponseBody().toString(), "\n");
-		while (st.hasMoreTokens()) {
-			String line = st.nextToken();
+        StringTokenizer st = new StringTokenizer(message.getResponseBody().toString(), "\n");
+        while (st.hasMoreTokens()) {
+            String line = st.nextToken();
 
-			int commentStart = line.indexOf(COMMENT_TOKEN);
-			if (commentStart != -1) {
-				line = line.substring(0, commentStart);
-			}
+            int commentStart = line.indexOf(COMMENT_TOKEN);
+            if (commentStart != -1) {
+                line = line.substring(0, commentStart);
+            }
 
-			// remove HTML markup and clean
-			line = line.replaceAll("<[^>]+>", "");
-			line = line.trim();
+            // remove HTML markup and clean
+            line = line.replaceAll("<[^>]+>", "");
+            line = line.trim();
 
-			if (line.isEmpty()) {
-				continue;
-			}
-			log.debug("Processing robots.txt line: " + line);
+            if (line.isEmpty()) {
+                continue;
+            }
+            log.debug("Processing robots.txt line: " + line);
 
-			if (line.matches(PATTERNS_DISALLOW)) {
-				processPath(message, depth, line.substring(PATTERNS_DISALLOW_LENGTH), baseURL);
-			} else if (line.matches(PATTERNS_ALLOW)) {
-				processPath(message, depth, line.substring(PATTERNS_ALLOW_LENGTH), baseURL);
-			}
-		}
+            if (line.matches(PATTERNS_DISALLOW)) {
+                processPath(message, depth, line.substring(PATTERNS_DISALLOW_LENGTH), baseURL);
+            } else if (line.matches(PATTERNS_ALLOW)) {
+                processPath(message, depth, line.substring(PATTERNS_ALLOW_LENGTH), baseURL);
+            }
+        }
 
-		// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
-		return true;
-	}
+        // We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+        return true;
+    }
 
-	private void processPath(HttpMessage message, int depth, String path, String baseURL) {
-		String processedPath = path.trim();
-		if (processedPath.endsWith("*")) {
-			processedPath = processedPath.substring(0, processedPath.length() - 1).trim();
-		}
+    private void processPath(HttpMessage message, int depth, String path, String baseURL) {
+        String processedPath = path.trim();
+        if (processedPath.endsWith("*")) {
+            processedPath = processedPath.substring(0, processedPath.length() - 1).trim();
+        }
 
-		if (!processedPath.isEmpty()) {
-			processURL(message, depth, processedPath, baseURL);
-		}
-	}
+        if (!processedPath.isEmpty()) {
+            processURL(message, depth, processedPath, baseURL);
+        }
+    }
 
-	@Override
-	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
-		// If it's a robots.txt file
-		return "/robots.txt".equalsIgnoreCase(path);
-	}
+    @Override
+    public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+        // If it's a robots.txt file
+        return "/robots.txt".equalsIgnoreCase(path);
+    }
 }

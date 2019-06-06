@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.event.TableModelEvent;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -41,29 +39,33 @@ import org.zaproxy.zap.view.table.AbstractHistoryReferencesTableEntry;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
 class SpiderMessagesTableModel
-        extends AbstractCustomColumnHistoryReferencesTableModel<SpiderMessagesTableModel.SpiderTableEntry> {
+        extends AbstractCustomColumnHistoryReferencesTableModel<
+                SpiderMessagesTableModel.SpiderTableEntry> {
 
     private static final long serialVersionUID = 1093393768186896931L;
 
-    private static final Column[] COLUMNS = new Column[] {
-            Column.CUSTOM,
-            Column.HREF_ID,
-            Column.REQUEST_TIMESTAMP,
-            Column.RESPONSE_TIMESTAMP,
-            Column.METHOD,
-            Column.URL,
-            Column.STATUS_CODE,
-            Column.STATUS_REASON,
-            Column.RTT,
-            Column.SIZE_REQUEST_HEADER,
-            Column.SIZE_REQUEST_BODY,
-            Column.SIZE_RESPONSE_HEADER,
-            Column.SIZE_RESPONSE_BODY,
-            Column.HIGHEST_ALERT,
-            Column.TAGS };
+    private static final Column[] COLUMNS =
+            new Column[] {
+                Column.CUSTOM,
+                Column.HREF_ID,
+                Column.REQUEST_TIMESTAMP,
+                Column.RESPONSE_TIMESTAMP,
+                Column.METHOD,
+                Column.URL,
+                Column.STATUS_CODE,
+                Column.STATUS_REASON,
+                Column.RTT,
+                Column.SIZE_REQUEST_HEADER,
+                Column.SIZE_REQUEST_BODY,
+                Column.SIZE_RESPONSE_HEADER,
+                Column.SIZE_RESPONSE_BODY,
+                Column.HIGHEST_ALERT,
+                Column.TAGS
+            };
 
     private static final String[] CUSTOM_COLUMN_NAMES = {
-            Constant.messages.getString("spider.table.messages.header.processed") };
+        Constant.messages.getString("spider.table.messages.header.processed")
+    };
 
     private static final ProcessedCellItem SUCCESSFULLY_PROCESSED_CELL_ITEM;
 
@@ -76,9 +78,11 @@ class SpiderMessagesTableModel
     private Map<String, ProcessedCellItem> cacheProcessedCellItems;
 
     static {
-        SUCCESSFULLY_PROCESSED_CELL_ITEM = new ProcessedCellItem(
-                true,
-                Constant.messages.getString("spider.table.messages.column.processed.successfully"));
+        SUCCESSFULLY_PROCESSED_CELL_ITEM =
+                new ProcessedCellItem(
+                        true,
+                        Constant.messages.getString(
+                                "spider.table.messages.column.processed.successfully"));
     }
 
     public SpiderMessagesTableModel() {
@@ -94,9 +98,17 @@ class SpiderMessagesTableModel
 
         if (createAlertEventConsumer) {
             eventConsumer = new EventConsumerImpl();
-            extensionHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
-            ZAP.getEventBus().registerConsumer(eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
-            ZAP.getEventBus().registerConsumer(eventConsumer, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
+            extensionHistory =
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionHistory.class);
+            ZAP.getEventBus()
+                    .registerConsumer(
+                            eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus()
+                    .registerConsumer(
+                            eventConsumer,
+                            HistoryReferenceEventPublisher.getPublisher().getPublisherName());
         } else {
             eventConsumer = null;
             extensionHistory = null;
@@ -108,24 +120,28 @@ class SpiderMessagesTableModel
         // Nothing to do, the entries are added with the following method.
     }
 
-    public void addHistoryReference(HistoryReference historyReference, boolean processed, String reasonNotProcessed) {
+    public void addHistoryReference(
+            HistoryReference historyReference, boolean processed, String reasonNotProcessed) {
         HistoryReference latestHistoryReference = historyReference;
         if (extensionHistory != null) {
-            latestHistoryReference = extensionHistory.getHistoryReference(historyReference.getHistoryId());
+            latestHistoryReference =
+                    extensionHistory.getHistoryReference(historyReference.getHistoryId());
         }
-        final SpiderTableEntry entry = new SpiderTableEntry(
-                latestHistoryReference,
-                getProcessedCellItem(processed, reasonNotProcessed));
-        EventQueue.invokeLater(new Runnable() {
+        final SpiderTableEntry entry =
+                new SpiderTableEntry(
+                        latestHistoryReference,
+                        getProcessedCellItem(processed, reasonNotProcessed));
+        EventQueue.invokeLater(
+                new Runnable() {
 
-            @Override
-            public void run() {
-                final int row = resources.size();
-                idsToRows.put(Integer.valueOf(entry.getHistoryId()), row);
-                resources.add(entry);
-                fireTableRowsInserted(row, row);
-            }
-        });
+                    @Override
+                    public void run() {
+                        final int row = resources.size();
+                        idsToRows.put(Integer.valueOf(entry.getHistoryId()), row);
+                        resources.add(entry);
+                        fireTableRowsInserted(row, row);
+                    }
+                });
     }
 
     private ProcessedCellItem getProcessedCellItem(boolean processed, String reasonNotProcessed) {
@@ -148,8 +164,13 @@ class SpiderMessagesTableModel
         fireTableDataChanged();
 
         if (eventConsumer != null) {
-            ZAP.getEventBus().unregisterConsumer(eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
-            ZAP.getEventBus().unregisterConsumer(eventConsumer, HistoryReferenceEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus()
+                    .unregisterConsumer(
+                            eventConsumer, AlertEventPublisher.getPublisher().getPublisherName());
+            ZAP.getEventBus()
+                    .unregisterConsumer(
+                            eventConsumer,
+                            HistoryReferenceEventPublisher.getPublisher().getPublisherName());
             eventConsumer = null;
         }
     }
@@ -268,7 +289,8 @@ class SpiderMessagesTableModel
 
         private final ProcessedCellItem processedCellItem;
 
-        public SpiderTableEntry(HistoryReference historyReference, ProcessedCellItem processedCellItem) {
+        public SpiderTableEntry(
+                HistoryReference historyReference, ProcessedCellItem processedCellItem) {
             super(historyReference, COLUMNS);
             this.processedCellItem = processedCellItem;
         }
@@ -343,21 +365,28 @@ class SpiderMessagesTableModel
         @Override
         public void eventReceived(Event event) {
             switch (event.getEventType()) {
-            case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
-            case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
-            case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
-                refreshEntry(
-                        Integer.valueOf(event.getParameters().get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID)));
-                break;
-            case AlertEventPublisher.ALERT_ADDED_EVENT:
-            case AlertEventPublisher.ALERT_CHANGED_EVENT:
-            case AlertEventPublisher.ALERT_REMOVED_EVENT:
-                refreshEntry(Integer.valueOf(event.getParameters().get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
-                break;
-            case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
-                refreshEntries();
-                break;
-            default:
+                case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
+                case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
+                case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
+                    refreshEntry(
+                            Integer.valueOf(
+                                    event.getParameters()
+                                            .get(
+                                                    HistoryReferenceEventPublisher
+                                                            .FIELD_HISTORY_REFERENCE_ID)));
+                    break;
+                case AlertEventPublisher.ALERT_ADDED_EVENT:
+                case AlertEventPublisher.ALERT_CHANGED_EVENT:
+                case AlertEventPublisher.ALERT_REMOVED_EVENT:
+                    refreshEntry(
+                            Integer.valueOf(
+                                    event.getParameters()
+                                            .get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
+                    break;
+                case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
+                    refreshEntries();
+                    break;
+                default:
             }
         }
 
@@ -367,13 +396,14 @@ class SpiderMessagesTableModel
                 return;
             }
 
-            EventQueue.invokeLater(new Runnable() {
+            EventQueue.invokeLater(
+                    new Runnable() {
 
-                @Override
-                public void run() {
-                    refreshEntry(id);
-                }
-            });
+                        @Override
+                        public void run() {
+                            refreshEntry(id);
+                        }
+                    });
         }
 
         private void refreshEntries() {
@@ -382,13 +412,14 @@ class SpiderMessagesTableModel
                 return;
             }
 
-            EventQueue.invokeLater(new Runnable() {
+            EventQueue.invokeLater(
+                    new Runnable() {
 
-                @Override
-                public void run() {
-                    refreshEntries();
-                }
-            });
+                        @Override
+                        public void run() {
+                            refreshEntries();
+                        }
+                    });
         }
     }
 }

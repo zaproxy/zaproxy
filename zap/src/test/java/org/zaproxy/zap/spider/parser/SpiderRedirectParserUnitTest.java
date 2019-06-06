@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,6 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
@@ -38,9 +37,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
-/**
- * Unit test for {@link SpiderRedirectParser}.
- */
+/** Unit test for {@link SpiderRedirectParser}. */
 public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
@@ -52,13 +49,15 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     static {
         NON_REDIRECTION_STATUS_CODES = new ArrayList<>();
         REDIRECTION_STATUS_CODES = new ArrayList<>();
-        Arrays.stream(HttpStatusCode.CODES).forEach(code -> {
-            if (HttpStatusCode.isRedirection(code)) {
-                REDIRECTION_STATUS_CODES.add(code);
-            } else {
-                NON_REDIRECTION_STATUS_CODES.add(code);
-            }
-        });
+        Arrays.stream(HttpStatusCode.CODES)
+                .forEach(
+                        code -> {
+                            if (HttpStatusCode.isRedirection(code)) {
+                                REDIRECTION_STATUS_CODES.add(code);
+                            } else {
+                                NON_REDIRECTION_STATUS_CODES.add(code);
+                            }
+                        });
     }
 
     @BeforeClass
@@ -190,10 +189,10 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
         return msg;
     }
 
-    private static HttpMessage createMessageWithLocationAndStatusCode(String location, int statusCode) {
+    private static HttpMessage createMessageWithLocationAndStatusCode(
+            String location, int statusCode) {
         HttpMessage msg = createMessageWithStatusCode(statusCode);
         msg.getResponseHeader().addHeader(HttpHeader.LOCATION, location);
         return msg;
     }
-
 }

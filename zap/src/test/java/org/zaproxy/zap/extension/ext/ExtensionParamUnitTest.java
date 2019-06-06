@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,6 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -35,9 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- * Unit test for {@link ExtensionParam}.
- */
+/** Unit test for {@link ExtensionParam}. */
 public class ExtensionParamUnitTest {
 
     @BeforeClass
@@ -118,7 +115,7 @@ public class ExtensionParamUnitTest {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
-        param.setExtensionsState(Collections.<String, Boolean> emptyMap());
+        param.setExtensionsState(Collections.<String, Boolean>emptyMap());
         // Then = NullPointerException
     }
 

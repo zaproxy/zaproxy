@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,21 +24,23 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * An abstract implementation of {@code HistoryReferencesTableModel} with support for custom columns.
- * 
+ * An abstract implementation of {@code HistoryReferencesTableModel} with support for custom
+ * columns.
+ *
  * @param <T> the type of table model entries
  */
-public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends HistoryReferencesTableEntry> extends
-        AbstractHistoryReferencesTableModel<T> {
+public abstract class AbstractCustomColumnHistoryReferencesTableModel<
+                T extends HistoryReferencesTableEntry>
+        extends AbstractHistoryReferencesTableModel<T> {
 
     private static final long serialVersionUID = 3943406327364886416L;
 
     private final Map<Integer, Integer> cacheColumnIdxToIdxCustomColumnsOnly;
 
     /**
-     * Constructs an {@code AbstractCustomColumnHistoryReferencesTableModel} with the specified columns (in the specified
-     * order).
-     * 
+     * Constructs an {@code AbstractCustomColumnHistoryReferencesTableModel} with the specified
+     * columns (in the specified order).
+     *
      * @param columns the columns that will have the model
      * @throws IllegalArgumentException if {@code columns} is null or empty.
      */
@@ -48,7 +50,8 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
         cacheColumnIdxToIdxCustomColumnsOnly = buildCacheColumnIdxToIdxCustomColumnsOnly(columns);
     }
 
-    private static Map<Integer, Integer> buildCacheColumnIdxToIdxCustomColumnsOnly(Column[] columns) {
+    private static Map<Integer, Integer> buildCacheColumnIdxToIdxCustomColumnsOnly(
+            Column[] columns) {
         Map<Integer, Integer> tempCustomColumnIndexesMap = new TreeMap<>();
         int countCustomColumns = 0;
         for (int columnIndex = 0; columnIndex < columns.length; ++columnIndex) {
@@ -75,8 +78,9 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
     }
 
     /**
-     * Returns the value for the entry at the given column index. Called when the column is a {@code Column#CUSTOM}.
-     * 
+     * Returns the value for the entry at the given column index. Called when the column is a {@code
+     * Column#CUSTOM}.
+     *
      * @param entry the entry with the values
      * @param columnIndex the column index
      * @return the entry value at the specified column index
@@ -94,8 +98,9 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
     }
 
     /**
-     * Returns the name of the column at the given column index. Called when the column is a {@code Column#CUSTOM}.
-     * 
+     * Returns the name of the column at the given column index. Called when the column is a {@code
+     * Column#CUSTOM}.
+     *
      * @param columnIndex the column index
      * @return the name of the custom column
      * @see #getCustomColumnIndex(int)
@@ -105,7 +110,7 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see #getColumnClass(HistoryReferencesTableModel.Column)
      * @see #getCustomColumnClass(int)
      */
@@ -120,15 +125,16 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
 
     /**
      * Returns the {@code Class} of the column.
-     * 
+     *
      * @param column the column
      * @return the {@code Class} of the column
      */
     protected abstract Class<?> getColumnClass(Column column);
 
     /**
-     * Returns the {@code Class} of the column at the given column index. Called when the column is a {@code Column#CUSTOM}.
-     * 
+     * Returns the {@code Class} of the column at the given column index. Called when the column is
+     * a {@code Column#CUSTOM}.
+     *
      * @param columnIndex the column index
      * @return the {@code Class} of the custom column
      * @see #getCustomColumnIndex(int)
@@ -147,15 +153,16 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
 
     /**
      * Returns the prototype value for the given column.
-     * 
+     *
      * @param column the column
      * @return the prototype value for the column
      */
     protected abstract Object getPrototypeValue(Column column);
 
     /**
-     * Returns the prototype value for the column at the given column index. Called when the column is a {@code Column#CUSTOM}.
-     * 
+     * Returns the prototype value for the column at the given column index. Called when the column
+     * is a {@code Column#CUSTOM}.
+     *
      * @param columnIndex the column index
      * @return the prototype value for the column
      * @see #getCustomColumnIndex(int)
@@ -165,13 +172,14 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
 
     /**
      * Returns the index of the custom column as if no default columns existed.
-     * <p>
-     * Helper method for subclasses to use the column index without worrying of the actual position of the column in relation to
-     * default columns.
-     * </p>
-     * <p>
-     * It can be used, for example, with {@code getCustomColumnClass(int)} as: <blockquote>
-     * 
+     *
+     * <p>Helper method for subclasses to use the column index without worrying of the actual
+     * position of the column in relation to default columns.
+     *
+     * <p>It can be used, for example, with {@code getCustomColumnClass(int)} as:
+     *
+     * <blockquote>
+     *
      * <pre>
      * protected Class&lt;?&gt; getCustomColumnClass(int columnIndex) {
      *     switch (getCustomColumnIndex(columnIndex)) {
@@ -187,11 +195,12 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
      *     }
      * }
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param columnIndex the column index
-     * @return the custom column index as if no default columns existed or -1 if not a custom column.
+     * @return the custom column index as if no default columns existed or -1 if not a custom
+     *     column.
      */
     protected int getCustomColumnIndex(int columnIndex) {
         Integer customColumnIndex = cacheColumnIdxToIdxCustomColumnsOnly.get(columnIndex);

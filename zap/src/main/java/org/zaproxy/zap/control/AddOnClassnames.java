@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,16 +25,15 @@ import java.util.Objects;
 
 /**
  * A class that allows to query if a classname can be loaded.
- * <p>
- * The classnames can be allowed or restricted.
- * 
+ *
+ * <p>The classnames can be allowed or restricted.
+ *
  * @since 2.4.3
  */
 final class AddOnClassnames {
 
-    public static final AddOnClassnames ALL_ALLOWED = new AddOnClassnames(
-            Collections.<String> emptyList(),
-            Collections.<String> emptyList());
+    public static final AddOnClassnames ALL_ALLOWED =
+            new AddOnClassnames(Collections.<String>emptyList(), Collections.<String>emptyList());
 
     private final List<String> allowedClassnames;
     private final List<String> restrictedClassnames;

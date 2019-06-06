@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,6 @@ package org.zaproxy.zap;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.DefaultFileSystem;
 import org.apache.log4j.Level;
@@ -35,10 +34,11 @@ import org.zaproxy.zap.control.ControlOverrides;
 
 /**
  * ZAP's bootstrap process.
- * <p>
- * The bootstrap process consists, basically, in initialising the singletons {@code Model}, {@code Control} and, for
- * non-headless modes, the {@code View} and handling of command line arguments.
- * 
+ *
+ * <p>The bootstrap process consists, basically, in initialising the singletons {@code Model},
+ * {@code Control} and, for non-headless modes, the {@code View} and handling of command line
+ * arguments.
+ *
  * @since 2.4.2
  * @see Model
  * @see org.parosproxy.paros.control.Control
@@ -85,7 +85,8 @@ abstract class ZapBootstrap {
     }
 
     /**
-     * Initialises the model, all bootstrap implementations should call this method after base {@code start()}.
+     * Initialises the model, all bootstrap implementations should call this method after base
+     * {@code start()}.
      *
      * @throws Exception if an error occurs while initialising the {@code Model}
      * @see #start()
@@ -106,7 +107,8 @@ abstract class ZapBootstrap {
     }
 
     /**
-     * Gets the control overrides. Necessary for initialising {@code Control} and {@code Model} singletons.
+     * Gets the control overrides. Necessary for initialising {@code Control} and {@code Model}
+     * singletons.
      *
      * @return the control overrides
      * @see org.parosproxy.paros.control.Control
@@ -122,7 +124,8 @@ abstract class ZapBootstrap {
      * @return the starting message
      */
     protected static String getStartingMessage() {
-        DateFormat dateFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+        DateFormat dateFormat =
+                SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
         StringBuilder strBuilder = new StringBuilder(200);
         strBuilder.append(Constant.PROGRAM_NAME).append(' ').append(Constant.PROGRAM_VERSION);
         strBuilder.append(" started ");

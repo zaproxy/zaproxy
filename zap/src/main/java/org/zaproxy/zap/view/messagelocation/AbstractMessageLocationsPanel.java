@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,6 @@
 package org.zaproxy.zap.view.messagelocation;
 
 import java.awt.Component;
-
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
@@ -28,7 +27,6 @@ import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
@@ -40,26 +38,36 @@ import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
 
 /**
- * An {@code AbstractMultipleOptionsBaseTablePanel} that allows to manage highlights and message locations.
- * 
+ * An {@code AbstractMultipleOptionsBaseTablePanel} that allows to manage highlights and message
+ * locations.
+ *
  * @param <T> the type that contains the details of the highlight and message location
  * @param <S> the type of the table model that contains the elements with the details
  * @since 2.4.0
  * @see MessageLocationTableEntry
  * @see MessageLocationsTableModel
  */
-public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTableEntry, S extends MessageLocationsTableModel<T>>
+public abstract class AbstractMessageLocationsPanel<
+                T extends MessageLocationTableEntry, S extends MessageLocationsTableModel<T>>
         extends AbstractMultipleOptionsBaseTablePanel<T> {
 
     private static final long serialVersionUID = -8990789229815588716L;
 
-    private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("messagelocationspanel.dialog.remove.location.title");
-    private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("messagelocationspanel.dialog.remove.location.text");
+    private static final String REMOVE_DIALOG_TITLE =
+            Constant.messages.getString("messagelocationspanel.dialog.remove.location.title");
+    private static final String REMOVE_DIALOG_TEXT =
+            Constant.messages.getString("messagelocationspanel.dialog.remove.location.text");
 
-    private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("messagelocationspanel.dialog.remove.location.button.confirm");
-    private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("messagelocationspanel.dialog.remove.location.button.cancel");
+    private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString(
+                    "messagelocationspanel.dialog.remove.location.button.confirm");
+    private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL =
+            Constant.messages.getString(
+                    "messagelocationspanel.dialog.remove.location.button.cancel");
 
-    private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("messagelocationspanel.dialog.remove.location.checkbox.label");
+    private static final String REMOVE_DIALOG_CHECKBOX_LABEL =
+            Constant.messages.getString(
+                    "messagelocationspanel.dialog.remove.location.checkbox.label");
 
     private MessageLocationProducerFocusListener addButtonFocusListenerEnabler;
 
@@ -67,7 +75,8 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
 
     private final Component parent;
 
-    public AbstractMessageLocationsPanel(Component parent, SelectMessageLocationsPanel selectMessageLocationsPanel, S model) {
+    public AbstractMessageLocationsPanel(
+            Component parent, SelectMessageLocationsPanel selectMessageLocationsPanel, S model) {
         this(parent, selectMessageLocationsPanel, model, false);
     }
 
@@ -81,16 +90,21 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
         this.parent = parent;
 
         this.selectMessageLocationsPanel = selectMessageLocationsPanel;
-        this.selectMessageLocationsPanel.addMessagePanelEventListener(createMessagePanelEventListener());
+        this.selectMessageLocationsPanel.addMessagePanelEventListener(
+                createMessagePanelEventListener());
 
         getModel().addMessageLocationHighlightChangedListener(createHighlightChangedListener());
 
         addButton.setEnabled(false);
-        addButton.setToolTipText(Constant.messages.getString("messagelocationspanel.add.location.tooltip"));
+        addButton.setToolTipText(
+                Constant.messages.getString("messagelocationspanel.add.location.tooltip"));
         addButtonFocusListenerEnabler = createFocusListener();
 
         getTable().setSortOrder(1, SortOrder.ASCENDING);
-        getTable().setDefaultRenderer(MessageLocationHighlight.class, new DefaultMessageLocationHighlightRenderer());
+        getTable()
+                .setDefaultRenderer(
+                        MessageLocationHighlight.class,
+                        new DefaultMessageLocationHighlightRenderer());
 
         getRemoveWithoutConfirmationCheckBox().setSelected(true);
     }
@@ -103,9 +117,9 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
                 for (T entry : getModel().getElements()) {
                     MessageLocationHighlight highlight = entry.getHighlight();
                     if (highlight != null) {
-                        MessageLocationHighlight highlightReference = selectMessageLocationsPanel.highlight(
-                                entry.getLocation(),
-                                highlight);
+                        MessageLocationHighlight highlightReference =
+                                selectMessageLocationsPanel.highlight(
+                                        entry.getLocation(), highlight);
                         entry.setHighlightReference(highlightReference);
                     }
                 }
@@ -119,7 +133,8 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
                     for (T entry : getModel().getElements()) {
                         MessageLocationHighlight highlight = entry.getHighlight();
                         if (highlight != null) {
-                            MessageLocationHighlight highlightReference = highlighter.highlight(entry.getLocation(), highlight);
+                            MessageLocationHighlight highlightReference =
+                                    highlighter.highlight(entry.getLocation(), highlight);
                             entry.setHighlightReference(highlightReference);
                         }
                     }
@@ -170,8 +185,10 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
     private T addMessageLocationImpl(boolean buttonAddedLocation, MessageLocation messageLocation) {
         for (T locationUI : getModel().getElements()) {
             if (locationUI.getLocation().overlaps(messageLocation)) {
-                View.getSingleton().showWarningDialog(
-                        Constant.messages.getString("messagelocationspanel.add.location.warning.locations.overlap"));
+                View.getSingleton()
+                        .showWarningDialog(
+                                Constant.messages.getString(
+                                        "messagelocationspanel.add.location.warning.locations.overlap"));
                 return null;
             }
         }
@@ -184,7 +201,9 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
             highlightReference = selectMessageLocationsPanel.highlight(messageLocation, highlight);
         }
 
-        T entry = createMessageLocationTableEntry(buttonAddedLocation, messageLocation, highlight, highlightReference);
+        T entry =
+                createMessageLocationTableEntry(
+                        buttonAddedLocation, messageLocation, highlight, highlightReference);
         if (entry == null) {
             if (highlightsManager != null) {
                 selectMessageLocationsPanel.removeHighlight(messageLocation, highlightReference);
@@ -232,19 +251,23 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
 
     protected boolean showRemoveDialogueImpl(T e) {
         JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
-        Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
-        int option = JOptionPane.showOptionDialog(
-                View.getSingleton().getMainFrame(),
-                messages,
-                REMOVE_DIALOG_TITLE,
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL },
-                null);
+        Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
+        int option =
+                JOptionPane.showOptionDialog(
+                        View.getSingleton().getMainFrame(),
+                        messages,
+                        REMOVE_DIALOG_TITLE,
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new String[] {
+                            REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL
+                        },
+                        null);
 
         if (option == JOptionPane.OK_OPTION) {
-            getRemoveWithoutConfirmationCheckBox().setSelected(removeWithoutConfirmationCheckBox.isSelected());
+            getRemoveWithoutConfirmationCheckBox()
+                    .setSelected(removeWithoutConfirmationCheckBox.isSelected());
             return true;
         }
 
@@ -262,7 +285,8 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
         for (T entry : getMultipleOptionsModel().getElements()) {
             MessageLocationHighlight highlightReference = entry.getHighlightReference();
             if (highlightReference != null) {
-                selectMessageLocationsPanel.removeHighlight(entry.getLocation(), highlightReference);
+                selectMessageLocationsPanel.removeHighlight(
+                        entry.getLocation(), highlightReference);
             }
         }
         getMultipleOptionsModel().clear();
@@ -281,8 +305,7 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
         private static final long serialVersionUID = 427590735065539815L;
 
         @Override
-        protected void setValue(Object value) {
-        }
+        protected void setValue(Object value) {}
     }
 
     protected class MessageLocationsTable extends JXTable {
@@ -292,12 +315,15 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
         @Override
         public TableCellEditor getCellEditor(int row, int column) {
 
-            Class<?> columnClass = AbstractMessageLocationsPanel.this.getModel().getColumnClass(row, column);
-            if (columnClass != null && MessageLocationHighlight.class.isAssignableFrom(columnClass)) {
+            Class<?> columnClass =
+                    AbstractMessageLocationsPanel.this.getModel().getColumnClass(row, column);
+            if (columnClass != null
+                    && MessageLocationHighlight.class.isAssignableFrom(columnClass)) {
 
                 @SuppressWarnings("unchecked")
-                TableCellEditor editor = MessageLocationHighlightRenderersEditors.getInstance().getEditor(
-                        (Class<? extends MessageLocationHighlight>) columnClass);
+                TableCellEditor editor =
+                        MessageLocationHighlightRenderersEditors.getInstance()
+                                .getEditor((Class<? extends MessageLocationHighlight>) columnClass);
                 if (editor != null) {
                     return editor;
                 }
@@ -308,12 +334,16 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
         @Override
         public TableCellRenderer getCellRenderer(int row, int column) {
 
-            Class<?> columnClass = AbstractMessageLocationsPanel.this.getModel().getColumnClass(row, column);
-            if (columnClass != null && MessageLocationHighlight.class.isAssignableFrom(columnClass)) {
+            Class<?> columnClass =
+                    AbstractMessageLocationsPanel.this.getModel().getColumnClass(row, column);
+            if (columnClass != null
+                    && MessageLocationHighlight.class.isAssignableFrom(columnClass)) {
 
                 @SuppressWarnings("unchecked")
-                TableCellRenderer renderer = MessageLocationHighlightRenderersEditors.getInstance().getRenderer(
-                        (Class<? extends MessageLocationHighlight>) columnClass);
+                TableCellRenderer renderer =
+                        MessageLocationHighlightRenderersEditors.getInstance()
+                                .getRenderer(
+                                        (Class<? extends MessageLocationHighlight>) columnClass);
                 if (renderer != null) {
                     return renderer;
                 }
@@ -322,7 +352,8 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
         }
     }
 
-    protected class MessageLocationsHighlightChangedListener implements HighlightChangedListener<T> {
+    protected class MessageLocationsHighlightChangedListener
+            implements HighlightChangedListener<T> {
 
         @Override
         public void highlightChanged(HighlightChangedEvent<T> event) {
@@ -330,12 +361,15 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
 
             MessageLocationHighlight highlightReference = event.getHighlightReference();
             if (highlightReference != null) {
-                selectMessageLocationsPanel.removeHighlight(tableEntry.getLocation(), event.getHighlightReference());
+                selectMessageLocationsPanel.removeHighlight(
+                        tableEntry.getLocation(), event.getHighlightReference());
             }
 
             MessageLocationHighlight highlight = tableEntry.getHighlight();
             if (highlight != null) {
-                highlightReference = selectMessageLocationsPanel.highlight(tableEntry.getLocation(), tableEntry.getHighlight());
+                highlightReference =
+                        selectMessageLocationsPanel.highlight(
+                                tableEntry.getLocation(), tableEntry.getHighlight());
                 tableEntry.setHighlightReference(highlightReference);
             }
         };
@@ -355,5 +389,4 @@ public abstract class AbstractMessageLocationsPanel<T extends MessageLocationTab
             addButton.setEnabled(true);
         }
     }
-
 }

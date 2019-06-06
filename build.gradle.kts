@@ -1,8 +1,27 @@
+plugins {
+    id("com.diffplug.gradle.spotless")
+}
+
 apply(from = "$rootDir/gradle/travis-ci.gradle.kts")
 
 allprojects {
+    apply(plugin = "com.diffplug.gradle.spotless")
+
     repositories {
         mavenCentral()
+    }
+
+    spotless {
+        project.plugins.withType(JavaPlugin::class) {
+            java {
+                licenseHeaderFile("$rootDir/gradle/spotless/license.java")
+                googleJavaFormat().aosp()
+            }
+        }
+
+        kotlinGradle {
+            ktlint()
+        }
     }
 
     tasks.withType<JavaCompile>().configureEach {
