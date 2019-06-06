@@ -115,7 +115,7 @@ does not support it.
 * Any member of the Core Team can merge a PR as long as the above conditions are met.
 * Reviews by people outside of the Core Team are still appreciated :)
 
-​[BUILDING]: BUILDING.md
+[BUILDING]: BUILDING.md
 [signed off]: https://git-scm.com/docs/git-commit#Documentation/git-commit.txt--s
 [Developer Certificate of Origin]: https://developercertificate.org/
 [Spotless]: https://github.com/diffplug/spotless
