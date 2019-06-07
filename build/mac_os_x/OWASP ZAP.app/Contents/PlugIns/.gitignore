@@ -1,5 +1,0 @@
-# We want this directory to exist in git (for building), but never to add files
-# If it's not here, the OS X build will fail in completely unhelpful ways
-
-*
-!.gitignore

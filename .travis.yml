@@ -1,13 +1,14 @@
 language: java
-script: ant -buildfile build/build.xml test
 
 jdk:
   - oraclejdk8
+  - openjdk8
+  - openjdk11
 
 env:
   global:
    # COVERITY_SCAN_TOKEN
-   - secure: "KYrFpaQbUrRWI+BcWwRQR0tqQnO5oOx+ZwF0GtvBqMB7QDKR6I9rxV5Kx5FrHY/qVKIo3leF18GJlJvwHoVRO+oXldhPsifeQju5OhXSyqA9pLmttn9WnGiHJXp/wxh2JCepzIx9ggNCDW60ZFIkZpI5T2qgAILdpTPFybIImEzVFyQHdD02+UQ2c7kmIpYkUau28G9Powb2Xvg11HWDj3TodA5zDcLinTKVkehDSB4/1s7zGcvlLfSnJcfmDQon6+ZckkBgdkGcpxqNaDe3SZ6QEQQqBELpwhFAIU2ApjUgKI7xvWy+FV4XsdpNYGuoYrh33vEDC8K1nTqkbWIEDa6LhNxEs9eChghlqsliTC1f5fz06Bk63Wv5XVGOIXzlJHdX1z3NXEggFolK1ZszpicoI5WdXyBHtefNupXnOjkGGvuBT1QqFGwkac73MVYhKa0CEf0pe8b4G6pd1xTPtSFWp4Gpvbl7v/z+OVB7tNllhwQxLykXe0RKyBf8r1084DnUcRR+gAozgbvdcLji1hU6A0GrhPnV0mYVHWfXR8aEH1iwf0q2W0kizk02+/WL1ktSP7AjTaJRg02koOgCJZLb842E6opNuDFvCZpvn0543l+jhga1SCKVfJ7M53W3VV4fRBLoSqYaZ265lOUsA3d511PNH87zQi+FjNdurnE="
+   - secure: "MD+5+8i3406wHS2nj6EiWjyP/OC9fw82yOSmrgVPB4gyUbkHk3683X2LvGrLcoUYwv12L5ZLz6MdmQkNYJBZ62kC8koG2Z14SjitEZvzMgKC3cm1Ggs54jPLn7iU6tnCEJkIRxyDoAP1C9NJ4KRIj1kl+vB5yJkeB3DArrZ3rXoaJTz/y1OKZbeKpJdvRYPPmVJmwbXHI/F5npgN8UPqbWjyJYxMEOiqJS2hj72YFDL9l6fAFT6KphAUO/fuVS/meDJ1+PNDM6AS+SU8w7+EPjFLsh3w+vVTeN+NYyu3NtLMEJL77IcQs5vgVRjwFV3k5yfjXsZxr0hUaumXM7xdUXuitnAAa4vce7NaSIcQC0ez1+hyzH49bK9BhYV/MK3XE5Sigqx9lr1A/0NkRkfnkH8E2yn3mTgRibVJ9R1/cXGQmjb+da1R2qYXCD9hlRqjG53XO6i887e/I2O9IhlXjmFL8c6pBMDi7ULWYH9pK1xZn0cgt6ASpy+ScH61oLb+5VIK/A+YYpsow5BKEO97HVXjCCBVzxQjaHCVkyfZFnRKoEcGQ7WL6ANOWCyeMkffdTLGRHjT/ZMI+Ju++O7Zcd+e4TwF97fYhIHMmKUAMYElAKsiH9kqC7y3fkV7C3KUF5iTbHa7UVxac9zsorNwouKsYN9BP60flsQSoyFabGY="
 
 addons:
   coverity_scan:
@@ -15,8 +16,8 @@ addons:
       name: "zaproxy/zaproxy"
       description: "The OWASP ZAP core project"
     notification_email: bjoern.kimminich@owasp.org
-    build_command_prepend: "ant -buildfile build/build.xml clean"
-    build_command:   "ant -buildfile build/build.xml compile"
+    build_command_prepend: ""
+    build_command: "./gradlew compileJava"
     branch_pattern: coverity_scan
 
 notifications:
@@ -27,4 +28,11 @@ notifications:
     on_failure: always
     on_start: false
 
-sudo: false
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/

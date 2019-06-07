@@ -1,0 +1,86 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ *
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Copyright 2018 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.zaproxy.zap.extension.api;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.Test;
+
+/** Unit test for {@link ApiResponseElement}. */
+public class ApiResponseSetUnitTest {
+
+    @Test
+    public void shouldReturnCorrectJsonObjectWithStdStringValues() throws ApiException {
+        // Given
+        String name = "name";
+        String value = "value";
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(name, value);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        // When
+        String jsonResponse = apiRespSet.toJSON().toString();
+        // Then
+        assertEquals(jsonResponse, "{\"" + name + "\":\"" + value + "\"}");
+    }
+
+    @Test
+    public void shouldReturnCorrectJsonObjectWithSingleQuotedStringValues() throws ApiException {
+        // Given
+        String name = "name";
+        String value = "'value'";
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(name, value);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        // When
+        String jsonResponse = apiRespSet.toJSON().toString();
+        // Then
+        assertEquals(jsonResponse, "{\"" + name + "\":\"" + value + "\"}");
+    }
+
+    @Test
+    public void shouldReturnCorrectJsonObjectWithDoubleQuotedStringValues() throws ApiException {
+        // Given
+        String name = "name";
+        String value = "\"value\"";
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(name, value);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        // When
+        String jsonResponse = apiRespSet.toJSON().toString();
+        // Then
+        assertEquals(jsonResponse, "{\"" + name + "\":\"" + value.replace("\"", "\\\"") + "\"}");
+    }
+
+    @Test
+    public void shouldReturnCorrectJsonObjectWithJsonStringValues() throws ApiException {
+        // Given
+        String name = "name";
+        String value = "{\"key\":\"value\"}";
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(name, value);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        // When
+        String jsonResponse = apiRespSet.toJSON().toString();
+        // Then
+        assertEquals(jsonResponse, "{\"" + name + "\":\"" + value.replace("\"", "\\\"") + "\"}");
+    }
+}

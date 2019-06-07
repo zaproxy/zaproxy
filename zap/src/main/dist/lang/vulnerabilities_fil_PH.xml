@@ -1,0 +1,1050 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<vulnerabilities xmlns="http://tempuri.org/XMLSchemaOptions.xsd">
+
+<vuln_items>wasc_1</vuln_items>
+<vuln_item_wasc_1>
+	<alert>Hindi sapat na nagpapatunay</alert>
+	<desc>Hindi sapat na nagpapatunay ay nangyayari kapag ang isang web site ay nagpapahintulot sa attacker na ma-access ang sensitibo o functionality nang hindi na kinakailangang mapatunayan ng wasto. Web-based na administrasyon na mga gamit ay isang magandang halimbawa ng mga web sites na pagbibigay ng access sa sensitibong pag-andar. Depende sa partikular na online na pagkukunan, ang mga web applications ay hindi dapat direktang naa-access nang hindi nangangailangan ng gumagamit upang maayos na mapatunayan ang kanilang pagkakakilanlan.
+
+Upang makakuha sa paligid ng pag-set up sa authentication, ilang resources ay hindi protektado ng "pagtatago" ang tiyak na lokasyon at hindi nag-uugnay sa lokasyon sa pangunahing web site o iba pang mga pampublikong lugar. Gayunpaman, ang paraang ito ay hindi higit kaya sa mga "Security Through Obscurity". Ito ay mahalaga na maunawaan na kahit na isang resource na ito ay hindi kilala sa attacker, ito pa rin ay nanatiling magagamit ng direkta sa isang partikular na URL. Ang partikular na URL ay mangyaring natuklasan sa pamamagitan ng isang Brute Force na paraan para sa mga common file at mga lokasyon ng direktoryo (/admin para sa halimbawa), ang mga maling mensahe, referrer logs, o dokumento tulad ng mga help files. Ang mga pagkukunan, kung sila ay nilalaman o pagpapagana-hinihimok, dapat sapat protektado.</desc>
+	<solution>Yugto: Arkitektura at Disenyo
+Gamitin ang pagpapatunay na framework o library na tulad ng OWASP ESAPI Authentication feature.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
+	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+</vuln_item_wasc_1>
+
+<vuln_items>wasc_2</vuln_items>
+<vuln_item_wasc_2>
+	<alert>Hindi sapat na pagpapatunay</alert>
+	<desc>Hindi sapat na pagpagtunay na mga resulta kapag ang isang application ay hindi nagsasagawa ng sapat na pahintulot upang matiyak ang pagsasagawa ng gumagamit o pag-access ng datos sa paraang naayos sa patakaran sa seguridad. Mga pagpapahintulot na mga procedure ay dapat ipapatupad kung anong user, serbisyo o aplikasyon ay pinahintulutang gawin. Nang ang gumamit ay mapagtibay sa isang web site, ito ay hindi nangangahulugan na ang mga gumagamit ay dapat magkaroon ng full access sa lahat ng nilalaman at mga functionality.
+
+Hindi sapat ang Function Authorization
+
+Maraming mga applications ang pinagkaloob ng iba't ibang mga aplikasyon functionality ng iba't ibang mga gumagamit. Isang news site na ito ay nagpapahintulot sa mga gumagamit na makita ang mga kuwento ng balita, pero hindi na ilathala sa kanila. Isang accounting na sistema ay nagkakaroon ng iba't ibang mga pahintulot para sa isang Accounts Payable clerk at isang Accounts Receivable clerk. Kulang ang kakayahan ng awtorisasyon ay nangyayari kapag ang isang aplikasyon ay hindi pumipigil sa mga taga-gamit na ma-dagdag ang pag-andar ng aplikasyon na lumalabag sa patakaran sa katiwasayan.
+
+Isang malinaw na halimbawa ay ang 2005 na pag-hack ng proseso ng aplikasyon ng Harvard Business School. Ang isang kabiguan sa awtorisasyon ay nagpahintulot sa mga gumagamit na makita ang kanilang sariling datos kahit hindi sila dapat pahintulutan na ma-access ang bahaging iyon ng web site.
+ 
+Hindi sapat na Data Authorization
+
+Maraming mga applications ang inilantad na batayan ng pagkakailan sa isang URL. Halimbawa, kapag ina-access ang isang medikal na talaan sa isang sistema ng isa ay magkaroon ng isang URL tulad ng:
+
+http://example.com/RecordView?id=12345
+
+Kung ang aplikasyon ay hindi sunusuri na yung mga naka-authenticated na user ID ay mayroong karapatan sa pagbasa, at pagkatapos ay maidispley itong mga datos para sa gumagamit ay dapat hindi makita.
+
+Hindi sapat na Data Authorization ay mas karaniwan kaya sa hindi sapat na Function Authorization dahil ang mga programmer karaniwang nagkaroon ng kumpletong kaalaman sa functionality ng aplikasyon, ngunit hindi laging may isang kumpletong mapping ng lahat ng data na ma-access ang mga aplikasyon. Mga programmer ay madalas magkaroon ng mahigpit na kontrol sa mga function authorization mechanisms, ngunit umaasa sa iba pang mga sistema tulad ng mga database upang masagawa ang pahintulot ng datos.</desc>
+	<solution>Yugto: Arkitektura at Disenyo; Operasyon ay mabuting pinamahala ang settings, management, at paghawak ng mga pribilehiyo. Malinaw na pagpapangasiwa ng mga trust zones sa software.
+
+Yugto: Arkitektura at Disenyo
+Pagsiguro na ang nararapat na compartmentalization ay naitayo into sa sistema ng disenyo at na ang compartmentalization ay nagbibigay pahintulot para sa pagpapalakas ng pahintulot sa separation functionality. Mga arkitekto at mga designers ay dapat umasa sa prinsipyo ng pinakamaliit na pribilehiyong magdesisyon kapag ang mga ito ay nararapat na gamitin at drop sa sistema ng mga pribilehiyo.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
+</vuln_item_wasc_2>
+
+<vuln_items>wasc_3</vuln_items>
+<vuln_item_wasc_3>
+	<alert>Nag-uumapaw ang integer</alert>
+	<desc>Ang integer Overflow ay kondisyon na nangyayari kapag ang resulta ng isang pang-aritmetic operasyon, tulad ng pagpaparami o karagdagan, ay lampas na sa pinakamalaking sukat ng integer type na ginagamit para maitago ito. Kapag ang integer overflow ay nagaganap, lilitaw ang mga naisalin na halaga "wrapped around" ang pinakamataas ng halaga ay nagsimula muli sa pinakamababang halaga, katulad ng isang orasan na kumakatawan sa 13:00 sa pamamagitan ng pagturo sa 1:00.
+
+Halimbawa, isang 8-bit nilagdaan na integer sa pinaka-karaniwang na arkitektura ng computer ay may isang pinakamataas na halaga ng 127 at isang pinakamababa na halaga na -128. Kung ang programmer ay nag-stores ng halaga na 127 sa naturang isang variable at nagdadagdag ng 1 na ito, ang resulta ay dapat 128. Gayunman, ang halaga ay lumampas ang pinakamataas para sa ganitong uri ng integer, kaya ang naisalin na halaga ay "wrap around" at maging ang -128.</desc>
+	<solution>Yugto: Mga requirements
+Pagsiguro na ang lahat ng mga protocols ay istriktong itinutukoy, Gayon man ang lahat ng mga out-of-bounds behavior ay kiniala ang simple, at kinakailangan ang istriktong conformance sa protocol.
+
+Yugto: Mga Requirements
+Paggamit ng wika na hindi nag pahintulot sa gamitong mga kahinaan o nagbibigay ng constructs na gumagawa ng kahinaan na madaling itong maiwasan.
+Kung posibleng, makapili ng wika o compiler na gumagawa ng automatic bounds checking.
+
+Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
+Gamitin ng mga aklatan o mga balangkas na pinapadaling mahawakan ang mga numero nang walang hindi akalaing mga kahihinatnan.
+Mga Halimbawa ang mga ligtas na pagbuo sa pagkapit ng pagbubuo tulad ng SafeInt (C++) o IntegerLib (C or C++.
+
+Salita: Pagsasagawa
+Magsagawa ng pagpapatunay ng pag-input sa anumang numerong input sa pamamagitan ng pagtutukoy sa nasa loob ng inaasahan na saklaw. Pilitin na matugunan ng input ang parehong pinakamababa at pinakamataas na kinakailangan para sa inaasahang saklaw.
+Gamitin ang hindi na pirmahang pambuo kung saan posible. Ito ay ginagawang mas madali ang pagsasagawa ng mga pag-susuri ng katinuan para sa overflow ng pagbubuo. Ito ay kung dapat mong gumamit ng mga na pirmahang pagbubuo, siguraduhin na ang iyong hanay ng pagsusuri ay may kasamang mga pinakamababa na halaga pati na rin ang pinakamataas na halaga.
+
+Panimula: pagsasagawa
+Intindihin ang pinagbabatayang representasyon ng lengguwahe ng iyong palatuntunan at kung paano ito maiuugnay sa pagkalkula ng numerong (CWE-681). Mag-bigay alintana sa pagkakaiba ng byte, katumpakan, naka-pirma / hindi-pirma mga pagkakakilanlan, pag-putol, pag-salin at paghahagis sa pagitan ng mga anyo, mga "hindi-isang-bilang" na kalkulasyon, at kung paano ang iyong lengguwahe ay humahawak ng mga numero na masyadong malaki o masyadong maliit para sa pinagbabatayang paglalarawan nito.
+Kailangan mag-ingat sa account para sa 32-bit, 64-bit, at iba pang maaaring pagkakaiba na pweding makaapekto sa Nauukol sa bilang na representasyon.
+
+Panimula: pagsasagawa
+Ang pag-susuri ng mga tagatipon ng babala at alisin ang maaring mga problema na pangkaligtasan sa katiwasayan, tulad ng naka-pirma / hindi naka-pirma ay hindi magkatulad. Maski na ang kahinaan ay bihira na nagagamit, ang isang kabiguan ay maaaring mapunta sa pangako ng buong sistema.</solution>
+	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
+	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
+</vuln_item_wasc_3>
+
+<vuln_items>wasc_4</vuln_items>
+<vuln_item_wasc_4>
+	<alert>Kulang ang pag-lipat ng patong na proteksyon</alert>
+	<desc>Kulang ang pag-lipat ng patong na proteksyon
+Kulang ang pag-lipat ng patong na proteksyon pinahihintulutan ang komunikasyon na mahayag sa hindi pinagkakatiwalaan na mga third party, na nagbibigay ng isang attack vector upang mangako ang isang web aplikasyon at / o kumuha ng sensitibong kaalaman. Ang karamihan ng website ay gumagamit ng Secure Sockets Layer / Transport Layer Security (SSL / TLS) upang maghanda ng encryption sa transport layer. Gaano man, maliban kung wala ang website ay naka-configure na gagamitin SSL/TLS at naka-configure upang gamitin SSL/TLS maayos, pweding mahina ang website sa pagharang ng trapiko at pagbabago.
+ 
+Sa kawalan ng transport patong encryption nang transport ay hindi encrypted patong, ng lahat ng komunikasyon sa pagitan ng mga website na kliyente ay nagsugo na linisin ang teksto na ang mga dahon pagbuksan pati, injection at redirection (kilala rin bilang man-in-the-middle/MITM attack). Ang isang pag-salakay ay maaaring pumipigil sa komunikasyon, na nagbibigay sa kanila ng daan sa anumang sensitibong datos na ipadala gaya ng mga ginagamit na pagngalan at password. Ang isang pag-salakay ay pwede ring aktibong mag-iniksyon/mag-tanggal ng nilalaman mula sa komunikasyon, na nagpapahintulot sa pag-atake ng pag-salakay at pag-omit ng kaalaman, mag-impok ng malisyosong pag-script, o maging sanhi ng kliyente na ma-kadaan ang remote sa hindi pinagkakatiwalaang nilalaman. Ang isang pagsalakay ay pwedi ring dumirekta ang komunikasyon sa isang paraan na ang website at kliyente ay hindi na makapagsabi sa isa't isa, ngunit sa halip ay hindi makilala ang pakikipag-usap sa pagsalakay sa konteksto ng iba pang pinagkakatiwalaang pangkat.
+
+Ang Cipher Support ay Mahina
+Sa pangkasaysayan, ang mataas na ranggo ng cryptography ay pinag-takda mula sa pag-luwas sa labas ng Estados Unidos. Dahil dito ang, websites ay kailangan naka configure upang masupportahan ang mahinang cryptographic na pagpipilian para s mga kliyente na pinag-takda lamang sa paggamit ng mga mahinang ciphers. Ang mahina na ciphers ay hindi-ligtas laban sa pag-atake dahil sa kamag-anak na kadalian ng pagwasak sa kanila; mas mababa sa dalawang linggo sa isang pangkaraniwan na kompyuter sa bahay at ilang segundo gamit ang dedikadong hardware.
+Ngayon, ang lahat ng mga modernong browser at mga website ay ginagamit ng mas malakas na encryption, subalit ang ilang mga website ay naka-configure pa rin upang masuportahan ang mga laos na mahinang ciphers. Dahil dito, ang isang pagsalakay ay pweding mapilit ang client na i-baba sa isang mahinang cipher kapag kumukonekta sa website, na nagpapahintulot sa pagsalakay na sirain ang mahinang pag-encrypt. Dahil sa kadahilanang ito, dapat i-configure ang server upang tanggapin lamang ang mga malalakas na ciphers at hindi magbibigay ng paglilingkod sa anumang kliyente na humiling ng paggamit ng mahinang cipher. Sa karagdagan, ang ilang mga website ay may maling pag-kaayos upang pumili ng isang mahina na cipher kahit na ang kliyente ay sinusuportahan sa isang mas malakas na isa. Nag-aalok ang OWASP ng gabay sa pagsusuri para sa mga problema ng SSL / TLS, kabilang ang mahinang suporta sa cipher at misconfiguration, at may iba pang mga mapagkukunan at kasangkapan pati na rin.</desc>
+	<solution>Malinis na tukuyin kung aling mga datos o mga mapagkukunan ay sapat na mahalaga na dapat silang protteksyunan sa pag-encrypt. Hilingín na ang anumang paghahatid o pag-imbak ng datos / mapagkukunan na ito ay dapat gumamit ng gumagana na vetted na mga algorithm ng pag-encrypt.
+
+Yugto: Arkitektura at Plano
+Gamit ang pagmomolde ng pagbabanta o iba pang mga pamamaraan, ipalagay na ang iyong dattos ay maaaring makompromiso sa pamamagitan ng isang hiwalay na kahinaan o kahinaan, at matukoy kung saan ang encryption ay pweding pinaka-epektibo. Siguraduhin na ang datos na pinaniniwalaan mong dapat na pribado ay hindi sinasadyang ma-expose gamit ang mga kahinaan tulad ng hindi secure na mga permiso (CWE-732).
+
+Yugto: Arkitektura at desenyo
+siguraduhin na ang encrytion ay naintegrated sa system ng design kasama narin pero hindi kailangang limitahan.
+ang encryption ay kailangang maitago o mailagay sa pribadong datos ng mga gumagamit o may nag mamay ari ng system
+Ang encryption ay kailangang protektahan ang system mismo  sa mga hindi awtorisadong pagsisiwalat o pakikialam.
+alamin ang mga kailangang at separadong konteksto ng encryption. Ito ay makakamit sa pamamagitan ng pampublikong susi o pamamaraan ng crytography, o ibang teknik kung san ang encryting party (i.e.,ang software)ay hindi kailangang magkaroon ng access para sa pribadong key o pamamaraan.
+      Dalawang daan(i.e.,ang encryption ay pwedeng mag awtomatik sa pag galaw o pag perform sa ngalan ng may nagmamay ari, pero ang key ay kailangang maging available o kailangan magamit nang sa ganoo ang plaintext ay awtomatikong ma rerecover o maaaring marecover ng nag mamay ari). Ito ay nangangailangan ng mapag iimbakan ng mga pribadong key sa format na maaaring marecover pa ng mismong nag mamay ari (o kaya ng operating system o sa nag ooperate ng system) sa paraan na hindi marerecover ng iba.
+
+Yugto: Arkitektura at Desenyo
+Huwag mag develop o gumawa ng sariling crytographic algorithms. Maaring may mga naka exposed o nakalantad para umatake para sa mga nakakaalam ng cryptograps. Ang mga teknik ng reverse engineering ay pang bihasa. Kung ang algorithm ay makompormiso ng mga sumasalakay at malaman kung papaano ito gumagana, ang ibig sabihin nito na algorithm ay mahina.
+
+Yugto: Arkitektura at Desenyo 
+Piliin ang ang magaling o magandang vetted algorithm na kasalukuyang itunuturing na malakas ng mga eksperto sa larangan ng arkitektura, at piliin ang magaling o magandang vetted na pinatutupad.
+Halimbawa, ang Sistema ng Gobyerno ng Estados Unidos ay kailangan ng FIPS 140-2 na katunayan o katibayan.
+Katulad ng lahat ng mga mapaparaan ng kriptograpiko, ang source code ay kailangan magagamit sa pag aanalize.
+Laging tiyakin na hindi ka gumagamit ng lipas o wala ng bisang kriptograpi. Ang ibang matanda o lumang algorithms, minsang napag isipan kailanganan ng bilyong taon para sa suma ng oras, ngayon ay kayang buwagin o sirain ng isang araw o ilang oras lamang. Kasama nito ang MD4, MD5, SHA1 DES, at ang ibang algorithms kung saan ang mga ito ay pinagpipitagan bilang malakas.
+
+Yugto: Arkitektura at Desenyo
+pag samasamahinang iyongmga sistema ng sagoon ay magkaroon ka ng seguridad. sa lugar na kung saan ay nagtitiwala kang hindi ito magagalaw o makukuha ng iba. Huwag payagan ang mga sensitibong datos na mag punta sa labas ng pinagkaktiwalaang lugar o lalagyanan at kaialngang lagi ay maging maingat lalo na sa pag interface sa mga kasama sa labas ng ligtas na lalagyan o lugar.
+
+Yugto: Implementasyon; Arkitektura at Desenyo
+Kapag ikaw gumagamit ng pang industriyang na aprobahan ng mga teknik, ikaw ay kailangan na gamitin ng tama. Huwag gupitin o hatiin ang sulok sa pamamagitan ng paglaktaw ng mapagkukunan ng matinding hakbang.(cwe-325). Narito ang mga hakbang na palaging ginagamit o karanawang ginagamit para maiwasan ang mga sumasalakay.
+
+Yugto: Implementasyon
+Gumamit ng pangalan na gianmitan ng mga pang konbesyon at malakas na uri upang makagawa ng mas madaling spot kapag sensitibo ang datos na ginagamit. Kapag lumilikha ng mga istruktura, mga bagay, o iba pang mga kumplikadong mga entity, ihiwalay ang sensitibo at hindi-sensitibong datos hangang sa maaari.
+Ginagawa nitong mas madali na makita ang mga lugar sa code kung saan ang datos ay ginamit na unencrypted.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
+</vuln_item_wasc_4>
+
+<vuln_items>wasc_5</vuln_items>
+<vuln_item_wasc_5>
+	<alert>Pagbuo ng remote na file</alert>
+	<desc>Pag buo ng file. Kapag ang aplikante ng webay kumuha ng user input (URL, halaga ng parametro, atb.) at naipasa nila sa file kasama ang mga utos, ang aplikante ng web ay maaring ma trick kasama ang remote na files na may kasamang malisyosong code.
+
+Halos lahat ng aplikante ng web ay framework ay kasama ng suportang file. Ang pag sasama ng file ay isa sa pinkaginagamit para sa pag papack ng karaniwang code para sa separadong files na kadalasang ay nagiging sanggunnihan ng pangkalahatang aplikante ng modyul. Kapag ang web na aplikasyon ay nagmungkahi na isama ang file, ang code para dito ay maaring ibigay sa pamamaraang pagtawag o pagbibigay ng partikular na pamamaraan. Kapag ang napili mong modyul ay para mag lagay ng batayan ng mga elemento galing sa HTTP na hiling. ang web na aplikasyon ay maaring mahina sa RFI.
+Ang umaatake ay may kakayahang gumamit ng RFI para sa. Kapag ang file ay hindi na execute o naisagawa gamit ang ilang wrapper, ang code sa kasamang file ay maisasagawa sa konteksto ng gumagamit ng servver. Ito ay maaring mag bigay daan para sa kumpletong sistema ng kompormiso.
+    *Ang pagtakbo o pag gamit ng malisyosong code sa kliyente. ang mga umaatake ay may malisyosong code na pwedeng imanipulate ang nilalaman ng mga kapalit na pag bigay sa kliyente. Ang umaatake ay kayang kumuha ng mga malisyosong code na pabalik na pwedeng magpatakbo ng mga kliyente (halimbawa, javascript para makuha ang session cookies ng kliyente.
+
+PHP ay partikular na mahina para sa RFI na umaatake sa mga di kasamang pag gamit ng "file includes" sa PHP na programa at dahil sa default server ang pag gamit ng configuration ay tumataas ng pagkakamaramdamin ng RFI attack.</desc>
+	<solution>Yugto: Arkitektura at Plano
+Kung nakatakda o kilala ang hanay ng mga katanggap-tanggap na bagay, tulad ng mga pangalan ng file o URL, gumawa ng isang pagmamap mula sa isang hanay ng mga nakapirming halaga ng input (tulad ng mga numerong ID) sa aktwal na mga pangalan ng filename o URL, at tanggihan ang lahat ng iba pang mga input.
+Para sa halimbawa, ID 1 pweding e map sa "inbox.txt" at ID 2 pweding e map sa "profile.txt". Ang mga tampok kapareho ng ESAPI AccessReferenceMap ay naglalaan ng kakayahan na ito.
+
+Mga yugto: Arkitektura at plano; Operasyon
+Paganahin ang iyong code sa isang "bilangguan" o kapareho na sandbox ng kapaligiran na nagpapatupad ng mahirap na mga hangganan sa pagitan ng pag-proseso ng operating system. Ito ay maaring epektibong restrict kung saan ang files ay pwedeng magamit sa partikular na directory o kung saan ang utos ay maaring magamit o maisagawa ng iyong software.
+Ang OS-level ay mga ehemplo na kasama ang Unix chroot jail. AppArmor, at SELinux. Sa pangakalahatan, ang pag mamanage ng code ay pwedeng magbigay ng ilang proteksyon. Halimbawa, java.io FilePermission sa mga Java SecurityManager na mag aallow sayo ng pagtukoy sa mga restrictions o sa mga mahigpit na file na operasyon.
+Ito ay maaring di magawan ng solusyon, at ito ay limitasyon sa pag impact ng mga sitemang nag ooperate; at ang lahat ng iyong aplikasyon ay maaring maging paksa para sa kompormiso.
+Mag-ingat at iwasan ang CWE-243 at ang ibang mahihina na may kaugnayan sa bilangguan.
+Para sa PHP ang interpreter o tagasalin ng wika ay nag ooffer ng restrictions sa mga bukas na basedir o ligtas nga mode kung saan pwedeng gawing mas mahirap para sa umaatake na makaiwas sa labas ng aplikasyon. Isaalang alang din ang Suhosin, a pinagtibay ng PHP extension, kung saan ito ay kasama sa ibat ibang opsyonal na maaring mag disable o hindi mapagawa ang marami pang mas mapanganib na PHP na maga tampok.
+
+Yugto: pagpapatupad
+Ipagpalagay na ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa ng lohika sa patakaran sa negosyo, ang "bangka" ay pweding tama syntactically dahil naglalaman lamang ito ng mga alphanumeric na pag-uugali, ngunit hindi ito tama kung umaasa ka ng mga kulay na kapareho ng "red" o "blue."
+Para sa mga filename, gamitin ang mga mahigpit na whitelist na lumilimita sa hilera ng character na gagamitin. Kung magagawa, pahintulutan lamang ang isang solong "." karakter sa filename upang maiwasan ang mga kahinaan kagaya ng CWE-23, 
+at ihiwalay ang mga separator ng direktoryo kagaya ng "/" upang maiwasan CWE-36. Gumamit ng whitelist na nagpapahintulot sa lawig ng file, na maaring makakatulong upang maiwasan ang CWE-434.
+
+Mga yugto: Arkitektura at plano; Operasyon
+Magtabi ng aklatan, isama, at mga utility file sa labas ng web document root, kung pepwedi. O kaya, i-store sila sa isang nakahiwalay na direktoryo at gamitin ang mga kakayahan ng access kontrol ng web server para mapigilan ang mga aatake mula sa direktang pag-hiling sa kanila. Isang karaniwang pagsasanay ay ang pagtukoy sa isang fixed na constant sa bawat calling program, pagkatapos ay ang pag-check sa pagkakaroon ng constant sa library/include file; kung ang constant aay hindi umiiral, kung gayon ang file ay direktang iniling, at ito ay maaaring i-exit kaagad.
+Ito ay makabuluhang magpapababa ng tsansa ng isang aatake na magawang lagpasan ang anumang mga mekanismong proteksyon na nasa base program ngunit hindi nasa include files. Mababawasan din nito ang iyong attack surface.
+
+Yugto: Arkitektura at Plano; Pagpapatupad
+Maunawaan ang lahat ng mga potensyal na lugar kung saan pweding ipasok ng mga hindi pinagkakatiwalaang input ang iyong software: mga parameter o argumento, cookies, sa anumang nabasa mula sa network, mga baryante ng kapaligiran, saliwang pag-tingin sa taas ng DNS, mga resulta ng tanong, sa ulo ng kahilingan, mga bahagi ng URL, e-mail, mga file, database, at anumang mga panlabas na sistema na nagbibigay ng datos sa pagpapairal. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
+Madami sa pinag isang file ang nagkaroon ng problema nangyari ito dahil ang programmer ay ipinapalagay na ang ilang input ay hindi pweding pasadyang baguhin, lalo na para sa cookies at mga kasangkapan ng URL.</solution>
+	<reference>http://projects.webappsec.org/Remote-File-Inclusion</reference>
+	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
+</vuln_item_wasc_5>
+
+<vuln_items>wasc_6</vuln_items>
+<vuln_item_wasc_6>
+	<alert>String ng Format</alert>
+	<desc>Ang pagbago ng pag-atake ng String ng ayos ang daloy ng isang pag-papairal sa pamamagitan ng paggamit ng mga tampok sa pag-ayos ng format ng library upang ma-kadaan ang iba pang espasyo ng memorya. Ang mga kahinaan ay nangyayari kapag ang datos na naibigay ng taga-gamit ay direktang ginagamit bilang pag-format ng input ng string para sa ilang C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
+
+Kung ang isang sasalakay ay makapasa sa isang format na string na binubuo ng mga character ng printf na pinag-usapan (e.g. "%f", "%p", "%n", etc.) bilang isang parameter na halaga sa web aplikasyon, pwedi silang:
+    * Ipatupad ang arbitrary code ng server
+    * Basahin ng mga halaga mula sa stack
+    * Ang sanhi ng mga pagkakamali ng segmentation / pag-kasira ng software
+
+Ang pag-atake ng string ay may kaugnayan sa iba pang mga pag-atake sa banta ng pag-uuri: Buffer pag-apaw sa pag-apaw ng Integer. Ang lahat ng tatlo ay batay sa kanilang kakayahan na mamahala ang memorya o interpretasyon nito sa isang paraan na nag-aambag sa layunin ng magsasalakay.</desc>
+	<solution>Ang yugto: pangangailangan
+Pumili ng isang lengguwahe na hindi napapailalim sa lamat na ito.
+
+Ang yugto: Pagpapatupad
+Siguraduhin na ang lahat ng mga tungkuli ng format ng string ay pinapasa sa isang estatika na string na hindi pweding kontrolin ng gumagamit at ang tamang bilang ng mga argumento ay palaging ipinapadala sa tungkulin na rin. Kung posible, gumamit ng mga function na hindi sumusuporta sa %n operator sa mga format string.
+Ang pag-tatag: Pakinggan ang mga babala ng tagasunod ng mga linker, dahil pwedi ka nilang alertuhan sa hindi tamang paggamit.
+</solution>
+	<reference>http://projects.webappsec.org/Format-String</reference>
+	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
+</vuln_item_wasc_6>
+
+<vuln_items>wasc_7</vuln_items>
+<vuln_item_wasc_7>
+	<alert>Ang umaapaw na buffer</alert>
+	<desc>Ang Buffer Overflow ay isang lamat na nangyayari kapag mas maraming datos ang nakasulat sa isang bloke ng memorya, o buffer, kaysa sa buffer ay inilaan upang hawakan. Ang pagargabyado sa overflow ng buffer ay nagbibigay-daan sa isang magsasalakay na baguhin ang mga bahagi ng patlang na kinaroroonan ng target na pag-proseso. Ang kakayahan na ito ay pweding magamit para sa maraming layunin, kabilang ang mga sumusunod:
+    * ang pag-kontrol sa pagpapatupad ng proseso
+    * Sirain ang pag-proseso
+    * Baguhin ang panloob na mga baryante
+
+Ang layunin ng magsasalakay ay halos palaging makontrol ang pagpapatupad ng target na pag-proseso. Ito ay maisasagawa sa pamamagitan ng pagtukoy sa isang function pointer sa memorya na maaaring mabago, direkta o hindi direkta, gamit ang overflow. Kapag ang naturang pointer ay nagagamit ng programa upang maidirekta ang pagsasagawa ng programa sa pamamagitan ng pagtalon o pagtawag sa pagtuturo, gainagamit ang lokasyon ng pagtuturo na ibinigay ng pagsalakay, sa gayon ay pinahihintulutan ang magsasalakay na kontrolin ang proseso.
+
+Sa maraming mga kaso, ang tungkulin ng pointer ay binabago upang i-sanguni ang isang lokasyon kung saan ang magsasalakay ay nakalagay na nagsama ng mga tagubilin sa makina na natukoy. Ang mga instruksyon na ito ay karaniwang tinatawag bilang shellcode, batay sa katotohanan na ang mga aatake ay kalimitang humihiling na i-spawn ang command-line na environment, o shell, sa konteksto ng tumatakbong proseso.
+
+Ang buffer overflows ay ang pinaka madalas na kasama sa software ng pagsulat ng C at C++ sa pag-program ng lengguwahe 
+dahil sa malawakan na paggamit nila at kakayahang gumanap ng isang direktang pagpapatakbo sa memorya na may karaniwang construct ng mga programming. Dapat mabigyang-diin ito. datap'wat, yaon ang buffer overflows ay pweding umiral sa kahit na anong pangkalahatang programming na kung saan didirekta ito sa memorya, pinapayagan ang pag-manipula, kung hanggang flaws ang tagasunod, ang runtime libraries, o ang mga tampok na sariling lengguwahe.
+</desc>
+	<solution>Yugto: Mga Requirements
+Paggamit ng wika na hindi nag pahintulot sa gamitong mga kahinaan o nagbibigay ng constructs na gumagawa ng kahinaan na madaling itong maiwasan.
+Halimbawa, maraming mga lengguwahe na nagsasagawa ng kanilang sariling pamamahala sa memorya, tulad ng Java at Perl, ay hindi napapasailalim sa overflows ng buffer. Ibang mga lengguwahe, tulad ng Ada at c#, karaniwang nagbibigay ng proteksyon sa overflow, ngunit ang proteksyon ay maaaring hindi paganahin ng programmer.
+Maging maingat na ang interface ng isang wika sa sariling code ay maaaring sumailalim pa rin sa mga kalabisan, kahit na ang wika mismo ay ligtas ayon sa teorya.
+
+Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
+Kabilang sa mga halimbawa ay ang Safe C String (SafeStr) ni Messier at Viega, at ang Strsafe.h library mula sa Microsoft. Ang mga library na ito ay nagbibigay ng mas ligtas na mga bersyon ng madaling-mag-overflow na mga function ng string-handling. Ito ay hindi kumpletong solusyon, dahil maraming mga kalabisan ng buffer ay hindi nauugnay sa mga string.
+
+Ang yugto: Ang pag-tatag at pag-samasama
+Patakbuhin o tipunin ang iyong software gamit ang mga tampok o lawig na awtomatikong nagbibigay ng mekanismo ng proteksyon na nagpapagaan o nag-aalis ng overflow ng buffer.
+Ang halimbawa, ang ilang mga taga-tipun at mga lawig ay nagbibigay ng awtomatikong mekanismo ng pag-tuklas ng overflow ng buffer na itinatag sa naimbak na code. Ang kalakip sa mga halimbawa ang flag ng Microsoft Visual Studio /GS, Fedora/Red Hat FORATIFY SOURCE GCC flag, StackGuard, at ProPolice.
+
+Ang Yugto: Pagpapatupad
+gunitain ang pagsunod sa mga sumusunod na alituntunin kapag naglalaan at namamahala ng memorya ng isang aplikasyon:
+     doublehin ang pag-suri kung ang buffer mo ay kasing dami ng iyong tinukoy.
+      Kapag gumagamit ng mga function na tumatanggap ng isang bilang ng bytes para kopyahin, tulad ng strncpy(), magkaroon ng kamalayan na kung ang sukat ng destination buffer ay katumbas ng sukat ng source buffer, ito ay maaaring hindi mag NULL-terminate ng string.
+      Suriin ang mga hangganan ng buffer kung tinatawagan ang function na ito sa isang loop at siguraduhing wala ka sa panganib ng pagsulat ng lagpas sa nakalaang espasyo.
+      Kung kinakailangan, putulin ang lahat ng mga string ng input sa isang resonableng haba bago sila ipasa sa kopya at pagdugtong na mga function.
+
+Ang Yugto: Operasyon
+Ang pag-gamit ng isang tampok tulad ng Address Space Layout Randomization (ASLR).
+
+Ang Yugto: Operasyon
+
+Ang pag-gamit ng CPU at operating system na nag-aalok ng Data Execution Protection (NX) o kahambing nito.
+
+Ang Yugto: Pagpapatupad
+
+Ang pag-papalit ng mga limitasyon ng mga tungkulin ng kopya na may mga analog na tungkulin na suportado ng mga argumento ng haba, kagaya ng strcpy na may strncpy. Gawin ito kung, ito ay hindi pwedi.
+</solution>
+	<reference>http://projects.webappsec.org/Buffer-Overflow</reference>
+	<reference>http://cwe.mitre.org/data/definitions/119.html</reference>
+</vuln_item_wasc_7>
+
+<vuln_items>wasc_8</vuln_items>
+<vuln_item_wasc_8>
+	<alert>Ang cross-site na scripting</alert>
+	<desc>Ang Cross-site na scripting (XSS) ay isang atake na technique na bumabalot ng echoing ng attacker-supplied na code sa loob ng isang user browser na instance. Ang isang browser instance ay pwedeng isang standard web browser na client, o isang browser object embedded sa isang software produkto tulad ng browser sa loob ng WinAmp, isang RSS na reader, o isang email client. Ang code mismo ay karaniwang nakasulat sa HTML/JavaScript, ngunit maaari ring ma-ekstensyon sa VBScript, ActiveX, Java, Flash, o sa kahit anong iba pang suportado ng browser na teknolohiya.
+Kapag ang isang taga-atake ay nakakuha ng isang browser ng gumagamit para isakatuparan ang kanyang code, ang code ay tatakbo sa loob ng konteksto ng seguridad (o sona) ng hosting web site. Sa ganitong antas ng pribilehiyo, ang code ay may kakayahang makabasa, bumago at magpadala ng anumang sensitibong datos na naa-access ng browser. Ang isang gumagamit ng Cross-site Scripted ay maaaring ma-hijack ang kanyang account (pagnakaw ng cookie), ang kanilang browser ay na-redirect sa ibang lokasyon, o posibleng magpakita ng mapanlinlang na nilalaman na ipinadala ng web site na kanilang binibisita. Ang mga pag-atake sa Cross-site Scripting ay talagang mai-kompromiso ang tiwala na relasyon sa pagitan ng isang gumagamit at ng web site. Ang mga aplikasyon na gumagamit ng browser object na mga pagkakataon na naglo-load ng mga nilalaman mula sa sistema ng file ay maaaring magsagawa ng code sa ilalim ng lokal na makinang sona na nagpapahintulot para sa kompromiso ng sistema.
+
+Mayroong tatlong uri ng Cross-site Scripting na mga pag-atake: hindi paulit-ulit, paulit-ulit at naka-base sa DOM.
+Ang hindi paulit-ulit na mga pag-atake at ang naka-base sa DOM na mga pag-atake ay inaatasan ang isang gumagamit sa alinman sa pagbisita ng isang espesyal na crafted na link na naka-lace ng malisyosong code, o bumisita sa isang malisyosong pahina ng web na naglalaman ng isang web form kung saan kapag ito ay nai-post sa masasalakay na site, ay pupunta ang atake. Ang paggamit ng isang malisyosong form ay kalimitang nagaganap kapag ang tinatanggap lamang ng vulnerable resource ang HTTP POST na mga kahilingan. Sa ganong kaso, ang form ay maaaring maisumite ng automatiko, nang walang nalalaman ang biktima (hal. sa paggamit ng JavaScript). Sa pag-klik sa malisyosong link o sa pagsusumite ng malisyosong form, ang XSS payload ay mai-eecho pabalik at makakakuha ng pakahulugan sa pamamagitan ng browser at pagsasagawa ng gumagamit. Isa pang pamamaraan upang magpadala ng halos arbitrary na mga kahilingan (GET at POST) ay sa pamamagitan ng isang naka-embed na kliyente, tulad ng Adobe Flash.
+Ang paulit-ulit na mga pag-atake ay nagaganap kapag ang malisyosong code ay isinumite sa isang web site kung saan ito ay nakaimbak sa loob ng mahabang panahon. Mga halimbawa ng paboritong mga target ng isang taga-atake ay kalimitang kasama ang 
+mga mensahe ng board post, mga mensahe sa web mail, at software ng web chat. Ang hindi nagsususpetsyang gumagamit ay hindi kailangang makipag-ugnayan sa anumang karagdagang site/link (hal. isang site na umaatake o isang malisyosong link na ipinadala sa pamamagitan ng email), tingnan lamang ang pahina ng web na naglalaman ng code.</desc>
+	<solution>Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
+Mga halimbawa ng mga library at balangkas na ginagawang mas madali ang pagbuo ng maayos na pagka-encode na output ay ang Microsoft's Anti-XSS library, ang module ng OWASP ESAPI Encoding, at Apache Wicket.
+
+Yugto: Implementasyon; Arkitektura at Desenyo
+Intindihin ang konteksto kung saan ang iyong datos ay pwedeng gamitin at ang pag encode ay expected. Ito ay espesyal at importante kapag nag tatransmit o nag papasa ng datos sa pagitan ng mag kaibang components o mga sangkap. o kapag nag gegenerate ng mga output na maaaring may laman na maraming mga encoding sa parehong oras, tulad ng mga pahina sa web o sa maraming parte ng sulat at mensahe. Pag aralan ang lahat na inaasahang komyunikasyon protokol at datos ng representation na makilala o matukoy ang kinikailangang pag eencode at mga estratehiya.
+Kahit na sa anong datos ay magiging output sa ibang pahina ng web, lalo na ang ibang datos na matatanggap sa labas ng mga input, gamitin ang tamang pag eencode sa lahat ng non-alphanuemeric na karakter.
+Kumunsulta sa XSS para sa pag iwas ng madayang pilas ng papel o Prevention Cheat Sheet para sa mas maraming detalye sa mga uri ng pag eencoode at sa pagtakas na kinakailangan.
+
+Yugto: Arkitektura at Disenyo 
+Para sa ibang seguradid na pag suri na ang pag perform sa kliyente, siguraduhin na ang pag susuri ay dalawa para naman sa server, upang maiwasan ang CWE-602. Ang mga umaatake ay maaring bypass sa side ng kliyente suriin ang modipikasyon ng halaga bago pa matapos ang pagsusuri ay magawa, o sa pagbabago ng kliyente sa pagtanggal ng kabuoang pag susuri sa kliyente. Pagkatapos, ang modipikasyon ng halaga ay maaaring ipasa sa server.
+
+Kung may magagamit o may mapapakinabangan, gamitin ang structued na mekanismo na awtomatikong mag eenforce ng separado sa pagitan ng datos at code. Ang Mekanismong ito ay maaring mag provide o maghanda ng may kaugnayan sa quoting, pag eencode at sa awtomatikong balidasyon, sa halip na umasa ang mga nag develope ang gumawa ng kapasidad o kakayahan sa lahat ng pagkakataon kapag ang output ay nagenerate.
+
+Yugto: Implementasyon
+Para sa lahat ng pahina ng web na nag gegnerate, gamitin ang specify na karakter sa pag eencode tulad ng ISO-8859-1 or UTF-8. Kapag ang pag eencode ay hindi specified o hindi kilala, ang web na browser ay pipili ng ibang encoding gamit ang pag hahanap ng ibang encoding na nagamit na ng pahina ng web. Ito ay maaaring magdulot sa web browser ng trato sa tiyak na sequences bilang espesyal na pag bubukas ng kliyente sa banayad na XSS na mga atake. Tignan ang CWE-116 para sa mas maraming mitigasyon na may kaugnayan sa pag eencode/at pagtakas.
+
+Para matulungan ang mitigasyon sa mga umaatake sa XSS laban sa gumagamit ng session cookie, ihanda ang session cookie sa HttpOnly. Ang pag suporta HttpOnly ng browser ay tampok (tulad ng mas maraming kamakailang bersyon ng internet explorer ang Firefox), ang attribute na ito ay maaaring pigilan ng mga gumagamit ng session na cookie galing sa maaring puntahan na malisyosong eskripto ng kliyente na gumagamit ng dokomento ng cookie. Ito ay hindi kumpletong solusyon, since ang HttpOnly ay hindi sinuportahan ng lahat ng browser. Ang mas mahalaga, XMLHTTPRequest at ang ibang mas malakas na teknolohiya ng browsers na nagbibigay ng pag basa at pag tukoy sa HTTp headers, kasama na rito ang sert ng cookie header kung saan ang HttpOnly flag ay na set.
+
+Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang ehemplo ng negosyo sa panuntunan ng lohika, " bangka" ay may systacticaally na balido sapagkat ito lamang ang naglalaman ng alphanumeric na karakter, pero ito ay hindi balido kung ang iyong inaasahang kulay at "pula at asul."
+
+Pakariguraduhin na ang pag perform ng input ay balido sa sa well mga interface sa mga aplikasyon. Ito ay makakatulong sa aplikasyon kahit na ang mga component o mga nilalaman ay nagamit na o nailagay kung saan man.
+	</solution>
+	<reference>http://projects.webappsec.org/Cross-Site-Scripting</reference>
+	<reference>http://cwe.mitre.org/data/definitions/79.html</reference>
+</vuln_item_wasc_8>
+
+<vuln_items>wasc_9</vuln_items>
+<vuln_item_wasc_9>
+	<alert>Kahilingan para sa Cross Site</alert>
+	<desc>Ang kahilingan para sa cross site ay isang atake na kasangkot sa pagpwersa ng biktima na magpadala ng HTTP na hiling sa mga target na destinasyon na walang kaalaman o intensyon na mag perform ng ibang aksyon ng mga biktima. Ang cause na pinagbabatayan ng aplikasyon ng funcionality na ginamit sa pag predikta ng URL/uri ng aksyon na umuulit na paraan. Ang kalikasan ng pag atake ay ang CSRF na kapakinabangan ng tiwala ng web site para sa gumagamit. Sa kabilang banda, ang cross site scripting (XSS) ay may kapakinabangan na ang gumagamit ay para sa web site. Katulad ng XSS, CSRF ang mga atake ay hindi necessarily ng cross-site pero hindi maaari. Ang Cross site ay kahilingan ng 
+forgery ay isa sa kilalang CSRF, XSRF, isang pindot ng pag atake. ang session riding, ang nalitong representante, at ang see surf.
+
+CSRF na pag atake ay epektibo sa mga bilang na sitwasyon, kasama na rito ang 
+*Ang biktima ay aktibong session sa mga target na site.
+    *Ang biktima ay awtentikado via HTTP auth sa mga target na site.
+    *Ang biktima ay na sa parehong lokal na network sa mga target na site.
+
+CSRF ay pangunahing nagagamit para mag perform ng aksyon laban sa target na site gamit ang pribelihiyo ng biktima, pero ang kamakailang teknik ay natuklasana na isiwalat o ipaalam sa iba ang impormasyon sa pamamagitan ng pag kakaroon ng mga sagot. Ang panganib ng impormasyon na pag siwalat ay kapansin pansing pagtaas kapag ang target na site ay mahina sa XSS, dahil ang XSS ay ginagamit bilang platform ng CSRF, pinapayagang umatake at mag operate hanggang sa kanilang kakayahan sa parehong pinanggalingan ng palisiya.</desc>
+	<solution>Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
+Ang halibawa, gumamit ng anti-CSRF na pakete katulad ng OWASP CSRFGuard.
+
+Yugto: Implementsyon
+Pakasiguraduhin na ang aplikasyon ay di ginagamit o libre sa mga cross site scripting issues, dahil ang pinaka depensa ng CSRF ay pwedeng mabypassed gamit ang umaatake na kontrolado ng script.
+
+Yugto: Arkitektura at Desenyo 
+Bumuo ng kakaibang nonce para sa lahat ng porma, lugar at sa nonce sa mga porma, at maiverify o maalam ang nonce na resibo ng mga porma. Siguraduhin na ang nonce ay hindi mahuhulaan (CWE-330).
+Tandaan na maaari itong ma-bypass gamit ang XSS.
+
+Kilalanin lalo na ang mapanganib na mga operasyon. Kapag ang gumagamit ay nagsasawa ng isang mapanganib na operasyon, magpadala ng isang nakahiwalay na kahilingan ng kumpirmasyon para masigurado na intensyon ng gumagamit ang isagawa ang operasyon na iyon.
+Tandaan na maaari itong ma-bypass gamit ang XSS.
+
+Gamitin ang kontrol ng ESAPI Session Management.
+Kasama sa kontrol na ito ang isang bahagi para sa CSRF.
+
+Huwag gamitin ang pamamaraan ng GET para sa anumang kahilingan na maaaring maging sanhi ng isang pagbabago ng estado.
+
+Ang Yugto: Pagpapatupad
+Suriin ang header ng HTTP Referer upang makita kung ang kahilingan ay nagmula sa isang inaasahang pahina. Maaaring masira nito ang lehitimong pag-andar, dahil maaaring ang mga gumagamit o mga proxy ay hindi pinagana ang pagpapadala ng Referer para sa pribadong mga kadahilanan.</solution>
+	<reference>http://projects.webappsec.org/Cross-Site-Request-Forgery</reference>
+	<reference>http://cwe.mitre.org/data/definitions/352.html</reference>
+</vuln_item_wasc_9>
+
+<vuln_items>wasc_10</vuln_items>
+<vuln_item_wasc_10>
+	<alert>Ang pagtanggi ng serbisyo</alert>
+	<desc>Ang pagtanggi ng serbisyo (DoS) ay isang pamamaraan sa pag-atake na ang layunin ay ang pagpigil sa web site mula sa paglilingkod ng normal na gumagamit sa kanyang gawain. Ang DoS na mga pag-atake, na kung saan ay madaling normal na inilipat na sa network na pagpatong, ay posible din sa pagpatong sa aplikasyon. Ang mga malisyosong mga pag-aatake na ito ay pwedeng magtagumpay sa pagbawas sa kritikal na mga pagkukunan, eksployt, o abuso sa kakayahan.
+
+Maraming beses na ang mga pag-aatake ng DoS ay pagtatangka na ubusin ang lahat ng mapagkukunan ng magagamit ang website tulad ng: CPU, memory, disk space atbp. Nang sinuman sa mga kritikal na mapagkukunan ay lubos na nagamit, ang web site ay normal na hindi ma-access.
+
+Sa ngayon ang web aplikasyon sa mga kapiligiran ay kinabibilangan ng isang web server, database server at isang pagpapatunay na server, DoS at ang aplikasyon na pagpatong ay maaring mag-target sa bawat isa na mga bahagi. Di tulad ng DoS sa patong na network, kung saan ang isang malaking bilang ng koneksyon na pagtatangka ay kinakailangan. Ang DoS sa patong na aplikasyon ay isang mas simpleng gawain na maisasagawa.</desc>
+	<solution>Yugto: Arkitektura at Disenyo
+
+Ang disenyo throttling na mga mekanismo sa sistema ng arkitektura. Ang pinakamainam na proteksyon ay limitahan ang halaga ng yaman na ang di-awtorisadong user ay maaring makadulot upang gastahin. Ang isang matibay na pagpapatunay at modelo ng access kontrol ay makakatulog na maiwasan ang gayong mga pag-atake mula sa nangyaring unang naganap. Ang login na aplikasyon ay dapat protektado laban sa pag-atake ng DoS hangga't maaari. Nilimitahan ang access sa database, marahil sa caching na nakalagay na resulta, makakatulong sa pagbawas ang pinagkukunan na ginasta. Para sa karagdagang limit ng potensyal para sa isang atake ng DoS, isaalang-alang ang taas ng halaga ng mga natatanggap na kahilingan mula sa mga gumagamit at bumabara ang mga hiling na lumagpas sa isang tinukoy na halaga ng limitasyon.
+
+Paghumpay sa pagkaubos ng pinagkukunan ay aatake sa nangangailangan na ang sistema ng target alinman:
+      kinikilala ang atake at tinanggihan ang gumagamit sa isinulong na pagpasok para sa isang ibinigay na oras, o
+      magkakatulad ng mga throttles sa lahat ng mga kahilingan upang gumawa ng mas mahirap na pagkuha ng mapagkukunan ng mas mabilis kaysa sa kanilang nabawas muli. 
+
+Ang una sa mga solusyon ay isang isyu sa sarili bagaman, dahil maari itong payagan ang mga nag-aatake na maiwasan ang paggamit ng sistema sa pamamagitan ng isang balidong gumagamit. Kung ang umatake ay kinokopya ang balidong gumagamit, pwede nitong pigilan ang gumagamit mula sa pagpasok sa server sa pagtatanong.
+
+Ang pangalawang solusyon ay mahirap lamang sa epektibong istitute -- at kahit na isaktong matapos, ito ay hindi nagbibigay ng isang buong solusyon. Ito lang ay gumagawa sa atake na nangangailangan ng higit pang mapagkukunan ng parte sa umaatake.
+
+Tiyakin na ang mga protocol ay partikular ang mga limit ng scale na inilagay sa kanila.
+
+Yugto: Pagsasagawa
+Tiyakin na ang lahat ng mga kabiguan sa alokasyong inilagay sa sistema sa isang ligtas na paglalagyan.</solution>
+	<reference>http://projects.webappsec.org/Denial-of-Service</reference>
+	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
+</vuln_item_wasc_10>
+
+<vuln_items>wasc_11a</vuln_items>
+<vuln_item_wasc_11a>
+	<alert>Ang brute na pamumuwersa sa Log-in Credentials</alert>
+	<desc>Ang isang brute force na atake ay isang paraan para pagkuha ng isang hindi alam na halaga sa pamamagitan ng paggamit ng isang awtomasyon na proseso na sumubok ng isang malaking posibilidad na mga halaga. Ang pag-atake ay kumukuha ng kalamangan sa pangyayari na ang entropy sa mga halaga ay maliit sa inaasahan. Halimbawa, habang ang isang 8 karakter na alphanumeric pasword ay maaring magkaroon ng 2.8 trillion na posibleng mga halaga, maraming tao ay pipili sa kanilang mga password mula sa isang maliit na subset na bumubuo ng iisang salita at tuntunin.
+
+Ang pina ka karaniwang uri ng isang brute force na atake sa web na mga aplikasyon ay isang atake laban sa log-in credentials. Pagkat ang mga gumagamit ay kailangang tandaan ang mga password, madalas silang pumili ng pinakamadaling matandaan na mga pananalita o salita bilang kanilang mga password, paggawa ng isang brute force na atake gamit ang isang diksiyonaryo ay magagamit. Gayong pag-atake ay sinusubok ang pag-login sa isang sistema gamit ang isang malaking listahan ng mga pananalita at salita bilang potensyal na mga password ay kadalasang tinatawag bilang "atake sa listahan ng pananalita" o isang "atake sa diksiyonaryo". Ang pagsusubok ng mga password maaring isinama ang kaibahan ng mga karaniwang salita sa mga password gaya ng nabuo sa pamamagitan ng pagpalit sa "o" ng "0" at "i" ng "1" gaya ng personal na impormasyon kasali ang mga pangalan ng mga miyembro ng pamilya, araw na isinilang at mga numero ng telepono.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11a>
+
+<vuln_items>wasc_11b</vuln_items>
+<vuln_item_wasc_11b>
+	<alert>Ang Brute Forcing na sesyon na nagtutukoy</alert>
+	<desc>Ang isang brute force na atake ay isang paraan para pagkuha ng isang hindi alam na halaga sa pamamagitan ng paggamit ng isang awtomasyon na proseso na sumubok ng isang malaking posibilidad na mga halaga. Ang pag-atake ay kumukuha ng kalamangan sa pangyayari na ang entropy sa mga halaga ay maliit sa inaasahan. Halimbawa, habang ang isang 8 karakter na alphanumeric pasword ay maaring magkaroon ng 2.8 trillion na posibleng mga halaga, maraming tao ay pipili sa kanilang mga password mula sa isang maliit na subset na bumubuo ng iisang salita at tuntunin.
+
+Dahil ang HTTP ay isang stateless protocol, upang mapanatili ang mga aplkasyon ng state web kailangang tiyakin na ang isang identifier ng sesyon ay ipinadala ng browser sa bawat kahilingan. Ang identifier ng sesyon ay karaniwang naka-store sa isang HTTP cookie o URL. Gamit ang malupit na pwersa ng pag-atake, ang isang taga-atake ay maaaring mahulaan ang identifier ng sesyon ng iba pang gumagamit. Ito ay maaaring humantong sa pagpapanggap ng taga-atake bilang ang gumagamit, pagkuha ng mga personal na impormasyon at magssagawa ng mga aksyon sa ngalan ng gumagamit.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11b>
+
+<vuln_items>wasc_11c</vuln_items>
+<vuln_item_wasc_11c>
+	<alert>Ang Brute Forcing na mga diksiyonaryo at mga file</alert>
+	<desc>Ang isang brute force na atake ay isang paraan para pagkuha ng isang hindi alam na halaga sa pamamagitan ng paggamit ng isang awtomasyon na proseso na sumubok ng isang malaking posibilidad na mga halaga. Ang pag-atake ay kumukuha ng kalamangan sa pangyayari na ang entropy sa mga halaga ay maliit sa inaasahan. Halimbawa, habang ang isang 8 karakter na alphanumeric pasword ay maaring magkaroon ng 2.8 trillion na posibleng mga halaga, maraming tao ay pipili sa kanilang mga password mula sa isang maliit na subset na bumubuo ng iisang salita at tuntunin.
+
+Kapag ang mga file nakatira sa mga direktoryo na mga pinaglingkuran sa pamamagitan ng web server pero hindi ito naka-ugnay kung saan, pagpasok sa mga kinakailan na pagkilala sa kanilang pangalan ng file. Sa ilang mga kaso ang mga file na ay naiwan sa pamamagitan ng pagkamali: halimbawa isang backup na awtomatikong file ay nalikha kapag magbago ng isang file o mga iniwan mula sa isang nakaraan na bersyon sa aplikasyon ng web. Sa ibang mga kaso ang mga file ay sadyang iniwan na hindi naka-ugnay bilang isang "seguridad ng karimlan" ang mekanismo na nagpapahintulot lamang sa mga tao na malaman ang pangalan ng file para makapasok ang mga ito.
+
+Ang isang brute force na atake ay sumusubok na maghanap sa hindi naka-ugnay na file sa pamamagitan ng pagsusumikap na pumasok sa mga malalaking numero ng mga file. Ang listahan sa sinusubukang mga pangalan ng file ay maaaring makuha mula sa isang listahan sa kilalang potensyal na mga file o batay sa iba't iba na nakikitang mga file sa web site. Para sa karagdagang impormasyon sa brute forcing na mga direktoryo at mga file ay makikita sa kapanalig na kahinaan, manghuhula ng mapagkunan ng lokasyon.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11c>
+
+<vuln_items>wasc_11d</vuln_items>
+<vuln_item_wasc_11d>
+	<alert>Brute Forcing sa impormasyon ng credit card</alert>
+	<desc>Ang isang brute force na atake ay isang paraan para pagkuha ng isang hindi alam na halaga sa pamamagitan ng paggamit ng isang awtomasyon na proseso na sumubok ng isang malaking posibilidad na mga halaga. Ang pag-atake ay kumukuha ng kalamangan sa pangyayari na ang entropy sa mga halaga ay maliit sa inaasahan. Halimbawa, habang ang isang 8 karakter na alphanumeric pasword ay maaring magkaroon ng 2.8 trillion na posibleng mga halaga, maraming tao ay pipili sa kanilang mga password mula sa isang maliit na subset na bumubuo ng iisang salita at tuntunin.
+
+Pag-shopping online na may nakaw na mga credit card ay kadalasang nangangailangan ng impormasyon sa karagdagan ng numero ng credit card, pinakamadalas ang CVV/SCS at/o ang petsa ng expiration. Ang isang mandadaya ay maaaring humahawak ng isang nakaw na credit card na numero na walang dagdag na impormasyon. Halimbawa ang CVV/CSC ay hindi nakatatak sa card o nakatago sa isang magnetic stripe para hindi ito mabayad sa pamamagitan ng mekanikal o magnetic na credit card swiping na mga kagamitan.
+
+Upang punan ang nawawalang impormasyon ang hacker ay maghuhula ng nawawalang impormasyon gamit ang brute force na pamamaraan, sinusubukan ang lahat ng mga posibleng halaga.
+    * Paghuhula ng CVV/CSC ay nangangailangan lamang ng 1000 o 10000 na pagtatangka gaya ng numero ay 3 o 4 digit lamang, depende sa uri ng card.
+    * Paghuhula ng petsa ng expiration ay nangangailangan ng ilang dosenang patatangka lamang.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11d>
+
+<vuln_items>wasc_12</vuln_items>
+<vuln_item_wasc_12>
+	<alert>Spoofing sa nilalaman</alert>
+	<desc>Ang nilalaman ng Spoofing ay isang atake sa kakayahan na nagbibigay-daan sa isang magsasalakay upang mag-iniksyon ng isang hindi magandang kargamento na mamaya misrepresented bilang lehitimong nilalaman ng isang web aplikasyon.
+ 
+Ang teksto na nilalaman lamang ng Spoofing
+Ang isang pangkaraniwang kakayahan sa mga pahina ng dynamic na pagtatag ay nagsasangkot ng pagpasa sa katawan o mga bahagi nito sa pahina sa pamamagitan ng tanong na halaga ng string. Ang paraang ito ay karaniwang nasa mga pahina ng kamalian, o mga site na nagbibigay ng mga entry ng istorya o balita. Ang nilalaman na tinukoy sa parameter na ito ay kalaunang makikita sa pahina upang magbigay ng nilalaman para sa pahina.
+ 
+Ang Markup Reflected Content Spoofing. Halimbawa, ang pinagkukunan ng lokasyon sa isang frame <frame src="http://foo.example/file.html"/>) ay tinukoy sa pamamagitan ng URL parameter na halaga. (http://foo.example/page?frame_src=http://foo.example/file.html). Ang isang umatake ay maaaring magpalit ng "frame_src" na halaga ng parameter na may "frame_src=http://attacker.example/spoof.html". Hindi tulad ng mga redirector, kapag ang resultang web page ay naglilingkod sa bar lokasyon ng browser na makikita ay maiiwan sa ilalim ng ginagamit na inaasahang domain (foo.example), pero ang dayuhang datos (attacker.example) ay bumabalot ng tunay na nilalaman.
+
+Lalong lalo na ang gawa na mga kaugnay ay pwedeng maipadala ng isang gumagamit gamit ang e-mail, mabilisang mga mensahe, iniwan sa bullentin board na mga posting, o pinipilit sa ibabaw ng mga gumagamit sa pamamagitan ng isang Cross-site Scripting na atake. Kung ang isang umatake ay nakakuhang magbisita ng isang pahina ng web na disenyo na ginagamitan ng kanilang malisyosong URL, ang gumagamit ay maniwala na siya ay tumitingin sa tunay na nilalaman mula sa isang lokasyon kapag siya ay wala. Ang mga gumagamit ay lubos na magtitiwala sa ginayang nilalaman dahil ang bar ng lokasyon ng browser ay nagpapakita ng http://foo.example, na sa katunayan ang pinagbabatayang HTML frame ay tumutukoy sa http://attacker.example.
+
+Ang atake na ito ay nagsasamantala ng tiwala sa relasyon na naitatag sa pagitan ng gumagamit at ng web site. Ang pamamaraan ay nagamit upang lumikha ng pekeng mga pahina ng web kabilang ang mga form sa pag-login, mga kabaligtaran, maling mga pahayag, atbp.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Content-Spoofing</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_12>
+
+<vuln_items>wasc_13</vuln_items>
+<vuln_item_wasc_13>
+	<alert>Impormasyon na tumagos</alert>
+	<desc>Pagtagas ng impormasyon ay isang kahinaan ng aplikasyon na kung saan ang aplikasyon ay nagpapakita ng sensitibong mga datos, tulad ng teknikal na mga detalye sa aplikasyon ng web, kapaligiran, o gumagamit-tumutukoy ng datos. Ang sensitibo na datos ay maaaring gamitin sa pamamagitan ng umatake sa eksployt sa tigpo ng aplikasyon ng web, sa kanyang hosting na network, o sa kanyang mga gumagamit. Samakatuwid, ang pagtagas ng sensitibong datos ay dapat limitado o pumigil hangga't maaari. Pagtagas ng impormasyon, sa kanyang karaniwang anyo, ay ang resulta ng isa o higit pa sa sumusunod na mga kondisyon: Ang isang kabiguan nagkuskos palabas sa HTML/Script na mga komento na naglalaman ng sensitibong impormasyon, hindi wastong aplikasyon o mga kumpigurasyon ng server, o pagkakaiba sa pahina ng mga sagot para sa balido kumpara sa hindi balidong datos.
+
+Kabiguan sa pagkuskus sa HTML/Script na mga komento bago sa isang tulak patungong produksyon ng kapaligiran ay magreresulta sa pagtagas ng sensitibo, kontekswal, impormasyon tulad ng istraktura ng server direktoryo, SQL query na istraktura, at panloob na network na impormasyon. Madalas ang isang developer ay mag-iiwan ng mga komento sa loob ng HTML at/o script code upang makatulong na mapadali ang pagde-debug o pagsasama ng proseso sa panahon ng yugto sa pre-production. Bagama't walang masama sa pagpapahintulot ng mga developer na isama ang nasa linya na mga komento sa loob ng nilalaman na kanilang ginawa, ang mga komentong ito ay dapat lahat alisin bago ang nilalaman sa pampublikong release.
+
+ANg software na bersyon ng mga numero at verbose na maling mga mensahe (tulad ng ASP.NET na mga numero ng bersyon) ay mga halimbawa sa maling server na mga kumpigurasyon. Ang impormasyon na ito ay kapaki-pakinabang sa isang umatake sa pamamagitan ng detalyadong kabatiran sa framework, mga wika, o pre-built na mga function na napapakinabangan ng isang aplikasyon sa web. Karamihan sa default na server na mga kumpigurasyon ay nagbibigay ng software bersyon ng mga numero at verbose na maling mga mensahe para sa pagde-debug at paglutas na mga layunin. Kumpigurasyon ay nagbabago ay maaaring gawin na hindi paganahin ang mga tampok na ito, upang mapigilan ang pagdispley sa impormasyon na ito.
+
+Mga pahina na nagbibigay ng iba't ibang mga tugon batay sa kabuluhan ng datos ay maaari ring humantong sa pagtagas ng impormasyon; lalo na kapag ang datos ay itinuturing na kumpidensyal ay inihayag bilang resulta ng disenyo ng aplikasyon ng web. Mga halimbawa sa sensitibong datos ay kabilang (ngunit hindi limitado sa): mga numero ng account, mga pagkakilanlan ng gumagamit (Numero ng lisensya ng drayber, numero ng passport, mga numero sa social security, atbp.) at gumagamit-partikular na impormasyon (mga password, mga sesyon, mga tirahan). Pagtagas ng impormasyon sa kontekstong ito ay tumatakay sa pagkalantad ng pangunahing gumagamit ng datos na itinuturing na kumpidensyal, o lihim, na dapat hindi nakalantad sa simpleng pananaw, maging ang gumagamit. Ang mga numero ng credit card at iba pang mabigat na regulated na impormasyon ay pangunahing halimbawa ng gumagamit ng datos na nangangailangan ng karagdagang maprotektahan mula sa exposure o pagtagas kahit na may wastong encrypsyon at pagpasok ng mga kontrol na nasa lugar na.</desc>
+	<solution>Paghiwa-hiwalayin ang iyong sistema na magkaroon ng "ligtas" na lugar na kung saan ang mga hangganan ng tiwala ay hindi magagalaw o makukuha ng iba. Huwag payagan ang mga sensitibong datos na mag punta sa labas ng pinagkaktiwalaang lugar o lalagyanan at kaialngang lagi ay maging maingat lalo na sa pag interface sa mga kasama sa labas ng ligtas na lalagyan o lugar.</solution>
+	<reference>http://projects.webappsec.org/Information-Leakage</reference>
+	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
+</vuln_item_wasc_13>
+
+<vuln_items>wasc_14</vuln_items>
+<vuln_item_wasc_14>
+	<alert>Hindi maayos na kumpigurasyon ng server</alert>
+	<desc>Hindi maayos na kumpigurasyon sa server na pag-atake ay pagsamantalahan ng mga kahinaan ng mga server sa web at mga server sa aplikasyon. Maraming mga server ay dumating sa di-kinakailangang default at sample na mga file, kabilang na ang mga aplikasyon, kumpigurasyon na mga file, mga script, at mga pahina ng web. Maaaring mayroon di silang hindi kinakailangang mga serbisyong pinagana, tulad ng pamamahala ng nilalaman at administrasyon ng remote na kakayahan. Pagde-debug na kakayahan ay maaaring mapagana o administrative na mga kakayahan ay maaaring mapasokan sa hindi kilalang mga gumagamit. Mga tampok na ito ay maaaring magbigay ng isang paraan para sa isang hacker na lampasan ang mga pamamaraan ng pagpapatunay at makakuha ng access sa sensitibong impormasyon, marahil may nakataas na mga pribilehiyo.
+
+Mga server ay maaaring magsama ng kilalang default na mga account at mga password. Kabiguan na lubos na i-lock na pababa o patigasin ang server na maaaring iwanan ang pagtakda ng file at mga direktoryo na mga permiso. Hindi maayos na pagkumpigure sa SSL na sertipiko at pag-encryption na mga setting, ang ginagamit sa default na katibayan, at hindi maayos na pagpapatunay na implementasyon na may panlabas na mga sistema ay maaaring ikompromiso ang pagiging kumpidensyal na impormasyon.
+
+Verbose at nakapagtuturo sa maling mga mensahe ay maaaring magresulta sa tulo ng datos, at ang impormasyon ay inihayag ay magagamit sa bumalangkas sa susunod na antas ng atake. Ang maling mga kumpigurasyon sa software ng server ay maaaring magpahintulot sa pag-iindex ng direktoryo at daan sa traversal na mga pag-aatake.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Server-Misconfiguration</reference>
+	<reference></reference>
+</vuln_item_wasc_14>
+
+<vuln_items>wasc_15</vuln_items>
+<vuln_item_wasc_15>
+	<alert>Hindi maayos na kumpigurasyon sa aplikasyon</alert>
+	<desc>Ang hindi maayos na kumpigurasyon sa aplikasyon na pag-atake ay pagsamatalahan ng mga kahinaan na makikita sa mga aplikasyon sa web. Maraming mga aplikasyon ang dumating na may hindi kinakailangan at hindi ligtas na mga tampok, tulad ng debug at QA na mga tampok, pinagana sa pamamagitan ng default. Mga tampok na ito ay maaaring magbigay ng isang paraan para sa isang hacker na lampasan ang mga pamamaraan ng pagpapatunay at makakuha ng access sa sensitibong impormasyon, marahil may nakataas na mga pribilehiyo.
+
+Gayundin, ang default na mga installation ay maaaring magsama ng mga kilalang username at password, hard-coded na mga backdoor account, mga espesyal na mekanismo ng pag-access, at hindi tamang mga permiso na itinakda para sa mga file na maa-access sa pamamagitan ng mga web server. Ang default na mga halimbawa ay maaaring ma-access sa mga environment ng produksyon. Ang mga file ng kumpigurasyon na nakabase sa aplikasyon na hindi maayos na naka-lock down ay maaaring magbunyag ng malinaw na mga string ng koneksyon ng teksto sa database, at ng mga default na setting sa mga file mg kumpigurasyon na maaaring hindi na-set na may iniisip na seguridad. Lahat ng mga maling kumpigurasyong ito ay maaaring humantong sa hindi awtorisadong pag-access sa sensitibong impormasyon.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Application-Misconfiguration</reference>
+	<reference></reference>
+</vuln_item_wasc_15>
+
+<vuln_items>wasc_16</vuln_items>
+<vuln_item_wasc_16>
+	<alert>Mga pag-index sa direktoryo</alert>
+	<desc>Awtomatikong direktoryo na listahan/indexing ay isang server sa web na tampok na naglilista sa lahat ng mga file sa loob ng isang hiniling na direktoryo kung ang normal na basehan sa file (index.html/home.html/default.htm/default.asp/default.aspx/index.php) ay wala roon. Kapag ang isang gumagamit ay humihingi sa pangunahing pahina sa isang web site, sila ay normal na mag-type sa isang URL tulad ng: http://www.example.com/directory1/ - paggamit ng pangalan ng domain at hindi kasama ang isang partikular na file. Ang web server na mga proseso sa hiling na ito at mga paghahanap ng direktoryo sa dokumento ng root para sa default na panglan ng file at nagpapadala ito ng pahina sa kliyente. Kung ang pahinang ito ay hindi nakaharap, ang server ng web ay magbabago ng isyu sa isang listahan ng direktoryo at nagpapadala ng output sa kliyente. Sa esensya, ito ay katumbas sa pag-isyu ng isang "ls" (Unix) o "dir" (Windows) na utos sa loob ng direktoryo na ito at nagpapakita ng mga resulta sa HTML na form. Mula sa isang atake at countermeasure na perspektibo, ito ay importante na malaman na ang hindi nakaukol na mga listahan ng direktoryo ay maaaring posible ukol sa mga kahinaan sa software (pinag-usapan na seksyon ng halimbawa sa ibaba) pagsamahin na may isang tinutukoy na kahilingan sa web.</desc>
+	<solution>Mga rekomendasyon na sinama ang binabawal na pagpasok sa importanteng mga direktoryo at mga file sa pamamagitan ng isang nangangailangan na malaman ang mga kailangan para sa parehong dokumento at root ng server, at pagbaling off na mga tampok tulad ng Awtomatikong Direktoryo na mga listahan na ilandad ang pribadong mga file at nagbibigay ng impormasyon na maaaring magamit ng isang umatake kapag nagbuo o nagsasagawa ng isang pag-aatake.</solution>
+	<reference>http://projects.webappsec.org/Directory-Indexing</reference>
+	<reference>http://cwe.mitre.org/data/definitions/548.html</reference>
+</vuln_item_wasc_16>
+
+<vuln_items>wasc_17</vuln_items>
+<vuln_item_wasc_17>
+	<alert>Hindi wastong filesystem na mga permiso</alert>
+	<desc>Hindi wastong filesystem na mga permiso ay isang banta sa pagiging kumpidensyal, integridad, at magagamit sa isang aplikasyon sa web. Ang problema na lilitaw kapag ang maling filesystem na mga permiso ay nakatakda sa mga file, mga folder, at mga simbolikong link. Kapag hindi wasto ang mga permiso na nakatakda, ang isang umatake ay maaaring makapasok ng restriktong mga file o mga direktoryo at magbabago o magbura sa mga nilalaman. Halimbawa, kung ang isang hindi kilalang gumagamit ng account ay may pahintulot na sumulat sa isang file, pagkatapos ay ang umatake at maaari makagawa na baguhin ang mga nilalaman sa file ng pag-impluwensya sa aplikasyon ng web sa hindi kanais-nais na mga paraan. Ang isang umatake ay maaari ding magsamantala sa hindi wastong mga symlink na escalate ng kanilang mga pribilehiyo at/o pagpasok ng hindi awtorisadong mga file; para sa halimbawa, isang symlink na ang mga puntos sa isang direktoryo sa labas ng web root.</desc>
+	<solution>Mabuti na pamahalaan ang mga setting, pamamahala at pagsasagawa ng mga permiso. Pinagtitiwalaan na pagpamamahala ng tiwala na mga zona sa software.</solution>
+	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
+	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
+</vuln_item_wasc_17>
+
+<vuln_items>wasc_18</vuln_items>
+<vuln_item_wasc_18>
+	<alert>Ang Credential at Sesyon na hula</alert>
+	<desc>Ang Credential/Sesyon na hula ay isang pamamaraan sa hijacking o impersonating sa isang gumagamit ng web site. Pagbabawa o paghula ng natatanging halaga na tinukoy ang isang partikular na sesyon o naisasakatupad ang pag-aatake ng gumagamit. Kilala rin bilang Hijacking na sesyon, ang mga bunga ay magpapahintulot sa mga umaatake na kakayanin ang isyu ng mga kahilingan ng web site na may naka-kompromiso sa pribilehiyo ng gumagamit.
+
+Maraming mga web site ay dinisenyo upang mapatunayan at subaybayan ang isang gumagamit kapag ang kumunikasyon ay unang itinatatag. Upang gawin ito, ang mga gumagamit dapat nagpatunay sa kanilang pagkakakilanlan sa web site, karaniwan ay sa pamamagitan ng pagbibigay ng isang username/password (mga kredensyal) na kumbinasyon. Sa halip na pagpasa ng mga kompidensyal na mga kredensyal pabalik at paatras na may bawat transaksyon, ang mga web site ay bumubuo ng isang natatanging "ID ng sesyon" upang tukuyin ang gumagamit ng sesyon nang mapagtibay. Kasunod na komunikasyon sa pagitan ng gumagamit at sa web site ay naka-tag na may ID ng sesyon bilang "katibayan" sa pagpapatunay na sesyon. Kung ang isang umatake ay kayang mahulaan o hulaan ang ID ng sesyon sa isa pang gumagamit, pandaraya na aktibidad ay posible.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Credential-and-Session-Prediction</reference>
+	<reference></reference>
+</vuln_item_wasc_18>
+
+<vuln_items>wasc_19</vuln_items>
+<vuln_item_wasc_19>
+	<alert>SQL Injection</alert>
+	<desc>Ang SQL Injection ay isang kakayahan ng pag-atake na ginagamit upang abusohin ang mga aplikasyon na bumuo ng mga pahayag ng SQL mula sa input na ibinigay ng taga-gamit. Kung magiging matagumpay, ang pag-atake ay pwedi mong baguhin ang lohika ng SQL pahayag na isinasagawa kontra sa database.
+
+Ang Structured Query Language (SQL) ay isang espesyal na programang pang lengguwahe para sa pagpapadala ng mga tanong sa mga database. Ang SQL programang pang lengguwahe ay parehong isang ANSI at isang normal na ISO, bagamat maraming mga produkto ng database na suportado ang SQL gawin ito sa mga pagmamay-ari ng lawig sa karaniwang lengguwahe. Ang mga aplikasyon ay kadalasang gumagamit ng datos na ibinigay ng taga-gamit upang gumawa ng mga salaysay ng SQL. Kung ang isang aplikasyon ay nabigo upang maayos na bumuo ng mga SQL na salaysay posible para sa isang pagsalakay upang baguhin ang istraktura ng pahayag at ipatupad ang hindi na plano at potensyal na hahamon sa utos. Kapag ang mga utos na ito ay ipinapatupad, ginagawa nila ito sa ibaba ng konteksto ng taga-gamit na tinukoy ng aplikasyon na ipinapatupad ang salaysay. Ang kakayahang ito ay nagpapahintulot sa mga taga-atake na makuha ang kontrol ng lahat ng mapagkukunan ng database na naa-access ng user na iyon, hanggang sa at kabilang ang kakayahang magsagawa ng mga utos sa sistema ng pagho-host.</desc>
+	<solution>Yugto: Arkitekture at Disenyo
+Gamitin ang vetted library o framework na hindi nag papahintulot ng kaninaan para mangyari o nagbibigay constructs na gumagawa ng kahinaan na madaling maiwasan.
+Ang halimbawa, kosedirahin ang paggamit ng mga hanay ng pagtitiyaga tulad ng Hibernate o Enterprise Java Beans, na pweding magbigay ng makabuluhang seguridad kontra sa SQL injection kung gagamitin nang maayos.
+
+Kung may magagamit o may mapapakinabangan, gamitin ang structued na mekanismo na awtomatikong mag eenforce ng separado sa pagitan ng datos at code. Ang Mekanismong ito ay maaring mag provide o maghanda ng may kaugnayan sa quoting, pag eencode at sa awtomatikong balidasyon, sa halip na umasa ang mga nag develope ang gumawa ng kapasidad o kakayahan sa lahat ng pagkakataon kapag ang output ay nagenerate.
+
+I-proseso ang mga SQL query gamit ang hinihandang mga pahayag, mga parameterized query, o nka-store na mga pamamaraan. Ang mga tampok na ito ay dapat tanggapin ang mga parameter o mga variable at suportahan ang strong typing. Huwag daynamikong buuin at ipatupad ang mga string ng query sa loob ng mga tampok na ito gamit ang "exec" o kaparehong pag-andar, dahil maaari mong muling maipakilala ang posibilidad ng SQL injection.
+
+I-run ang iyong code gamit ang pinakamababang mga pribilehiyo na kinakailangan para maisakatuparan ang kinakailangang mga gawain. Kung posible, lumikha ng nakahiwalay na mga account na may limitadong mga pribilehiyo na gagamitin lamang para sa isang solong gawain. Sa ganong paraan, ang isang matagumpay na atake ay hindi agarang magbibigay sa taga-atake ng access sa iba pang software o sa environment nito. Halimbawa, ang mga aplikasyon ng database ay bihirang kailangan na patakbuhin bilang administrador ng database, lalo na sa pang araw-araw na mga operasyon.
+
+Sa partikular, sundin ang alituntunin ng pinakamababang pribilehiyo kapag lumilikha ng mga account ng user sa isang SQL database. Ang mga gumagamit ng database ay dapat lamang na mayroong pinakamaliit na mga pribilehiyo na kinakailangan para gamitin ang kanilang account. Kung ipinahihiwatig ng mga kinakailangan ng sistema na mabasa at mabago ng isang gumagamit ang kanilang sariling datos, kung gayon ay limitahan ang kanilang mga pribilehiyo upang hindi nila mabasa/isulat ang datos ng iba. Gamitin ang pinakamahigpit na mga permiso na posible sa lahat ng mga database object, tulad ng execute-lamang para sa mga naka-store na mga pamamaraan.
+
+Ang Yugto: Pagpapatupad
+Kung kinakailangan mong gumamit ng mga string ng tanong o direksiyon na dinamiko binuo sa kabila ng panganib, maayos na mag-tukoy
+ ng mga argumento at makawala sa anumang mga espesyal na character sa loob ng mga argumento. Ang pinaka-konserbatibong paraan ay upang makawala o mag-sala ng lahat ng mga character na hindi nakapasa sa isang lubos na mahigpit na whitelist (tulad ng lahat ng bagay na hindi alphanumeric o puting patlang). Kung kinakailangan ng mo ng ilang mga espesyal na character, tulad ng puting patlang, balutin ang bawat argumento sa mga panipi pagkatapos ng pagtakas/hakbang sa pagsala. Mag-ingat sa argumento ng injection (CWE-88).
+
+Sa halip na pagbuo ng iyong sariling pagsasagawa, ang mga tampok na ito ay pweding makakuha sa database o lengguwahe ng programa. Ang halimbawa, ang Oracle DBMS ASSERT na pakete ay pweding suriin o isagawa ang mga parameter ay may ilang mga pag-aari na nagpapahina sa kanila sa SQL injection. Para sa MySQL, ang mysql tunay na pag-takas na string() API 
+Ang tungkulin ay magagamit sa parehong C at PHP.
+
+Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa ng lohika sa tuntunin sa negosyo, ang "bangka" ay maaaring tama syntactically dahil naglalaman lamang ito ng mga alphanumeric na character, subalit hindi ito wasto kung umaasa ka sa mga kolor tulad ng "red" o "blue.". Ito ay hindi direktang nalilimitahan ang sakop ng isang pag-atake, subalit ang pamamaraan na ito ay mas mahalaga kaysa sa tamang pag-pasok ng output at pag-alis.
+
+Tandaan na ang tamang pag-eencode ng output, escaping, at pag-quote ay ang pinaka-epektibong solusyon para sa pagpigil sa SQL injection, kahit na ang pagpapatunay ng pag-input ay maaaring magbigay ng ilang defense-in-depth. Ito ay dahil epektibo itong naglilimita kung ano ang lilitaw sa output. Ang pagpapatunay ng input ay hindi laging pipigil sa SQL injection, lalo na kung kinakailangan mong suportahan ang mga field ng free-form na teksto na maaaring maglaman ng di-makatwirang mga karakter. Halimbawa, ang pangalan na "O'Reilly" ay malamang na makapasa sa hakbang ng pagpapatunay, dahil ito ay isang karaniwang apelyido sa wikang Ingles. Gayunpaman, ito ay hindi direktang maipasok sa database dahil ito ay naglalaman ng "'" apostrophe na karakter, na kung saan ay kailangang i-escaped o kung hindi man ay pangasiwaan. Sa kasong ito, ang pag-strip sa apostrophe ay maaaring makabawas sa panganib ng SQL injection, ngunit ito ay gagawa ng maling gawi dahil ang maling pangalan ang maitatala.
+
+Kung maisasagawa, maaaring pinakaligtas ang hindi pagpapahintulot sa lahat ng mga karakter na meta, sa halip na pag-escape sa kanila. Ito ay magbibigay ng ilang malalim na depensa. Matapos maipasok ang datos sa database, ang mga proseso sa kalaunan ay maaaring mapabayaan na i-escape ang mga karaktek na meta bago gamitin, at maaaring hindi ka magkaroon ng kontrol sa mga prosesong iyon.</solution>
+	<reference>http://projects.webappsec.org/SQL-Injection</reference>
+	<reference></reference>
+</vuln_item_wasc_19>
+
+<vuln_items>wasc_20</vuln_items>
+<vuln_item_wasc_20>
+	<alert>Hindi wastong pagpasok na paghawak</alert>
+	<desc>Ang hindi wastong paghawak sa pag-input ay isa sa mga pinakakaraniwang kahinaan na natunton sa buong mga aplikasyon ngayon. Ang hindi magandang pagdederekta sa pag-input ay isang pangunahing dahilan sa likuran ng mga kritikal na kahinaan na umiiral sa mga sistema at aplikasyon.
+	
+Sa pangkalahatan, ang pangmatagalang pagpasok ng input ay ginagamit upang isalarawan ang mga tungkulin kagaya ng pagpapatunay, sanitization, pag-sasala, pag-papasok at/o pag-labas ng datos ng pag-input. Ang mga aplikasyon ay nakakakuha ng input mula sa iba't ibang mga mapagkukuhaan kasama ang mga taga-gamit ng tao, mga ahente ng software (mga browser), at mga network/peripheral na aparato upang makapagtala ng ilang pangalan. Sa kaso ng mga aplikasyon sa web, pweding mailipat ang input sa iba't ibang mga ayos (name value pairs, JSON, SOAP, etc...) at mkakuha sa pamamagitan ng mga string ng tanong sa URL, POST data, HTTP headers, Cookies, etc... Ang input ng hindi-web na aplikasyon ay maaaring makuha sa pamamagitan ng mga baryabol ng aplikasyon, mga baryabol ng environment, ng registry, mga file ng kumpigurasyon, atbp... Anuman ang format ng datos o pinagkuhanan/lokasyon ng input, ang lahat ng input ay dapat ikonsidera na hindi mapagkakatiwalaan at potensyal na malisyoso. Ang mga aplikasyon na nagproproseso ng hindi pinagkakatiwalaang input ay maaaring maging mahina sa mga atake tulad ng mga Overflow ng Buffer, SQL Injection, OS Commanding, Pagtanggi sa Serbisyo ay para lamang pangalanan ang ilan.
+
+Isa sa mga pangunahing aspeto ng paghawak sa input ay ang pagpapatunay na ang input ay natutugunan ang isang tiyak na pamantayan. Para sa tamang pagpapatunay, importanteng matukoy ang form at uri ng datos na katanggap-tanggap at inaasahan ng aplikasyon. Ang pagtukoy sa isang inaasahang format at paggamit ng bawat pagkakataon ng hindi pinagkakatiwalaang input ay kinakailangan upang tumpak na tukuyin ang mga paghihigpit. 
+
+Maaaring kabilang sa pagpapatunay ang mga pagsusuri para sa uri ng kaligtasan at tamang syntax. Maaaring i-check ang string input para sa haba (min at max na bilang ng mga karakter) at pagpapatunay ng set ng karakter habang ang mga numeric input na mga uri tulad ng mga integer at decimal ay maaaring mapatunayan laban sa katanggap-tanggap na mataas at mababang saklaw ng mga value. Kapag pinagsasama-sama ang input mula sa maraming mga mapagkukunan, dapat na isagawa ang pagpapatunay habang concatenation at hindi lamang laban sa mga elemento ng indibidwal na datos. Ang gawing ito ay nakakatulong na maiwasan ang mga sitwasyon kung saan ang pagpapatunay ng input ay maaaring magtagumpay kapag isinagawa sa mga item ng indibidwal na datos ngunit hindi matagumpay kapag ginawa sa isang pinagsamang set mula sa lahat ng mga mapagkukunan.</desc>
+	<solution>Yugto: Arkitektura at Disenyo.
+
+Unawain na ang lahat ng potensyal na mga lugar kung saan ang hindi pinagkakatiwalaan na pwedeng magpasok na iyong software: mga parameter at mga argumento, mga cookie, sa anumang mababasa mula sa network, mga variable sa kapaligiran, baliktad na DNS na pagtanaw, mga resulta sa query, mga header ng hiling, mga komponent ng URL, e-mail, mga file, mga database, at anumang panlabas na mga sistema na nagbibigay ng datos sa aplikasyon. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
+
+Para sa anumang mga pag-check ng seguridad na isinagawa sa panig ng kliyente, tiyakin na ang mga pag-check na ito ay duplikado sa panig ng server. Ang mga umaatake ay maaring bypass sa side ng kliyente suriin ang modipikasyon ng halaga bago pa matapos ang pagsusuri ay magawa, o sa pagbabago ng kliyente sa pagtanggal ng kabuoang pag susuri sa kliyente. Pagkatapos, ang modipikasyon ng halaga ay maaaring ipasa sa server.
+
+Kahit na ang mga pag-check sa panig ng kliyente ay nagbibigay ng napakaliit na mga benepisyo tungkol sa seguridad ng panig ng server, kapaki-pakinabang pa rin ang mga ito. Una, maaari nilang suportahan ang pagtukoy ng panghihimasok. Kung ang server ay tumatanggap ng input na dapat ay tinanggihan ng kliyente, kung gayon ito ay maaaring indikasyon ng isang pag-atake. Pangalawa, ang pag-check ng kamalian sa panig ng kliyente ay maaaring makapagbigay ng 
+kapaki-pakinabang na feedback sa gumagamit tungkol sa mga inaasahan para sa balidong input. Ikatlo, maaaring magkaroon ng pagbabawas sa oras ng pagpoproseso sa panig ng server para sa mga hindi sinasadyang mga kamalian sa pag-input, bagaman ito ay karaniwang isang maliit na mga pagtitipid.
+
+Huwag umasa lamang sa pagpapatunay ng blacklist para tuklasin ang malisyosong input o para i-encode ang output. Napakaraming mga paraan upang i-encode ang parehong karakter, kaya malamang na may makaligtaan kang ilang mga variant.
+
+Kapag pinagsasama-sama ng iyong aplikasyon ang datos mula sa maraming mga mapagkukunan, isagawa ang pagpapatunay matapos na pagsamahin ang mga mapagkukunan. Ang mga elemento ng indibidwal na datos ay maaaring pumasa sa hakbang sa pagpapatunay ngunit lumalabag sa hinahangad na mga paghihigpit pagkatapos na sila ay pinagsama.
+
+Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa sa negosyo sa panuntunan ng lohika, "bangka" ay may syntactically na balido sapagkat ito lamang ang naglalaman ng alphanumeric na karakter, pero ito ay hindi balido kung ang iyong inaasahang kulay ay "pula" at "asul."
+
+Yugto: Implementasyon
+
+Pakasiguraduhin na ang pagbalido sa iyong ipinasok kapag ang iyong pinalangin na code na tumawid sa wikang mga hangganan, kagaya ng mula sa ipinaliwanag na wika sa likas na code. Ito ay lumilikha ng isang hindi inaasahang interaksyon sa pagitan ng mga linya ng wika. Tiyakin na ikaw ay hindi lumabag sa anumang mga inaasahan ng mga wika na kung saan ikaw ay nag-interfacing. Halimbawa, kahit na ang Java ay hindi maaaring madaling tablan ng buffer na umaapaw, sa pagbibigay ng isang malaking argumento sa isang tawag sa katutubong code na baka mag-trigger ng umaapaw.
+
+Direktang i-convert ang iyong input na uri sa inaasahang datos na uri, tulad ng paggamit ng mga ginagamit na isang pagkagawa ng katungkulan na nagsasalin ng isang string sa isang numero. Matapos ang pag-convert sa uri ng inaasahang uri ng datos, tiyakin na sakop ng mga pinahahalagahan na mga input na mga halaga sa hanay ng pinahihintulutang mga halaga at na ang multi-field ay nagpapanatili na pangalagaan.
+
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Siguraduhin na ang iyong aplikasyon ay hindi sinasadyang ma-decode ang parehong pagpasok ng dalawang beses. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat. Gamitin ang aklatan tulad ng sa OWASP ESAPI Canonicalization na control.
+
+Isaalang-alang ang pagsasagawa ng mga paulit-ulit na canonicalization hanggang ang iyong pagpasok ay hindi magbabago kailan man. Ito ay maiwasan ang doble-pagdecode at katulad na mga sitwasyon, ngunit ito ay sinasadyang baguhin ang mga pagpasok na pinapayagan na maglaman ng wastong na-encode na mga panganib na nilalaman.
+
+Kapag ang pagpapalit ng datos sa pagitan ng mga bahagi, masisiguro na ang mga komponent na ginagamit ng parehong karakter na encoding. Tiyakin na ang angkop na pag-encoding ay inilapat sa bawat interface. Pinagtitiwalaang itinakda na pag-encode na iyong ginagamit sa tuwing ang protokol ay nagbibigay-daan sa iyo na gamitin ito.</solution>
+	<reference>http://projects.webappsec.org/Improper-Input-Handling</reference>
+	<reference>http://cwe.mitre.org/data/definitions/89.html</reference>
+</vuln_item_wasc_20>
+
+<vuln_items>wasc_21</vuln_items>
+<vuln_item_wasc_21>
+	<alert>Hindi sapat na kontra sa awtomasyon</alert>
+	<desc>Hindi sapat na kontra-awtomasyon na nangyari kapag ang isang nagpapahintulot ng web aplikasyon ng isang umatake sa awtomatiko na proseso na sa orihinal ay naka disenyo na magsagawa lamang sa isang manwal na kaugalian, hal. sa pamamagitan ng isang taong gumagamit sa web.
+
+Ang aplikasyon ng web na kakayahan na ang mdaalas na target para sa awtomasyon ng mga pag-aatake ay maaaring nagsasali ng:
+     * Mga form ng aplikasyon login – mga umaatake ay maaaring nag-awtomasyon sa ganid na mga pag-aatake ng pagpasok na mga kahalingan sa isang pagnanais na tumuturing sa user na mga kredential.
+    * Ang mga form ng pagpapatala ng serbisyo – mga umaatake ay maaaring awtom may awtomatik na maglikha ng libo-libong bagong mga account.
+    * Mga form sa email – mga umaatake ay maaaring mag-eksployt sa mga form bilang spam attackers may exploit email forms as spam daanan para sa pagbabaha ng mailbox ng isang user.
+    * Pagkupkop ng account – mga pag-aatake ay maaaring attackers may pagsasagawa ng maraming DoS laban sa isang aplikasyon, sa pamamagitan ng pagbabaha nito gamit ang maraming mga kahilingan para hindi mapagana o mabura ang mga user account
+    * Mga form ng impormasyon ng account – mga pag-aatake ay maaaring magsagawa mga pagsususbok para kumuha ng personal impormasyon ng user galing isang web na aplikasyon
+    * Mga form ng komento / Mga form ng nilalaman ng nabibigay – ang mga ito ay maaaring magamit para sa mga spamming sa blog, mga web forum at mga board sa web bulletin sa pamamagitan ng automatikong pagpapadala ng mga nilalaman tulad ng spam o kahit na web-based na malware
+    * Mga form na nakatali sa SQL database na mga query - ang mga ito ay maaaring mag-eksployt sa pag-ayos sa paggawa ng isang denial na serbisyo na atake laman sa aplikasyon. Ang atake ay ginanap sa pamamagitan ng pagpapadala ng maraming makapal na SQL na mga query sa isang maikling panahon na oras, samakatuwid na tinatanggihan ang tunay na mga gumagamit mula sa serbisyo.
+    * Ang eShopping / Ang eCommerce - Ang eShopping at ang eCommerce na mga aplikasyon na hindi nagpipilit sa tao-lamang na mga mamimili ay pwedeng mag-exployt sa ayos ng bibilhin na mga gustong mga item sa malaking halaga, tulad ng pampalakasan na pangyayari na mga ticket. Ito ay mamayang nagbebenta ng mga scalper para sa matataas ng mga presyo.
+    * Ang mga Online poll - mga poll at ibang mga uri sa online na mga pagboto na mga sistema ay awtomatikong mapagsamantalahan na pabor ng isang ilang pagpipilian.
+    * Ang Web-based SMS na mensahe ng pagpapadala - mga umaatake ay maaaring mag-exployt ng SMS na mensahe sa mga sistema sa pag-ayos sa spam mobile phone ng mga gumagamit
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Insufficient+Anti-automation</reference>
+	<reference>http://cwe.mitre.org/data/definitions/116.html</reference>
+</vuln_item_wasc_21>
+
+<vuln_items>wasc_22</vuln_items>
+<vuln_item_wasc_22>
+	<alert>Hindi wastong paglabas ng paghawak</alert>
+	<desc>Paglabas ng paghahawak ng mga tumutukoy sa isang aplikasyon na bumubuo ng paglalabas ng mga datos.  Kung ang isang aplikasyon ay may hindi wastong paglabas na paghawak, ang panglabas na datos ay maaaring kumukuha ng mga kahinaan at mga aksyon na hindi kailanman nilayon ng developer ng aplikasyon.  Sa maraming mga kaso, ang di-sinadyang interpretasyon na ito ay inuri bilang isa o higit pa na mga form ng kritikal na aplikasyon na mga kahinaan.
+
+Anumang lokasyon kung saan ang mga dahon ng datos ng isang aplikasyon na hangganan ay maaring paksa sa hindi wastong panglabas ng paghahawak.  Ang aplikasyon na mga hangganan ay umiiral kung saan ang mga dahon na datos sa isang konteksto at pagpapasok ng iba pa.  Ito ay nagsasama ng mga aplikasyon na nagpapasa ng mga datos sa iba pang mga aplikasyon gamit ang mga serbisyo sa web, mga socket, linya ng command, mga variable ng kapaligiran, atbp...  Ito ay kumakabilang sa pagpapasa ng datos sa pagitan ng hagdan-hagdan sa loob ng isang aplikasyon na arkitektura, tulad ng isang database, direktoryo ng server, HTML/JavaScript na interpreter (browser), o operating system.  Higit na detalye sa kung saan ang hindi maayos na paglabas ng paghahawak ay nangyayari pwedeng matagpuan sa isang seksyon sa ibaba na paksang "Pangkaraniwang Datos na Panglabas ng mga lokasyon".
+
+Ang mga hindi maayos na paglabas na pahahawak ay maaaring tumagal ng iba't ibang anyo sa loob ng isang aplikasyon.  Ang mga form na ito ay maaaring nakategorya sa: mga maling protocol, mga maling apliasyon at mga datos ng konsumer na kaugnay sa mga pagkakamali.  Ang mga maling protokol ay kinabibilangan ng mga nawawala o hindi maayos na paglabas na encoding o pagtakas at paglalabas ng hindi tamang datos.  Ang maling mga aplikasyon ay kinabibilangan ng mga maling lohika tulad ng paglalabas ng hindi tamang datos o pagpapasa sa isang malisyosong nilalaman na hindi naka-filter.  Kung ang aplikasyon ay hindi maayos na makilala ang lehitimong nilalaman mula sa lehitimo, o ito ay hindi gagana ang kilalang mga kahinaan sa datos ng kustomer, ito ay maaaring mag-resulta sa pang-aabuso ng datos-kustomer na sanhi mula sa hindi maayos na paglabas na paghawak.
+
+Ang aplikasyon ay hindi naglalaan ng dayos sa tamang konteksto na maaaring payagan ang isang umatake na abusuhin ang datos ng konsumer.  Ito ay maaaring humantong sa tiyak na mga banta na binanggit sa loob ng WASC Threat na mga Pag-uuri, kabilang ang Content Spoofing, Cross-Site Scripting, HTTP Response Splitting, HTTP Response Smuggling, LDAP Injection, OS Commanding, Routing Detour, Soap Array Abuse, URL Redirector, XML Injection, XQuery Injection, XPath Injection, Mail Command Injection, Null Injection at SQL Injection.
+
+Wastong panglabas na paghahawak ay pinipigil ang hindi inaasahan o di-sinadyang interpretasyon sa datos sa pamamagitan ng mamimili.  Sa pagkakamit ng mithiing ito, ang mga developer ay dapat maunawaan ang modelo ng datos sa aplikasyon, kung papaano ang datos na makuha sa pamamagitan ng ibang bahagi sa aplikasyon, at kung papaano ito huli ipakilala sa gumagamit.  Ang mga teknek para masiguro ang tamang paghawak ng panglabas na kasama ngunit hindi limitado sa pag-filter at sanitasyon sa datos (para sa karagdagang detalye sa panglabas na sanitasyon at pag-filter ay matatagpuan sa angkop na pamagat ng mga seksyon sa ibaba).  Gayunman, hindi pare-pareho ang ginagamit na napiling panglabas na mga teknek na may mataas na panganib sa hindi maayos na panglabas na paghahawak ng datos ay hindi napapansin o hindi nagamot.  Upang matiyak ang "tanggulan sa lalim" ang mga developer ay dapat ipalagay na ang lahat ng mga datos sa loob ng isang aplikasyon ay di-pinagkakatiwalaan kapag pumili ang angkop na panglabas na paghawak na mga estratehiya.
+
+Habang ang wastong panglabas na paghawak ay maaaring tatagal ng iba't ibang mga anyo, ang isang aplikasyon ay hindi maaaring ligtas maliban kung ito ay nagproprotekta laban sa di-sinasadyang mga interpretasyon ng datos sa konsumer. Ang core na kinakailangan na ito ay kinakailangan para sa isang aplikasyon sa matatag na mahawakan ang panglabas na mga operasyon.</desc>
+	<solution>Paggamit ng isang vetted na aklatan o balangkas na hindi payagan ang kahinaan nito na mangyari o nagbibigay ng mga contruct na gumagawa ng kahinaan na madaling maiwasan.
+
+Halimbawa, isaalang-alang ang paggamit ang ESAPI Encoding na kontrol o isang katulad na kasangkapan, aklatan, o balangkas. Ito ay makakatulong sa mga programmer na mag-encode ng mga panglabas sa isang paraan na mas madaling kapitan ng mali.
+
+Halili, gamitin ang built-in na mga function, ngunit ang isiping gamitin ang mga wrapper sa kaso ng mga function ay natuklasan na magkakaroon na kahinaan.
+
+Kung may magagamit o may mapapakinabangan, gamitin ang structued na mekanismo na awtomatikong mag eenforce ng separado sa pagitan ng datos at code. Ang Mekanismong ito ay maaring mag provide o maghanda ng may kaugnayan sa quoting, pag eencode at sa awtomatikong balidasyon, sa halip na umasa ang mga nag develope ang gumawa ng kapasidad o kakayahan sa lahat ng pagkakataon kapag ang output ay nagenerate.
+
+Halimbawa, ang naka-store na mga pamamaraan ay maaaring ipatupad ang istruktura ng database query at bawasan ang posibilidad ng SQL injection.
+
+Unawain ang konteksto kung saan ang iyong datos ay gagamitin at ang pag-encode na inaasahan. Ito ay espesyal at importante kapag nag tatransmit o nag papasa ng datos sa pagitan ng mag kaibang components o mga sangkap. o kapag nag gegenerate ng mga output na maaaring may laman na maraming mga encoding sa parehong oras, tulad ng mga pahina sa web o sa maraming parte ng sulat at mensahe. Pag aralan ang lahat na inaasahang komyunikasyon protokol at datos ng representation na makilala o matukoy ang kinikailangang pag eencode at mga estratehiya.
+
+Sa ilang mga kaso, ang pagpapatunay ng input ay maaaring isang mahalagang estratehiya kapag ang pag-encode ng output ay hindi ang kumpletong solusyon. Halimbawa, maaaring ibinibigay mo ang parehong output na ipoproseso ng maraming mga konsyumer na gumagamit ng iba't ibang mga pag-encode o representasyon. Sa ibang mga kaso, maaaring kakailanganin mong pahintulutan ang user-supplied na input upang maglaman ng impormasyon ng kontrol, tulad ng limitadong mga tag ng HTML na sumusuporta sa pag-format sa isang wiki o bulletin board. Kapag ang ganitong uri ng kinakailangan ay dapat matugunan, gumamit ng isang lubhang mahigpit na whitelist upang limitahan kung aling mga pagkakasunod-sunod ng kontrol ang pwedeng magamit. Patunayan na ang nagresultang syntactic na istruktura ay kung ano ang iyong inaasahan. Gamitin ang iyong normal na mga pamamaraan sa pag-encode para sa natitira pang input.
+
+Gamitin ang pagpapatunay ng input bilang isang hakbang sa malalim na depensa para mabawasan ang posibilidad ng mga kamalian sa pag-encode ng output (tingnan ang CWE-20).
+
+Kapag ang pagpapalit ng datos sa pagitan ng mga bahagi, masisiguro na ang mga komponent na ginagamit ng parehong karakter na encoding. Tiyakin na ang angkop na pag-encoding ay inilapat sa bawat interface. Pinagtitiwalaang itinakda na pag-encode na iyong ginagamit sa tuwing ang protokol ay nagbibigay-daan sa iyo na gamitin ito.</solution>
+	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
+	<reference></reference>
+</vuln_item_wasc_22>
+
+<vuln_items>wasc_23</vuln_items>
+<vuln_item_wasc_23>
+	<alert>XML Injection</alert>
+	<desc>Ang XML Injection ay isang atake na pamamaraan na ginagamit upang manipulahin o ikompromiso ang lohika ng isang XML na aplikasyon o serbisyo. Ang injection sa di-sinasadyang XML na nilalaman at/o mga istruktura para sa isang XML na mensahe na maaaring balakin ang lohika ng aplikasyon. Dagdag pa rito, ang XML Injection ay maaaring maging sanhi ng insertion ng malisyosong nilalaman sa resultang mensahe/dokumento.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/XML-Injection</reference>
+	<reference></reference>
+</vuln_item_wasc_23>
+
+<vuln_items>wasc_24</vuln_items>
+<vuln_item_wasc_24>
+	<alert>Ang paghahati ng hiling ng HTTP</alert>
+	<desc>Ang paghahati ng hiling ng HTTP ay isang atake na nagpagana na sapilitan sa browser na magpadala ng di-makatwirang HTTP na mga hiling, nagpapatay ng XSS at pagkalason sa cache ng browser. Ang esensya ng atake ay isang kakayahan ng umaatake, sa sandaling ang biktima (browser) ay sapilitang mag-load ng umaatakeng malisyosong HTML na pahina, para manipulahin ang isa sa browser na kakayahan para magpadala ng dalawang HTTP na mga hiling sa halip na isang HTTP na hiling. Ang dalawang gayong na mga mekanismo ay pinagsasamantalahan ang petsa: ang XmlHttpRequest na object (XHR para sa maikli) at ang HTTP digest pagpapatunay na mekanismo. Para sa atake na ito na gagana, ang browser ay dapat gumagamit ng isang pasulong na HTTP proxy (hindi lahat sa kanila "suportahan" ang atake na ito), o ang atake ay dapat isasagawa laban sa isang host na matatagpuan sa isang parehong IP (mula sa pananaw ng browser) na may makina ng umaatake.</desc>
+	<solution>Iwasan ang paggamit ng CRLF bilang isang espesyal na pagkasunod-sunod. Angkop na filter o quote na CRLF na sunod-sunod sa gumagamit-kontrolado na pagpasok.</solution>
+	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
+	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
+</vuln_item_wasc_24>
+
+<vuln_items>wasc_25</vuln_items>
+<vuln_item_wasc_25>
+	<alert>Ang paghahati ng hiling ng HTTP</alert>
+	<desc>Sa paghahati ng hiling ng HTTP na atake, laging may mga tatlong partido (kahit) kasangkot: * Ang Web server, na kung saan ang isang seguridad na butas ay pinagana ang paghahati ng haling ng HTTP * Ang target - isang entidad na naikipag-ugnayan sa server ng web marahil sa umaatake. Ito ay karaniwang na isang cache na server na pasulong/pabalik na proxy), o isang browser (marahil na may isang cache ng browser).
+    * Ang umaatake - nagsisismula ng pag-aatake
+
+Ang katangian sa HTTP na hiling na paghihiway ay isang abilidad ng umaatake na magpapadala ng isang mag-isa na HTTP na hiling na pumuwersa sa web server na form sa panglabas ng stream, na kung saan ay nagpapaliwanag sa pamamagitan ng target at bilang dalawang HTTP na mga hiling sa halip na isa sa normal na kaso. Ang unang sagot ay bahagyang kinokontrol sa umatake, ngunit ito ay hindi gaanong mahalaga. Ang materyal ay ang umatake ay ganap na kinokontrol ang form sa pangalawang sagot mula sa katangian ng HTTP na linya sa huling byte sa HTTP na sagot ng katawan. Sa sandaling ito ay posible, ang umaatake ay nagsagawa ng atake sa pamamagitan ng pagpadala ng dalawang mga hiling hanggang sa target. Ang unang mag-isa na tinatawag ang dalawang mga tugon mula sa web server, at ang pangalawang kahilingan na karamihan ay maraming "inosente" napagkukunan ng web server. Gayunman, ang pangalawang kahilingan ay tumugma, sa pamamagitan ng target, ang pangalawang HTTP na sagot, na kung saan ay ganap na kinokontrol sa umaatake. Ang umaatake, samakatuwid, ang mga pagdaya sa target sa paniniwala na ang isang partikular na pagkukunan sa web server (itinatalaga ng pangalawang kahilingan) ay ang sagot ng HTTP (nilalaman ng server), habang ito ay sa katunayan ang karamihan sa datos, na kung saan ay binuo sa pamamagitan ng pag-atake sa pamamagitan ng web server - ito ay ang ikalawang tugon.
+
+Ang HTTP hinahating tugon na pag-aatake ay ang magpapalit na kung saan ang server na script ay naglalagay ng user data sa tugon ng HTTP. Ang tipikal na mga pangyayari na kapag ang script ay naglalagay ng user data sa redirection URL sa isang redirection na tugon (HTTP na katangian code 3xx), o kapag ang script ay naglalagay ng user data sa isang cookie na halaga o pangalan kapag ang tugon ay nagtatakda ng isang cookie.</desc>
+	<solution>Bumuo ng HTTP na mga header ay mabuting pinag-iingatan, pag-iwas sa paggamit ng di-napatunayan na pagpapasok ng datos.</solution>
+	<reference>http://projects.webappsec.org/HTTP-Response-Splitting</reference>
+	<reference>http://cwe.mitre.org/data/definitions/113.html</reference>
+</vuln_item_wasc_25>
+
+<vuln_items>wasc_26</vuln_items>
+<vuln_item_wasc_26>
+	<alert>Ang paghahati ng hiling ng HTTP</alert>
+	<desc>Ang Hiling ng smuggling ay isang pamamaraan ng pag-atake na umaabuso sa pagkakaiba sa parsing sa hindi RFC na daing na HTTP na mga kahilingan sa pagitan ng dalawang HTTP na mga kagamitan (karaniwang isang front-end na proxy o HTTP-pinagana na firewall at isang back-end na web server) upang ilusot ang isang kahilingan sa ikalawang kagamitan "sa pamamagitan" ng unang aparato. Ang teknek ay nagbibigay-daan sa umaatake sa nagpapadala ng isa sa mga kahilingan sa pangalawang kagamitan samantalang ang unang kagamitan ay nakakita ng iba't ibang itinakda na mga kahilingan. Sa pag-ikot, ito ay gumagamit ng maraming posibleng mga eksployt, tulad ng partial na cache na paglalason, bypassing sa proteksyon ng firewall at XSS.</desc>
+	<solution>Gamitin ang isang web server na tungkulin ang isang estriko na HTTP parsing na pamamalakad. tulad ng Apache (TIngnan ang papel sa itinutukoy).
+
+Gamitin lamang ang SSL na komunikasyon.
+
+Wakasin ang sesyon ng kliyente pagkatapos ng bawat kahilingan.
+
+Ikutin ang lahat na pahina ng hindi cacheable.</solution>
+	<reference>http://projects.webappsec.org/HTTP-Request-Smuggling</reference>
+	<reference>http://cwe.mitre.org/data/definitions/444.html</reference>
+</vuln_item_wasc_26>
+
+<vuln_items>wasc_27</vuln_items>
+<vuln_item_wasc_27>
+	<alert>Ang smuggling ng hiling ng HTTP</alert>
+	<desc>Ang HTTP smuggling na sagot ay isang pamamaraan sa "smuggle" dalawang HTTP na mga sagot mula sa isang server hanggang sa kliyente, sa pamamagitan ng intermediary HTTP na kagamitan na tumitingin (o pumapayag) ng isang sagot mula sa server.
+
+Ang isang gumagamit para sa teknek na ito ay isang pagtitibay sa basic na HTTP na sagot ng paghihiwalay na pamamaraan sa pag-ayos sa pag-iwas ng anti-HTTP na tugong nagpapahiwalay na mga sukat. Sa kasong ito, ang intermediary ay isang anti-HTTP na sagot ng paghihiwalay na mekanismo sa pagitan ng webserver at ng proxy server (o web browser). Ibang gamit sa kaso ay sa spoof na mga sagot na natatanggap ng browser. Sa kasong ito ang isang malisyosong web site ay naglilingkod ng browser ng pahina na ang browser ay nagpapaliwanay bilang orihinal mula sa isang kaibang (target) na domain. Ang HTTP na tugon ng smuggling ay pwedeng magamit sa pagkamit ng ganito sa browser na gumagamit ng isang proxy server sa pagpasok sa kapwa mga site.
+
+Ang HTTP na tugon ng smuggling ay gumagamit ng HTTP na hiling ng smuggling -tulad ng mga pamamaraan upang pagsamantalahan ang pagkakaiba sa pagitan na kong ano ang anti- HTTP na tugon na paghihiwalay na mekanismo (o isang proxy server) na magiging isaalang-alangsa HTTP na tugon ng stream, at ang sagot na stream na gaya ng proxy server (o isang browser). Kaya, habang ang anti- HTTP na tugon ng paghihiwalay na mekanismo ay maaaring isaalang-alang ng isang partikular na tugon ng stream na di nakasasama (solong HTTP na tugon), isang proxy/browser ay maaaring i-parse pa rin bilang dalawang HTTP na mga sagot, at kaya mahilig sa lahat ng mga kinalalabasan sa orihinal na HTTP na tugon ng paghihiwalay na pamamaraan ( sa unang paggamit ng kaso) o maging madaling kapitan sa pahinang spoofing (sa pangalawang kaso). Halimbawa, ang ilang anti- HTTP na tugon ng naghahating mga mekanismo na ginagamit ng ilang mga aplikasyon ng mga makinarya na ipinagbabawal ang aplikasyon mula sa pagpasok ng isang header na naglalaman ng CR+LF na sagot. Gayon man ang umaatake ay maaaring pumipilit sa aplikasyon sa pagsingit sa isang header na naglalaman ng CRs, nang sa gayon ay circumventing sa pagtatanggol ng mekanismo. Ilang proxy na mga server ay maaaring maging treat CR (lamang) bilang isang header (at sagot) ng tagahiwalay, at bilang tulad ang kumbinasyon sa web server at proxy server ay maging vulnerable sa isang pag-aatake na maaaring maglason sa cache ng proxy.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/HTTP-Response-Smuggling</reference>
+	<reference></reference>
+</vuln_item_wasc_27>
+
+<vuln_items>wasc_28</vuln_items>
+<vuln_item_wasc_28>
+	<alert>Null Byte na ineksyon</alert>
+	<desc>Ang Null Byte na injection ay isang aktibong eksploytasyon na pamamaraan na ginagamit sa pag-iwas sa sanity na pagtitingin ng mga filter sa web imprastraktura sa pamamagitan ng pagdaragdag ng URL-encode null byte na mga karakter (hal. %00, o 0x00 sa hex) na ang gumagamit-idinulot na datos. Ang injection na proseso ay maaaring baguhin ang mismong lohika ng aplikasyon at pinapayagan ang malisyosong kaaway upang makakuha ng hindi awtorisadong access ng sistema ng mga file.
+
+Karamihan ng web na mga aplikasyon sa ngayon ay binuo sa paggamit ng mataas-antas na mga wika tulad ng, PHP, ASP, Perl, at Java. Gayunman, ang mga web na mga aplikasyon sa ilang punto na nangangailangan ng pagproseso ng mataas-antas na code at sistema na antas at itong proseso na kadalasan maisasagawa sa pamamagitan ng paggamit ng ‘C/C++’ ng mga function. Ang iba't ibang katangian na umaasa ng mga teknolohiya na ito ay nagrersulta sa isang klase ng pag-atake na tinatawag na ‘Null Byte Injection’ o ‘Null Byte Poisoning’ na atake. Sa C/C++, ang isang null byte ay kumakatawan ng string na terminasyon na punto o delimiter na karakter na ibig sabihin ay ihinto ang pagpoproseso ng string kaagad. Mga byte na sumusunod sa delimiter ay hindi papansinin. Kung ang string ay nagbabawas ng kanyang null karakter, ang haba ng isang string ay nagiging hindi kilala hanggang ang memory na panturo ay nangyayari upang matagpuan ang susunod na zero byte. Ang di-sinasadyang ramification ay maaaring magdulot ng kakaibang kilos at pagkilala ng mga kahinaan sa loob ng sistema o saklaw ng aplikasyon. Sa kahalintulad na mga kataga, ilang mataas-na antas ng mga wika na itinuturing ‘null byte’ bilang isang placeholder para sa haba ng string kapag ito ay walang espesyal na kahulugan sa kanilang konteksto. Dahil ditong pagkakaiba na interpretasyon, ang null bytes ay maaaring madaling ma-inject upang manipulahin ang isang pag-uugali ng aplikasyon.
+
+Ang mga URL ay limitado sa isang itinakda sa US-ASCII na mga karakter mula sa 0x20 hanggang 0x7E (hex) o 32 hanggang 126 (decimal). Gayunman, ang nabanggit na hanay ay ginagamit ng ilang mga karakter na hindi pinahihintulutan dahil sila ay may espesyal na kahulugan sa loob ng HTTP protocol na konteksto. Para sa kadahilanang ito, ang URL na encoding scheme ay ipinakilala na naglalaman ng mga karakter sa loob ng URL na gamit ang pinalawig na ASCII katakter na representasyon. Sa termino ng “null byte”, ito ay kumakatawan bilang %00 sa hexadecimal. Ang saklaw sa iang null byte na atake ay nagsisimula na kung saan ang mga web aplikasyon ay kumakausap sa aktibong ‘C’ na mga routine at panglabas na APIs mula sa kalakip na OS. Kaya, nagpapahintulot ang umatake na manipulahin ang pagkukunan ng web sa pamamagitan ng pagbasa o pagsulat ng mga file batay sa pribilehiyo ng gumagammit ng mga aplikasyon.</desc>
+	<solution>Ang mga developer ay dapat inaasahan ang null na mga karakter o mga null byte na naka-inject/inalis/manipulahin sa pagpapasok ng mga vector sa kanilang sistema ng software. Gumagamit ng isang angkop na kumbinasyon ng mga item na mga listahan at puting mga listahan para matiyak ang balido lamang, na inaasahan at angkop sa pagpasok na pinoproseso sa pamamagitan ng sistema.
+
+Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang pamantayang pagpasok na mabisang mekanismo na nag-validate sa lahat ng pagpasok para sa haba, uri, palaugnayan, at mga patakaran ng negosyo bago tanggapin ang datos na ipinapakita o nakatago. Gamitin ang isang "tanggapin ang kilalang mabuti" na paraan sa pag-validate.
+
+Gamitin at tukuyin ang isang malakas na paglabas na encoding (tulad ng ISO 8859-1 o UTF 8).
+
+Hindi umasa sa kinalaman lamang sa backlist na validation para malaman ang malisyosong pagpasok o mag-encode ng panglabas. Doon ay masyadong maraming mga pagkaiba sa ginamitan ng karakter; ikaw ay malamang makaligtaan ang ilang mga pagkakaiba.
+
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Siguraduhin na ang iyong aplikasyon ay hindi nag-decode ng parehong input ng dalawang beses. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat.</solution>
+	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
+</vuln_item_wasc_28>
+
+<vuln_items>wasc_29</vuln_items>
+<vuln_item_wasc_29>
+	<alert>LDAP Injection</alert>
+	<desc>Ang LDAP injection ay isang pamamaraan sa pag-atake na gumagamit ng pag-aabuso ng mga web site na bumubuo ng LDAP na mga pahayag mula sa gumagamit-nagbibigay ng pagpasok.
+
+Ang Lightweight Directory Access Protocol (LDAP) ay isang bukas-standard na protokol para sa bawat querying at pagmanipula sa X.500 na direktoryo ng mga serbisyo. Ang LDAP na protokol ay tumatakbo sa ibabaw ng internet transport na mga protokol, tulad ng TCP. Ang mga web aplikasyon ay maaaring gumgamit ng gumagamit-nagbibigay na pagpasok upang lumikha ng custom LDAP na mga pahayag para sa pabago bago na web page na mga kahilingan.
+
+Kapag ang isang web aplikasyon ay bumagsak sa maayos na sanitize gumagamit-nagbibigay na pagpasok, ito ay posible para sa isang umatake na baguhin ang ginawa sa isang LDAP na pahayag. Kapag ang isang umatake ay may kaya na baguhin ang isang LDAP na pahayag, ang proseso ay tatakbo gamit ang magkaparehong mga pahintulot na ang komponent na nagsasagawa ng utos. (hal. Ang database server, web aplikasyon na server, ang web server, atbp.). Ito ay sanhi sa seryosong seguridad na mga problema na kung saan ang mga pahintulot ay pumapayag sa karapatan ng query, magbago o magbura ng anumang nasa loob ng LDAP tree. Ang parehong advanced na pagsasamantala na mga pamamaraan na magagamit sa SQL Injection ay maaaring parehong ginamit sa LDAP Injection.</desc>
+	<solution>Kayahin ang lahat ng mga pagpasok na malisyoso. Gumamit ng ankop na kumbinasyon ng mga listahang itim at puting listahan upang pigilan ang LDAP na syntax mula sa gumagamit-kontrolado ng pagpapasok.</solution>
+	<reference>http://projects.webappsec.org/LDAP-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/90.html</reference>
+</vuln_item_wasc_29>
+
+<vuln_items>wasc_30</vuln_items>
+<vuln_item_wasc_30>
+	<alert>Ang lihan na pag-uutos na injection</alert>
+	<desc>Ang Lihan na pag-uutos na injection ay isang atake na pamamaraan na ginagamit upang mag-eksployt ng mga mail server at mga web aplikasyon na bumubuo ng IMAP/SMTP na mga pahayag mula sa gumagamit-nagbibigay na pagpasok na hindi wastong na-sanitize. Depende sa uri ng pahayag na kinuhang kalamangan ng umaatake, kami ay makatagpo ng dalawang uri ng mga injection: IMAP at SMTP na injection. Ang isang IMAP/SMTP na injection ay maaaring gumagawa ng posibleng pag-pasok sa isang mail server na kung saan ikaw ay dating pumapasok nito nung una. Sa ilang mga kaso, ang mga panloob na mga sistema ay walang parehong antas na imprastrakturang seguridad na nagpapatigas ng ginagamit nito bilang pinaka unang ginagamit ng mga server sa web. Kaya, ang mga umaatake ay maaaring naghahanap na ang mail server ay humahawak ng mas magandang resulta sa pagpapaliwanag ng pagsasamantala. Sa ibang pamamaraan, ang paraan na ito ay nagpapahintulot para maiwasan ang posibleng pagbabawal na posibleng umiiral sa antas ng aplikasyon (CAPTCHA, pinakamataas na numero ng mga hiling, atbp.).</desc>
+	<solution>Unawain ang lahat ng potensyal na mga lugar na kung saan ang hindi pinagkakatiwalaan na mga pinapasok na pwedeng pumasok sa iyong software: mga parameter o mga argumento, mga cookie, sa anumang mababasa mula sa network, mga variable sa kapaligiran, mga header ng kahilingan gayundin ang nilalaman, ang mga komponent ng URL, ang e-mail, ang mga file, ang mga database, at anumang mga panlabas na mga sistema na nagbibigay ng datos sa aplikasyon. Magsagawa ng pagpasok na balidasyon sa maayos na mga interface.
+
+Ipagpalagay ang lahat ng input ay malisyoso. Gumamit ng "tanggapin ang alam na mabuti" na estratehiya ng pagpapatunay ng input (hal., gumamit ng isang whitelist). Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Gumamit ng isang blacklist para tanggihan ang anumang hindi inaasahang mga input at matukoy ang potensyal na mga pag-atake.
+
+Huwag umasa lamang sa pagpapatunay ng blacklist para tuklasin ang malisyosong input o para i-encode ang output. Napakaraming mga paraan upang i-encode ang parehong karakter, kaya malamang na may makaligtaan kang ilang mga variant.
+
+Direktang i-convert ang iyong input na uri sa inaasahang datos na uri, tulad ng paggamit ng mga ginagamit na isang pagkagawa ng katungkulan na nagsasalin ng isang string sa isang numero. Matapos ang pag-convert sa uri ng inaasahang uri ng datos, tiyakin na sakop ng mga pinahahalagahan na mga input na mga halaga sa hanay ng pinahihintulutang mga halaga at na ang multi-field ay nagpapanatili na pangalagaan.
+
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Siguraduhin na ang iyong aplikasyon ay hindi sinasadyang ma-decode ang parehong pagpasok ng dalawang beses. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat. Gamitin ang aklatan tulad ng sa OWASP ESAPI Canonicalization na control.
+
+Isaalang-alang ang pagsasagawa ng mga paulit-ulit na canonicalization hanggang ang iyong pagpasok ay hindi magbabago kailan man. Ito ay maiwasan ang doble-pagdecode at katulad na mga sitwasyon, ngunit ito ay sinasadyang baguhin ang mga pagpasok na pinapayagan na maglaman ng wastong na-encode na mga panganib na nilalaman.
+
+Kapag ang pagpapalit ng datos sa pagitan ng mga bahagi, masisiguro na ang mga komponent na ginagamit ng parehong karakter na encoding. Tiyakin na ang angkop na pag-encoding ay inilapat sa bawat interface. Pinagtitiwalaang itinakda na pag-encode na iyong ginagamit sa tuwing ang protokol ay nagbibigay-daan sa iyo na gamitin ito.
+
+Kapag ang iyong aplikasyon ay pinagsama ng gatos mula sa maraming pagkukunan, isasagawa ang pag-balido pagkatapos ang mga pinagkukunan ay pinagsama. Ang mga elemento ng indibidwal na datos ay maaaring pumasa sa hakbang sa pagpapatunay ngunit lumalabag sa hinahangad na mga paghihigpit pagkatapos na sila ay pinagsama.</solution>
+	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/88.html</reference>
+</vuln_item_wasc_30>
+
+<vuln_items>wasc_31</vuln_items>
+<vuln_item_wasc_31>
+	<alert>Ang OS Commanding</alert>
+	<desc>Ang OS Commanding ay isang pamamaraan sa pag-aatake na ginamit para sa awtorisadong nagsasagawa sa operating system na mga command.
+
+Ang OS Commanding ay isang direktang resulta sa halo-halo ng pinagkakatiwalaan na code at hindi pinagkakatiwalaan na datos. Ang atake na ito ay posible kapag ang isang aplikasyon ay tumatanggap ng hindi pinagkakatiwalaan na mga pagpasok sa binuo na operating system na mga utos na nasa hindi ligtas na pamamaraan na kinasasangkutan ng hindi maayos na sanitasyon ng datos, at/o hindi maayos na pagtatawag ng panglabas na mga programa. Sa OS na pag-uutos, nagsasagawa ng mga paguutos ang umaatake na tatakbo sa magkatulad na pribilehiyo sa komponent na sinagawa ang pag-uutos (hal. ang database server, ang web aplikasyon na server, ang web server, ang wrapper, ang aplikasyon). Buhat ng mga pag-uutos ay naisagawa sa pamatayan ng mga pribilehiyo sa pagsasagawa ng komponent ng umaatake upang makakuha nitong access o makapinsala ng mga parte na kung saan ay hindi makukuha (hal. ang operating system na mga direktoryo at mga file).</desc>
+	<solution>Kung lahat ay posible, gumamit ng aklatan ng mga pagtawag sa halip na sa panlabas na mga proseso upang gumawa uli ng ninanais na kakayahan.
+
+Patakbuhin ang iyong code na nasa "bilangguan" o kapareho na kapaligiran na nagpapatupad ng mahirap na mga hangganan sa pagitan ng proseso at ang operating system. Ito ay maaring epektibong restrict kung saan ang files ay pwedeng magamit sa partikular na directory o kung saan ang utos ay maaring magamit o maisagawa ng iyong software.
+
+Ang OS-level ay mga ehemplo na kasama ang Unix chroot jail. AppArmor, at SELinux. Sa pangakalahatan, ang pag mamanage ng code ay pwedeng magbigay ng ilang proteksyon. Halimbawa, java.io FilePermission sa mga Java SecurityManager na mag aallow sayo ng pagtukoy sa mga restrictions o sa mga mahigpit na file na operasyon.
+Ito ay maaring di magawan ng solusyon, at ito ay limitasyon sa pag impact ng mga sitemang nag ooperate; at ang lahat ng iyong aplikasyon ay maaring maging paksa para sa kompormiso.
+
+Para sa anumang datos na gagamitin para bumuo ng isang utos na ipapatupad, panatilihin ang mas maraming datos na iyon na labas mula sa panlabas na kontrol hangga't maaari. Halimbawa, sa mga aplikasyon ng web, maaaring mangailangan ito ng lokal na pag-store ng utos sa estado ng sesyon sa halip na ipadala ito sa kliyente sa isang nakatagong field ng form.
+
+Paggamit ng isang vetted na aklatan o balangkas na hindi payagan ang kahinaan nito na mangyari o nagbibigay ng mga contruct na gumagawa ng kahinaan na madaling maiwasan.
+
+Halimbawa, isaalang-alang ang paggamit ang ESAPI Encoding na kontrol o isang katulad na kasangkapan, aklatan, o balangkas. Ito ay makakatulong sa mga programmer na mag-encode ng mga panglabas sa isang paraan na mas madaling kapitan ng mali.
+
+Kung kailangan mong gumamit ng mga string ng query o mga utos na daynamikong binuo sa kabila ng panganib, maayos na i-quote ang mga argumento at i-escape ang anumang espesyal na mga karakter sa loob ng mga argumentong iyon. Ang pinaka-konserbatibong paraan ay upang makawala o mag-sala ng lahat ng mga character na hindi nakapasa sa isang lubos na mahigpit na whitelist (tulad ng lahat ng bagay na hindi alphanumeric o puting patlang). Kung kinakailangan ng mo ng ilang mga espesyal na character, tulad ng puting patlang, balutin ang bawat argumento sa mga panipi pagkatapos ng pagtakas/hakbang sa pagsala. Mag-ingat sa injection ng argumento.
+
+Kung ang programa na isasakatuparan ay nagpapahintulot sa mga argumento na matukoy sa loob ng input file o mula sa karaniwang input, kung gayon ay ikonsidera ang paggamit sa mode na iyon upang pumasa sa mga argumento sa halip na command line.
+
+Kung may magagamit o may mapapakinabangan, gamitin ang structued na mekanismo na awtomatikong mag eenforce ng separado sa pagitan ng datos at code. Ang Mekanismong ito ay maaring mag provide o maghanda ng may kaugnayan sa quoting, pag eencode at sa awtomatikong balidasyon, sa halip na umasa ang mga nag develope ang gumawa ng kapasidad o kakayahan sa lahat ng pagkakataon kapag ang output ay nagenerate.
+
+Iilang mga wika ay nag-aalok ng maraming mga function na maaaring gamiton upang mapasaatin ang mga utos. Kung saan maaari, kilalanin ang anumang function na tumatawag sa isang command shell gamit ang isang solong string, at palitan ito ng isang function na nangangailangan ng indibidwal na mga argumento. Ang kanilang mga function ay karamihan nagsasagawa ng nararapat na pag-quote at pag-filter ng mga argumento. Para sa halimbawa, sa C, ang system() na function ay tumatanggap ng isang string na nagsasalin sa buong mga command na isasagawa sapagkat ang execl(), at iba pang mga kinakailangan sa isang tanghal ng mga string, isa para sa bawat argumento. Sa Windows, ang CreateProcess() ay tumatanggap lamang ng isang utos ng paisa-isa. Sa Perl, kung ang system() ay maipagkakaloob na may isang hanay ng mga argumento, saka ito ay may quote sa bawat mga argumento.
+
+Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa sa lohikaha ng pamamaraan ng negosyo, "bangka" ay maaaring tama dahil ito ay naglalaman ng alphanumeric na mga karakter, subalit hindi ito wasto kung umaasa ka sa mga kulay tulad ng "pula" o "asul.". Ito ay hindi direktang nalilimitahan ang sakop ng isang pag-atake, subalit ang pamamaraan na ito ay mas mahalaga kaysa sa tamang pag-pasok ng output at pag-alis.
+
+Tandaan na ang wastong panglabas na encoding, pagtatakas, at pag-quote ay isa sa pinaka epektibong solusyon para sa pag-iiwas ng injection sa OS command, bagamat pagpapasok ng validation ay maaaring nagbibigay na defense-in-depth. Ito ay dahil ang epektibo na mga limitasyon na makikita sa panglabas. Ang pagpasok ng validation ay hindi laging pinigilan ang injection na OS command, lalo na kung ikaw ay nangangailangan sa support na libreng-form na teksto na mga patlang na maaaring maglalaman ng arbitrary na mga karakter. Para sa halimbawa, kapag nilulutas ang isang liham na programa, ikaw ay maaaring nangangailangan ng paksa sa patlang na naglalaman ng ibang paraan-panganib na mga pagpapasok tulad ng ";" at ">" na mga karakter, na kung saan ay kailangan na nakatakas o hindi gaya ng hinahawakan. Sa kasong ito, ang pag-stripping sa karakter baka magbabawas ng panganib sa OS command injection, pero ito ay lumilikha ng hindi tamang kilos dahil sa paksa na patlang na sana hindi natala bilang sinasadya ng gumagamit. Ito ay tila maging isang menor de edad na nakaabala, ngunit ito ay maaaring mas mahalaga kapag ang programa ay umaasa sa maayos na estraktura ng paksa ng mga linya sa ayos ng pagpapasa ng mga mensahe para sa ibang mga komponent.
+
+Kahit na kung gumawa ka ng isang mali sa iyong pagpapatunay (tulad ng pagkalimot sa isa mula sa 100 na pagpapasok na mga patlang), angkop na mga encoding ay tahimik lamang na nagproprotekta sa iyo mula sa mga atake na naka base sa injection. Hangga't ito ay hindi ginagawa na nag-iisa, pagpapasok ng balidasyon ay nagpapatuloy na isang kapaki-pakinabang na pamamaraan, buhat na maaaring maging makabuluhan ang pagbabawas na iyong mga atake sa ibabaw, nagpapahintulot sa iyo na matuklasan ang maraming mga umaatake, at nagbibigay na iba pang mga benepisyo ng seguridad na maayos na encoding na hindi nakatira.</solution>
+	<reference>http://projects.webappsec.org/OS-Commanding</reference>
+	<reference>http://cwe.mitre.org/data/definitions/78.html</reference>
+</vuln_item_wasc_31>
+
+<vuln_items>wasc_32</vuln_items>
+<vuln_item_wasc_32>
+	<alert>Ang Routing Detour</alert>
+	<desc>Ang WS-Routing na Protocol (WS-Routing) ay isang protocol para sa pagpapalit ng SOAP na mga mensahe mula sa isang inisyal na mensahe ng nagpapadala sa isang pangwakas na tagatanggap, karamihan gamit ang itinakda na mga intermediary. Ang WS-Routing na protocol ay isang implementasyon bilang isang SOAP na ekstensyon, at ito ay nagsasaayos sa SOAP Header. Ang WS-Routing ay ginagamit palagi para makapagbigay ng isang paraan sa pagpamahala ng complex na mga kapaligiran at mga transaksyon na nagpapahintulot sa interim na paraan ng mga estasyon sa XML na daanan na nakatakda sa routing na mga pagtuturo ng isang XML na dokumentasyon.
+
+Ang Routing na mga detour ay isang uri ng "Tao na nasa gitna" na pag-aatake na kung saan ang mga Intermediary ay pwedeng "inject" o "hijacked" sa daanan ng sensitibong mga mensahe hanggang sa isang panlabas na lokasyon. Ang routing na impormasyon (magkabila na HTTP header o sa WS-Routing header) ay pwedeng magbago ng en route at mga bakas sa routing na pwedeng maalis mula sa header at mensahe tulad ng nagtatanggap na aplikasyon na wala sa wiser na ang routing detour ay naganap. Ang header at ang pagpapasok sa header ng mga bagay ay madalas mas mababa ang protektado kaysa sa mensahe; ito ay dahil sa katunayan na ang header ay ginagamit bilang isang catch sa lahat para sa metadata tungkol sa transaksyon tulad ng pagpapatunay, routing, pagformat, schema, canonicalization, mga namespace, atbp. Saka, maraming mga proseso na magiging dawit sa pagdagdag ng/pagpoproseso sa header sa isang XML na dokumento. Sa maraming implementasyon ang routing na impormasyon ay maaaring galing mula sa isang panglabas na web na serbisyo (gumagamit ng WS-Referral para sa halimbawa) na ito ay nagbibigay na tiyak na routing para sa transaksyon.
+
+Ang WS-Addressing ay isang bagong standard published sa pamamagitan ng W3C hanggang sa routing na kakayahan para sa SOAP na mga mensahe. Isa sa susi ng mga pagkakaiba sa pagitan ng WS-Routing at WS-Addressing ay dapat ang WS-Addressing lamang ang nagbibigay ng susunod na lokasyon sa daanan. Samantalang maliit na pananaliksik ang ginawa sa susceptibility sa WS-Addressing hanggang sa Routing Detour na pag-aatake, hindi kukulangan sa isang papel (tingnan ang reperensiya #6 sa ibaba) nagpapahiwatig ng isang mahina hanggang sa Routing Detour na rin.</desc>
+	<solution>Laging lubos na pagpapatunay ang bawat katapusan ng anumang komunikasyon channel.
+
+Kumapit sa pinagbuhatan ng kompletong pamamagitan.
+
+Ang sertipikong gumagapos sa isang pagkakilala sa isang susi ng cryptographic hanggang sa pagpapatunay na isang party na kumukontak. Madalas, ang isang katibayan ay kumukuha ng isang encrypted na form sa isang hash na pagkakakilanlan sa paksa, ang pampublikong susi, at ang impormasyon tulad ng oras ng isyu o pagkawalang bisa gamit ang pribadong susi ng nag-iisyu. Ang sertipiko ay maaaring napatunayan sa pagkilala ng sertipiko sa pampublikong susi ng taga-isyu. Tingnan din sa X.509 na sertipiko na lagda ng mga kadena at ang PGP na istraktura ng sertipikasyon.</solution>
+	<reference>http://projects.webappsec.org/Routing-Detour</reference>
+	<reference>http://cwe.mitre.org/data/definitions/300.html</reference>
+</vuln_item_wasc_32>
+
+<vuln_items>wasc_33</vuln_items>
+<vuln_item_wasc_33>
+	<alert>Ang Daanan ng Traversal</alert>
+	<desc>Ang daanan ng traversal na pamamaraan ng pag-aatake ay nagpapahintulot sa umaatake na pagpasok sa mga file, mga direktoryo, at mga utos upang ang potensyal na nakatira sa labas ng web na dokumento ng direktoryong ugat. Ang isang pag-aatake ay maaaring manipulahin ang isang URL tulad ng isang paraan na nagpapatupad ng web site o nagbubunyag ng mga laman sa arbitrary na mga file na kahit saan sa web server. Anumang gamit na inilantad ng isang HTTP-based na interface ay posibleng may kahinaan sa daanan ng traversal.
+
+Karamihan sa mga web site ay nililimitan ang gumagamit ng isang tiyak na bahagi sa file-sistema, karaniwang na tinatawag na "web dokumentong ugat" o "CGI na ugat" na direktoryo. Ang mga direktoryong ito ay naglalaman ng mga file na nilalaan para sa pagpasok ng gumagamit at ang executable ay kinakailangan sa drive web na aplikasyon na pag-andar. Upang ma-access ang mga file o mapapatupad ang mga utos kung saan sa file-sistema. Ang daanan ng traversal na mga pag-aatake ay ginagamit ang kakayahan sa espesyal-mga karakter na mga pagkasunod-sunod.
+
+Ang pinakapangunahing daanan ng traversal na pag-aatake ay gumagamit ng "../" na espesyal-karakter na pagkasunod-sunod upang baguhin ang pinagkukunan na lokasyon sa hiniling na URL. Bagama't ang mga pinaka-popular na mga web server ay umiiwas sa ganitong pamamaraan mula sa pagtatakas ng ugat ng web dokumento, pagpalit-palit na mga encoding sa "../" pagkasunod-sunod na maaaring makakatulong na maiwasan ang mga filter ng seguridad. Ang mga pagkaiba na mga pamamaraan ay kinabibilangan ng balido at hindi balido na Unicode-encoding ("..%u2216" o "..%c0%af") sa pagsulong ng slash na karakter, backslash na mga karakter ("..\") na batay sa Windows na mga server, mga karakter ng URL na encoded "%2e%2e%2f"), at dobleng RL encoding ("..%255c") sa backslash na karakter.
+
+Kahit na kung ang web server ay wastong pinagbabawal ang daanan ng tranversal na pagtatangka sa daanan ng URL, isang web aplikasyon sa kanyang sarili ay maaaring mabiktima sa hindi wastong paghawak sa gumagamit-tagabigay ng pagpasok. Ito ay isang pangkaraniwang problema sa mga web aplikasyon na gamitin ang template ng mga mekanismo o mag-load ng static na teksto mula sa mga file. Ang mga pagkakaiba-iba ng mga atake, ang orihinal na URL ng parameter na halaga ay humahalili sa isang file na pangalan sa isa sa web aplikasyon na dynamic na mga script. Dahil dito, ang mga resulta ay maaaring magbubunyag ng source code dahil ang file ay nagbibigay kahulugan ng teksto sa halip na isang executable script. Mga pamamaraan na madalas gumagamit ng mga karagdagang espesyal na mga karakter tulad ng tuldok(".") upang ipakita ang listahan sa kasalukuyang direktoryo, o "%00" NULL na mga karakter sa pagsasaayos ng rudimentary file extension na mga tseke.</desc>
+	<solution>Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa sa lohika sa patakaran ng negosyo, ang "bangka" ay pwedeng itama syntactically dahil ito ay naglalaman ng alphanumeric na mga karakter, ngunit hindi ito balido kung ikaw ay umaasa ng mga kulay tulad ng "pula" o "asul."
+
+Para sa mga filename, gamitin ang stringent na mga whitelist na naglilimit sa karakter na itinakda na gagamitin. Kung magagawa, lamang na pahintulutan ang isang solong "." na karakter sa filename upang maiwasan ang mga kahinaan, at ihiwalay ang direktoryo ng mga nagpapahiwalay tulad ng "/". Gamitin ang isang whitelist sa nilalamang file na mga extension.
+
+Babala: Kung ikaw ay sumusubok sa paglinis ng iyong datos, saka gumagawa ng wakas na resulta na hindi ang form na magdudulot ng panganib. Ang nagbabalot ng mekanismo ay maaaring magtanggal ng mga karakter tulad ng '.' at ';' na kung saan ay maaaring kailanganin para sa ilang mga eksployt. Isang umaatake ay maaaring sumubok sa pagloko ng pagbabalot ng mekanismo sa "paglilinis" ng datos sa isang panganib na form. Ipalagay na ang umaatake ay nag-inject na isang '.' sa loob ng isang filename (hal. "sensi.tiveFile") at ang pagbabalot ng mekanismo na nagtatagal sa karakter na nagreresulta ng balidong filename, "sensitiveFile". Kung ang pagpasok ng datos ay ngayon nanunungkulan na maging ligtas, pagkatapos ang file ay mailagay sa alanganin. 
+
+Mga pagpasok ay dapat naka-decode at canonicalized sa mga kasalukuyang aplikasyon na panloob na representasyon bago ang pagpapatunay nito. Siguraduhin na ang iyong aplikasyon ay hindi nag-decode ng parehong input ng dalawang beses. Mga gayong mga kamalian ay maaaring magamit upang lampasan ang whitelist na mga scheme sa pagkilala ng mga panganib sa mga pagpasok matapos na sila ay masiyasat.
+
+Gamitin ang function ng built-in path canonicalization (tulad ng realpath() sa C) na gumagawa ng canonical na bersyon ng pathname, na epektibong nagtatanggal ng ".." na pagkakasunod-sunod at simbolikong mga link.
+
+I-run ang iyong code gamit ang pinakamababang mga pribilehiyo na kinakailangan para maisakatuparan ang kinakailangang mga gawain. Kung posible, lumikha ng nakahiwalay na mga account na may limitadong mga pribilehiyo na gagamitin lamang para sa isang solong gawain. Sa ganong paraan, ang isang matagumpay na atake ay hindi agarang magbibigay sa taga-atake ng access sa iba pang software o sa environment nito. Halimbawa, ang mga aplikasyon ng database ay bihirang kailangan na patakbuhin bilang administrador ng database, lalo na sa pang araw-araw na mga operasyon.
+
+Kung ang set ng katanggap-tanggap na mga bagay, tulad ng mga filename o URL, ay limitado o kilala, lumikha ng mapping mula sa isang set ng mga halaga ng naka-fix na input (tulad ng mga numerong ID) sa aktuwal na mga filename o URL, at tanggihan ang lahat ng iba pang mga input.
+
+Patakbuhin ang iyong code na nasa "bilangguan" o kapareho na kapaligiran na nagpapatupad ng mahirap na mga hangganan sa pagitan ng proseso at ang operating system. Ito ay maaring epektibong restrict kung saan ang files ay pwedeng magamit sa partikular na directory o kung saan ang utos ay maaring magamit o maisagawa ng iyong software.
+
+Ang OS-level ay mga ehemplo na kasama ang Unix chroot jail. AppArmor, at SELinux. Sa pangakalahatan, ang pag mamanage ng code ay pwedeng magbigay ng ilang proteksyon. Halimbawa, java.io FilePermission sa mga Java SecurityManager na mag aallow sayo ng pagtukoy sa mga restrictions o sa mga mahigpit na file na operasyon.
+
+Ito ay maaring di magawan ng solusyon, at ito ay limitasyon sa pag impact ng mga sitemang nag ooperate; at ang lahat ng iyong aplikasyon ay maaring maging paksa para sa kompormiso.
+</solution>
+	<reference>http://projects.webappsec.org/Path-Traversal</reference>
+	<reference>http://cwe.mitre.org/data/definitions/22.html</reference>
+</vuln_item_wasc_33>
+
+<vuln_items>wasc_34</vuln_items>
+<vuln_item_wasc_34>
+	<alert>Ang lokasyon ng manghuhulang pagkukunan</alert>
+	<desc>Ang Mahahalagang Resource Location ay isang diskarte ng pag atake na ginamit upang mabunyag ang nakatagong nilalaman ng web site at pag-andar. Sa pamamagitan ng gawa ng hulang edukado sa pamamagitan ng brute na pagpilit ng isang magsasalakay na maaaring hulaang file at direktoryong mga pangalan na hindi laan para sa pagpapalabas sa publiko. Ang pwersahang pagputol ng mga filename ay madali dahil ang mga file / landas ay kadalasang may karaniwang kapulungan na pagbibigay ng pangalan at naninirahan sa mga pamantayang lokasyon. Ito ay maaaring kabilang sa mga pansamantalang file, kumatig na file, mga tala, seksyon ng administratibong site, conpigyursyonng file, pagpapakitang aplipikasyon at mga halimbawang file. Maaaring ibunyag ng mga file na ito ang sensitibong impormasyon tungkol sa website, mga internal ng aplikasyon ng web, impormasyon ng database, mga password, mga pangalan ng makina, mga path ng file sa iba pang mga sensitibong bahagi, atbp...
+
+Hindi lamang ito tutulong sa pagtukoy ng surface ng site na maaaring humantong sa karagdagang mga kahinaan sa site, ngunit maaari ring magbunyag ng mahahalagang impormasyon sa isang taga-atake tungkol sa environment o mga gumagamit nito. Ang Predictable Resource na lokasyon ay kilala rin bilang Forced Browsing, Forceful Browsing, File Enumeration, at Directory Enumeration.</desc>
+	<solution>I-aplay ang angkop na mga awtorisasyon ng kontrol ng access para sa bawat access sa lahat ng pinaghihigpitang mga URL, mga iskript o mga file.</solution>
+	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
+	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
+</vuln_item_wasc_34>
+
+<vuln_items>wasc_35</vuln_items>
+<vuln_item_wasc_35>
+	<alert>Ang SOAP Array na abuso</alert>
+	<desc>Ang XML SOAP na mga array ay pangkaraniwang target para sa malisyosong pag-aabuso. Ang SOAP na mga array ay tumutukoy ng merong isang uri ng "SOAP-ENC:Array" o isang uri na nangunguhulugan ng ganyan na form. Ang SOAP na mga array ay merong isa o higit pang mga dimension (ranggo) na kaninong mga miyembro ay nagpakilala ng ordinal na posisyon. Ang array na halaga ay nagrerepresenta bilang isang serye ng mga elemento na nagsasalarawan ng array, na may mga miyembro na nagpapakita ng pagtaas ng ordinal na pagkasunod-sunod. Para sa multi-dimensyonal na mga array para sa dimensyon na nasa kanang bahagi nagbabago ng mas mabilis. Para sa bawat miyembro na elemento ay pinapangalan bilang isang hiwalay na elemento. Ang isang web-serbisyo na inaasahan ng isang array ay maaaring target ng isang XML DoS na atake sa pamamagitan ng pagpilit ng SOAP server na bumuo ng isang malaking array sa memory ng makina, sa ganitong paraan nagpapataw ng isang DoS na kondisyon sa makina dahil sa memory pre-allokasyon.</desc>
+	<solution> Magsasagawa ng sapat na pagpasok ng validation laban sa anumang halaga na impluwensya na halaga ng memorya na ibinabahagi. Tukuyin ang isang angkop na istratehiya para sa paghawak ng mga kahilingan na lumagpas sa limitasyon, at isaalang-alang ang pagsuporta sa isang kumpigurasyon na opsyon na ang administrator ay kaya na maipaparating ang mga tagapangasiwa ng halaga ng memorya na gagamitin kung kinakailangan.
+
+Patakbuhin ang iyong programa gamit ang sistema-nagbibigay na pagkukunan ng mga limistasyon para sa memorya. Ito ay maaaring maging sanhi ng programa na mag-crash o lumabas, pero ang epekto sa iba pang sistema ay mababawasan.</solution>
+	<reference>http://projects.webappsec.org/SOAP-Array-Abuse</reference>
+	<reference>http://cwe.mitre.org/data/definitions/789.html</reference>
+</vuln_item_wasc_35>
+
+<vuln_items>wasc_36</vuln_items>
+<vuln_item_wasc_36>
+	<alert>Ang SSI Injection</alert>
+	<desc>Ang SSI Injetion (nagsasama ng Server-bahagi) ay isang server-bahagi na eksployt na pamamaraan ng umaatake na nagpapadala ng code sa isang web aplikasyon, na kung saan ay mamaya ay pinapaandar sa lokal sa pamamagitan ng web server. Ang SSI na injection ay nag-exployt ng isang web aplikasyon na kabiguan para i-sanitize ang gumagamit-nagbibigay ng datos bago sila ay makapasok ng isang server-bahagi na naisalin sa HTML file.
+
+Bago maglingkod ng isang HTML na web page, ang isang web server ay maaaring magparse at magsasagawa ng server-side na naglalakip ng mga pahayag bago nagbibigay nito sa kliyente. Sa ilang mga kaso (hal. mga board na mensahe, mga libro ng guest, o mga sistema ng nilalaman na pamamahala), isang web aplikasyon ay magpapasok ng gumagamit-nagbibigay na datos sa pinagmulan ng isang web page.
+
+Kung ang umaatake ay nag-submit sa isang server-side ay nagsasama ng pahayag, siya ay merong abilidad para makasagawa ng arbitrary operating na sistema na mga utos, o nagsasama ng isang pinagbabawal na mga nilalaman ng file sa susunod na pahina ay naglingkod. Ito ay nagpapakita ng isang pahintulot na antas sa web server na gumagamit.</desc>
+	<solution>Ang hindi pagpagana ng SSI na pagpapatupad ng mga pahina na hindi kailangan ang mga ito. Para sa mga pahina na nangangailangan ng SSI na tiyak mong isasagawa ang sumusunod na mga tseke
+- Lamang nagpapagana ng SSI na mga direktiba na kinakailangan para sa pahinang ito at hindi pagpagana ng lahat sa iba.
+- Ang TML entity encode user supplied na datos bago ipapasa ito sa isang pahina gamit ang SSI execution na mga pahintulot.
+- Gamitin ang SUExec para mayroong pahinang pagganap bilang isang may-ari ng file sa halip na ang web server na gumagamit.</solution>
+	<reference>http://projects.webappsec.org/SSI-Injection</reference>
+	<reference></reference>
+</vuln_item_wasc_36>
+
+<vuln_items>wasc_37</vuln_items>
+<vuln_item_wasc_37>
+	<alert>Ang Sesyon ng pagsasaayos</alert>
+	<desc>Ang sesyon ng pagsasaayos ay isang pamamaraan sa pag-aatake na puwersa sa isang gumagamit ng sesyon ID sa isang malinaw na halaga. Depende sa paggana ng target na web site, isang bilang ng mga pamamaraan ang maaaring magamit sa "pag-ayos" sa halaga ng ID ng sesyon. Ang mga pamamaraan na ito ay saklaw mula sa Cross-site Scripting exploits hanggang sa peppering ng web site sa dating ginawang mga kahilingan ng HTTP. Matapos na maayos ang ID ng sesyon ng gumagamit, ang taga-atake ay maghihintay sa gumagamit na iyon na mag-login. Sa sandaling ginagawa ito ng gumagamit, ang taga-atake ay gumagamit ng paunang natukoy na halaga ng ID ng sesyon upang ipalagay ang parehong pagkakakilanlan sa online.
+
+Sa pangkalahatan ay may dalawang uri ng mga sistema ng pamamahala ng sesyon pagdating sa mga halaga ng ID. Ang unang uri ay "permisibo" na mga sistema na nagpapahintulot sa mga web browser na tukuyin ang anumang ID. Ang pangalawang uri ay "istrikto" na mga sistema na tumatanggap lamang ng mga halaga na nabuo sa panig ng server. Sa permisibong mga sistema, ang mga ID ng sesyon ng arbitrary ay pinananatili nang walang kontak sa web site. Ang mga istriktong sistema ay inaatasan ang taga-atake na panatilihin ang "bitag-na sesyon", na may periodic na kontak sa web site, na pumipigil sa mga oras ng hindi aktibo.
+
+Kung wala ang aktibong proteksyon laban sa Session Fixation, ang pag-atake ay maaaring mai-mount laban sa anumang web site na gumagamit ng mga sesyon upang makilala ang napatunayang mga gumagamit. Ang mga web site na gumagamit ng mga ID ng sesyon ay normal na nakabase sa cookie, ngunit ginagamit rin ang mga URL at mga field ng nakatagong form. Sa kasamaang-palad, ang mga sesyon na nakabase sa cookie ay ang pinakamadaling atakihin. Karamihan sa mga kasalukuyang nakilalang mga pamamaraan ng pag-atake ay nakatuon sa pag-aayos ng mga cookie.
+
+Kabaligtaran sa pagnanakaw ng mga ID ng sesyon ng mga gumagamit pagkatapos nilang mag-login sa isang web site, ang Session Fixation ay nagbibigay ng isang mas malawak na window ng oportunidad. Ang aktibong bahagi ng pag-atake ay nagaganap bago mag-login ang isang gumagamit.</desc>
+	<solution>Pawalang-bisa ang anumang umiiral na mga tagatukoy ng sesyon bago ang pagpapahintulot sa isang bagong sesyon ng gumagamit.
+
+Para sa mga platform tulad ng ASP na hindi bumubuo ng mga bagong halaga para sa mga cookie ng id ng sesyon, gumamit ng isang sekundaryong cookie. Sa paraang ito, magtakda ng isang sekundaryong cookie sa browser ng gumagamit sa isang random na halaga at magtakda ng isang baryabol ng sesyon sa parehong halaga. Kung ang baryabol ng sesyon at ang halaga ng cookie ay hindi magtugma kailanman, pawalang-bisa ang sesyon, at pilitin ang gumagamit na mag log on muli.</solution>
+	<reference>http://projects.webappsec.org/Session-Fixation</reference>
+	<reference>http://cwe.mitre.org/data/definitions/384.html</reference>
+</vuln_item_wasc_37>
+
+<vuln_items>wasc_38</vuln_items>
+<vuln_item_wasc_38>
+	<alert>Ang URL Redirector na abuso</alert>
+	<desc>Ang URL na mga redirektor ay nagrerepresenta ng pangkaraniwang kakayahan na ibinigay sa pamamagitan ng mga web site upang isulong ang papasok na mga kahilingan ng isang alternatibong pagkukunan. Ito ay maaaring gawin ang iba't ibang dahilan at madalas na ginagawa upang payagan ang mga pagkukunan na ililipat sa loob ng direktoryo na istraktura at upang iwasan ang pagkabasag ng pamamaraan para sa mga gumagamit na ang humihiling ng pinagkukunan sa dating lokasyon nito. Ang URL na mga redirektor ay maaaring gamitin sa pagpapatupad ng load balancing, leveraging abbreviated URLs o pagtatala sa palabas na mga link. Ito ay ang huling implementasyon na kung saan ay madalas na ginagamit sa phishing na mga pag-aatake gaya ng inilalarawan sa halimbawa sa ibaba. Ang URL na mga redirektor ay hindi kinakailangan na kumakatawan ng isang direktang seguridad na kahinaan ngunit maaaring nagmamalabis ng mga umaatake na sumusubok sa sosyal engineer na mga biktima sa paniniwala na sila ay pinaglayag sa isang site maliban sa tunay na patutunguhan.</desc>
+	<solution>Ipagpalagay ang lahat ng input ay malisyoso. Gamitin ang "accept known good"mahusay na pagtanngap at pagkilala o ang pag validate ng input na stratehiya,i.e., gamitin ang puting listahan o whitelist para sa pagtanggap ng ng mga input na striktong sumusunod sa pagtukoy. Tanggihan ang mga input na hindi strikto sa pag conform sa pagtutukoy o sa pag transform nito sa ibang bagay na ginagawa nito. Huwag mag rely sa eksklusibon na pagtingin sa malisyosong o di maayos na input(i.e.,huwag mag rely sa itim na listahan o sa blacklist). Gayon pa man, ang itim na listahan o ang blacklist ay maaaring magamit para sa pagdetect ng potensyal na atake o sa pagtukoy ng mga inputs ay hindi maayos na maaring tanggihan agad.
+
+Kapag ginagamit ang input na validation, iconsider na ang lahat ng potensyal na may kaugnayan sa mga properties, kasama na rito ang haba, tipo ng input, ang buong kakayahan ng pagtanggap ng halaga, kawalan o iba pang inputs, syntax, pagkakapareho sa mga parehong larangan at pagsang-ayon sa mga panuntunan sa negosyo. Bilang isang halimbawa sa lohika sa patakaran ng negosyo, ang "bangka" ay pwedeng itama syntactically dahil ito ay naglalaman ng alphanumeric na mga karakter, ngunit hindi ito balido kung ikaw ay umaasa ng mga kulay ng "pula" o "asul."
+
+Gamitin ang isang sa sumang-ayon na mga URL o mga domain na gagamitin para sa pag-redirect.
+
+Gamitin ang isang intermediate disclaimer na pahina na nagbibigay sa mga user na may klarong babawa na kailangan nilang umalis sa iyong site. Ang implementasyon ng isang mataas ng timeout bago ang pagredirect na nangyayari, o nagpipilit sa gumagamit na i-klik ang link. Maging maingat upang maiwasan ang XSS na mga problema kapag bumuo ng disclaimer na pahina.
+
+Kung ang set ng katanggap-tanggap na mga bagay, tulad ng mga filename o URL, ay limitado o kilala, lumikha ng mapping mula sa isang set ng mga halaga ng naka-fix na input (tulad ng mga numerong ID) sa aktuwal na mga filename o URL, at tanggihan ang lahat ng iba pang mga input.
+
+Halimbawa, ang ID 1 ay maaaring mag-map sa "/login.asp" at ang ID 2 ay maaaring mag-map sa "http://www.example.com/". Ang mga tampok kapareho ng ESAPI AccessReferenceMap ay naglalaan ng kakayahan na ito.
+
+Unawain na ang lahat ng potensyal na mga lugar kung saan ang hindi pinagkakatiwalaan na pwedeng magpasok na iyong software: mga parameter at mga argumento, mga cookie, sa anumang mababasa mula sa network, mga variable sa kapaligiran, baliktad na DNS na pagtanaw, mga resulta sa query, mga header ng hiling, mga komponent ng URL, e-mail, mga file, mga database, at anumang panlabas na mga sistema na nagbibigay ng datos sa aplikasyon. Tandaan na ang mga ganong input ay maaaring hindi direktang makuha sa pamamagitan ng mga API call.
+
+Maraming bukas na redirect na mag problema ang nagaganap dahil ipinagpalagay ng programmer na ang ilang mga input ay hindi maaaring baguhin, tulad ng mga cookie at nakatagong mga filed ng form.</solution>
+	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
+	<reference>http://cwe.mitre.org/data/definitions/601.html</reference>
+</vuln_item_wasc_38>
+
+<vuln_items>wasc_39</vuln_items>
+<vuln_item_wasc_39>
+	<alert>Ang XPath Injection</alert>
+	<desc>Ang XPath Injection ay isang pamaraan sa pag-aatake na ginagamitan ng eksployt na mga aplikasyon na gumagawa ng XPath (XML Path na Wika) na mga query mula sa gumagamit-nagbibigay ng pagpasok sa query o naglalayag ng XML na mga dokumento. Maaari itong gamitin nang direkta sa pamamagitan ng isang aplikasyon upang i-query ang isang XML na dokumento, bilang bahagi ng isang mas malaking operasyon tulad ng pag-aaplay ng pagbabago ng XSLT sa isang dokumento na XML, o pag-aaplay ng isang XQuery sa isang XML na dokumento. Ang syntax ng XPath ay nagtataglay ng ilang pagkakahawig sa isang query ng SQL, at sa katunayan, posible na bumuo ng tulad ng SQL na mga query sa isang XML na dokumento gamit ang XPath.
+
+Kung ang isang aplikasyon ay gumagamit ng run-time XPath query na konstruksyon, na nag-embed ng hindi ligtas na input ng gumagamit sa query, maaaring posible para sa taga-atake na mag-inject ng datos sa query tulad nang ang bagong nabuong query ay ma-parse sa isang paraan na kakaiba sa intensyon ng programmer.</desc>
+	<solution>Gamitin ang isang parameterized XPath na mga query (hal. gamitin ang XQuery). Ito ay tumutulong na magpapasiguro sa paghihiwalay ng pagitan sa datos na plane at kontrol na plane.
+
+Maayos na-validate ang pagpasok ng gumagamit. Tanggihan ang datos kung saan naaangkop, Salain kung saan naaangkop at i-escape kung saan naaangkop. Siguraduhin na ang input na gagamitin sa mga query ng XPath ay ligtas sa kontekstong iyon.</solution>
+	<reference>http://projects.webappsec.org/XPath-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/643.html</reference>
+</vuln_item_wasc_39>
+
+<vuln_items>wasc_40</vuln_items>
+<vuln_item_wasc_40>
+	<alert>Ang kulang na proseso ng pagbabalido</alert>
+	<desc>Ang hindi sapat na Pagpapatunay ng Proseso ay nangyayari kapag ang isang aplikasyon ng web ay nabigong pigilan ang isang taga-atake mula sa pag-iwas sa inilaan na daloy o lohika sa negosyo ng aplikasyon. Kapag nakita sa totoong mundo, ang hindi sapat na pagpapatunay ng proseso ay nagresulta sa hindi epektibong mga kontrol ng access at pagkawala ng pera.
+
+Mayroong dalawang pangunahing uri ng mga proseso na nangangailangan ng pagpapatunay: kontrol ng daloy at lohika ng negosyo.
+
+Ang "kontrol ng daloy" ay tumutukoy sa maraming-hakbang na mga proseso na kinakailangang ang bawat hakbang ay maisagawa sa isang partikular na pagkakasunud-sunod ng gumagamit. Kapag ang isang taga-atake ay nagsagawa ng hindi tamang hakbang o wala sa pagkasunod-sunod, ang mga kontrol ng access ay maaaring na-bypass at isang kamalian sa integridad ng aplikasyon ang maaaring mangyari. Mga halimbawa ng maramihang-hakbang na mga proseso ay kinabibilangan ng wire transfer, pagrekober ng password, checkout ng purchase, at pag-sign-up ng account.
+
+"Lohika ng negosyo" ay tumutukoy sa konteksto kung saan ang isang proseso ay magsasagawa ayon sa pinamamahalaan ng mga kinakailangan sa negosyo. Ang pagsasamantala sa kahinaan ng lohika ng negosyo ay nangangailangan ng kaalaman sa negosyo; kung walang kinakailangang kaalaman para pagsamantalahan ito, malamang na hindi ito isang kapintasan ng lohika ng negosyo. Dahil dito, ang tipikal na mga hakbang ng seguridad tulad ng pag-scan at pagsusuri ng code ay hindi makikita ang ganitong klase ng kahinaan. Isang paraan sa pagsusuri ay inaalok ng OWASP sa kanilang Gabay sa Pagsusuri.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Process-Validation</reference>
+	<reference></reference>
+</vuln_item_wasc_40>
+
+<vuln_items>wasc_41</vuln_items>
+<vuln_item_wasc_41>
+	<alert>Ang XML Attribute Blowup</alert>
+	<desc>Ang Attribute Blowup ng XML ay isang pagtanggi sa atake sa serbisyo laban sa mag parser ng XML. Ang taga-atake ay nagbibigay ng isang malisyosong XML na dokumento, na i-proseso ng mahinang mga XML parser sa paraang lubhang hindi mahusay, humahantong sa labis na CPU load. Ang esensya ng atake ay upang isama ang maraming mga katangian sa parehong XML node. Ang mahihinang mga XML parser ay namamahala ng mga katangian sa isang hindi mahusay na paraan (hal. sa isang lalagyan ng datos kung saan ang pagpapasok ng isang bagong katangian ay may O(n) na runtime), na nagreresulta sa isang hindi-linear (sa halimbawang ito, kuwadratiko, hal. O(n2)) pangkalahatang runtime, na humahantong sa isang pagtanggi ng kondisyon ng serbisyo sa pamamagitan ng pagka-exhaust ng CPU.</desc>
+	<solution>Ang pag-disenyo ng mga mekanismo ng throttling sa arkitektura ng sistema. Ang pinakamainam na proteksyon ay limitahan ang halaga ng yaman na ang di-awtorisadong user ay maaring makadulot upang gastahin. Ang isang matibay na pagpapatunay at modelo ng access kontrol ay makakatulog na maiwasan ang gayong mga pag-atake mula sa nangyaring unang naganap. Ang login na aplikasyon ay dapat protektado laban sa pag-atake ng DoS hangga't maaari. Nilimitahan ang access sa database, marahil sa caching na nakalagay na resulta, makakatulong sa pagbawas ang pinagkukunan na ginasta. Para sa karagdagang limit ng potensyal para sa isang atake ng DoS, isaalang-alang ang taas ng halaga ng mga natatanggap na kahilingan mula sa mga gumagamit at bumabara ang mga hiling na lumagpas sa isang tinukoy na halaga ng limitasyon.
+
+Ang pagpapagaan ng mga pag-atake ng pag-exhaust ng mapagkukunan ay nangangailangan na ang sistema ng target ay alinman sa:
+ * kinikilala ang pag-atake at tanggihan ang gumagamit sa karagdagang access para sa isang naibigay na dami ng oras, o
+ * pantay na pagkontrol ng lahat ng mga kahilingan upang gawing mas mahirap na makunsumo ang mga mapagkukunan nang mas mabilis kaysa sa maaari silang muling maging libre. 
+
+Ang una sa mga solusyon ay isang isyu sa sarili bagaman, dahil maari itong payagan ang mga nag-aatake na maiwasan ang paggamit ng sistema sa pamamagitan ng isang balidong gumagamit. Kung ang umatake ay kinokopya ang balidong gumagamit, pwede nitong pigilan ang gumagamit mula sa pagpasok sa server sa pagtatanong.
+
+Ang pangalawang solusyon ay mahirap lamang sa epektibong istitute -- at kahit na isaktong matapos, ito ay hindi nagbibigay ng isang buong solusyon. Ito lang ay gumagawa sa atake na nangangailangan ng higit pang mapagkukunan ng parte sa umaatake.
+
+Tiyakin na ang mga protocol ay partikular ang mga limit ng scale na inilagay sa kanila.
+
+Tiyakin na ang lahat ng pagkabigo sa alokasyon ng mapagkukunan ay maglalagay sa sistema sa isang ligtas na ayos.</solution>
+	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
+	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
+</vuln_item_wasc_41>
+
+<vuln_items>wasc_42</vuln_items>
+<vuln_item_wasc_42>
+	<alert>Ang pag-aabuso ng kakayahan</alert>
+	<desc>Ang pag-aabuso ng kakayahan ay isang pamamaraan sa pag-aatake na gumagamit ng isang web site na merong sariling gamit at kakayahan na umatake sa sarili o sa iba. Ang pag-abuso sa Pag-andar ay maaaring ilarawan bilang ang pang-aabuso ng nilalayon na pag-andar ng isang aplikasyon upang maisagawa ang isang hindi kanais-nais na resulta. Ang mga pag-atakeng ito ay may iba't ibang mga resulta tulad ng pag-ubos ng mga mapagkukunan, paglaktaw sa mga kontrol ng access, o paglabas ng impormasyon. Ang potensyal at antas ng pang-aabuso ay magkakaiba mula sa web site sa web site at aplikasyon sa aplikasyon. Ang pang-aabuso sa mga pag-atake sa pag-andar ay madalas na isang kumbinasyon ng iba pang mga uri ng atake at/o gumagamit ng iba pang mga vector ng atake.</desc>
+	<solution>Laging gamitin ang mga API sa tinukoy na pamamaraan.</solution>
+	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
+	<reference>http://cwe.mitre.org/data/definitions/227.html</reference>
+</vuln_item_wasc_42>
+
+<vuln_items>wasc_43</vuln_items>
+<vuln_item_wasc_43>
+	<alert>Ang XML na panglabas na mga entity</alert>
+	<desc>Ito pamamaraan ay nagtatagal ng kalamangan ng isang feature sa XML para bumuo ng mga dokumento nang pabago bago sa oras ng pagproproseso. Ang isang XML na mensahe ay sinumang nagbibigay ng datos explicitly o sa pamamagitan ng pagtuturo sa isang URI na kung saan ang datos ay umiiral. Sa pamamaraan ng pag-atake, ang mga panlabas na entidad ay maaaring palitan ang halaga ng entidad na may malisyosong datos, alternatibong mga sanggunian o maaaring ikompromiso ang seguridad ng datos na may access ang server/XML na aplikasyon.
+	Maaaring gamitin din ng mga taga-atake ang Panlabas na mga Entidad upang i-download ng server ng mga web service ang malisyosong code o nilalaman sa server para magamit sa sekondarya o sundin ang mga pag-atake.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/XML-External-Entities</reference>
+	<reference></reference>
+</vuln_item_wasc_43>
+
+<vuln_items>wasc_44</vuln_items>
+<vuln_item_wasc_44>
+	<alert>Pagpapalawak ng Entitad ng XML</alert>
+	<desc>Ang pag-atake ng pagpapalawak ng Entidad ng XML, nagsasamantala ng isang kakayahan sa mga XML DTD na nagpapahintulot sa paglikha ng pasadyang mga macro, na tinatawag na mga entidad, na magagamit sa buong isang dokumento. Sa pamamagitan ng recursive na pagtukoy ng isang set ng pasadyang mga entidad sa ibabaw ng isang dokumento, ang isang taga-atake ay maaaring tabunan ang mga parser na nagtatangkang kumpletong maresolba ang mga entidad sa pamamagitan ng pagpwersa sa kanila na umulit nang halos walang katapusan sa mga recursive na mga kahulugan na ito.
+
+Ang malisyosong XML na mensahe ay ginagamit para pilitin ang paulit-ilit na pagpapalawak ng entitad (o iba pang inulit na pag-proseso) na lubos na umuubos ng magagamit na mga mapagkukunan ng server.</desc>
+	<solution>Kung posible, ipagbawal ang paggamit ng mga DTD o gumamit ng isang XML parser na naglilimita sa pagpapalawak ng pauli-ulit na mga entidad ng DTD.
+
+Bago i-parse ang mga file ng XML na may kaugnay na mga DTD, i-scan para sa mga deklarasyon ng recursive na entidad at huwag ituloy ang pag-parse ng potensyal na eksplosibong nilalaman.</solution>
+	<reference>http://projects.webappsec.org/XML-Entity-Expansion</reference>
+	<reference>http://cwe.mitre.org/data/definitions/776.html</reference>
+</vuln_item_wasc_44>
+
+<vuln_items>wasc_45</vuln_items>
+<vuln_item_wasc_45>
+	<alert>Fingerprinting</alert>
+	<desc>Ang pinaka-karaniwang pamamaraan para sa mga taga-atake ay ang i-footprint muna ang presensya sa web ng target at isa-isahin ang impormasyon hanggan't maaari. Sa pamamagitan ng impormasyong ito, ang taga-atake ay maaaring bumuo ng isang tumpak na sitwasyon ng pag-atake, na epektibong magsasamantala ng isang kahinaan sa uri/bersyon ng software na ginagamit ng target na host.
+
+Ang multi-tier na fingerprinting ay katulad ng pinalitan nito, ang TCP/IP Fingerprinting (na may isang scanner tulad ng Nmap) maliban sa ito ay nakatuon sa Layer ng Aplikasyon ng modelo ng OSI sa halip na sa Layer ng Transport. Ang teorya sa likod ng fingerprinting na ito ay upang lumikha ng isang tumpak na profile ng platform ng target, teknolohiya ng software ng aplikasyon ng web, backend database na bersyon, mga kumpigurasyon at marahil kahit na ang kanilang arkitektura ng network/topology.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Fingerprinting</reference>
+	<reference></reference>
+</vuln_item_wasc_45>
+
+<vuln_items>wasc_46</vuln_items>
+<vuln_item_wasc_46>
+	<alert>Ang XQuery Injection</alert>
+	<desc>Ang XQuery Injection ay isa pang klasikong atake ng SQL injection laban sa Lengguwahe ng XML XQuery. Ang XQuery Injection ay gumagamit ng hindi wastong napatunayang datos na ipinasa sa mga utos ng XQuery. Ang inturn na ito ay magpapatupad ng mga utos sa ngalan ng taga-atake na may access ang mga XQuery routine. Ang XQuery injection ay maaaring gamitin upang magbilang ng mga elemento sa environment ng biktima, mag-inject ng mga utos sa lokal na host, o magsagawa ng mga query sa mga remote na file at mga pinagmumulan ng datos. Tulad ng mga pag-atake ng SQL injection, ang taga-atake ay lumalagos sa pamamagitan ng pasukan ng aplikasyon upang targetin ang layer ng access ng pinagkukunan.</desc>
+	<solution>Gumamit ng parameter na mga query. Ito ay tumutulong na magpapasiguro sa paghihiwalay ng pagitan sa datos na plane at kontrol na plane.
+
+Maayos na-validate ang pagpasok ng gumagamit. Tanggihan ang datos kung saan naaangkop, Salain kung saan naaangkop at i-escape kung saan naaangkop. Siguraduhin na ang input na gagamitin sa mga query ng XQL ay ligtas sa kontekstong iyon.</solution>
+	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/652.html</reference>
+</vuln_item_wasc_46>
+
+<vuln_items>wasc_47</vuln_items>
+<vuln_item_wasc_47>
+	<alert>Ang hindi sapat na sesyon na Expiration</alert>
+	<desc>Nagaganap ang hindi sapat na Pag-expire ng Sesyon kapag ang isang Aplikasyon ng Web ay nagpapahintulot sa isang taga-atake na muling gamitin ang lumang mga kredensyal ng sesyon o mga ID ng sesyon para sa awtorisasyon. Ang hindi sapat na Pag-expire ng Sesyon ay nagpapataas ng pagkakalantad ng Web site sa mga pag-atake na nagnanakaw o muling gumagamit ng mga identifier ng sesyon ng gumagamit.
+
+Dahil ang HTTP ay isang stateless na protocol, ang mga Web site ay karaniwang gumagamit ng mga cookie upang mag-imbak ng mga ID ng sesyon na katangi-tanging kumikilala sa isang gumagamit mula sa kahilingan sa kahilingan. Dahil dito, dapat na panatilihin ang pagiging kompidensyal ng bawat ID ng sesyon upang maiwasan ang maramihang mga gumagamit sa pag-access sa parehong account. Ang isang ninakaw na ID ng sesyon ay maaaring gamitin upang tingnan ang account ng isa pang gumagamit o magsagawa ng isang mapanlinlang na transaksyon.
+
+Ang pag-expire ng sesyon ay binubuo ng dalawang uri ng timeout: hindi aktibo at ganap. Ang ganap na timeout ay tinukoy sa pamamagitan ng kabuuang halaga ng oras na ang isang sesyon ay maaaring may bisa na walang muling pagpapatunay at ang isang hindi aktibong timeout ay ang halaga ng nakatigil na oras na pinapayagan bago ang sesyon ay ma-inbalido. Ang kakulangan ng wastong pag-expire ng sesyon ay maaaring mapataas ang posibilidad ng tagumpay ng ilang mga pag-atake. Ang isang mahabang oras ng pag-expire ay nagpapataas sa pagkakataon ng taga-atake na matagumpay na hulaan ang isang ID ng balidong sesyon. Mas mahabang oras ng pag-expire, mas maraming kasabay na bukas na mga sesyon ang umiiral sa kahit anong oras. Mas malaki ang pool ng mga sesyon, mas malamang na para sa isang taga-atake na mahulaan ang isa ng sapalaran. Bagama't hindi nakakatulong ang isang maikling sesyon ng hindi aktibong timeoit kung ang isang token ay agad na ginamit, ang maikling timeout ay tumutulong upang siguraduhin na ang token ay mas mahirap na makuha habang ito ay nananatiling balido.
+
+Ang isang aplikasyon ng Web ay dapat ipawalang-bisa ang isang sesyon pagkatapos lumipas ng isang paunang natukoy na nakatigil na oras (isang timeout) at magbigay sa gumagamit ng paraan upang mapawalang-bisa ang kanilang sariling sesyon, hal. i-log out; ito ay nakakatulong upang panatilihin ang haba ng buhay ng isang ID ng sesyon na maikli hangga't maaari at kinakailangan sa isang pinagsasaluhang computing environment kung saan higit sa isang tao ay may malayang pisikal na pag-access sa isang computer. Ang function ng logout ay dapat na prominenteng nakikita ng gumagamit, tahasang nagpapawalang-bisa ng isang sesyon ng gumagamit at hindi nagpapahintulot sa muling paggamit ng token ng sesyon.</desc>
+	<solution>Magtakda ng mga sesyon/mga credential na expiration na petsa.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Session-Expiration</reference>
+	<reference>http://cwe.mitre.org/data/definitions/613.html</reference>
+</vuln_item_wasc_47>
+
+<vuln_items>wasc_48</vuln_items>
+<vuln_item_wasc_48>
+	<alert>Hindi ligtas na indexing</alert>
+	<desc>Ang walang seguridad na pag-index ay isang banta sa pagiging kompidensyal ng datos ng web site. Ang pag-index ng mga nilalaman ng web-site sa pamamagitan ng isang proseso na may access sa mga file na hindi dapat ma-access ng publiko ay may potensyal na magbunyag ng impormasyon tungkol sa pagkakaroon ng gayong mga file, at tungkol sa kanilang nilalaman. Sa proseso ng pag-index, ang naturang impormasyon ay kinolekta at inimbak sa pamamagitan ng proseso ng pag-index, na maaaring makuhang muli sa ibang pagkakataon (kahit na hindi trivially) ng isang tinukoy na taga-atake, karaniwang sa pamamagitan ng isang serye ng mga query sa search engine. Hindi sinalungat ng taga-atake ang modelo ng seguridad ng search engine. Dahil dito, ang pag-atakeng ito ay banayad at napakahirap na tuklasin at mapigilan - hindi madaling makilala ang mga query ng taga-atake mula sa mga query ng lehitimong gumagamit.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
+	<reference></reference>
+</vuln_item_wasc_48>
+
+<vuln_items>wasc_49</vuln_items>
+<vuln_item_wasc_49>
+	<alert>Hindi sapat na password recovery</alert>
+	<desc>Hindi sapat na Pagbawi ng Password ay kapag pinahihintulutan ng isang web site ang isang taga_atake na iligal na makuha, baguhin o bawiin ang password ng ibang gumagamit. Ang mga pamamaraan ng pagpapatunay ng konbensyonal na web site ay inaatasan ang mga gumagamit na pumili at tandaan ang isang password o passphrase. Ang gumagamit ang tanging tao na dapat na nakakaalam ng password at dapat itong matandaan nang tumpak. Habang lumilipas ang oras, ang kakayahan ng gumagamit na matandaan ang isang password ay kumukupas. Ang bagay ay mas kumplikado kapag ang karaniwang gumagamit ay bumibisita sa 20 na mga site na nangangailangang suplayan ang mga ito ng isang password.  (RSA Survey: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Kaya naman, ang pagbawi ng password ay isang mahalagang bahagi sa pag-seserbisyo sa mga online na gumagamit.
+
+Kabilang sa mga halimbawa ng mga proseso ng awtomatikong agbawi ng password ay ang inaatasan ang gumagamit na sagutin ang isang "lihim na tanong" na tinukoy bilang bahagi ng proseso ng pagpaparehistro ng gumagamit. Ang tanong na ito ay maaaring piliin mula sa isang listahan ng paunang natukoy nang mga tanong o ibinigay ng gumagamit. Isa pang mekanismo na ginagamit ay ang kailanganing magbigay ng gumagamit ng isang "hint" habang nagpaparehistro na tutulong sa gumagamit na matandaan ang kanyang password. Ang iba pang mga mekanismo ay inaatasan ang gumagamit na magbigay ng ilang piraso ng personal na datos tulad ng kanilang numero ng social security, address ng bahay, zip code atbp. upang mapatunayan ang kanilang pagkakakilanlan. Matapos mapatunayan ng gumagamit kung sino sila, ang sistema ng pagbawi ay ipapakita o i-eemail sila ng isang bagong password.
+
+Ang isang web site ay itinuturing na walang sapat na pagbawi ng Password kapag ang isang taga-atake ay maaaring salungatin ang mekanismo ng pagbawi na ginamit. Ito ay nangyayari kapag ang kinakailangang impormasyon upang mapatunayan ang pagkakakilanlan ng gumagamit para sa pagbawi ay alinman sa madaling hulaan o maaaring dayain. Ang mga sistema ng pagbawi ng password ay maaaring makompromiso sa pamamagitan ng paggamit ng malupit na pwersa na mga pag-atake, likas na mga kahinaan ng sistema, o madaling mahulaan ang lihim na mga tanong.</desc>
+	<solution>Siguraduhin na ang lahat ng input na ibinigay ng gumagamit sa mekanismo ng pagbawi ng password ay ganap na nasala at napatunayan
+
+Huwag gumamit ng karaniwang mahina na mga tanong sa seguridad at gumamit ng iba't-ibang mga katanungan sa seguridad.
+
+Siguraduhin na mayroong pagpigil sa bilang ng hindi tamang mga sagot sa isang tanong sa seguridad. Huwag paganahin ang pag-andar ng pagbawi ng password pagkatapos ng ilang (maliit) na bilang ng hindi tamang mga hula.
+
+Kinakailangan na masagot ng maayos ng gumagamit ang tanong sa seguridad bago ang pag-reset ng kanilang password at pagpapadala ng bagong password sa email address na nakatala.
+
+Huwag kailanmang pahintulutan ang gumagamit na kontrolin kung saang e-mail address ipapadala ang bagong password sa mekanismo sa pagbawi ng password.
+
+Magtalaga ng isang bagong pansamantalang password sa halip na ibunyag ang orihinal na password.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Password-Recovery</reference>
+	<reference>http://cwe.mitre.org/data/definitions/640.html</reference>
+</vuln_item_wasc_49>
+
+</vulnerabilities>

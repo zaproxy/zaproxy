@@ -48,6 +48,7 @@ The following resources may assist you to that end:
 ## Coding
 
 There's always lots of coding to be done! So much so that we've split it into different categories.
+Refer to [BUILDING] on how to build and run ZAP.
 
 All code should follow the [Development Rules and Guidelines](https://github.com/zaproxy/zaproxy/wiki/DevGuidelines).
 
@@ -75,24 +76,47 @@ Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (one
 
 #### Guidelines for Pull Request (PR) submission and processing:
 
+##### Developer Certificate of Origin
+
+The Git commits must be [signed off] to indicate your agreement with [Developer Certificate of Origin].
+
+##### Format/Style Java Code
+
+The Java code is formatted according to Google Java Style (AOSP variant). The build automatically checks
+that the code conforms to the style (using [Spotless], which delegates to [google-java-format]), it can
+also be used to format the code (with the Gradle task `spotlessApply`) if the IDE/editor in use
+does not support it.
+
 ##### What should you, the author of a pull request, expect from us (ZAP Team)?
 * How much time (maximum) until the first feedback? 1 week.
 * And following iterations? 1 week.
-* This is a guideline we should normally be able to hit. If it’s been more than a week and you haven’t heard then please feel free to add a comment to your PR and @ mention the team (@zaproxy/team-zaproxy).
+* This is a guideline we should normally be able to hit. If it's been more than a week and you haven't heard then please feel free to add a comment to your PR and @ mention the team (@zaproxy/team-zaproxy).
 
 ##### What we (ZAP Team), expect from you?
-  * "Atomic commits" (logical changes to be in a single commit). Please don’t group disjointed changes into a single commit/PR.
+  * "Atomic commits" (logical changes to be in a single commit). Please don't group disjointed changes into a single commit/PR.
   * Descriptive commits (subject and message):
     * For example: https://github.com/spring-projects/spring-framework/blob/master/CONTRIBUTING.md#format-commit-messages
+  * Please, leave a comment after force pushing changes. It allows everyone to know that new changes are available.
   * Discussion about the changes:
     * Should be done in/on the PR or via the Dev Group and a link to that Dev Group thread added to the PR comments. (i.e.: Shared information is important, if something happens via IRC or private email please ensure a summary makes it to the PR.)
     * Discussion will be kept in the pull request unless off topic.
   * No merge commits. Please, rebase.
   * Rebase if the branch has conflicts.
   * How much time will a pull request be left open?
-    * This isn’t static, one or more members of the ZAP Team will reach out (using @ mentions in PR comments) once or twice in order to get things back on track. If no input is received after a month or two then the PR will be closed. Total stale time will likely be 2 to 3 months.
+    * This isn't static, one or more members of the ZAP Team will reach out (using @ mentions in PR comments) once or twice in order to get things back on track. If no input is received after a month or two then the PR will be closed. Total stale time will likely be 2 to 3 months.
     * Close with a message such as: "The pull request was closed because of lack of activity (as per CONTRIBUTING guidelines)". Labeled as "Stale".
     * If the contribution is deemed important or still valuable the code may be:
       * Manually merged (if possible).
       * Retrieved by another member of the team, fixed up and resubmitted. In which case the commit message (PR message) should contain a reference to the original submission.
 
+##### Approval process:
+* All PRs must be approved by a minimum of 2 members of the ZAP Core Team (other than the author) and anyone who is flagged as a reviewer on the PR.
+* The PR author can optionally specify any reviewer they would like to review their PR and any member of the Core Team can add themselves as a reviewer. This will effectively prevent the PR from being merged until they approve it.
+* Any member of the Core Team can merge a PR as long as the above conditions are met.
+* Reviews by people outside of the Core Team are still appreciated :)
+
+[BUILDING]: BUILDING.md
+[signed off]: https://git-scm.com/docs/git-commit#Documentation/git-commit.txt--s
+[Developer Certificate of Origin]: https://developercertificate.org/
+[Spotless]: https://github.com/diffplug/spotless
+[google-java-format]: https://github.com/google/google-java-format

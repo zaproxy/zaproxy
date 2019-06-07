@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<driverConfiguration>
+    <driver>
+        <name>Name A</name>
+        <path>Path A</path>
+        <slot>0</slot>
+        <slotListIndex>1</slotListIndex>
+    </driver>
+    <driver>
+        <name>Name B</name>
+        <path>Path B</path>
+        <slot>2</slot>
+        <slotListIndex>3</slotListIndex>
+    </driver>
+    <driver>
+        <name>Name C</name>
+        <path>Path C</path>
+        <slot>4</slot>
+        <slotListIndex>5</slotListIndex>
+    </driver>
+</driverConfiguration>

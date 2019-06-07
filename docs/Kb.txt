@@ -1,0 +1,22 @@
+Host level
+==========
+sessionId
+-	name:	name of sessionId cookie
+-	nameValue:	value of session cookie
+
+server
+-	banner
+
+SQL
+
+-	sql/mssql/username: String of db user name
+-	sql/mssql/tablename: String of table names
+-	sql/oracle/username:	String of db user name
+-	sql/oracle/tablename:	String of table names
+
+
+URI level
+=========
+SQL
+-	sql/mssql: 	boolean true if using mssql
+-	sql/and:	boolean true if blind sql injection using AND is feasible

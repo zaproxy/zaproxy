@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Area Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<map>
+<area href="//a.example.com/base/scheme" ping="//ping.example.com/base/scheme" />
+<area href="http://a.example.com:8000/b" ping="http://ping.example.com:8000/b" />
+<area href="https://a.example.com/c?a=b#fragment" ping="https://ping.example.com/c?a=b#fragment" />
+<area href="a/relative" ping="a/relative/ping" />
+<area href="/a/absolute" ping="/a/absolute/ping" />
+<area href="ftp://a.example.com/" ping="https://ping.example.com/ping"/>
+<area ping="https://ping.first.com/" href="http://b.example.com/"/>
+
+Ignored anchors but picked pings:<br />
+<a>no href</a><br />
+<area href="mailto:a@example.com" ping="http://ping.example.com/mailping" />
+<area href="javascript:hello();" ping="http://ping.example.com/jsping" />
+<area href="scheme://a.example.com/invalid" ping="http://ping.example.com/ping" />
+
+Ignored anchors and pings:<br />
+<a>no href</a><br />
+<area href="mailto:a@example.com" ping="mailto:fred@ping.com" />
+<area href="javascript:hello();" ping="javascript:function("ping.com")" />
+<area href="scheme://a.example.com/invalid" ping="scheme://ping.example.com" />
+
+Should find multiple ping URLs:<br />
+<area href="http://a.example.com/" ping="http://ping.example.com/  http://pong.example.com/" />
+<area href="http://a.example.com/" ping="http://ping.example.com/ 	 http://pong.example.com/" />
+
+</body>
+</html>

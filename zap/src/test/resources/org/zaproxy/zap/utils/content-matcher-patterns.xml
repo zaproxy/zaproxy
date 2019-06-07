@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Patterns>
+    <Pattern type="string">String 1</Pattern>
+    <Pattern type="regex">Regex 1</Pattern>
+    <Pattern type="string">String 2</Pattern>
+    <Pattern type="regex">Regex 2</Pattern>
+</Patterns>
+

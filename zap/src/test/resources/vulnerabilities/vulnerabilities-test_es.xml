@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<vulnerabilities xmlns="http://tempuri.org/XMLSchemaOptions.xsd">
+	<vuln_items>wasc_1</vuln_items>
+	<vuln_item_wasc_1>
+		<alert>Locale es</alert>
+		<desc>Description es</desc>
+		<solution>Solution es</solution>
+		<reference>Reference es 1</reference>
+		<reference>Reference es 2</reference>
+	</vuln_item_wasc_1>
+</vulnerabilities>

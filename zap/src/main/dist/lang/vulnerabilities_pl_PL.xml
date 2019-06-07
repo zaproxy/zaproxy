@@ -1,0 +1,1067 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<vulnerabilities xmlns="http://tempuri.org/XMLSchemaOptions.xsd">
+
+<vuln_items>wasc_1</vuln_items>
+<vuln_item_wasc_1>
+	<alert>Brak uwierzytelnienia</alert>
+	<desc>Niewystarczające uwierzytelnianie występuje, gdy witryna sieci web pozwala atakującemu na dostęp do poufnej zawartości lub funkcji bez konieczności właściwego uwierzytelniamenia. Narzędzia administracyjne oparte na sieci Web są dobrym przykładem witryn interbetowych zapewniająch dostęp do poufnych funkcjonalności. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+
+To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
+	<solution>Faza: Architektura i Projektowanie
+Użyj uwierzytelnionego szkieletu lub biblioteki, takich jak funkcja uwierzytelnienia OWASP ESAPI.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
+	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+</vuln_item_wasc_1>
+
+<vuln_items>wasc_2</vuln_items>
+<vuln_item_wasc_2>
+	<alert>Niewystarczające Uprawnienia</alert>
+	<desc>Niewystarczające wyniki uprawnień, podczas kiedy aplikacja nie wykonuje odpowiedniej kontroli by zapewnić, że użytkownik przeprowadza funkcje lub uzyskuje dostęp do danych w sposób zgodny z polityką bezpieczeństwa. Procedury autoryzacji powinny wyegzekwować co może zrobić użytkownik, usługa lub aplikacja. Kiedy użytkownik jest uwierzytelniony na stronie internetowej, nie musi oznaczać to, że użytkownik powinien dostać pełny dostęp do całej zawartości i funkcjonalności.
+
+Niewystarczająca Autoryzacja Funkcji
+
+Wiele aplikacji zapewnia różną funkcjonalność różnym użytkownikom. Witryna z wiadomościami pozwala użytkownikom przeglądać wiadomości, ale nie je publikować. System księgowości będzie miał inne uprawnienia dla urzędnika odpowiedzialnego za rozliczanie kosztów i urzędnika odpowiedzialnego za przychody finansowe. Niewystarczająca autoryzacja funkcji ma miejsce, gdy aplikacja nie umożliwia użytkownikom dostępu funkcji aplikacji z naruszeniem polityki bezpieczeństwa.
+
+Bardzo wyraźnym przykładem było hak procesu aplikacyjnego w roku 2005 w Szkole Przedsiębiorczości w Harvardzie. Błąd autoryzacji umożliwia użytkownikom przeglądanie własnych danych kiedy nie powinni uzyskać dostępu do tej części witryny internetowej.
+ 
+Niewystarczająca Autoryzacja Funkcji
+
+Wiele aplikacji ujawnia podstawowe identyfikatory danych w adresie URL. Na przykład podczas uzyskiwania dostępu do dokumentacji medycznej w systemie można mieć adres URL, taki jak:
+
+http://example.com/RecordView?id=12345
+
+Jeśli aplikacja nie sprawdziła poprawnie odczytu uwierzytelnionego identyfikatora użytkownika, wtedy może wyświetlać użytkownikowi dane, których nie powinien widzieć.
+
+Niewystarczająca Autoryzacja Danych jest bardziej powszechna niż Niewystarczająca Autoryzacja Funkcji, ponieważ programiści zwykle mają pełną wiedzę o funkcjonalności aplikacji, ale nie zawsze mają pełne odwzorowanie wszystkich danych, do których aplikacja będzie mieć dostęp. Programiści często mają ścisłą kontrolę nad mechanizmami autoryzacji funkcji, ale polegają na innych systemach, takich jak bazy danych, w celu autoryzacji danych.</desc>
+	<solution>Fazy: Architektura i Projektowanie; Obsługa
+Bardzo starannie zarządzaj ustawieniami, zarządzaniem i obsługą uprawnień. Jawnie zarządzaj strefami zaufania w oprogramowaniu.
+
+Faza: Architektura i Projektowanie
+Upewnij się, że odpowiednie kategoryzowanie jest wbudowana w konstrukcję systemu i że kategoryzowanie służy do umożliwienia i dalszego wzmocnienia funkcji oddzielania uprawnień. Architekci i projektanci powinni opierać się na zasadzie najmniejszego przywileju, aby zdecydować, kiedy należy użyć i zrzucić przywileje systemowe.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
+</vuln_item_wasc_2>
+
+<vuln_items>wasc_3</vuln_items>
+<vuln_item_wasc_3>
+	<alert>Przekroczenie zakresu liczb całkowitych</alert>
+	<desc>Przekroczenie zakresu liczb całkowitych to stan, który występuje, gdy wynik operacji arytmetycznej, takiej jak mnożenie lub dodawanie, przekracza maksymalną wielkość typu liczby całkowitej używanej do jej zapisania. Gdy wystąpi przekroczenie zakresu liczb całkowitych, interpretowana wartość będzie wyglądać tak, jakby zawierała "owiniętą wokół" wartość maksymalną i rozpoczęła się ponownie od wartości minimalnej, podobnie do zegara, który pokazuje 13:00, wskazując na godzinę 1:00.
+
+Na przykład ośmiobitowa liczba całkowita ze znakiem na najpopularniejszych architekturach komputerów ma maksymalną wartość 127 i wartość minimalną równą -128. Jeśli programista zapisze wartość 127 w takiej zmiennej i doda 1 to wynik powinien wynosić 128. Jednak ta wartość przekracza maksimum dla tego typu liczby całkowitej, więc zinterpretowana wartość "zawija się" i staje się -128.</desc>
+	<solution>Faza: Wymagania
+Upewnij się, że wszystkie protokoły są ściśle zdefiniowane tak, że wszystkie zachowania poza granicami można łatwo zidentyfikować i wymagają ścisłej zgodności z protokołem.
+
+Faza: Wymagania
+Używaj języka, który nie zezwala na wystąpienie tego osłabienia lub zapewnia konstrukcje, które ułatwiają uniknięcie tego osłabienia.
+Jeśli możliwe, wybierz język lub kompilator, który wykonuje automatyczne sprawdzanie granic.
+
+Faza: Architektura i Projektowanie
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+Korzystaj z bibliotek lub struktur, które ułatwiają obsługę liczb bez nieprzewidzianych konsekwencji.
+Przykłady obejmują bezpieczne pakiety obsługi liczb całkowitych, takie jak SafeInt (C ++) lub IntegerLib (C lub C ++).
+
+Faza: Implementacja
+Wykonaj sprawdzenie danych wejściowych w dowolnej postaci numerycznej upewniając się, że znajdują się w oczekiwanym zakresie. Wymuś, aby dane wejściowe spełniały zarówno minimalne, jak i maksymalne wymagania dotyczące oczekiwanego zakresu.
+Jeśli możliwe, używaj liczb całkowitych bez znaku. Ułatwia to zrealizować sprawdzanie poprawności dla przekroczenia zakresu liczb całkowitych. Jeśli musisz użyć liczb całkowitych ze znakiem, upewnij się, że twój zakres wyboru zawiera zarówno minimalne jak i maksymalne wartości.
+
+Faza: Implementacja
+Zapoznaj się z podstawową reprezentacją języka programowania i jego interakcją z obliczeniami numerycznymi (CWE-681). Zwróć szczególną uwagę na rozbieżności w rozmiarach bajtów, precyzję, wyróżnienia ze znakiem/bez znaku ścięcie, konwersję i rzutowanie między typami, obliczenia "nie-liczby" oraz sposób, w jaki twój język obsługuje liczby, które są zbyt duże lub zbyt małe, aby zapewnić ich przedstawienie.
+Uważaj także na konta 32-bitowe, 64-bitowe i inne potencjalne różnice, które mogą wpłynąć na numeryczne przedstawienie.
+
+Faza: Implementacja
+Sprawdź dokładnie ostrzeżenia kompilatora i wyeliminuj potencjalne krytyczne problemy zabezpieczeń, takie jak niezgodność Oznaczonych/Nieoznaczonych. Nawet jeśli słabość jest rzadko wykorzystywana, pojedyncza awaria może doprowadzić do narażenia całego systemu.</solution>
+	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
+	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
+</vuln_item_wasc_3>
+
+<vuln_items>wasc_4</vuln_items>
+<vuln_item_wasc_4>
+	<alert>Niewystarczająca Ochrona Warstwy Transportowej</alert>
+	<desc>Niewystarczająca Ochrona Warstwy Transportowej
+Niewystarczająca ochrona warstwy transportowej umożliwia komunikację z niezaufanymi stronami trzecimi, gwarantując atak w celu złamania zabezpieczeń aplikacji sieciowej i / lub kradzieży poufnych informacji. Strony internetowe zazwyczaj używają Bezpiecznej Warstwy Gniazd Transportowych/ Ochrony Warstwy Transportowej (SSL/TLS), aby zapewnić szyfrowanie w warstwie transportu. Jednakże dopóki strona internetowa nie jest skonfigurowana do używania SSL/TLS i skonfigurowana poprawnie do używania SSL/TLS, to strona może być podatna na przechwytywanie ruchu internetowego lub na modyfikacje.
+ 
+Brak Szyfrowania Warstwy Transportowej
+Kiedy warstwa transportowa nie jest zaszyfrowana, cała komunikacja pomiędzy stroną internetową a klientem jest wysyłana w formacie zwykłego tekstu, co otwiera możliwość przechwycenia, wstrzyknięcia i przekierowania (znanego również jako atak typu "człowiek w środku" / MITM). Osoba atakująca może biernie przechwytywać komunikację, dając im dostęp do wszelkich poufnych danych, które są przesyłane, takich jak nazwy użytkowników i hasła. Atakujący może również aktywnie wstrzykiwać / usuwać zawartość z komunikacji, umożliwiając atakującemu fałszowanie i pomijanie informacji, wstrzykiwanie złośliwego skryptu lub powodowanie dostępu klienta do niezaufanej zawartości zdalnej. Atakujący może również przekierować komunikację w taki sposób, że strona internetowa i klient nie komunikują się nawzajem. a; e zamiast tego bez wiedzy komunikują się z atakującym w kontekście innej zaufanej strony.
+
+Słabe Wsparcie Szyfru
+Dawniej wysokiej jakości kryptografia była ograniczona do eksportu poza Stany Zjednoczone. Z tego powodu, strony internetowe były skonfigurowane do obsługi słabych kryptograficznych opcji dla tych klientów którzy ograniczali się do używania tylko słabych szyfrów. Słabe szyfry są podatne na atak ze względu na względną łatwość ich złamania; mniej niż dwa tygodnie na typowym komputerze domowym i kilka sekund przy użyciu dedykowanego sprzętu.
+Dziś wszystkie nowoczesne przeglądarki i strony internetowe używają o wiele silniejszego szyfrowania, ale niektóre strony wciąż skonfigurowane są do obsługi przestarzałych słabych szyfrów. Z tego powodu atakujący może zmusić klienta do przejścia na słabszy szyfr podczas łączenia się ze stroną internetową, umożliwiając atakującemu złamanie słabego szyfrowania. Z tego powodu, serwer powinien być skonfigurowany do akceptowania tylko silnego szyfrowania i nie gwarantować żadnemu klientowi usługi która wymaga używania słabszego szyfrowania. Ponadto niektóre witryny internetowe są źle skonfigurowane do wyboru słabszego szyfru, nawet jeśli klient będzie obsługiwał znacznie silniejszy. OWASP oferuje przewodnik do testowania problemów związanych z SSL / TLS, w tym obsługę słabych szyfrów i błędną konfigurację, a także inne zasoby i narzędzia.</desc>
+	<solution>Faza: Wymagania
+Określ wyraźnie, które dane lub materiały są na tyle cenne, że powinny być chronione za pomocą szyfrowania. Wymagaj, aby jakakolwiek transmisja lub przechowywanie tych danych / zasobów korzystało z dobrze sprawdzonych algorytmów szyfrowania.
+
+Faza: Architektura i Projektowanie
+Korzystając z modelowania zagrożeń lub innych technik, wyjdź z założenia, że Twoje dane mogą zostać naruszone przez osobną lukę lub słabe punkty i ustal, gdzie szyfrowanie będzie najbardziej skuteczne. Upewnij się, że dane które twoim zdaniem powinny być prywatne nie zostaną nieumyślnie eksponowane z powodu słabości takich jak 
+niezabezpieczone uprawnienia (CWE-732).
+
+Faza: Architektura i Projektowanie
+Upewnij się, że szyfrowanie jest poprawnie zintegrowane z planem systemu, łącznie z tym, ale niekoniecznie ograniczone do:
+      Szyfrowania potrzebnego do przechowywania lub przesyłania prywatnych danych użytkowników systemu
+      Szyfrowania potrzebnego do ochrony samego systemu przed nieuprawnionym odsłonięciem lub naruszeniem
+Określ oddzielne potrzeby i konteksty szyfrowania:
+      Zachodzącego w jednym kierunku (tj. Tylko użytkownik lub odbiorca musi mieć klucz). Można to osiągnąć za pomocą kryptografii klucza publicznego lub innych technik, w których strona kodująca (tj. Oprogramowanie) nie musi mieć dostępu do prywatnego klucza.
+      Dwukierunkowe (tj. Szyfrowanie może być automatycznie wykonywane w imieniu użytkownika, ale klucz musi być dostępny, aby otwarty tekst mógł być automatycznie odzyskiwany przez tego użytkownika). Wymaga to przechowywania klucza prywatnego w formacie możliwym do odzyskania tylko przez użytkownika (lub przez system operacyjny) w sposób, który nie może być odzyskany inaczej.
+
+Faza: Architektura i Projektowanie
+Nie programuj twoich własnych kryptograficznych algorytmów. Prawdopodobnie będą narażone na ataki, które kryptografowie dobrze rozumieją. Techniki projektowania opartego na analizie konstrukcji są poddane procesowi dojrzewania. Jeśli Twój algorytm może zostać zagrożony i jeśli napastnik dowie się, jak to działa, jest on szczególnie słaby.
+
+Faza: Architektura i Projektowanie
+Wybierz dobrze sprawdzony algorytm, który jest obecnie uważany za mocny przez ekspertów w tej dziedzinie i wybierz dobrze przetestowane implementacje.
+Na przykład, systemu rządu USA wymagają poświadczenia FIPS 140-2.
+Tak jak ze wszystkimi kryptograficznymi mechanizmami, kod źródłowy powinien być dostępny dla analiz.
+Co jakiś czas upewnij się, że nie używasz przestarzałej kryptografii. Niektóre starsze algorytmy, o których sądzono kiedyś, że wymagają miliardów lat czasu obliczeniowego, mogą teraz zostać złamane w ciągu kilku dni lub godzin. Obejmuje to MD4, MD5, SHA1, DES i inne algorytmy, które były kiedyś uważane za silne.
+
+Faza: Architektura i Projektowanie
+Podziel system na "bezpieczne" obszary, w których można jednoznacznie narysować granice zaufania. Nie pozwól poufnym danym wyjść poza granice zaufania i zawsze uważaj podczas kontaktowania się z przedziałem poza bezpiecznym obszarem.
+
+Fazy: Implementacja; Architektura i Projektowanie
+Kiedy używasz technik zatwierdzonych przez branżę, musisz używać ich poprawnie. Nie tnij zakrętów, pomijając etapy wymagające dużej ilości zasobów (CWE-325). Te kroki są często niezbędne do zapobiegania typowym atakom.
+
+Faza: Implementacja
+Użyj konwencji nazewnictwa i wyraźnych czcionek, aby łatwiej było wykryć, kiedy używane są poufne dane. Podczas tworzenia struktur, obiektów lub innych złożonych elementów należy jak najdokładniej rozdzielić dane jawne i niejawne.
+Ułatwia to wychwycić miejsca w kodzie, w którym używane są dane, które nie są zaszyfrowane.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
+</vuln_item_wasc_4>
+
+<vuln_items>wasc_5</vuln_items>
+<vuln_item_wasc_5>
+	<alert>Zdalne włączanie plików</alert>
+	<desc>Zdalne włączanie plików (RFI) jest techniką ataku wykorzystująca mechanizmy "dynamicznego włączania plików" w aplikacjach internetowych. Gdy aplikacje internetowe przejmują dane wprowadzane przez użytkownika (adres URL, wartość parametru itp.) I przekazują je do plików, które zawierają polecenia, aplikacja internetowa może zostać wykorzystana do dołączenia zdalnych plików za pomocą złośliwego kodu.
+
+Prawie wszystkie struktury aplikacji internetowych obsługują inkluzje plików. Inkluzja plików jest głównie używana do paczkowania zwykłego kodu w oddzielne pliki. które później są odniesione przez główne moduły aplikacji. Kiedy aplikacja internetowa odwołuje się do dołączonego pliku, kod w tym pliku może być wykonywany bezpośrednio lub pośrednio, wywołując określone procedury. Jeśli wybrany moduł do ładowania jest oparty na elementach z żądania HTTP, aplikacja internetowa może być podatna na RFI.
+Napastnik może użyć RFI dla:
+    * Uruchamiania szkodliwego kodu na serwerze: dowolny kod w załączonych złośliwych plikach będzie uruchamiany przez serwer. Jeśli objęty plik nie jest wykonywany za pomocą jakiejś osłony, kod w objętych plikach jest wykonywany w kontekście użytkownika serwera. Może to prowadzić do całkowitego kompromisu systemowego.
+    * Uruchamianie złośliwego kodu u klientów: złośliwy kod hakera może manipulować zawartością odzewu do klienta. Haker może wstawić złośliwy kod w odpowiedź, który zostanie uruchomiony przez klienta (na przykład, Javascript do kradzieży sesji cookies klienta).
+
+PHP jest szczególnie podatne na ataki RFI ze względu na szerokie zastosowanie "plik obejmuje" w programowaniu PHP i ze względu na domyślne konfiguracje serwerów, które zwiększają podatność na atak RFI.</desc>
+	<solution>Faza: Architektura i Projektowanie
+Kiedy zbiór akceptowalnych obiektów, takich jak nazwy plików lub adresy URL, jest ograniczony lub rozpoznany, utwórz odwzorowanie ze zbioru stałych wartości wejściowych (takich jak identyfikatory numeryczne) do rzeczywistych nazw plików lub adresów URL i odrzuć wszystkie inne dane wejściowe.
+Na przykład, ID 1 może być wzorowany na "inbox.txt" i ID 2 może być wzorowany na "profile.txt". Funkcje takie jak ESAPI AccessReferenceMap dają taką możliwość.
+
+Fazy: Architektura i Projektowanie; Obsługa
+Uruchom swój kod w "więzieniu" lub podobnym testowym środowisku, które wymusza ścisłe granice między procesem a systemem operacyjnym. Może to skutecznie ograniczyć, które pliki mogą być dostępne w określonym katalogu lub które polecenia mogą być wykonywane przez twoje oprogramowanie.
+Przykłady poziomu OS obejmujące Unix chroot jail, AppArmor, and SELinux. Na zasadach ogólnych, zarządzany kod może zapewnić pewną ochronę. Na przykład,, java.io.FilePermission w Menadżerze Ochrony Javy umożliwia ci sprecyzować ograniczenia odnośnie operacji na plikach.
+To może nie być wykonalne rozwiązanie i ogranicza wpływ tylko na system operacyjny; reszta aplikacji może wciąż być podatna na zagrożenie.
+Zachowaj ostrożność przy omijaniu CWE-243 i innych słabości powiązanych z więzieniami.
+Dla PHP, interpreter oferuje ograniczenia takie jak otwarty katalog bazowy lub bezpieczny tryb który może utrudnić hakerowi wydostać się z aplikacji. Weźmy pod uwagę także Suhosin, zahartowane rozszerzenie PHP, które wprowadza różne opcje, które blokują niektóre z bardziej niebezpiecznych funkcji PHP.
+
+Faza: Implementacja
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. Jako przykład logiki reguł transakcji, "łódka" może być składniowo prawidłowa, ponieważ zawiera tylko alfanumeryczne znaki, ale nie będzie poprawna jeśli oczekujesz kolorów takich jak "czerwony" lub "niebieski".
+Dla nazw plików używaj białe listy, które ograniczają zbiór znaków do użycia. Jeśli to możliwe, zezwól tylko na pojedynczy "." znak w nazwie pliku, aby uniknąć słabości, takich jak CWE-23, i wykluczyć separatory katalogów, takie jak "/", aby uniknąć CWE-36. Używaj białej listy dozwolonych rozszerzeń plików, które pomogą ominąć CWE-434.
+
+Fazy: Architektura i Projektowanie; Obsługa
+Jeśli to możliwe, przechowuj biblioteki, pliki dodatkowe i pliki użytkowe poza głównym katalogiem dokumentów internetowych. W przeciwnym razie przechowuj je w oddzielnym katalogu i użyj funkcji kontroli dostępu serwera internetowego, aby uniemożliwić atakującym bezpośrednie żądanie ich. Jedną z powszechnych praktyk jest zdefiniowanie zdeterminowanej stałej w każdym programie wywołującym, a następnie sprawdzenie istnienia stałej w bibliotece/objętym pliku; jeśli stała nie istnieje, to plik został zażądany bezpośrednio i może natychmiast wyjść.
+To znacznie redukuje szanse hakera, który może obejść każde mechanizmy obronne, które są w podstawie programu, ale nie w aktach. To także zredukuje twój powierzchniowy atak.
+
+Fazy: Architektura i Projektowanie; Implementacja
+Zrozum wszystkie potencjalne obszary gdzie niezaufane dane wejściowe wejdą w twoje oprogramowanie: parametry lub argumenty, ciasteczka, jakikolwiek odczyt z sieci, zmiennych środowiskowych, wyszukiwania wstecznego DNS, wyniki zapytania, nagłówki żądań, komponenty URL, e-mail, pliki, bazy danych i dowolne zewnętrzne
+systemy, które dostarczają dane do aplikacji. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
+Wiele problemów inkluzji plików pojawiają się, ponieważ programista zakłada, że niektóre dane wejściowe nie mogą być modyfikowane, a zwłaszcza dla ciasteczek i komponentów URL.</solution>
+	<reference>http://projects.webappsec.org/Remote-File-Inclusion</reference>
+	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
+</vuln_item_wasc_5>
+
+<vuln_items>wasc_6</vuln_items>
+<vuln_item_wasc_6>
+	<alert>Łańcuch formatujący</alert>
+	<desc>Ataki Łańcucha Formatującego zmieniają przepływ aplikacji, używając funkcji wyświetlania formatu biblioteki, aby uzyskać dostęp do innej przestrzeni pamięci. Wrażliwość występuje, gdy dane dostarczane przez użytkownika są używane bezpośrednio jako łańcucha formatującego dla niektórych funkcji C / C ++ (na przykład fprintf, printf, sprintf, setproctitle, syslog, ...).
+
+Jeśli haker przejdzie przez łańcuch formatujący składający się ze znaków konwersji printf(n.p. "%f", "%p", "%n",  itd.) jako wartość parametru do aplikacji internetowej, może:
+    *Uruchomić dowolny kod na serwerze 
+    *Odczytać wartości ze sterty
+    *Spowodować segmentację defektu/zepsucia oprogramowania
+
+Ataki łańcucha formatującego są zależne od innych ataków w Klasyfikacji Zagrożeń: Przepełnienia bufora i przepełnienia liczb całkowitych. Wszystkie trzy opierają się na zdolności manipulowania pamięcią lub jej interpretacji w sposób, który przyczynia się do osiągnięcia celu atakującego.</desc>
+	<solution>Faza: Wymagania
+Wybierz język, który nie jest podatny na tą usterkę.
+
+Faza: Implementacja
+Upewnij się, że wszystkie funkcje łańcucha formatującego są przekazywane statycznym ciągiem, który nie może być kontrolowany przez użytkownika i że odpowiednia liczba argumentów jest zawsze wysyłana również do tej funkcji. Jeśli to możliwe, użyj funkcji, które nie obsługują operatora% n w łańcuchach formatujących.
+Budowa: Przestrzegaj ostrzeżeń kompilatorów i łączników, ponieważ mogą one ostrzegać o niewłaściwym użytkowaniu.
+</solution>
+	<reference>http://projects.webappsec.org/Format-String</reference>
+	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
+</vuln_item_wasc_6>
+
+<vuln_items>wasc_7</vuln_items>
+<vuln_item_wasc_7>
+	<alert>Przepełnienie bufora</alert>
+	<desc>Przepełnienie Bufora jest usterką, która pojawia się kiedy więcej danych jest wpisanych w blok pamięci lub bufor, wtedy bufor jest przeznaczony do ładowania. Wykorzystanie przepełnienia bufora pozwala intruzowi modyfikować fragmenty przestrzeni adresowej procesu docelowego. This ability can be used for a number of purposes, including the following:
+    *Kontrolowanie wykonywania procesu
+    *Przerwania procesu
+    *Modyfikowania wewnętrznych zmiennych. Osiąga się to poprzez identyfikację wskaźnika funkcji w pamięci, który można modyfikować, bezpośrednio lub pośrednio, za pomocą przepełnienia. Gdy taki wskaźnik jest używany przez program do kierowania wykonywaniem programu za pomocą instrukcji skoku lub wywołania, zostanie użyta lokalizacja instrukcji dostarczona przez napastnika, umożliwiając atakującemu kontrolę procesu.
+
+W wielu przypadkach, funkcja wskaźnika jest zmodyfikowana do referencji lokacji gdzie haker umieścił zgromadzone instrukcje określonego urządzenia. Instrukcje te są powszechnie nazywane kodami powłoki, w związku z faktem, że atakujący często chcą utworzyć środowisko wiersza polecenia lub powłokę w kontekście działającego procesu.
+
+Przepełnienie bufora jest najczęściej kojarzone z oprogramowaniem napisanym w językach programowania C i C ++ ze względu na ich szerokie zastosowanie i możliwość bezpośredniego manipulowania pamięcią przy użyciu powszechnych konstrukcji programistycznych. Jednakże podkreślmy, że przepełnienie bufora może występować w każdym środowisku programistycznym gdzie bezpośrednia manipulacja pamięcią jest dozwolona, czy to przez usterkę w kompilatorze, czasu trwania bibliotek lub funkcji samego języka.
+</desc>
+	<solution>Faza: Wymagania
+Używaj języka, który nie zezwala na wystąpienie tego osłabienia lub zapewnia konstrukcje, które ułatwiają uniknięcie tego osłabienia.
+Na przykład wiele języków wykonujących własne zarządzanie pamięcią, takich jak Java i Perl, nie podlega przepełnieniom bufora. Inne języki, takie jak Ada i C #, zwykle zapewniają ochronę przed przepełnieniem, ale programista może ją wyłączyć.
+Należy uważać, aby interfejs języka do macierzystego kodu nadal podlegał przepełnieniu, nawet jeśli sam język jest teoretycznie bezpieczny.
+
+Faza: Architektura i Projektowanie
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+Przykłady obejmują bibliotekę Safe C String (SafeStr) firmy Messier i Viega oraz bibliotekę Strsafe.h firmy Microsoft. Te biblioteki zapewniają bezpieczniejsze wersje podatne na przepełnienia funkcji operacji na łańcuchach. To nie jest całkowite rozwiązanie, ponieważ wiele przepełnień bufora nie jest powiązanych z łańcuchami.
+
+Faza: Budowa i i Kompilacja
+Uruchamiaj lub kompiluj twoje oprogramowanie używając funkcji lub rozszerzeń, które automatycznie zapewniają ochronne mechanizmy, które zmniejszają lub eliminują przepełnienie bufora.
+Na przykład, niektóre kompilatory i rozszerzenia udostępniają automatyczne mechanizmy wykrywania przepełnienia bufora, które są wbudowane w skompilowany kod. Przykłady obejmują Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY SOURCE GCC flag, StackGuard, and ProPolice.
+
+Faza: Implementacja
+Podczas alokowania pamięci aplikacji i zarządzania nią należy wziąć pod uwagę następujące zasady:
+      Sprawdź dwa razy, że twój bufor jest duży jak opisujesz.
+      Podczas korzystania z funkcji akceptujących liczbę bajtów do skopiowania, takich jak strncpy (), należy pamiętać, że jeśli rozmiar bufora docelowego jest równy rozmiarowi bufora źródłowego, może nie zakończyć się ciągiem NULL.
+      Sprawdź granice buforu jeśli używasz tej funkcji w pętli i upewnij się, że nie jesteś w niebezpieczeństwie zapisu poza przydzieloną przestrzenią.
+      Jeśli to konieczne, skróć wszystkie ciągi wejściowe do rozsądnej długości przed przekazaniem ich do funkcji kopiowania i konkatenacji.
+
+Faza: Obsługa
+Używaj funkcji takiej jak Address Space Layout Randomization (ASLR).
+
+Faza: Obsługa
+
+Używaj procesora i systemu operacyjnego, który ofiaruje Uruchamiania Ochrony Danych (NX) lub jest to równoważne.
+
+Faza: Implementacja
+
+Zamień nieograniczone kopie funkcji z analogicznymi funkcjami, które wspierają długość argumentów takich jak strcpy z strncpy. Jeśli nie są dostępne, stwórz je.
+</solution>
+	<reference>http://projects.webappsec.org/Buffer-Overflow</reference>
+	<reference>http://cwe.mitre.org/data/definitions/119.html</reference>
+</vuln_item_wasc_7>
+
+<vuln_items>wasc_8</vuln_items>
+<vuln_item_wasc_8>
+	<alert>Cross-site Scripting</alert>
+	<desc>Cross-site Scripting (XSS) to technika ataku, która polega na odbiorze kodu dostarczonego przez osobę atakującą do instancji przeglądarki użytkownika. Przykładem przeglądarki może być standardowy klient przeglądarki internetowej lub wbudowany w oprogramowaniu obiekt wyszukiwarki taki jak przeglądarka w WinAmpie, czytniku RSS lub klient e-maila. Sam kod jest zwykle napisany w HTML/JavaScripcie, ale też rozszerzony o VBScript, ActiveX, Jave, Flasha lub jakąkolwiek inną technologię obsługującą przeglądarki.
+Jeśli haker zdobędzie przeglądarkę użytkownika do wykonywania jego/jej kodu, to kod zostanie uruchomiony w kontekście(lub strefie) bezpieczeństwa hostującej strony internetowej. Z takim poziomem przywileju, kod ma możliwość czytania, modyfikowania i transmitowania jakichkolwiek dostępnych danych poprzez przeglądarkę. Użytkownik używający skryptów krzyżowych może zostać przejęty przez swoje konto (kradzież plików cookie), przeglądarka zostanie przekierowana do innej lokalizacji lub może zostać dostarczona fałszywa zawartość przez odwiedzaną witrynę internetową. Ataki typu "cross-site scripting" zasadniczo naruszają kredyt zaufania między użytkownikiem a witryną internetową. Aplikacje wykorzystujące instancje obiektów przeglądarki, które ładują zawartość z systemu plików, mogą wykonywać kod zgodnie zlokalną strefą maszyny, co pozwala na naruszenie systemu.
+
+Są trzy typy ataków Cross-site Scripting: nieustępliwy, ustępliwy i oparty na DOM.
+Ustępliwe ataki i ataki oparte na domenie DOM wymagają od użytkownika odwiedzenia specjalnie zrobionego ręcznie linku ze złośliwym kodem lub odwiedzenia złośliwej strony internetowej zawierającej formularz internetowy, który po opublikowaniu w narażonej witrynie spowoduje atak. Używanie złośliwej formy często ma miejsce, gdy narażony na atak zasób akceptuje tylko żądania HTTP POST. W takim wypadku, forma może być podporządkowany automatycznie, bez wiedzy ofiary(n.p poprzez użycie JavaScriptu). Po kliknięciu szkodliwego linku lub przesłaniu złośliwego formularza, ładunek XSS zostanie wysłany z powrotem i zostanie zinterpretowany przez przeglądarkę użytkownika i wykonany. Inną techniką do wysyłania niemal bezwzględnych żądań(DOSTAĆ i WYSŁAĆ) jest poprzez użycie wbudowany klient, taki jak Adobe Flash.
+Trwałe ataki pojawiają się kiedy złośliwy kod jest wysyłany do witryny gdzie jest przechowywany przez jakiś okres czasu. Przykłady ulubionych celów hakerów obejmują posty wiadomości na tablicy, maile i oprogramowanie czatu witryny. Nic nie podejrzewający użytkownik nie musi wchodzić w interakcję z żadną dodatkową witryną / linkiem (np. Stroną atakującą lub złośliwym linkiem wysłanym za pośrednictwem poczty elektronicznej), wystarczy po prostu przejrzeć stronę internetową zawierającą kod.</desc>
+	<solution>Faza: Architektura i Projektowanie
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+Przykłady bibliotek i szkieletów, które sprawiają, że łatwiej jest generować poprawnie zaszyfrowane dane wyjściowe obejmujące bibliotekę Anti-XSS microsofta, zaszyfrowany moduł ESAPI i Bramkę Apache.
+
+Fazy: Implementacja; Architektura i Projektowanie
+Zapoznaj się z kontekstem, w którym będą używane twoje dane i kodowaniem, jakiego się spodziewasz. Jest to zwłaszcza ważne kiedy dane są transmitowane pomiędzy różnymi komponentami lub kiedy generowane są dane wyjściowe, które zawierają wielokrotne szyfrowanie w tym samym czasie, tak jak strony internetowe albo kilkuczęściowe wiadomości e-mail. Zbadaj wszystkie przewidywane protokoły komunikacyjne i reprezentacje danych, aby określić wymagane strategie kodowania.
+W przypadku danych, które będą wysyłane na inną stronę internetową, w szczególności wszelkie dane otrzymane z zewnętrznych źródeł, należy zastosować odpowiednie kodowanie na wszystkich niealfanumerycznych znakach.
+Zapoznaj się z Arkuszem Zapobiegania Oszustwa XSS, aby uzyskać więcej informacji na temat typów kodowania i ucieczki, które są potrzebne.
+
+Faza: Architektura i Projektowanie
+W przypadku wszelkich kontroli bezpieczeństwa przeprowadzanych po stronie klienta należy upewnić się, że kontrole te są duplikowane po stronie serwera, aby uniknąć CWE-602. Hakerzy mogą obejść kontrole po stronie klienta, modyfikując wartości po przeprowadzeniu kontroli lub zmieniając klienta, aby całkowicie usunąć kontrole po stronie klienta. Następnie te zmodyfikowane wartości zostaną przesłane do serwera.
+
+Jeśli możliwe, używaj wymodelowane mechanizmy automatycznie wymuszające oddzielenie danych i kodu. Te mechanizmy mogą być w stanie zapewnić odpowiednie cytowanie, kodowanie i sprawdzanie poprawności automatycznie, zamiast polegać na programistach, aby zapewnić tę możliwość w każdym punkcie, w którym generowane są dane wyjściowe.
+
+Faza: Implementacja
+Dla każdej wygenerowanej strony internetowej użyj i określ kodowanie znaków, takie jak ISO-8859-1 lub UTF-8. Jeśli kodowanie nie jest określone, przeglądarka internetowa może wybrać inne kodowanie, zgadując, które kodowanie jest faktycznie używane na stronie internetowej. Może to spowodować, że przeglądarka traktuje określone sekwencje jako wyjątkowe, otwierając klienta na subtelne ataki XSS. Zobacz CWE-116, aby dowiedzieć się więcej o ograniczeniach związanych z kodowaniem / ucieczką.
+
+Aby zmniejszyć ataki XSS na sesję pliku ciasteczek, ustaw plik sesji ciastecze jako HttpOnly. W przeglądarkach obsługujących funkcję HttpOnly (takich jak nowsze wersje przeglądarki Internet Explorer i Firefox) ten atrybut może uniemożliwić dostęp do pliku sesji ciasteczek użytkownika szkodliwym skryptom po stronie klienta, które używają document.cookie. Nie jest to całkowite rozwiązanie, ponieważ HttpOnly nie jest obsługiwany przez wszystkie przeglądarki. Co ważniejsze, XMLHTTPRequest i inne zaawansowane technologie przeglądarek zapewniają dostęp do odczytu dla nagłówków HTTP, w tym nagłówek Set-Cookie, w którym ustawiona jest flaga HttpOnly.
+
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. Jako przykład logiki reguł transakcji, "łódka" może być składniowo prawidłowa, ponieważ zawiera tylko alfanumeryczne znaki, ale nie będzie poprawna jeśli oczekujesz kolorów takich jak "czerwony" lub "niebieski".
+
+
+Upewnij się, że sprawdzanie danych wejściowych odbywa się na dobrze zdefiniowanych interfejsach w aplikacji. Pomoże to chronić aplikację, nawet jeśli komponent zostanie ponownie wykorzystany lub przeniesiony gdzie indziej.
+	</solution>
+	<reference>http://projects.webappsec.org/Cross-Site-Scripting</reference>
+	<reference>http://cwe.mitre.org/data/definitions/79.html</reference>
+</vuln_item_wasc_8>
+
+<vuln_items>wasc_9</vuln_items>
+<vuln_item_wasc_9>
+	<alert>Cross Site Request Forgery</alert>
+	<desc>Cross-site request forgery jest atakiem, który obejmuje zmuszanie ofiary do wysłania żądania HTTP do miejsca celowego bez ich wiedzy lub intencji w celu przeprowadzenia akcji jako ofiara. Podstawową przyczyną jest powtarzalność działania aplikacji z przewidywalnymi adresami URL / formularzami. Charakterem ataku jest to, że CSRF wykorzystuje zaufanie, jakie witryna darzy użytkownika. Natomiast skrypty cross-site scripting (XSS) wykorzystują zaufanie, jakim użytkownik darzy stronę internetową. Podobnie jak w przypadku XSS, ataki CSRF niekoniecznie muszą być przekierowane na drugą stronę, ale mogą być. Cross-site request forgery jest również znane jako CSRF, XSRF, atak za jednym kliknięciem, jazda na sesjach, zdezorientowany delegat i surfowanie po morzu.
+
+Ataki CSRF są skuteczne w wielu sytuacjach, w tym:
+    * Ofiara ma aktywną sesję w witrynie docelowej.
+    * Ofiara jest uwierzytelniona za pośrednictwem protokołu HTTP w witrynie docelowej.
+    * Ofiara jest w tej samej sieci lokalnej co strona docelowa.
+
+CSRF został użyty przede wszystkim do wykonania akcji przeciwko witrynie docelowej z wykorzystaniem przywilejów ofiary, ale odkryto najnowsze techniki udostępniania informacji poprzez uzyskanie dostępu do odpowiedzi. Ryzyko udostępnienia informacji dramatycznie wzrasta kiedy strona celu jest podatna na XSS, ponieważ XSS może być użyty jako platforma dla CSRF, włączając w to atak obsługiwany w granicach polityki tego samego pochodzenia.</desc>
+	<solution>Faza: Architektura i Projektowanie
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+Na przykład, używaj pakietów anty-CSRF takich jak OWASP CSRFGuard.
+
+Faza: Implementacja
+Upewnij się, że twoja aplikacja jest wolna od kwestii cross-site scripting, ponieważ większość obron CSRF mogą być ominięte przez kontrolowany przez atakującego skrypt.
+
+Fazy: Architektura i Projektowanie
+Wygeneruj unikalny numer dla każdego formularza, umieść go w formularzu i zweryfikuj wartość jednorazową po otrzymaniu formularza. Upewnij się, że liczba nie będzie przewidywalna (CWE-330).
+Zwróć uwagę na to, że może to być ominięte używając XSS.
+
+Identyfikuj zwłaszcza niebezpieczne działania. Kiedy użytkownik przeprowadza niebezpieczną operację, wyślij odrębne żądanie potwierdzenia by upewnić się, że użytkownik jest przeznaczony do przeprowadzenia tego działania.
+Zwróć uwagę na to, że może to być ominięte używając XSS.
+
+Używaj regulacji Zarządzania Sesją ESAPI.
+Ta kontrola obejmuje komponent dla CSRF.
+
+Nie używaj metody GET dla żadnego żądania, która uruchamia zmianę stanu.
+
+Faza: Implementacja
+Sprawdź nagłówek HTTP Referer, aby sprawdzić, czy żądanie pochodzi z oczekiwanej strony. To mogłoby przerwać prawowitą funkcjonalność, ponieważ użytkownicy lub proxy mogłyby zostać wyłączone wysyłając dla Referer prywatnych powodów.</solution>
+	<reference>http://projects.webappsec.org/Cross-Site-Request-Forgery</reference>
+	<reference>http://cwe.mitre.org/data/definitions/352.html</reference>
+</vuln_item_wasc_9>
+
+<vuln_items>wasc_10</vuln_items>
+<vuln_item_wasc_10>
+	<alert>Odmowa Usługi</alert>
+	<desc>Odmowa Usługi(ang. DoS) jest techniką ataku z zamiarem uniemożliwienia stronie internetowej obsługi normalnej aktywności użytkownika. Ataki DoS, które łatwo można zastosować w warstwie sieciowej, są również możliwe w warstwie aplikacji. Te złośliwe ataki mogą zakończyć się powodzeniem zagrażając systemowi krytycznych zasobów, wykorzystując luki w zabezpieczeniach lub nadużywając funkcjonalność.
+
+Wiele razy ataki DoS będą usiłować zużyć wszystkie dostępne materiały systemowe strony internetowej takie jak: Procesor, pamięć, miejsce na dysku itd. Kiedy którykolwiek z tych krytycznych zasobów osiągnie pełną eksploatację, strona internetowa będzie zazwyczaj niedostępna.
+
+Ponieważ dzisiejsze środowiska aplikacji internetowych obejmują serwer Www, serwer bazy danych i serwer uwierzytelniania, DoS w warstwie aplikacji może być kierowany na każdy z tych niezależnych składników. W przeciwieństwie do DoS w warstwie sieci, gdzie wymagana jest duża liczba prób połączenia, DoS w warstwie aplikacji jest znacznie prostszym zadaniem do wykonania.</desc>
+	<solution>Faza: Architektura i Projektowanie
+
+Zaprojektuj mechanizmy tłumienia w architekturze systemu. Najlepszą ochroną jest ograniczenie liczby materiałów, które nieupoważniony użytkownik może zużyć. Silny wzorzec uwierzytelniania i kontroli dostępu zapobiegnie takim atakom w pierwszej kolejności. Aplikacja logowania powinna być chroniona przed atakami DoS tak bardzo, jak to możliwe. Ograniczenie dostępu do bazy danych, być może poprzez buforowanie zestawów wyników, może pomóc zminimalizować eksploatowanie zasobów. Aby jeszcze bardziej ograniczyć możliwość ataku DoS, należy rozważyć śledzenie liczby żądań otrzymanych od użytkowników i blokowanie żądań przekraczających zdefiniowany próg częstotliwości.
+
+Ograniczanie ataków polegających na wyczerpaniu zasobów wymaga, aby system docelowy:
+      rozpoznaje atak i odmawia temu użytkownikowi dalszego dostępu przez określony czas, lub
+      jednolicie ogranicza wszystkie żądania, aby utrudnić eksploatację zasobów szybciej niż można je ponownie uwolnić. 
+
+Pierwsze z tych rozwiązań jest jednak problemem samym w sobie, ponieważ może pozwolić atakującym na uniemożliwienie korzystania z systemu przez określonego, ważnego użytkownika. Jeśli atakujący podszywa się pod prawomocnego użytkownika, może uniemożliwić mu dostęp do danego serwera.
+
+Drugie rozwiązanie jest po prostu trudne do efektywnego wdrożenia - a nawet jeśli jest właściwie wykonane, nie zapewnia pełnego rozwiązania. Zwyczajnie sprawia, że ​​atak wymaga więcej środków ze strony atakującego.
+
+Upewnij się, że protokoły mają określone ograniczenia w skali plasowanej na nich.
+
+Faza: Implementacja
+Upewnij się, że wszystkie awarie alokacji zasobów umieszczają system w bezpiecznej pozycji.</solution>
+	<reference>http://projects.webappsec.org/Denial-of-Service</reference>
+	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
+</vuln_item_wasc_10>
+
+<vuln_items>wasc_11a</vuln_items>
+<vuln_item_wasc_11a>
+	<alert>Brutalne Wymuszanie Danych dostępowych</alert>
+	<desc>Atak brutalnej siły to metoda określania nieznanej wartości za pomocą zautomatyzowanego procesu w celu wypróbowania dużej liczby możliwych wartości. Atak korzysta na fakcie, że entropia wartości jest mniejsza niż spostrzegana. Na przykład, podczas gdy 8-znakowe alfanumeryczne hasło może mieć 2,8 biliona możliwych wartości, wiele osób wybierze swoje hasła z dużo mniejszego zestawu składającego się z powszechnych słów i terminów.
+
+Najczęstszym rodzajem ataku typu brutalnej siły w aplikacjach internetowych jest atak na dane logowania. Ponieważ użytkownicy muszą pamiętać hasła, często wybierają łatwe do zapamiętania słowa lub wyrażenia jako hasła, dokonując brutalnego ataku przy użyciu słownika. Taki atak usiłujący zalogować się do systemu używając wielkiej listy wyrazów i fraz jako potencjalne hasła, jest często nazywany "atak listy wyrazów" lub "atak ze słownikiem". Próby haseł mogą również zawierać odmiany słów wspólnych dla haseł, takich jak generowane przez zamianę "o" na "0" i "i" na "1", a także dane osobowe, w tym nazwiska członków rodziny, daty urodzenia i numery telefonów.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11a>
+
+<vuln_items>wasc_11b</vuln_items>
+<vuln_item_wasc_11b>
+	<alert>Brute Forcing Session Identifiers</alert>
+	<desc>Atak brutalnej siły to metoda określania nieznanej wartości za pomocą zautomatyzowanego procesu w celu wypróbowania dużej liczby możliwych wartości. Atak korzysta na fakcie, że entropia wartości jest mniejsza niż spostrzegana. Na przykład, podczas gdy 8-znakowe alfanumeryczne hasło może mieć 2,8 biliona możliwych wartości, wiele osób wybierze swoje hasła z dużo mniejszego zestawu składającego się z powszechnych słów i terminów.
+
+Ponieważ HTTP jest protokołem bezstanowym, w celu utrzymania stanu, aplikacje internetowe muszą zapewnić, że identyfikator sesji jest wysyłany przez przeglądarkę przy każdym żądaniu. Identyfikator sesji jest najczęściej przechowywany w pliku cookie lub adresie URL protokołu HTTP. Używając metody ataku brutalnej siły, osoba atakująca może odgadnąć identyfikator sesji innego użytkownika. Może prowadzić to do podawania się hakera za użytkownika, wyszukania osobistych informacji i przeprowadzenia działań w imieniu użytkownika.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11b>
+
+<vuln_items>wasc_11c</vuln_items>
+<vuln_item_wasc_11c>
+	<alert>Metoda Brutalnej Siły Katalogi i Pliki</alert>
+	<desc>Atak brutalnej siły to metoda określania nieznanej wartości za pomocą zautomatyzowanego procesu w celu wypróbowania dużej liczby możliwych wartości. Atak korzysta na fakcie, że entropia wartości jest mniejsza niż spostrzegana. Na przykład, podczas gdy 8-znakowe alfanumeryczne hasło może mieć 2,8 biliona możliwych wartości, wiele osób wybierze swoje hasła z dużo mniejszego zestawu składającego się z powszechnych słów i terminów.
+
+Gdy pliki znajdują się w katalogach obsługiwanych przez serwer sieciowy, ale nie są połączone w żaden sposób, uzyskanie dostępu do tych plików wymaga znajomości ich nazwy. W niektórych przypadkach pliki pozostały porzucone przypadkiem: na przykład zapasowy plik automatycznie stworzony podczas edytowania pliku lub pozostałość po starszej wersji aplikacji webowej. W innych przypadkach pliki zostały zostawione świadomie niepowiązane jako "ochrona przez niejasność": mechanizmy dopuszczają do dostępu tylko tych którzy znają nazwy plików.
+
+Metoda brutalnego ataku próbuje zlokalizować niepołączony plik poprzez próbowanie uzyskania dostępu do dużych liczb plików. Lista dostępnych nazw plików może być pochwycona z listy ze znanych potencjalnych plików lub opartych na wariantach widocznych plików na stronie internetowej. Więcej informacji na temat katalogów i plików metody brutalnego ataku można znaleźć w powiązanych zagrożeniach niebezpieczeństwa, przewidywalnej lokalizacji zasobów.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11c>
+
+<vuln_items>wasc_11d</vuln_items>
+<vuln_item_wasc_11d>
+	<alert>Brute Forcing Credit Card Information</alert>
+	<desc>Atak brutalnej siły to metoda określania nieznanej wartości za pomocą zautomatyzowanego procesu w celu wypróbowania dużej liczby możliwych wartości. Atak korzysta na fakcie, że entropia wartości jest mniejsza niż spostrzegana. Na przykład, podczas gdy 8-znakowe alfanumeryczne hasło może mieć 2,8 biliona możliwych wartości, wiele osób wybierze swoje hasła z dużo mniejszego zestawu składającego się z powszechnych słów i terminów.
+
+Zakupy online używając skradzionych kart kredytowych zwykle wymagają podania informacji oprócz numeru karty kredytowej, najczęściej CVV / SCS i / lub daty wygaśnięcia. Oszust może posiadać skradziony numer karty kredytowej bez dodatkowych informacji. Na przykład, CVV/CSC nie jest odciśnięte na karcie lub przechowywane w magnetycznej wypustce więc nie może być zdobyta przez mechaniczne lub magnetyczne urządzenia do przesuwania karty kredytowej.
+
+W celu wypełnienia brakujących informacji, haker może odgadnąć brakujące informacje używając metody brutalnej siły, próbując wszystkich możliwych wartości.
+    * Zgadywanie CVV / CSC wymaga tylko 1000 lub 10000 prób, ponieważ ilość cyfr to tylko 3 lub 4, w zależności od rodzaju karty.
+    * Zgadywanie daty ważności wymaga jedynie kilka tuzin prób.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Brute-Force</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_11d>
+
+<vuln_items>wasc_12</vuln_items>
+<vuln_item_wasc_12>
+	<alert>Fałszowanie zawartości</alert>
+	<desc>Fałszowanie zawartości jest techniką ataku, która pozwala atakującemu wstrzyknąć złośliwe dane właściwe, które są później przeinaczane jako autentyczna wartość aplikacji webowej.
+ 
+Fałszowanie Tylko Zawartości Tekstowej
+Powszechną drogą do dynamicznego budowania stron obejmuje przekazywanie treści lub jej części na stronę za pomocą wartości ciągu zapytania. Ta droga jest powszechna na stronach błędów lub na stronach udostępniających historie lub wiadomości. Treść określona w tym parametrze jest później odzwierciedlana na stronie w celu zapewnienia zawartości strony.
+ 
+Odbite Znaczniki W Fałszywej Zawartości.
+Niektóre strony internetowe są obsługiwane przy użyciu dynamicznie generowanych źródeł treści HTML. Na przykład lokalizacja źródłowa ramki <frame src="http://foo.example/file.html"/>) może być określona przez wartość parametru adresu URL. (http://foo.example/page?frame_src=http://foo.example/file.html). Osoba atakująca może zastąpić wartość parametru "frame_src" przez "frame_src = http: //attacker.example/spoof.html". W przeciwieństwie do przekierowań, po wyświetleniu wynikowej strony internetowej pasek adresu przeglądarki widocznie pozostaje pod domeną oczekiwaną przez użytkownika (foo.example), ale obce dane (np. atakujący.przykład) są spowite autentycznymi treściami.
+
+Specjalnie zrobione ręcznie linki mogą być wysłane przez e-maila, błyskawiczne wiadomości, pozostawione na tablicach ogłoszeń lub przez użytkowników zmuszonych przez atak Cross-site Scripting. Jeśli atakujący dotrze do użytkownika odwiedzającego stronę internetową zaprogramowaną przez ich złośliwy URL, użytkownik będzie wierzył, że przegląda autentyczną zawartość z jednej lokalizacji co nie jest prawdą. Użytkownicy będą bezgranicznie ufać sfałszowanej zawartości dopóki lokalizacja strony wyświetla http://foo.example, kiedy tak naprawdę ramka HTML jest zaopatrzona w bibliografię http://attacker.example.
+
+Ten atak wykorzystuje relację zaufania założonej pomiędzy użytkownikiem a stroną internetową. Technika była używana do tworzenia fałszywych stron internetowych obejmujących postać loginów, zniszczenia, fałszywe informacje prasowe itd.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Content-Spoofing</reference>
+	<reference>TBA</reference>
+</vuln_item_wasc_12>
+
+<vuln_items>wasc_13</vuln_items>
+<vuln_item_wasc_13>
+	<alert>Information Leakage</alert>
+	<desc>Wyciek informacji jest słabością aplikacji, w której aplikacja ujawnia poufne dane, takie jak szczegóły techniczne aplikacji internetowej, środowiska lub dane specyficzne dla użytkownika. Poufne dane mogą być użyte przez atakującego do wykorzystania docelowej aplikacji webowej, sieci hostingowej lub jej użytkowników. Dlatego wyciek danych szczególnie chronionych powinien być ograniczony lub uniemożliwiony, o ile jest to możliwe. Wyciek informacji w najbardziej rozpowszechnionej formie wynika z co najmniej jednego z następujących warunków: Nie można wyłuskać komentarzy HTML / Script zawierających poufne informacje, nieprawidłową konfigurację aplikacji lub serwera lub różnice w odpowiedziach strony w przypadku prawidłowych i nieprawidłowych danych.
+
+Brak możliwości wyszukania komentarzy HTML / Skryptu przed przekazaniem do środowiska produkcyjnego może spowodować wyciek poufnych informacji kontekstowych, takich jak struktura katalogów serwera, struktura zapytań SQL i informacje o sieci wewnętrznej. Często programista pozostawia komentarze w kodzie HTML i / lub kodzie skryptu, aby ułatwić proces debugowania lub integracji podczas fazy przedprodukcyjnej. Chociaż nie ma nic złego w zezwalaniu programistom na umieszczanie wstawianych komentarzy w tworzonych przez nich treściach, to te komentarze powinny zostać usunięte przed publicznym opublikowaniem treści.
+
+Numery wersji oprogramowania i szczegółowe komunikaty o błędach (takie jak numery wersji ASP.NET) są przykładami niewłaściwych konfiguracji serwerów. Ta informacja jest przydatna atakującemu, dostarczając szczegółowych informacji o strukturze, językach lub predefiniowanych funkcjach wykorzystywanych przez aplikację internetową. Większość domyślnych konfiguracji serwerów udostępnia numery wersji oprogramowania i szczegółowe komunikaty o błędach do celów debugowania i rozwiązywania problemów. Zmiany w konfiguracji mogą być zrobione do wyłączenia tych funkcji, zapobiegając wyświetlania tych informacji.
+
+Strony, które podają różne odpowiedzi w oparciu o ważność danych, mogą również doprowadzić do wycieku informacji; w szczególności, gdy dane uznane za poufne ujawniają się w wyniku projektu aplikacji internetowej. Przykłady poufnych danych obejmują(ale nie są limitowane): numery kont, identyfikatory użytkowników(Numer prawa jazdy, Numer paszportu, Numery Ubezpieczenia Społecznego itd.) oraz konkretne informacje o użytkownikach (hasła, sesje, adresy). Wyciek informacji w tym kontekście dotyczy ujawnienia kluczowych danych użytkownika uznanych za poufne lub tajne, które nie powinny być ujawniane w zwykłym widoku, nawet dla użytkownika. Numery kart kredytowych i inne ściśle regulowane informacje są pierwszorzędnymi przykładami danych użytkowników, które należy dodatkowo zabezpieczyć przed ujawnieniem lub wyciekiem, nawet przy odpowiednim szyfrowaniu i kontroli dostępu, które już istnieją.</desc>
+	<solution>Podziel twój system na "bezpieczne" strefy gdzie zaufane granice mogą być jednoznacznie narysowane. Nie pozwól poufnym danym wyjść poza granice zaufania i zawsze uważaj podczas kontaktowania się z przedziałem poza bezpiecznym obszarem.</solution>
+	<reference>http://projects.webappsec.org/Information-Leakage</reference>
+	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
+</vuln_item_wasc_13>
+
+<vuln_items>wasc_14</vuln_items>
+<vuln_item_wasc_14>
+	<alert>Nieprawidłowa Konfiguracja Serwera</alert>
+	<desc>Ataki polegające na Nieprawidłowej Konfiguracji Serwera wykorzystują słabości konfiguracji wykryte na serwerach internetowych i serwerach aplikacji. Wiele serwerów zawiera niepotrzebne pliki domyślne i przykładowe, w tym aplikacje, pliki konfiguracyjne, skrypty i strony internetowe. Mogą mieć również włączone niepotrzebne usługi takie jak menadżer zawartości i funkcję zdalnego administrowania. Debugowanie funkcji może być włączone lub funkcje administratora mogą być dostępne dla anonimowych użytkowników. Funkcje te mogą zapewnić hakerom możliwość ominięcia metod uwierzytelniania i uzyskania dostępu do poufnych informacji, być może z podwyższonymi uprawnieniami.
+
+Serwery mogą obejmować dobrze znane standardowe konta oraz hasła. Niepowodzenia w całkowitym zablokowaniu lub zahartowaniu serwera może spowodować niepoprawne ustawienia uprawnień do pliku i katalogu. Błędnie skonfigurowane certyfikaty SSL i ustawienia szyfrowania, użycie domyślnych certyfikatów i niewłaściwa implementacja uwierzytelniania w zewnętrznych systemach może zagrozić poufności informacji.
+
+Wielosłowne i informacyjne komunikaty o błędach mogą skutkować wyciekiem danych, a ujawnione informacje mogą zostać wykorzystane do opracowania następnego poziomu ataku. Incorrect configurations in the server software may permit directory indexing and path traversal attacks.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Server-Misconfiguration</reference>
+	<reference></reference>
+</vuln_item_wasc_14>
+
+<vuln_items>wasc_15</vuln_items>
+<vuln_item_wasc_15>
+	<alert>Application Misconfiguration</alert>
+	<desc>Application Misconfiguration attacks exploit configuration weaknesses found in web applications. Many applications come with unnecessary and unsafe features, such as debug and QA features, enabled by default. Funkcje te mogą zapewnić hakerom możliwość ominięcia metod uwierzytelniania i uzyskania dostępu do poufnych informacji, być może z podwyższonymi uprawnieniami.
+
+Podobnie instalacje domyślne mogą zawierać dobrze znane nazwy użytkowników i hasła, wprowadzone na stałe konta backdoorów, specjalne mechanizmy dostępu i niepoprawne uprawnienia dla plików dostępnych przez serwery Www. Domyślne przykłady mogą być dostępne w środowiskach produkcyjnych. Pliki konfiguracyjne oparte na aplikacjach, które nie są odpowiednio zablokowane, mogą zawierać wyraźne ciągi połączeń tekstowych do bazy danych, a domyślne ustawienia w plikach konfiguracyjnych mogły nie zostać ustawione z myślą o bezpieczeństwie. Wszystkie te błędy konfiguracyjne mogą prowadzić do nieupoważnionego dostępu do poufnych informacji.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Application-Misconfiguration</reference>
+	<reference></reference>
+</vuln_item_wasc_15>
+
+<vuln_items>wasc_16</vuln_items>
+<vuln_item_wasc_16>
+	<alert>Indeksowanie Katalogu</alert>
+	<desc>Automatyczne Zestawienie/Indeksowanie katalogu jest funkcją serwera sieciowego, która zestawia wszystkie pliki w żądanym katalogu jeśli zwykła baza plików (index.html/home.html/default.htm/default.asp/default.aspx/index.php) nie jest aktualna. Gdy użytkownik żąda strony głównej witryny internetowej, zwykle wpisuje adres URL taki jak: http://www.example.com/directory1/ - używając nazwy domeny i wykluczając określony plik. Serwer internetowy przetwarza to żądanie i przeszukuje katalog główny dokumentu w poszukiwaniu domyślnej nazwy pliku i wysyła tę stronę do klienta. Jeśli strona nie jest aktualna, serwer sieciowy dynamicznie wyemituje listing katalogu i wyśle dane wyjściowe do klienta. Przede wszystkim, jest to równorzędne do emitowania komendy "Is"(Unix) lub "dir"(Windows) w tym katalogu i pokazanie wyników w formie HTML. Z punktu widzenia ataku i przeciwdziałania, ważne jest, aby zdać sobie sprawę, że niezamierzone listingi katalogów mogą być możliwe ze względu na luki w oprogramowaniu (omówione w przykładowej sekcji poniżej) w połączeniu z konkretnym żądaniem internetowym.</desc>
+	<solution>Zalecenia obejmują ograniczanie dostępu do ważnych katalogów lub plików poprzez przyjęcie wymogu znajomości zarówno dokumentu, jak i katalogu głównego serwera, oraz wyłączanie funkcji, takich jak automatyczne publikowanie katalogów, które mogą ujawniać prywatne pliki i dostarczać informacji, które mogą zostać wykorzystane przez osobę atakującą podczas formułowania lub przeprowadzania ataku.</solution>
+	<reference>http://projects.webappsec.org/Directory-Indexing</reference>
+	<reference>http://cwe.mitre.org/data/definitions/548.html</reference>
+</vuln_item_wasc_16>
+
+<vuln_items>wasc_17</vuln_items>
+<vuln_item_wasc_17>
+	<alert>Nieprawidłowe Uprawnienia w Systemie Plików</alert>
+	<desc>Nieprawidłowe Uprawnienia w Systemie Plików są zagrożeniem dla poufności, integralności i dostępności aplikacji internetowej. Problem powstaje, gdy niepoprawne uprawnienia systemu plików są ustawione na pliki, foldery i symboliczne odnośniki. Kiedy ustawione są nieprawidłowe uprawnienia, haker jest w w stanie dojść do poufnych plików lub katalogów i zmodyfikować albo usunąć ich zawartość. Na przykład, jeśli anonimowy użytkownik konta napisał zezwolenie do pliku, atakujący może zmodyfikować zawartość pliku wpływającego na aplikację webową nieodpowiednimi sposobami. Osoba atakująca może również wykorzystać niewłaściwe dowiązanie symboliczne do eskalacji swoich uprawnień i / lub uzyskać dostęp do nieautoryzowanych plików; na przykład dowiązanie symboliczne wskazujące na katalog spoza katalogu głównego.</desc>
+	<solution>Bardzo dokładnie zarządzaj ustawieniami, zarządzaniem i obsługą uprawnień. Wyraźnie ustaw strefy zaufania w oprogramowaniu.</solution>
+	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
+	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
+</vuln_item_wasc_17>
+
+<vuln_items>wasc_18</vuln_items>
+<vuln_item_wasc_18>
+	<alert>Predykcja Danych Dostępowych i Sesji</alert>
+	<desc>Predykcja Danych Dostępowych i Sesji jest metodą przejęcia lub podszywania się pod użytkownika strony internetowej. Dedukowanie lub odgadywanie unikalnej wartości, która identyfikuje określoną sesję lub użytkownika, dokonuje ataku. Także znana jako Przejmowanie Sesji, konsekwencje mogą umożliwić atakującym wysyłanie żądań ze strony internetowej z przywilejami zaatakowanego użytkownika.
+
+Wiele stron internetowych są zaprojektowane do autoryzacji i śledzenia użytkownika kiedy komunikacja jest pierwszy raz nawiązana. Do zrobienia tego, użytkownicy muszą udowodnić ich tożsamość stronie internetowej, zwykle poprzez podanie kombinacji nazwy/hasła(danych dostępowych). Rather than passing these confidential credentials back and forth with each transaction, web sites will generate a unique "session ID" to identify the user session as authenticated. Subsequent communication between the user and the web site is tagged with the session ID as "proof" of the authenticated session. If an attacker is able predict or guess the session ID of another user, fraudulent activity is possible.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Credential-and-Session-Prediction</reference>
+	<reference></reference>
+</vuln_item_wasc_18>
+
+<vuln_items>wasc_19</vuln_items>
+<vuln_item_wasc_19>
+	<alert>SQL Injection</alert>
+	<desc>SQL Injection jest techniką ataku używaną do wykorzystywania aplikacji które budują oświadczenia SQL od użytkownika dostarczającego dane wejściowe. Gdy to powiedzie się, atakujący będzie mógł zmienić logikę oświadczenia SQL zrealizowanego przeciwko bazie danych.
+
+Wymodelowany Język Query (ang. SQL) jest wyspecjalizowanym językiem programowania do wysyłania kwerendy do baz danych. Język programowania SQL jest standardem ANSI jak i ISO, chociaż wiele produktów baz danych obsługujących SQL robi to z zastrzeżonymi rozszerzeniami standardowego języka. Aplikacje często używają danych dostarczonych przez użytkownika do stworzenia oświadczeń SQL. Jeśli aplikacji nie uda się poprawnie skonstruować oświadczeń SQL, to atakujący może zmienić strukturę oświadczenie i wykonać nieplanowane i potencjalnie wrogie komendy. Kiedy takie komendy zostaną zrealizowane, podejmą działania według zawartości danego użytkownika przez aplikację realizującą oświadczenie. Ta możliwość dopuszcza atakującego do przejęcia kontroli nad zasobami bazy danych dostępnych dla tego użytkownika, włącznie z możliwością wykonywania poleceń w systemie hostingu.</desc>
+	<solution>Faza: Architektura i Projektowanie
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+Na przykład weź pod uwagę używać trwałe warstwy takie jak Hibernację lub Przedsiębiorstwo Java Beans, które mogą zapewnić znaczącą ochronę przeciwko SQL Incjection jeśli są używane poprawnie.
+
+Jeśli możliwe, używaj wymodelowane mechanizmy automatycznie wymuszające oddzielenie danych i kodu. Te mechanizmy mogą być w stanie zapewnić odpowiednie cytowanie, kodowanie i sprawdzanie poprawności automatycznie, zamiast polegać na programistach, aby zapewnić tę możliwość w każdym punkcie, w którym generowane są dane wyjściowe.
+
+Proces SQL używa przygotowanych oświadczeń, sparametryzowanych pytań lub złożonych procedur. Te funkcje powinny zatwierdzać parametry lub wartości i wspierać silne wprowadzanie tekstu. Nie konstruuj dynamicznie i nie wykonuj ciągów zapytań w tych funkcjach używając "exec" lub podobnych funkcjonalności, ponieważ możesz ponownie wprowadzić sposobność dla SQL Injection.
+
+Uruchom swój kod używając najmniejszych przywilejów, które są wymagane do wykonania koniecznych zadań. Jeśli możliwe, utwórz odizolowane konta z limitowanymi przywilejami, które są używane tylko do pojedynczych zadań. Tą drogą, skuteczny atak nie da gwałtownie dostępu do reszty oprogramowania lub jego środowiska. Na przykład, baza danych aplikacji rzadko musi uruchomić bazę danych administratora zwłaszcza w codziennych operacjach.
+
+W szczególności, postępuj zgodnie z najmniejszymi zasadami kiedy tworzyć konto do bazy danych SQL. Użytkownicy bazy danych powinni mieć tylko minimalne przywileje potrzebne do używania ich kont. Jeśli wymagania systemu wskazują na to, że użytkownik może czytać i modyfikować ich własne dane, ogranicz ich przywileje, żeby nie mogli czytać/pisać danych reszty. Używaj rygorystycznych zezwoleń możliwie na wszystkich obiektach bazy danych, takich jak wykonalnych tylko dla zapisanych procedur.
+
+Faza: implementacja
+Jeśli musisz użyć dynamicznie wygenerowanych ciągów zapytać lub komend mimo ryzyka, odpowiednio przytaczaj argumenty i unikaj wszelkich znaków specjalnych w tych argumentach. Najbardziej konserwatywnym sposobem na uniknięcie lub filtrowanie wszystkich znaków, które nie przejdą ekstremalnie rygorystycznej białej listy(takich jak wszystkich, które nie są alfanumeryczne lub nie są znakami kontrolnymi). Jeśli kilka specjalnych znaków jest potrzebnych, takie jak znak kontrolny, opakuj każdy argumenty w cytat zaraz po kroku unikania/filtrowania. Zachowaj ostrożność przy wstrzykiwaniu argumentów (CWE-88).
+
+Zamiast budować swoją własną implementację, taką jak funkcje mające dostęp do bazy danych lub języku programowania. Na przykład paczka Oracle DBMS ASSERT może sprawdzić lub zmusić, że parametry mające określone właściwości, żeby były mniej podatne na SQL Injection. Dla MySQL, mysql prawdziwe uniknięcie ciągu() funkcji API jest dostępna zarówno jak i dla C i PHP.
+
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. Jako przykład logiki reguł transakcji, "łódka" może być składniowo prawidłowa, ponieważ zawiera tylko alfanumeryczne znaki, ale nie będzie poprawna jeśli oczekujesz kolorów takich jak "czerwony" lub "niebieski".
+ 
+Kiedy konstruujesz ciągi zapytań SQL, używaj rygorystycznej białej listy, która ogranicza zestaw znaków do przewidywanych wartości parametru w żądaniu. To bezpośrednio ograniczy zakres ataku, jednakże ta technika jest mniej ważna niż poprawne kodowanie i unikanie danych wyjściowych.
+
+Miej na uwadze, że poprawne kodowanie danych wyjściowych, unikanie i cytowanie są najbardziej efektywnymi solucjami do zapobiegania SQL Injection, aczkolwiek weryfikacja danych wejściowych mogą zapewnić dogłębną obronę. Dzieje się tak, ponieważ skutecznie ogranicza to, co pojawi się w danych wyjściowych. Weryfikacja danych wejściowych nie będzie zawsze zapobiegać SQL Injection, zwłaszcza jeśli jesteś żadany do obsługiwania wolnej formy pól tekstu, która może zawierać przypadkowe znaki. Na przykład, nazwa "O'Reilly" prawdopodobnie przejdzie krok weryfikacji, ponieważ jest to powszechne nazwisko w języku angielskim. Jednakże, nie może to być bezpośrednio wprowadzone do bazy danych, ponieważ zawiera znak apostrofu "", który musi być pominięty lub inaczej wprowadzony. W takim przypadku, ściągniecie apostrofu może zredukować ryzyko SQL Injection, ale będzie tworzyć niepoprawne postępowanie ponieważ będzie zarejestrowana zła nazwa.
+
+Jeśli jest to możliwe do zrealizowania, najbezpieczniejszym sposobem będzie zupełne blokowanie ponad-znaków, zamiast ich omijania. Zapewni to pewną gruntowną defensywę. Po tym jak dane będą wprowadzone do bazy danych, procesy następnie mogą lekceważyć omijanie ponad-znaków przed użyciem, a ty możesz nie mieć kontroli nad tymi procesami.</solution>
+	<reference>http://projects.webappsec.org/SQL-Injection</reference>
+	<reference></reference>
+</vuln_item_wasc_19>
+
+<vuln_items>wasc_20</vuln_items>
+<vuln_item_wasc_20>
+	<alert>Niepoprawna Obsługa Danych Wejściowych</alert>
+	<desc>Niepoprawna Obsługa Danych Wejściowych jest dzisiaj jedną z najpowszechniejszych osłabień zidentyfikowanych przez aplikacje. Słabe obsługa danymi wejściowymi prowadzi do spowodowania krytycznych zagrożeń bezpieczeństwa powstających w systemie i aplikacjach.
+	
+Generalnie, termin obsługa danych wejściowych jest używany do opisania funkcji takich jak weryfikacja, sanityzacja, kodowanie i/lub dekodowanie danych wejściowych. Aplikacje otrzymują dane wejściowe z różnych źródeł obejmujących ludzkich użytkowników, agentów oprogramowania(wyszukiwarek) i źródeł sieci/obwodowych do nazwania niektórych. W przypadku aplikacji webowych, dane wejściowe mogą być transferowane w różnych formatach (nazwa par wartości, JSON, SOAP, itd...) i nabytych przez ciągi zapytań, danych POSTÓW, nagłówki HTTP, Ciasteczka, itd... Dane wejściowe aplikacji nie-webowych mogą być otrzymane poprzez zmienne aplikacji, zmienne środowiskowe, rejestrację, pliki konfiguracyjne itd... Niezależnie od formatu danych lub źródła/lokacji danych wejściowych, wszystkie dane powinny być postrzegane jako niezaufane albo potencjalnie groźne. Aplikacje które przetwarzają niezaufane dane wejściowe mogą stać się podatne na ataki takie jak Przepełnienie Buforu, SQL Injection, OS Commanding, Odmowa Usługi, a to zaledwie kilka z przykładów.
+
+Jednych z kluczowych aspektów obsługiwania danych wejściowych jest weryfikacja czy dane spełniają określone kryteria. Do odpowiedniej weryfikacji, jest ważne aby zidentyfikować postać oraz typ danych, które są akceptowane i oczekiwane przez aplikację. Definiowanie oczekiwanego formatu i użytkowania każdej instancji niezaufanego wkładu jest wymagane do precyzyjnego zdefiniowania restrykcji. 
+
+Weryfikacja może obejmować sprawdzenie typu rodzaju bezpieczeństwa i poprawnej składni. Wprowadzony ciąg może być sprawdzony pod względem długości(minimalna i maksymalna liczba znaków) i zestawu weryfikacji znaków podczas gdy typy danych liczbowych takie jak liczby całkowite i niecałkowite mogą być potwierdzone przeciwko potwierdzonych większych i mniejszych granic wartości. Kiedy łączysz dane wejściowe z kilku różnych źródeł, weryfikacja powinna być przeprowadzona podczas powiązania i nie tylko przeciwko indywidualnym elementom danych. Praktyka pomoże ominąć sytuacje gdzie weryfikacja danych wejściowych może się udać kiedy przeprowadzona na indywidualnych elementach danych nie powiodła się, kiedy jest zakończona kombinacja zestawu ze wszystkich źródeł.</desc>
+	<solution>Faza: Architektura i Projektowanie
+
+Używaj weryfikacji szkieletu danych wejściowych tak jak Struts lub OWASP ESAPI weryfikacja API.
+
+Fazy: Architektura i Projektowanie; Implementacja
+Zrozum wszystkie potencjalne obszary gdzie niezaufane dane wejściowe wejdą w twoje oprogramowanie: parametry lub argumenty, ciasteczka, jakikolwiek odczyt z sieci, zmiennych środowiskowych, wyszukiwania wstecznego DNS, wyniki zapytania, nagłówki żądań, komponenty URL, e-mail, pliki, bazy danych i dowolne zewnętrzne
+systemy, które dostarczają dane do aplikacji. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
+
+Dla kontroli bezpieczeństwa, która jest przeprowadzona po stronie klienta, upewnij się, że te kontrole są powielone po stronie serwera. Hakerzy mogą obejść kontrole po stronie klienta, modyfikując wartości po przeprowadzeniu kontroli lub zmieniając klienta, aby całkowicie usunąć kontrole po stronie klienta. Następnie te zmodyfikowane wartości zostaną przesłane do serwera.
+
+Nawet jeśli kontrole po stronie klienta zapewniają minimalne korzyści z szacunkiem do zabezpieczeń po stronie serwera, są nadal przydatne. Po pierwsze, mogą wspierać detekcję intruzji. Jeśli serwer dostaje dane wejściowe, które powinny być odrzucone przez klienta, wtedy może to oznaczać wskazywanie ataku. Po drugie, błąd kontrolny po stronie klienta może zapewnić pomocne informacje zwrotne dla użytkownika, odnośnie oczekiwań dla prawidłowych danych wejściowych. Po trzecie, może zaistnieć redukcja przetwarzania czasu po stronie serwera dla przypadkowych błędów wejściowych jakkolwiek jest to typowe dla małych zapisów.
+
+Nie polegaj tylko i wyłącznie na weryfikacji czarnej listy do wykrywania złośliwych danych wejściowe lub kodowania zewnętrznego. Istnieje za dużo sposobów do kodowania tego samego typu, więc prawdopodobnie ominiesz kilka wariantów.
+
+Kiedy twoja aplikacja łączy dane z kilku źródeł, przeprowadź weryfikację po połączeniu tych źródeł. Indywidualne elementy danych mogą przejść część weryfikacyjną, ale mogą naruszyć zamierzone restrykcje po tym jak zostały połączone.
+
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. Jako przykład logiki reguł transakcji, "łódka" może być składniowo prawidłowa, ponieważ zawiera tylko alfanumeryczne znaki, ale nie będzie poprawna jeśli oczekujesz kolorów takich jak "czerwony" lub "niebieski".
+
+Faza: Implementacja
+
+Bądź szczególnie uważny w weryfikowaniu twoich danych wejściowych kiedy wywołujesz kod, który przekracza granice języka, taki jak z interpretowanego języka do macierzystego kodu. To może stworzyć nie przewidywalne interakcje pomiędzy granicami języka. Upewnij się, że nie naruszasz żadnych z zamierzeń języka, z którym współdziałasz. Na przykład, nawet jeśli Java może nie być podatna na przepełnienie bufora, podanie dużego argumentu w wywołaniu kodu natywnego może spowodować przepełnienie.
+
+Bezpośrednio konwertuj twój typ danych wejściowych w przewidywany typ danych, tak jak używanie funkcji konwersji, która tłumaczy ciąg w liczbę. Po przekonwertowaniu na oczekiwany typ danych, upewnij się, że wartości danych wejściowych mieszczą się w podanym zakresie dostępnych wartości, oraz że wspólne wielo-dziedziny są utrzymywane.
+
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Upewnij się, że twoja aplikacja nie zdekoduje nieumyślnie tych samych danych wejściowych dwa razy. Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone. Używaj bibliotek takich jak kanoniczna kontrola OWASP ESAPI.
+
+Rozważ przeprowadzenie powtarzanej kanonizacji dopóki twoje dane wejściowe już się nie zmienią. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
+
+When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.</solution>
+	<reference>http://projects.webappsec.org/Improper-Input-Handling</reference>
+	<reference>http://cwe.mitre.org/data/definitions/89.html</reference>
+</vuln_item_wasc_20>
+
+<vuln_items>wasc_21</vuln_items>
+<vuln_item_wasc_21>
+	<alert>Niewystarczająca Przeciw automatyzacja</alert>
+	<desc>Niewystarczająca Przeciw automatyzacja pojawia się kiedy aplikacja webowa zezwala hakerowi zautomatyzować proces, który wpierw był zaprojektowany do przeprowadzenia tylko w sposób ręczny, n.p przez ludzkiego użytkownika strony.
+
+Funkcjonalność aplikacji webowej, która jest często celem ataków automatyzacji, może obejmować:
+    *Formularze loginów aplikacji-hakerzy mogą zautomatyzować metodą brutalnej siły żądania loginów usiłując zgadnąć dane logowania użytkownika
+    *Formularze rejestracji serwisu-atakujący mogą automatycznie stworzyć tysiące nowych kont
+    * Formularze e-mail - atakujący mogą wykorzystywać formularze e-mailowe jako przekaźniki spamu lub do zalewania skrzynek pocztowych niektórych użytkowników.
+ *Utrzymanie konta- hakerzy mogą przeprowadzić zmasowany atak DoS przeciwko aplikacji poprzez zalanie jej licznymi żądaniami do wyłączenia lub usunięcia kont użytkowników
+ *Formularze informacyjne konta- atakujący mogą przeprowadzić zmasowane próby zebrania personalnych danych użytkowników z aplikacji webowej
+ *Formularze komentarzy/Składanie formularzy zawartości- może to być użyte do spamowania blogów, internetowych forach i internetowych tablic ogłoszeń poprzez automatyczne wnoszenie zawartości takiej jak spam lub nawet złośliwe oprogramowanie sieciowe
+ *Formularze przywiązane do zapytań bazy danych SQL- mogą być one udostępnione w celu przeprowadzenia ataku odmowy serwisu przeciwko aplikacji. Atak jest przeprowadzany przez wysyłanie licznych ciężkich zapytań SQL w krótkim oddziale czasowym, stąd odrzucanie użytkowników przez serwis.
+    *Zakupy internetowe/Handel elektroniczny- Aplikacje stron sklepów i handlu elektronicznego, które nie zmuszają tylko ludzkich klientów, mogą być wykorzystane w celu kupna preferowanych przedmiotów w ogromnych ilościach, takich jak bilety na wydarzenia sportowe. Później są one sprzedawane przez koniki za wyższe ceny.
+    *Sondaże online- sondaże i inne typy systemów internetowego głosowania mogą być automatycznie skorumpowane na korzyść określonego wyboru.
+    *Wysyłanie Wiadomości SMS oparte na sieci- atakujący mogą wykorzystać systemy wysyłające wiadomości SMS w celu spamowania telefonów użytkowników
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Insufficient+Anti-automation</reference>
+	<reference>http://cwe.mitre.org/data/definitions/116.html</reference>
+</vuln_item_wasc_21>
+
+<vuln_items>wasc_22</vuln_items>
+<vuln_item_wasc_22>
+	<alert>Niepoprawna Obsługa Danych Wyjściowych</alert>
+	<desc>Obsługa danych wyjściowych nawiązuje do tego jak aplikacja generuje dane wychodzące.  Jeśli aplikacja posiada niepoprawną obsługę danych wyjściowych, dane te mogą być zużyte co prowadzi do zagrożenia bezpieczeństwa i nigdy nie zamierzonych akcji przez programistę aplikacji.  W wielu przypadkach, ta niezamierzona interpretacja jest klasyfikowana jako jedna z jednych form krytycznego zagrożenia bezpieczeństwa aplikacji.
+
+Każda lokacja gdzie dane opuszczają granicę aplikacji mogą być zaliczane do niepoprawnej obsługi danych wyjściowych.  Granice aplikacji istnieją gdzie dane opuszczają jeden kontekst i przystępuje do innego.  Obejmuje to przechodzenie danych do innej aplikacji poprzez serwisy webowe, kontakty, linie komend, zmienne środowiskowe, itd...  Obejmuje to również przechodzenie danych pomiędzy warstwami w architekturze aplikacji, takich jak bazy danych, serwery katalogów, interpretery(przeglądarki) HTML/JavaScript, lub systemy operacyjne.  Więcej szczegółów na temat tego gdzie może się pojawić niepoprawna obsługa danych wyjściowych możesz znaleźć w sekcji poniżej zatytułowanej "Lokacje Powszechnych Danych Wyjściowych".
+
+Niepoprawna obsługa danych wyjściowych może przyjmować różne formy w aplikacji.  Formy te mogą być kategoryzowane jako: błędy protokołu, błędy aplikacji i błędy zużycia zależnych danych.  Błędy protokołu obejmuję brakujące lub niepoprawne kodowanie wyjściowe lub pomijanie i przekazywanie złych danych.  Błędy aplikacji obejmują błędy logiczne takie jak przekazywane niepoprawnych danych lub przekazywanie szkodliwej zawartości niefiltrowanej.  Jeśli aplikacja nie odróżni poprawnie autentycznej zawartości od nieuprawnionej lub nie obejdzie znanych luk w zabezpieczeniach danych, może to spowodować nadużycie w korzystaniu z danych spowodowane niewłaściwą obsługą danych wyjściowych.
+
+Aplikacja, która nie dostarcza danych we właściwym kontekście, może umożliwić osobie atakującej na nadużycie konsumenta danych.  Może to prowadzić do określonych zagrożeń wymienionych w Klasyfikacji zagrożeń WASC, takich jak fałszowanie zawartości, Cross-Site Scripting, dzielenie odpowiedzi HTTP, HTTP Response Smuggling, Wstrzyknięcie LDAP, polecenia OS, objazd Routingu, nadużywanie Soap Array, przekierowanie adresu URL, wstrzyknięcie XML, Wstrzyknięcie XQuery, Wstrzyknięcie XPath, Mail Command Injection, Null Injection i SQL Injection.
+
+Właściwa obsługa danych wyjściowych zapobiega nieoczekiwanej lub niezamierzonej interpretacji danych przez konsumenta.  Do osiągniecie tego celu, deweloperzy muszą zrozumieć model danych aplikacji, jak dane będą konsumowane przez inne partie aplikacji i jak to będzie ostatecznie prezentowane użytkownikowi.  Techniki zapewnienia właściwej obsługi danych wyjściowych obejmują między innymi filtrowanie i sanityzacja danych (więcej szczegółów na temat sanityzacji i filtrowania danych wyjściowych można znaleźć w odpowiednio zatytułowanych sekcjach poniżej).  Natomiast, niekonsekwentne używanie wybranych technik obsługi danych wyjściowych mogą w rzeczywistości podnieść ryzyko niewłaściwej obsługi danych jeśli dane wejściowe są pominięte lub zostawione nieoczyszczone.  To zapewnienia "dogłębnej ochrony" deweloperzy muszą zakładać przy wyborze odpowiednich strategii obsługi wyjścia, że wszystkie dane w aplikacji są niezaufane.
+
+Chociaż właściwa obsługa wyjścia może przybierać różne formy,, aplikacja nie może być bezpieczna dopóki nie ochrania przeciwko niezamierzonym interpretacjom przez konsumenta danych. Te kluczowe wymagania są niezbędne dla aplikacji do bezpiecznych operacji na danych wyjściowych.</desc>
+	<solution>Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+
+Na przykład weź pod uwagę używanie kodowania kontrolnego ESAPI lub podobnych narzędzi, bibliotek lub struktur. Pomogą one programiście kodować wyjścia w sposób mniej podatny na błędy.
+
+Alternatywnie, używaj wbudowanych funkcji, ale weź pod uwagę używanie wrapperów na wypadek, gdyby odkryto, że te funkcje są podatne.
+
+Jeśli możliwe, używaj wymodelowane mechanizmy automatycznie wymuszające oddzielenie danych i kodu. Te mechanizmy mogą być w stanie zapewnić odpowiednie cytowanie, kodowanie i sprawdzanie poprawności automatycznie, zamiast polegać na programistach, aby zapewnić tę możliwość w każdym punkcie, w którym generowane są dane wyjściowe.
+
+Na przykład przechowywane procedury mogą wymuszać strukturę zapytań bazy danych i zmniejszać prawdopodobieństwo iniekcji SQL.
+
+Zapoznaj się z kontekstem, w którym będą używane twoje dane i kodowaniem, jakiego się spodziewasz. Jest to zwłaszcza ważne kiedy dane są transmitowane pomiędzy różnymi komponentami lub kiedy generowane są dane wyjściowe, które zawierają wielokrotne szyfrowanie w tym samym czasie, tak jak strony internetowe albo kilkuczęściowe wiadomości e-mail. Zbadaj wszystkie przewidywane protokoły komunikacyjne i reprezentacje danych, aby określić wymagane strategie kodowania.
+
+W niektórych przypadkach, sprawdzanie poprawności danych wejściowych może być ważną strategią, gdy kodowanie wyjściowe nie jest zupełnym rozwiązaniem. Na przykład możesz dostarczyć te same dane wyjściowe, które będą przetwarzane przez wielu klientów używających różnych kodowań lub reprezentacji. W innych przypadkach może być wymagane zezwolenie, aby dane wejściowe dostarczone przez użytkownika zawierały informacje kontrolne, takie jak ograniczone znaczniki HTML, które obsługują formatowanie na wiki lub tablicy biuletynu. Gdy taki typ wymagania musi być spełniony, używaj ekstremalnie rygorystycznej białej listy do ograniczenia sekwencji kontrolnych, które mogą być użyte. Zweryfikuj czy skutkujące syntaktyczne struktury są takie jakie oczekujesz. Użyj standardowych metod kodowania dla pozostałej części danych wejściowych.
+
+Użyj weryfikacji danych wejściowych jako środek dogłębnej obrony do redukowania prawdopodobieństwa błędów kodowania danych wyjściowych (zobacz CWE-20).
+
+Podczas wymiany danych między komponentami upewnij się, że oba komponenty używają tego samego kodowania znaków. Upewnij się, że jest zastosowane jest poprawne kodowanie w każdym interfejsie. Jawnie ustaw kodowanie, którego używasz, gdy tylko pozwala na to protokół.</solution>
+	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
+	<reference></reference>
+</vuln_item_wasc_22>
+
+<vuln_items>wasc_23</vuln_items>
+<vuln_item_wasc_23>
+	<alert>Iniekcja XML</alert>
+	<desc>Iniekcja XML jest techniką ataku używaną do manipulowania lub naruszenia logiki aplikacji lub usługi XML. Wstrzyknięcie niezamierzonej treści XML i / lub struktur do komunikatu XML może zmienić zamierzoną logikę aplikacji. Ponadto, iniekcja XML może spowodować wstawienie złośliwej treści do powstałej wiadomości / dokumentu.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/XML-Injection</reference>
+	<reference></reference>
+</vuln_item_wasc_23>
+
+<vuln_items>wasc_24</vuln_items>
+<vuln_item_wasc_24>
+	<alert>Rozdzielenie Żądania HTTP</alert>
+	<desc>Rozdzielenie Żądania HTTP jest atakiem, który umożliwia zmuszenie przeglądarki do wysyłania dowolnych żądań HTTP, zadania XSS i zatruwania pamięci podręcznej przeglądarki. Istotą ataku jest zdolność atakującego, kiedy ofiara (przeglądarka) jest zmuszona załadować złośliwą stronę atakującego, aby manipulować jedną z funkcji przeglądarki w celu wysłania 2 żądań HTTP zamiast jednego żądania HTTP. Dwa takie mechanizmy były wykorzystywane do tej pory: obiekt XmlHttpRequest (skrót XHR) i skrót mechanizmu uwierzytelnienia HTTP. Aby ten atak zadziałał, przeglądarka musi używać serwera proxy HTTP (nie wszystkie z nich "obsługuje" ten atak) lub atak musi zostać przeprowadzony na hoście znajdującym się w tym samym IP (z punktu widzenia przeglądarki) co komputer hakera.</desc>
+	<solution>Unikaj używania CRLF jako specjalnej sekwencji.
+
+
+Odpowiednio filtruj lub cytuj sekwencje CRLF w danych wprowadzanych przez użytkownika.</solution>
+	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
+	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
+</vuln_item_wasc_24>
+
+<vuln_items>wasc_25</vuln_items>
+<vuln_item_wasc_25>
+	<alert>HTTP Response Splitting</alert>
+	<desc>W ataku Podzielonego Żądania HTTP są zawsze zaangażowane 3 partie(przynajmniej):
+    *Serwer sieci Web, który ma lukę bezpieczeństwa umożliwiającą Podzielenie Żądania HTTP.
+    *Cel - jednostka, która wchodzi w interakcję z serwerem sieciowym w imieniu atakującego. Zwykle jest to bufor serwera z przednim/odwróconym proxy), lub przeglądarka (ewentualnie z pamięcią podręczną przeglądarki).
+    * Atakujący - rozpoczyna atak
+
+Istotą Podzielonego Żądania HTTP jest zdolność atakującego do wysłania pojedynczego żądania HTTP, które zmusza serwer WWW do utworzenia strumienia wyjściowego, który jest w normalnym przypadku interpretowany przez cel jako dwie odpowiedzi HTTP zamiast jednej. Pierwsza reakcja może być częściowo kontrolowana przez atakującego, ale jest to mniej ważne. Istotne jest to, że atakujący całkowicie kontroluje formę drugiej odpowiedzi z linii statusu HTTP do ostatniego bajtu treści odpowiedzi HTTP. Gdy jest to możliwe, atakujący realizuje atak wysyłając dwa żądania poprzez cel. Pierwsze wywołuje dwie odpowiedzi z serwera web, a drugie żądanie będzie zazwyczaj "niewinnym" źródłem na serwerze. Jednakże drugie żądanie będzie połączone przez cel z drugą odpowiedzią HTTP, która jest w pełni kontrolowana przez hakera. Zatem atakujący próbuje przekonać się, że określony zasób na serwerze sieciowym (oznaczony przez drugie żądanie) jest odpowiedzią serwera HTTP (zawartość serwera), podczas gdy w rzeczywistości jest to część danych, które zostały sfałszowane przez atakującego poprzez serwer internetowy - to jest druga odpowiedź.
+
+Ataki Podzielonego żądania HTTP mają miejsce kiedy skrypt serwera utrwala dane użytkownika w nagłówkach odpowiedzi HTTP. This typically happens when the script embeds user data in the redirection URL of a redirection response (HTTP status code 3xx), or when the script embeds user data in a cookie value or name when the response sets a cookie.</desc>
+	<solution>Construct HTTP headers very carefully, avoiding the use of non-validated input data.</solution>
+	<reference>http://projects.webappsec.org/HTTP-Response-Splitting</reference>
+	<reference>http://cwe.mitre.org/data/definitions/113.html</reference>
+</vuln_item_wasc_25>
+
+<vuln_items>wasc_26</vuln_items>
+<vuln_item_wasc_26>
+	<alert>HTTP Request Smuggling</alert>
+	<desc>HTTP Request Smuggling is an attack technique that abuses the discrepancy in parsing of non RFC compliant HTTP requests between two HTTP devices (typically a front-end proxy or HTTP-enabled firewall and a back-end web server) to smuggle a request to the second device "through" the first device. This technique enables the attacker to send one set of requests to the second device while the first device sees a different set of requests. In turn, this facilitates several possible exploitations, such as partial cache poisoning, bypassing firewall protection and XSS.</desc>
+	<solution>Use a web server that employs a strict HTTP parsing procedure, such as Apache (See paper in reference).
+
+Use only SSL communication.
+
+Terminate the client session after each request.
+
+Turn all pages to non-cacheable.</solution>
+	<reference>http://projects.webappsec.org/HTTP-Request-Smuggling</reference>
+	<reference>http://cwe.mitre.org/data/definitions/444.html</reference>
+</vuln_item_wasc_26>
+
+<vuln_items>wasc_27</vuln_items>
+<vuln_item_wasc_27>
+	<alert>HTTP Response Smuggling</alert>
+	<desc>HTTP response smuggling is a technique to "smuggle" 2 HTTP responses from a server to a client, through an intermediary HTTP device that expects (or allows) a single response from the server.
+
+One use for this technique is to enhance the basic HTTP response splitting technique in order to evade anti- HTTP response splitting measures. In this case, the intermediary is the anti-HTTP response splitting mechanism between the web server and the proxy server (or web browser). Another use case is to spoof responses received by the browser. In this case a malicious web site serves the browser a page that the browser will interpret as originating from a different (target) domain. HTTP response smuggling can be used to achieve this when the browser uses a proxy server to access both sites.
+
+HTTP response smuggling makes use of HTTP request smuggling -like techniques to exploit the discrepancies between what an anti- HTTP Response Splitting mechanism (or a proxy server) would consider to be the HTTP response stream, and the response stream as parsed by a proxy server (or a browser). So, while an anti- HTTP response splitting mechanism may consider a particular response stream harmless (single HTTP response), a proxy/browser may still parse it as two HTTP responses, and hence be susceptible to all the outcomes of the original HTTP response splitting technique (in the first use case) or be susceptible to page spoofing (in the second case). For example, some anti- HTTP response splitting mechanisms in use by some application engines forbid the application from inserting a header containing CR+LF to the response. Yet an attacker can force the application to insert a header containing CRs, thereby circumventing the defense mechanism. Some proxy servers may still treat CR (only) as a header (and response) separator, and as such the combination of web server and proxy server will still be vulnerable to an attack that may poison the proxy's cache.
+	</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/HTTP-Response-Smuggling</reference>
+	<reference></reference>
+</vuln_item_wasc_27>
+
+<vuln_items>wasc_28</vuln_items>
+<vuln_item_wasc_28>
+	<alert>Null Byte Injection</alert>
+	<desc>Null Byte Injection is an active exploitation technique used to bypass sanity checking filters in web infrastructure by adding URL-encoded null byte characters (i.e. %00, or 0x00 in hex) to the user-supplied data. This injection process can alter the intended logic of the application and allow malicious adversary to get unauthorized access to the system files.
+
+Most web applications today are developed using higher-level languages such as, PHP, ASP, Perl, and Java. However, these web applications at some point require processing of high-level code at system level and this process is usually accomplished by using ‘C/C++’ functions. The diverse nature of these dependent technologies has resulted in an attack class called ‘Null Byte Injection’ or ‘Null Byte Poisoning’ attack. In C/C++, a null byte represents the string termination point or delimiter character which means to stop processing the string immediately. Bytes following the delimiter will be ignored. If the string loses its null character, the length of a string becomes unknown until memory pointer happens to meet next zero byte. This unintended ramification can cause unusual behavior and introduce vulnerabilities within the system or application scope. In similar terms, several higher-level languages treat the ‘null byte’ as a placeholder for the string length as it has no special meaning in their context. Due to this difference in interpretation, null bytes can easily be injected to manipulate the application behavior.
+
+URLs are limited to a set of US-ASCII characters ranging from 0x20 to 0x7E (hex) or 32 to 126 (decimal). However, the aforementioned range uses several characters that are not permitted because they have special meaning within HTTP protocol context. For this reason, the URL encoding scheme was introduced to include special characters within URL using the extended ASCII character representation. In terms of “null byte”, this is represented as %00 in hexadecimal. The scope of a null byte attack starts where web applications interact with active ‘C’ routines and external APIs from the underlying OS. Thus, allowing an attacker to manipulate web resources by reading or writing files based on the application's user privileges.</desc>
+	<solution>Developers should anticipate that null characters or null bytes will be injected/removed/manipulated in the input vectors of their software system. Use an appropriate combination of black lists and white lists to ensure only valid, expected and appropriate input is processed by the system.
+
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Use a standard input validation mechanism to validate all input for length, type, syntax, and business rules before accepting the data to be displayed or stored. Use an "accept known good" validation strategy.
+
+Use and specify a strong output encoding (such as ISO 8859-1 or UTF 8).
+
+Nie polegaj tylko i wyłącznie na weryfikacji czarnej listy do wykrywania złośliwych danych wejściowe lub kodowania zewnętrznego. There are too many variants to encode a character; you're likely to miss some variants.
+
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Make sure that your application does not decode the same input twice. Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone.</solution>
+	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
+</vuln_item_wasc_28>
+
+<vuln_items>wasc_29</vuln_items>
+<vuln_item_wasc_29>
+	<alert>LDAP Injection</alert>
+	<desc>LDAP Injection is an attack technique used to exploit web sites that construct LDAP statements from user-supplied input.
+
+Lightweight Directory Access Protocol (LDAP) is an open-standard protocol for both querying and manipulating X.500 directory services. The LDAP protocol runs over Internet transport protocols, such as TCP. Web applications may use user-supplied input to create custom LDAP statements for dynamic web page requests.
+
+When a web application fails to properly sanitize user-supplied input, it is possible for an attacker to alter the construction of an LDAP statement. When an attacker is able to modify an LDAP statement, the process will run with the same permissions as the component that executed the command. (e.g. Database server, Web application server, Web server, etc.). This can cause serious security problems where the permissions grant the rights to query, modify or remove anything inside the LDAP tree. The same advanced exploitation techniques available in SQL Injection can also be similarly applied in LDAP Injection.</desc>
+	<solution>Assume all input is malicious. Use an appropriate combination of black lists and white lists to neutralize LDAP syntax from user-controlled input.</solution>
+	<reference>http://projects.webappsec.org/LDAP-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/90.html</reference>
+</vuln_item_wasc_29>
+
+<vuln_items>wasc_30</vuln_items>
+<vuln_item_wasc_30>
+	<alert>Mail Command Injection</alert>
+	<desc>Mail Command Injection is an attack technique used to exploit mail servers and webmail applications that construct IMAP/SMTP statements from user-supplied input that is not properly sanitized. Depending on the type of statement taken advantage by the attacker, we meet two types of injections: IMAP and SMTP Injection. An IMAP/SMTP Injection may make it possible to access a mail server which you previously had no access to before-hand. In some cases, these internal systems do not have the same level of infrastructure security hardening applied to them as most front-end web servers. Hence, attackers may find that the mail server yields better results in terms of exploitation. On the other hand, this technique allows to evade possible restrictions that could exist at application level (CAPTCHA, maximum number of requests, etc.).</desc>
+	<solution>Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, request headers as well as content, URL components, e-mail, files, databases, and any external systems that provide data to the application. Perform input validation at well-defined interfaces.
+
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Use an "accept known good" input validation strategy (i.e., use a whitelist). Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Use a blacklist to reject any unexpected inputs and detect potential attacks.
+
+Nie polegaj tylko i wyłącznie na weryfikacji czarnej listy do wykrywania złośliwych danych wejściowe lub kodowania zewnętrznego. Istnieje za dużo sposobów do kodowania tego samego typu, więc prawdopodobnie ominiesz kilka wariantów.
+
+Bezpośrednio konwertuj twój typ danych wejściowych w przewidywany typ danych, tak jak używanie funkcji konwersji, która tłumaczy ciąg w liczbę. Po przekonwertowaniu na oczekiwany typ danych, upewnij się, że wartości danych wejściowych mieszczą się w podanym zakresie dostępnych wartości, oraz że wspólne wielo-dziedziny są utrzymywane.
+
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Make sure that your application does not inadvertently decode the same input twice . Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone. Używaj bibliotek takich jak kanoniczna kontrola OWASP ESAPI.
+
+Rozważ przeprowadzenie powtarzanej kanonizacji dopóki twoje dane wejściowe już się nie zmienią. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.
+
+When exchanging data between components, ensure that both components are using the same character encoding. Ensure that the proper encoding is applied at each interface. Explicitly set the encoding you are using whenever the protocol allows you to do so.
+
+Kiedy twoja aplikacja łączy dane z kilku źródeł, przeprowadź weryfikację po połączeniu tych źródeł. Indywidualne elementy danych mogą przejść część weryfikacyjną, ale mogą naruszyć zamierzone restrykcje po tym jak zostały połączone.</solution>
+	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/88.html</reference>
+</vuln_item_wasc_30>
+
+<vuln_items>wasc_31</vuln_items>
+<vuln_item_wasc_31>
+	<alert>OS Commanding</alert>
+	<desc>OS Commanding is an attack technique used for unauthorized execution of operating system commands.
+
+OS Commanding is the direct result of mixing trusted code and untrusted data. This attack is possible when an application accepts untrusted input to build operating system commands in an insecure manner involving improper data sanitization, and/or improper calling of external programs. In OS Commanding, executed commands by an attacker will run with the same privileges of the component that executed the command, (e.g. database server, web application server, web server, wrapper, application). Since the commands are executed under the privileges of the executing component an attacker can leverage this to gain access or damage parts that are otherwise unreachable (e.g. the operating system directories and files).</desc>
+	<solution>If at all possible, use library calls rather than external processes to recreate the desired functionality.
+
+Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Może to skutecznie ograniczyć, które pliki mogą być dostępne w określonym katalogu lub które polecenia mogą być wykonywane przez twoje oprogramowanie.
+
+Przykłady poziomu OS obejmujące Unix chroot jail, AppArmor, and SELinux. Na zasadach ogólnych, zarządzany kod może zapewnić pewną ochronę. Na przykład,, java.io.FilePermission w Menadżerze Ochrony Javy umożliwia ci sprecyzować ograniczenia odnośnie operacji na plikach.
+To może nie być wykonalne rozwiązanie i ogranicza wpływ tylko na system operacyjny; reszta aplikacji może wciąż być podatna na zagrożenie.
+
+For any data that will be used to generate a command to be executed, keep as much of that data out of external control as possible. For example, in web applications, this may require storing the command locally in the session's state instead of sending it out to the client in a hidden form field.
+
+Używaj sprawdzonej biblioteki lub struktury, które nie pozwalają na wystąpienie tego osłabienia lub wprowadzają konstrukcje, które sprawiają, że to osłabienie jest łatwiejsze do uniknięcia.
+
+Na przykład weź pod uwagę używanie kodowania kontrolnego ESAPI lub podobnych narzędzi, bibliotek lub struktur. Pomogą one programiście kodować wyjścia w sposób mniej podatny na błędy.
+
+If you need to use dynamically-generated query strings or commands in spite of the risk, properly quote arguments and escape any special characters within those arguments. Najbardziej konserwatywnym sposobem na uniknięcie lub filtrowanie wszystkich znaków, które nie przejdą ekstremalnie rygorystycznej białej listy(takich jak wszystkich, które nie są alfanumeryczne lub nie są znakami kontrolnymi). Jeśli kilka specjalnych znaków jest potrzebnych, takie jak znak kontrolny, opakuj każdy argumenty w cytat zaraz po kroku unikania/filtrowania. Be careful of argument injection.
+
+If the program to be executed allows arguments to be specified within an input file or from standard input, then consider using that mode to pass arguments instead of the command line.
+
+Jeśli możliwe, używaj wymodelowane mechanizmy automatycznie wymuszające oddzielenie danych i kodu. Te mechanizmy mogą być w stanie zapewnić odpowiednie cytowanie, kodowanie i sprawdzanie poprawności automatycznie, zamiast polegać na programistach, aby zapewnić tę możliwość w każdym punkcie, w którym generowane są dane wyjściowe.
+
+Some languages offer multiple functions that can be used to invoke commands. Where possible, identify any function that invokes a command shell using a single string, and replace it with a function that requires individual arguments. These functions typically perform appropriate quoting and filtering of arguments. For example, in C, the system() function accepts a string that contains the entire command to be executed, whereas execl(), execve(), and others require an array of strings, one for each argument. In Windows, CreateProcess() only accepts one command at a time. In Perl, if system() is provided with an array of arguments, then it will quote each of the arguments.
+
+Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+
+When constructing OS command strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. To bezpośrednio ograniczy zakres ataku, jednakże ta technika jest mniej ważna niż poprawne kodowanie i unikanie danych wyjściowych.
+
+Note that proper output encoding, escaping, and quoting is the most effective solution for preventing OS command injection, although input validation may provide some defense-in-depth. Dzieje się tak, ponieważ skutecznie ogranicza to, co pojawi się w danych wyjściowych. Input validation will not always prevent OS command injection, especially if you are required to support free-form text fields that could contain arbitrary characters. For example, when invoking a mail program, you might need to allow the subject field to contain otherwise-dangerous inputs like ";" and ">" characters, which would need to be escaped or otherwise handled. In this case, stripping the character might reduce the risk of OS command injection, but it would produce incorrect behavior because the subject field would not be recorded as the user intended. This might seem to be a minor inconvenience, but it could be more important when the program relies on well-structured subject lines in order to pass messages to other components.
+
+Even if you make a mistake in your validation (such as forgetting one out of 100 input fields), appropriate encoding is still likely to protect you from injection-based attacks. As long as it is not done in isolation, input validation is still a useful technique, since it may significantly reduce your attack surface, allow you to detect some attacks, and provide other security benefits that proper encoding does not address.</solution>
+	<reference>http://projects.webappsec.org/OS-Commanding</reference>
+	<reference>http://cwe.mitre.org/data/definitions/78.html</reference>
+</vuln_item_wasc_31>
+
+<vuln_items>wasc_32</vuln_items>
+<vuln_item_wasc_32>
+	<alert>Routing Detour</alert>
+	<desc>The WS-Routing Protocol (WS-Routing) is a protocol for exchanging SOAP messages from an initial message sender to an ultimate receiver, typically via a set of intermediaries. The WS-Routing protocol is implemented as a SOAP extension, and is embedded in the SOAP Header. WS-Routing is often used to provide a way to direct XML traffic through complex environments and transactions by allowing interim way stations in the XML path to assign routing instructions to an XML document.
+
+Routing Detours are a type of "Man in the Middle" attack where Intermediaries can be injected or "hijacked" to route sensitive messages to an outside location. Routing information (either in the HTTP header or in WS-Routing header) can be modified en route and traces of the routing can be removed from the header and message such that the receiving application none the wiser that a routing detour has occurred. The header and the insertion of header objects is often less protected than the message; this is due to the fact that the header is used as a catch all for metadata about the transaction such as authentication, routing, formatting, schema, canonicalization, namespaces, etc. Also, many processes may be involved in adding to/processing the header of an XML document. In many implementations the routing info can come from an external web service (using WS-Referral for example) that provides the specific routing for the transaction.
+
+WS-Addressing is a newer standard published by the W3C to provide routing functionality to SOAP messages. One of the key differences between WS-Routing and WS-Addressing is that WS-Addressing only provides the next location in the route. While little research has been done into the susceptibility of WS-Addressing to Routing Detour Attack, at least one paper (see reference #6 below) suggests that WS-Addressing is vulnerable to Routing Detour as well.</desc>
+	<solution>Always fully authenticate both ends of any communications channel.
+
+Adhere to the principle of complete mediation.
+
+A certificate binds an identity to a cryptographic key to authenticate a communicating party. Often, the certificate takes the encrypted form of the hash of the identity of the subject, the public key, and information such as time of issue or expiration using the issuer's private key. The certificate can be validated by deciphering the certificate with the issuer's public key. See also X.509 certificate signature chains and the PGP certification structure.</solution>
+	<reference>http://projects.webappsec.org/Routing-Detour</reference>
+	<reference>http://cwe.mitre.org/data/definitions/300.html</reference>
+</vuln_item_wasc_32>
+
+<vuln_items>wasc_33</vuln_items>
+<vuln_item_wasc_33>
+	<alert>Path Traversal</alert>
+	<desc>The Path Traversal attack technique allows an attacker access to files, directories, and commands that potentially reside outside the web document root directory. An attacker may manipulate a URL in such a way that the web site will execute or reveal the contents of arbitrary files anywhere on the web server. Any device that exposes an HTTP-based interface is potentially vulnerable to Path Traversal.
+
+Most web sites restrict user access to a specific portion of the file-system, typically called the "web document root" or "CGI root" directory. These directories contain the files intended for user access and the executable necessary to drive web application functionality. To access files or execute commands anywhere on the file-system, Path Traversal attacks will utilize the ability of special-characters sequences.
+
+The most basic Path Traversal attack uses the "../" special-character sequence to alter the resource location requested in the URL. Although most popular web servers will prevent this technique from escaping the web document root, alternate encodings of the "../" sequence may help bypass the security filters. These method variations include valid and invalid Unicode-encoding ("..%u2216" or "..%c0%af") of the forward slash character, backslash characters ("..\") on Windows-based servers, URL encoded characters "%2e%2e%2f"), and double URL encoding ("..%255c") of the backslash character.
+
+Even if the web server properly restricts Path Traversal attempts in the URL path, a web application itself may still be vulnerable due to improper handling of user-supplied input. This is a common problem of web applications that use template mechanisms or load static text from files. In variations of the attack, the original URL parameter value is substituted with the file name of one of the web application's dynamic scripts. Consequently, the results can reveal source code because the file is interpreted as text instead of an executable script. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
+	<solution>Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+
+For filenames, use stringent whitelists that limit the character set to be used. If feasible, only allow a single "." character in the filename to avoid weaknesses, and exclude directory separators such as "/". Use a whitelist of allowable file extensions.
+
+Warning: if you attempt to cleanse your data, then do so that the end result is not in the form that can be dangerous. A sanitizing mechanism can remove characters such as '.' and ';' which may be required for some exploits. An attacker can try to fool the sanitizing mechanism into "cleaning" data into a dangerous form. Suppose the attacker injects a '.' inside a filename (e.g. "sensi.tiveFile") and the sanitizing mechanism removes the character resulting in the valid filename, "sensitiveFile". If the input data are now assumed to be safe, then the file may be compromised. 
+
+Dane wejściowe powinny być dekodowane i kanonizowane do bieżącej wewnętrznej reprezentacji przed weryfikacją. Make sure that your application does not decode the same input twice. Takie błędy mogą być wykorzystane do przejścia schematów białej listy poprzez wprowadzenie niebezpiecznych danych wejściowych po tym jak były sprawdzone.
+
+Use a built-in path canonicalization function (such as realpath() in C) that produces the canonical version of the pathname, which effectively removes ".." sequences and symbolic links.
+
+Uruchom swój kod używając najmniejszych przywilejów, które są wymagane do wykonania koniecznych zadań. Jeśli możliwe, utwórz odizolowane konta z limitowanymi przywilejami, które są używane tylko do pojedynczych zadań. Tą drogą, skuteczny atak nie da gwałtownie dostępu do reszty oprogramowania lub jego środowiska. Na przykład, baza danych aplikacji rzadko musi uruchomić bazę danych administratora zwłaszcza w codziennych operacjach.
+
+When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
+
+Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Może to skutecznie ograniczyć, które pliki mogą być dostępne w określonym katalogu lub które polecenia mogą być wykonywane przez twoje oprogramowanie.
+
+Przykłady poziomu OS obejmujące Unix chroot jail, AppArmor, and SELinux. Na zasadach ogólnych, zarządzany kod może zapewnić pewną ochronę. Na przykład,, java.io.FilePermission w Menadżerze Ochrony Javy umożliwia ci sprecyzować ograniczenia odnośnie operacji na plikach.
+
+To może nie być wykonalne rozwiązanie i ogranicza wpływ tylko na system operacyjny; reszta aplikacji może wciąż być podatna na zagrożenie.
+</solution>
+	<reference>http://projects.webappsec.org/Path-Traversal</reference>
+	<reference>http://cwe.mitre.org/data/definitions/22.html</reference>
+</vuln_item_wasc_33>
+
+<vuln_items>wasc_34</vuln_items>
+<vuln_item_wasc_34>
+	<alert>Predictable Resource Location</alert>
+	<desc>Predictable Resource Location is an attack technique used to uncover hidden web site content and functionality. By making educated guesses via brute forcing an attacker can guess file and directory names not intended for public viewing. Brute forcing filenames is easy because files/paths often have common naming convention and reside in standard locations. These can include temporary files, backup files, logs, administrative site sections, configuration files, demo applications, and sample files. These files may disclose sensitive information about the website, web application internals, database information, passwords, machine names, file paths to other sensitive areas, etc...
+
+This will not only assist with identifying site surface which may lead to additional site vulnerabilities, but also may disclose valuable information to an attacker about the environment or its users. Predictable Resource Location is also known as Forced Browsing, Forceful Browsing, File Enumeration, and Directory Enumeration.</desc>
+	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
+
+Consider using MVC based frameworks such as Struts.</solution>
+	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
+	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
+</vuln_item_wasc_34>
+
+<vuln_items>wasc_35</vuln_items>
+<vuln_item_wasc_35>
+	<alert>SOAP Array Abuse</alert>
+	<desc>XML SOAP arrays are a common target for malicious abuse. SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from. SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element. A web-service that expects an array can be the target of a XML DoS attack by forcing the SOAP server to build a huge array in the machine's memory, thus inflicting a DoS condition on the machine due to the memory pre-allocation.</desc>
+	<solution> Perform adequate input validation against any value that influences the amount of memory that is allocated. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary.
+
+Run your program using system-provided resource limits for memory. This might still cause the program to crash or exit, but the impact to the rest of the system will be minimized.</solution>
+	<reference>http://projects.webappsec.org/SOAP-Array-Abuse</reference>
+	<reference>http://cwe.mitre.org/data/definitions/789.html</reference>
+</vuln_item_wasc_35>
+
+<vuln_items>wasc_36</vuln_items>
+<vuln_item_wasc_36>
+	<alert>SSI Injection</alert>
+	<desc>SSI Injection (Server-side Include) is a server-side exploit technique that allows an attacker to send code into a web application, which will later be executed locally by the web server. SSI Injection exploits a web application's failure to sanitize user-supplied data before they are inserted into a server-side interpreted HTML file.
+
+Before serving an HTML web page, a web server may parse and execute Server-side Include statements before providing it to the client. In some cases (e.g. message boards, guest books, or content management systems), a web application will insert user-supplied data into the source of a web page.
+
+If an attacker submits a Server-side Include statement, he may have the ability to execute arbitrary operating system commands, or include a restricted file's contents the next time the page is served. This is performed at the permission level of the web server user.</desc>
+	<solution>Disable SSI execution on pages that do not require it. For pages requiring SSI ensure that you perform the following checks
+- Only enable the SSI directives that are needed for this page and disable all others.
+- HTML entity encode user supplied data before passing it to a page with SSI execution permissions.
+- Use SUExec to have the page execute as the owner of the file instead of the web server user.</solution>
+	<reference>http://projects.webappsec.org/SSI-Injection</reference>
+	<reference></reference>
+</vuln_item_wasc_36>
+
+<vuln_items>wasc_37</vuln_items>
+<vuln_item_wasc_37>
+	<alert>Session Fixation</alert>
+	<desc>Session Fixation is an attack technique that forces a user's session ID to an explicit value. Depending on the functionality of the target web site, a number of techniques can be utilized to "fix" the session ID value. These techniques range from Cross-site Scripting exploits to peppering the web site with previously made HTTP requests. After a user's session ID has been fixed, the attacker will wait for that user to login. Once the user does so, the attacker uses the predefined session ID value to assume the same online identity.
+
+Generally speaking there are two types of session management systems when it comes to ID values. The first type is "permissive" systems that allow web browsers to specify any ID. The second type is "strict" systems that only accept server-side-generated values. With permissive systems, arbitrary session IDs are maintained without contact with the web site. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
+
+Without active protection against Session Fixation, the attack can be mounted against any web site that uses sessions to identify authenticated users. Web sites using sessions IDs are normally cookie-based, but URLs and hidden form fields are used as well. Unfortunately, cookie-based sessions are the easiest to attack. Most of the currently identified attack methods are aimed toward the fixation of cookies.
+
+In contrast to stealing a users' session IDs after they have logged into a web site, Session Fixation provides a much wider window of opportunity. The active part of the attack takes place before a user logs in.</desc>
+	<solution>Invalidate any existing session identifiers prior to authorizing a new user session
+
+For platforms such as ASP that do not generate new values for sessionid cookies, utilize a secondary cookie. In this approach, set a secondary cookie on the user's browser to a random value and set a session variable to the same value. If the session variable and the cookie value ever don't match, invalidate the session, and force the user to log on again.</solution>
+	<reference>http://projects.webappsec.org/Session-Fixation</reference>
+	<reference>http://cwe.mitre.org/data/definitions/384.html</reference>
+</vuln_item_wasc_37>
+
+<vuln_items>wasc_38</vuln_items>
+<vuln_item_wasc_38>
+	<alert>URL Redirector Abuse</alert>
+	<desc>URL redirectors represent common functionality employed by web sites to forward an incoming request to an alternate resource. This can be done for a variety of reasons and is often done to allow resources to be moved within the directory structure and to avoid breaking functionality for users that request the resource at its previous location. URL redirectors may also be used to implement load balancing, leveraging abbreviated URLs or recording outgoing links. It is this last implementation which is often used in phishing attacks as described in the example below. URL redirectors do not necessarily represent a direct security vulnerability but can be abused by attackers trying to social engineer victims into believing that they are navigating to a site other than the true destination.</desc>
+	<solution>Zakładaj, że wszystkie dane wejściowe są szkodliwe. Używaj strategii sprawdzania danych wejściowych "akceptuj dobrze znane", np. Użyj białej listy dopuszczalnych danych wejściowych ściśle zgodnych ze specyfikacjami. Odrzucaj wszystkie dane wejściowe, które nie są ściśle dopasowane ze specyfikacjami lub przeobraź je w takie, które są dopasowane. Nie polegaj wyłącznie na danych wejściowych wyglądających na szkodliwe lub zdeformowane(n.p. nie polegaj na czarnej liście). Niemniej, czarne listy mogą być pomocne w wykryciu potencjalnych ataków lub w ustaleniu które dane wyjściowe są tak zdeformowane, że powinny być kategorycznie odrzucone.
+
+Kiedy przeprowadzasz weryfikację danych wejściowych, bierz pod uwagę wszystkie potencjalnie ważne właściwości, włączając długość, pełny zasięg akceptowalnych wartości, brakujących lub dodatkowych danych wejściowych, zgodność poprzez ważne pola i dostosowanie się do zasad sprawy. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+
+Use a whitelist of approved URLs or domains to be used for redirection.
+
+Use an intermediate disclaimer page that provides the user with a clear warning that they are leaving your site. Implement a long timeout before the redirect occurs, or force the user to click on the link. Be careful to avoid XSS problems when generating the disclaimer page.
+
+When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
+
+For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Funkcje takie jak ESAPI AccessReferenceMap dają taką możliwość.
+
+Fazy: Architektura i Projektowanie; Implementacja
+Zrozum wszystkie potencjalne obszary gdzie niezaufane dane wejściowe wejdą w twoje oprogramowanie: parametry lub argumenty, ciasteczka, jakikolwiek odczyt z sieci, zmiennych środowiskowych, wyszukiwania wstecznego DNS, wyniki zapytania, nagłówki żądań, komponenty URL, e-mail, pliki, bazy danych i dowolne zewnętrzne
+systemy, które dostarczają dane do aplikacji. Pamiętaj o tym, że takie dane wejściowe mogą uzyskane poprzez wezwania API.
+
+Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
+	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
+	<reference>http://cwe.mitre.org/data/definitions/601.html</reference>
+</vuln_item_wasc_38>
+
+<vuln_items>wasc_39</vuln_items>
+<vuln_item_wasc_39>
+	<alert>XPath Injection</alert>
+	<desc>XPath Injection is an attack technique used to exploit applications that construct XPath (XML Path Language) queries from user-supplied input to query or navigate XML documents. It can be used directly by an application to query an XML document, as part of a larger operation such as applying an XSLT transformation to an XML document, or applying an XQuery to an XML document. The syntax of XPath bears some resemblance to an SQL query, and indeed, it is possible to form SQL-like queries on an XML document using XPath.
+
+If an application uses run-time XPath query construction, embedding unsafe user input into the query, it may be possible for the attacker to inject data into the query such that the newly formed query will be parsed in a way differing from the programmer's intention.</desc>
+	<solution>Use parameterized XPath queries (e.g. using XQuery). This will help ensure separation between data plane and control plane.
+
+Properly validate user input. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XPath queries is safe in that context.</solution>
+	<reference>http://projects.webappsec.org/XPath-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/643.html</reference>
+</vuln_item_wasc_39>
+
+<vuln_items>wasc_40</vuln_items>
+<vuln_item_wasc_40>
+	<alert>Insufficient Process Validation</alert>
+	<desc>Insufficient Process Validation occurs when a web application fails to prevent an attacker from circumventing the intended flow or business logic of the application. When seen in the real world, insufficient process validation has resulted in ineffective access controls and monetary loss.
+
+There are two main types of processes that require validation: flow control and business logic.
+
+"Flow control" refers to multi-step processes that require each step to be performed in a specific order by the user. When an attacker performs the step incorrectly or out of order, the access controls may be bypassed and an application integrity error may occur. Examples of multi-step processes include wire transfer, password recovery, purchase checkout, and account sign-up.
+
+"Business logic" refers to the context in which a process will execute as governed by the business requirements. Exploiting a business logic weakness requires knowledge of the business; if no knowledge is needed to exploit it, then most likely it isn't a business logic flaw. Due to this, typical security measures such as scans and code review will not find this class of weakness. One approach to testing is offered by OWASP in their Testing Guide.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Process-Validation</reference>
+	<reference></reference>
+</vuln_item_wasc_40>
+
+<vuln_items>wasc_41</vuln_items>
+<vuln_item_wasc_41>
+	<alert>XML Attribute Blowup</alert>
+	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. The attacker provides a malicious XML document, which vulnerable XML parsers process in a very inefficient manner, leading to excessive CPU load. The essence of the attack is to include many attributes in the same XML node. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
+	<solution>Design throttling mechanisms into the system architecture. Najlepszą ochroną jest ograniczenie liczby materiałów, które nieupoważniony użytkownik może zużyć. Silny wzorzec uwierzytelniania i kontroli dostępu zapobiegnie takim atakom w pierwszej kolejności. Aplikacja logowania powinna być chroniona przed atakami DoS tak bardzo, jak to możliwe. Ograniczenie dostępu do bazy danych, być może poprzez buforowanie zestawów wyników, może pomóc zminimalizować eksploatowanie zasobów. Aby jeszcze bardziej ograniczyć możliwość ataku DoS, należy rozważyć śledzenie liczby żądań otrzymanych od użytkowników i blokowanie żądań przekraczających zdefiniowany próg częstotliwości.
+
+Mitigation of resource exhaustion attacks requires that the target system either:
+ * recognizes the attack and denies that user further access for a given amount of time, or
+ * uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+
+Pierwsze z tych rozwiązań jest jednak problemem samym w sobie, ponieważ może pozwolić atakującym na uniemożliwienie korzystania z systemu przez określonego, ważnego użytkownika. Jeśli atakujący podszywa się pod prawomocnego użytkownika, może uniemożliwić mu dostęp do danego serwera.
+
+Drugie rozwiązanie jest po prostu trudne do efektywnego wdrożenia - a nawet jeśli jest właściwie wykonane, nie zapewnia pełnego rozwiązania. Zwyczajnie sprawia, że ​​atak wymaga więcej środków ze strony atakującego.
+
+Upewnij się, że protokoły mają określone ograniczenia w skali plasowanej na nich.
+
+Ensure that all failures in resource allocation place the system into a safe posture.</solution>
+	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
+	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
+</vuln_item_wasc_41>
+
+<vuln_items>wasc_42</vuln_items>
+<vuln_item_wasc_42>
+	<alert>Abuse of Functionality</alert>
+	<desc>Abuse of Functionality is an attack technique that uses a web site's own features and functionality to attack itself or others. Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
+	<solution>Always utilize APIs in the specified manner.</solution>
+	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
+	<reference>http://cwe.mitre.org/data/definitions/227.html</reference>
+</vuln_item_wasc_42>
+
+<vuln_items>wasc_43</vuln_items>
+<vuln_item_wasc_43>
+	<alert>XML External Entities</alert>
+	<desc>This technique takes advantage of a feature of XML to build documents dynamically at the time of processing. An XML message can either provide data explicitly or by pointing to an URI where the data exists. In the attack technique, external entities may replace the entity value with malicious data, alternate referrals or may compromise the security of the data the server/XML application has access to.
+	Attackers may also use External Entities to have the web services server download malicious code or content to the server for use in secondary or follow on attacks.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/XML-External-Entities</reference>
+	<reference></reference>
+</vuln_item_wasc_43>
+
+<vuln_items>wasc_44</vuln_items>
+<vuln_item_wasc_44>
+	<alert>XML Entity Expansion</alert>
+	<desc>The XML Entity expansion attack, exploits a capability in XML DTDs that allows the creation of custom macros, called entities, that can be used throughout a document. By recursively defining a set of custom entities at the top of a document, an attacker can overwhelm parsers that attempt to completely resolve the entities by forcing them to iterate almost indefinitely on these recursive definitions.
+
+The malicious XML message is used to force recursive entity expansion (or other repeated processing) that completely uses up available server resources.</desc>
+	<solution>If possible, prohibit the use of DTDs or use an XML parser that limits the expansion of recursive DTD entities.
+
+Before parsing XML files with associated DTDs, scan for recursive entity declarations and do not continue parsing potentially explosive content.</solution>
+	<reference>http://projects.webappsec.org/XML-Entity-Expansion</reference>
+	<reference>http://cwe.mitre.org/data/definitions/776.html</reference>
+</vuln_item_wasc_44>
+
+<vuln_items>wasc_45</vuln_items>
+<vuln_item_wasc_45>
+	<alert>Fingerprinting</alert>
+	<desc>The most common methodology for attackers is to first footprint the target's web presence and enumerate as much information as possible. With this information, the attacker may develop an accurate attack scenario, which will effectively exploit a vulnerability in the software type/version being utilized by the target host.
+
+Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (with a scanner such as Nmap) except that it is focused on the Application Layer of the OSI model instead of the Transport Layer. The theory behind this fingerprinting is to create an accurate profile of the target's platform, web application software technology, backend database version, configurations and possibly even their network architecture/topology.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Fingerprinting</reference>
+	<reference></reference>
+</vuln_item_wasc_45>
+
+<vuln_items>wasc_46</vuln_items>
+<vuln_item_wasc_46>
+	<alert>XQuery Injection</alert>
+	<desc>XQuery Injection is a variant of the classic SQL injection attack against the XML XQuery Language. XQuery Injection uses improperly validated data that is passed to XQuery commands. This inturn will execute commands on behalf of the attacker that the XQuery routines have access to. XQuery injection can be used to enumerate elements on the victim's environment, inject commands to the local host, or execute queries to remote files and data sources. Like SQL injection attacks, the attacker tunnels through the application entry point to target the resource access layer.</desc>
+	<solution>Use parameterized queries. This will help ensure separation between data plane and control plane.
+
+Properly validate user input. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XQL queries is safe in that context.</solution>
+	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
+	<reference>http://cwe.mitre.org/data/definitions/652.html</reference>
+</vuln_item_wasc_46>
+
+<vuln_items>wasc_47</vuln_items>
+<vuln_item_wasc_47>
+	<alert>Insufficient Session Expiration</alert>
+	<desc>Insufficient Session Expiration occurs when a Web application permits an attacker to reuse old session credentials or session IDs for authorization. Insufficient Session Expiration increases a Web site's exposure to attacks that steal or reuse user's session identifiers.
+
+Since HTTP is a stateless protocol, Web sites commonly use cookies to store session IDs that uniquely identify a user from request to request. Consequently, each session ID's confidentiality must be maintained in order to prevent multiple users from accessing the same account. A stolen session ID can be used to view another user's account or perform a fraudulent transaction.
+
+Session expiration is comprised of two timeout types: inactivity and absolute. An absolute timeout is defined by the total amount of time a session can be valid without re-authentication and an inactivity timeout is the amount of idle time allowed before the session is invalidated. The lack of proper session expiration may increase the likelihood of success of certain attacks. A long expiration time increases an attacker's chance of successfully guessing a valid session ID. The longer the expiration time, the more concurrent open sessions will exist at any given time. The larger the pool of sessions, the more likely it will be for an attacker to guess one at random. Although a short session inactivity timeout does not help if a token is immediately used, the short timeout helps to insure that the token is harder to capture while it is still valid.
+
+A Web application should invalidate a session after a predefined idle time has passed (a timeout) and provide the user the means to invalidate their own session, i.e. logout; this helps to keep the lifespan of a session ID as short as possible and is necessary in a shared computing environment where more than one person has unrestricted physical access to a computer. The logout function should be prominently visible to the user, explicitly invalidate a user’s session and disallow reuse of the session token.</desc>
+	<solution>Set sessions/credentials expiration date.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Session-Expiration</reference>
+	<reference>http://cwe.mitre.org/data/definitions/613.html</reference>
+</vuln_item_wasc_47>
+
+<vuln_items>wasc_48</vuln_items>
+<vuln_item_wasc_48>
+	<alert>Insecure Indexing</alert>
+	<desc>Insecure Indexing is a threat to the data confidentiality of the web-site. Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
+	<solution>TBA</solution>
+	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
+	<reference></reference>
+</vuln_item_wasc_48>
+
+<vuln_items>wasc_49</vuln_items>
+<vuln_item_wasc_49>
+	<alert>Insufficient Password Recovery</alert>
+	<desc>Insufficient Password Recovery is when a web site permits an attacker to illegally obtain, change or recover another user's password. Conventional web site authentication methods require users to select and remember a password or passphrase. The user should be the only person that knows the password and it must be remembered precisely. As time passes, a user's ability to remember a password fades. The matter is further complicated when the average user visits 20 sites requiring them to supply a password.  (RSA Survey: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Thus, password recovery is an important part in servicing online users.
+
+Examples of automated password recovery processes include requiring the user to answer a "secret question" defined as part of the user registration process. This question can either be selected from a list of canned questions or supplied by the user. Another mechanism in use is having the user provide a "hint" during registration that will help the user remember his password. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. After the user has proven who they are, the recovery system will display or e-mail them a new password.
+
+A web site is considered to have Insufficient Password Recovery when an attacker is able to foil the recovery mechanism being used. This happens when the information required to validate a user's identity for recovery is either easily guessed or can be circumvented. Password recovery systems may be compromised through the use of brute force attacks, inherent system weaknesses, or easily guessed secret questions.</desc>
+	<solution>Make sure that all input supplied by the user to the password recovery mechanism is thoroughly filtered and validated
+
+Do not use standard weak security questions and use several security questions.
+
+Make sure that there is throttling on the number of incorrect answers to a security question. Disable the password recovery functionality after a certain (small) number of incorrect guesses.
+
+Require that the user properly answers the security question prior to resetting their password and sending the new password to the e-mail address of record.
+
+Never allow the user to control what e-mail address the new password will be sent to in the password recovery mechanism.
+
+Assign a new temporary password rather than revealing the original password.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Password-Recovery</reference>
+	<reference>http://cwe.mitre.org/data/definitions/640.html</reference>
+</vuln_item_wasc_49>
+
+</vulnerabilities>
