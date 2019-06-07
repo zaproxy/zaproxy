@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.8.0-SNAPSHOT"
+version = "2.8.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
