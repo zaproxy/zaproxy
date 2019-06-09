@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2014 The ZAP Development Team
- * 
+ *
+ * Copyright 2015 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,9 +19,8 @@
  */
 package org.zaproxy.zap;
 
-import org.apache.commons.lang.Validate;
-
 import com.github.zafarkhaja.semver.expr.ExpressionParser;
+import org.apache.commons.lang.Validate;
 
 /**
  * A semantic version.
@@ -31,17 +30,15 @@ import com.github.zafarkhaja.semver.expr.ExpressionParser;
  */
 public final class Version implements Comparable<Version> {
 
-    /**
-     * The actual implementation of semantic version, never {@code null}.
-     */
+    /** The actual implementation of semantic version, never {@code null}. */
     private final com.github.zafarkhaja.semver.Version impl;
 
     /**
      * Constructs a {@code Version} from the given {@code version}.
      *
      * @param version the semantic version
-     * @throws IllegalArgumentException if the given {@code version} is {@code null} or empty, or is not a valid semantic
-     *             version.
+     * @throws IllegalArgumentException if the given {@code version} is {@code null} or empty, or is
+     *     not a valid semantic version.
      */
     public Version(String version) throws IllegalArgumentException {
         Validate.notEmpty(version, "Parameter version must not be null nor empty.");
@@ -49,7 +46,8 @@ public final class Version implements Comparable<Version> {
         try {
             impl = new com.github.zafarkhaja.semver.Version.Builder(version).build();
         } catch (com.github.zafarkhaja.semver.ParseException e) {
-            throw new IllegalArgumentException("Parameter version [" + version + "] is not valid: " + e.getMessage());
+            throw new IllegalArgumentException(
+                    "Parameter version [" + version + "] is not valid: " + e.getMessage());
         }
     }
 
@@ -85,7 +83,8 @@ public final class Version implements Comparable<Version> {
      *
      * @param versionRange the range version
      * @return {@code true} if this version matches the given version range, {@code false} otherwise
-     * @throws IllegalArgumentException if {@code versionRange} is null or empty, or not valid range version
+     * @throws IllegalArgumentException if {@code versionRange} is null or empty, or not valid range
+     *     version
      * @see #isValidVersionRange(String)
      */
     public boolean matches(String versionRange) throws IllegalArgumentException {
@@ -94,7 +93,11 @@ public final class Version implements Comparable<Version> {
         try {
             return impl.satisfies(versionRange);
         } catch (com.github.zafarkhaja.semver.ParseException e) {
-            throw new IllegalArgumentException("Parameter versionRange [" + versionRange + "] is not valid: " + e.getMessage());
+            throw new IllegalArgumentException(
+                    "Parameter versionRange ["
+                            + versionRange
+                            + "] is not valid: "
+                            + e.getMessage());
         }
     }
 

@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,9 +19,9 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.junit.Assert.assertThat;
 
 import org.apache.commons.configuration.Configuration;
@@ -31,9 +31,7 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/**
- * Unit test for {@link AbstractPlugin}.
- */
+/** Unit test for {@link AbstractPlugin}. */
 public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test(expected = IllegalArgumentException.class)
@@ -517,8 +515,12 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         pluginB.loadFrom(pluginA.getConfig());
         // Then
         assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("false")));
-        assertThat(config.getString(basePropertyKey + "level"), is(equalTo(Plugin.AlertThreshold.LOW.name())));
-        assertThat(config.getString(basePropertyKey + "strength"), is(equalTo(Plugin.AttackStrength.HIGH.name())));
+        assertThat(
+                config.getString(basePropertyKey + "level"),
+                is(equalTo(Plugin.AlertThreshold.LOW.name())));
+        assertThat(
+                config.getString(basePropertyKey + "strength"),
+                is(equalTo(Plugin.AttackStrength.HIGH.name())));
     }
 
     @Test(expected = Exception.class)
@@ -543,8 +545,11 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.saveTo(config);
         // Then
         assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("true")));
-        assertThat(config.getString(basePropertyKey + "level"), is(equalTo(Plugin.AlertThreshold.HIGH.name())));
-        assertThat(config.getString(basePropertyKey + "strength"), is(equalTo(Plugin.AttackStrength.INSANE.name())));
+        assertThat(
+                config.getString(basePropertyKey + "level"),
+                is(equalTo(Plugin.AlertThreshold.HIGH.name())));
+        assertThat(
+                config.getString(basePropertyKey + "strength"),
+                is(equalTo(Plugin.AttackStrength.INSANE.name())));
     }
-
 }

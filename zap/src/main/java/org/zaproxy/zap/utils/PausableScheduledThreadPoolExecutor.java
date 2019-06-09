@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -35,15 +35,16 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A {@code ScheduledThreadPoolExecutor} that implements {@code PausableExecutorService}.
- * <p>
- * It's also possible to set a default delay, applied when tasks are submitted and executed.
+ *
+ * <p>It's also possible to set a default delay, applied when tasks are submitted and executed.
  *
  * @since 2.4.0
  * @see PausableExecutorService
  * @see ScheduledThreadPoolExecutor
  * @see #setDefaultDelay(long, TimeUnit)
  */
-public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor implements PausableExecutorService {
+public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor
+        implements PausableExecutorService {
 
     private final ReentrantLock pauseLock = new ReentrantLock();
     private final Condition unpaused = pauseLock.newCondition();
@@ -57,13 +58,14 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
     private boolean incrementalDefaultDelay;
     private AtomicInteger taskCount;
 
-    // NOTE: Constructors JavaDoc was copied from base class but with the name of the class replaced with this one.
+    // NOTE: Constructors JavaDoc was copied from base class but with the name of the class replaced
+    // with this one.
 
     /**
      * Creates a new {@code PausableScheduledThreadPoolExecutor} with the given core pool size.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      */
     public PausableScheduledThreadPoolExecutor(int corePoolSize) {
@@ -74,7 +76,7 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
      * Creates a new {@code PausableScheduledThreadPoolExecutor} with the given initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @param threadFactory the factory to use when the executor creates a new thread
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if {@code threadFactory} is null
@@ -87,8 +89,9 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
      * Creates a new {@code PausableScheduledThreadPoolExecutor} with the given initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
-     * @param handler the handler to use when execution is blocked because the thread bounds and queue capacities are reached
+     *     {@code allowCoreThreadTimeOut} is set
+     * @param handler the handler to use when execution is blocked because the thread bounds and
+     *     queue capacities are reached
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if {@code handler} is null
      */
@@ -100,20 +103,22 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
      * Creates a new {@code PausableScheduledThreadPoolExecutor} with the given initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @param threadFactory the factory to use when the executor creates a new thread
-     * @param handler the handler to use when execution is blocked because the thread bounds and queue capacities are reached
+     * @param handler the handler to use when execution is blocked because the thread bounds and
+     *     queue capacities are reached
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      * @throws NullPointerException if {@code threadFactory} or {@code handler} is null
      */
-    public PausableScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+    public PausableScheduledThreadPoolExecutor(
+            int corePoolSize, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
         super(corePoolSize, threadFactory, handler);
     }
 
     /**
      * Sets the default required delay when executing/submitting tasks.
-     * <p>
-     * Default value is zero, no required delay.
+     *
+     * <p>Default value is zero, no required delay.
      *
      * @param delay the value delay
      * @param unit the time unit of delay
@@ -145,21 +150,25 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
     }
 
     /**
-     * Sets whether or not the default delay should be incremental, that is, increased proportionally to each task executed.
-     * <p>
-     * For example, with default delay of 500 milliseconds and incremental delay set to {@code true} it will result in the
-     * following delays for each task:
-     * <ol>
-     * <li>500 milliseconds</li>
-     * <li>1 second</li>
-     * <li>1.5 seconds</li>
-     * <li>2 seconds</li>
-     * </ol>
-     * Effectively making the tasks execute periodically around the default delay.
-     * <p>
-     * Default value is {@code false}.
+     * Sets whether or not the default delay should be incremental, that is, increased
+     * proportionally to each task executed.
      *
-     * @param incremental {@code true} if the default delay should be incremental, {@code false} otherwise.
+     * <p>For example, with default delay of 500 milliseconds and incremental delay set to {@code
+     * true} it will result in the following delays for each task:
+     *
+     * <ol>
+     *   <li>500 milliseconds
+     *   <li>1 second
+     *   <li>1.5 seconds
+     *   <li>2 seconds
+     * </ol>
+     *
+     * Effectively making the tasks execute periodically around the default delay.
+     *
+     * <p>Default value is {@code false}.
+     *
+     * @param incremental {@code true} if the default delay should be incremental, {@code false}
+     *     otherwise.
      * @see #isIncrementalDefaultDelay()
      * @see #setDefaultDelay(long, TimeUnit)
      */
@@ -188,8 +197,8 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
     /**
      * Resets the incremental default delay.
-     * <p>
-     * The call to this method has no effect it the incremental default delay is not enabled.
+     *
+     * <p>The call to this method has no effect it the incremental default delay is not enabled.
      *
      * @see #setIncrementalDefaultDelay(boolean)
      */
@@ -200,11 +209,11 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
     }
 
     /**
-     * If no default delay was specified the {@code command} is executed with zero required delay. Otherwise the default delay
-     * is applied.
+     * If no default delay was specified the {@code command} is executed with zero required delay.
+     * Otherwise the default delay is applied.
      *
-     * @throws RejectedExecutionException at discretion of {@code RejectedExecutionHandler}, if the task cannot be accepted for
-     *             execution because the executor has been shut down
+     * @throws RejectedExecutionException at discretion of {@code RejectedExecutionHandler}, if the
+     *     task cannot be accepted for execution because the executor has been shut down
      * @throws NullPointerException {@inheritDoc}
      * @see #setIncrementalDefaultDelay(boolean)
      * @see #schedule(Runnable, long, TimeUnit)
@@ -224,9 +233,9 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to schedule with default delay, when non zero.
-     * 
+     *
+     * <p>Overridden to schedule with default delay, when non zero.
+     *
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      * @see #setIncrementalDefaultDelay(boolean)
@@ -240,9 +249,9 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to schedule with default delay, when non zero.
-     * 
+     *
+     * <p>Overridden to schedule with default delay, when non zero.
+     *
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      * @see #setIncrementalDefaultDelay(boolean)
@@ -251,15 +260,15 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
      */
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
-        return schedule(Executors.callable(task, result), getDefaultDelayForTask(), TimeUnit.MILLISECONDS);
+        return schedule(
+                Executors.callable(task, result), getDefaultDelayForTask(), TimeUnit.MILLISECONDS);
     }
 
     /**
-     * 
      * {@inheritDoc}
-     * <p>
-     * Overridden to schedule with default delay, when non zero.
-     * 
+     *
+     * <p>Overridden to schedule with default delay, when non zero.
+     *
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException {@inheritDoc}
      * @see #setIncrementalDefaultDelay(boolean)
@@ -312,9 +321,9 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to {@code resume()} before {@code shutdown()}.
-     * 
+     *
+     * <p>Overridden to {@code resume()} before {@code shutdown()}.
+     *
      * @see #resume()
      */
     @Override
@@ -325,9 +334,9 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to {@code resume()} before {@code shutdownNow()}.
-     * 
+     *
+     * <p>Overridden to {@code resume()} before {@code shutdownNow()}.
+     *
      * @see #resume()
      */
     @Override

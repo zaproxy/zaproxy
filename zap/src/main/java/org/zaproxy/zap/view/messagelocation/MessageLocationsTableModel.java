@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,28 +21,29 @@ package org.zaproxy.zap.view.messagelocation;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTableModel;
 
 /**
  * An {@code AbstractMultipleOptionsBaseTableModel} to manage message locations in a table.
- * <p>
- * Used to manage message locations and the corresponding highlights.
- * 
+ *
+ * <p>Used to manage message locations and the corresponding highlights.
+ *
  * @param <T> the type of message location entries
  * @since 2.4.0
  * @see AbstractMultipleOptionsBaseTableModel
  * @see MessageLocationTableEntry
  */
-public class MessageLocationsTableModel<T extends MessageLocationTableEntry> extends AbstractMultipleOptionsBaseTableModel<T> {
+public class MessageLocationsTableModel<T extends MessageLocationTableEntry>
+        extends AbstractMultipleOptionsBaseTableModel<T> {
 
     private static final long serialVersionUID = 4506544561803715504L;
 
     private static final String[] COLUMNS = {
-            "",
-            Constant.messages.getString("messagelocations.table.header.location"),
-            Constant.messages.getString("messagelocations.table.header.value") };
+        "",
+        Constant.messages.getString("messagelocations.table.header.location"),
+        Constant.messages.getString("messagelocations.table.header.value")
+    };
 
     protected static final int BASE_NUMBER_OF_COLUMNS = COLUMNS.length;
 
@@ -137,7 +138,8 @@ public class MessageLocationsTableModel<T extends MessageLocationTableEntry> ext
         listenerList.add(HighlightChangedListener.class, listener);
     }
 
-    public void removeMessageLocationHighlightChangedListener(HighlightChangedListener<T> listener) {
+    public void removeMessageLocationHighlightChangedListener(
+            HighlightChangedListener<T> listener) {
         listenerList.remove(HighlightChangedListener.class, listener);
     }
 
@@ -150,10 +152,10 @@ public class MessageLocationsTableModel<T extends MessageLocationTableEntry> ext
                     event = new HighlightChangedEvent<>(this, entry, highlightReference);
                 }
                 @SuppressWarnings("unchecked")
-                HighlightChangedListener<T> listener = ((HighlightChangedListener<T>) listeners[i + 1]);
+                HighlightChangedListener<T> listener =
+                        ((HighlightChangedListener<T>) listeners[i + 1]);
                 listener.highlightChanged(event);
             }
         }
     }
-
 }

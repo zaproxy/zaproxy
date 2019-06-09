@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +32,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,9 +40,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.I18N;
 
-/**
- * Unit test for {@link PluginFactory}.
- */
+/** Unit test for {@link PluginFactory}. */
 @RunWith(MockitoJUnitRunner.class)
 public class PluginFactoryUnitTest extends PluginTestUtils {
 
@@ -185,7 +182,9 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         assertThat(otherPluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
         assertThat(pluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
         assertThat(otherPluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
-        assertThat(pluginFactory.getAllPlugin().get(1), is(not(sameInstance(otherPluginFactory.getAllPlugin().get(1)))));
+        assertThat(
+                pluginFactory.getAllPlugin().get(1),
+                is(not(sameInstance(otherPluginFactory.getAllPlugin().get(1)))));
     }
 
     @Test
@@ -200,7 +199,9 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginHighAlert, pluginFactory), is(lessThan(indexOf(pluginMediumAlert, pluginFactory))));
+        assertThat(
+                indexOf(pluginHighAlert, pluginFactory),
+                is(lessThan(indexOf(pluginMediumAlert, pluginFactory))));
     }
 
     @Test
@@ -215,7 +216,9 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginMediumAlert, pluginFactory), is(lessThan(indexOf(pluginLowAlert, pluginFactory))));
+        assertThat(
+                indexOf(pluginMediumAlert, pluginFactory),
+                is(lessThan(indexOf(pluginLowAlert, pluginFactory))));
     }
 
     @Test
@@ -230,14 +233,18 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginLowAlert, pluginFactory), is(lessThan(indexOf(pluginInfoAlert, pluginFactory))));
+        assertThat(
+                indexOf(pluginLowAlert, pluginFactory),
+                is(lessThan(indexOf(pluginInfoAlert, pluginFactory))));
     }
 
     @Test
     public void shouldOrderReleaseStatusPluginsBeforeBeta() {
         // Given
-        AbstractPlugin pluginReleaseStatus = createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.release);
-        AbstractPlugin pluginBetaStatus = createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.beta);
+        AbstractPlugin pluginReleaseStatus =
+                createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.release);
+        AbstractPlugin pluginBetaStatus =
+                createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.beta);
         PluginFactory.loadedPlugin(pluginReleaseStatus);
         PluginFactory.loadedPlugin(pluginBetaStatus);
         PluginFactory pluginFactory = new PluginFactory();
@@ -245,14 +252,18 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginReleaseStatus, pluginFactory), is(lessThan(indexOf(pluginBetaStatus, pluginFactory))));
+        assertThat(
+                indexOf(pluginReleaseStatus, pluginFactory),
+                is(lessThan(indexOf(pluginBetaStatus, pluginFactory))));
     }
 
     @Test
     public void shouldOrderBetaStatusPluginBeforeAlpha() {
         // Given
-        AbstractPlugin pluginBetaStatus = createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.beta);
-        AbstractPlugin pluginAlphaStatus = createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.alpha);
+        AbstractPlugin pluginBetaStatus =
+                createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.beta);
+        AbstractPlugin pluginAlphaStatus =
+                createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.alpha);
         PluginFactory.loadedPlugin(pluginBetaStatus);
         PluginFactory.loadedPlugin(pluginAlphaStatus);
         PluginFactory pluginFactory = new PluginFactory();
@@ -260,14 +271,18 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginBetaStatus, pluginFactory), is(lessThan(indexOf(pluginAlphaStatus, pluginFactory))));
+        assertThat(
+                indexOf(pluginBetaStatus, pluginFactory),
+                is(lessThan(indexOf(pluginAlphaStatus, pluginFactory))));
     }
 
     @Test
     public void shouldOrderAlphaStatusPluginBeforeUnknown() {
         // Given
-        AbstractPlugin pluginAlphaStatus = createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.alpha);
-        AbstractPlugin pluginUnknownStatus = createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.unknown);
+        AbstractPlugin pluginAlphaStatus =
+                createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.alpha);
+        AbstractPlugin pluginUnknownStatus =
+                createAbstractPlugin(2, Alert.RISK_HIGH, AddOn.Status.unknown);
         PluginFactory.loadedPlugin(pluginAlphaStatus);
         PluginFactory.loadedPlugin(pluginUnknownStatus);
         PluginFactory pluginFactory = new PluginFactory();
@@ -275,14 +290,17 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginAlphaStatus, pluginFactory), is(lessThan(indexOf(pluginUnknownStatus, pluginFactory))));
+        assertThat(
+                indexOf(pluginAlphaStatus, pluginFactory),
+                is(lessThan(indexOf(pluginUnknownStatus, pluginFactory))));
     }
 
     @Test
     public void shouldOrderByLowerPluginIdIfSameAlertRiskAndStatus() {
         // Given
         AbstractPlugin pluginLowerId = createAbstractPlugin(52, Alert.RISK_LOW, AddOn.Status.beta);
-        AbstractPlugin pluginHigherId = createAbstractPlugin(150, Alert.RISK_LOW, AddOn.Status.beta);
+        AbstractPlugin pluginHigherId =
+                createAbstractPlugin(150, Alert.RISK_LOW, AddOn.Status.beta);
         PluginFactory.loadedPlugin(pluginLowerId);
         PluginFactory.loadedPlugin(pluginHigherId);
         PluginFactory pluginFactory = new PluginFactory();
@@ -290,14 +308,19 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(pluginLowerId, pluginFactory), is(lessThan(indexOf(pluginHigherId, pluginFactory))));
+        assertThat(
+                indexOf(pluginLowerId, pluginFactory),
+                is(lessThan(indexOf(pluginHigherId, pluginFactory))));
     }
 
     @Test
     public void shouldOrderDependenciesBeforeDependentPlugins() {
         // Given
-        AbstractPlugin dependentPlugin = createAbstractPlugin(1, "DependentPlugin", "DependencyPlugin1", "DependencyPlugin2");
-        AbstractPlugin dependencyPlugin1 = createAbstractPlugin(2, "DependencyPlugin1", "DependencyPlugin2");
+        AbstractPlugin dependentPlugin =
+                createAbstractPlugin(
+                        1, "DependentPlugin", "DependencyPlugin1", "DependencyPlugin2");
+        AbstractPlugin dependencyPlugin1 =
+                createAbstractPlugin(2, "DependencyPlugin1", "DependencyPlugin2");
         AbstractPlugin dependencyPlugin2 = createAbstractPlugin(3, "DependencyPlugin2");
         PluginFactory.loadedPlugin(dependentPlugin);
         PluginFactory.loadedPlugin(dependencyPlugin1);
@@ -307,9 +330,15 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
         // When
         pluginFactory.reset();
         // Then
-        assertThat(indexOf(dependencyPlugin1, pluginFactory), is(lessThan(indexOf(dependentPlugin, pluginFactory))));
-        assertThat(indexOf(dependencyPlugin2, pluginFactory), is(lessThan(indexOf(dependentPlugin, pluginFactory))));
-        assertThat(indexOf(dependencyPlugin2, pluginFactory), is(lessThan(indexOf(dependencyPlugin1, pluginFactory))));
+        assertThat(
+                indexOf(dependencyPlugin1, pluginFactory),
+                is(lessThan(indexOf(dependentPlugin, pluginFactory))));
+        assertThat(
+                indexOf(dependencyPlugin2, pluginFactory),
+                is(lessThan(indexOf(dependentPlugin, pluginFactory))));
+        assertThat(
+                indexOf(dependencyPlugin2, pluginFactory),
+                is(lessThan(indexOf(dependencyPlugin1, pluginFactory))));
     }
 
     private static int indexOf(AbstractPlugin plugin, PluginFactory pluginFactory) {

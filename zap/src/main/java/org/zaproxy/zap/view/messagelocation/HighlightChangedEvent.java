@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,7 +36,8 @@ public class HighlightChangedEvent<T> extends EventObject {
     private final T entry;
     private final MessageLocationHighlight highlightReference;
 
-    public HighlightChangedEvent(Object source, T entry, MessageLocationHighlight highlightReference) {
+    public HighlightChangedEvent(
+            Object source, T entry, MessageLocationHighlight highlightReference) {
         super(source);
 
         this.entry = entry;
@@ -50,5 +51,4 @@ public class HighlightChangedEvent<T> extends EventObject {
     public MessageLocationHighlight getHighlightReference() {
         return highlightReference;
     }
-
 }

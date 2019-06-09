@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,27 +19,24 @@
  */
 package org.parosproxy.paros.security;
 
-/**
- * Signal not initialized root CA certificate store.
- */
+/** Signal not initialized root CA certificate store. */
 public class MissingRootCertificateException extends IllegalStateException {
 
-	private static final long serialVersionUID = -9087082417871920302L;
+    private static final long serialVersionUID = -9087082417871920302L;
 
-	public MissingRootCertificateException() {
-		super();
-	}
+    public MissingRootCertificateException() {
+        super();
+    }
 
-	public MissingRootCertificateException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public MissingRootCertificateException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public MissingRootCertificateException(String s) {
-		super(s);
-	}
+    public MissingRootCertificateException(String s) {
+        super(s);
+    }
 
-	public MissingRootCertificateException(Throwable cause) {
-		super(cause);
-	}
-
+    public MissingRootCertificateException(Throwable cause) {
+        super(cause);
+    }
 }

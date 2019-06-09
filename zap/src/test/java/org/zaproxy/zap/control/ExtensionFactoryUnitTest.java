@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
@@ -36,9 +35,7 @@ import org.junit.Test;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 
-/**
- * Unit test for {@link ExtensionFactory}.
- */
+/** Unit test for {@link ExtensionFactory}. */
 public class ExtensionFactoryUnitTest {
 
     @BeforeClass
@@ -103,7 +100,8 @@ public class ExtensionFactoryUnitTest {
         Extension ext2 = new Extension2(ext1);
         Extension ext3 = new Extension2(ext2);
         ext1.addDependency(ext3.getClass());
-        Map<Class<? extends Extension>, Extension> availableExtensions = createMap(ext1, ext2, ext3);
+        Map<Class<? extends Extension>, Extension> availableExtensions =
+                createMap(ext1, ext2, ext3);
         // When
         boolean canLoad = ExtensionFactory.canBeLoaded(availableExtensions, ext1);
         // Then

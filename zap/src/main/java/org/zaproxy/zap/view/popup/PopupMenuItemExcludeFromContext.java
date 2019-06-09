@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,6 @@
 package org.zaproxy.zap.view.popup;
 
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
@@ -31,15 +30,13 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ContextExcludePanel;
 
-/**
- * @since 2.3.0
- */
+/** @since 2.3.0 */
 public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 2766535157899537709L;
 
     private static final Logger LOGGER = Logger.getLogger(PopupMenuItemExcludeFromContext.class);
-    
+
     protected Context context;
 
     public PopupMenuItemExcludeFromContext(Context context) {
@@ -59,7 +56,8 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
 
     @Override
     public void performAction(SiteNode sn) {
-        Context uiSharedContext = View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
+        Context uiSharedContext =
+                View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
 
         try {
             uiSharedContext.excludeFromContext(sn, !sn.isLeaf());
@@ -78,7 +76,9 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
         super.performHistoryReferenceActions(hrefs);
 
         // Show the session dialog without recreating UI Shared contexts
-        View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()), false);
+        View.getSingleton()
+                .showSessionDialog(
+                        session, ContextExcludePanel.getPanelName(context.getIndex()), false);
     }
 
     @Override
@@ -95,5 +95,4 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
     public boolean isSafe() {
         return true;
     }
-
 }

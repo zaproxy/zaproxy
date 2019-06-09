@@ -2,24 +2,24 @@
  * Created on Jun 17, 2004
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2012/03/15 Changed the method addHistory to use the class StringBuilder 
+// ZAP: 2012/03/15 Changed the method addHistory to use the class StringBuilder
 // instead of StringBuffer. Added the method getProxyListenerOrder.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
@@ -30,12 +30,13 @@
 // ZAP: 2015/09/07 Issue 1872: EDT accessed in daemon mode
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2018/03/14 Publish event when href added
-// ZAP: 2018/04/11 Log the message synchronously to avoid following listeners to change it before being persisted.
+// ZAP: 2018/04/11 Log the message synchronously to avoid following listeners to change it before
+// being persisted.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension.history;
- 
-import java.awt.EventQueue;
 
+import java.awt.EventQueue;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
@@ -51,97 +52,101 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.SessionStructure;
 
-
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
-	// ZAP: Added logger
+    // ZAP: Added logger
     private static final Logger log = Logger.getLogger(ProxyListenerLog.class);
 
-    // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the HttpMessage 
-	// to the DB and must let other listeners change and test the HttpMessage before saving it.
-    // Note: other listeners can be notified after this one but they shouldn't change the HttpMessage 
+    // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the
+    // HttpMessage
+    // to the DB and must let other listeners change and test the HttpMessage before saving it.
+    // Note: other listeners can be notified after this one but they shouldn't change the
+    // HttpMessage
     // as that changes will not be saved to the DB.
     public static final int PROXY_LISTENER_ORDER = 5000;
-    
-	private ViewDelegate view = null;
-	private Model model = null;
-	private boolean isFirstAccess = true;
-	private ExtensionHistory extension = null;
-	
-	public ProxyListenerLog(Model model, ViewDelegate view, ExtensionHistory extension) {
-	    this.model = model;
-	    this.view = view;
-	    this.extension = extension;
-	}
 
-	// ZAP: Added method.
-	@Override
-	public int getArrangeableListenerOrder() {
-		return PROXY_LISTENER_ORDER;
-	}
-	
-	@Override
-	public boolean onHttpRequestSend(HttpMessage msg) {
-//	    if (msg.getRequestHeader().isImage()) {
-//	        return;
-//	    }
-	    
-	    HttpMessage existingMsg = model.getSession().getSiteTree().pollPath(msg);
+    private ViewDelegate view = null;
+    private Model model = null;
+    private boolean isFirstAccess = true;
+    private ExtensionHistory extension = null;
 
-	    // check if a msg of the same type exist
-	    if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
-	        if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
-	            // exist, no modification necessary
-	            return true;
-	        }
-	    }
-        
-	    // if not, make sure a new copy will be obtained
-	    if (msg.getRequestHeader().getHeader(HttpHeader.IF_MODIFIED_SINCE) != null) {
-	        msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-	    }
-	    
-	    if (msg.getRequestHeader().getHeader(HttpHeader.IF_NONE_MATCH) != null) {
-	        msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-	    }
-		return true;
-	}
-	
-	@Override
-	public boolean onHttpResponseReceive(final HttpMessage msg) {
+    public ProxyListenerLog(Model model, ViewDelegate view, ExtensionHistory extension) {
+        this.model = model;
+        this.view = view;
+        this.extension = extension;
+    }
+
+    // ZAP: Added method.
+    @Override
+    public int getArrangeableListenerOrder() {
+        return PROXY_LISTENER_ORDER;
+    }
+
+    @Override
+    public boolean onHttpRequestSend(HttpMessage msg) {
+        //	    if (msg.getRequestHeader().isImage()) {
+        //	        return;
+        //	    }
+
+        HttpMessage existingMsg = model.getSession().getSiteTree().pollPath(msg);
+
+        // check if a msg of the same type exist
+        if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
+            if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
+                // exist, no modification necessary
+                return true;
+            }
+        }
+
+        // if not, make sure a new copy will be obtained
+        if (msg.getRequestHeader().getHeader(HttpHeader.IF_MODIFIED_SINCE) != null) {
+            msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
+        }
+
+        if (msg.getRequestHeader().getHeader(HttpHeader.IF_NONE_MATCH) != null) {
+            msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onHttpResponseReceive(final HttpMessage msg) {
 
         int type = HistoryReference.TYPE_PROXIED;
-		if (isSkipImage(msg.getRequestHeader()) || isSkipImage(msg.getResponseHeader())) {
+        if (isSkipImage(msg.getRequestHeader()) || isSkipImage(msg.getResponseHeader())) {
             if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
                 type = HistoryReference.TYPE_HIDDEN;
             } else {
                 return true;
             }
-		}
-		final int finalType = type;
-		final HistoryReference href = createHistoryReference(msg, type);
-		Thread t = new Thread(new Runnable() {
-		    @Override
-		    public void run() {
-		        createAndAddMessage(href, finalType);
-		    }
-		});
-		t.start();
-				
-		return true;
-	}
-	    
+        }
+        final int finalType = type;
+        final HistoryReference href = createHistoryReference(msg, type);
+        Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                createAndAddMessage(href, finalType);
+                            }
+                        });
+        t.start();
+
+        return true;
+    }
+
     public boolean isSkipImage(HttpHeader header) {
-		if (header.isImage() && !model.getOptionsParam().getViewParam().isProcessImages()) {
-			return true;
-		}
-			
-		return false;
-				
-	}
-    
+        if (header.isImage() && !model.getOptionsParam().getViewParam().isProcessImages()) {
+            return true;
+        }
+
+        return false;
+    }
+
     private void createAndAddMessage(HistoryReference historyRef, int type) {
-        if (historyRef == null || (type != HistoryReference.TYPE_PROXIED && type != HistoryReference.TYPE_HIDDEN)) {
+        if (historyRef == null
+                || (type != HistoryReference.TYPE_PROXIED
+                        && type != HistoryReference.TYPE_HIDDEN)) {
             return;
         }
 
@@ -152,7 +157,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         } catch (HttpMalformedHeaderException | DatabaseException e) {
             log.warn("Failed to add the message to Sites tree:", e);
         }
-        
+
         ProxyListenerLogEventPublisher.getPublisher().publishHrefAddedEvent(historyRef);
     }
 
@@ -169,15 +174,16 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
     private void addToSiteMap(final HistoryReference ref, final HttpMessage msg) {
         if (View.isInitialised() && !EventQueue.isDispatchThread()) {
             try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        addToSiteMap(ref, msg);
-                    }
-                });
+                EventQueue.invokeAndWait(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                addToSiteMap(ref, msg);
+                            }
+                        });
             } catch (Exception e) {
-            	// ZAP: Log exceptions
-            	log.warn(e.getMessage(), e);
+                // ZAP: Log exceptions
+                log.warn(e.getMessage(), e);
             }
             return;
         }
@@ -197,15 +203,20 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             return;
         }
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HistoryReference historyRef = createHistoryReference(connectMessage, HistoryReference.TYPE_PROXY_CONNECT);
-                if (historyRef != null) {
-                    extension.addHistory(historyRef);
-                }
-            }
-        });
+        Thread t =
+                new Thread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                HistoryReference historyRef =
+                                        createHistoryReference(
+                                                connectMessage,
+                                                HistoryReference.TYPE_PROXY_CONNECT);
+                                if (historyRef != null) {
+                                    extension.addHistory(historyRef);
+                                }
+                            }
+                        });
         t.start();
     }
 }

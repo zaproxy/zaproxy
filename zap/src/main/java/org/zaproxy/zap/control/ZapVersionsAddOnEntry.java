@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,16 +23,17 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * An add-on entry of {@code ZapVersions.xml} file.
- * <p>
- * It also reads:
+ *
+ * <p>It also reads:
+ *
  * <ul>
- * <li>file;</li>
- * <li>size;</li>
- * <li>info;</li>
- * <li>date;</li>
- * <li>hash.</li>
+ *   <li>file;
+ *   <li>size;
+ *   <li>info;
+ *   <li>date;
+ *   <li>hash.
  * </ul>
- * 
+ *
  * @since 2.4.0
  */
 public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {

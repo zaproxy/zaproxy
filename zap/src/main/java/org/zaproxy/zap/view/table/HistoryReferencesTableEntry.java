@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,14 +24,14 @@ import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
  * An entry of {@code HistoryReferencesTableModel}.
- * 
+ *
  * @see HistoryReferencesTableModel
  */
 public interface HistoryReferencesTableEntry {
 
     /**
      * Returns the {@code HistoryReference} of the table entry.
-     * 
+     *
      * @return the {@code HistoryReference} of the table entry
      * @see HistoryReference
      */
@@ -39,7 +39,7 @@ public interface HistoryReferencesTableEntry {
 
     /**
      * Returns the value of the entry for the given {@code column}.
-     * 
+     *
      * @param column the column whose entry value will be returned
      * @return the value of the entry for the given {@code column}
      */

@@ -29,9 +29,7 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
 
-/**
- * Unit test for {@link AuthenticationMethod}.
- */
+/** Unit test for {@link AuthenticationMethod}. */
 public class AuthenticationMethodUnitTest {
 
     @Test
@@ -49,8 +47,10 @@ public class AuthenticationMethodUnitTest {
         // Given
         String loggedInIndicator = "loggedInIndicator";
         String loggedOutIndicator = "loggedOutIndicator";
-        AuthenticationMethod authMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
-        AuthenticationMethod otherAuthMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod otherAuthMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
@@ -62,8 +62,10 @@ public class AuthenticationMethodUnitTest {
         // Given
         String loggedInIndicator = null;
         String loggedOutIndicator = "loggedOutIndicator";
-        AuthenticationMethod authMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
-        AuthenticationMethod otherAuthMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod otherAuthMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
@@ -75,8 +77,10 @@ public class AuthenticationMethodUnitTest {
         // Given
         String loggedInIndicator = "loggedInIndicator";
         String loggedOutIndicator = null;
-        AuthenticationMethod authMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
-        AuthenticationMethod otherAuthMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod otherAuthMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
@@ -88,8 +92,10 @@ public class AuthenticationMethodUnitTest {
         // Given
         String loggedInIndicator = null;
         String loggedOutIndicator = null;
-        AuthenticationMethod authMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
-        AuthenticationMethod otherAuthMethod = createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
+        AuthenticationMethod otherAuthMethod =
+                createAuthenticationMethod(loggedInIndicator, loggedOutIndicator);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) & otherAuthMethod.equals(authMethod);
         // Then
@@ -110,8 +116,10 @@ public class AuthenticationMethodUnitTest {
     public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentLoggedInIndicator() {
         // Given
         String loggedOutIndicator = "loggedOutIndicator";
-        AuthenticationMethod authMethod = createAuthenticationMethod("loggedInIndicator", loggedOutIndicator);
-        AuthenticationMethod otherAuthMethod = createAuthenticationMethod("otherLoggedInIndicator", loggedOutIndicator);
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod("loggedInIndicator", loggedOutIndicator);
+        AuthenticationMethod otherAuthMethod =
+                createAuthenticationMethod("otherLoggedInIndicator", loggedOutIndicator);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
@@ -122,7 +130,8 @@ public class AuthenticationMethodUnitTest {
     public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentNullLoggedInIndicator() {
         // Given
         String loggedOutIndicator = "loggedOutIndicator";
-        AuthenticationMethod authMethod = createAuthenticationMethod("loggedInIndicator", loggedOutIndicator);
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod("loggedInIndicator", loggedOutIndicator);
         AuthenticationMethod otherAuthMethod = createAuthenticationMethod(null, loggedOutIndicator);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
@@ -134,8 +143,10 @@ public class AuthenticationMethodUnitTest {
     public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentLoggedOutIndicator() {
         // Given
         String loggedInIndicator = "loggedInIndicator";
-        AuthenticationMethod authMethod = createAuthenticationMethod(loggedInIndicator, "loggedOutIndicator");
-        AuthenticationMethod otherAuthMethod = createAuthenticationMethod(loggedInIndicator, "otherLoggedOutIndicator");
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod(loggedInIndicator, "loggedOutIndicator");
+        AuthenticationMethod otherAuthMethod =
+                createAuthenticationMethod(loggedInIndicator, "otherLoggedOutIndicator");
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
@@ -146,7 +157,8 @@ public class AuthenticationMethodUnitTest {
     public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentNullLoggedOutIndicator() {
         // Given
         String loggedInIndicator = "loggedInIndicator";
-        AuthenticationMethod authMethod = createAuthenticationMethod(loggedInIndicator, "loggedOutIndicator");
+        AuthenticationMethod authMethod =
+                createAuthenticationMethod(loggedInIndicator, "loggedOutIndicator");
         AuthenticationMethod otherAuthMethod = createAuthenticationMethod(loggedInIndicator, null);
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
@@ -159,15 +171,16 @@ public class AuthenticationMethodUnitTest {
         // Given
         AuthenticationMethod authMethod = new AuthenticationMethodTest();
         AuthenticationMethod otherAuthMethod = new AuthenticationMethodTest() {
-            // Anonymous AuthenticationMethod
-        };
+                    // Anonymous AuthenticationMethod
+                };
         // When
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
         assertThat(equals, is(false));
     }
 
-    private static AuthenticationMethod createAuthenticationMethod(String loggedInIndicator, String loggedOutIndicator) {
+    private static AuthenticationMethod createAuthenticationMethod(
+            String loggedInIndicator, String loggedOutIndicator) {
         AuthenticationMethod authMethod = new AuthenticationMethodTest();
         authMethod.setLoggedInIndicatorPattern(loggedInIndicator);
         authMethod.setLoggedOutIndicatorPattern(loggedOutIndicator);
@@ -200,7 +213,8 @@ public class AuthenticationMethodUnitTest {
         public WebSession authenticate(
                 SessionManagementMethod sessionManagementMethod,
                 AuthenticationCredentials credentials,
-                User user) throws UnsupportedAuthenticationCredentialsException {
+                User user)
+                throws UnsupportedAuthenticationCredentialsException {
             return null;
         }
 
@@ -208,6 +222,5 @@ public class AuthenticationMethodUnitTest {
         public ApiResponse getApiResponseRepresentation() {
             return null;
         }
-
     }
 }

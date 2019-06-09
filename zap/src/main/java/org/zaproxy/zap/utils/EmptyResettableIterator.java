@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,9 +21,10 @@ package org.zaproxy.zap.utils;
 
 /**
  * An immutable {@code ResettableIterator} without behaviour.
- * <p>
- * Useful as placeholder when a non-{@code null} {@code ResettableIterator} is required but does not to have to do anything.
- * 
+ *
+ * <p>Useful as placeholder when a non-{@code null} {@code ResettableIterator} is required but does
+ * not to have to do anything.
+ *
  * @param <E> the type of elements returned by this iterator
  * @see #emptyIterator()
  * @see ResettableIterator
@@ -31,10 +32,10 @@ package org.zaproxy.zap.utils;
  */
 public final class EmptyResettableIterator<E> implements ResettableIterator<E> {
 
-    private static final EmptyResettableIterator<?> EMPTY_ITERATOR = new EmptyResettableIterator<>();
+    private static final EmptyResettableIterator<?> EMPTY_ITERATOR =
+            new EmptyResettableIterator<>();
 
-    private EmptyResettableIterator() {
-    }
+    private EmptyResettableIterator() {}
 
     public static <T> EmptyResettableIterator<T> emptyIterator() {
         @SuppressWarnings("unchecked")
@@ -42,34 +43,23 @@ public final class EmptyResettableIterator<E> implements ResettableIterator<E> {
         return iterator;
     }
 
-    /**
-     * Returns {@code false}, always.
-     */
+    /** Returns {@code false}, always. */
     @Override
     public boolean hasNext() {
         return false;
     }
 
-    /**
-     * Returns {@code null}, always.
-     */
+    /** Returns {@code null}, always. */
     @Override
     public E next() {
         return null;
     }
 
-    /**
-     * Does nothing.
-     */
+    /** Does nothing. */
     @Override
-    public void remove() {
-    }
+    public void remove() {}
 
-    /**
-     * Does nothing.
-     */
+    /** Does nothing. */
     @Override
-    public void reset() {
-    }
-
+    public void reset() {}
 }

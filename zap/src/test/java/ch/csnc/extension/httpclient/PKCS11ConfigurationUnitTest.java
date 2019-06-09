@@ -1,36 +1,32 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2013 The ZAP Development Team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ch.csnc.extension.httpclient;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder;
 import java.io.InputStream;
-
 import org.junit.Test;
 
-import ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder;
-
-/**
- * Unit test for {@link ch.csnc.extension.httpclient.PKCS11Configuration}
- */
+/** Unit test for {@link ch.csnc.extension.httpclient.PKCS11Configuration} */
 public class PKCS11ConfigurationUnitTest {
 
     private static final String NAME = "Provider Name";
@@ -152,7 +148,8 @@ public class PKCS11ConfigurationUnitTest {
     public void shouldRetrieveDescriptionSet() {
         // Given
         String description = "Description of Provider X";
-        configuration = getConfigurationBuilderWithNameAndLibrarySet().setDescription(description).build();
+        configuration =
+                getConfigurationBuilderWithNameAndLibrarySet().setDescription(description).build();
         // When
         String retrievedDescription = configuration.getDescription();
         // Then
@@ -173,7 +170,8 @@ public class PKCS11ConfigurationUnitTest {
     public void shouldRetrieveEmptyDescriptionSet() {
         // Given
         String description = "";
-        configuration = getConfigurationBuilderWithNameAndLibrarySet().setDescription(description).build();
+        configuration =
+                getConfigurationBuilderWithNameAndLibrarySet().setDescription(description).build();
         // When
         String retrievedDescription = configuration.getDescription();
         // Then
@@ -194,7 +192,8 @@ public class PKCS11ConfigurationUnitTest {
     public void shouldRetrieveStringRepresentationWithDescriptionSet() {
         // Given
         String description = "Description of Provider X";
-        configuration = getConfigurationBuilderWithNameAndLibrarySet().setDescription(description).build();
+        configuration =
+                getConfigurationBuilderWithNameAndLibrarySet().setDescription(description).build();
         // When
         String retrievedStringRepresentation = configuration.toString();
         // Then
@@ -225,7 +224,10 @@ public class PKCS11ConfigurationUnitTest {
     public void shouldRetrieveSlotListIndexSet() {
         // Given
         int slotListIndexSet = 1;
-        configuration = getConfigurationBuilderWithNameAndLibrarySet().setSlotListIndex(slotListIndexSet).build();
+        configuration =
+                getConfigurationBuilderWithNameAndLibrarySet()
+                        .setSlotListIndex(slotListIndexSet)
+                        .build();
         // When
         int retrievedSlotListIndexSet = configuration.getSlotListIndex();
         // Then
@@ -273,7 +275,8 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationWithAttributeSlotInsteadOfAttributeSlotListIndexGivenASlotIdSet() {
+    public void
+            shouldRetrieveStringRepresentationWithAttributeSlotInsteadOfAttributeSlotListIndexGivenASlotIdSet() {
         // Given
         int slotId = 1;
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setSlotId(slotId).build();
@@ -285,10 +288,15 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationWithBackslashesPresentInNameEscapedWithBackslashes() {
+    public void
+            shouldRetrieveStringRepresentationWithBackslashesPresentInNameEscapedWithBackslashes() {
         // Given
         String nameWithBackslash = "\\";
-        configuration = PKCS11Configuration.builder().setName(nameWithBackslash).setLibrary(LIBRARY).build();
+        configuration =
+                PKCS11Configuration.builder()
+                        .setName(nameWithBackslash)
+                        .setLibrary(LIBRARY)
+                        .build();
         // When
         String retrievedStringRepresentation = configuration.toString();
         // Then
@@ -296,10 +304,15 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationWithQuotationMarksPresentInNameEscapedWithBackslashes() {
+    public void
+            shouldRetrieveStringRepresentationWithQuotationMarksPresentInNameEscapedWithBackslashes() {
         // Given
         String nameWithQuotationMark = "\"";
-        configuration = PKCS11Configuration.builder().setName(nameWithQuotationMark).setLibrary(LIBRARY).build();
+        configuration =
+                PKCS11Configuration.builder()
+                        .setName(nameWithQuotationMark)
+                        .setLibrary(LIBRARY)
+                        .build();
         // When
         String retrievedStringRepresentation = configuration.toString();
         // Then
@@ -315,5 +328,4 @@ public class PKCS11ConfigurationUnitTest {
         // Then
         assertThat(retrievedInputStream, is(not(nullValue())));
     }
-
 }

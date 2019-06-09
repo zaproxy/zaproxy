@@ -27,24 +27,21 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link ZapXmlConfiguration}.
- */
+/** Unit test for {@link ZapXmlConfiguration}. */
 public class ZapXmlConfigurationUnitTest {
 
     private static final String INDENTED_XML =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
-            "<a>\n" + 
-            "    <b>1</b>\n" + 
-            "    <c/>\n" + 
-            "    <d>\n" + 
-            "        <e/>\n" + 
-            "        <f>2</f>\n" + 
-            "    </d>\n" + 
-            "</a>\n";
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+                    + "<a>\n"
+                    + "    <b>1</b>\n"
+                    + "    <c/>\n"
+                    + "    <d>\n"
+                    + "        <e/>\n"
+                    + "        <f>2</f>\n"
+                    + "    </d>\n"
+                    + "</a>\n";
 
     @Test
     public void shouldSaveNewConfigurationIndented() throws Exception {
@@ -65,7 +62,8 @@ public class ZapXmlConfigurationUnitTest {
     @Test
     public void shouldSaveLoadedConfigurationIndented() throws Exception {
         // Given
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(INDENTED_XML.getBytes(StandardCharsets.UTF_8));
+        ByteArrayInputStream inputStream =
+                new ByteArrayInputStream(INDENTED_XML.getBytes(StandardCharsets.UTF_8));
         ZapXmlConfiguration conf = new ZapXmlConfiguration(inputStream);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         // When
@@ -74,7 +72,10 @@ public class ZapXmlConfigurationUnitTest {
         assertThat(contents(outputStream), is(equalTo(INDENTED_XML)));
     }
 
-    private static String contents(ByteArrayOutputStream outputStream) throws UnsupportedEncodingException {
-        return outputStream.toString(StandardCharsets.UTF_8.name()).replaceAll(System.lineSeparator(), "\n");
+    private static String contents(ByteArrayOutputStream outputStream)
+            throws UnsupportedEncodingException {
+        return outputStream
+                .toString(StandardCharsets.UTF_8.name())
+                .replaceAll(System.lineSeparator(), "\n");
     }
 }

@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright the ZAP Dev team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2011 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.view;
 
@@ -31,7 +31,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComponent;
@@ -42,7 +41,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicProgressBarUI;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
@@ -60,7 +58,7 @@ public class SplashScreen extends JFrame {
     private static final Logger LOGGER = Logger.getLogger(SplashScreen.class);
 
     private static final long serialVersionUID = 1L;
-    private final static char NEWLINE = '\n';
+    private static final char NEWLINE = '\n';
 
     private JScrollPane logScrollPane = null;
     private JScrollPane tipsScrollPane = null;
@@ -86,8 +84,9 @@ public class SplashScreen extends JFrame {
         BackgroundImagePanel panel = new BackgroundImagePanel();
         panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 430));
         panel.setLayout(new GridBagLayout());
-        panel.setBackgroundImage(SplashScreen.class.getResource("/resource/zap-splash-screen.png"), 0.5);
-        
+        panel.setBackgroundImage(
+                SplashScreen.class.getResource("/resource/zap-splash-screen.png"), 0.5);
+
         Border margin = BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED);
         Border padding = BorderFactory.createEmptyBorder(4, 4, 4, 4);
         panel.setBorder(BorderFactory.createCompoundBorder(margin, padding));
@@ -96,26 +95,34 @@ public class SplashScreen extends JFrame {
         JLabel lblProgramName = new JLabel();
 
         lblProgramName.setText(Constant.PROGRAM_NAME);
-        lblProgramName.setFont(FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.much_larger));
+        lblProgramName.setFont(
+                FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.much_larger));
         lblProgramName.setVisible(true);
         lblProgramName.setName("lblProgramName");
 
         lblVersion.setText(Constant.PROGRAM_VERSION);
-        lblVersion.setFont(FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.larger));
+        lblVersion.setFont(
+                FontUtils.getFont(FontUtils.getQuicksandBoldFont(), FontUtils.Size.larger));
         lblVersion.setName("lblVersion");
 
         // ProgramName is at the beginning of the panel (0,0)
-        panel.add(lblProgramName, LayoutHelper.getGBC(0, 0, 2, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
+        panel.add(
+                lblProgramName,
+                LayoutHelper.getGBC(0, 0, 2, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
         // Version is +8 horizontally respect to the other components
-        panel.add(lblVersion, LayoutHelper.getGBC(0, 1, 2, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
-        // Progress bar (height 12) is +56 and then +24 
+        panel.add(
+                lblVersion,
+                LayoutHelper.getGBC(0, 1, 2, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
+        // Progress bar (height 12) is +56 and then +24
         // vertically respect the other elements (tot + 92)
-        panel.add(getLoadingJProgressBar(), LayoutHelper.getGBC(0, 2, 1, 1.0, DisplayUtils.getScaledInsets(20, 30, 64, 70))); 
+        panel.add(
+                getLoadingJProgressBar(),
+                LayoutHelper.getGBC(0, 2, 1, 1.0, DisplayUtils.getScaledInsets(20, 30, 64, 70)));
         panel.add(Box.createHorizontalGlue(), LayoutHelper.getGBC(1, 2, 1, 1.0));
         // Panels should be with different heights for a good view
         panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 2, 1.0, 1.0));
         panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 0.5));
-        
+
         this.add(panel);
         this.pack();
 
@@ -127,28 +134,30 @@ public class SplashScreen extends JFrame {
 
     /**
      * Set the completion percentage value
+     *
      * @param percentage the percentage of completion
      */
     public void setLoadingCompletion(double percentage) {
         currentPerc = percentage;
-        updateLoadingJProgressBar();        
+        updateLoadingJProgressBar();
     }
 
     public void addLoadingCompletion(double value) {
         currentPerc += value;
-        updateLoadingJProgressBar();     
+        updateLoadingJProgressBar();
     }
 
     private void updateLoadingJProgressBar() {
         if (!EventQueue.isDispatchThread()) {
             try {
-                EventQueue.invokeAndWait(new Runnable() {
-                    
-                    @Override
-                    public void run() {
-                        updateLoadingJProgressBar();
-                    }
-                });
+                EventQueue.invokeAndWait(
+                        new Runnable() {
+
+                            @Override
+                            public void run() {
+                                updateLoadingJProgressBar();
+                            }
+                        });
             } catch (InvocationTargetException e) {
                 LOGGER.error("Failed to update progress bar: ", e);
             } catch (InterruptedException ignore) {
@@ -163,9 +172,9 @@ public class SplashScreen extends JFrame {
             currentPerc = 0;
         }
 
-        getLoadingJProgressBar().setValue((int)currentPerc);        
+        getLoadingJProgressBar().setValue((int) currentPerc);
     }
-    
+
     private JProgressBar getLoadingJProgressBar() {
         if (loadProgressBar == null) {
             loadProgressBar = new JProgressBar();
@@ -178,16 +187,16 @@ public class SplashScreen extends JFrame {
             loadProgressBar.setForeground(Color.decode("#4389FF"));
             setLoadingCompletion(0.0D);
         }
-        
+
         return loadProgressBar;
     }
-    
+
     private JScrollPane getLogJScrollPane() {
         if (logScrollPane == null) {
             logScrollPane = new JScrollPane();
             logScrollPane.setViewportView(getLogPanel());
         }
-        
+
         return logScrollPane;
     }
 
@@ -196,7 +205,7 @@ public class SplashScreen extends JFrame {
             tipsScrollPane = new JScrollPane();
             tipsScrollPane.setViewportView(getTipsPanel());
         }
-        
+
         return tipsScrollPane;
     }
 
@@ -209,7 +218,7 @@ public class SplashScreen extends JFrame {
 
             logPanel.append(Constant.messages.getString("start.splash.start"));
         }
-        
+
         return logPanel;
     }
 
@@ -233,22 +242,20 @@ public class SplashScreen extends JFrame {
             // Already shown or not loaded yet
             return;
         }
-        
+
         if (this.getTipsAndTricks().isEmpty()) {
             // No tips :(
             this.getTipsPanel().setText(Constant.messages.getString("start.splash.tips.none"));
             this.tipsLoaded = true;
             return;
         }
-        
+
         this.getTipsPanel().setText(Constant.messages.getString("start.splash.tips.title"));
         this.getTipsPanel().append(this.getRandomTip());
         this.tipsLoaded = true;
     }
 
-    /**
-     * Close current splash screen
-     */
+    /** Close current splash screen */
     public void close() {
         Logger.getRootLogger().removeAppender(splashOutputWriter);
         dispose();
@@ -256,18 +263,20 @@ public class SplashScreen extends JFrame {
 
     /**
      * Append a message to the output window of this splash screen
+     *
      * @param msg the message that should be appended
      */
     public void appendMsg(final String msg) {
         if (!EventQueue.isDispatchThread()) {
             try {
-                EventQueue.invokeAndWait(new Runnable() {
+                EventQueue.invokeAndWait(
+                        new Runnable() {
 
-                    @Override
-                    public void run() {
-                        appendMsg(msg);
-                    }
-                });
+                            @Override
+                            public void run() {
+                                appendMsg(msg);
+                            }
+                        });
             } catch (InvocationTargetException e) {
                 LOGGER.error("Failed to append message: ", e);
             } catch (InterruptedException ignore) {
@@ -286,25 +295,34 @@ public class SplashScreen extends JFrame {
         @Override
         public void append(final LoggingEvent event) {
             if (!EventQueue.isDispatchThread()) {
-                EventQueue.invokeLater(new Runnable() {
+                EventQueue.invokeLater(
+                        new Runnable() {
 
-                    @Override
-                    public void run() {
-                        append(event);
-                    }
-                });
+                            @Override
+                            public void run() {
+                                append(event);
+                            }
+                        });
                 return;
             }
 
             if (event.getLevel().equals(Level.INFO)) {
                 String renderedmessage = event.getRenderedMessage();
                 if (renderedmessage != null) {
-                    appendMsg(new StringBuilder("INFO: ").append(renderedmessage).append(NEWLINE).toString());
+                    appendMsg(
+                            new StringBuilder("INFO: ")
+                                    .append(renderedmessage)
+                                    .append(NEWLINE)
+                                    .toString());
                 }
             } else if (event.getLevel().equals(Level.ERROR)) {
                 String renderedmessage = event.getRenderedMessage();
                 if (renderedmessage != null) {
-                    appendMsg(new StringBuilder("ERROR: ").append(renderedmessage).append(NEWLINE).toString());
+                    appendMsg(
+                            new StringBuilder("ERROR: ")
+                                    .append(renderedmessage)
+                                    .append(NEWLINE)
+                                    .toString());
                 }
             }
         }
@@ -317,7 +335,7 @@ public class SplashScreen extends JFrame {
             if (rb == null) {
                 return null;
             }
-            
+
             tipsAndTricks = new ArrayList<>();
             Enumeration<String> enm = rb.getKeys();
             while (enm.hasMoreElements()) {
@@ -327,7 +345,7 @@ public class SplashScreen extends JFrame {
                 }
             }
         }
-        
+
         return this.tipsAndTricks;
     }
 

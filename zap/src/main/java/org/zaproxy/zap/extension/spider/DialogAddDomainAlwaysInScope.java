@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dialog;
 import java.util.regex.Pattern;
-
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -29,7 +28,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -39,16 +37,25 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
 
     private static final long serialVersionUID = -7356390753317082681L;
 
-    private static final String DIALOG_TITLE = Constant.messages.getString("spider.options.domains.in.scope.add.title");
+    private static final String DIALOG_TITLE =
+            Constant.messages.getString("spider.options.domains.in.scope.add.title");
 
-    private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("spider.options.domains.in.scope.add.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString("spider.options.domains.in.scope.add.button.confirm");
 
-    private static final String DOMAIN_FIELD_LABEL = Constant.messages.getString("spider.options.domains.in.scope.field.label.domain");
-    private static final String REGEX_FIELD_LABEL = Constant.messages.getString("spider.options.domains.in.scope.field.label.regex");
-    private static final String ENABLED_FIELD_LABEL = Constant.messages.getString("spider.options.domains.in.scope.field.label.enabled");
+    private static final String DOMAIN_FIELD_LABEL =
+            Constant.messages.getString("spider.options.domains.in.scope.field.label.domain");
+    private static final String REGEX_FIELD_LABEL =
+            Constant.messages.getString("spider.options.domains.in.scope.field.label.regex");
+    private static final String ENABLED_FIELD_LABEL =
+            Constant.messages.getString("spider.options.domains.in.scope.field.label.enabled");
 
-    private static final String TITLE_INVALID_REGEX_DIALOG = Constant.messages.getString("spider.options.domains.in.scope.warning.invalid.regex.title");
-    private static final String TEXT_INVALID_REGEX_DIALOG = Constant.messages.getString("spider.options.domains.in.scope.warning.invalid.regex.text");
+    private static final String TITLE_INVALID_REGEX_DIALOG =
+            Constant.messages.getString(
+                    "spider.options.domains.in.scope.warning.invalid.regex.title");
+    private static final String TEXT_INVALID_REGEX_DIALOG =
+            Constant.messages.getString(
+                    "spider.options.domains.in.scope.warning.invalid.regex.text");
 
     private ZapTextField domainTextField;
     private JCheckBox regexCheckBox;
@@ -79,31 +86,33 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
         JLabel regexLabel = new JLabel(REGEX_FIELD_LABEL);
         JLabel enabledLabel = new JLabel(ENABLED_FIELD_LABEL);
 
-        layout.setHorizontalGroup(layout.createSequentialGroup()
-                .addGroup(
-                        layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                .addComponent(domainLabel)
-                                .addComponent(enabledLabel)
-                                .addComponent(regexLabel))
-                .addGroup(
-                        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                .addComponent(getDomainTextField())
-                                .addComponent(getEnabledCheckBox())
-                                .addComponent(getRegexCheckBox())));
+        layout.setHorizontalGroup(
+                layout.createSequentialGroup()
+                        .addGroup(
+                                layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                        .addComponent(domainLabel)
+                                        .addComponent(enabledLabel)
+                                        .addComponent(regexLabel))
+                        .addGroup(
+                                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(getDomainTextField())
+                                        .addComponent(getEnabledCheckBox())
+                                        .addComponent(getRegexCheckBox())));
 
-        layout.setVerticalGroup(layout.createSequentialGroup()
-                .addGroup(
-                        layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(domainLabel)
-                                .addComponent(getDomainTextField()))
-                .addGroup(
-                        layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(regexLabel)
-                                .addComponent(getRegexCheckBox()))
-                .addGroup(
-                        layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                .addComponent(enabledLabel)
-                                .addComponent(getEnabledCheckBox())));
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
+                        .addGroup(
+                                layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(domainLabel)
+                                        .addComponent(getDomainTextField()))
+                        .addGroup(
+                                layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(regexLabel)
+                                        .addComponent(getRegexCheckBox()))
+                        .addGroup(
+                                layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(enabledLabel)
+                                        .addComponent(getEnabledCheckBox())));
 
         return fieldsPanel;
     }
@@ -166,7 +175,9 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
     protected ZapTextField getDomainTextField() {
         if (domainTextField == null) {
             domainTextField = new ZapTextField(25);
-            domainTextField.getDocument().addDocumentListener(getConfirmButtonValidatorDocListener());
+            domainTextField
+                    .getDocument()
+                    .addDocumentListener(getConfirmButtonValidatorDocListener());
         }
 
         return domainTextField;
@@ -220,5 +231,4 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
             setConfirmButtonEnabled(enabled);
         }
     }
-
 }

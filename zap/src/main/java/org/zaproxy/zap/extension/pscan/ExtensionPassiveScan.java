@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2010 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.pscan;
 
@@ -24,9 +24,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.swing.ImageIcon;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
@@ -93,9 +91,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     @Override
     public String getUIName() {
-    	return Constant.messages.getString("pscan.name");
+        return Constant.messages.getString("pscan.name");
     }
-    
+
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
@@ -106,17 +104,26 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         extensionHook.addSessionListener(this);
         if (getView() != null) {
             extensionHook.getHookView().addOptionPanel(getPassiveScannerOptionsPanel());
-            extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
+            extensionHook
+                    .getHookView()
+                    .addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
-            View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
+            View.getSingleton()
+                    .getMainFrame()
+                    .getMainFooterPanel()
+                    .addFooterToolbarRightLabel(getScanStatus().getCountLabel());
         }
 
-        ExtensionScript extScript = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
+        ExtensionScript extScript =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         if (extScript != null) {
             extScript.registerScriptType(
-                    new ScriptType(SCRIPT_TYPE_PASSIVE, "pscan.scripts.type.passive", createScriptIcon(), true));
+                    new ScriptType(
+                            SCRIPT_TYPE_PASSIVE,
+                            "pscan.scripts.type.passive",
+                            createScriptIcon(),
+                            true));
         }
-
 
         extensionHook.addApiImplementor(new PassiveScanAPI(this));
     }
@@ -125,7 +132,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         if (getView() == null) {
             return null;
         }
-        return new ImageIcon(ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
+        return new ImageIcon(
+                ExtensionPassiveScan.class.getResource("/resource/icon/16/script-pscan.png"));
     }
 
     @Override
@@ -146,8 +154,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * @deprecated (2.4.3) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the status of the
-     *             scanner is not properly set.
+     * @deprecated (2.4.3) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the
+     *     status of the scanner is not properly set.
      * @see PluginPassiveScanner#getStatus()
      */
     @Deprecated
@@ -169,22 +177,24 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         PassiveScanner scanner = getPassiveScannerList().removeScanner(className);
 
         if (scanner != null && View.isInitialised() && scanner instanceof PluginPassiveScanner) {
-            getPolicyPanel().getPassiveScanTableModel().removeScanner((PluginPassiveScanner) scanner);
+            getPolicyPanel()
+                    .getPassiveScanTableModel()
+                    .removeScanner((PluginPassiveScanner) scanner);
         }
 
         return scanner != null;
     }
 
     /**
-     * Adds the given passive scanner to the list of passive scanners that will be used to scan proxied messages.
-     * <p>
-     * The passive scanner will not be added if there is already a passive scanner with the same name.
-     * </p>
-     * <p>
-     * If the passive scanner extends from {@code PluginPassiveScanner} it will be added with the method
-     * {@code addPluginPassiveScanner(PluginPassiveScanner)}.
-     * </p>
-     * 
+     * Adds the given passive scanner to the list of passive scanners that will be used to scan
+     * proxied messages.
+     *
+     * <p>The passive scanner will not be added if there is already a passive scanner with the same
+     * name.
+     *
+     * <p>If the passive scanner extends from {@code PluginPassiveScanner} it will be added with the
+     * method {@code addPluginPassiveScanner(PluginPassiveScanner)}.
+     *
      * @param passiveScanner the passive scanner that will be added
      * @return {@code true} if the scanner was added, {@code false} otherwise.
      * @throws IllegalArgumentException if the given passive scanner is {@code null}.
@@ -204,11 +214,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * Removes the given passive scanner from the list of passive scanners that are used to scan proxied messages.
-     * <p>
-     * The passive scanners are removed using their class name.
-     * </p>
-     * 
+     * Removes the given passive scanner from the list of passive scanners that are used to scan
+     * proxied messages.
+     *
+     * <p>The passive scanners are removed using their class name.
+     *
      * @param passiveScanner the passive scanner that will be removed
      * @return {@code true} if the scanner was removed, {@code false} otherwise.
      * @throws IllegalArgumentException if the given passive scanner is {@code null}.
@@ -222,11 +232,12 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * Adds the given plug-in passive scanner to the list of passive scanners that will be used to scan proxied messages.
-     * <p>
-     * The passive scanner will not be added if there is already a passive scanner with the same name.
-     * </p>
-     * 
+     * Adds the given plug-in passive scanner to the list of passive scanners that will be used to
+     * scan proxied messages.
+     *
+     * <p>The passive scanner will not be added if there is already a passive scanner with the same
+     * name.
+     *
      * @param pluginPassiveScanner the plug-in passive scanner that will be added
      * @return {@code true} if the plug-in scanner was added, {@code false} otherwise.
      * @throws IllegalArgumentException if the given plug-in passive scanner is {@code null}.
@@ -240,11 +251,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * Removes the given plug-in passive scanner from the list of passive scanners that are used to scan proxied messages.
-     * <p>
-     * The plug-in passive scanners are removed using their class name.
-     * </p>
-     * 
+     * Removes the given plug-in passive scanner from the list of passive scanners that are used to
+     * scan proxied messages.
+     *
+     * <p>The plug-in passive scanners are removed using their class name.
+     *
      * @param pluginPassiveScanner the passive scanner that will be removed
      * @return {@code true} if the plug-in scanner was removed, {@code false} otherwise.
      * @throws IllegalArgumentException if the given plug-in passive scanner is {@code null}.
@@ -276,14 +287,17 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             if (View.isInitialised()) {
                 getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
             }
-            
+
             logger.info("loaded passive scan rule: " + scanner.getName());
             if (scanner.getPluginId() == -1) {
                 logger.error(
-                        "The passive scan rule \"" + scanner.getName() + "\" [" + scanner.getClass().getCanonicalName()
+                        "The passive scan rule \""
+                                + scanner.getName()
+                                + "\" ["
+                                + scanner.getClass().getCanonicalName()
                                 + "] does not have a defined ID.");
             }
-            
+
         } catch (Exception e) {
             logger.error("Failed to load passive scanner " + scanner.getName(), e);
         }
@@ -299,9 +313,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
 
             // Load the  'switchable' plugins
-	    	List<PluginPassiveScanner> listTest = new ArrayList<>(CoreFunctionality.getBuiltInPassiveScanRules());
-	    	listTest.addAll(ExtensionFactory.getAddOnLoader().getPassiveScanRules());
-
+            List<PluginPassiveScanner> listTest =
+                    new ArrayList<>(CoreFunctionality.getBuiltInPassiveScanRules());
+            listTest.addAll(ExtensionFactory.getAddOnLoader().getPassiveScanRules());
 
             for (PluginPassiveScanner scanner : listTest) {
                 addPluginPassiveScannerImpl(scanner);
@@ -313,11 +327,12 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     public List<PluginPassiveScanner> getPluginPassiveScanners() {
         List<PluginPassiveScanner> pluginPassiveScanners = new ArrayList<>();
         for (PassiveScanner scanner : getPassiveScannerList().list()) {
-            if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
+            if ((scanner instanceof PluginPassiveScanner)
+                    && !(scanner instanceof RegexAutoTagScanner)) {
                 pluginPassiveScanners.add((PluginPassiveScanner) scanner);
             }
         }
-        
+
         return pluginPassiveScanners;
     }
 
@@ -334,7 +349,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * Sets whether or not the plug-in passive scanner with the given {@code pluginId} is {@code enabled}.
+     * Sets whether or not the plug-in passive scanner with the given {@code pluginId} is {@code
+     * enabled}.
      *
      * @param pluginId the ID of the plug-in passive scanner
      * @param enabled {@code true} if the scanner should be enabled, {@code false} otherwise
@@ -374,10 +390,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * Sets the value of {@code alertThreshold} of the plug-in passive scanner with the given {@code pluginId}.
-     * <p>
-     * If the {@code alertThreshold} is {@code OFF} the scanner is also disabled. The call to this method has no effect if no
-     * scanner with the given {@code pluginId} exist.
+     * Sets the value of {@code alertThreshold} of the plug-in passive scanner with the given {@code
+     * pluginId}.
+     *
+     * <p>If the {@code alertThreshold} is {@code OFF} the scanner is also disabled. The call to
+     * this method has no effect if no scanner with the given {@code pluginId} exist.
      *
      * @param pluginId the ID of the plug-in passive scanner
      * @param alertThreshold the alert threshold that will be set
@@ -391,39 +408,33 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             scanner.save();
         }
     }
- 
-    /**
-     * 
-     * @param at 
-     */
+
+    /** @param at */
     public void setAllScannerThreshold(AlertThreshold at) {
-        for (PluginPassiveScanner test : getPluginPassiveScanners()) {        
+        for (PluginPassiveScanner test : getPluginPassiveScanners()) {
             test.setAlertThreshold(at);
             test.setEnabled(!AlertThreshold.OFF.equals(at));
             test.save();
         }
     }
 
-    /**
-     * 
-     * @return 
-     */
+    /** @return */
     public AlertThreshold getAllScannerThreshold() {
         AlertThreshold at = null;
-        
-        for (PluginPassiveScanner test : getPluginPassiveScanners()) {                
+
+        for (PluginPassiveScanner test : getPluginPassiveScanners()) {
             if (at == null) {
                 at = test.getAlertThreshold();
-            
+
             } else if (!at.equals(test.getAlertThreshold())) {
                 // Not all the same
                 return null;
             }
         }
-        
+
         return at;
     }
-    
+
     protected PolicyPassiveScanPanel getPolicyPanel() {
         if (policyPanel == null) {
             policyPanel = new PolicyPassiveScanPanel();
@@ -444,7 +455,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             final ExtensionHistory extHist = extensionLoader.getExtension(ExtensionHistory.class);
             final ExtensionAlert extAlert = extensionLoader.getExtension(ExtensionAlert.class);
 
-            pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
+            pst =
+                    new PassiveScanThread(
+                            getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
 
             pst.start();
         }
@@ -503,12 +516,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return this.getPassiveScanThread().getCurrentRuleName();
     }
 
-    
     public String getCurrentUrl() {
         return this.getPassiveScanThread().getCurrentUrl();
     }
 
-    
     public long getCurrentRuleStartTime() {
         return this.getPassiveScanThread().getCurrentRuleStartTime();
     }
@@ -526,8 +537,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
-    public void sessionScopeChanged(Session session) {
-    }
+    public void sessionScopeChanged(Session session) {}
 
     @Override
     public String getAuthor() {
@@ -564,42 +574,44 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
     }
 
-	public void saveTo(Configuration conf) {
+    public void saveTo(Configuration conf) {
         for (PassiveScanner scanner : getPassiveScannerList().list()) {
-            if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
+            if ((scanner instanceof PluginPassiveScanner)
+                    && !(scanner instanceof RegexAutoTagScanner)) {
                 ((PluginPassiveScanner) scanner).saveTo(conf);
             }
         }
-	}
+    }
 
-	public void loadFrom(Configuration conf) {
+    public void loadFrom(Configuration conf) {
         for (PassiveScanner scanner : getPassiveScannerList().list()) {
-            if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
+            if ((scanner instanceof PluginPassiveScanner)
+                    && !(scanner instanceof RegexAutoTagScanner)) {
                 ((PluginPassiveScanner) scanner).loadFrom(conf);
             }
         }
-	}
+    }
 
     protected ScanStatus getScanStatus() {
         if (scanStatus == null) {
-            scanStatus = new ScanStatus(
-                    new ImageIcon(
-                        ExtensionPassiveScan.class.getResource("/resource/icon/16/pscan.png")),
-                        Constant.messages.getString("pscan.footer.label"));
+            scanStatus =
+                    new ScanStatus(
+                            new ImageIcon(
+                                    ExtensionPassiveScan.class.getResource(
+                                            "/resource/icon/16/pscan.png")),
+                            Constant.messages.getString("pscan.footer.label"));
         }
         return scanStatus;
     }
 
     @Override
     public boolean supportsLowMemory() {
-    	return true;
+        return true;
     }
 
-	/**
-	 * No database tables used, so all supported
-	 */
-	@Override
-	public boolean supportsDb(String type) {
-		return true;
-	}
+    /** No database tables used, so all supported */
+    @Override
+    public boolean supportsDb(String type) {
+        return true;
+    }
 }

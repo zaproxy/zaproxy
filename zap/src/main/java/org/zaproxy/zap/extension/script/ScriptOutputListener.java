@@ -30,8 +30,8 @@ public interface ScriptOutputListener {
 
     /**
      * Called each time a script writes some output.
-     * <p>
-     * Can be called concurrently.
+     *
+     * <p>Can be called concurrently.
      *
      * @param script the source of the output.
      * @param output the new output.

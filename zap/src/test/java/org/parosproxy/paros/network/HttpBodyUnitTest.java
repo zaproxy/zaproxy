@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,13 +28,10 @@ import static org.junit.Assert.assertThat;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.zaproxy.zap.network.HttpBodyTestUtils;
 
-/**
- * Unit test for {@link HttpBody}.
- */
+/** Unit test for {@link HttpBody}. */
 public class HttpBodyUnitTest extends HttpBodyTestUtils {
 
     @Test
@@ -281,7 +278,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         // Then
         assertThat(httpBody.length(), is(equalTo(1)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(new byte[] { 0 })));
+        assertThat(httpBody.getBytes(), is(equalTo(new byte[] {0})));
         assertThat(httpBody.getBytes().length, is(equalTo(1)));
         assertThat(httpBody.toString(), is(equalTo("\0")));
     }
@@ -295,7 +292,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         // Then
         assertThat(httpBody.length(), is(equalTo(1)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(new byte[] { 0 })));
+        assertThat(httpBody.getBytes(), is(equalTo(new byte[] {0})));
         assertThat(httpBody.getBytes().length, is(equalTo(1)));
         assertThat(httpBody.toString(), is(equalTo("\0")));
     }
@@ -367,7 +364,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         // Then
         assertThat(httpBody.length(), is(equalTo(1)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(new byte[] { 0 })));
+        assertThat(httpBody.getBytes(), is(equalTo(new byte[] {0})));
         assertThat(httpBody.getBytes().length, is(equalTo(1)));
         assertThat(httpBody.toString(), is(equalTo("\0")));
     }
@@ -381,7 +378,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         // Then
         assertThat(httpBody.length(), is(equalTo(1)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
-        assertThat(httpBody.getBytes(), is(equalTo(new byte[] { 0 })));
+        assertThat(httpBody.getBytes(), is(equalTo(new byte[] {0})));
         assertThat(httpBody.getBytes().length, is(equalTo(1)));
         assertThat(httpBody.toString(), is(equalTo("\0")));
     }
@@ -396,7 +393,8 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.length(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
         assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET)));
-        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(
+                httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_DEFAULT_CHARSET)));
     }
 
@@ -410,7 +408,8 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.length(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
         assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET)));
-        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(
+                httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_DEFAULT_CHARSET)));
     }
 
@@ -447,7 +446,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldAppendFullByteArray() {
         // Given
-        byte[] chunk = { 0, 1, 2, 3, 4, 5 };
+        byte[] chunk = {0, 1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl();
         // When
         httpBody.append(chunk, chunk.length);
@@ -462,7 +461,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldAppendByteArrayChunk() {
         // Given
-        byte[] bytes = { 1, 2, 3, 4, 5 };
+        byte[] bytes = {1, 2, 3, 4, 5};
         int chunkLen = 3;
         byte[] chunk = java.util.Arrays.copyOf(bytes, chunkLen);
         HttpBody httpBody = new HttpBodyImpl();
@@ -479,7 +478,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldAppendByteArrayToExistingData() {
         // Given
-        byte[] bytes = { 1, 2, 3, 4, 5, 6, 7 };
+        byte[] bytes = {1, 2, 3, 4, 5, 6, 7};
         byte[] chunk = Arrays.copyOfRange(bytes, 3, bytes.length);
         HttpBody httpBody = new HttpBodyImpl(Arrays.copyOf(bytes, bytes.length - chunk.length));
         // When
@@ -496,7 +495,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     public void shouldAppendByteArrayToBodyWithHigherInitialCapacity() {
         // Given
         int initialCapacity = 10;
-        byte[] chunk = { 1, 2, 3, 4, 5 };
+        byte[] chunk = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(initialCapacity);
         byte[] expectedBytes = Arrays.copyOf(chunk, initialCapacity);
         // When
@@ -512,7 +511,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldAppendByteArrayToBodyWithLowerInitialCapacity() {
         // Given
-        byte[] chunk = { 1, 2, 3, 4, 5 };
+        byte[] chunk = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(3);
         // When
         httpBody.append(chunk, chunk.length);
@@ -541,7 +540,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldIgnoreAppendOfByteArrayIfNegativeLength() {
         // Given
-        byte[] chunk = { 1, 2, 3, 4, 5 };
+        byte[] chunk = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl();
         // When
         httpBody.append(chunk, -1);
@@ -582,7 +581,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldTruncateBodyWithSetLength() {
         // Given
-        byte[] body = { 1, 2, 3, 4, 5 };
+        byte[] body = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(body);
         byte[] expectedBytes = Arrays.copyOf(body, 3);
         // When
@@ -598,9 +597,9 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldProduceSameStringRepresentationEvenIfBodyIsExpandedWithSetLength() {
         // Given
-        byte[] body = { 1, 2, 3, 4, 5 };
+        byte[] body = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(body);
-        byte[] expectedBytes = concatenate(body, new byte[] { 0, 0 });
+        byte[] expectedBytes = concatenate(body, new byte[] {0, 0});
         // When
         httpBody.setLength(expectedBytes.length);
         // Then
@@ -692,8 +691,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     public void shouldNotBeEqualToDifferentHttpBodyImplementation() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
-        HttpBody otherHttpBodyImplementation = new HttpBody() {
-        };
+        HttpBody otherHttpBodyImplementation = new HttpBody() {};
         // When / Then
         assertThat(httpBody, is(not(equalTo(otherHttpBodyImplementation))));
     }
@@ -720,8 +718,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
 
         private boolean determineCharsetCalled;
 
-        public HttpBodyImpl() {
-        }
+        public HttpBodyImpl() {}
 
         public HttpBodyImpl(int capacity) {
             super(capacity);
@@ -745,5 +742,4 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
             return determineCharsetCalled;
         }
     }
-
 }

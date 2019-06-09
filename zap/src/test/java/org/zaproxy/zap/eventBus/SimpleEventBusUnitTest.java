@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2018 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,15 +26,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Unit test for {@link SimpleEventBus}.
- */
+/** Unit test for {@link SimpleEventBus}. */
 public class SimpleEventBusUnitTest {
-    
+
     SimpleEventBus seb;
 
     @Before
@@ -61,7 +58,7 @@ public class SimpleEventBusUnitTest {
         assertTrue(cons.getEvents().contains(event2));
         assertTrue(cons.getEvents().contains(event3));
     }
-    
+
     @Test
     public void consumerOfSomeEventsShouldReceiveJustThem() {
         // Given
@@ -81,7 +78,7 @@ public class SimpleEventBusUnitTest {
         assertTrue(cons.getEvents().contains(event2));
         assertFalse(cons.getEvents().contains(event3));
     }
-    
+
     @Test
     public void consumerShouldNotReceiveEventsForOtherPublishers() {
         // Given
@@ -112,7 +109,7 @@ public class SimpleEventBusUnitTest {
         assertFalse(cons.getEvents().contains(eventp2e2));
         assertFalse(cons.getEvents().contains(eventp2e3));
     }
-    
+
     @Test
     public void consumerShouldNotReceiveEventsAfterDisconnectingFromPublisher() {
         // Given
@@ -133,7 +130,7 @@ public class SimpleEventBusUnitTest {
         assertTrue(cons.getEvents().contains(event2));
         assertFalse(cons.getEvents().contains(event3));
     }
-    
+
     @Test
     public void consumerShouldNotReceiveEventsAfterDisconnectingFromAllPublishers() {
         // Given
@@ -182,7 +179,7 @@ public class SimpleEventBusUnitTest {
         TestEventPublisher publisher = new TestEventPublisher("publisher");
         Event event = new Event(publisher, "event", null);
         // When
-        seb.registerPublisher(publisher, new String[] { "event" });
+        seb.registerPublisher(publisher, new String[] {"event"});
         seb.publishSyncEvent(publisher, event);
         // Then
         assertThat(consumer1.getEvents(), contains(event));
@@ -193,16 +190,17 @@ public class SimpleEventBusUnitTest {
     public void consumerShouldBeAbleToRemoveItselfDuringEventConsumption() {
         // Given
         TestEventPublisher publisher = new TestEventPublisher("publisher");
-        TestEventConsumer consumer1 = new TestEventConsumer() {
+        TestEventConsumer consumer1 =
+                new TestEventConsumer() {
 
-            @Override
-            public void eventReceived(Event event) {
-                super.eventReceived(event);
-                seb.unregisterConsumer(this);
-            }
-        };
+                    @Override
+                    public void eventReceived(Event event) {
+                        super.eventReceived(event);
+                        seb.unregisterConsumer(this);
+                    }
+                };
         TestEventConsumer consumer2 = new TestEventConsumer();
-        seb.registerPublisher(publisher, new String[] { "event" });
+        seb.registerPublisher(publisher, new String[] {"event"});
         seb.registerConsumer(consumer1, "publisher");
         seb.registerConsumer(consumer2, "publisher");
         Event event1 = new Event(publisher, "event", null);
@@ -214,33 +212,32 @@ public class SimpleEventBusUnitTest {
         assertThat(consumer1.getEvents(), contains(event1));
         assertThat(consumer2.getEvents(), contains(event1, event2));
     }
-    
+
     private class TestEventConsumer implements EventConsumer {
-        
+
         private List<Event> events = new ArrayList<Event>();
 
         @Override
         public void eventReceived(Event event) {
             this.events.add(event);
-            
         }
-        
+
         public List<Event> getEvents() {
             return events;
         }
     }
-    
+
     private class TestEventPublisher implements EventPublisher {
-        
+
         private String name;
 
-        public TestEventPublisher (String name) {
+        public TestEventPublisher(String name) {
             this.name = name;
         }
+
         @Override
         public String getPublisherName() {
             return this.name;
         }
-        
     }
 }

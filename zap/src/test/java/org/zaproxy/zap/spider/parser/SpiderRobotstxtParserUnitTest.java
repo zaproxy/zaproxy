@@ -32,9 +32,7 @@ import org.junit.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
-/**
- * Unit test for {@link SpiderRobotstxtParser}.
- */
+/** Unit test for {@link SpiderRobotstxtParser}. */
 public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
@@ -146,17 +144,18 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
-        HttpMessage message = createMessageWith(
-                body(
-                        "# Just Comments & User-Agents...",
-                        "User-Agent: *",
-                        "# Disallow: /x/y/z",
-                        "User-Agent: bot",
-                        "<pre>",
-                        "# Allow: /a/b/c",
-                        "",
-                        "# ...",
-                        "Allow:   # no path"));
+        HttpMessage message =
+                createMessageWith(
+                        body(
+                                "# Just Comments & User-Agents...",
+                                "User-Agent: *",
+                                "# Disallow: /x/y/z",
+                                "User-Agent: bot",
+                                "<pre>",
+                                "# Allow: /a/b/c",
+                                "",
+                                "# ...",
+                                "Allow:   # no path"));
         // When
         spiderParser.parseResource(message, null, BASE_DEPTH);
         // Then
@@ -169,16 +168,17 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith(
-                body(
-                        "User-Agent: *",
-                        "Disallow: /x/y/z    # Comment",
-                        " User-Agent: bot     # Comment",
-                        "Allow: /a/b/c.html",
-                        "<pre> Allow: /nohtmltags/",
-                        "  Allow:    /%  ",
-                        "Allow: /%20file.txt",
-                        "Allow: /abc/*"));
+        HttpMessage messageHtmlResponse =
+                createMessageWith(
+                        body(
+                                "User-Agent: *",
+                                "Disallow: /x/y/z    # Comment",
+                                " User-Agent: bot     # Comment",
+                                "Allow: /a/b/c.html",
+                                "<pre> Allow: /nohtmltags/",
+                                "  Allow:    /%  ",
+                                "Allow: /%20file.txt",
+                                "Allow: /abc/*"));
         // When
         spiderParser.parseResource(messageHtmlResponse, null, BASE_DEPTH);
         // Then

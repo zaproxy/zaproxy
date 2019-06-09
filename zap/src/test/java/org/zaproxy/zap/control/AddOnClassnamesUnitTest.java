@@ -26,12 +26,9 @@ import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link AddOnClassnames}.
- */
+/** Unit test for {@link AddOnClassnames}. */
 public class AddOnClassnamesUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,7 +83,9 @@ public class AddOnClassnamesUnitTest {
         assertThat(addOnClassnames.isAllowed(allowedPackage + "ClassX"), is(equalTo(true)));
         assertThat(addOnClassnames.isAllowed(allowedPackage + "ClassY"), is(equalTo(true)));
         assertThat(addOnClassnames.isAllowed("org.example.ClassNotAllowed"), is(equalTo(false)));
-        assertThat(addOnClassnames.isAllowed("org.example.package.not.allowed.Class"), is(equalTo(false)));
+        assertThat(
+                addOnClassnames.isAllowed("org.example.package.not.allowed.Class"),
+                is(equalTo(false)));
     }
 
     @Test
@@ -114,5 +113,4 @@ public class AddOnClassnamesUnitTest {
         AddOnClassnames.ALL_ALLOWED.isAllowed(classname);
         // Then = NullPointerException
     }
-
 }

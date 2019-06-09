@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
-
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -47,9 +46,9 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.ZapResourceBundleControl;
 
 /**
- * Helper class responsible to install and uninstall add-ons and all its (dynamically installable) components 
- * ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and files).
- * 
+ * Helper class responsible to install and uninstall add-ons and all its (dynamically installable)
+ * components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and files).
+ *
  * @see Extension
  * @see org.parosproxy.paros.core.scanner.Plugin
  * @see PassiveScanner
@@ -59,26 +58,27 @@ public final class AddOnInstaller {
 
     private static final Logger logger = Logger.getLogger(AddOnInstaller.class);
 
-    private AddOnInstaller() {
-    }
+    private AddOnInstaller() {}
 
     /**
-     * Installs all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and
-     * files) of the given {@code addOn}.
-     * <p>
-     * It's also responsible to notify the installed extensions when the installation has finished by calling the method
-     * {@code Extension#postInstall()}.
-     * <p>
-     * The components are installed in the following order:
+     * Installs all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
+     *
+     * <p>It's also responsible to notify the installed extensions when the installation has
+     * finished by calling the method {@code Extension#postInstall()}.
+     *
+     * <p>The components are installed in the following order:
+     *
      * <ol>
-     * <li>{@link java.util.ResourceBundle ResourceBundle};</li>
-     * <li>Files;</li>
-     * <li>Extensions;</li>
-     * <li>Active scanners;</li>
-     * <li>Passive scanners.</li>
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
+     *   <li>Files;
+     *   <li>Extensions;
+     *   <li>Active scanners;
+     *   <li>Passive scanners.
      * </ol>
+     *
      * The files are installed first as they might be required by extensions and scanners.
-     * 
+     *
      * @param addOnClassLoader the class loader of the given {@code addOn}
      * @param addOn the add-on that will be installed
      * @see Extension
@@ -92,7 +92,7 @@ public final class AddOnInstaller {
         List<Extension> listExts = installAddOnExtensions(addOn);
         installAddOnActiveScanRules(addOn, addOnClassLoader);
         installAddOnPassiveScanRules(addOn, addOnClassLoader);
- 
+
         // postInstall actions
         for (Extension ext : listExts) {
             if (!ext.isEnabled()) {
@@ -102,24 +102,29 @@ public final class AddOnInstaller {
             try {
                 ext.postInstall();
             } catch (Exception e) {
-                logger.error("Post install method failed for add-on " + addOn.getId() + " extension " + ext.getName());
+                logger.error(
+                        "Post install method failed for add-on "
+                                + addOn.getId()
+                                + " extension "
+                                + ext.getName());
             }
         }
     }
 
     /**
-     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and
-     * files) of the given {@code addOn}.
-     * <p>
-     * The components are uninstalled in the following order (inverse to installation):
+     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
+     *
+     * <p>The components are uninstalled in the following order (inverse to installation):
+     *
      * <ol>
-     * <li>Passive scanners;</li>
-     * <li>Active scanners;</li>
-     * <li>Extensions;</li>
-     * <li>Files;</li>
-     * <li>{@link java.util.ResourceBundle ResourceBundle};</li>
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>Files;
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
      * </ol>
-     * 
+     *
      * @param addOn the add-on that will be uninstalled
      * @param callback the callback that will be notified of the progress of the uninstallation
      * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
@@ -128,7 +133,8 @@ public final class AddOnInstaller {
      * @see Extension
      * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
-     * @deprecated (2.8.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
+     * @deprecated (2.8.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set)}
+     *     instead.
      */
     @Deprecated
     public static boolean uninstall(AddOn addOn, AddOnUninstallationProgressCallback callback) {
@@ -136,18 +142,19 @@ public final class AddOnInstaller {
     }
 
     /**
-     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and
-     * files) of the given {@code addOn}.
-     * <p>
-     * The components are uninstalled in the following order (inverse to installation):
+     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
+     *
+     * <p>The components are uninstalled in the following order (inverse to installation):
+     *
      * <ol>
-     * <li>Passive scanners;</li>
-     * <li>Active scanners;</li>
-     * <li>Extensions;</li>
-     * <li>Files (if not in use by other add-ons);</li>
-     * <li>{@link java.util.ResourceBundle ResourceBundle};</li>
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>Files (if not in use by other add-ons);
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
      * </ol>
-     * 
+     *
      * @param addOn the add-on that will be uninstalled.
      * @param callback the callback that will be notified of the progress of the uninstallation.
      * @param installedAddOns the add-ons currently installed.
@@ -159,7 +166,8 @@ public final class AddOnInstaller {
      * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
      */
-    public static boolean uninstall(AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
+    public static boolean uninstall(
+            AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
@@ -170,7 +178,7 @@ public final class AddOnInstaller {
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnFiles(addOn, callback, installedAddOns);
             uninstallResourceBundle(addOn);
-    
+
             return uninstalledWithoutErrors;
         } catch (Throwable e) {
             logger.error("An error occurred while uninstalling the add-on: " + addOn.getId(), e);
@@ -179,16 +187,18 @@ public final class AddOnInstaller {
     }
 
     /**
-     * Uninstalls Java classes ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s) of the given {@code addOn}. Should
-     * be called when the add-on must be temporarily uninstalled for an update of a dependency.
-     * <p>
-     * The Java classes are uninstalled in the following order (inverse to installation):
+     * Uninstalls Java classes ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s) of the
+     * given {@code addOn}. Should be called when the add-on must be temporarily uninstalled for an
+     * update of a dependency.
+     *
+     * <p>The Java classes are uninstalled in the following order (inverse to installation):
+     *
      * <ol>
-     * <li>Passive scanners;</li>
-     * <li>Active scanners;</li>
-     * <li>Extensions.</li>
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions.
      * </ol>
-     * 
+     *
      * @param addOn the add-on that will be softly uninstalled
      * @param callback the callback that will be notified of the progress of the uninstallation
      * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
@@ -229,11 +239,12 @@ public final class AddOnInstaller {
         }
 
         try {
-            ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                    bundleData.getBaseName(),
-                    Constant.getLocale(),
-                    addOnClassLoader,
-                    new ZapResourceBundleControl());
+            ResourceBundle resourceBundle =
+                    ResourceBundle.getBundle(
+                            bundleData.getBaseName(),
+                            Constant.getLocale(),
+                            addOnClassLoader,
+                            new ZapResourceBundleControl());
             addOn.setResourceBundle(resourceBundle);
             String bundlePrefix = bundleData.getPrefix();
             if (!bundlePrefix.isEmpty()) {
@@ -253,9 +264,9 @@ public final class AddOnInstaller {
 
     private static List<Extension> installAddOnExtensions(AddOn addOn) {
         ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
-        List<Extension> listExts = ExtensionFactory.loadAddOnExtensions(extensionLoader, Model.getSingleton()
-                .getOptionsParam()
-                .getConfig(), addOn);
+        List<Extension> listExts =
+                ExtensionFactory.loadAddOnExtensions(
+                        extensionLoader, Model.getSingleton().getOptionsParam().getConfig(), addOn);
 
         for (Extension ext : listExts) {
             installAddOnExtensionImpl(addOn, ext, extensionLoader);
@@ -263,29 +274,31 @@ public final class AddOnInstaller {
 
         return listExts;
     }
-    
+
     public static void installAddOnExtension(AddOn addOn, Extension ext) {
         ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
-        ExtensionFactory.addAddOnExtension(extensionLoader, Model.getSingleton()
-                .getOptionsParam()
-                .getConfig(), ext);
+        ExtensionFactory.addAddOnExtension(
+                extensionLoader, Model.getSingleton().getOptionsParam().getConfig(), ext);
 
         installAddOnExtensionImpl(addOn, ext, extensionLoader);
     }
-    
-    private static void installAddOnExtensionImpl(AddOn addOn, Extension ext, ExtensionLoader extensionLoader) {
+
+    private static void installAddOnExtensionImpl(
+            AddOn addOn, Extension ext, ExtensionLoader extensionLoader) {
         if (ext.isEnabled()) {
             logger.debug("Starting extension " + ext.getName());
             try {
                 extensionLoader.startLifeCycle(ext);
             } catch (Throwable e) {
-                // Catch Throwable to (try) prevent extensions' issues from breaking the installation process.
+                // Catch Throwable to (try) prevent extensions' issues from breaking the
+                // installation process.
                 logger.error("An error occurred while installing the add-on: " + addOn.getId(), e);
             }
         }
     }
 
-    private static boolean uninstallAddOnExtensions(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+    private static boolean uninstallAddOnExtensions(
+            AddOn addOn, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
 
         callback.extensionsWillBeRemoved(addOn.getLoadedExtensions().size());
@@ -303,14 +316,13 @@ public final class AddOnInstaller {
      * @param addOn the add-on that has the extension
      * @param extension the extension that should be uninstalled
      * @param callback the callback that will be notified of the progress of the uninstallation
-     * @return {@code true} if the extension was uninstalled without errors, {@code false} otherwise.
+     * @return {@code true} if the extension was uninstalled without errors, {@code false}
+     *     otherwise.
      * @since 2.4.0
      * @see Extension
      */
     protected static boolean uninstallAddOnExtension(
-            AddOn addOn,
-            Extension extension,
-            AddOnUninstallationProgressCallback callback) {
+            AddOn addOn, Extension extension, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
         if (extension.isEnabled()) {
             String extUiName = extension.getUIName();
@@ -321,8 +333,13 @@ public final class AddOnInstaller {
                     Control.getSingleton().getExtensionLoader().removeExtension(extension);
                     ExtensionFactory.unloadAddOnExtension(extension);
                 } catch (Exception e) {
-                    logger.error("An error occurred while uninstalling the extension \"" + extension.getName()
-                            + "\" bundled in the add-on \"" + addOn.getId() + "\":", e);
+                    logger.error(
+                            "An error occurred while uninstalling the extension \""
+                                    + extension.getName()
+                                    + "\" bundled in the add-on \""
+                                    + addOn.getId()
+                                    + "\":",
+                            e);
                     uninstalledWithoutErrors = false;
                 }
             } else {
@@ -338,8 +355,10 @@ public final class AddOnInstaller {
         return uninstalledWithoutErrors;
     }
 
-    private static void installAddOnActiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
-        List<AbstractPlugin> ascanrules = AddOnLoaderUtils.getActiveScanRules(addOn, addOnClassLoader);
+    private static void installAddOnActiveScanRules(
+            AddOn addOn, AddOnClassLoader addOnClassLoader) {
+        List<AbstractPlugin> ascanrules =
+                AddOnLoaderUtils.getActiveScanRules(addOn, addOnClassLoader);
         if (!ascanrules.isEmpty()) {
             for (AbstractPlugin ascanrule : ascanrules) {
                 String name = ascanrule.getClass().getCanonicalName();
@@ -352,7 +371,8 @@ public final class AddOnInstaller {
         }
     }
 
-    private static boolean uninstallAddOnActiveScanRules(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+    private static boolean uninstallAddOnActiveScanRules(
+            AddOn addOn, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
 
         List<AbstractPlugin> loadedAscanrules = addOn.getLoadedAscanrules();
@@ -376,9 +396,14 @@ public final class AddOnInstaller {
         return uninstalledWithoutErrors;
     }
 
-    private static void installAddOnPassiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
-        List<PluginPassiveScanner> pscanrules = AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader);
-        ExtensionPassiveScan extPscan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
+    private static void installAddOnPassiveScanRules(
+            AddOn addOn, AddOnClassLoader addOnClassLoader) {
+        List<PluginPassiveScanner> pscanrules =
+                AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader);
+        ExtensionPassiveScan extPscan =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionPassiveScan.class);
 
         if (!pscanrules.isEmpty() && extPscan != null) {
             for (PluginPassiveScanner pscanrule : pscanrules) {
@@ -391,11 +416,15 @@ public final class AddOnInstaller {
         }
     }
 
-    private static boolean uninstallAddOnPassiveScanRules(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+    private static boolean uninstallAddOnPassiveScanRules(
+            AddOn addOn, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
 
         List<PluginPassiveScanner> loadedPscanrules = addOn.getLoadedPscanrules();
-        ExtensionPassiveScan extPscan = Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.class);
+        ExtensionPassiveScan extPscan =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionPassiveScan.class);
         if (!loadedPscanrules.isEmpty()) {
             logger.debug("Uninstall pscanrules: " + addOn.getPscanrules());
             callback.passiveScanRulesWillBeRemoved(loadedPscanrules.size());
@@ -417,7 +446,7 @@ public final class AddOnInstaller {
 
     /**
      * Installs all the missing files declared by the given {@code addOn}.
-     * 
+     *
      * @param addOnClassLoader the class loader of the given {@code addOn}
      * @param addOn the add-on that will have the missing declared files installed
      */
@@ -436,7 +465,8 @@ public final class AddOnInstaller {
         installAddOnFiles(addOnClassLoader, addOn, true);
     }
 
-    private static void installAddOnFiles(AddOnClassLoader addOnClassLoader, AddOn addOn, boolean overwrite) {
+    private static void installAddOnFiles(
+            AddOnClassLoader addOnClassLoader, AddOn addOn, boolean overwrite) {
         List<String> fileNames = addOn.getFiles();
 
         if (fileNames == null || fileNames.isEmpty()) {
@@ -450,7 +480,11 @@ public final class AddOnInstaller {
                 continue;
             }
             if (!outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
-                logger.error("Failed to create directories for add-on " + addOn + ": " + outfile.getAbsolutePath());
+                logger.error(
+                        "Failed to create directories for add-on "
+                                + addOn
+                                + ": "
+                                + outfile.getAbsolutePath());
                 continue;
             }
 
@@ -460,14 +494,20 @@ public final class AddOnInstaller {
                 logger.error("File not found in add-on " + addOn + ": " + name);
                 continue;
             }
-            try (InputStream in = fileURL.openStream(); OutputStream out = new FileOutputStream(outfile)) {
+            try (InputStream in = fileURL.openStream();
+                    OutputStream out = new FileOutputStream(outfile)) {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
-                logger.error("Failed to install a file from add-on " + addOn + ": " + outfile.getAbsolutePath(), e);
+                logger.error(
+                        "Failed to install a file from add-on "
+                                + addOn
+                                + ": "
+                                + outfile.getAbsolutePath(),
+                        e);
             }
         }
         Control.getSingleton().getExtensionLoader().addonFilesAdded();
@@ -484,35 +524,37 @@ public final class AddOnInstaller {
      * @param callback the callback for notification of progress
      * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
-     * @deprecated (2.8.0) Use {@link #uninstallAddOnFiles(AddOn, AddOnUninstallationProgressCallback, Set)} instead.
+     * @deprecated (2.8.0) Use {@link #uninstallAddOnFiles(AddOn,
+     *     AddOnUninstallationProgressCallback, Set)} instead.
      */
     @Deprecated
-    public static boolean uninstallAddOnFiles(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+    public static boolean uninstallAddOnFiles(
+            AddOn addOn, AddOnUninstallationProgressCallback callback) {
         return uninstallAddOnFiles(addOn, callback, null);
     }
 
     /**
      * Uninstalls the files of the given add-on.
-     * <p>
-     * <strong>Note:</strong> Files that are in use by other installed add-ons are not uninstalled.
+     *
+     * <p><strong>Note:</strong> Files that are in use by other installed add-ons are not
+     * uninstalled.
      *
      * @param addOn the add-on whose files should be uninstalled.
      * @param callback the callback for notification of progress.
-     * @param installedAddOns the add-ons currently installed (to check if the files can be safely uninstalled).
+     * @param installedAddOns the add-ons currently installed (to check if the files can be safely
+     *     uninstalled).
      * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
      * @since 2.8.0
      */
     public static boolean uninstallAddOnFiles(
-            AddOn addOn,
-            AddOnUninstallationProgressCallback callback,
-            Set<AddOn> installedAddOns) {
+            AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
-        List<String> fileNames = getFilesSafeForUninstall(
-                addOn,
-                installedAddOns == null ? Collections.emptySet() : installedAddOns);
+        List<String> fileNames =
+                getFilesSafeForUninstall(
+                        addOn, installedAddOns == null ? Collections.emptySet() : installedAddOns);
         if (fileNames.isEmpty()) {
             return true;
         }
@@ -551,8 +593,9 @@ public final class AddOnInstaller {
     }
 
     /**
-     * Gets the files of the given add-on that can be safely uninstalled, that is, are not in use/declared by other add-ons.
-     * 
+     * Gets the files of the given add-on that can be safely uninstalled, that is, are not in
+     * use/declared by other add-ons.
+     *
      * @param addOn the add-on whose files should be uninstalled.
      * @param installedAddOns the add-ons currently installed.
      * @return the files that can be safely uninstalled.
@@ -563,18 +606,19 @@ public final class AddOnInstaller {
         }
 
         List<String> files = new ArrayList<>(addOn.getFiles());
-        installedAddOns.forEach(installedAddOn -> {
-            if (installedAddOn == addOn) {
-                return;
-            }
+        installedAddOns.forEach(
+                installedAddOn -> {
+                    if (installedAddOn == addOn) {
+                        return;
+                    }
 
-            List<String> addOnFiles = installedAddOn.getFiles();
-            if (addOnFiles == null || addOnFiles.isEmpty()) {
-                return;
-            }
+                    List<String> addOnFiles = installedAddOn.getFiles();
+                    if (addOnFiles == null || addOnFiles.isEmpty()) {
+                        return;
+                    }
 
-            files.removeAll(addOnFiles);
-        });
+                    files.removeAll(addOnFiles);
+                });
         return files;
     }
 
@@ -589,7 +633,8 @@ public final class AddOnInstaller {
         }
         String root = new File(Constant.getZapHome()).getAbsolutePath();
         while (currentFile != null && currentFile.exists()) {
-            if (currentFile.getAbsolutePath().startsWith(root) && currentFile.getAbsolutePath().length() > root.length()) {
+            if (currentFile.getAbsolutePath().startsWith(root)
+                    && currentFile.getAbsolutePath().length() > root.length()) {
                 deleteEmptyDirs(currentFile);
                 currentFile = currentFile.getParentFile();
             } else {
@@ -610,5 +655,4 @@ public final class AddOnInstaller {
             logger.debug("Failed to delete: " + dir.getAbsolutePath());
         }
     }
-
 }

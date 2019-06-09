@@ -34,15 +34,15 @@ import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
 
-/**
- * Unit test for {@link HttpMessage}.
- */
+/** Unit test for {@link HttpMessage}. */
 public class HttpMessageUnitTest {
 
     @Test
     public void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
         // Given
-        HttpMessage message = new HttpMessage(new HttpRequestHeader("GET / HTTP/1.1\r\nAccept: text/event-stream"));
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader("GET / HTTP/1.1\r\nAccept: text/event-stream"));
         // When
         boolean eventStream = message.isEventStream();
         // Then
@@ -50,9 +50,11 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream() throws Exception {
+    public void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream()
+            throws Exception {
         // Given
-        HttpMessage message = new HttpMessage(new HttpRequestHeader("GET / HTTP/1.1\r\nAccept: */*"));
+        HttpMessage message =
+                new HttpMessage(new HttpRequestHeader("GET / HTTP/1.1\r\nAccept: */*"));
         // When
         boolean eventStream = message.isEventStream();
         // Then
@@ -63,7 +65,8 @@ public class HttpMessageUnitTest {
     public void shouldBeEventStreamIfResponseHasEventStreamContentType() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
-        message.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/event-stream;charset=utf-8");
+        message.getResponseHeader()
+                .setHeader(HttpHeader.CONTENT_TYPE, "text/event-stream;charset=utf-8");
         // When
         boolean eventStream = message.isEventStream();
         // Then
@@ -71,10 +74,12 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType() throws Exception {
+    public void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType()
+            throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
-        message.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/not-event-stream;charset=utf-8");
+        message.getResponseHeader()
+                .setHeader(HttpHeader.CONTENT_TYPE, "text/not-event-stream;charset=utf-8");
         // When
         boolean eventStream = message.isEventStream();
         // Then
@@ -89,13 +94,20 @@ public class HttpMessageUnitTest {
         HttpMessage copy = new HttpMessage(message);
         // Then
         assertThat(copy.getRequestHeader(), is(not(sameInstance(message.getRequestHeader()))));
-        assertThat(copy.getRequestHeader().toString(), is(equalTo(message.getRequestHeader().toString())));
+        assertThat(
+                copy.getRequestHeader().toString(),
+                is(equalTo(message.getRequestHeader().toString())));
         assertThat(copy.getRequestBody(), is(not(sameInstance(message.getRequestBody()))));
-        assertThat(copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
+        assertThat(
+                copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
         assertThat(copy.getResponseHeader(), is(not(sameInstance(message.getResponseHeader()))));
-        assertThat(copy.getResponseHeader().toString(), is(equalTo(message.getResponseHeader().toString())));
+        assertThat(
+                copy.getResponseHeader().toString(),
+                is(equalTo(message.getResponseHeader().toString())));
         assertThat(copy.getResponseBody(), is(not(sameInstance(message.getResponseBody()))));
-        assertThat(copy.getResponseBody().toString(), is(equalTo(message.getResponseBody().toString())));
+        assertThat(
+                copy.getResponseBody().toString(),
+                is(equalTo(message.getResponseBody().toString())));
 
         assertThat(copy.getUserObject(), is(sameInstance(message.getUserObject())));
         assertThat(copy.getTimeSentMillis(), is(equalTo(message.getTimeSentMillis())));
@@ -105,7 +117,8 @@ public class HttpMessageUnitTest {
         assertThat(copy.getHttpSession(), is(sameInstance(message.getHttpSession())));
         assertThat(copy.getRequestingUser(), is(sameInstance(message.getRequestingUser())));
         assertThat(copy.isForceIntercept(), is(equalTo(message.isForceIntercept())));
-        assertThat(copy.isResponseFromTargetHost(), is(equalTo(message.isResponseFromTargetHost())));
+        assertThat(
+                copy.isResponseFromTargetHost(), is(equalTo(message.isResponseFromTargetHost())));
     }
 
     @Test
@@ -116,9 +129,12 @@ public class HttpMessageUnitTest {
         HttpMessage copy = message.cloneRequest();
         // Then
         assertThat(copy.getRequestHeader(), is(not(sameInstance(message.getRequestHeader()))));
-        assertThat(copy.getRequestHeader().toString(), is(equalTo(message.getRequestHeader().toString())));
+        assertThat(
+                copy.getRequestHeader().toString(),
+                is(equalTo(message.getRequestHeader().toString())));
         assertThat(copy.getRequestBody(), is(not(sameInstance(message.getRequestBody()))));
-        assertThat(copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
+        assertThat(
+                copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
         assertThat(copy.getResponseHeader(), is(not(sameInstance(message.getResponseHeader()))));
         assertThat(copy.getResponseHeader().isEmpty(), is(equalTo(true)));
         assertThat(copy.getResponseBody(), is(not(sameInstance(message.getResponseBody()))));
@@ -143,13 +159,20 @@ public class HttpMessageUnitTest {
         HttpMessage copy = message.cloneAll();
         // Then
         assertThat(copy.getRequestHeader(), is(not(sameInstance(message.getRequestHeader()))));
-        assertThat(copy.getRequestHeader().toString(), is(equalTo(message.getRequestHeader().toString())));
+        assertThat(
+                copy.getRequestHeader().toString(),
+                is(equalTo(message.getRequestHeader().toString())));
         assertThat(copy.getRequestBody(), is(not(sameInstance(message.getRequestBody()))));
-        assertThat(copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
+        assertThat(
+                copy.getRequestBody().toString(), is(equalTo(message.getRequestBody().toString())));
         assertThat(copy.getResponseHeader(), is(not(sameInstance(message.getResponseHeader()))));
-        assertThat(copy.getResponseHeader().toString(), is(equalTo(message.getResponseHeader().toString())));
+        assertThat(
+                copy.getResponseHeader().toString(),
+                is(equalTo(message.getResponseHeader().toString())));
         assertThat(copy.getResponseBody(), is(not(sameInstance(message.getResponseBody()))));
-        assertThat(copy.getResponseBody().toString(), is(equalTo(message.getResponseBody().toString())));
+        assertThat(
+                copy.getResponseBody().toString(),
+                is(equalTo(message.getResponseBody().toString())));
 
         assertThat(copy.getUserObject(), is(nullValue()));
         assertThat(copy.getTimeSentMillis(), is(equalTo(0L)));
@@ -163,11 +186,12 @@ public class HttpMessageUnitTest {
     }
 
     private static HttpMessage newHttpMessage() throws Exception {
-        HttpMessage message = new HttpMessage(
-                new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n"),
-                new HttpRequestBody("Request Body"),
-                new HttpResponseHeader("HTTP/1.1 200 OK\r\n"),
-                new HttpResponseBody("Response Body"));
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n"),
+                        new HttpRequestBody("Request Body"),
+                        new HttpResponseHeader("HTTP/1.1 200 OK\r\n"),
+                        new HttpResponseBody("Response Body"));
         message.setResponseFromTargetHost(true);
         message.setUserObject(new Object());
         message.setTimeSentMillis(1234L);

@@ -47,6 +47,7 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Console;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Nested;
@@ -60,6 +61,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
     private final DirectoryProperty repositoriesDirectory;
     private final Property<Boolean> cloneRepositories;
     private final Property<Boolean> updateRepositories;
+    private final Property<Boolean> quiet;
     private NamedDomainObjectContainer<Task> tasks;
 
     public GradleBuildWithGitRepos() {
@@ -68,6 +70,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
         this.repositoriesDirectory = objects.directoryProperty();
         this.cloneRepositories = objects.property(Boolean.class).value(true);
         this.updateRepositories = objects.property(Boolean.class).value(true);
+        this.quiet = objects.property(Boolean.class).value(true);
         this.tasks = getProject().container(Task.class, name -> new Task(name, getProject()));
     }
 
@@ -89,6 +92,11 @@ public class GradleBuildWithGitRepos extends DefaultTask {
     @Input
     public Property<Boolean> getUpdateRepositories() {
         return updateRepositories;
+    }
+
+    @Console
+    public Property<Boolean> getQuiet() {
+        return quiet;
     }
 
     @Nested
@@ -135,23 +143,27 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                                     spec.setWorkingDir(reposDir);
                                     spec.setExecutable("git");
                                     spec.setEnvironment(Collections.emptyMap());
-                                    spec.args(
-                                            "clone",
-                                            "--branch",
-                                            repoData.getBranch(),
-                                            "--depth",
-                                            "1",
-                                            cloneUrl,
-                                            repoName);
+                                    List<String> execArgs = new ArrayList<>();
+                                    execArgs.add("clone");
+                                    if (quiet.get()) {
+                                        execArgs.add("-q");
+                                    }
+                                    execArgs.add("--branch");
+                                    execArgs.add(repoData.getBranch());
+                                    execArgs.add("--depth");
+                                    execArgs.add("1");
+                                    execArgs.add(cloneUrl);
+                                    execArgs.add(repoName);
+                                    spec.args(execArgs);
                                 })
                         .assertNormalExitValue();
-                getLogger().debug("Cloned {} into {}", cloneUrl, repoDir);
+                getLogger().lifecycle("Cloned {} into {}", cloneUrl, repoDir);
             } else if (updateRepositories.get()) {
                 FileRepositoryBuilder builder = new FileRepositoryBuilder();
                 Repository repository = builder.setGitDir(repoDir.resolve(".git").toFile()).build();
                 try (Git git = new Git(repository)) {
                     git.pull().call();
-                    getLogger().debug("Pulled from {} into {}", cloneUrl, repoDir);
+                    getLogger().lifecycle("Pulled from {} into {}", cloneUrl, repoDir);
                 }
             }
 
@@ -165,6 +177,9 @@ public class GradleBuildWithGitRepos extends DefaultTask {
 
     private void runTasks(Path repoDir, List<String> projects) {
         List<String> execArgs = new ArrayList<>();
+        if (quiet.get()) {
+            execArgs.add("-q");
+        }
         for (String project : projects) {
             String taskPrefix = project + ":";
             for (Task task : tasks) {
@@ -172,6 +187,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                 execArgs.addAll(task.getArgs().get());
             }
         }
+        getLogger().lifecycle("Running tasks for {}", repoDir.getFileName());
         getProject()
                 .exec(
                         spec -> {

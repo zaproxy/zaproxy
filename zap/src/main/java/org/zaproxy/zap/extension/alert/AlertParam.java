@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright The ZAP Development Team
- * 
+ *
+ * Copyright 2015 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,16 +23,14 @@ import org.parosproxy.paros.common.AbstractParam;
 
 public class AlertParam extends AbstractParam {
 
-    /**
-     * The base configuration key for all alert configurations.
-     */
+    /** The base configuration key for all alert configurations. */
     private static final String PARAM_BASE_KEY = "alert";
 
     private static final String PARAM_MERGE_RELATED_ISSUES = PARAM_BASE_KEY + ".mergeissues";
 
     /**
      * The configuration key for the maximum number of instances to include in a report.
-     * 
+     *
      * @see #maximumInstances
      */
     private static final String PARAM_MAXIMUM_INSTANCES = PARAM_BASE_KEY + ".maxInstances";
@@ -43,19 +41,18 @@ public class AlertParam extends AbstractParam {
 
     /**
      * The number of maximum instances of each vulnerability included in a report.
-     * <p>
-     * Default is {@value #DEFAULT_MAXIMUM_INSTANCES}.
-     * </p>
+     *
+     * <p>Default is {@value #DEFAULT_MAXIMUM_INSTANCES}.
      */
     private int maximumInstances = DEFAULT_MAXIMUM_INSTANCES;
-    
+
     private boolean mergeRelatedIssues = true;
-    
+
     private String overridesFilename;
 
     /**
      * Parses the alert options.
-     * 
+     *
      * @see #getMaximumInstances()
      */
     @Override
@@ -67,6 +64,7 @@ public class AlertParam extends AbstractParam {
 
     /**
      * Sets the maximum instances of an alert to include in a report.
+     *
      * @param maximumInstances the maximum number of instances for each alert
      */
     public void setMaximumInstances(int maximumInstances) {
@@ -81,22 +79,23 @@ public class AlertParam extends AbstractParam {
 
     /**
      * Returns the maximum instances of an alert to include in a report.
+     *
      * @return the maximum number of instances for each alert
      */
     public int getMaximumInstances() {
         return maximumInstances;
     }
 
-	public boolean isMergeRelatedIssues() {
-		return mergeRelatedIssues;
-	}
+    public boolean isMergeRelatedIssues() {
+        return mergeRelatedIssues;
+    }
 
-	public void setMergeRelatedIssues(boolean mergeRelatedIssues) {
-		if (this.mergeRelatedIssues != mergeRelatedIssues) {
-			this.mergeRelatedIssues = mergeRelatedIssues;
+    public void setMergeRelatedIssues(boolean mergeRelatedIssues) {
+        if (this.mergeRelatedIssues != mergeRelatedIssues) {
+            this.mergeRelatedIssues = mergeRelatedIssues;
             getConfig().setProperty(PARAM_MERGE_RELATED_ISSUES, mergeRelatedIssues);
-		}
-	}
+        }
+    }
 
     public String getOverridesFilename() {
         return overridesFilename;
@@ -106,5 +105,4 @@ public class AlertParam extends AbstractParam {
         this.overridesFilename = overridesFilename;
         getConfig().setProperty(PARAM_OVERRIDES_FILENAME, overridesFilename);
     }
-
 }

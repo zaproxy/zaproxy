@@ -150,7 +150,7 @@ tasks.register<Tar>("distLinux") {
 
 val macOsJreDir = file("$buildDir/macOsJre")
 val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
-val macOsJreVersion = "8u212-b03"
+val macOsJreVersion = "8u212-b04"
 val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
 
 val downloadMacOsJre by tasks.registering(Download::class) {
@@ -169,7 +169,7 @@ val verifyMacOsJre by tasks.registering(Verify::class) {
     dependsOn(downloadMacOsJre)
     src(macOsJreFile)
     algorithm("SHA-256")
-    checksum("80855320c42a3b06617c6e466c64df67731542a805972185b075ca6cb1222c7f")
+    checksum("16b6d507899b349688893a67f53de304630f108469275da08b966396944dd7a3")
 }
 
 val unpackMacOSJre by tasks.registering(Copy::class) {

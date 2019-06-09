@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,18 +27,16 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import java.nio.charset.StandardCharsets;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * Unit test for {@link HttpResponseBody}.
- */
+/** Unit test for {@link HttpResponseBody}. */
 public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
 
-    private static final byte[] BODY_1_BYTES_UTF_16 = BODY_1_STRING.getBytes(StandardCharsets.UTF_16);
+    private static final byte[] BODY_1_BYTES_UTF_16 =
+            BODY_1_STRING.getBytes(StandardCharsets.UTF_16);
 
     @BeforeClass
     public static void suppressLogging() {
@@ -218,5 +216,4 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.getCharset(), is(equalTo(UTF_8_NAME)));
         assertThat(stringRepresentation, is(equalTo(contents)));
     }
-
 }

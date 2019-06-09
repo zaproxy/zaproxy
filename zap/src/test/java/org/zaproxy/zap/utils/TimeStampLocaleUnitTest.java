@@ -37,15 +37,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
 import org.junit.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /**
- * Unit test to verify that translated time stamps (in {@code Messages.properties} files) are valid patterns for
- * {@code SimpleDateFormat}.
- * 
+ * Unit test to verify that translated time stamps (in {@code Messages.properties} files) are valid
+ * patterns for {@code SimpleDateFormat}.
+ *
  * @see TimeStampUtils
  */
 public class TimeStampLocaleUnitTest extends TestUtils {
@@ -53,23 +52,28 @@ public class TimeStampLocaleUnitTest extends TestUtils {
     private static final String KEY_DATE_TIME_PATTERN = "timestamp.format.datetime";
     private static final String KEY_TIME_ONLY_PATTERN = "timestamp.format.timeonly";
 
-    private static final Path DIRECTORY = getResourcePath("/" + Constant.LANG_DIR, TimeStampLocaleUnitTest.class);
+    private static final Path DIRECTORY =
+            getResourcePath("/" + Constant.LANG_DIR, TimeStampLocaleUnitTest.class);
     private static final String BASE_NAME = Constant.MESSAGES_PREFIX;
     private static final String FILE_NAME = BASE_NAME + "_";
     private static final String FILE_EXTENSION = ".properties";
 
     @Test
     public void shouldHaveValidPatternsForAllMessagesFiles() throws Exception {
-        try (URLClassLoader classLoader = new URLClassLoader(new URL[] { DIRECTORY.toUri().toURL() })) {
+        try (URLClassLoader classLoader =
+                new URLClassLoader(new URL[] {DIRECTORY.toUri().toURL()})) {
             List<String> errors = new ArrayList<>();
             for (Path file : getMessagesFiles()) {
                 String fileName = file.getFileName().toString();
-                String[] localeParts = fileName.substring(FILE_NAME.length(), fileName.indexOf(FILE_EXTENSION)).split("_");
+                String[] localeParts =
+                        fileName.substring(FILE_NAME.length(), fileName.indexOf(FILE_EXTENSION))
+                                .split("_");
 
                 if (localeParts.length > 1) {
                     Locale locale = new Locale(localeParts[0], localeParts[1]);
-                    ResourceBundle rb = ResourceBundle
-                            .getBundle(BASE_NAME, locale, classLoader, new ZapResourceBundleControl());
+                    ResourceBundle rb =
+                            ResourceBundle.getBundle(
+                                    BASE_NAME, locale, classLoader, new ZapResourceBundleControl());
                     verifyPattern(fileName, rb, KEY_DATE_TIME_PATTERN, errors);
                     verifyPattern(fileName, rb, KEY_TIME_ONLY_PATTERN, errors);
                 } else {
@@ -80,7 +84,8 @@ public class TimeStampLocaleUnitTest extends TestUtils {
         }
     }
 
-    private static void verifyPattern(String fileName, ResourceBundle rb, String keyPattern, List<String> errors) {
+    private static void verifyPattern(
+            String fileName, ResourceBundle rb, String keyPattern, List<String> errors) {
         if (!rb.containsKey(keyPattern)) {
             return;
         }
@@ -93,26 +98,41 @@ public class TimeStampLocaleUnitTest extends TestUtils {
         }
     }
 
-    private static String buildMessage(String fileName, String pattern, String keyPattern, Exception exception) {
-        return fileName + " uses invalid pattern '" + pattern + "' for key '" + keyPattern + "', error: " + exception + "\n";
+    private static String buildMessage(
+            String fileName, String pattern, String keyPattern, Exception exception) {
+        return fileName
+                + " uses invalid pattern '"
+                + pattern
+                + "' for key '"
+                + keyPattern
+                + "', error: "
+                + exception
+                + "\n";
     }
 
     private static List<Path> getMessagesFiles() {
         final List<Path> files = new ArrayList<>();
         try {
-            Files.walkFileTree(DIRECTORY, Collections.<FileVisitOption> emptySet(), 1, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(
+                    DIRECTORY,
+                    Collections.<FileVisitOption>emptySet(),
+                    1,
+                    new SimpleFileVisitor<Path>() {
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    String fileName = file.getFileName().toString();
-                    if (fileName.startsWith(FILE_NAME) && fileName.endsWith(FILE_EXTENSION)) {
-                        files.add(file);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                                throws IOException {
+                            String fileName = file.getFileName().toString();
+                            if (fileName.startsWith(FILE_NAME)
+                                    && fileName.endsWith(FILE_EXTENSION)) {
+                                files.add(file);
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
         } catch (IOException e) {
-            throw new RuntimeException("An error occurred while walking directory: " + DIRECTORY, e);
+            throw new RuntimeException(
+                    "An error occurred while walking directory: " + DIRECTORY, e);
         }
         return files;
     }

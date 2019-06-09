@@ -2,32 +2,33 @@
  * Created on Jun 14, 2004
  *
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-// ZAP: 2012:02/01 Changed getHostPort() to return proper port number even if it 
+// ZAP: 2012:02/01 Changed getHostPort() to return proper port number even if it
 // is not explicitly specified in URI
 // ZAP: 2011/08/04 Changed to support Logging
 // ZAP: 2011/10/29 Log errors
 // ZAP: 2011/11/03 Changed isImage() to prevent a NullPointerException when the path doesn't exist
 // ZAP: 2011/12/09 Changed HttpRequestHeader(String method, URI uri, String version) to add
-//      the Cache-Control header field when the HTTP version is 1.1 and changed a if condition to 
+//      the Cache-Control header field when the HTTP version is 1.1 and changed a if condition to
 //      validate the variable version instead of the variable method.
-// ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer. Reworked some methods.
+// ZAP: 2012/03/15 Changed to use the class StringBuilder instead of StringBuffer. Reworked some
+// methods.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/24 Added method to add Cookies of type java.net.HttpCookie to request header
 // ZAP: 2012/06/24 Added new method of getting cookies from the request header.
@@ -53,6 +54,7 @@
 // ZAP: 2019/03/06 Log or include the malformed data in the exception message.
 // ZAP: 2019/03/19 Changed the parse method to only parse the authority on CONNECT requests
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -67,7 +69,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -90,7 +91,7 @@ public class HttpRequestHeader extends HttpHeader {
 
     private static final long serialVersionUID = 4156598327921777493L;
     private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
-  
+
     // method list
     public static final String CONNECT = "CONNECT";
     public static final String DELETE = "DELETE";
@@ -108,14 +109,20 @@ public class HttpRequestHeader extends HttpHeader {
         CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE, TRACK
     };
     public static final String HOST = "Host";
-    private static final Pattern patternRequestLine = Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternRequestLine =
+            Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
     // private static final Pattern patternHostHeader
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
-    private static final Pattern patternImage = Pattern.compile("\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
-    private static final Pattern patternPartialRequestLine = Pattern.compile("\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternImage =
+            Pattern.compile("\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternPartialRequestLine =
+            Pattern.compile(
+                    "\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b",
+                    Pattern.CASE_INSENSITIVE);
 
     /**
-     * The user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
+     * The user agent used by {@link #HttpRequestHeader(String, URI, String) default request
+     * header}.
      */
     private static String defaultUserAgent;
 
@@ -123,29 +130,25 @@ public class HttpRequestHeader extends HttpHeader {
     private URI mUri;
     private String mHostName;
     private InetAddress senderAddress;
-    
+
     /**
      * The host port number of this request message, a non-negative integer.
-     * <p>
-     * Default is {@code 80}.
-     * <p>
-     * <strong>Note:</strong> All the modifications to the instance variable
-     * {@code mHostPort} must be done through the method
-     * {@code setHostPort(int)}, so a valid and correct value is set when no
-     * port number is defined (which is represented with the negative integer
-     * -1).
+     *
+     * <p>Default is {@code 80}.
+     *
+     * <p><strong>Note:</strong> All the modifications to the instance variable {@code mHostPort}
+     * must be done through the method {@code setHostPort(int)}, so a valid and correct value is set
+     * when no port number is defined (which is represented with the negative integer -1).
      *
      * @see #getHostPort()
      * @see #setHostPort(int)
      * @see URI#getPort()
      */
     private int mHostPort;
+
     private boolean mIsSecure;
 
-    /**
-     * Constructor for an empty header.
-     *
-     */
+    /** Constructor for an empty header. */
     public HttpRequestHeader() {
         super();
         mMethod = "";
@@ -166,8 +169,8 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Constructor of a request header with the string. Whether this is a secure
-     * header depends on the URL given.
+     * Constructor of a request header with the string. Whether this is a secure header depends on
+     * the URL given.
      *
      * @param data the request header
      * @throws HttpMalformedHeaderException if the request being set is malformed
@@ -184,19 +187,19 @@ public class HttpRequestHeader extends HttpHeader {
         mUri = null;
         mHostName = "";
         setHostPort(-1);
-
     }
 
     /**
      * Constructs a {@code HttpRequestHeader} with the given method, URI, and version.
-     * <p>
-     * The following headers are automatically added:
+     *
+     * <p>The following headers are automatically added:
+     *
      * <ul>
-     * <li>{@code Host}, with the domain and port from the given URI.</li>
-     * <li>{@code User-Agent}, using the {@link #getDefaultUserAgent()}.</li>
-     * <li>{@code Pragma: no-cache}</li>
-     * <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1</li>
-     * <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.</li>
+     *   <li>{@code Host}, with the domain and port from the given URI.
+     *   <li>{@code User-Agent}, using the {@link #getDefaultUserAgent()}.
+     *   <li>{@code Pragma: no-cache}
+     *   <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1
+     *   <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.
      * </ul>
      *
      * @param method the request method.
@@ -204,48 +207,52 @@ public class HttpRequestHeader extends HttpHeader {
      * @param version the version, for example, {@code HTTP/1.1}.
      * @throws HttpMalformedHeaderException if the resulting HTTP header is malformed.
      */
-    public HttpRequestHeader(String method, URI uri, String version) throws HttpMalformedHeaderException {
+    public HttpRequestHeader(String method, URI uri, String version)
+            throws HttpMalformedHeaderException {
         this(method + " " + uri.toString() + " " + version.toUpperCase(Locale.ROOT) + CRLF + CRLF);
-        
+
         try {
-            setHeader(HOST, uri.getHost() + (uri.getPort() > 0 ? ":" + Integer.toString(uri.getPort()) : ""));
-            
+            setHeader(
+                    HOST,
+                    uri.getHost()
+                            + (uri.getPort() > 0 ? ":" + Integer.toString(uri.getPort()) : ""));
+
         } catch (URIException e) {
             log.error(e.getMessage(), e);
         }
-        
+
         setHeader(USER_AGENT, defaultUserAgent);
         setHeader(PRAGMA, "no-cache");
-        
+
         // ZAP: added the Cache-Control header field to comply with HTTP/1.1
         if (version.equalsIgnoreCase(HTTP11)) {
             setHeader(CACHE_CONTROL, "no-cache");
         }
-        
+
         // ZAP: set content type x-www-urlencoded only if it's a POST or a PUT
         if (method.equalsIgnoreCase(POST) || method.equalsIgnoreCase(PUT)) {
             setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
         }
-        
+
         setHeader(ACCEPT_ENCODING, null);
-        
+
         // ZAP: changed from method to version
         if (version.equalsIgnoreCase(HTTP11)) {
             setContentLength(0);
         }
-
     }
 
     /**
      * Constructs a {@code HttpRequestHeader} with the given method, URI, and version.
-     * <p>
-     * The following headers are automatically added:
+     *
+     * <p>The following headers are automatically added:
+     *
      * <ul>
-     * <li>{@code Host}, with the domain and port from the given URI.</li>
-     * <li>{@code User-Agent}, using the {@link #getDefaultUserAgent()}.</li>
-     * <li>{@code Pragma: no-cache}</li>
-     * <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1</li>
-     * <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.</li>
+     *   <li>{@code Host}, with the domain and port from the given URI.
+     *   <li>{@code User-Agent}, using the {@link #getDefaultUserAgent()}.
+     *   <li>{@code Pragma: no-cache}
+     *   <li>{@code Cache-Control: no-cache}, if version is HTTP/1.1
+     *   <li>{@code Content-Type: application/x-www-form-urlencoded}, if the method is POST or PUT.
      * </ul>
      *
      * @param method the request method.
@@ -257,8 +264,8 @@ public class HttpRequestHeader extends HttpHeader {
      * @since 2.4.2
      */
     @Deprecated
-    public HttpRequestHeader(String method, URI uri, String version,
-           ConnectionParam params) throws HttpMalformedHeaderException {
+    public HttpRequestHeader(String method, URI uri, String version, ConnectionParam params)
+            throws HttpMalformedHeaderException {
         this(method, uri, version);
     }
 
@@ -272,18 +279,18 @@ public class HttpRequestHeader extends HttpHeader {
      */
     public void setMessage(String data, boolean isSecure) throws HttpMalformedHeaderException {
         super.setMessage(data);
-        
+
         try {
             parse(isSecure);
-        
+
         } catch (HttpMalformedHeaderException e) {
             mMalformedHeader = true;
             if (log.isDebugEnabled()) {
                 log.debug("Malformed header: " + data, e);
             }
-            
+
             throw e;
-        
+
         } catch (Exception e) {
             log.error("Failed to parse:\n" + data, e);
             mMalformedHeader = true;
@@ -292,8 +299,8 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Set this request header with the given message. Whether this is a secure
-     * header depends on the URL given.
+     * Set this request header with the given message. Whether this is a secure header depends on
+     * the URL given.
      */
     @Override
     public void setMessage(String data) throws HttpMalformedHeaderException {
@@ -337,14 +344,14 @@ public class HttpRequestHeader extends HttpHeader {
 
         if (uri.getScheme() == null || uri.getScheme().equals("")) {
             mUri = new URI(HTTP + "://" + getHeader(HOST) + "/" + mUri.toString(), true);
-            
+
         } else {
             mUri = uri;
         }
 
         if (uri.getScheme().equalsIgnoreCase(HTTPS)) {
             mIsSecure = true;
-            
+
         } else {
             mIsSecure = false;
         }
@@ -356,8 +363,7 @@ public class HttpRequestHeader extends HttpHeader {
      * Get if this request header is under secure connection.
      *
      * @return {@code true} if the request is secure, {@code false} otherwise
-     * @deprecated Replaced by {@link #isSecure()}. It will be removed in a
-     * future release.
+     * @deprecated Replaced by {@link #isSecure()}. It will be removed in a future release.
      */
     @Deprecated
     public boolean getSecure() {
@@ -365,8 +371,8 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Tells whether the request is secure, or not. A request is considered
-     * secure if it's using the HTTPS protocol.
+     * Tells whether the request is secure, or not. A request is considered secure if it's using the
+     * HTTPS protocol.
      *
      * @return {@code true} if the request is secure, {@code false} otherwise.
      */
@@ -393,7 +399,7 @@ public class HttpRequestHeader extends HttpHeader {
         // check if URI consistent
         if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
             newUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
-            
+
         } else if (!isSecure() && mUri.getScheme().equalsIgnoreCase(HTTPS)) {
             newUri = new URI(mUri.toString().replaceFirst(HTTPS, HTTP), true);
         }
@@ -404,24 +410,22 @@ public class HttpRequestHeader extends HttpHeader {
         }
     }
 
-    /**
-     * Set the HTTP version of this request header.
-     */
+    /** Set the HTTP version of this request header. */
     @Override
     public void setVersion(String version) {
         mVersion = version.toUpperCase(Locale.ROOT);
     }
 
     /**
-     * Get the content length in this request header. If the content length is
-     * undetermined, 0 will be returned.
+     * Get the content length in this request header. If the content length is undetermined, 0 will
+     * be returned.
      */
     @Override
     public int getContentLength() {
         if (mContentLength == -1) {
             return 0;
         }
-        
+
         return mContentLength;
     }
 
@@ -438,18 +442,21 @@ public class HttpRequestHeader extends HttpHeader {
         Matcher matcher = patternRequestLine.matcher(mStartLine);
         if (!matcher.find()) {
             mMalformedHeader = true;
-            throw new HttpMalformedHeaderException("Failed to find pattern " + patternRequestLine + " in: " + mStartLine);
+            throw new HttpMalformedHeaderException(
+                    "Failed to find pattern " + patternRequestLine + " in: " + mStartLine);
         }
 
         mMethod = matcher.group(1);
         String sUri = matcher.group(2);
         mVersion = matcher.group(3);
 
-        if (!mVersion.equalsIgnoreCase(HTTP09) && !mVersion.equalsIgnoreCase(HTTP10) && !mVersion.equalsIgnoreCase(HTTP11)) {
+        if (!mVersion.equalsIgnoreCase(HTTP09)
+                && !mVersion.equalsIgnoreCase(HTTP10)
+                && !mVersion.equalsIgnoreCase(HTTP11)) {
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
-        
+
         if (mMethod.equalsIgnoreCase(CONNECT)) {
             parseHostName(sUri);
             mUri = parseURI(mHostName);
@@ -471,15 +478,14 @@ public class HttpRequestHeader extends HttpHeader {
             mHostName = mUri.getHost();
             setHostPort(mUri.getPort());
         }
-
     }
 
     private void parseHostName(String hostHeader) {
-        // no host header given but a valid host name already exist.  
+        // no host header given but a valid host name already exist.
         if (hostHeader == null) {
             return;
         }
-        
+
         int port = -1;
         int pos;
         if ((pos = hostHeader.indexOf(':', 2)) > -1) {
@@ -488,7 +494,7 @@ public class HttpRequestHeader extends HttpHeader {
                 port = Integer.parseInt(hostHeader.substring(pos + 1));
             } catch (NumberFormatException e) {
             }
-            
+
         } else {
             mHostName = hostHeader.trim();
         }
@@ -506,23 +512,21 @@ public class HttpRequestHeader extends HttpHeader {
         try {
             // ZAP: fixed cases, where host name is null
             hostName = ((mUri.getHost() != null) ? mUri.getHost() : mHostName);
-            
+
         } catch (URIException e) {
             if (log.isDebugEnabled()) {
                 log.warn(e);
             }
         }
-        
+
         return hostName;
     }
 
     /**
-     * Gets the host port number of this request message, a non-negative
-     * integer.
-     * <p>
-     * If no port is defined the default port for the used scheme will be
-     * returned, either 80 for HTTP or 443 for HTTPS.
-     * </p>
+     * Gets the host port number of this request message, a non-negative integer.
+     *
+     * <p>If no port is defined the default port for the used scheme will be returned, either 80 for
+     * HTTP or 443 for HTTPS.
      *
      * @return the host port number, a non-negative integer
      */
@@ -532,12 +536,10 @@ public class HttpRequestHeader extends HttpHeader {
 
     /**
      * Sets the host port number of this request message.
-     * <p>
-     * If the given {@code port} number is negative (usually -1 to represent
-     * that no port number is defined), the port number set will be the default
-     * port number for the used scheme known using the method
-     * {@code isSecure()}, either 80 for HTTP or 443 for HTTPS.
-     * </p>
+     *
+     * <p>If the given {@code port} number is negative (usually -1 to represent that no port number
+     * is defined), the port number set will be the default port number for the used scheme known
+     * using the method {@code isSecure()}, either 80 for HTTP or 443 for HTTPS.
      *
      * @param port the new port number
      * @see #mHostPort
@@ -547,19 +549,16 @@ public class HttpRequestHeader extends HttpHeader {
     private void setHostPort(int port) {
         if (port > -1) {
             mHostPort = port;
-            
+
         } else if (this.isSecure()) {
             mHostPort = 443;
-            
+
         } else {
             mHostPort = 80;
         }
     }
 
-    /**
-     * Return if this request header is a image request basing on the path
-     * suffix.
-     */
+    /** Return if this request header is a image request basing on the path suffix. */
     @Override
     public boolean isImage() {
         if (getURI() == null) {
@@ -572,17 +571,16 @@ public class HttpRequestHeader extends HttpHeader {
             if (path != null) {
                 return (patternImage.matcher(path).find());
             }
-            
+
         } catch (URIException e) {
             log.error(e.getMessage(), e);
         }
-        
+
         return false;
     }
 
     /**
-     * Return if the data given is a request header basing on the first start
-     * line.
+     * Return if the data given is a request header basing on the first start line.
      *
      * @param data the data to be checked
      * @return {@code true} if the data contains a request line, {@code false} otherwise.
@@ -591,9 +589,7 @@ public class HttpRequestHeader extends HttpHeader {
         return patternPartialRequestLine.matcher(data).find();
     }
 
-    /**
-     * Return the prime header (first line).
-     */
+    /** Return the prime header (first line). */
     @Override
     public String getPrimeHeader() {
         return getMethod() + " " + getURI().toString() + " " + getVersion();
@@ -616,26 +612,26 @@ public class HttpRequestHeader extends HttpHeader {
 
         for (int i = 0; i < len; i++) {
             char ch = sUri.charAt(i);
-            //String ch = sUri.substring(i, i+1);
+            // String ch = sUri.substring(i, i+1);
             if (DELIM_UNWISE.indexOf(ch) >= 0) {
                 // check if unwise or delim in RFC.  If so, encode it.
                 charray[0] = ch;
                 s = new String(charray);
                 try {
                     s = URLEncoder.encode(s, "UTF8");
-                    
+
                 } catch (UnsupportedEncodingException e1) {
                 }
-                
+
                 sb.append(s);
-                
+
             } else if (ch == '%') {
 
                 // % is exception - no encoding to be done because some server may not handle
-                // correctly when % is invalid. 
-                // 
+                // correctly when % is invalid.
+                //
 
-                //sb.append(ch);
+                // sb.append(ch);
 
                 // if % followed by hex, no encode.
 
@@ -643,22 +639,22 @@ public class HttpRequestHeader extends HttpHeader {
                     String hex = sUri.substring(i + 1, i + 3);
                     Integer.parseInt(hex, 16);
                     sb.append(ch);
-                    
+
                 } catch (Exception e) {
                     charray[0] = ch;
                     s = new String(charray);
                     try {
                         s = URLEncoder.encode(s, "UTF8");
-                        
+
                     } catch (UnsupportedEncodingException e1) {
                     }
                     sb.append(s);
                 }
-                
+
             } else if (ch == ' ') {
                 // if URLencode, '+' will be appended.
                 sb.append("%20");
-                
+
             } else {
                 sb.append(ch);
             }
@@ -678,11 +674,11 @@ public class HttpRequestHeader extends HttpHeader {
         if (getParams.isEmpty()) {
             try {
                 mUri.setQuery("");
-        
+
             } catch (URIException e) {
                 log.error(e.getMessage(), e);
             }
-            
+
             return;
         }
 
@@ -701,21 +697,21 @@ public class HttpRequestHeader extends HttpHeader {
         if (sbQuery.length() <= 2) {
             try {
                 mUri.setQuery("");
-            
+
             } catch (URIException e) {
                 log.error(e.getMessage(), e);
             }
-            
+
             return;
         }
 
         String query = sbQuery.substring(0, sbQuery.length() - 1);
 
         try {
-            //The previous behaviour was escaping the query,
-            //so it is maintained with the use of setQuery.
+            // The previous behaviour was escaping the query,
+            // so it is maintained with the use of setQuery.
             mUri.setQuery(query);
-            
+
         } catch (URIException e) {
             log.error(e.getMessage(), e);
         }
@@ -782,17 +778,18 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     public TreeSet<HtmlParameter> getCookieParams() {
-    	TreeSet<HtmlParameter> set = new TreeSet<>();
+        TreeSet<HtmlParameter> set = new TreeSet<>();
 
         Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
         if (cookieLines != null) {
             for (String cookieLine : cookieLines) {
-            	//watch out for the scenario where the first cookie name starts with "cookie" (uppercase or lowercase)
+                // watch out for the scenario where the first cookie name starts with "cookie"
+                // (uppercase or lowercase)
                 if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase() + ":")) {
                     // HttpCookie wont parse lines starting with "Cookie:"
                     cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
                 }
-                
+
                 if (cookieLine.isEmpty()) {
                     // Nothing to parse.
                     continue;
@@ -814,8 +811,8 @@ public class HttpRequestHeader extends HttpHeader {
      * Gets a list of the http cookies from this request Header.
      *
      * @return the http cookies
-     * @throws IllegalArgumentException if a problem is encountered while
-     * processing the "Cookie: " header line.
+     * @throws IllegalArgumentException if a problem is encountered while processing the "Cookie: "
+     *     header line.
      */
     public List<HttpCookie> getHttpCookies() {
         List<HttpCookie> cookies = new LinkedList<>();
@@ -827,19 +824,20 @@ public class HttpRequestHeader extends HttpHeader {
             if (!htmlParameter.getName().isEmpty()) {
                 try {
                     cookies.add(new HttpCookie(htmlParameter.getName(), htmlParameter.getValue()));
-                
+
                 } catch (IllegalArgumentException e) {
                     // Occurs while scanning ;)
                     log.debug(e.getMessage() + " " + htmlParameter.getName());
                 }
             }
         }
-        
+
         return cookies;
     }
 
     /**
      * Sets the senders IP address. Note that this is not persisted.
+     *
      * @param inetAddress the senders IP address
      * @since 2.6.0
      */
@@ -849,17 +847,19 @@ public class HttpRequestHeader extends HttpHeader {
 
     /**
      * Gets the senders IP address
+     *
      * @return the senders IP address
      * @since 2.6.0
      */
     public InetAddress getSenderAddress() {
         return senderAddress;
     }
-    
+
     /**
-     * Sets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
-     * <p>
-     * This is expected to be called only by core code, when the corresponding option is changed.
+     * Sets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request
+     * header}.
+     *
+     * <p>This is expected to be called only by core code, when the corresponding option is changed.
      *
      * @param defaultUserAgent the default user agent.
      * @since 2.8.0
@@ -869,7 +869,8 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Gets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request header}.
+     * Gets the user agent used by {@link #HttpRequestHeader(String, URI, String) default request
+     * header}.
      *
      * @return the default user agent.
      * @since 2.8.0

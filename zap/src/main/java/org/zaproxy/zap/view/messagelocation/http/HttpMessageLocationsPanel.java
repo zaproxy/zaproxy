@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,12 +21,10 @@ package org.zaproxy.zap.view.messagelocation.http;
 
 import java.awt.BorderLayout;
 import java.util.List;
-
 import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
@@ -37,7 +35,7 @@ import org.zaproxy.zap.view.messagelocation.SelectMessageLocationsPanel;
 
 /**
  * A {@code JPanel} that allows to select locations of an {@code HttpMessage}.
- * 
+ *
  * @since 2.4.0
  */
 public class HttpMessageLocationsPanel extends JPanel {
@@ -55,16 +53,19 @@ public class HttpMessageLocationsPanel extends JPanel {
         this.request = request;
         this.selectMessageLocationsPanel = new SelectMessageLocationsPanel();
         if (request) {
-            selectMessageLocationsPanel.addComponent(new RequestSplitComponent<>(), new ZapXmlConfiguration());
+            selectMessageLocationsPanel.addComponent(
+                    new RequestSplitComponent<>(), new ZapXmlConfiguration());
             HttpPanelManager.getInstance().addRequestPanel(selectMessageLocationsPanel);
         } else {
-            selectMessageLocationsPanel.addComponent(new ResponseSplitComponent<>(), new ZapXmlConfiguration());
+            selectMessageLocationsPanel.addComponent(
+                    new ResponseSplitComponent<>(), new ZapXmlConfiguration());
             HttpPanelManager.getInstance().addResponsePanel(selectMessageLocationsPanel);
         }
         selectMessageLocationsPanel.setMessage(message, true);
 
         locationsPanel = new DefaultHttpMessageLocationsPanel(this, selectMessageLocationsPanel);
-        selectMessageLocationsPanel.addFocusListener(locationsPanel.getFocusListenerAddButtonEnabler());
+        selectMessageLocationsPanel.addFocusListener(
+                locationsPanel.getFocusListenerAddButtonEnabler());
 
         setLayout(new BorderLayout());
 
@@ -77,15 +78,21 @@ public class HttpMessageLocationsPanel extends JPanel {
 
         JLabel locLabel = new JLabel(locationsLabel);
 
-        leftPanelLayout.setHorizontalGroup(leftPanelLayout.createParallelGroup()
-                .addComponent(locLabel)
-                .addComponent(locationsPanel));
+        leftPanelLayout.setHorizontalGroup(
+                leftPanelLayout
+                        .createParallelGroup()
+                        .addComponent(locLabel)
+                        .addComponent(locationsPanel));
 
-        leftPanelLayout.setVerticalGroup(leftPanelLayout.createSequentialGroup()
-                .addComponent(locLabel)
-                .addComponent(locationsPanel));
+        leftPanelLayout.setVerticalGroup(
+                leftPanelLayout
+                        .createSequentialGroup()
+                        .addComponent(locLabel)
+                        .addComponent(locationsPanel));
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, selectMessageLocationsPanel, rightPanel);
+        JSplitPane splitPane =
+                new JSplitPane(
+                        JSplitPane.HORIZONTAL_SPLIT, selectMessageLocationsPanel, rightPanel);
         splitPane.setResizeWeight(0.6d);
 
         add(splitPane);
@@ -93,7 +100,8 @@ public class HttpMessageLocationsPanel extends JPanel {
 
     public boolean setSelectedContainer(String containerName) {
         if (containerName == null || containerName.isEmpty()) {
-            throw new IllegalArgumentException("Parameter containerName must not be null nor empty.");
+            throw new IllegalArgumentException(
+                    "Parameter containerName must not be null nor empty.");
         }
         return selectMessageLocationsPanel.setSelectedView(containerName);
     }
@@ -116,5 +124,4 @@ public class HttpMessageLocationsPanel extends JPanel {
     public List<MessageLocation> getLocations() {
         return locationsPanel.getLocations();
     }
-
 }

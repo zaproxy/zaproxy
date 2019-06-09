@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.search.SearchResultsTableModel.SearchResultTableEntry;
@@ -39,17 +38,26 @@ public class SearchResultsTable extends HistoryReferencesTable {
 
         setAutoScrollOnNewValues(false);
 
-        getColumnExt(Constant.messages.getString("view.href.table.header.hrefid")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.request")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response")).setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.hrefid"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.request"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response"))
+                .setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.code")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.reason")).setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.reason"))
+                .setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.rtt")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.responseheader")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.size.responsebody")).setVisible(false);
-        getColumnExt(Constant.messages.getString("view.href.table.header.highestalert")).setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.requestbody"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.responseheader"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.size.responsebody"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.highestalert"))
+                .setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.note")).setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.tags")).setVisible(false);
     }
@@ -57,7 +65,9 @@ public class SearchResultsTable extends HistoryReferencesTable {
     public SearchResult getSelectedSearchResult() {
         final int selectedRow = getSelectedRow();
         if (selectedRow != -1) {
-            SearchResultTableEntry entry = (SearchResultTableEntry) getModel().getEntry(convertRowIndexToModel(selectedRow));
+            SearchResultTableEntry entry =
+                    (SearchResultTableEntry)
+                            getModel().getEntry(convertRowIndexToModel(selectedRow));
             if (entry != null) {
                 return entry.getSearchResult();
             }

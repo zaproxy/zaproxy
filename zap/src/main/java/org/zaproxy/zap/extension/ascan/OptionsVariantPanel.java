@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2014 The ZAP development team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.ascan;
 
@@ -26,13 +26,11 @@ import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Objects;
-
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SortOrder;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.ScannerParam;
@@ -46,6 +44,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * Panel for Variant configuration
+ *
  * @author yhawke (2014)
  */
 public class OptionsVariantPanel extends AbstractParamPanel {
@@ -54,15 +53,15 @@ public class OptionsVariantPanel extends AbstractParamPanel {
 
     /**
      * Flag that indicates whether or not the {@code ExtensionScript} is enabled.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #isExtensionScriptEnabled()
      */
     private static Boolean extensionScriptEnabled;
 
     private JPanel panelVariant = null;
-    
+
     // Checkbox for Target definitions
     private JCheckBox chkInjectableQueryString = null;
     private JCheckBox chkAddQueryParam = null;
@@ -71,7 +70,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkInjectableHeaders = null;
     private JCheckBox chkInjectableHeadersAllRequests;
     private JCheckBox chkInjectableCookie = null;
-    
+
     // Checkbox for RPC to be enabled definitions
     private JCheckBox chkRPCMultipart = null;
     private JCheckBox chkRPCXML = null;
@@ -80,32 +79,31 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkRPCoData = null;
     private JCheckBox chkRPCDWR = null;
     private JCheckBox chkRPCCustom = null;
-    
+
     // Table for Parameter exclusions
     private ExcludedParameterPanel excludedParamPanel;
     private ExcludedParameterTableModel excludedParamModel = null;
 
     /**
      * The reason why the variants are disabled.
-     * <p>
-     * Never {@code null}.
-     * 
+     *
+     * <p>Never {@code null}.
+     *
      * @see #labelReasonVariantsDisabled
      */
     private String reasonVariantsDisabled;
 
     /**
-     * The label that shows the {@link #reasonVariantsDisabled reason} why the variants are disabled.
-     * <p>
-     * The label is only shown if the reason is non-empty.
-     * 
+     * The label that shows the {@link #reasonVariantsDisabled reason} why the variants are
+     * disabled.
+     *
+     * <p>The label is only shown if the reason is non-empty.
+     *
      * @see #setAllInjectableAndRPC(boolean)
      */
     private JLabel labelReasonVariantsDisabled;
-    
-    /**
-     * General Constructor
-     */
+
+    /** General Constructor */
     public OptionsVariantPanel() {
         super();
 
@@ -116,9 +114,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         initialize();
     }
 
-    /**
-     * This method initializes the Panel
-     */
+    /** This method initializes the Panel */
     private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("variant.options.title"));
@@ -135,91 +131,228 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             // ---------------------------------------------
             JPanel panelInjectable = new JPanel();
             panelInjectable.setLayout(new GridBagLayout());
-            
+
             int row = 1;
             panelInjectable.add(
-                    this.getChkInjectableQueryString(), 
-                    LayoutHelper.getGBC(0, row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkInjectableQueryString(),
+                    LayoutHelper.getGBC(
+                            0,
+                            row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelInjectable.add(
                     this.getChkAddQueryParam(),
-                    LayoutHelper.getGBC(0, ++row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 32, 2, 2)));
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 32, 2, 2)));
             panelInjectable.add(
                     this.getChkInjectablePostData(),
-                    LayoutHelper.getGBC(0, ++row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelInjectable.add(
-                    this.getChkInjectableUrlPath(), 
-                    LayoutHelper.getGBC(0, ++row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkInjectableUrlPath(),
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelInjectable.add(
                     this.getChkInjectableHeaders(),
-                    LayoutHelper.getGBC(0, ++row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelInjectable.add(
                     this.getChkInjectableHeadersAllRequests(),
-                    LayoutHelper.getGBC(0, ++row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 32, 2, 2)));
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 32, 2, 2)));
             panelInjectable.add(
                     this.getChkInjectableCookie(),
-                    LayoutHelper.getGBC(0, ++row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
-            
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
+
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.injectable.label")),
-                    LayoutHelper.getGBC(0, 0, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            
+                    LayoutHelper.getGBC(
+                            0,
+                            0,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
             panelVariant.add(
                     panelInjectable,
-                    LayoutHelper.getGBC(0, 1, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            
+                    LayoutHelper.getGBC(
+                            0,
+                            1,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
             // Add RPC Enabling Section
             // ---------------------------------------------
             JPanel panelRPC = new JPanel();
             panelRPC.setLayout(new GridBagLayout());
 
             panelRPC.add(
-                    this.getChkRPCMultipart(), 
-                    LayoutHelper.getGBC(0, 1, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkRPCMultipart(),
+                    LayoutHelper.getGBC(
+                            0,
+                            1,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelRPC.add(
-                    this.getChkRPCXML(), 
-                    LayoutHelper.getGBC(0, 2, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkRPCXML(),
+                    LayoutHelper.getGBC(
+                            0,
+                            2,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelRPC.add(
-                    this.getChkRPCJSON(), 
-                    LayoutHelper.getGBC(0, 3, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkRPCJSON(),
+                    LayoutHelper.getGBC(
+                            0,
+                            3,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelRPC.add(
-                    this.getChkRPCGWT(), 
-                    LayoutHelper.getGBC(0, 4, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkRPCGWT(),
+                    LayoutHelper.getGBC(
+                            0,
+                            4,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelRPC.add(
-                    this.getChkRPCoData(), 
-                    LayoutHelper.getGBC(0, 5, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+                    this.getChkRPCoData(),
+                    LayoutHelper.getGBC(
+                            0,
+                            5,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
             panelRPC.add(
-                    this.getChkRPCDWR(), 
-                    LayoutHelper.getGBC(0, 6, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
-            
+                    this.getChkRPCDWR(),
+                    LayoutHelper.getGBC(
+                            0,
+                            6,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 8, 2, 2)));
+
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.rpc.label")),
-                    LayoutHelper.getGBC(1, 0, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            
+                    LayoutHelper.getGBC(
+                            1,
+                            0,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
             panelVariant.add(
                     panelRPC,
-                    LayoutHelper.getGBC(1, 1, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(
+                            1,
+                            1,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
 
             // Space Before
             panelVariant.add(
-                    this.getChkRPCCustom(), 
-                    LayoutHelper.getGBC(0, 2, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));            
+                    this.getChkRPCCustom(),
+                    LayoutHelper.getGBC(
+                            0,
+                            2,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(16, 2, 2, 2)));
 
             panelVariant.add(
                     labelReasonVariantsDisabled,
-                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(
+                            0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
 
             // Excluded Parameters
             panelVariant.add(
-                    new JLabel(Constant.messages.getString("variant.options.excludedparam.label.tokens")), 
-                    LayoutHelper.getGBC(0, 4, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
-            
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "variant.options.excludedparam.label.tokens")),
+                    LayoutHelper.getGBC(
+                            0,
+                            4,
+                            2,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(16, 2, 2, 2)));
+
             // Set an header on it
             excludedParamPanel = new ExcludedParameterPanel(getExcludedParameterModel());
             panelVariant.add(
                     excludedParamPanel,
-                    LayoutHelper.getGBC(0, 5, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));            
+                    LayoutHelper.getGBC(
+                            0, 5, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
         }
-        
+
         return panelVariant;
     }
 
@@ -228,24 +361,32 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         OptionsParam options = (OptionsParam) obj;
         ScannerParam param = options.getParamSet(ScannerParam.class);
         initParam(param);
-    }    
-    
+    }
+
     /**
      * Initialises the panel (that is, the options shown in it) with the given options.
      *
      * @param param the options to initialise the panel
      */
-    public void initParam(ScannerParam param) {        
+    public void initParam(ScannerParam param) {
         // Set targets and RPC selections
         int targets = param.getTargetParamsInjectable();
-        this.getChkInjectableQueryString().setSelected((targets & ScannerParam.TARGET_QUERYSTRING) != 0);
+        this.getChkInjectableQueryString()
+                .setSelected((targets & ScannerParam.TARGET_QUERYSTRING) != 0);
         this.getChkAddQueryParam().setSelected(param.isAddQueryParam());
-        this.getChkAddQueryParam().setEnabled(getChkInjectableQueryString().isEnabled() && getChkInjectableQueryString().isSelected());
+        this.getChkAddQueryParam()
+                .setEnabled(
+                        getChkInjectableQueryString().isEnabled()
+                                && getChkInjectableQueryString().isSelected());
         this.getChkInjectableUrlPath().setSelected((targets & ScannerParam.TARGET_URLPATH) != 0);
         this.getChkInjectablePostData().setSelected((targets & ScannerParam.TARGET_POSTDATA) != 0);
-        this.getChkInjectableHeaders().setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
+        this.getChkInjectableHeaders()
+                .setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
         this.getChkInjectableHeadersAllRequests().setSelected(param.isScanHeadersAllRequests());
-        this.getChkInjectableHeadersAllRequests().setEnabled(getChkInjectableHeaders().isEnabled() && getChkInjectableHeaders().isSelected());
+        this.getChkInjectableHeadersAllRequests()
+                .setEnabled(
+                        getChkInjectableHeaders().isEnabled()
+                                && getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
 
         int rpcEnabled = param.getTargetParamsEnabledRPC();
@@ -269,44 +410,44 @@ public class OptionsVariantPanel extends AbstractParamPanel {
 
     /**
      * Saves the options shown in the panel to the given options object.
-     * 
+     *
      * @param param the options object where to save the options shown
      */
-    public void saveParam(ScannerParam param) {        
+    public void saveParam(ScannerParam param) {
         // Set Injectable Targets
-        int targets = 0;        
+        int targets = 0;
         if (this.getChkInjectableQueryString().isSelected()) {
             targets |= ScannerParam.TARGET_QUERYSTRING;
         }
-        
+
         param.setAddQueryParam(getChkAddQueryParam().isSelected());
 
         if (this.getChkInjectableUrlPath().isSelected()) {
             targets |= ScannerParam.TARGET_URLPATH;
         }
-        
+
         if (this.getChkInjectablePostData().isSelected()) {
             targets |= ScannerParam.TARGET_POSTDATA;
         }
-        
+
         if (this.getChkInjectableHeaders().isSelected()) {
             targets |= ScannerParam.TARGET_HTTPHEADERS;
         }
-        
+
         param.setScanHeadersAllRequests(getChkInjectableHeadersAllRequests().isSelected());
 
         if (this.getChkInjectableCookie().isSelected()) {
             targets |= ScannerParam.TARGET_COOKIE;
         }
-        
+
         param.setTargetParamsInjectable(targets);
-        
+
         // Set Enabled RPC schemas
         int enabledRpc = 0;
         if (this.getChkRPCMultipart().isSelected()) {
             enabledRpc |= ScannerParam.RPC_MULTIPART;
         }
- 
+
         if (this.getChkRPCXML().isSelected()) {
             enabledRpc |= ScannerParam.RPC_XML;
         }
@@ -314,7 +455,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (this.getChkRPCJSON().isSelected()) {
             enabledRpc |= ScannerParam.RPC_JSON;
         }
-        
+
         if (this.getChkRPCGWT().isSelected()) {
             enabledRpc |= ScannerParam.RPC_GWT;
         }
@@ -330,27 +471,30 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (this.getChkRPCCustom().isSelected()) {
             enabledRpc |= ScannerParam.RPC_CUSTOM;
         }
-        
+
         param.setTargetParamsEnabledRPC(enabledRpc);
-        
+
         param.setExcludedParamList(getExcludedParameterModel().getElements());
     }
 
     /**
      * Set all checkbox to a specific value
+     *
      * @param enabled true if all the checkbox should be enabled, false otherwise
      * @see #setReasonVariantsDisabled(String)
      */
     public void setAllInjectableAndRPC(boolean enabled) {
-        
+
         this.getChkInjectableQueryString().setEnabled(enabled);
-        this.getChkAddQueryParam().setEnabled(enabled && getChkInjectableQueryString().isSelected());
+        this.getChkAddQueryParam()
+                .setEnabled(enabled && getChkInjectableQueryString().isSelected());
         this.getChkInjectableUrlPath().setEnabled(enabled);
         this.getChkInjectablePostData().setEnabled(enabled);
         this.getChkInjectableHeaders().setEnabled(enabled);
-        this.getChkInjectableHeadersAllRequests().setEnabled(enabled && getChkInjectableHeaders().isSelected());
+        this.getChkInjectableHeadersAllRequests()
+                .setEnabled(enabled && getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setEnabled(enabled);
-         
+
         this.getChkRPCMultipart().setEnabled(enabled);
         this.getChkRPCXML().setEnabled(enabled);
         this.getChkRPCJSON().setEnabled(enabled);
@@ -363,7 +507,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             labelReasonVariantsDisabled.setVisible(!enabled);
         }
     }
-    
+
     /**
      * This method initializes the table Model
      *
@@ -375,7 +519,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         }
         return excludedParamModel;
     }
-    
+
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.options.ascaninput";
@@ -401,8 +545,12 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox getChkInjectableQueryString() {
         if (chkInjectableQueryString == null) {
             chkInjectableQueryString = new JCheckBox();
-            chkInjectableQueryString.setText(Constant.messages.getString("variant.options.injectable.querystring.label"));
-            chkInjectableQueryString.addItemListener(e -> getChkAddQueryParam().setEnabled(e.getStateChange() == ItemEvent.SELECTED));
+            chkInjectableQueryString.setText(
+                    Constant.messages.getString("variant.options.injectable.querystring.label"));
+            chkInjectableQueryString.addItemListener(
+                    e ->
+                            getChkAddQueryParam()
+                                    .setEnabled(e.getStateChange() == ItemEvent.SELECTED));
         }
         return chkInjectableQueryString;
     }
@@ -410,18 +558,20 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox getChkAddQueryParam() {
         if (chkAddQueryParam == null) {
             chkAddQueryParam = new JCheckBox();
-            chkAddQueryParam
-                .setText(Constant.messages.getString("variant.options.injectable.addqueryparam.label"));
-            chkAddQueryParam
-                .setToolTipText(Constant.messages.getString("variant.options.injectable.addqueryparam.toolTip"));
+            chkAddQueryParam.setText(
+                    Constant.messages.getString("variant.options.injectable.addqueryparam.label"));
+            chkAddQueryParam.setToolTipText(
+                    Constant.messages.getString(
+                            "variant.options.injectable.addqueryparam.toolTip"));
+        }
+        return chkAddQueryParam;
     }
-    return chkAddQueryParam;
-}
 
     private JCheckBox getChkInjectableUrlPath() {
         if (chkInjectableUrlPath == null) {
             chkInjectableUrlPath = new JCheckBox();
-            chkInjectableUrlPath.setText(Constant.messages.getString("variant.options.injectable.urlpath.label"));
+            chkInjectableUrlPath.setText(
+                    Constant.messages.getString("variant.options.injectable.urlpath.label"));
         }
         return chkInjectableUrlPath;
     }
@@ -429,7 +579,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox getChkInjectablePostData() {
         if (chkInjectablePostData == null) {
             chkInjectablePostData = new JCheckBox();
-            chkInjectablePostData.setText(Constant.messages.getString("variant.options.injectable.postdata.label"));
+            chkInjectablePostData.setText(
+                    Constant.messages.getString("variant.options.injectable.postdata.label"));
         }
         return chkInjectablePostData;
     }
@@ -437,15 +588,17 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox getChkInjectableHeaders() {
         if (chkInjectableHeaders == null) {
             chkInjectableHeaders = new JCheckBox();
-            chkInjectableHeaders.setText(Constant.messages.getString("variant.options.injectable.headers.label"));
-            chkInjectableHeaders.addItemListener(new ItemListener() {
+            chkInjectableHeaders.setText(
+                    Constant.messages.getString("variant.options.injectable.headers.label"));
+            chkInjectableHeaders.addItemListener(
+                    new ItemListener() {
 
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    getChkInjectableHeadersAllRequests().setEnabled(e.getStateChange() == ItemEvent.SELECTED);
-
-                }
-            });
+                        @Override
+                        public void itemStateChanged(ItemEvent e) {
+                            getChkInjectableHeadersAllRequests()
+                                    .setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+                        }
+                    });
         }
         return chkInjectableHeaders;
     }
@@ -453,18 +606,21 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox getChkInjectableHeadersAllRequests() {
         if (chkInjectableHeadersAllRequests == null) {
             chkInjectableHeadersAllRequests = new JCheckBox();
-            chkInjectableHeadersAllRequests
-                    .setText(Constant.messages.getString("variant.options.injectable.headersAllRequests.label"));
-            chkInjectableHeadersAllRequests
-                    .setToolTipText(Constant.messages.getString("variant.options.injectable.headersAllRequests.toolTip"));
+            chkInjectableHeadersAllRequests.setText(
+                    Constant.messages.getString(
+                            "variant.options.injectable.headersAllRequests.label"));
+            chkInjectableHeadersAllRequests.setToolTipText(
+                    Constant.messages.getString(
+                            "variant.options.injectable.headersAllRequests.toolTip"));
         }
         return chkInjectableHeadersAllRequests;
     }
 
     private JCheckBox getChkInjectableCookie() {
-        if (chkInjectableCookie== null) {
+        if (chkInjectableCookie == null) {
             chkInjectableCookie = new JCheckBox();
-            chkInjectableCookie.setText(Constant.messages.getString("variant.options.injectable.cookie.label"));
+            chkInjectableCookie.setText(
+                    Constant.messages.getString("variant.options.injectable.cookie.label"));
         }
         return chkInjectableCookie;
     }
@@ -472,7 +628,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox getChkRPCMultipart() {
         if (chkRPCMultipart == null) {
             chkRPCMultipart = new JCheckBox();
-            chkRPCMultipart.setText(Constant.messages.getString("variant.options.rpc.multipart.label"));
+            chkRPCMultipart.setText(
+                    Constant.messages.getString("variant.options.rpc.multipart.label"));
         }
         return chkRPCMultipart;
     }
@@ -516,7 +673,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         }
         return chkRPCDWR;
     }
-    
+
     private JCheckBox getChkRPCCustom() {
         if (chkRPCCustom == null) {
             chkRPCCustom = new JCheckBox();
@@ -528,21 +685,34 @@ public class OptionsVariantPanel extends AbstractParamPanel {
 
     private static boolean isExtensionScriptEnabled() {
         if (extensionScriptEnabled == null) {
-            extensionScriptEnabled = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class) != null;
+            extensionScriptEnabled =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class)
+                            != null;
         }
         return extensionScriptEnabled;
     }
 
-    private static class ExcludedParameterPanel extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
+    private static class ExcludedParameterPanel
+            extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
 
         private static final long serialVersionUID = 1L;
-        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.title");
-        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.text");
+        private static final String REMOVE_DIALOG_TITLE =
+                Constant.messages.getString(
+                        "variant.options.excludedparam.dialog.token.remove.title");
+        private static final String REMOVE_DIALOG_TEXT =
+                Constant.messages.getString(
+                        "variant.options.excludedparam.dialog.token.remove.text");
 
-        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.button.confirm");
-        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.button.cancel");
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL =
+                Constant.messages.getString(
+                        "variant.options.excludedparam.dialog.token.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL =
+                Constant.messages.getString(
+                        "variant.options.excludedparam.dialog.token.remove.button.cancel");
 
-        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.checkbox.label");
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL =
+                Constant.messages.getString(
+                        "variant.options.excludedparam.dialog.token.remove.checkbox.label");
 
         private ExcludedParameterAddDialog addDialog = null;
         private ExcludedParameterModifyDialog modifyDialog = null;
@@ -558,10 +728,11 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         @Override
         public ScannerParamFilter showAddDialogue() {
             if (addDialog == null) {
-                addDialog = new ExcludedParameterAddDialog(View.getSingleton().getOptionsDialog(null));
+                addDialog =
+                        new ExcludedParameterAddDialog(View.getSingleton().getOptionsDialog(null));
                 addDialog.pack();
             }
-            
+
             addDialog.setTokens(model.getElements());
             addDialog.setVisible(true);
 
@@ -573,10 +744,12 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         @Override
         public ScannerParamFilter showModifyDialogue(ScannerParamFilter e) {
             if (modifyDialog == null) {
-                modifyDialog = new ExcludedParameterModifyDialog(View.getSingleton().getOptionsDialog(null));
+                modifyDialog =
+                        new ExcludedParameterModifyDialog(
+                                View.getSingleton().getOptionsDialog(null));
                 modifyDialog.pack();
             }
-            
+
             modifyDialog.setTokens(model.getElements());
             modifyDialog.setToken(e);
             modifyDialog.setVisible(true);
@@ -593,24 +766,23 @@ public class OptionsVariantPanel extends AbstractParamPanel {
 
         @Override
         public boolean showRemoveDialogue(ScannerParamFilter e) {
-            
+
             JCheckBox removeWithoutConfirmationCB = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
-            Object[] messages = { 
-                REMOVE_DIALOG_TEXT, 
-                " ", 
-                removeWithoutConfirmationCB 
-            };
-            
-            int option = JOptionPane.showOptionDialog(
-                    View.getSingleton().getMainFrame(), 
-                    messages, 
-                    REMOVE_DIALOG_TITLE,
-                    JOptionPane.OK_CANCEL_OPTION, 
-                    JOptionPane.QUESTION_MESSAGE,
-                    null, 
-                    new String[]{ REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL}, 
-                    null
-            );
+            Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCB};
+
+            int option =
+                    JOptionPane.showOptionDialog(
+                            View.getSingleton().getMainFrame(),
+                            messages,
+                            REMOVE_DIALOG_TITLE,
+                            JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            new String[] {
+                                REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
+                                REMOVE_DIALOG_CANCEL_BUTTON_LABEL
+                            },
+                            null);
 
             return (option == JOptionPane.OK_OPTION);
         }

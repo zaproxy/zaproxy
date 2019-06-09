@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,7 +37,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @see PausableExecutorService
  * @see ThreadPoolExecutor
  */
-public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements PausableExecutorService {
+public class PausableThreadPoolExecutor extends ThreadPoolExecutor
+        implements PausableExecutorService {
 
     private final ReentrantLock pauseLock = new ReentrantLock();
     private final Condition unpaused = pauseLock.newCondition();
@@ -46,26 +47,27 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
 
     private List<ExecutorTerminatedListener> listeners = new ArrayList<>(1);
 
-    // NOTE: Constructors JavaDoc was copied from base class but with the name of the class replaced with this one.
+    // NOTE: Constructors JavaDoc was copied from base class but with the name of the class replaced
+    // with this one.
 
     /**
-     * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters and default thread factory and
-     * rejected execution handler. It may be more convenient to use one of the {@link Executors} factory methods instead of this
-     * general purpose constructor.
+     * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters and
+     * default thread factory and rejected execution handler. It may be more convenient to use one
+     * of the {@link Executors} factory methods instead of this general purpose constructor.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @param maximumPoolSize the maximum number of threads to allow in the pool
-     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum time that excess idle
-     *            threads will wait for new tasks before terminating.
+     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum
+     *     time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the {@code keepAliveTime} argument
-     * @param workQueue the queue to use for holding tasks before they are executed. This queue will hold only the
-     *            {@code Runnable} tasks submitted by the {@code execute} method.
+     * @param workQueue the queue to use for holding tasks before they are executed. This queue will
+     *     hold only the {@code Runnable} tasks submitted by the {@code execute} method.
      * @throws IllegalArgumentException if one of the following holds:<br>
-     *             {@code corePoolSize < 0}<br>
-     *             {@code keepAliveTime < 0}<br>
-     *             {@code maximumPoolSize <= 0}<br>
-     *             {@code maximumPoolSize < corePoolSize}
+     *     {@code corePoolSize < 0}<br>
+     *     {@code keepAliveTime < 0}<br>
+     *     {@code maximumPoolSize <= 0}<br>
+     *     {@code maximumPoolSize < corePoolSize}
      * @throws NullPointerException if {@code workQueue} is null
      */
     public PausableThreadPoolExecutor(
@@ -74,27 +76,33 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
             long keepAliveTime,
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, Executors.defaultThreadFactory());
+        super(
+                corePoolSize,
+                maximumPoolSize,
+                keepAliveTime,
+                unit,
+                workQueue,
+                Executors.defaultThreadFactory());
     }
 
     /**
-     * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters and default rejected execution
-     * handler.
+     * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters and
+     * default rejected execution handler.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @param maximumPoolSize the maximum number of threads to allow in the pool
-     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum time that excess idle
-     *            threads will wait for new tasks before terminating.
+     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum
+     *     time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the {@code keepAliveTime} argument
-     * @param workQueue the queue to use for holding tasks before they are executed. This queue will hold only the
-     *            {@code Runnable} tasks submitted by the {@code execute} method.
+     * @param workQueue the queue to use for holding tasks before they are executed. This queue will
+     *     hold only the {@code Runnable} tasks submitted by the {@code execute} method.
      * @param threadFactory the factory to use when the executor creates a new thread
      * @throws IllegalArgumentException if one of the following holds:<br>
-     *             {@code corePoolSize < 0}<br>
-     *             {@code keepAliveTime < 0}<br>
-     *             {@code maximumPoolSize <= 0}<br>
-     *             {@code maximumPoolSize < corePoolSize}
+     *     {@code corePoolSize < 0}<br>
+     *     {@code keepAliveTime < 0}<br>
+     *     {@code maximumPoolSize <= 0}<br>
+     *     {@code maximumPoolSize < corePoolSize}
      * @throws NullPointerException if {@code workQueue} or {@code threadFactory} is null
      */
     public PausableThreadPoolExecutor(
@@ -108,22 +116,24 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
     }
 
     /**
-     * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters and default thread factory.
+     * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters and
+     * default thread factory.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @param maximumPoolSize the maximum number of threads to allow in the pool
-     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum time that excess idle
-     *            threads will wait for new tasks before terminating.
+     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum
+     *     time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the {@code keepAliveTime} argument
-     * @param workQueue the queue to use for holding tasks before they are executed. This queue will hold only the
-     *            {@code Runnable} tasks submitted by the {@code execute} method.
-     * @param handler the handler to use when execution is blocked because the thread bounds and queue capacities are reached
+     * @param workQueue the queue to use for holding tasks before they are executed. This queue will
+     *     hold only the {@code Runnable} tasks submitted by the {@code execute} method.
+     * @param handler the handler to use when execution is blocked because the thread bounds and
+     *     queue capacities are reached
      * @throws IllegalArgumentException if one of the following holds:<br>
-     *             {@code corePoolSize < 0}<br>
-     *             {@code keepAliveTime < 0}<br>
-     *             {@code maximumPoolSize <= 0}<br>
-     *             {@code maximumPoolSize < corePoolSize}
+     *     {@code corePoolSize < 0}<br>
+     *     {@code keepAliveTime < 0}<br>
+     *     {@code maximumPoolSize <= 0}<br>
+     *     {@code maximumPoolSize < corePoolSize}
      * @throws NullPointerException if {@code workQueue} or {@code handler} is null
      */
     public PausableThreadPoolExecutor(
@@ -133,28 +143,37 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             RejectedExecutionHandler handler) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, Executors.defaultThreadFactory(), handler);
+        super(
+                corePoolSize,
+                maximumPoolSize,
+                keepAliveTime,
+                unit,
+                workQueue,
+                Executors.defaultThreadFactory(),
+                handler);
     }
 
     /**
      * Creates a new {@code PausableThreadPoolExecutor} with the given initial parameters.
      *
      * @param corePoolSize the number of threads to keep in the pool, even if they are idle, unless
-     *            {@code allowCoreThreadTimeOut} is set
+     *     {@code allowCoreThreadTimeOut} is set
      * @param maximumPoolSize the maximum number of threads to allow in the pool
-     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum time that excess idle
-     *            threads will wait for new tasks before terminating.
+     * @param keepAliveTime when the number of threads is greater than the core, this is the maximum
+     *     time that excess idle threads will wait for new tasks before terminating.
      * @param unit the time unit for the {@code keepAliveTime} argument
-     * @param workQueue the queue to use for holding tasks before they are executed. This queue will hold only the
-     *            {@code Runnable} tasks submitted by the {@code execute} method.
+     * @param workQueue the queue to use for holding tasks before they are executed. This queue will
+     *     hold only the {@code Runnable} tasks submitted by the {@code execute} method.
      * @param threadFactory the factory to use when the executor creates a new thread
-     * @param handler the handler to use when execution is blocked because the thread bounds and queue capacities are reached
+     * @param handler the handler to use when execution is blocked because the thread bounds and
+     *     queue capacities are reached
      * @throws IllegalArgumentException if one of the following holds:<br>
-     *             {@code corePoolSize < 0}<br>
-     *             {@code keepAliveTime < 0}<br>
-     *             {@code maximumPoolSize <= 0}<br>
-     *             {@code maximumPoolSize < corePoolSize}
-     * @throws NullPointerException if {@code workQueue} or {@code threadFactory} or {@code handler} is null
+     *     {@code corePoolSize < 0}<br>
+     *     {@code keepAliveTime < 0}<br>
+     *     {@code maximumPoolSize <= 0}<br>
+     *     {@code maximumPoolSize < corePoolSize}
+     * @throws NullPointerException if {@code workQueue} or {@code threadFactory} or {@code handler}
+     *     is null
      */
     public PausableThreadPoolExecutor(
             int corePoolSize,
@@ -164,7 +183,14 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
             BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory,
             RejectedExecutionHandler handler) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+        super(
+                corePoolSize,
+                maximumPoolSize,
+                keepAliveTime,
+                unit,
+                workQueue,
+                threadFactory,
+                handler);
     }
 
     @Override
@@ -208,9 +234,9 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to {@code resume()} before {@code shutdown()}.
-     * 
+     *
+     * <p>Overridden to {@code resume()} before {@code shutdown()}.
+     *
      * @see #resume()
      */
     @Override
@@ -221,9 +247,9 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor implements Pa
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to {@code resume()} before {@code shutdownNow()}.
-     * 
+     *
+     * <p>Overridden to {@code resume()} before {@code shutdownNow()}.
+     *
      * @see #resume()
      */
     @Override

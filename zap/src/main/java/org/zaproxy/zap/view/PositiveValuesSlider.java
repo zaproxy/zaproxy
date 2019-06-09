@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2013 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,35 +24,30 @@ import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JSlider;
 
 /**
- * A {@code JSlider} which only allows values greater than zero and has the minimum value always set to zero. Setting a value
- * less than or equal to zero will change the current value to the value one.
- * <p>
- * The default values for minor and major tick spacings are 1 and 5, respectively. The tick and label painting and snap to ticks
- * are enabled by default.
- * </p>
- * 
+ * A {@code JSlider} which only allows values greater than zero and has the minimum value always set
+ * to zero. Setting a value less than or equal to zero will change the current value to the value
+ * one.
+ *
+ * <p>The default values for minor and major tick spacings are 1 and 5, respectively. The tick and
+ * label painting and snap to ticks are enabled by default.
+ *
  * @see JSlider
  */
 public class PositiveValuesSlider extends JSlider {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Default value of minor tick spacing.
-     */
+    /** Default value of minor tick spacing. */
     private static final int DEFAULT_MINOR_TICK_SPACING = 1;
 
-    /**
-     * Default value of major tick spacing.
-     */
+    /** Default value of major tick spacing. */
     private static final int DEFAULT_MAJOR_TICK_SPACING = 5;
 
     /**
      * Constructs a new {@code PositiveValuesSlider} with {@code max} as the maximum value allowed.
-     * <p>
-     * The current value will be set to the value one.
-     * </p>
-     * 
+     *
+     * <p>The current value will be set to the value one.
+     *
      * @param max the maximum value allowed
      * @throws IllegalArgumentException if {@code max} is lesser than or equal to zero.
      */
@@ -61,12 +56,12 @@ public class PositiveValuesSlider extends JSlider {
     }
 
     /**
-     * Constructs a new {@code PositiveValuesSlider} with {@code value} as the current value and {@code max} as the maximum
-     * value allowed.
-     * <p>
-     * If {@code value} is not greater than zero the value set as the current value will be the value one.
-     * </p>
-     * 
+     * Constructs a new {@code PositiveValuesSlider} with {@code value} as the current value and
+     * {@code max} as the maximum value allowed.
+     *
+     * <p>If {@code value} is not greater than zero the value set as the current value will be the
+     * value one.
+     *
      * @param value the value that will be set as the current value (if greater than zero)
      * @param max the maximum value allowed
      * @throws IllegalArgumentException if {@code max} is lesser than or equal to zero.
@@ -92,7 +87,8 @@ public class PositiveValuesSlider extends JSlider {
     }
 
     /**
-     * Calling this method has <strong>no</strong> effect. It's using a custom {@code BoundedRangeModel}.
+     * Calling this method has <strong>no</strong> effect. It's using a custom {@code
+     * BoundedRangeModel}.
      */
     @Override
     public void setModel(BoundedRangeModel newModel) {
@@ -103,20 +99,20 @@ public class PositiveValuesSlider extends JSlider {
     }
 
     /**
-     * A BoundedRangeModel that allows only values greater than zero and has the minimum always set to zero.
+     * A BoundedRangeModel that allows only values greater than zero and has the minimum always set
+     * to zero.
      */
     private static class PositiveValuesBoundedRangeModel extends DefaultBoundedRangeModel {
 
         private static final long serialVersionUID = 1L;
 
         /**
-         * Constructs a new {@code PositiveValuesBoundedRangeModel} with {@code value} as the current value and {@code max} as
-         * maximum value allowed.
-         * 
-         * <p>
-         * If {@code value} is not greater than zero, the value set as the current value will be the value one.
-         * </p>
-         * 
+         * Constructs a new {@code PositiveValuesBoundedRangeModel} with {@code value} as the
+         * current value and {@code max} as maximum value allowed.
+         *
+         * <p>If {@code value} is not greater than zero, the value set as the current value will be
+         * the value one.
+         *
          * @param value the value that will be set as the current value if greater than zero
          * @param max the maximum value allowed
          * @throws IllegalArgumentException if {@code max} is lesser than or equal to zero.
@@ -125,18 +121,14 @@ public class PositiveValuesSlider extends JSlider {
             super(getValueGreaterThanZero(value), 0, 0, max);
         }
 
-        /**
-         * Calling this method has <strong>no</strong> effect. The minimum is always zero.
-         */
+        /** Calling this method has <strong>no</strong> effect. The minimum is always zero. */
         @Override
-        public void setMinimum(int n) {
-        }
+        public void setMinimum(int n) {}
 
         /**
          * Sets the current value.
-         * <p>
-         * If {@code value} is not greater than zero the value set will be the value one.
-         * </p>
+         *
+         * <p>If {@code value} is not greater than zero the value set will be the value one.
          */
         @Override
         public void setValue(int value) {
@@ -145,10 +137,10 @@ public class PositiveValuesSlider extends JSlider {
 
         /**
          * Returns a value greater than zero.
-         * <p>
-         * It the {@code value} is greater than zero its value is returned otherwise it's returned the value one.
-         * </p>
-         * 
+         *
+         * <p>It the {@code value} is greater than zero its value is returned otherwise it's
+         * returned the value one.
+         *
          * @param value the value that will be checked
          * @return the {@code value} if greater than zero otherwise the value one
          */

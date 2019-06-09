@@ -1,25 +1,26 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2012 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.alert.AlertAPI;
@@ -46,69 +47,70 @@ import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * Utility class for the API generators
- * @author simon
  *
+ * @author simon
  */
 public class ApiGeneratorUtils {
 
-	/**
-	 * Return all of the available ApiImplementors.
-	 * If you implement a new ApiImplementor then you must add it to this class.
-	 * @return all of the available ApiImplementors.
-	 */
-	public static List<ApiImplementor> getAllImplementors() {
-		List<ApiImplementor> imps = new ArrayList<>();
-		
-		ApiImplementor api;
+    /**
+     * Return all of the available ApiImplementors. If you implement a new ApiImplementor then you
+     * must add it to this class.
+     *
+     * @return all of the available ApiImplementors.
+     */
+    public static List<ApiImplementor> getAllImplementors() {
+        List<ApiImplementor> imps = new ArrayList<>();
 
-		imps.add(new AlertAPI(null));
+        ApiImplementor api;
 
-		api = new AntiCsrfAPI(null);
-		api.addApiOptions(new AntiCsrfParam());
-		imps.add(api);
-		
-		imps.add(new PassiveScanAPI(null));
-		imps.add(new SearchAPI(null));
+        imps.add(new AlertAPI(null));
 
-		api = new AutoUpdateAPI(null);
-		api.addApiOptions(new OptionsParamCheckForUpdates());
-		imps.add(api);
+        api = new AntiCsrfAPI(null);
+        api.addApiOptions(new AntiCsrfParam());
+        imps.add(api);
 
-		api = new SpiderAPI(null);
-		api.addApiOptions(new SpiderParam());
-		imps.add(api);
+        imps.add(new PassiveScanAPI(null));
+        imps.add(new SearchAPI(null));
 
-		api = new CoreAPI(new ConnectionParam());
-		imps.add(api);
+        api = new AutoUpdateAPI(null);
+        api.addApiOptions(new OptionsParamCheckForUpdates());
+        imps.add(api);
 
-		imps.add(new ParamsAPI(null));
-		
-		api = new ActiveScanAPI(null);
-		api.addApiOptions(new ScannerParam());
-		imps.add(api);
+        api = new SpiderAPI(null);
+        api.addApiOptions(new SpiderParam());
+        imps.add(api);
+
+        api = new CoreAPI(new ConnectionParam());
+        imps.add(api);
+
+        imps.add(new ParamsAPI(null));
+
+        api = new ActiveScanAPI(null);
+        api.addApiOptions(new ScannerParam());
+        imps.add(api);
 
         imps.add(new ContextAPI());
-		
-		imps.add(new HttpSessionsAPI(null));
-		
-		imps.add(new BreakAPI(null));
-		
-		imps.add(new AuthenticationAPI(null));
-		
-		imps.add(new AuthorizationAPI());
 
-		imps.add(new SessionManagementAPI(null));
-		
-		imps.add(new UsersAPI(null));
-		
-		imps.add(new ForcedUserAPI(null));
+        imps.add(new HttpSessionsAPI(null));
 
-		imps.add(new ScriptAPI(null));
+        imps.add(new BreakAPI(null));
 
-		api = new StatsAPI(null);
-		api.addApiOptions(new StatsParam());
-		imps.add(api);
+        imps.add(new AuthenticationAPI(null));
 
-		return imps;
-	}
+        imps.add(new AuthorizationAPI());
+
+        imps.add(new SessionManagementAPI(null));
+
+        imps.add(new UsersAPI(null));
+
+        imps.add(new ForcedUserAPI(null));
+
+        imps.add(new ScriptAPI(null));
+
+        api = new StatsAPI(null);
+        api.addApiOptions(new StatsParam());
+        imps.add(api);
+
+        return imps;
+    }
 }

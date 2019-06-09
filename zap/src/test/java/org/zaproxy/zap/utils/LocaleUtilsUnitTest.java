@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,16 +36,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link LocaleUtils}.
- */
+/** Unit test for {@link LocaleUtils}. */
 public class LocaleUtilsUnitTest {
 
-    private static final ResourceBundle.Control HELPER_CONTROL = ResourceBundle.Control
-            .getControl(ResourceBundle.Control.FORMAT_DEFAULT);
+    private static final ResourceBundle.Control HELPER_CONTROL =
+            ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_DEFAULT);
 
     private static final Locale LOCALE_SPAIN = new Locale("es", "ES");
 
@@ -71,7 +68,8 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnValidRegexWhenGettingResourceFilesRegexWithNonNullFileNameAndFileExtension() {
+    public void
+            shouldReturnValidRegexWhenGettingResourceFilesRegexWithNonNullFileNameAndFileExtension() {
         // Given
         String regex = LocaleUtils.createResourceFilesRegex(FILE_NAME, FILE_EXTENSION);
         // When
@@ -84,7 +82,9 @@ public class LocaleUtilsUnitTest {
         // Given
         String fileNameWithSpecialRegexChars = "?]|*-)(^[:.";
         // When
-        Pattern.compile(LocaleUtils.createResourceFilesRegex(fileNameWithSpecialRegexChars, FILE_EXTENSION));
+        Pattern.compile(
+                LocaleUtils.createResourceFilesRegex(
+                        fileNameWithSpecialRegexChars, FILE_EXTENSION));
         // Then = valid regex
     }
 
@@ -93,7 +93,9 @@ public class LocaleUtilsUnitTest {
         // Given
         String fileExtensionWithSpecialRegexChars = "?]|*-)(^[:.";
         // When
-        Pattern.compile(LocaleUtils.createResourceFilesRegex(FILE_NAME, fileExtensionWithSpecialRegexChars));
+        Pattern.compile(
+                LocaleUtils.createResourceFilesRegex(
+                        FILE_NAME, fileExtensionWithSpecialRegexChars));
         // Then = valid regex
     }
 
@@ -112,12 +114,13 @@ public class LocaleUtilsUnitTest {
     public void shouldMatchValidResourceFilesWithCreatedResourceFilesPattern() {
         // Given
         String[] resourceFiles = {
-                "FileName.extension",
-                "FileName_en.extension",
-                "FileName_en_GB.extension",
-                "FileName_ar_SA.extension",
-                "FileName_fil_PH.extension",
-                "FileName_zh_CN.extension" };
+            "FileName.extension",
+            "FileName_en.extension",
+            "FileName_en_GB.extension",
+            "FileName_ar_SA.extension",
+            "FileName_fil_PH.extension",
+            "FileName_zh_CN.extension"
+        };
         // When
         Pattern pattern = LocaleUtils.createResourceFilesPattern(FILE_NAME, FILE_EXTENSION);
         // Then
@@ -130,11 +133,12 @@ public class LocaleUtilsUnitTest {
     public void shouldNotMatchInvalidResourceFilesWithCreatedResourceFilesPattern() {
         // Given
         String[] resourceFiles = {
-                "Vulnerabilities.xml",
-                "Vulnerabilities_en.xml",
-                "Vulnerabilities_en_GB.xml",
-                "OtherFile_ar_SA.properties",
-                "fileName.ext" };
+            "Vulnerabilities.xml",
+            "Vulnerabilities_en.xml",
+            "Vulnerabilities_en_GB.xml",
+            "OtherFile_ar_SA.properties",
+            "fileName.ext"
+        };
         // When
         Pattern pattern = LocaleUtils.createResourceFilesPattern(FILE_NAME, FILE_EXTENSION);
         // Then
@@ -147,12 +151,13 @@ public class LocaleUtilsUnitTest {
     public void shouldMatchValidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
         // Given
         String[] resourceFiles = {
-                "Messages.properties",
-                "Messages_en.properties",
-                "Messages_en_GB.properties",
-                "Messages_ar_SA.properties",
-                "Messages_fil_PH.properties",
-                "Messages_zh_CN.properties" };
+            "Messages.properties",
+            "Messages_en.properties",
+            "Messages_en_GB.properties",
+            "Messages_ar_SA.properties",
+            "Messages_fil_PH.properties",
+            "Messages_zh_CN.properties"
+        };
         // When
         Pattern pattern = LocaleUtils.createMessagesPropertiesFilePattern();
         // Then
@@ -162,14 +167,16 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotMatchInvalidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
+    public void
+            shouldNotMatchInvalidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
         // Given
         String[] resourceFiles = {
-                "Vulnerabilities.xml",
-                "Vulnerabilities_en.xml",
-                "Vulnerabilities_en_GB.xml",
-                "OtherFile_ar_SA.properties",
-                "messages.properties" };
+            "Vulnerabilities.xml",
+            "Vulnerabilities_en.xml",
+            "Vulnerabilities_en_GB.xml",
+            "OtherFile_ar_SA.properties",
+            "messages.properties"
+        };
         // When
         Pattern pattern = LocaleUtils.createMessagesPropertiesFilePattern();
         // Then
@@ -207,10 +214,14 @@ public class LocaleUtilsUnitTest {
             Locale.setDefault(Locale.FRANCE);
             List<String> resources = new ArrayList<>();
             // When
-            LocaleUtils.findResource("org.example.file", "ext", LOCALE_SPAIN, r -> {
-                resources.add(r);
-                return null;
-            });
+            LocaleUtils.findResource(
+                    "org.example.file",
+                    "ext",
+                    LOCALE_SPAIN,
+                    r -> {
+                        resources.add(r);
+                        return null;
+                    });
             // Then
             assertThat(
                     resources,
@@ -233,10 +244,15 @@ public class LocaleUtilsUnitTest {
             Locale.setDefault(Locale.FRANCE);
             List<String> resources = new ArrayList<>();
             // When
-            LocaleUtils.findResource("org.example.dir%LC%.file", "ext", "%LC%", LOCALE_SPAIN, r -> {
-                resources.add(r);
-                return null;
-            });
+            LocaleUtils.findResource(
+                    "org.example.dir%LC%.file",
+                    "ext",
+                    "%LC%",
+                    LOCALE_SPAIN,
+                    r -> {
+                        resources.add(r);
+                        return null;
+                    });
             // Then
             assertThat(
                     resources,
@@ -257,12 +273,22 @@ public class LocaleUtilsUnitTest {
         ResourceBundle.Control control = mockResourceBundleControl();
         List<String> resources = new ArrayList<>();
         // When
-        LocaleUtils.findResource(control, "org.example.file", "ext", LOCALE_SPAIN, r -> {
-            resources.add(r);
-            return null;
-        });
+        LocaleUtils.findResource(
+                control,
+                "org.example.file",
+                "ext",
+                LOCALE_SPAIN,
+                r -> {
+                    resources.add(r);
+                    return null;
+                });
         // Then
-        assertThat(resources, contains("org/example/file_es_ES.ext", "org/example/file_es.ext", "org/example/file.ext"));
+        assertThat(
+                resources,
+                contains(
+                        "org/example/file_es_ES.ext",
+                        "org/example/file_es.ext",
+                        "org/example/file.ext"));
     }
 
     @Test
@@ -272,10 +298,15 @@ public class LocaleUtilsUnitTest {
         given(control.getFallbackLocale(anyString(), anyObject())).willReturn(Locale.FRANCE);
         List<String> resources = new ArrayList<>();
         // When
-        LocaleUtils.findResource(control, "org.example.file", "ext", LOCALE_SPAIN, r -> {
-            resources.add(r);
-            return null;
-        });
+        LocaleUtils.findResource(
+                control,
+                "org.example.file",
+                "ext",
+                LOCALE_SPAIN,
+                r -> {
+                    resources.add(r);
+                    return null;
+                });
         // Then
         assertThat(
                 resources,
@@ -293,26 +324,40 @@ public class LocaleUtilsUnitTest {
         ResourceBundle.Control control = mockResourceBundleControl();
         List<String> resources = new ArrayList<>();
         // When
-        LocaleUtils.findResource(control, "org.example.dir%LC%.file", "ext", "%LC%", LOCALE_SPAIN, r -> {
-            resources.add(r);
-            return null;
-        });
+        LocaleUtils.findResource(
+                control,
+                "org.example.dir%LC%.file",
+                "ext",
+                "%LC%",
+                LOCALE_SPAIN,
+                r -> {
+                    resources.add(r);
+                    return null;
+                });
         // Then
         assertThat(
                 resources,
-                contains("org/example/dir_es_ES/file_es_ES.ext", "org/example/dir_es/file_es.ext", "org/example/dir/file.ext"));
+                contains(
+                        "org/example/dir_es_ES/file_es_ES.ext",
+                        "org/example/dir_es/file_es.ext",
+                        "org/example/dir/file.ext"));
     }
 
     private static ResourceBundle.Control mockResourceBundleControl() {
         ResourceBundle.Control control = mock(ResourceBundle.Control.class);
-        when(control.getCandidateLocales(anyString(), anyObject())).thenAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            return HELPER_CONTROL.getCandidateLocales((String) args[0], (Locale) args[1]);
-        });
-        when(control.toBundleName(anyString(), anyObject())).thenAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            return HELPER_CONTROL.toBundleName((String) args[0], (Locale) args[1]);
-        });
+        when(control.getCandidateLocales(anyString(), anyObject()))
+                .thenAnswer(
+                        invocation -> {
+                            Object[] args = invocation.getArguments();
+                            return HELPER_CONTROL.getCandidateLocales(
+                                    (String) args[0], (Locale) args[1]);
+                        });
+        when(control.toBundleName(anyString(), anyObject()))
+                .thenAnswer(
+                        invocation -> {
+                            Object[] args = invocation.getArguments();
+                            return HELPER_CONTROL.toBundleName((String) args[0], (Locale) args[1]);
+                        });
         return control;
     }
 }

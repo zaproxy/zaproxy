@@ -1,18 +1,18 @@
 /*
  * Paros and its related class files.
- * 
+ *
  * Paros is an HTTP/HTTPS proxy for assessing web application security.
  * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the Clarified Artistic License
  * as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * Clarified Artistic License for more details.
- * 
+ *
  * You should have received a copy of the Clarified Artistic License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -21,10 +21,12 @@
 // ZAP: 2013/07/02 Changed API to public because future extensible Variant model
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
-// ZAP: 2016/02/22 Add hashCode, equals and toString methods. Remove redundant instance variable initialisations.
+// ZAP: 2016/02/22 Add hashCode, equals and toString methods. Remove redundant instance variable
+// initialisations.
 // ZAP: 2018/01/03 Added type constants for revised multipart/form-data handling
 // ZAP: 2018/02/19 Added type constants for application/json handling
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {
@@ -37,37 +39,37 @@ public class NameValuePair {
     public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
     /**
      * A "normal" (non-file) multipart/form-data parameter
-     * 
+     *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_PARAM = 33;
     /**
      * A file (content) multipart/form-data file parameter
-     * 
+     *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_PARAM = 34;
     /**
      * The filename portion of a multipart/form-data file parameter
-     * 
+     *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_NAME = 35;
     /**
      * The content-type portion of a multipart/form-data file parameter
-     * 
+     *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_CONTENTTYPE = 36;
     /**
      * The application/json content-type of a web application
-     * 
+     *
      * @since 2.8.0
-     */   
+     */
     public static final int TYPE_JSON = 37;
-    
+
     public static final int TYPE_UNDEFINED = -1;
-    
+
     private final int targetType;
     private String name;
     private String value;
@@ -94,44 +96,32 @@ public class NameValuePair {
         return targetType;
     }
 
-    /**
-     * @return Returns the name.
-     */
+    /** @return Returns the name. */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name The name to set.
-     */
+    /** @param name The name to set. */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return Returns the value.
-     */
+    /** @return Returns the value. */
     public String getValue() {
         return value;
     }
 
-    /**
-     * @param value The value to set.
-     */
+    /** @param value The value to set. */
     public void setValue(String value) {
         this.value = value;
     }
 
-    /**
-     * @return Returns the position.
-     */
+    /** @return Returns the position. */
     public int getPosition() {
         return position;
     }
 
-    /**
-     * @param position The position to set.
-     */
+    /** @param position The position to set. */
     public void setPosition(int position) {
         this.position = position;
     }

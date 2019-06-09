@@ -3,13 +3,13 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2011 The Zed Attack Proxy Team
+ * Copyright 2011 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,15 +19,14 @@
  */
 package org.zaproxy.zap.utils;
 
-
 public class ZapPortNumberSpinner extends ZapNumberSpinner {
 
-	private static final long serialVersionUID = -3475273563365395482L;
-	
-	private static final int MIN_PORT = 1;
-	private static final int MAX_PORT = 65535;
+    private static final long serialVersionUID = -3475273563365395482L;
 
-	public ZapPortNumberSpinner(int defaultPortNumber) {
-		super(MIN_PORT, defaultPortNumber, MAX_PORT);
-	}
+    private static final int MIN_PORT = 1;
+    private static final int MAX_PORT = 65535;
+
+    public ZapPortNumberSpinner(int defaultPortNumber) {
+        super(MIN_PORT, defaultPortNumber, MAX_PORT);
+    }
 }

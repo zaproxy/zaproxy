@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,8 +23,8 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * A result from a {@link SpiderTask}.
- * <p>
- * Contains the message and processing details.
+ *
+ * <p>Contains the message and processing details.
  *
  * @since 2.7.0
  */
@@ -44,7 +44,8 @@ public class SpiderTaskResult {
     }
 
     /**
-     * Constructs a {@code SpiderTaskResult} with the given non-processed message and the reason of why it as not processed.
+     * Constructs a {@code SpiderTaskResult} with the given non-processed message and the reason of
+     * why it as not processed.
      *
      * @param httpMessage the HTTP message that resulted from the spider task.
      * @param reasonNotProcessed the reason of why the HTTP message was not processed.
@@ -55,13 +56,15 @@ public class SpiderTaskResult {
     }
 
     /**
-     * Constructs a {@code SpiderTaskResult} with the given message, processed state, and the reason of why it as not processed.
+     * Constructs a {@code SpiderTaskResult} with the given message, processed state, and the reason
+     * of why it as not processed.
      *
      * @param httpMessage the HTTP message that resulted from the spider task.
      * @param processed {@code true} if the message was processed, {@code false} otherwise.
      * @param reasonNotProcessed the reason of why the HTTP message was not processed.
      */
-    private SpiderTaskResult(HttpMessage httpMessage, boolean processed, String reasonNotProcessed) {
+    private SpiderTaskResult(
+            HttpMessage httpMessage, boolean processed, String reasonNotProcessed) {
         if (reasonNotProcessed == null) {
             throw new IllegalArgumentException("Parameter reason must not be null.");
         }
@@ -96,5 +99,4 @@ public class SpiderTaskResult {
     public String getReasonNotProcessed() {
         return reasonNotProcessed;
     }
-
 }

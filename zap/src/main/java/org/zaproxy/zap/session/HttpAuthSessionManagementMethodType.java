@@ -1,7 +1,25 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ *
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Copyright 2013 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.zaproxy.zap.session;
 
 import net.sf.json.JSONObject;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
@@ -25,156 +43,159 @@ import org.zaproxy.zap.utils.ApiUtils;
  */
 public class HttpAuthSessionManagementMethodType extends SessionManagementMethodType {
 
-	private static final int METHOD_IDENTIFIER = 1;
-	@SuppressWarnings("unused")
-	private static final Logger log = Logger.getLogger(HttpAuthSessionManagementMethod.class);
+    private static final int METHOD_IDENTIFIER = 1;
 
-	/** The Constant METHOD_NAME. */
-	private static final String METHOD_NAME = Constant.messages.getString("sessionmanagement.method.ha.name");
+    @SuppressWarnings("unused")
+    private static final Logger log = Logger.getLogger(HttpAuthSessionManagementMethod.class);
 
-	private static final String API_METHOD_NAME = "httpAuthSessionManagement";
+    /** The Constant METHOD_NAME. */
+    private static final String METHOD_NAME =
+            Constant.messages.getString("sessionmanagement.method.ha.name");
 
-	public static class HttpAuthSessionManagementMethod implements SessionManagementMethod {
+    private static final String API_METHOD_NAME = "httpAuthSessionManagement";
 
-		@Override
-		public boolean isConfigured() {
-			// Always configured
-			return true;
-		}
+    public static class HttpAuthSessionManagementMethod implements SessionManagementMethod {
 
-		@Override
-		public SessionManagementMethodType getType() {
-			return new HttpAuthSessionManagementMethodType();
-		}
+        @Override
+        public boolean isConfigured() {
+            // Always configured
+            return true;
+        }
 
-		@Override
-		public WebSession extractWebSession(HttpMessage msg) {
-			return new HttpAuthSession();
-		}
+        @Override
+        public SessionManagementMethodType getType() {
+            return new HttpAuthSessionManagementMethodType();
+        }
 
-		@Override
-		public WebSession createEmptyWebSession() {
-			return new HttpAuthSession();
-		}
+        @Override
+        public WebSession extractWebSession(HttpMessage msg) {
+            return new HttpAuthSession();
+        }
 
-		@Override
-		public void clearWebSessionIdentifiers(HttpMessage msg) {
-			// Do nothing
-		}
+        @Override
+        public WebSession createEmptyWebSession() {
+            return new HttpAuthSession();
+        }
 
-		@Override
-		public ApiResponse getApiResponseRepresentation() {
-			return new ApiResponseElement("methodName", API_METHOD_NAME);
-		}
+        @Override
+        public void clearWebSessionIdentifiers(HttpMessage msg) {
+            // Do nothing
+        }
 
-		@Override
-		public void processMessageToMatchSession(HttpMessage message, WebSession session)
-				throws UnsupportedWebSessionException {
-			// Do nothing
-		}
+        @Override
+        public ApiResponse getApiResponseRepresentation() {
+            return new ApiResponseElement("methodName", API_METHOD_NAME);
+        }
 
-		@Override
-		public SessionManagementMethod clone() {
-			return new HttpAuthSessionManagementMethod();
-		}
+        @Override
+        public void processMessageToMatchSession(HttpMessage message, WebSession session)
+                throws UnsupportedWebSessionException {
+            // Do nothing
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			return true;
-		}
+        @Override
+        public SessionManagementMethod clone() {
+            return new HttpAuthSessionManagementMethod();
+        }
 
-		@Override
-		public int hashCode() {
-			return super.hashCode();
-		}
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
+            return true;
+        }
 
-	}
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
+    }
 
-	public static class HttpAuthSession extends WebSession {
+    public static class HttpAuthSession extends WebSession {
 
-		private static int generatedNameIndex;
+        private static int generatedNameIndex;
 
-		public HttpAuthSession(String name) {
-			super(name, new HttpState());
-		}
+        public HttpAuthSession(String name) {
+            super(name, new HttpState());
+        }
 
-		public HttpAuthSession() {
-			super("Http Auth Session " + generatedNameIndex++, new HttpState());
-		}
-	}
+        public HttpAuthSession() {
+            super("Http Auth Session " + generatedNameIndex++, new HttpState());
+        }
+    }
 
-	@Override
-	public SessionManagementMethod createSessionManagementMethod(int contextId) {
-		return new HttpAuthSessionManagementMethod();
-	}
+    @Override
+    public SessionManagementMethod createSessionManagementMethod(int contextId) {
+        return new HttpAuthSessionManagementMethod();
+    }
 
-	@Override
-	public String getName() {
-		return METHOD_NAME;
-	}
+    @Override
+    public String getName() {
+        return METHOD_NAME;
+    }
 
-	@Override
-	public int getUniqueIdentifier() {
-		return METHOD_IDENTIFIER;
-	}
+    @Override
+    public int getUniqueIdentifier() {
+        return METHOD_IDENTIFIER;
+    }
 
-	@Override
-	public AbstractSessionManagementMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
-		// Nothing to configure
-		return null;
-	}
+    @Override
+    public AbstractSessionManagementMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
+        // Nothing to configure
+        return null;
+    }
 
-	@Override
-	public boolean hasOptionsPanel() {
-		return false;
-	}
+    @Override
+    public boolean hasOptionsPanel() {
+        return false;
+    }
 
-	@Override
-	public boolean isTypeForMethod(SessionManagementMethod method) {
-		return method instanceof HttpAuthSessionManagementMethod;
-	}
+    @Override
+    public boolean isTypeForMethod(SessionManagementMethod method) {
+        return method instanceof HttpAuthSessionManagementMethod;
+    }
 
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-		// Nothing to hook
-	}
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        // Nothing to hook
+    }
 
-	@Override
-	public SessionManagementMethod loadMethodFromSession(Session session, int contextId) throws DatabaseException {
-		return new HttpAuthSessionManagementMethod();
-	}
+    @Override
+    public SessionManagementMethod loadMethodFromSession(Session session, int contextId)
+            throws DatabaseException {
+        return new HttpAuthSessionManagementMethod();
+    }
 
-	@Override
-	public void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
-			throws UnsupportedSessionManagementMethodException, DatabaseException {
-		// Nothing to persist
+    @Override
+    public void persistMethodToSession(
+            Session session, int contextId, SessionManagementMethod method)
+            throws UnsupportedSessionManagementMethodException, DatabaseException {
+        // Nothing to persist
 
-	}
+    }
 
-	@Override
-	public void exportData(Configuration config, SessionManagementMethod sessionMethod) {
-		// nothing to do
-	}
+    @Override
+    public void exportData(Configuration config, SessionManagementMethod sessionMethod) {
+        // nothing to do
+    }
 
-	@Override
-	public void importData(Configuration config, SessionManagementMethod sessionMethod) throws ConfigurationException {
-		// nothing to do
-	}
+    @Override
+    public void importData(Configuration config, SessionManagementMethod sessionMethod)
+            throws ConfigurationException {
+        // nothing to do
+    }
 
-	@Override
-	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
-		return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
+    @Override
+    public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
+        return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
 
-			@Override
-			public void handleAction(JSONObject params) throws ApiException {
-				Context context = ApiUtils.getContextByParamId(params, SessionManagementAPI.PARAM_CONTEXT_ID);
-				context.setSessionManagementMethod(createSessionManagementMethod(context.getIndex()));
-			}
-		};
-	}
-
+            @Override
+            public void handleAction(JSONObject params) throws ApiException {
+                Context context =
+                        ApiUtils.getContextByParamId(params, SessionManagementAPI.PARAM_CONTEXT_ID);
+                context.setSessionManagementMethod(
+                        createSessionManagementMethod(context.getIndex()));
+            }
+        };
+    }
 }

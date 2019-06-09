@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,10 +22,11 @@ package org.zaproxy.zap.view;
 import java.util.Locale;
 
 /**
- * Representation of a {@code Locale} for displaying in view components (for example, {@code JComboBox}).
- * <p>
- * The method {@code toString()} returns the (display) name of the locale.
- * 
+ * Representation of a {@code Locale} for displaying in view components (for example, {@code
+ * JComboBox}).
+ *
+ * <p>The method {@code toString()} returns the (display) name of the locale.
+ *
  * @see Locale
  * @since 2.4.0
  */
@@ -48,9 +49,7 @@ public class ViewLocale {
         return locale;
     }
 
-    /**
-     * Returns the display name of the locale.
-     */
+    /** Returns the display name of the locale. */
     @Override
     public String toString() {
         return displayName;
@@ -82,5 +81,4 @@ public class ViewLocale {
         }
         return true;
     }
-
 }

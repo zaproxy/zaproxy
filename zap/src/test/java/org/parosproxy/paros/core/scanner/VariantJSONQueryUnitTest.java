@@ -19,21 +19,18 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.util.List;
 import org.junit.Test;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.network.HttpRequestBody;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-/**
- * Unit test for {@link VariantJSONQuery}.
- */
+/** Unit test for {@link VariantJSONQuery}. */
 public class VariantJSONQueryUnitTest {
     @Test
     public void shouldHaveParametersListEmptyByDefault() {
@@ -46,7 +43,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindStringValueInJsonObject() throws HttpMalformedHeaderException{
+    public void shouldFindStringValueInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\"}"));
@@ -58,7 +55,8 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindStringWithEscapedCharacterInJsonObject() throws HttpMalformedHeaderException{
+    public void shouldFindStringWithEscapedCharacterInJsonObject()
+            throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\n\"}"));
@@ -70,7 +68,8 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindStringWithEscapedQuotationMarkInJsonObject() throws HttpMalformedHeaderException{
+    public void shouldFindStringWithEscapedQuotationMarkInJsonObject()
+            throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\\\"\"}"));
@@ -82,7 +81,8 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindPropertyWithEscapedCharacterInJsonObject() throws HttpMalformedHeaderException{
+    public void shouldFindPropertyWithEscapedCharacterInJsonObject()
+            throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\n\":\"bar\"}"));
@@ -94,7 +94,8 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindPropertyWithEscapedQuotationMarkInJsonObject() throws HttpMalformedHeaderException{
+    public void shouldFindPropertyWithEscapedQuotationMarkInJsonObject()
+            throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\\\"\":\"bar\"}"));
@@ -106,7 +107,8 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindValueWithEscapedQuotationMarkInJsonArray() throws HttpMalformedHeaderException {
+    public void shouldFindValueWithEscapedQuotationMarkInJsonArray()
+            throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("[\"bar\\\"\"]"));
@@ -119,7 +121,8 @@ public class VariantJSONQueryUnitTest {
 
     private static HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
         return new HttpMessage(
-                new HttpRequestHeader("POST / HTTP/1.1\nHost: www.example.com\nContent-Type: application/json"),
+                new HttpRequestHeader(
+                        "POST / HTTP/1.1\nHost: www.example.com\nContent-Type: application/json"),
                 new HttpRequestBody(body));
     }
 }

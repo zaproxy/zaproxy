@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -34,7 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.SortOrder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -48,18 +46,21 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
     private static final long serialVersionUID = 1041782873016590998L;
 
-    private static final String REMOVE_DIALOG_TITLE = Constant.messages
-            .getString("multiple.options.regexes.dialog.remove.regex.title");
-    private static final String REMOVE_DIALOG_TEXT = Constant.messages
-            .getString("multiple.options.regexes.dialog.remove.regex.text");
+    private static final String REMOVE_DIALOG_TITLE =
+            Constant.messages.getString("multiple.options.regexes.dialog.remove.regex.title");
+    private static final String REMOVE_DIALOG_TEXT =
+            Constant.messages.getString("multiple.options.regexes.dialog.remove.regex.text");
 
-    private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages
-            .getString("multiple.options.regexes.dialog.remove.regex.button.confirm");
-    private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages
-            .getString("multiple.options.regexes.dialog.remove.regex.button.cancel");
+    private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL =
+            Constant.messages.getString(
+                    "multiple.options.regexes.dialog.remove.regex.button.confirm");
+    private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL =
+            Constant.messages.getString(
+                    "multiple.options.regexes.dialog.remove.regex.button.cancel");
 
-    private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages
-            .getString("multiple.options.regexes.dialog.remove.regex.checkbox.label");
+    private static final String REMOVE_DIALOG_CHECKBOX_LABEL =
+            Constant.messages.getString(
+                    "multiple.options.regexes.dialog.remove.regex.checkbox.label");
 
     private DialogAddRegex addDialog;
     private DialogModifyRegex modifyDialog;
@@ -121,16 +122,19 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
     @Override
     public boolean showRemoveDialogue(String e) {
         JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
-        Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
-        int option = JOptionPane.showOptionDialog(
-                View.getSingleton().getMainFrame(),
-                messages,
-                REMOVE_DIALOG_TITLE,
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL },
-                null);
+        Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
+        int option =
+                JOptionPane.showOptionDialog(
+                        View.getSingleton().getMainFrame(),
+                        messages,
+                        REMOVE_DIALOG_TITLE,
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new String[] {
+                            REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL
+                        },
+                        null);
 
         if (option == JOptionPane.OK_OPTION) {
             setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
@@ -143,19 +147,20 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         private static final long serialVersionUID = 9172864521259395417L;
 
-        private static final String DIALOG_TITLE = Constant.messages
-                .getString("multiple.options.regexes.dialog.add.regex.title");
+        private static final String DIALOG_TITLE =
+                Constant.messages.getString("multiple.options.regexes.dialog.add.regex.title");
 
-        private static final String CONFIRM_BUTTON_LABEL = Constant.messages
-                .getString("multiple.options.regexes.dialog.add.regex.button.confirm");
+        private static final String CONFIRM_BUTTON_LABEL =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.add.regex.button.confirm");
 
-        private static final String REGEX_FIELD_LABEL = Constant.messages
-                .getString("multiple.options.regexes.dialog.regex.label");
+        private static final String REGEX_FIELD_LABEL =
+                Constant.messages.getString("multiple.options.regexes.dialog.regex.label");
 
-        private static final String TITLE_INVALID_REGEX_DIALOG = Constant.messages
-                .getString("multiple.options.regexes.dialog.regex.invalid.title");
-        private static final String TEXT_INVALID_REGEX_DIALOG = Constant.messages
-                .getString("multiple.options.regexes.dialog.regex.invalid.text");
+        private static final String TITLE_INVALID_REGEX_DIALOG =
+                Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.title");
+        private static final String TEXT_INVALID_REGEX_DIALOG =
+                Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.text");
 
         private ZapTextField regexTextField;
 
@@ -181,7 +186,9 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             JLabel regexLabel = new JLabel(REGEX_FIELD_LABEL);
 
             layout.setHorizontalGroup(
-                    layout.createSequentialGroup().addComponent(regexLabel).addComponent(getRegexTextField()));
+                    layout.createSequentialGroup()
+                            .addComponent(regexLabel)
+                            .addComponent(getRegexTextField()));
 
             layout.setVerticalGroup(
                     layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -236,27 +243,31 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         protected ZapTextField getRegexTextField() {
             if (regexTextField == null) {
                 regexTextField = new ZapTextField(30);
-                regexTextField.getDocument().addDocumentListener(new DocumentListener() {
+                regexTextField
+                        .getDocument()
+                        .addDocumentListener(
+                                new DocumentListener() {
 
-                    @Override
-                    public void removeUpdate(DocumentEvent e) {
-                        checkAndEnableConfirmButton();
-                    }
+                                    @Override
+                                    public void removeUpdate(DocumentEvent e) {
+                                        checkAndEnableConfirmButton();
+                                    }
 
-                    @Override
-                    public void insertUpdate(DocumentEvent e) {
-                        checkAndEnableConfirmButton();
-                    }
+                                    @Override
+                                    public void insertUpdate(DocumentEvent e) {
+                                        checkAndEnableConfirmButton();
+                                    }
 
-                    @Override
-                    public void changedUpdate(DocumentEvent e) {
-                        checkAndEnableConfirmButton();
-                    }
+                                    @Override
+                                    public void changedUpdate(DocumentEvent e) {
+                                        checkAndEnableConfirmButton();
+                                    }
 
-                    private void checkAndEnableConfirmButton() {
-                        setConfirmButtonEnabled(getRegexTextField().getDocument().getLength() > 0);
-                    }
-                });
+                                    private void checkAndEnableConfirmButton() {
+                                        setConfirmButtonEnabled(
+                                                getRegexTextField().getDocument().getLength() > 0);
+                                    }
+                                });
             }
 
             return regexTextField;
@@ -271,11 +282,12 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         private static final long serialVersionUID = 3803499933691686617L;
 
-        private static final String DIALOG_TITLE = Constant.messages
-                .getString("multiple.options.regexes.dialog.modify.regex.title");
+        private static final String DIALOG_TITLE =
+                Constant.messages.getString("multiple.options.regexes.dialog.modify.regex.title");
 
-        private static final String CONFIRM_BUTTON_LABEL = Constant.messages
-                .getString("multiple.options.regexes.dialog.modify.regex.button.confirm");
+        private static final String CONFIRM_BUTTON_LABEL =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.modify.regex.button.confirm");
 
         protected DialogModifyRegex(Dialog owner) {
             super(owner, DIALOG_TITLE);
@@ -295,7 +307,6 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             getRegexTextField().setText(regex);
             getRegexTextField().discardAllEdits();
         }
-
     }
 
     protected static class RegexesTableModel extends AbstractMultipleOptionsBaseTableModel<String> {
@@ -303,7 +314,8 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         private static final long serialVersionUID = -7644711449311289615L;
 
         private static final String[] COLUMN_NAMES = {
-                Constant.messages.getString("multiple.options.regexes.table.header.regex") };
+            Constant.messages.getString("multiple.options.regexes.table.header.regex")
+        };
 
         private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
@@ -347,6 +359,5 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             this.elements = new ArrayList<>(regexes);
             fireTableDataChanged();
         }
-
     }
 }

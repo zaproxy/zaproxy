@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,17 +25,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.utils.FontUtils;
 
 /**
  * A {@code JPanel} for selecting security protocols provided by {@code SSLConnector}.
- * 
+ *
  * @see SSLConnector
  */
 public class SecurityProtocolsPanel extends JPanel {
@@ -48,13 +46,15 @@ public class SecurityProtocolsPanel extends JPanel {
     public SecurityProtocolsPanel() {
         setLayout(new GridBagLayout());
 
-        setBorder(javax.swing.BorderFactory.createTitledBorder(
-                null,
-                Constant.messages.getString("generic.options.panel.security.protocols.title"),
-                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-                javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                FontUtils.getFont(FontUtils.Size.standard),
-                java.awt.Color.black));
+        setBorder(
+                javax.swing.BorderFactory.createTitledBorder(
+                        null,
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.title"),
+                        javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                        javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard),
+                        java.awt.Color.black));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
@@ -63,32 +63,50 @@ public class SecurityProtocolsPanel extends JPanel {
         gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
         checkBoxesSslTlsProtocols = new HashMap<>();
-        JCheckBox checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.ssl2hello.label"));
+        JCheckBox checkBox =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.ssl2hello.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO, checkBox);
         add(checkBox, gbc);
 
-        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.ssl3.label"));
+        checkBox =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.ssl3.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_SSL_V3, checkBox);
         add(checkBox, gbc);
 
-        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.tlsv1.label"));
+        checkBox =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.tlsv1.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1, checkBox);
         add(checkBox, gbc);
 
-        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.tlsv1.1.label"));
+        checkBox =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.tlsv1.1.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_1, checkBox);
         add(checkBox, gbc);
 
-        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.tlsv1.2.label"));
+        checkBox =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.tlsv1.2.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_2, checkBox);
         add(checkBox, gbc);
 
-        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.tlsv1.3.label"));
+        checkBox =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.tlsv1.3.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_3, checkBox);
         add(checkBox, gbc);
@@ -107,7 +125,9 @@ public class SecurityProtocolsPanel extends JPanel {
             for (JCheckBox checkBox : checkBoxesSslTlsProtocols.values()) {
                 if (!checkBox.isEnabled()) {
                     if (toolTip == null) {
-                        toolTip = Constant.messages.getString("generic.options.panel.security.protocols.protocol.not.supported.tooltip");
+                        toolTip =
+                                Constant.messages.getString(
+                                        "generic.options.panel.security.protocols.protocol.not.supported.tooltip");
                     }
                     checkBox.setToolTipText(toolTip);
                 }
@@ -151,14 +171,18 @@ public class SecurityProtocolsPanel extends JPanel {
             if (protocolsSelected == 0) {
                 checkBoxEnabledProtocol.requestFocusInWindow();
                 throw new IllegalArgumentException(
-                        Constant.messages.getString("generic.options.panel.security.protocols.error.no.protocols.selected"));
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.error.no.protocols.selected"));
             }
 
             if (protocolsSelected == 1
-                    && checkBoxesSslTlsProtocols.get(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO).isSelected()) {
+                    && checkBoxesSslTlsProtocols
+                            .get(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO)
+                            .isSelected()) {
                 checkBoxEnabledProtocol.requestFocusInWindow();
                 throw new IllegalArgumentException(
-                        Constant.messages.getString("generic.options.panel.security.protocols.error.just.sslv2hello.selected"));
+                        Constant.messages.getString(
+                                "generic.options.panel.security.protocols.error.just.sslv2hello.selected"));
             }
         }
     }

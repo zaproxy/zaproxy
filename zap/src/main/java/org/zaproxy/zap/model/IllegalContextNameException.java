@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,18 +31,14 @@ public class IllegalContextNameException extends IllegalArgumentException {
 
     /**
      * The reason why a context's name is illegal.
-     * 
+     *
      * @see IllegalContextNameException#getReason()
      */
     public enum Reason {
-        /**
-         * The name is {@code null} or empty.
-         */
+        /** The name is {@code null} or empty. */
         EMPTY_NAME,
 
-        /**
-         * It's a duplicated name.
-         */
+        /** It's a duplicated name. */
         DUPLICATED_NAME
     }
 

@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,11 +22,9 @@ package org.zaproxy.zap.extension.search;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -34,29 +32,28 @@ import org.zaproxy.zap.utils.ZapNumberSpinner;
 
 /**
  * The GUI search options panel.
- * <p>
- * It allows to change the following search options:
+ *
+ * <p>It allows to change the following search options:
+ *
  * <ul>
- * <li>Maximum search results in GUI - allows to set the maximum number of results that should be shown in GUI results panel.</li>
+ *   <li>Maximum search results in GUI - allows to set the maximum number of results that should be
+ *       shown in GUI results panel.
  * </ul>
- * </p>
  */
 public class OptionsSearchPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = -7541236934312940852L;
 
-    /**
-     * The name of the options panel.
-     */
+    /** The name of the options panel. */
     private static final String NAME = Constant.messages.getString("search.optionspanel.name");
 
-    /**
-     * The label for the "Maximum search results in GUI" option.
-     */
-    private static final String MAX_SEARCH_RESULTS_GUI_LABEL = Constant.messages.getString("search.optionspanel.option.max.resutls.gui");
+    /** The label for the "Maximum search results in GUI" option. */
+    private static final String MAX_SEARCH_RESULTS_GUI_LABEL =
+            Constant.messages.getString("search.optionspanel.option.max.resutls.gui");
 
     /**
-     * The number spinner that will contain the maximum number of results that should be shown in GUI.
+     * The number spinner that will contain the maximum number of results that should be shown in
+     * GUI.
      */
     private ZapNumberSpinner numberSpinnerMaxSearchResultsGUI = null;
 
@@ -94,7 +91,8 @@ public class OptionsSearchPanel extends AbstractParamPanel {
         final OptionsParam options = (OptionsParam) obj;
         final SearchParam param = options.getParamSet(SearchParam.class);
 
-        numberSpinnerMaxSearchResultsGUI.setValue(Integer.valueOf(param.getMaximumSearchResultsGUI()));
+        numberSpinnerMaxSearchResultsGUI.setValue(
+                Integer.valueOf(param.getMaximumSearchResultsGUI()));
     }
 
     @Override

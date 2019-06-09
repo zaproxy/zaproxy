@@ -34,13 +34,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Test;
 import org.zaproxy.zap.Version;
 
-/**
- * Unit test for {@link ZapAddOnXmlFile}.
- */
+/** Unit test for {@link ZapAddOnXmlFile}. */
 public class ZapAddOnXmlFileUnitTest {
 
     @Test(expected = NullPointerException.class)
@@ -103,19 +100,20 @@ public class ZapAddOnXmlFileUnitTest {
         String changes = "Changes";
         String notBeforeVersion = "1.2.3";
         String notFromVersion = "3.2.1";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<name>" + name + "</name>",
-                "<version>" + version + "</version>",
-                "<semver>" + semver + "</semver>",
-                "<status>" + status + "</status>",
-                "<description>" + description + "</description>",
-                "<author>" + author + "</author>",
-                "<url>" + url + "</url>",
-                "<changes>" + changes + "</changes>",
-                "<not-before-version>" + notBeforeVersion + "</not-before-version>",
-                "<not-from-version>" + notFromVersion + "</not-from-version>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<name>" + name + "</name>",
+                        "<version>" + version + "</version>",
+                        "<semver>" + semver + "</semver>",
+                        "<status>" + status + "</status>",
+                        "<description>" + description + "</description>",
+                        "<author>" + author + "</author>",
+                        "<url>" + url + "</url>",
+                        "<changes>" + changes + "</changes>",
+                        "<not-before-version>" + notBeforeVersion + "</not-before-version>",
+                        "<not-from-version>" + notFromVersion + "</not-from-version>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -136,7 +134,8 @@ public class ZapAddOnXmlFileUnitTest {
         // Given
         List<String> statuses = Arrays.asList("alpha", "beta", "release");
         for (String status : statuses) {
-            InputStream manifestData = manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
+            InputStream manifestData =
+                    manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
             // When
             ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
             // Then
@@ -148,7 +147,8 @@ public class ZapAddOnXmlFileUnitTest {
     public void shouldFailToLoadManifestWithUnrecognisedStatus() throws Exception {
         // Given
         String status = "unrecognised-status";
-        InputStream manifestData = manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
+        InputStream manifestData =
+                manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
@@ -161,11 +161,16 @@ public class ZapAddOnXmlFileUnitTest {
         String bundlePrefix = "example";
         String helpSetBaseName = "org.example.help%LC%.helpset";
         String helpSetLocaleToken = "%LC%";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<bundle prefix=\"" + bundlePrefix + "\">" + bundleBaseName + "</bundle>",
-                "<helpset localetoken=\"" + helpSetLocaleToken + "\">" + helpSetBaseName + "</helpset>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<bundle prefix=\"" + bundlePrefix + "\">" + bundleBaseName + "</bundle>",
+                        "<helpset localetoken=\""
+                                + helpSetLocaleToken
+                                + "\">"
+                                + helpSetBaseName
+                                + "</helpset>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -188,102 +193,118 @@ public class ZapAddOnXmlFileUnitTest {
         String addOn3Version = "3.*";
         String addOn4Id = "id4";
         String addOn4Version = ">= 1.2.3";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<javaversion>" + javaVersion + "</javaversion>",
-                "<addons>",
-                "<addon>",
-                "<id>" + addOn1Id + "</id>",
-                "<not-before-version>" + addOn1NotBeforeVersion + "</not-before-version>",
-                "<not-from-version>" + addOn1NotFromVersion + "</not-from-version>",
-                "</addon>",
-                "<addon>",
-                "<id>" + addOn2Id + "</id>",
-                "<semver>" + addOn2SemVer + "</semver>",
-                "</addon>",
-                "<addon>",
-                "<id>" + addOn3Id + "</id>",
-                "<version>" + addOn3Version + "</version>",
-                "</addon>",
-                "<addon>",
-                "<id>" + addOn4Id + "</id>",
-                "<version><![CDATA[ " + addOn4Version + " ]]></version>",
-                "<not-before-version>1</not-before-version>",
-                "<not-from-version>2</not-from-version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<javaversion>" + javaVersion + "</javaversion>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>" + addOn1Id + "</id>",
+                        "<not-before-version>" + addOn1NotBeforeVersion + "</not-before-version>",
+                        "<not-from-version>" + addOn1NotFromVersion + "</not-from-version>",
+                        "</addon>",
+                        "<addon>",
+                        "<id>" + addOn2Id + "</id>",
+                        "<semver>" + addOn2SemVer + "</semver>",
+                        "</addon>",
+                        "<addon>",
+                        "<id>" + addOn3Id + "</id>",
+                        "<version>" + addOn3Version + "</version>",
+                        "</addon>",
+                        "<addon>",
+                        "<id>" + addOn4Id + "</id>",
+                        "<version><![CDATA[ " + addOn4Version + " ]]></version>",
+                        "<not-before-version>1</not-before-version>",
+                        "<not-from-version>2</not-from-version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
         assertThat(manifest.getDependencies(), is(notNullValue()));
         assertThat(manifest.getDependencies().getJavaVersion(), is(equalTo(javaVersion)));
         assertThat(manifest.getDependencies().getAddOns().get(0).getId(), is(equalTo(addOn1Id)));
-        assertThat(manifest.getDependencies().getAddOns().get(0).getVersion(), is(equalTo(" >= 4.0.0 & < 6.0.0")));
+        assertThat(
+                manifest.getDependencies().getAddOns().get(0).getVersion(),
+                is(equalTo(" >= 4.0.0 & < 6.0.0")));
         assertThat(manifest.getDependencies().getAddOns().get(1).getId(), is(equalTo(addOn2Id)));
-        assertThat(manifest.getDependencies().getAddOns().get(1).getVersion(), is(equalTo(addOn2SemVer)));
+        assertThat(
+                manifest.getDependencies().getAddOns().get(1).getVersion(),
+                is(equalTo(addOn2SemVer)));
         assertThat(manifest.getDependencies().getAddOns().get(2).getId(), is(equalTo(addOn3Id)));
-        assertThat(manifest.getDependencies().getAddOns().get(2).getVersion(), is(equalTo(addOn3Version)));
+        assertThat(
+                manifest.getDependencies().getAddOns().get(2).getVersion(),
+                is(equalTo(addOn3Version)));
         assertThat(manifest.getDependencies().getAddOns().get(3).getId(), is(equalTo(addOn4Id)));
-        assertThat(manifest.getDependencies().getAddOns().get(3).getVersion(), is(equalTo(addOn4Version)));
+        assertThat(
+                manifest.getDependencies().getAddOns().get(3).getVersion(),
+                is(equalTo(addOn4Version)));
     }
 
     @Test
     public void shouldLoadManifestWithAddOnDepWithJustNotBeforeVersion() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>id</id>",
-                "<not-before-version>6</not-before-version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>id</id>",
+                        "<not-before-version>6</not-before-version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
         assertThat(manifest.getDependencies(), is(notNullValue()));
-        assertThat(manifest.getDependencies().getAddOns().get(0).getVersion(), is(equalTo(" >= 6.0.0")));
+        assertThat(
+                manifest.getDependencies().getAddOns().get(0).getVersion(),
+                is(equalTo(" >= 6.0.0")));
     }
 
     @Test
     public void shouldLoadManifestWithAddOnDepWithJustNotFromVersion() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>id</id>",
-                "<not-from-version>6</not-from-version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>id</id>",
+                        "<not-from-version>6</not-from-version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
         assertThat(manifest.getDependencies(), is(notNullValue()));
-        assertThat(manifest.getDependencies().getAddOns().get(0).getVersion(), is(equalTo(" < 6.0.0")));
+        assertThat(
+                manifest.getDependencies().getAddOns().get(0).getVersion(),
+                is(equalTo(" < 6.0.0")));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailToLoadManifestWithAddOnDepWithMissingId() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
@@ -292,16 +313,17 @@ public class ZapAddOnXmlFileUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailToLoadManifestWithAddOnDepWithEmptyId() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id></id>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id></id>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
@@ -310,17 +332,18 @@ public class ZapAddOnXmlFileUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedVersion() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>id</id>",
-                "<version>not-a-valid-version-or-range</version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>id</id>",
+                        "<version>not-a-valid-version-or-range</version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
@@ -329,36 +352,39 @@ public class ZapAddOnXmlFileUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedSemVer() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>id</id>",
-                "<semver>not-a-valid-version-or-range</semver>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>id</id>",
+                        "<semver>not-a-valid-version-or-range</semver>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotBeforeVersion() throws Exception {
+    public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotBeforeVersion()
+            throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>id</id>",
-                "<not-before-version>a</not-before-version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>id</id>",
+                        "<not-before-version>a</not-before-version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
@@ -367,17 +393,18 @@ public class ZapAddOnXmlFileUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotFromVersion() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>id</id>",
-                "<not-from-version>a</not-from-version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>id</id>",
+                        "<not-from-version>a</not-from-version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then = IllegalArgumentException
@@ -392,17 +419,18 @@ public class ZapAddOnXmlFileUnitTest {
         String restrictedClass1 = "org.example.ClassRestricted1";
         String restrictedClass2 = "org.example.ClassRestricted2";
         String restrictedPackage = "org.example.restricted";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<classnames>",
-                "<allowed>" + allowedClass1 + "</allowed>",
-                "<allowed>" + allowedClass2 + "</allowed>",
-                "<allowed>" + allowedPackage + "</allowed>",
-                "<restricted>" + restrictedClass1 + "</restricted>",
-                "<restricted>" + restrictedClass2 + "</restricted>",
-                "<restricted>" + restrictedPackage + "</restricted>",
-                "</classnames>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<classnames>",
+                        "<allowed>" + allowedClass1 + "</allowed>",
+                        "<allowed>" + allowedClass2 + "</allowed>",
+                        "<allowed>" + allowedPackage + "</allowed>",
+                        "<restricted>" + restrictedClass1 + "</restricted>",
+                        "<restricted>" + restrictedClass2 + "</restricted>",
+                        "<restricted>" + restrictedPackage + "</restricted>",
+                        "</classnames>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -418,13 +446,14 @@ public class ZapAddOnXmlFileUnitTest {
     @Test
     public void shouldIgnoreEmptyClassnamesElements() throws Exception {
         // Given
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<classnames>",
-                "<allowed></allowed>",
-                "<restricted></restricted>",
-                "</classnames>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<classnames>",
+                        "<allowed></allowed>",
+                        "<restricted></restricted>",
+                        "</classnames>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -435,12 +464,13 @@ public class ZapAddOnXmlFileUnitTest {
     public void shouldLoadManifestWithoutRestrictedClassnamesElements() throws Exception {
         // Given
         String allowedPackage = "org.example.allowed";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<classnames>",
-                "<allowed>" + allowedPackage + "</allowed>",
-                "</classnames>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<classnames>",
+                        "<allowed>" + allowedPackage + "</allowed>",
+                        "</classnames>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -453,17 +483,20 @@ public class ZapAddOnXmlFileUnitTest {
     public void shouldLoadManifestWithoutAllowedClassnamesElements() throws Exception {
         // Given
         String restrictedPackage = "org.example.restricted";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<classnames>",
-                "<restricted>" + restrictedPackage + "</restricted>",
-                "</classnames>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<classnames>",
+                        "<restricted>" + restrictedPackage + "</restricted>",
+                        "</classnames>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
         assertThat(manifest.getAddOnClassnames(), is(notNullValue()));
-        assertThat(manifest.getAddOnClassnames().getRestrictedClassnames(), contains(restrictedPackage));
+        assertThat(
+                manifest.getAddOnClassnames().getRestrictedClassnames(),
+                contains(restrictedPackage));
         assertThat(manifest.getAddOnClassnames().getAllowedClassnames(), is(empty()));
     }
 
@@ -476,21 +509,22 @@ public class ZapAddOnXmlFileUnitTest {
         String pscanrule2 = "org.example.PassiveScanner2";
         String file1 = "dir/file1.txt";
         String file2 = "file2.xml";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<ascanrules>",
-                "<ascanrule>" + ascanrule1 + "</ascanrule>",
-                "<ascanrule>" + ascanrule2 + "</ascanrule>",
-                "</ascanrules>",
-                "<pscanrules>",
-                "<pscanrule>" + pscanrule1 + "</pscanrule>",
-                "<pscanrule>" + pscanrule2 + "</pscanrule>",
-                "</pscanrules>",
-                "<files>",
-                "<file>" + file1 + "</file>",
-                "<file>" + file2 + "</file>",
-                "</files>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<ascanrules>",
+                        "<ascanrule>" + ascanrule1 + "</ascanrule>",
+                        "<ascanrule>" + ascanrule2 + "</ascanrule>",
+                        "</ascanrules>",
+                        "<pscanrules>",
+                        "<pscanrule>" + pscanrule1 + "</pscanrule>",
+                        "<pscanrule>" + pscanrule2 + "</pscanrule>",
+                        "</pscanrules>",
+                        "<files>",
+                        "<file>" + file1 + "</file>",
+                        "<file>" + file2 + "</file>",
+                        "</files>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -504,13 +538,14 @@ public class ZapAddOnXmlFileUnitTest {
         // Given
         String extension1 = "org.example.Extension1";
         String extension2 = "org.example.Extension2";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<extensions>",
-                "<extension>" + extension1 + "</extension>",
-                "<extension>" + extension2 + "</extension>",
-                "</extensions>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<extensions>",
+                        "<extension>" + extension1 + "</extension>",
+                        "<extension>" + extension2 + "</extension>",
+                        "</extensions>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
@@ -526,40 +561,50 @@ public class ZapAddOnXmlFileUnitTest {
         String restrictedClass = "org.example.Extension1";
         String addOnId = "addOnId";
         String version = "2.*";
-        InputStream manifestData = manifestData(
-                "<zapaddon>",
-                "<extensions>",
-                "<extension v=\"1\">",
-                "<classname>" + extension1 + "</classname>",
-                "</extension>",
-                "<extension v=\"1\">",
-                "<classname>" + extension2 + "</classname>",
-                "<classnames>",
-                "<allowed>" + allowedClass + "</allowed>",
-                "<restricted>" + restrictedClass + "</restricted>",
-                "</classnames>",
-                "<dependencies>",
-                "<addons>",
-                "<addon>",
-                "<id>" + addOnId + "</id>",
-                "<version>" + version + "</version>",
-                "</addon>",
-                "</addons>",
-                "</dependencies>",
-                "</extension>",
-                "</extensions>",
-                "</zapaddon>");
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<extensions>",
+                        "<extension v=\"1\">",
+                        "<classname>" + extension1 + "</classname>",
+                        "</extension>",
+                        "<extension v=\"1\">",
+                        "<classname>" + extension2 + "</classname>",
+                        "<classnames>",
+                        "<allowed>" + allowedClass + "</allowed>",
+                        "<restricted>" + restrictedClass + "</restricted>",
+                        "</classnames>",
+                        "<dependencies>",
+                        "<addons>",
+                        "<addon>",
+                        "<id>" + addOnId + "</id>",
+                        "<version>" + version + "</version>",
+                        "</addon>",
+                        "</addons>",
+                        "</dependencies>",
+                        "</extension>",
+                        "</extensions>",
+                        "</zapaddon>");
         // When
         ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
         // Then
         assertThat(manifest.getExtensions(), contains(extension1));
         assertThat(manifest.getExtensionsWithDeps().get(0).getClassname(), is(equalTo(extension2)));
-        assertThat(manifest.getExtensionsWithDeps().get(0).getAddOnClassnames().getAllowedClassnames(), contains(allowedClass));
         assertThat(
-                manifest.getExtensionsWithDeps().get(0).getAddOnClassnames().getRestrictedClassnames(),
+                manifest.getExtensionsWithDeps().get(0).getAddOnClassnames().getAllowedClassnames(),
+                contains(allowedClass));
+        assertThat(
+                manifest.getExtensionsWithDeps()
+                        .get(0)
+                        .getAddOnClassnames()
+                        .getRestrictedClassnames(),
                 contains(restrictedClass));
-        assertThat(manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getId(), is(equalTo(addOnId)));
-        assertThat(manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getVersion(), is(equalTo(version)));
+        assertThat(
+                manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getId(),
+                is(equalTo(addOnId)));
+        assertThat(
+                manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getVersion(),
+                is(equalTo(version)));
     }
 
     private static Version version(String version) {

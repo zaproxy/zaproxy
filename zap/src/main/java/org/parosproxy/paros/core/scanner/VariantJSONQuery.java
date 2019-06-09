@@ -1,35 +1,31 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2013 The ZAP Development team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2013 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-/**
- *
- * @author andy
- */
+/** @author andy */
 public class VariantJSONQuery extends VariantAbstractRPCQuery {
-    
+
     public static final String JSON_RPC_CONTENT_TYPE = "application/json";
-   
+
     public static final int NAME_SEPARATOR = ':';
     public static final int VALUE_SEPARATOR = ',';
     public static final int BEGIN_ARRAY = '[';
@@ -41,24 +37,20 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     private SimpleStringReader sr;
 
-    public VariantJSONQuery () {
-    	super(NameValuePair.TYPE_JSON);
+    public VariantJSONQuery() {
+        super(NameValuePair.TYPE_JSON);
     }
-    
+
     /**
-     * 
      * @param contentType
-     * @return 
+     * @return
      */
     @Override
     public boolean isValidContentType(String contentType) {
         return contentType.startsWith(JSON_RPC_CONTENT_TYPE);
     }
 
-    /**
-     * 
-     * @param content 
-     */
+    /** @param content */
     @Override
     public void parseContent(String content) {
         sr = new SimpleStringReader(content);
@@ -66,15 +58,16 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     }
 
     /**
-     * 
      * @param value
      * @param toQuote
-     * @return 
+     * @return
      */
     @Override
     public String getEscapedValue(String value, boolean toQuote) {
         String result = StringEscapeUtils.escapeJava(value);
-        return (toQuote) ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK : result;
+        return (toQuote)
+                ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK
+                : result;
     }
 
     @Override
@@ -83,12 +76,12 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     }
 
     // --------------------------------------------------------------------
-    
+
     private static final int STATE_READ_START_OBJECT = 0;
     private static final int STATE_READ_FIELD = 1;
     private static final int STATE_READ_VALUE = 2;
     private static final int STATE_READ_POST_VALUE = 3;
-    
+
     private void parseObject() {
         int state = STATE_READ_START_OBJECT;
         boolean objectRead = false;
@@ -106,57 +99,61 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
                         objectRead = true;
 
                         chr = sr.skipWhitespaceRead();
-                        if (chr == END_OBJECT) {    // empty object
+                        if (chr == END_OBJECT) { // empty object
                             return;
                         }
-                        
+
                         sr.unreadLastCharacter();
                         state = STATE_READ_FIELD;
-                        
+
                     } else if (chr == BEGIN_ARRAY) {
                         sr.unreadLastCharacter();
                         state = STATE_READ_VALUE;
-                        
+
                     } else {
-                        throw new IllegalArgumentException("Input is invalid JSON; does not start with '{' or '[', c=" + chr);
+                        throw new IllegalArgumentException(
+                                "Input is invalid JSON; does not start with '{' or '[', c=" + chr);
                     }
-                    
+
                     break;
 
                 case STATE_READ_FIELD:
                     chr = sr.skipWhitespaceRead();
                     if (chr == QUOTATION_MARK) {
-                        
+
                         beginToken = sr.getPosition();
                         readEscapedString();
-                        
+
                         endToken = sr.getPosition() - 1;
                         // Now we have the string object name
                         // we can do something here for value filtering...
                         field = getToken(beginToken, endToken);
-          
-                        chr = sr.skipWhitespaceRead();                        
+
+                        chr = sr.skipWhitespaceRead();
                         if (chr != NAME_SEPARATOR) {
-                            throw new IllegalArgumentException("Expected ':' between string field and value at position " + sr.getPosition());
+                            throw new IllegalArgumentException(
+                                    "Expected ':' between string field and value at position "
+                                            + sr.getPosition());
                         }
-                        
+
                         sr.skipWhitespaceRead();
                         sr.unreadLastCharacter();
                         state = STATE_READ_VALUE;
-                        
+
                     } else {
-                        throw new IllegalArgumentException("Expected quote at position " + sr.getPosition());
+                        throw new IllegalArgumentException(
+                                "Expected quote at position " + sr.getPosition());
                     }
-                    
+
                     break;
 
                 case STATE_READ_VALUE:
                     if (field == null) {
-                         // field is null when you have an untyped Object[], so we place
-                         // the JsonArray on the @items field.
-                         field = "@items";
+                        // field is null when you have an untyped Object[], so we place
+                        // the JsonArray on the @items field.
+                        field = "@items";
                     }
-                    
+
                     parseValue(field);
                     state = STATE_READ_POST_VALUE;
                     break;
@@ -166,90 +163,90 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
                     if (chr == -1 && objectRead) {
                         throw new IllegalArgumentException("EOF reached before closing '}'");
                     }
-                    
+
                     if (chr == END_OBJECT || chr == -1) {
                         done = true;
-                        
+
                     } else if (chr == VALUE_SEPARATOR) {
                         state = STATE_READ_FIELD;
-                        
+
                     } else {
-                        throw new IllegalArgumentException("Object not ended with '}' or ']' at position " + sr.getPosition());
+                        throw new IllegalArgumentException(
+                                "Object not ended with '}' or ']' at position " + sr.getPosition());
                     }
                     break;
             }
         }
     }
 
-    /**
-     * 
-     * @param fieldName
-     */
+    /** @param fieldName */
     private void parseValue(String fieldName) {
         int chr = sr.read();
 
-        // Check if the value is a string        
+        // Check if the value is a string
         if (chr == QUOTATION_MARK) {
             int beginToken = sr.getPosition();
             readEscapedString();
-            
+
             // Now we have the string object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition()-1, false, true);
-            
-        // check if the value is a number
+            addParameter(fieldName, beginToken, sr.getPosition() - 1, false, true);
+
+            // check if the value is a number
         } else if (Character.isDigit(chr) || chr == '-') {
             sr.unreadLastCharacter();
-            
+
             int beginToken = sr.getPosition();
             do {
                 chr = sr.read();
                 if (chr == -1) {
                     throw new IllegalArgumentException("Reached EOF while reading number");
                 }
-                
-            } while (Character.isDigit(chr) ||
-                    (chr == '.') || (chr == 'e') || (chr == 'E') || 
-                    (chr == '+') || (chr == '-'));
+
+            } while (Character.isDigit(chr)
+                    || (chr == '.')
+                    || (chr == 'e')
+                    || (chr == 'E')
+                    || (chr == '+')
+                    || (chr == '-'));
 
             sr.unreadLastCharacter();
             // Now we have the int object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition()-1, true, false);            
-            
+            addParameter(fieldName, beginToken, sr.getPosition() - 1, true, false);
+
         } else if (chr == BEGIN_OBJECT) {
             sr.unreadLastCharacter();
             parseObject();
-            
+
         } else if (chr == BEGIN_ARRAY) {
             parseArray(fieldName);
-            
-        } else if (chr == END_ARRAY) {    // [] empty array
+
+        } else if (chr == END_ARRAY) { // [] empty array
             sr.unreadLastCharacter();
-            
+
         } else if (chr == 't' || chr == 'T') {
             sr.unreadLastCharacter();
             parseToken("true");
-            
+
         } else if (chr == 'f' || chr == 'F') {
             sr.unreadLastCharacter();
             parseToken("false");
-            
+
         } else if (chr == 'n' || chr == 'N') {
             sr.unreadLastCharacter();
             parseToken("null");
-            
+
         } else if (chr == -1) {
             throw new IllegalArgumentException("EOF reached prematurely");
-            
+
         } else {
-            throw new IllegalArgumentException("Unknown value type at position " + sr.getPosition());
+            throw new IllegalArgumentException(
+                    "Unknown value type at position " + sr.getPosition());
         }
     }
 
-    /**
-     * Read a JSON array
-     */
+    /** Read a JSON array */
     private void parseArray(String fieldName) {
         int chr;
         int idx = 0;
@@ -257,23 +254,23 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             sr.skipWhitespaceRead();
             sr.unreadLastCharacter();
             parseValue(fieldName + "[" + (idx++) + "]");
-            
+
             chr = sr.skipWhitespaceRead();
             if (chr == END_ARRAY) {
                 break;
             }
-            
+
             if (chr != VALUE_SEPARATOR) {
-                throw new IllegalArgumentException("Expected ',' or ']' inside array at position " + sr.getPosition());
+                throw new IllegalArgumentException(
+                        "Expected ',' or ']' inside array at position " + sr.getPosition());
             }
         }
     }
 
     /**
-     * Return the specified token from the reader. If it is not found, throw an
-     * IOException indicating that. Converting to chr to (char) chr is acceptable
-     * because the 'tokens' allowed in a JSON input stream (true, false, null)
-     * are all ASCII.
+     * Return the specified token from the reader. If it is not found, throw an IOException
+     * indicating that. Converting to chr to (char) chr is acceptable because the 'tokens' allowed
+     * in a JSON input stream (true, false, null) are all ASCII.
      */
     private void parseToken(String token) {
         int len = token.length();
@@ -283,23 +280,23 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             if (chr == -1) {
                 throw new IllegalArgumentException("EOF reached while reading token: " + token);
             }
-            chr = Character.toLowerCase((char)chr);
+            chr = Character.toLowerCase((char) chr);
             int loTokenChar = token.charAt(i);
 
             if (loTokenChar != chr) {
-                throw new IllegalArgumentException("Expected token: " + token + " at position " + sr.getPosition());
+                throw new IllegalArgumentException(
+                        "Expected token: " + token + " at position " + sr.getPosition());
             }
         }
     }
 
-    private void readEscapedString(){
+    private void readEscapedString() {
         int chr;
         while (true) {
             chr = sr.read();
             if (chr == BACKSLASH) {
                 chr = sr.read();
-            }
-            else if (chr == QUOTATION_MARK) {
+            } else if (chr == QUOTATION_MARK) {
                 break;
             }
             if (chr == -1) {
@@ -325,11 +322,9 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
         }
 
         /**
-         * Read until non-whitespace character and then return it. This saves
-         * extra read/pushback.
+         * Read until non-whitespace character and then return it. This saves extra read/pushback.
          *
-         * @return int repesenting the next non-whitespace character in the
-         * stream.
+         * @return int repesenting the next non-whitespace character in the stream.
          */
         public int skipWhitespaceRead() {
             int c = read();
@@ -342,8 +337,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
         /**
          * Reads a single character.
          *
-         * @return The character read, or -1 if the end of the stream has been
-         * reached
+         * @return The character read, or -1 if the end of the stream has been reached
          */
         public int read() {
             if (next >= length) {
@@ -356,10 +350,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             next--;
         }
 
-        /**
-         *
-         * @return
-         */
+        /** @return */
         public int getPosition() {
             return next;
         }

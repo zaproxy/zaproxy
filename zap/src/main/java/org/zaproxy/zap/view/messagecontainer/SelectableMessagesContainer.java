@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2013 The ZAP Development Team
- * 
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,58 +20,59 @@
 package org.zaproxy.zap.view.messagecontainer;
 
 import java.util.List;
-
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /**
  * A {@code MultipleMessagesContainer} that exposes the selected messages in the GUI component.
- * 
+ *
  * @param <T> the type of messages in this container
  * @see MessageContainer
  * @see MultipleMessagesContainer
  * @see SingleMessageContainer
  * @since 2.3.0
  */
-public interface SelectableMessagesContainer<T extends Message> extends MultipleMessagesContainer<T> {
+public interface SelectableMessagesContainer<T extends Message>
+        extends MultipleMessagesContainer<T> {
 
     /**
      * Tells whether or not there is at least one message selected.
-     * 
+     *
      * @return {@code true} if at least one message is selected, {@code false} otherwise.
      */
     boolean hasSelectedMessages();
 
     /**
      * Tells whether or not only and only one message is selected.
-     * 
+     *
      * @return {@code true} if only one message is selected, {@code false} otherwise.
      */
     boolean isOnlyOneMessageSelected();
 
     /**
-     * Returns the selected message or {@code null} if none. If multiple messages are selected the first one is returned.
-     * 
+     * Returns the selected message or {@code null} if none. If multiple messages are selected the
+     * first one is returned.
+     *
      * @return the selected message or {@code null} if none.
      */
     T getSelectedMessage();
 
     /**
      * Returns the number of selected messages.
-     * 
+     *
      * @return the number of selected messages.
      */
     int getNumberOfSelectedMessages();
 
     /**
      * Returns all the selected messages or an empty {@code List} if none.
-     * <p>
-     * No assumptions should be made on the actual implementation type of the {@code List} returned by this method (for example,
-     * it might be unmodifiable or its elements lazy loaded).
-     * <p>
-     * <strong>Note:</strong> Extra care should be taken when getting the messages from the list since it might return
-     * {@code null} which indicate that an error occurred while getting a message (for example, failed to read a persisted
-     * message).
-     * 
+     *
+     * <p>No assumptions should be made on the actual implementation type of the {@code List}
+     * returned by this method (for example, it might be unmodifiable or its elements lazy loaded).
+     *
+     * <p><strong>Note:</strong> Extra care should be taken when getting the messages from the list
+     * since it might return {@code null} which indicate that an error occurred while getting a
+     * message (for example, failed to read a persisted message).
+     *
      * @return a {@code List} with all the selected messages, never {@code null}.
      */
     List<T> getSelectedMessages();

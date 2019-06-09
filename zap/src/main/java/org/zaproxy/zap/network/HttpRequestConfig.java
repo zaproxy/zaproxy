@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,16 +21,18 @@ package org.zaproxy.zap.network;
 
 /**
  * A configuration of a HTTP request.
- * <p>
- * Allows to configure how the HTTP request is sent, for example, if and how redirects are followed.
- * 
+ *
+ * <p>Allows to configure how the HTTP request is sent, for example, if and how redirects are
+ * followed.
+ *
  * @since 2.6.0
  */
 public class HttpRequestConfig {
 
     /**
-     * Constant that indicates that no value was set (thus using the value defined by the sender implementation).
-     * 
+     * Constant that indicates that no value was set (thus using the value defined by the sender
+     * implementation).
+     *
      * @since 2.7.0
      */
     public static final int NO_VALUE_SET = -1;
@@ -53,8 +55,8 @@ public class HttpRequestConfig {
 
     /**
      * Tells whether or not the redirects should be followed.
-     * <p>
-     * Default value: {@code false}.
+     *
+     * <p>Default value: {@code false}.
      *
      * @return {@code true} if the redirects should be followed, {@code false} otherwise.
      * @see #getRedirectionValidator()
@@ -65,8 +67,8 @@ public class HttpRequestConfig {
 
     /**
      * Gets the {@code HttpRedirectionValidator}, to validate the followed redirections.
-     * <p>
-     * Default value: {@link DefaultHttpRedirectionValidator#INSTANCE}.
+     *
+     * <p>Default value: {@link DefaultHttpRedirectionValidator#INSTANCE}.
      *
      * @return the validator responsible for validation of redirections, never {@code null}.
      * @see #isFollowRedirects()
@@ -76,10 +78,10 @@ public class HttpRequestConfig {
     }
 
     /**
-     * Tells whether or not {@link HttpSenderListener}s should be notified before sending the request and after receiving the
-     * response.
-     * <p>
-     * Default value: {@code true}.
+     * Tells whether or not {@link HttpSenderListener}s should be notified before sending the
+     * request and after receiving the response.
+     *
+     * <p>Default value: {@code true}.
      *
      * @return {@code true} if the listeners should be notified, {@code false} otherwise.
      * @since 2.7.0
@@ -90,9 +92,9 @@ public class HttpRequestConfig {
 
     /**
      * Gets the socket timeout, in milliseconds, when sending the requests.
-     * <p>
-     * Default value: {@link #NO_VALUE_SET}.
-     * 
+     *
+     * <p>Default value: {@link #NO_VALUE_SET}.
+     *
      * @return the socket timeout, in milliseconds.
      * @since 2.7.0
      */
@@ -123,9 +125,7 @@ public class HttpRequestConfig {
         return new Builder(configuration);
     }
 
-    /**
-     * Builder of {@link HttpRequestConfig}.
-     */
+    /** Builder of {@link HttpRequestConfig}. */
     public static class Builder {
 
         private boolean followRedirects;
@@ -149,7 +149,8 @@ public class HttpRequestConfig {
         /**
          * Sets whether or not the redirects should be followed.
          *
-         * @param followRedirects {@code true} if the redirects should be followed, {@code false} otherwise.
+         * @param followRedirects {@code true} if the redirects should be followed, {@code false}
+         *     otherwise.
          * @return the builder.
          * @see #setRedirectionValidator(HttpRedirectionValidator)
          */
@@ -160,9 +161,9 @@ public class HttpRequestConfig {
 
         /**
          * Sets the validator of redirections.
-         * <p>
-         * Automatically sets that the redirections should be followed.
-         * 
+         *
+         * <p>Automatically sets that the redirections should be followed.
+         *
          * @param redirectionValidator the validator of redirections.
          * @return the builder.
          * @throws IllegalArgumentException if the given parameter is {@code null}.
@@ -170,7 +171,8 @@ public class HttpRequestConfig {
          */
         public Builder setRedirectionValidator(HttpRedirectionValidator redirectionValidator) {
             if (redirectionValidator == null) {
-                throw new IllegalArgumentException("Parameter redirectionValidator must not be null.");
+                throw new IllegalArgumentException(
+                        "Parameter redirectionValidator must not be null.");
             }
             this.redirectionValidator = redirectionValidator;
             this.followRedirects = true;
@@ -178,10 +180,11 @@ public class HttpRequestConfig {
         }
 
         /**
-         * Sets whether or not {@link HttpSenderListener}s should be notified before sending the request and after receiving the
-         * response.
+         * Sets whether or not {@link HttpSenderListener}s should be notified before sending the
+         * request and after receiving the response.
          *
-         * @param notifyListeners {@code true} if the listeners should be notified, {@code false} otherwise.
+         * @param notifyListeners {@code true} if the listeners should be notified, {@code false}
+         *     otherwise.
          * @return the builder.
          * @since 2.7.0
          */
@@ -191,10 +194,11 @@ public class HttpRequestConfig {
         }
 
         /**
-         * Sets the value of the socket timeout ({@link java.net.SocketOptions#SO_TIMEOUT SO_TIMEOUT}), in milliseconds.
-         * <p>
-         * A value equal (or lower than) {@link HttpRequestConfig#NO_VALUE_SET} resets any value previously set. Value zero
-         * indicates an infinite timeout.
+         * Sets the value of the socket timeout ({@link java.net.SocketOptions#SO_TIMEOUT
+         * SO_TIMEOUT}), in milliseconds.
+         *
+         * <p>A value equal (or lower than) {@link HttpRequestConfig#NO_VALUE_SET} resets any value
+         * previously set. Value zero indicates an infinite timeout.
          *
          * @param soTimeout the socket timeout, in milliseconds.
          * @return the builder.
@@ -215,7 +219,8 @@ public class HttpRequestConfig {
          * @return a new {@code HttpRequestConfig}.
          */
         public HttpRequestConfig build() {
-            return new HttpRequestConfig(followRedirects, redirectionValidator, notifyListeners, soTimeout);
+            return new HttpRequestConfig(
+                    followRedirects, redirectionValidator, notifyListeners, soTimeout);
         }
     }
 }

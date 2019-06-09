@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2013 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import javax.swing.ButtonModel;
 
 /**
  * A {@code ButtonGroup} that allows to deselect the selected button.
- * 
+ *
  * @see ButtonGroup
  */
 public class DeselectableButtonGroup extends ButtonGroup {
@@ -33,9 +33,8 @@ public class DeselectableButtonGroup extends ButtonGroup {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Overridden to deselect the button when {@code selected} is {@code false}.
-     * </p>
+     *
+     * <p>Overridden to deselect the button when {@code selected} is {@code false}.
      */
     @Override
     public void setSelected(ButtonModel m, boolean selected) {
@@ -45,5 +44,4 @@ public class DeselectableButtonGroup extends ButtonGroup {
             super.setSelected(m, selected);
         }
     }
-
 }

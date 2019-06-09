@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2014 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.help;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Locale;
-
 import javax.help.BadIDException;
 import javax.help.HelpSet;
 import javax.help.Map;
@@ -32,11 +31,13 @@ import javax.help.TreeItem;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * <strong>NOTE:</strong> The name (and package) of the class must not be changed lightly! It will break help's TOC merging at
- * runtime. The name and package is hard coded in helpset files. (END NOTE)
- * <p>
- * A {@code TOCView} that also reads the "tocid" attribute of the "tocitem" elements and creates {@code ZapTocItem}s.
- * 
+ * <strong>NOTE:</strong> The name (and package) of the class must not be changed lightly! It will
+ * break help's TOC merging at runtime. The name and package is hard coded in helpset files. (END
+ * NOTE)
+ *
+ * <p>A {@code TOCView} that also reads the "tocid" attribute of the "tocitem" elements and creates
+ * {@code ZapTocItem}s.
+ *
  * @see TOCView
  * @see ZapTocItem
  * @see ZapTocMerger
@@ -50,11 +51,13 @@ public class ZapTocView extends TOCView {
         this(hs, name, label, hs.getLocale(), params);
     }
 
-    public ZapTocView(HelpSet hs, String name, String label, Locale locale, Hashtable<?, ?> params) {
+    public ZapTocView(
+            HelpSet hs, String name, String label, Locale locale, Hashtable<?, ?> params) {
         super(hs, name, label, locale, params);
     }
 
-    // Note: The implementation has been copied (verbatim) from the base method except for the use of a custom TreeItemFactory.
+    // Note: The implementation has been copied (verbatim) from the base method except for the use
+    // of a custom TreeItemFactory.
     @Override
     public DefaultMutableTreeNode getDataAsTree() {
         HelpSet hs = getHelpSet();
@@ -75,18 +78,23 @@ public class ZapTocView extends TOCView {
     }
 
     /**
-     * A {@code DefaultTOCFactory} that reads the "tocid" attribute of the "tocitem" element and creates {@code ZapTocItem}s
-     * (instead of {@code TOCItem}s).
-     * 
+     * A {@code DefaultTOCFactory} that reads the "tocid" attribute of the "tocitem" element and
+     * creates {@code ZapTocItem}s (instead of {@code TOCItem}s).
+     *
      * @see javax.help.TOCView.DefaultTOCFactory
      * @see ZapTocItem
      */
     private static class TreeItemFactoryImpl extends DefaultTOCFactory {
 
-        // Note: The implementation has been copied (verbatim) from the base method except for the read of tocid attribute and
+        // Note: The implementation has been copied (verbatim) from the base method except for the
+        // read of tocid attribute and
         // creation of ZapTocItem.
         @Override
-        public TreeItem createItem(String tagName, @SuppressWarnings("rawtypes") Hashtable atts, HelpSet hs, Locale locale) {
+        public TreeItem createItem(
+                String tagName,
+                @SuppressWarnings("rawtypes") Hashtable atts,
+                HelpSet hs,
+                Locale locale) {
             if (tagName == null || !tagName.equals("tocitem")) {
                 throw new IllegalArgumentException("tagName");
             }
@@ -146,6 +154,5 @@ public class ZapTocView extends TOCView {
             }
             return item;
         }
-
     }
 }

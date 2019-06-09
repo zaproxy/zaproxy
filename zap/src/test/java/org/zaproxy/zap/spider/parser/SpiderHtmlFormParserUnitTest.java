@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -45,11 +45,7 @@ import org.zaproxy.zap.model.ValueGenerator;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.Pair;
 
-import net.htmlparser.jericho.Source;
-
-/**
- * Unit test for {@link SpiderHtmlFormParser}.
- */
+/** Unit test for {@link SpiderHtmlFormParser}. */
 public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
     private static final String FORM_METHOD_TOKEN = "%%METHOD%%";
@@ -59,7 +55,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    private static final Path BASE_DIR_HTML_FILES = getResourcePath("htmlform", SpiderHtmlFormParserUnitTest.class);
+    private static final Path BASE_DIR_HTML_FILES =
+            getResourcePath("htmlform", SpiderHtmlFormParserUnitTest.class);
 
     @BeforeClass
     public static void suppressLogging() {
@@ -159,13 +156,15 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
+        SpiderHtmlFormParser htmlParser =
+                new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("PostGetForms.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(0)));
@@ -189,7 +188,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
     }
@@ -203,11 +203,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GET", "Form.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -219,13 +222,16 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GET", "Forms.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(2)));
-        assertThat(listener.getUrlsFound(), contains(
-                "http://example.org/form1?field1=Text+1&field2=Text+2&submit=Submit",
-                "http://example.org/form2?a=x&b=y&c=z"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.org/form1?field1=Text+1&field2=Text+2&submit=Submit",
+                        "http://example.org/form2?a=x&b=y&c=z"));
     }
 
     @Test
@@ -237,7 +243,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GET", "FormMultipleSubmitFields.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(5)));
@@ -266,7 +273,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit=Submit")));
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit=Submit")));
     }
 
     @Test
@@ -285,7 +297,11 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(
                 listener.getResourcesFound(),
                 contains(
-                        postResource(msg, 1, "http://example.org/form1", "field1=Text+1&field2=Text+2&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/form1",
+                                "field1=Text+1&field2=Text+2&submit=Submit"),
                         postResource(msg, 1, "http://example.org/form2", "a=x&b=y&c=z")));
     }
 
@@ -305,11 +321,31 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(
                 listener.getResourcesFound(),
                 contains(
-                        postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit1=Submit+1"),
-                        postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit2=Submit+2"),
-                        postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit3=Submit+3"),
-                        postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit=Submit+4"),
-                        postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit=Submit+5")));
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit1=Submit+1"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit2=Submit+2"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit3=Submit+3"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit=Submit+4"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit=Submit+5")));
     }
 
     @Test
@@ -328,9 +364,21 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(
                 listener.getResourcesFound(),
                 contains(
-                        postResource(msg, 1, "http://example.org/form1", "field1=Text+1&field2=Text+2&submit=Submit"),
-                        postResource(msg, 1, "http://example.org/form1", "field1=Text+1&field2=Text+2&submit=Submit+2"),
-                        postResource(msg, 1, "http://example.org/form1", "field1=Text+1&field2=Text+2&submit3=Submit+3"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/form1",
+                                "field1=Text+1&field2=Text+2&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/form1",
+                                "field1=Text+1&field2=Text+2&submit=Submit+2"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/form1",
+                                "field1=Text+1&field2=Text+2&submit3=Submit+3"),
                         uriResource(msg, 1, "http://example.org/form2?a=x&b=y&c=z"),
                         uriResource(msg, 1, "http://example.org/form2?a=x&b=y&submit=Submit+2"),
                         uriResource(msg, 1, "http://example.org/form2?a=x&b=y&submit3=Submit+3")));
@@ -342,13 +390,15 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
+        SpiderHtmlFormParser htmlParser =
+                new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("POST", "Form.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(0)));
@@ -360,17 +410,21 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
+        SpiderHtmlFormParser htmlParser =
+                new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("GET", "Form.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -382,11 +436,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("NonGetPostForm.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -398,11 +455,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("NoMethodForm.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -411,17 +471,21 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
         spiderOptions.setPostForm(false);
-        SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
+        SpiderHtmlFormParser htmlParser =
+                new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("NoMethodForm.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -433,11 +497,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("EmptyMethodForm.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -449,11 +516,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("NoActionForm.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.com/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -465,11 +535,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GET", "FormNoSubmitField.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2"));
     }
 
     @Test
@@ -487,7 +560,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2")));
+                contains(
+                        postResource(
+                                msg, 1, "http://example.org/", "field1=Text+1&field2=Text+2")));
     }
 
     @Test
@@ -499,11 +574,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GET", "FormActionWithFragment.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -515,12 +593,19 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("POST", "FormActionWithFragment.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getResourcesFound(), contains(
-                postResource(messageHtmlResponse, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit=Submit")));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(
+                        postResource(
+                                messageHtmlResponse,
+                                1,
+                                "http://example.org/",
+                                "field1=Text+1&field2=Text+2&submit=Submit")));
     }
 
     @Test
@@ -529,14 +614,18 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("NeitherGetNorPost", "FormActionWithFragment.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("NeitherGetNorPost", "FormActionWithFragment.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -548,11 +637,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GetFormActionWithEmptyQuery.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -564,11 +656,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GetFormActionWithQuery.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?a=b&c=d&field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?a=b&c=d&field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -580,11 +675,14 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         HttpMessage messageHtmlResponse = createMessageWith("GetFormActionWithQueryAmpersand.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.org/?a=b&field1=Text+1&field2=Text+2&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.org/?a=b&field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
     @Test
@@ -593,14 +691,18 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBase.html", "search", "http://base.example.com/");
+        HttpMessage msg =
+                createMessageWith(
+                        "GET", "FormWithHtmlBase.html", "search", "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://base.example.com/search?q=Search&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://base.example.com/search?q=Search&submit=Submit"));
     }
 
     @Test
@@ -609,12 +711,13 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "GET",
-                "FormWithHtmlBase.html",
-                "action/relative",
-                "/base/absolute/path/",
-                "/a/b.html");
+        HttpMessage msg =
+                createMessageWith(
+                        "GET",
+                        "FormWithHtmlBase.html",
+                        "action/relative",
+                        "/base/absolute/path/",
+                        "/a/b.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -623,7 +726,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
         assertThat(
                 listener.getUrlsFound(),
-                contains("http://example.com/base/absolute/path/action/relative?q=Search&submit=Submit"));
+                contains(
+                        "http://example.com/base/absolute/path/action/relative?q=Search&submit=Submit"));
     }
 
     @Test
@@ -632,33 +736,13 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "GET",
-                "FormWithHtmlBase.html",
-                "/action/absolute",
-                "/base/absolute/path/",
-                "/a/b.html");
-        Source source = createSource(msg);
-        // When
-        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
-        // Then
-        assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.com/action/absolute?q=Search&submit=Submit"));
-    }
-
-    @Test
-    public void shouldUseRelativePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
-        // Given
-        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
-        TestSpiderParserListener listener = createTestSpiderParserListener();
-        htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "GET",
-                "FormWithHtmlBase.html",
-                "action/relative",
-                "base/relative/path/",
-                "/a/b.html");
+        HttpMessage msg =
+                createMessageWith(
+                        "GET",
+                        "FormWithHtmlBase.html",
+                        "/action/absolute",
+                        "/base/absolute/path/",
+                        "/a/b.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -667,7 +751,32 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
         assertThat(
                 listener.getUrlsFound(),
-                contains("http://example.com/a/base/relative/path/action/relative?q=Search&submit=Submit"));
+                contains("http://example.com/action/absolute?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldUseRelativePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg =
+                createMessageWith(
+                        "GET",
+                        "FormWithHtmlBase.html",
+                        "action/relative",
+                        "base/relative/path/",
+                        "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/a/base/relative/path/action/relative?q=Search&submit=Submit"));
     }
 
     @Test
@@ -676,19 +785,22 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "GET",
-                "FormWithHtmlBase.html",
-                "/action/absolute",
-                "base/relative/path/",
-                "/a/b.html");
+        HttpMessage msg =
+                createMessageWith(
+                        "GET",
+                        "FormWithHtmlBase.html",
+                        "/action/absolute",
+                        "base/relative/path/",
+                        "/a/b.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.com/action/absolute?q=Search&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/action/absolute?q=Search&submit=Submit"));
     }
 
     @Test
@@ -704,7 +816,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.com/search?q=Search&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/search?q=Search&submit=Submit"));
     }
 
     @Test
@@ -720,7 +834,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("http://example.com/search?q=Search&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/search?q=Search&submit=Submit"));
     }
 
     @Test
@@ -729,18 +845,21 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "GET",
-                "FormWithHtmlBase.html",
-                "https://example.com/search",
-                "http://base.example.com/");
+        HttpMessage msg =
+                createMessageWith(
+                        "GET",
+                        "FormWithHtmlBase.html",
+                        "https://example.com/search",
+                        "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
-        assertThat(listener.getUrlsFound(), contains("https://example.com/search?q=Search&submit=Submit"));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("https://example.com/search?q=Search&submit=Submit"));
     }
 
     @Test
@@ -749,7 +868,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBase.html", "search", "http://base.example.com/");
+        HttpMessage msg =
+                createMessageWith(
+                        "POST", "FormWithHtmlBase.html", "search", "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -758,7 +879,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://base.example.com/search", "q=Search&submit=Submit")));
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://base.example.com/search",
+                                "q=Search&submit=Submit")));
     }
 
     @Test
@@ -767,20 +893,27 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "POST",
-                "FormWithHtmlBase.html",
-                "action/relative",
-                "/base/absolute/path/",
-                "/a/b.html");
+        HttpMessage msg =
+                createMessageWith(
+                        "POST",
+                        "FormWithHtmlBase.html",
+                        "action/relative",
+                        "/base/absolute/path/",
+                        "/a/b.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
-        assertThat(listener.getResourcesFound(), contains(
-                postResource(msg, 1, "http://example.com/base/absolute/path/action/relative", "q=Search&submit=Submit")));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.com/base/absolute/path/action/relative",
+                                "q=Search&submit=Submit")));
     }
 
     @Test
@@ -789,12 +922,13 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "POST",
-                "FormWithHtmlBase.html",
-                "/action/absolute",
-                "/base/absolute/path/",
-                "/a/b.html");
+        HttpMessage msg =
+                createMessageWith(
+                        "POST",
+                        "FormWithHtmlBase.html",
+                        "/action/absolute",
+                        "/base/absolute/path/",
+                        "/a/b.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -803,7 +937,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://example.com/action/absolute", "q=Search&submit=Submit")));
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.com/action/absolute",
+                                "q=Search&submit=Submit")));
     }
 
     @Test
@@ -812,34 +951,13 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "POST",
-                "FormWithHtmlBase.html",
-                "action/relative",
-                "base/relative/path/",
-                "/a/b.html");
-        Source source = createSource(msg);
-        // When
-        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
-        // Then
-        assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
-        assertThat(listener.getResourcesFound(), contains(
-                postResource(msg, 1, "http://example.com/a/base/relative/path/action/relative", "q=Search&submit=Submit")));
-    }
-
-    @Test
-    public void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
-        // Given
-        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
-        TestSpiderParserListener listener = createTestSpiderParserListener();
-        htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "POST",
-                "FormWithHtmlBase.html",
-                "/action/absolute",
-                "base/relative/path/",
-                "/a/b.html");
+        HttpMessage msg =
+                createMessageWith(
+                        "POST",
+                        "FormWithHtmlBase.html",
+                        "action/relative",
+                        "base/relative/path/",
+                        "/a/b.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -848,7 +966,41 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://example.com/action/absolute", "q=Search&submit=Submit")));
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.com/a/base/relative/path/action/relative",
+                                "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg =
+                createMessageWith(
+                        "POST",
+                        "FormWithHtmlBase.html",
+                        "/action/absolute",
+                        "base/relative/path/",
+                        "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.com/action/absolute",
+                                "q=Search&submit=Submit")));
     }
 
     @Test
@@ -866,7 +1018,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://example.com/search", "q=Search&submit=Submit")));
+                contains(
+                        postResource(
+                                msg, 1, "http://example.com/search", "q=Search&submit=Submit")));
     }
 
     @Test
@@ -884,7 +1038,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "http://example.com/search", "q=Search&submit=Submit")));
+                contains(
+                        postResource(
+                                msg, 1, "http://example.com/search", "q=Search&submit=Submit")));
     }
 
     @Test
@@ -893,11 +1049,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith(
-                "POST",
-                "FormWithHtmlBase.html",
-                "https://example.com/search",
-                "http://base.example.com/");
+        HttpMessage msg =
+                createMessageWith(
+                        "POST",
+                        "FormWithHtmlBase.html",
+                        "https://example.com/search",
+                        "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -906,7 +1063,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
         assertThat(
                 listener.getResourcesFound(),
-                contains(postResource(msg, 1, "https://example.com/search", "q=Search&submit=Submit")));
+                contains(
+                        postResource(
+                                msg, 1, "https://example.com/search", "q=Search&submit=Submit")));
     }
 
     @Test
@@ -936,14 +1095,19 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         "http://example.org/selects?_select-one-option=first-option&_select-selected-option=selected-option&_select-two-options=last-option&submit=Submit",
                         "http://example.org/radio?_radio=second-radio&submit=Submit",
                         "http://example.org/checkbox?_checkbox=second-checkbox&submit=Submit",
-                        "http://example.org/html5/date-time?" + params(
-                                param("_date", formattedDate("yyyy-MM-dd", date)),
-                                param("_datetime", formattedDate("yyyy-MM-dd'T'HH:mm:ss'Z'", date)),
-                                param("_datetime-local", formattedDate("yyyy-MM-dd'T'HH:mm:ss", date)),
-                                param("_month", formattedDate("yyyy-MM", date)),
-                                param("_time", formattedDate("HH:mm:ss", date)),
-                                param("_week", formattedDate("yyyy-'W'ww", date)),
-                                param("submit", "Submit"))));
+                        "http://example.org/html5/date-time?"
+                                + params(
+                                        param("_date", formattedDate("yyyy-MM-dd", date)),
+                                        param(
+                                                "_datetime",
+                                                formattedDate("yyyy-MM-dd'T'HH:mm:ss'Z'", date)),
+                                        param(
+                                                "_datetime-local",
+                                                formattedDate("yyyy-MM-dd'T'HH:mm:ss", date)),
+                                        param("_month", formattedDate("yyyy-MM", date)),
+                                        param("_time", formattedDate("HH:mm:ss", date)),
+                                        param("_week", formattedDate("yyyy-'W'ww", date)),
+                                        param("submit", "Submit"))));
     }
 
     @Test
@@ -962,23 +1126,62 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
-        assertThat(listener.getResourcesFound(), contains(
-                postResource(msg, 1, "http://example.org/", "_hidden=&_no-type=ZAP&_text=ZAP&_password=ZAP&_file=test_file.txt&submit=Submit"),
-                postResource(msg, 1, "http://example.org/html5/number", "_number=1&_number-min=1&_number-max=2&submit=Submit"),
-                postResource(msg, 1, "http://example.org/html5/range", "_range=1&_range-min=3&_range-max=4&submit=Submit"),
-                postResource(msg, 1, "http://example.org/html5/misc", "_url=http%3A%2F%2Fwww.example.com&_email=foo-bar%40example.com&_color=%23ffffff&_tel=9999999999&submit=Submit"),
-                postResource(msg, 1, "http://example.org/unknown", "_unknown=&submit=Submit"),
-                postResource(msg, 1, "http://example.org/selects", "_select-one-option=first-option&_select-two-options=last-option&_select-selected-option=selected-option&submit=Submit"),
-                postResource(msg, 1, "http://example.org/radio", "_radio=second-radio&submit=Submit"),
-                postResource(msg, 1, "http://example.org/checkbox", "_checkbox=second-checkbox&submit=Submit"),
-                postResource(msg, 1, "http://example.org/html5/date-time", params(
-                        param("_datetime", formattedDate("yyyy-MM-dd'T'HH:mm:ss'Z'", date)),
-                        param("_datetime-local", formattedDate("yyyy-MM-dd'T'HH:mm:ss", date)),
-                        param("_date", formattedDate("yyyy-MM-dd", date)),
-                        param("_time", formattedDate("HH:mm:ss", date)),
-                        param("_month", formattedDate("yyyy-MM", date)),
-                        param("_week", formattedDate("yyyy-'W'ww", date)),
-                        param("submit", "Submit")))));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/",
+                                "_hidden=&_no-type=ZAP&_text=ZAP&_password=ZAP&_file=test_file.txt&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/html5/number",
+                                "_number=1&_number-min=1&_number-max=2&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/html5/range",
+                                "_range=1&_range-min=3&_range-max=4&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/html5/misc",
+                                "_url=http%3A%2F%2Fwww.example.com&_email=foo-bar%40example.com&_color=%23ffffff&_tel=9999999999&submit=Submit"),
+                        postResource(
+                                msg, 1, "http://example.org/unknown", "_unknown=&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/selects",
+                                "_select-one-option=first-option&_select-two-options=last-option&_select-selected-option=selected-option&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/radio",
+                                "_radio=second-radio&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/checkbox",
+                                "_checkbox=second-checkbox&submit=Submit"),
+                        postResource(
+                                msg,
+                                1,
+                                "http://example.org/html5/date-time",
+                                params(
+                                        param(
+                                                "_datetime",
+                                                formattedDate("yyyy-MM-dd'T'HH:mm:ss'Z'", date)),
+                                        param(
+                                                "_datetime-local",
+                                                formattedDate("yyyy-MM-dd'T'HH:mm:ss", date)),
+                                        param("_date", formattedDate("yyyy-MM-dd", date)),
+                                        param("_time", formattedDate("HH:mm:ss", date)),
+                                        param("_month", formattedDate("yyyy-MM", date)),
+                                        param("_week", formattedDate("yyyy-'W'ww", date)),
+                                        param("submit", "Submit")))));
     }
 
     @Test
@@ -995,168 +1198,189 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(valueGenerator.getFields(), hasSize(9));
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/post",
-                        "field1",
-                        "preDefValue1",
-                        list(""),
-                        attributes(
-                                attribute("name", "field1"),
-                                attribute("value","preDefValue1"),
-                                attribute("type", "hidden"),
-                                attribute("id", "id1"),
-                                attribute("Control Type", "HIDDEN")),
-                        attributes(
-                                attribute("action", "http://example.org/post"),
-                                attribute("method", "POST"),
-                                attribute("atta", "valueA"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/post",
+                                        "field1",
+                                        "preDefValue1",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "field1"),
+                                                attribute("value", "preDefValue1"),
+                                                attribute("type", "hidden"),
+                                                attribute("id", "id1"),
+                                                attribute("Control Type", "HIDDEN")),
+                                        attributes(
+                                                attribute("action", "http://example.org/post"),
+                                                attribute("method", "POST"),
+                                                attribute("atta", "valueA"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/post",
-                        "field2",
-                        "preDefValue2",
-                        list(""),
-                        attributes(
-                                attribute("name", "field2"),
-                                attribute("value", "preDefValue2"),
-                                attribute("id", "id2"),
-                                attribute("att1", "value1"),
-                                attribute("Control Type", "TEXT")),
-                        attributes(
-                                attribute("action", "http://example.org/post"),
-                                attribute("method", "POST"),
-                                attribute("atta", "valueA"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/post",
+                                        "field2",
+                                        "preDefValue2",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "field2"),
+                                                attribute("value", "preDefValue2"),
+                                                attribute("id", "id2"),
+                                                attribute("att1", "value1"),
+                                                attribute("Control Type", "TEXT")),
+                                        attributes(
+                                                attribute("action", "http://example.org/post"),
+                                                attribute("method", "POST"),
+                                                attribute("atta", "valueA"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/post",
-                        "field3",
-                        "preDefValue3",
-                        list(""),
-                        attributes(
-                        		attribute("name", "field3"),
-                        		attribute("value", "preDefValue3"),
-                        		attribute("type", "text"),
-                        		attribute("Control Type", "TEXT")),
-                        attributes(
-                                attribute("action", "http://example.org/post"),
-                                attribute("method", "POST"),
-                                attribute("atta", "valueA"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/post",
+                                        "field3",
+                                        "preDefValue3",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "field3"),
+                                                attribute("value", "preDefValue3"),
+                                                attribute("type", "text"),
+                                                attribute("Control Type", "TEXT")),
+                                        attributes(
+                                                attribute("action", "http://example.org/post"),
+                                                attribute("method", "POST"),
+                                                attribute("atta", "valueA"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/post",
-                        "gender",
-                        "f",
-                        list(("m,f")),
-                        attributes(
-                        		attribute("name", "gender"),
-                        		attribute("type", "radio"),
-                        		attribute("value", "m"),
-                        		attribute("id","male"),
-                        		attribute("Control Type", "RADIO")),
-                        attributes(
-                                attribute("action", "http://example.org/post"),
-                                attribute("method", "POST"),
-                                attribute("atta", "valueA"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/post",
+                                        "gender",
+                                        "f",
+                                        list(("m,f")),
+                                        attributes(
+                                                attribute("name", "gender"),
+                                                attribute("type", "radio"),
+                                                attribute("value", "m"),
+                                                attribute("id", "male"),
+                                                attribute("Control Type", "RADIO")),
+                                        attributes(
+                                                attribute("action", "http://example.org/post"),
+                                                attribute("method", "POST"),
+                                                attribute("atta", "valueA"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/post",
-                        "submit",
-                        "Submit",
-                        list(""),
-                        attributes(
-                                attribute("name", "submit"),
-                                attribute("type", "submit"),
-                                attribute("value", "Submit"),
-                                attribute("Control Type", "SUBMIT")),
-                        attributes(
-                                attribute("action", "http://example.org/post"),
-                                attribute("method", "POST"),
-                                attribute("atta", "valueA"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/post",
+                                        "submit",
+                                        "Submit",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "submit"),
+                                                attribute("type", "submit"),
+                                                attribute("value", "Submit"),
+                                                attribute("Control Type", "SUBMIT")),
+                                        attributes(
+                                                attribute("action", "http://example.org/post"),
+                                                attribute("method", "POST"),
+                                                attribute("atta", "valueA"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/get",
-                        "field1",
-                        "",
-                        list(""),
-                        attributes(
-                                attribute("name", "field1"),
-                                attribute("type", "hidden"),
-                                attribute("id", "id1"),
-                                attribute("Control Type", "HIDDEN")),
-                        attributes(
-                                attribute("action", "http://example.org/get"),
-                                attribute("method", "GET"),
-                                attribute("att1", "value1"),
-                                attribute("att2", "value2"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/get",
+                                        "field1",
+                                        "",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "field1"),
+                                                attribute("type", "hidden"),
+                                                attribute("id", "id1"),
+                                                attribute("Control Type", "HIDDEN")),
+                                        attributes(
+                                                attribute("action", "http://example.org/get"),
+                                                attribute("method", "GET"),
+                                                attribute("att1", "value1"),
+                                                attribute("att2", "value2"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/get",
-                        "field2",
-                        "",
-                        list(""),
-                        attributes(
-                                attribute("name", "field2"),
-                                attribute("id", "id2"),
-                                attribute("att1", "value1"),
-                                attribute("Control Type", "TEXT")),
-                        attributes(
-                                attribute("action", "http://example.org/get"),
-                                attribute("method", "GET"),
-                                attribute("att1", "value1"),
-                                attribute("att2", "value2"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/get",
+                                        "field2",
+                                        "",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "field2"),
+                                                attribute("id", "id2"),
+                                                attribute("att1", "value1"),
+                                                attribute("Control Type", "TEXT")),
+                                        attributes(
+                                                attribute("action", "http://example.org/get"),
+                                                attribute("method", "GET"),
+                                                attribute("att1", "value1"),
+                                                attribute("att2", "value2"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/get",
-                        "field3",
-                        "",
-                        list(""),
-                        attributes(attribute("name", "field3"), attribute("type", "text"), attribute("Control Type", "TEXT")),
-                        attributes(
-                                attribute("action", "http://example.org/get"),
-                                attribute("method", "GET"),
-                                attribute("att1", "value1"),
-                                attribute("att2", "value2"))))));
-                fieldIndex++;
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/get",
+                                        "field3",
+                                        "",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "field3"),
+                                                attribute("type", "text"),
+                                                attribute("Control Type", "TEXT")),
+                                        attributes(
+                                                attribute("action", "http://example.org/get"),
+                                                attribute("method", "GET"),
+                                                attribute("att1", "value1"),
+                                                attribute("att2", "value2"))))));
+        fieldIndex++;
         assertThat(
                 valueGenerator.getFields().get(fieldIndex),
-                is(equalTo(formField(
-                        "http://example.com/",
-                        "http://example.org/get",
-                        "submit",
-                        "Submit",
-                        list(""),
-                        attributes(
-                                attribute("name", "submit"),
-                                attribute("type", "submit"),
-                                attribute("value", "Submit"),
-                                attribute("Control Type", "SUBMIT")),
-                        attributes(
-                                attribute("action", "http://example.org/get"),
-                                attribute("method", "GET"),
-                                attribute("att1", "value1"),
-                                attribute("att2", "value2"))))));
+                is(
+                        equalTo(
+                                formField(
+                                        "http://example.com/",
+                                        "http://example.org/get",
+                                        "submit",
+                                        "Submit",
+                                        list(""),
+                                        attributes(
+                                                attribute("name", "submit"),
+                                                attribute("type", "submit"),
+                                                attribute("value", "Submit"),
+                                                attribute("Control Type", "SUBMIT")),
+                                        attributes(
+                                                attribute("action", "http://example.org/get"),
+                                                attribute("method", "GET"),
+                                                attribute("att1", "value1"),
+                                                attribute("att2", "value2"))))));
     }
 
     @Test
@@ -1165,10 +1389,12 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GET", "FormAndInputsWithFormAttributes.html");
+        HttpMessage messageHtmlResponse =
+                createMessageWith("GET", "FormAndInputsWithFormAttributes.html");
         Source source = createSource(messageHtmlResponse);
         // When
-        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
@@ -1236,7 +1462,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         return createMessageWith(formMethod, filename, null, null, "/");
     }
 
-    private static HttpMessage createMessageWith(String formMethod, String filename, String formAction, String baseHtml) {
+    private static HttpMessage createMessageWith(
+            String formMethod, String filename, String formAction, String baseHtml) {
         return createMessageWith(formMethod, filename, formAction, baseHtml, "/");
     }
 
@@ -1260,7 +1487,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
             }
             message.setRequestHeader("GET " + requestUri + " HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
-                    "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html; charset=UTF-8\r\n" + "Content-Length: "
+                    "HTTP/1.1 200 OK\r\n"
+                            + "Content-Type: text/html; charset=UTF-8\r\n"
+                            + "Content-Length: "
                             + fileContents.length());
             message.setResponseBody(fileContents);
         } catch (Exception e) {
@@ -1268,6 +1497,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         }
         return message;
     }
+
     private static class TestValueGenerator implements ValueGenerator {
 
         private final List<FormField> fields;
@@ -1289,9 +1519,17 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                 List<String> values,
                 Map<String, String> formAttributes,
                 Map<String, String> fieldAttributes) {
-                    fields.add(new FormField(uri.toString(), targetUri, fieldName, defaultValue, values, fieldAttributes, formAttributes));
-                    return "";
-                }
+            fields.add(
+                    new FormField(
+                            uri.toString(),
+                            targetUri,
+                            fieldName,
+                            defaultValue,
+                            values,
+                            fieldAttributes,
+                            formAttributes));
+            return "";
+        }
     }
 
     private static class FormField {
@@ -1305,21 +1543,21 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         private final Map<String, String> formAttributes;
 
         public FormField(
-            String uri,
-            String targetUri,
-            String fieldName,
-            String defaultValue,
-            List<String> values,
-            Map<String, String> fieldAttributes,
-            Map<String, String> formAttributes) {
-                this.uri = uri;
-                this.targetUri = targetUri;
-                this.fieldName = fieldName;
-                this.defaultValue = defaultValue;
-                this.values = values;
-                this.fieldAttributes = new HashMap<>(fieldAttributes);
-                this.formAttributes = new HashMap<>(formAttributes);
-            }
+                String uri,
+                String targetUri,
+                String fieldName,
+                String defaultValue,
+                List<String> values,
+                Map<String, String> fieldAttributes,
+                Map<String, String> formAttributes) {
+            this.uri = uri;
+            this.targetUri = targetUri;
+            this.fieldName = fieldName;
+            this.defaultValue = defaultValue;
+            this.values = values;
+            this.fieldAttributes = new HashMap<>(fieldAttributes);
+            this.formAttributes = new HashMap<>(formAttributes);
+        }
 
         public String getUri() {
             return uri;
@@ -1381,49 +1619,49 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                 }
             } else if (!fieldAttributes.equals(other.fieldAttributes)) {
                 return false;
-              }
+            }
             if (fieldName == null) {
                 if (other.fieldName != null) {
                     return false;
                 }
             } else if (!fieldName.equals(other.fieldName)) {
                 return false;
-              }
+            }
             if (defaultValue == null) {
                 if (other.defaultValue != null) {
                     return false;
                 }
             } else if (!defaultValue.equals(other.defaultValue)) {
                 return false;
-              }
+            }
             if (values == null) {
                 if (other.values != null) {
                     return false;
                 }
             } else if (!values.equals(other.values)) {
                 return false;
-              }
+            }
             if (formAttributes == null) {
                 if (other.formAttributes != null) {
                     return false;
                 }
             } else if (!formAttributes.equals(other.formAttributes)) {
                 return false;
-              }
+            }
             if (targetUri == null) {
                 if (other.targetUri != null) {
                     return false;
                 }
             } else if (!targetUri.equals(other.targetUri)) {
                 return false;
-              }
+            }
             if (uri == null) {
                 if (other.uri != null) {
                     return false;
                 }
             } else if (!uri.equals(other.uri)) {
                 return false;
-              }
+            }
             return true;
         }
 
@@ -1442,15 +1680,16 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     private static FormField formField(
-        String uri,
-        String targetUri,
-        String fieldName,
-        String defaultValue,
-        List<String> values,
-        Map<String, String> fieldAttributes,
-        Map<String, String> formAttributes) {
-            return new FormField(uri, targetUri, fieldName, defaultValue, values, fieldAttributes, formAttributes);
-        }
+            String uri,
+            String targetUri,
+            String fieldName,
+            String defaultValue,
+            List<String> values,
+            Map<String, String> fieldAttributes,
+            Map<String, String> formAttributes) {
+        return new FormField(
+                uri, targetUri, fieldName, defaultValue, values, fieldAttributes, formAttributes);
+    }
 
     @SafeVarargs
     private static Map<String, String> attributes(Pair<String, String>... attributes) {
@@ -1469,15 +1708,15 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         return new Pair<>(name, value);
     }
 
-    private static List<String> list(String preDefValue){
-    	if (preDefValue == null || preDefValue.isEmpty()){
-    		return new ArrayList<String>();
-    	}
-    	List<String> values = new ArrayList<String>();
-    	String[] value = preDefValue.split(",");
-    	for (String val : value){
-    		values.add(val);
-    	}
-    	return values;
+    private static List<String> list(String preDefValue) {
+        if (preDefValue == null || preDefValue.isEmpty()) {
+            return new ArrayList<String>();
+        }
+        List<String> values = new ArrayList<String>();
+        String[] value = preDefValue.split(",");
+        for (String val : value) {
+            values.add(val);
+        }
+        return values;
     }
 }

@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +20,6 @@
 package org.zaproxy.zap.view.popup;
 
 import java.util.regex.Pattern;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -31,10 +30,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.view.ContextStructurePanel;
 
-
-/**
- * @since 2.4.3
- */
+/** @since 2.4.3 */
 public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 990419495607725846L;
@@ -66,38 +62,41 @@ public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeCon
 
         // We want to form a regex expression like:
         // https://www.example.com/(aa/bb/cc/)(.+?)(/.*)
-        
+
         StringBuilder sb = new StringBuilder();
-        
+
         SiteNode parent = sn.getParent();
-        
+
         while (!parent.getParent().isRoot()) {
-        	sb.insert(0, "/");
-        	if (parent.isDataDriven()) {
-        		// Don't want these in their own regex group
-        		sb.insert(0, ".+?");
-        	} else {
-        		sb.insert(0, parent.getCleanNodeName());
-        	}
+            sb.insert(0, "/");
+            if (parent.isDataDriven()) {
+                // Don't want these in their own regex group
+                sb.insert(0, ".+?");
+            } else {
+                sb.insert(0, parent.getCleanNodeName());
+            }
             parent = parent.getParent();
         }
-    	sb.insert(0, "/(");
-    	sb.insert(0, parent.getCleanNodeName());
+        sb.insert(0, "/(");
+        sb.insert(0, parent.getCleanNodeName());
         sb.append(")(.+?)(/.*)");
         Pattern p = Pattern.compile(sb.toString());
-        
+
         uiSharedContext.addDataDrivenNodes(
-        		new StructuralNodeModifier(StructuralNodeModifier.Type.DataDrivenNode, 
-        				p, uiSharedContext.getDefaultDDNName()));
+                new StructuralNodeModifier(
+                        StructuralNodeModifier.Type.DataDrivenNode,
+                        p,
+                        uiSharedContext.getDefaultDDNName()));
 
         // Show the session dialog without recreating UI Shared contexts
-        View.getSingleton().showSessionDialog(session, ContextStructurePanel.getPanelName(context.getIndex()),
-                false);
+        View.getSingleton()
+                .showSessionDialog(
+                        session, ContextStructurePanel.getPanelName(context.getIndex()), false);
     }
 
     @Override
     public boolean isButtonEnabledForSiteNode(SiteNode sn) {
-    	return sn.getLevel() > 2;
+        return sn.getLevel() > 2;
     }
 
     @Override

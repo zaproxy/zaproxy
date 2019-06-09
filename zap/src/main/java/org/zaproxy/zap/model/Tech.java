@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2012 The ZAP Development Team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.model;
 
@@ -23,7 +23,8 @@ import org.parosproxy.paros.Constant;
 
 public class Tech implements Comparable<Tech> {
 
-    // Tech hierarchy inspired by this article: http://java.dzone.com/articles/enum-tricks-hierarchical-data
+    // Tech hierarchy inspired by this article:
+    // http://java.dzone.com/articles/enum-tricks-hierarchical-data
     // even though I've gone with a class instead on an enum;)
     public static final Tech Db = new Tech("Db", "technologies.db");
     public static final Tech MySQL = new Tech(Db, "MySQL");
@@ -42,7 +43,7 @@ public class Tech implements Comparable<Tech> {
 
     public static final Tech Lang = new Tech("Language", "technologies.lang");
     public static final Tech ASP = new Tech(Lang, "ASP");
-    public static final Tech C= new Tech(Lang, "C");
+    public static final Tech C = new Tech(Lang, "C");
     public static final Tech JSP_SERVLET = new Tech(Lang, "JSP/Servlet");
     public static final Tech PHP = new Tech(Lang, "PHP");
     public static final Tech XML = new Tech(Lang, "XML");
@@ -62,12 +63,38 @@ public class Tech implements Comparable<Tech> {
     public static final Tech Tomcat = new Tech(WS, "Tomcat");
 
     public static final Tech[] builtInTech = {
-        Db, MySQL, PostgreSQL, MsSQL, Oracle, SQLite, Access, Firebird, MaxDB, Sybase, Db2, HypersonicSQL, MongoDB, 
-        CouchDB, 
-        Lang, ASP, C, JSP_SERVLET, PHP, XML,
-        OS, Linux, MacOS, Windows,
-        SCM, Git, SVN,
-        WS, Apache, IIS, Tomcat};
+        Db,
+        MySQL,
+        PostgreSQL,
+        MsSQL,
+        Oracle,
+        SQLite,
+        Access,
+        Firebird,
+        MaxDB,
+        Sybase,
+        Db2,
+        HypersonicSQL,
+        MongoDB,
+        CouchDB,
+        Lang,
+        ASP,
+        C,
+        JSP_SERVLET,
+        PHP,
+        XML,
+        OS,
+        Linux,
+        MacOS,
+        Windows,
+        SCM,
+        Git,
+        SVN,
+        WS,
+        Apache,
+        IIS,
+        Tomcat
+    };
 
     public static final Tech[] builtInTopLevelTech = {Db, Lang, OS, SCM, WS};
 
@@ -83,7 +110,7 @@ public class Tech implements Comparable<Tech> {
         if (name.indexOf(".") > 0) {
             this.name = name.substring(name.lastIndexOf(".") + 1);
             this.parent = new Tech(name.substring(0, name.lastIndexOf(".")));
-            
+
         } else {
             this.name = name;
         }
@@ -104,7 +131,7 @@ public class Tech implements Comparable<Tech> {
     public String toString() {
         if (parent == null) {
             return this.name;
-            
+
         } else {
             return parent.toString() + "." + this.name;
         }
@@ -115,26 +142,26 @@ public class Tech implements Comparable<Tech> {
         if (tech == null) {
             return false;
         }
-        
+
         return this.toString().equals(tech.toString());
     }
-    
+
     @Override
     public int hashCode() {
-    	return this.toString().hashCode();
+        return this.toString().hashCode();
     }
 
     public boolean is(Tech other) {
         if (other == null) {
             return false;
         }
-        
+
         for (Tech t = this; t != null; t = t.parent) {
             if (other == t) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -158,7 +185,7 @@ public class Tech implements Comparable<Tech> {
         if (o == null) {
             return -1;
         }
-        
+
         return this.toString().compareTo(o.toString());
     }
 }

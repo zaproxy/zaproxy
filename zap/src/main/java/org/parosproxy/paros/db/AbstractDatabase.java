@@ -22,12 +22,12 @@ package org.parosproxy.paros.db;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 
 /**
- * An abstract implementation of {@link Database}, it allows to manage {@link DatabaseListener DatabaseListeners}.
- * 
+ * An abstract implementation of {@link Database}, it allows to manage {@link DatabaseListener
+ * DatabaseListeners}.
+ *
  * @since 2.5.0
  */
 public abstract class AbstractDatabase implements Database {
@@ -67,8 +67,8 @@ public abstract class AbstractDatabase implements Database {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * Also, removes the database listeners added previously.
+     *
+     * <p>Also, removes the database listeners added previously.
      */
     @Override
     public void close(boolean compact, boolean cleanup) {
@@ -77,7 +77,7 @@ public abstract class AbstractDatabase implements Database {
 
     /**
      * Removes all database listeners added.
-     * 
+     *
      * @see #removeDatabaseListener(DatabaseListener)
      */
     protected void removeDatabaseListeners() {
@@ -91,7 +91,8 @@ public abstract class AbstractDatabase implements Database {
      * @param databaseServer the database server that was opened
      * @throws DatabaseException if an error occurred while notifying the database listeners.
      */
-    protected void notifyListenersDatabaseOpen(Collection<DatabaseListener> listeners, DatabaseServer databaseServer)
+    protected void notifyListenersDatabaseOpen(
+            Collection<DatabaseListener> listeners, DatabaseServer databaseServer)
             throws DatabaseException {
         for (DatabaseListener databaseListener : listeners) {
             try {
@@ -108,7 +109,8 @@ public abstract class AbstractDatabase implements Database {
      * @param databaseServer the database server that was opened
      * @throws DatabaseException if an error occurred while notifying the database listeners.
      */
-    protected void notifyListenersDatabaseOpen(DatabaseServer databaseServer) throws DatabaseException {
+    protected void notifyListenersDatabaseOpen(DatabaseServer databaseServer)
+            throws DatabaseException {
         notifyListenersDatabaseOpen(databaseListeners, databaseServer);
     }
 }

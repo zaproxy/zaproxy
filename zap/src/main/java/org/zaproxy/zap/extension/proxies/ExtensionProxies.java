@@ -1,21 +1,21 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2017 The ZAP Development Team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.proxies;
 
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -64,8 +63,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
     }
 
     @Override
-    public void init() {
-    }
+    public void init() {}
 
     @Override
     public boolean supportsDb(String type) {
@@ -160,32 +158,39 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
 
     private ProxyServer startProxyServer(ProxiesParamProxy param) {
         String address = param.getAddress();
-        int port = param.getPort(); 
+        int port = param.getPort();
         String key = createProxyKey(address, port);
         log.info("Starting alt proxy server: " + key);
-        ProxyServer proxyServer = new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key) {
+        ProxyServer proxyServer =
+                new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key) {
 
-            @Override
-            public boolean excludeUrl(URI uri) {
-                String uriString = uri.toString();
-                for (String excludePattern : getModel().getOptionsParam().getGlobalExcludeURLParam().getTokensNames()) {
-                    if (uriString.matches(excludePattern)) {
-                        return true;
-                    }
-                }
+                    @Override
+                    public boolean excludeUrl(URI uri) {
+                        String uriString = uri.toString();
+                        for (String excludePattern :
+                                getModel()
+                                        .getOptionsParam()
+                                        .getGlobalExcludeURLParam()
+                                        .getTokensNames()) {
+                            if (uriString.matches(excludePattern)) {
+                                return true;
+                            }
+                        }
 
-                for (String excludePattern : getModel().getSession().getExcludeFromProxyRegexs()) {
-                    if (uriString.matches(excludePattern)) {
-                        return true;
+                        for (String excludePattern :
+                                getModel().getSession().getExcludeFromProxyRegexs()) {
+                            if (uriString.matches(excludePattern)) {
+                                return true;
+                            }
+                        }
+                        return false;
                     }
-                }
-                return false;
-            }
-        };
+                };
         proxyServer.getProxyParam().load(new ZapXmlConfiguration());
         applyProxyOptions(param, proxyServer);
         proxyServer.setConnectionParam(getModel().getOptionsParam().getConnectionParam());
-        // Note that if this is _not_ set then the proxy will go into a nasty loop if you point a browser at it
+        // Note that if this is _not_ set then the proxy will go into a nasty loop if you point a
+        // browser at it
         proxyServer.setEnableApi(true);
         Control.getSingleton().getExtensionLoader().addProxyServer(proxyServer);
         proxyServer.startServer(address, port, false);
@@ -243,11 +248,12 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         } catch (IOException e) {
             return false;
         } finally {
-            if (socket != null) try {
-                socket.close();
-            } catch (IOException e) {
-                // Ignore
-            }
+            if (socket != null)
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
         }
     }
 
@@ -295,5 +301,4 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
             return false;
         }
     }
-
 }

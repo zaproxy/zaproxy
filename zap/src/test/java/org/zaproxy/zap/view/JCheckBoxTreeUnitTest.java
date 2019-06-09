@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,19 +29,15 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
 import org.junit.Test;
 
-/**
- * Unit test for {@link JCheckBoxTree}.
- */
+/** Unit test for {@link JCheckBoxTree}. */
 public class JCheckBoxTreeUnitTest {
 
     @Test
@@ -112,7 +108,9 @@ public class JCheckBoxTreeUnitTest {
         // Then
         assertThat(checkBoxTree.getModel(), is(equalTo((TreeModel) treeModel)));
         assertThat(checkBoxTree.getModel().getRoot(), is(equalTo((Object) rootNode)));
-        assertThat(((DefaultMutableTreeNode) checkBoxTree.getModel().getRoot()).getChildAt(0), is(equalTo((Object) childNode)));
+        assertThat(
+                ((DefaultMutableTreeNode) checkBoxTree.getModel().getRoot()).getChildAt(0),
+                is(equalTo((Object) childNode)));
     }
 
     @Test
@@ -273,7 +271,9 @@ public class JCheckBoxTreeUnitTest {
         assertThat(checkBoxTree.isSelectedFully(childNodeDPath), is(equalTo(true)));
         assertThat(
                 checkBoxTree.getCheckedPaths(),
-                is(arrayContainingInAnyOrder(rootNodePath, childNodePath, childNodeCPath, childNodeDPath)));
+                is(
+                        arrayContainingInAnyOrder(
+                                rootNodePath, childNodePath, childNodeCPath, childNodeDPath)));
     }
 
     @Test
@@ -411,7 +411,9 @@ public class JCheckBoxTreeUnitTest {
         assertThat(checkBoxTree.isChecked(rootNodePath), is(equalTo(true)));
         assertThat(checkBoxTree.isSelectedPartially(rootNodePath), is(equalTo(true)));
         assertThat(checkBoxTree.isSelectedFully(rootNodePath), is(equalTo(false)));
-        assertThat(checkBoxTree.getCheckedPaths(), is(arrayContainingInAnyOrder(rootNodePath, childNodeCPath, childNodeDPath)));
+        assertThat(
+                checkBoxTree.getCheckedPaths(),
+                is(arrayContainingInAnyOrder(rootNodePath, childNodeCPath, childNodeDPath)));
     }
 
     @Test
@@ -664,28 +666,22 @@ public class JCheckBoxTreeUnitTest {
         }
 
         @Override
-        public void setUserObject(Object object) {
-        }
+        public void setUserObject(Object object) {}
 
         @Override
-        public void setParent(MutableTreeNode newParent) {
-        }
+        public void setParent(MutableTreeNode newParent) {}
 
         @Override
-        public void removeFromParent() {
-        }
+        public void removeFromParent() {}
 
         @Override
-        public void remove(MutableTreeNode node) {
-        }
+        public void remove(MutableTreeNode node) {}
 
         @Override
-        public void remove(int index) {
-        }
+        public void remove(int index) {}
 
         @Override
-        public void insert(MutableTreeNode child, int index) {
-        }
+        public void insert(MutableTreeNode child, int index) {}
     }
 
     private static class TreeModelTest extends DefaultTreeModel {
@@ -707,7 +703,8 @@ public class JCheckBoxTreeUnitTest {
             String[] nodes = path.split("/");
             DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getRoot();
             if (!rootNode.getUserObject().equals(nodes[0])) {
-                throw new IllegalArgumentException("TreeModelTest: malformed node path, root mismatch.");
+                throw new IllegalArgumentException(
+                        "TreeModelTest: malformed node path, root mismatch.");
             }
 
             List<DefaultMutableTreeNode> nodePath = new ArrayList<>(nodes.length);
@@ -737,7 +734,8 @@ public class JCheckBoxTreeUnitTest {
                     return;
                 }
             }
-            throw new IllegalArgumentException("TreeModelTest: malformed node path, nodes mismatch.");
+            throw new IllegalArgumentException(
+                    "TreeModelTest: malformed node path, nodes mismatch.");
         }
 
         public static TreeModelTest create(String... paths) {
@@ -755,7 +753,10 @@ public class JCheckBoxTreeUnitTest {
                     rootNode = new DefaultMutableTreeNode(nodes[0]);
                 } else if (!rootNode.getUserObject().equals(nodes[0])) {
                     throw new IllegalArgumentException(
-                            "TreeModelTest: must have only one root node: " + rootNode.getUserObject() + " != " + nodes[0]);
+                            "TreeModelTest: must have only one root node: "
+                                    + rootNode.getUserObject()
+                                    + " != "
+                                    + nodes[0]);
                 }
 
                 addNodes(rootNode, nodes, 1);

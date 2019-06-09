@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2015 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,7 +35,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
@@ -45,10 +43,11 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
 
 /**
- * Helper class that checks the dependency changes when an add-on, or several add-ons, are installed, uninstalled or updated.
- * <p>
- * It also allows to confirm with the user the resulting changes.
- * 
+ * Helper class that checks the dependency changes when an add-on, or several add-ons, are
+ * installed, uninstalled or updated.
+ *
+ * <p>It also allows to confirm with the user the resulting changes.
+ *
  * @since 2.4.0
  */
 class AddOnDependencyChecker {
@@ -56,7 +55,8 @@ class AddOnDependencyChecker {
     private final AddOnCollection installedAddOns;
     private final AddOnCollection availableAddOns;
 
-    public AddOnDependencyChecker(AddOnCollection installedAddOns, AddOnCollection availableAddOns) {
+    public AddOnDependencyChecker(
+            AddOnCollection installedAddOns, AddOnCollection availableAddOns) {
         this.installedAddOns = installedAddOns;
         this.availableAddOns = availableAddOns;
     }
@@ -72,12 +72,13 @@ class AddOnDependencyChecker {
 
     /**
      * Calculates the changes required to install the given add-on.
-     * <p>
-     * It might require updating, installing or uninstalling other add-ons depending on the dependencies of the affected
-     * add-ons.
+     *
+     * <p>It might require updating, installing or uninstalling other add-ons depending on the
+     * dependencies of the affected add-ons.
      *
      * @param addOn the add-on that would be installed
-     * @return the resulting changes with the add-ons that need to be updated, installed or uninstalled
+     * @return the resulting changes with the add-ons that need to be updated, installed or
+     *     uninstalled
      */
     public AddOnChangesResult calculateInstallChanges(AddOn addOn) {
         Set<AddOn> addOns = new HashSet<>();
@@ -88,12 +89,13 @@ class AddOnDependencyChecker {
 
     /**
      * Calculates the changes required to install the given add-ons.
-     * <p>
-     * It might require updating, installing or uninstalling other add-ons depending on the dependencies of the affected
-     * add-ons.
+     *
+     * <p>It might require updating, installing or uninstalling other add-ons depending on the
+     * dependencies of the affected add-ons.
      *
      * @param selectedAddOns the add-ons that would be installed
-     * @return the resulting changes with the add-ons that need to be updated, installed or uninstalled
+     * @return the resulting changes with the add-ons that need to be updated, installed or
+     *     uninstalled
      */
     public AddOnChangesResult calculateInstallChanges(Set<AddOn> selectedAddOns) {
         return calculateChanges(selectedAddOns, false);
@@ -116,7 +118,8 @@ class AddOnDependencyChecker {
             Set<AddOn> oldVersions,
             Set<AddOn> newVersions,
             Set<AddOn> installs) {
-        AddOn.AddOnRunRequirements requirements = addOn.calculateRunRequirements(availableAddOns.getAddOns());
+        AddOn.AddOnRunRequirements requirements =
+                addOn.calculateRunRequirements(availableAddOns.getAddOns());
 
         for (AddOn dep : requirements.getDependencies()) {
             if (selectedAddOns.contains(dep)) {
@@ -125,11 +128,13 @@ class AddOnDependencyChecker {
 
             AddOn installed = installedAddOns.getAddOn(dep.getId());
             if (installed == null) {
-                if (AddOn.InstallationStatus.AVAILABLE == availableAddOns.getAddOn(dep.getId()).getInstallationStatus()) {
+                if (AddOn.InstallationStatus.AVAILABLE
+                        == availableAddOns.getAddOn(dep.getId()).getInstallationStatus()) {
                     installs.add(dep);
                 }
             } else if (dep.isUpdateTo(installed)) {
-                if (AddOn.InstallationStatus.AVAILABLE == availableAddOns.getAddOn(dep.getId()).getInstallationStatus()) {
+                if (AddOn.InstallationStatus.AVAILABLE
+                        == availableAddOns.getAddOn(dep.getId()).getInstallationStatus()) {
                     oldVersions.add(installed);
                     newVersions.add(dep);
                 }
@@ -139,7 +144,8 @@ class AddOnDependencyChecker {
         return requirements.isNewerJavaVersionRequired();
     }
 
-    private boolean confirmChanges(Component parent, AddOnChangesResult changesResult, boolean updating) {
+    private boolean confirmChanges(
+            Component parent, AddOnChangesResult changesResult, boolean updating) {
         Set<AddOn> selectedAddOnsJavaIssue = new HashSet<>();
         for (AddOn addOn : changesResult.getSelectedAddOns()) {
             if (!addOn.canRunInCurrentJavaVersion()) {
@@ -155,15 +161,23 @@ class AddOnDependencyChecker {
         Set<AddOn> dependents = getDependents(updates, changesResult.getUninstalls());
 
         if (updating) {
-            question = Constant.messages.getString("cfu.confirmation.dialogue.message.continueWithUpdate");
+            question =
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.message.continueWithUpdate");
             updates.removeAll(changesResult.getSelectedAddOns());
         } else {
-            question = Constant.messages.getString("cfu.confirmation.dialogue.message.continueWithInstallation");
+            question =
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.message.continueWithInstallation");
             installs.removeAll(changesResult.getSelectedAddOns());
         }
 
-        if (changesResult.getUninstalls().isEmpty() && updates.isEmpty() && installs.isEmpty() && dependents.isEmpty()
-                && changesResult.getOptionalAddOns().isEmpty() && changesResult.getSoftUnloadExtensions().isEmpty()
+        if (changesResult.getUninstalls().isEmpty()
+                && updates.isEmpty()
+                && installs.isEmpty()
+                && dependents.isEmpty()
+                && changesResult.getOptionalAddOns().isEmpty()
+                && changesResult.getSoftUnloadExtensions().isEmpty()
                 && changesResult.getUnloadExtensions().isEmpty()) {
             // No other changes required.
             if (selectedAddOnsJavaIssue.isEmpty()) {
@@ -173,35 +187,52 @@ class AddOnDependencyChecker {
 
             int size = changesResult.getSelectedAddOns().size();
             if (size == 1) {
-                String baseMessage = Constant.messages.getString(
-                        "cfu.confirmation.dialogue.message.selectedAddOnNewerJavaVersion",
-                        changesResult.getSelectedAddOns().iterator().next().getMinimumJavaVersion());
+                String baseMessage =
+                        Constant.messages.getString(
+                                "cfu.confirmation.dialogue.message.selectedAddOnNewerJavaVersion",
+                                changesResult
+                                        .getSelectedAddOns()
+                                        .iterator()
+                                        .next()
+                                        .getMinimumJavaVersion());
                 return JOptionPane.showConfirmDialog(
-                        parent,
-                        baseMessage + question,
-                        Constant.PROGRAM_NAME,
-                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                                parent,
+                                baseMessage + question,
+                                Constant.PROGRAM_NAME,
+                                JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION;
             }
 
             String mainMessage;
             if (selectedAddOnsJavaIssue.size() == size) {
-                mainMessage = Constant.messages.getString("cfu.confirmation.dialogue.message.addOnsNewerJavaVersion");
+                mainMessage =
+                        Constant.messages.getString(
+                                "cfu.confirmation.dialogue.message.addOnsNewerJavaVersion");
             } else {
-                mainMessage = Constant.messages.getString("cfu.confirmation.dialogue.message.someSelectedAddOnsNewerJavaVersion");
+                mainMessage =
+                        Constant.messages.getString(
+                                "cfu.confirmation.dialogue.message.someSelectedAddOnsNewerJavaVersion");
             }
 
-            JLabel label = new JLabel(
-                    Constant.messages.getString("cfu.confirmation.dialogue.message.warnAddOnsNotRunJavaVersion"),
-                    ManageAddOnsDialog.ICON_ADD_ON_ISSUES,
-                    SwingConstants.LEADING);
+            JLabel label =
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "cfu.confirmation.dialogue.message.warnAddOnsNotRunJavaVersion"),
+                            ManageAddOnsDialog.ICON_ADD_ON_ISSUES,
+                            SwingConstants.LEADING);
 
             Object[] msgs = {
-                    mainMessage,
-                    createScrollableTable(new AddOnTableModel(selectedAddOnsJavaIssue, selectedAddOnsJavaIssue.size())),
-                    label,
-                    question };
+                mainMessage,
+                createScrollableTable(
+                        new AddOnTableModel(
+                                selectedAddOnsJavaIssue, selectedAddOnsJavaIssue.size())),
+                label,
+                question
+            };
 
-            return JOptionPane.showConfirmDialog(parent, msgs, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+            return JOptionPane.showConfirmDialog(
+                            parent, msgs, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION;
         }
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -212,27 +243,35 @@ class AddOnDependencyChecker {
 
         if (!selectedAddOnsJavaIssue.isEmpty()) {
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.selectedAddOns"),
-                    createScrollableTable(new AddOnTableModel(selectedAddOnsJavaIssue, selectedAddOnsJavaIssue.size())));
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.selectedAddOns"),
+                    createScrollableTable(
+                            new AddOnTableModel(
+                                    selectedAddOnsJavaIssue, selectedAddOnsJavaIssue.size())));
         }
 
         if (!changesResult.getUninstalls().isEmpty()) {
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.uninstallations"),
-                    createScrollableTable(new AddOnTableModel(changesResult.getUninstalls(), false)));
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.uninstallations"),
+                    createScrollableTable(
+                            new AddOnTableModel(changesResult.getUninstalls(), false)));
         }
 
         if (!updates.isEmpty()) {
             AddOnTableModel model = new AddOnTableModel(updates);
             issues += model.getMinimumJavaVersionIssues();
-            tabs.add(Constant.messages.getString("cfu.confirmation.dialogue.tab.header.updats"), createScrollableTable(model));
+            tabs.add(
+                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.updats"),
+                    createScrollableTable(model));
         }
 
         if (!installs.isEmpty()) {
             AddOnTableModel model = new AddOnTableModel(installs);
             issues += model.getMinimumJavaVersionIssues();
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.installations"),
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.installations"),
                     createScrollableTable(model));
         }
 
@@ -240,45 +279,62 @@ class AddOnDependencyChecker {
             AddOnTableModel model = new AddOnTableModel(dependents);
             issues += model.getMinimumJavaVersionIssues();
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.softUninstalls"),
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.softUninstalls"),
                     createScrollableTable(model));
         }
 
         SelectableAddOnTableModel optionalAddOnsTableModel = null;
         if (!changesResult.getOptionalAddOns().isEmpty()) {
-            optionalAddOnsTableModel = new SelectableAddOnTableModel(
-                    Constant.messages.getString("cfu.generic.table.header.selectInstall"),
-                    changesResult.getOptionalAddOns());
+            optionalAddOnsTableModel =
+                    new SelectableAddOnTableModel(
+                            Constant.messages.getString("cfu.generic.table.header.selectInstall"),
+                            changesResult.getOptionalAddOns());
             issues += optionalAddOnsTableModel.getMinimumJavaVersionIssues();
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.optionalAddOns"),
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.optionalAddOns"),
                     createScrollableTable(optionalAddOnsTableModel));
         }
 
         if (!changesResult.getUnloadExtensions().isEmpty()) {
-            ExtensionsTableModel model = new ExtensionsTableModel(changesResult.getUnloadExtensions());
+            ExtensionsTableModel model =
+                    new ExtensionsTableModel(changesResult.getUnloadExtensions());
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.extensionUnloads"),
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.extensionUnloads"),
                     createScrollableTable(model));
         }
 
         if (!changesResult.getSoftUnloadExtensions().isEmpty()) {
-            ExtensionsTableModel model = new ExtensionsTableModel(changesResult.getSoftUnloadExtensions());
+            ExtensionsTableModel model =
+                    new ExtensionsTableModel(changesResult.getSoftUnloadExtensions());
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.extensionSoftUnloads"),
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.tab.header.extensionSoftUnloads"),
                     createScrollableTable(model));
         }
 
         List<Object> optionPaneContents = new ArrayList<>();
 
-        if (!changesResult.getOptionalAddOns().isEmpty() && changesResult.getUninstalls().isEmpty() && updates.isEmpty()
-                && installs.isEmpty() && dependents.isEmpty() && changesResult.getSoftUnloadExtensions().isEmpty()
+        if (!changesResult.getOptionalAddOns().isEmpty()
+                && changesResult.getUninstalls().isEmpty()
+                && updates.isEmpty()
+                && installs.isEmpty()
+                && dependents.isEmpty()
+                && changesResult.getSoftUnloadExtensions().isEmpty()
                 && changesResult.getUnloadExtensions().isEmpty()) {
-            optionPaneContents.add(Constant.messages.getString("cfu.confirmation.dialogue.message.suggestedChanges"));
+            optionPaneContents.add(
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.message.suggestedChanges"));
         } else if (!changesResult.getOptionalAddOns().isEmpty()) {
-            optionPaneContents.add(Constant.messages.getString("cfu.confirmation.dialogue.message.requiredSuggestedChanges"));
+            optionPaneContents.add(
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.message.requiredSuggestedChanges"));
         } else {
-            optionPaneContents.add(Constant.messages.getString("cfu.confirmation.dialogue.message.requiredChanges"));
+            optionPaneContents.add(
+                    Constant.messages.getString(
+                            "cfu.confirmation.dialogue.message.requiredChanges"));
         }
 
         optionPaneContents.add(panel);
@@ -287,20 +343,30 @@ class AddOnDependencyChecker {
             String message;
             if (selectedAddOnsJavaIssue.size() == issues) {
                 if (selectedAddOnsJavaIssue.size() == changesResult.getSelectedAddOns().size()) {
-                    message = Constant.messages.getString("cfu.confirmation.dialogue.message.selectedAddOnsNewerJavaVersion");
+                    message =
+                            Constant.messages.getString(
+                                    "cfu.confirmation.dialogue.message.selectedAddOnsNewerJavaVersion");
                 } else {
-                    message = Constant.messages.getString("cfu.confirmation.dialogue.message.someUnnamedSelectedAddOnsNewerJavaVersion");
+                    message =
+                            Constant.messages.getString(
+                                    "cfu.confirmation.dialogue.message.someUnnamedSelectedAddOnsNewerJavaVersion");
                 }
             } else if (issues == 1) {
-                message = Constant.messages.getString("cfu.confirmation.dialogue.message.addOnNewerJavaVersion");
+                message =
+                        Constant.messages.getString(
+                                "cfu.confirmation.dialogue.message.addOnNewerJavaVersion");
             } else {
-                message = Constant.messages.getString("cfu.confirmation.dialogue.message.someAddOnsNewerJavaVersion");
+                message =
+                        Constant.messages.getString(
+                                "cfu.confirmation.dialogue.message.someAddOnsNewerJavaVersion");
             }
 
-            JLabel label = new JLabel(
-                    Constant.messages.getString("cfu.confirmation.dialogue.message.warnUnknownNumberAddOnsNotRunJavaVersion"),
-                    ManageAddOnsDialog.ICON_ADD_ON_ISSUES,
-                    SwingConstants.LEADING);
+            JLabel label =
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "cfu.confirmation.dialogue.message.warnUnknownNumberAddOnsNotRunJavaVersion"),
+                            ManageAddOnsDialog.ICON_ADD_ON_ISSUES,
+                            SwingConstants.LEADING);
 
             optionPaneContents.add(message);
             optionPaneContents.add(label);
@@ -308,11 +374,13 @@ class AddOnDependencyChecker {
 
         optionPaneContents.add(question);
 
-        boolean confirmed = JOptionPane.showConfirmDialog(
-                parent,
-                optionPaneContents.toArray(),
-                Constant.PROGRAM_NAME,
-                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        boolean confirmed =
+                JOptionPane.showConfirmDialog(
+                                parent,
+                                optionPaneContents.toArray(),
+                                Constant.PROGRAM_NAME,
+                                JOptionPane.YES_NO_OPTION)
+                        == JOptionPane.YES_OPTION;
 
         if (confirmed && optionalAddOnsTableModel != null) {
             changesResult.getInstalls().addAll(optionalAddOnsTableModel.getSelectedAddOns());
@@ -331,7 +399,8 @@ class AddOnDependencyChecker {
 
     private void addDependents(Set<AddOn> dependents, AddOn addOn, Set<AddOn> ignoreAddOns) {
         for (AddOn availableAddOn : installedAddOns.getInstalledAddOns()) {
-            if (!ignoreAddOns.contains(availableAddOn) && availableAddOn.dependsOn(addOn)
+            if (!ignoreAddOns.contains(availableAddOn)
+                    && availableAddOn.dependsOn(addOn)
                     && dependents.contains(availableAddOn)) {
                 dependents.add(availableAddOn);
                 addDependents(dependents, availableAddOn, ignoreAddOns);
@@ -349,12 +418,13 @@ class AddOnDependencyChecker {
 
     /**
      * Calculates the changes required to update the given add-on.
-     * <p>
-     * It might require updating, installing or uninstalling other add-ons depending on the dependencies of the affected
-     * add-ons.
+     *
+     * <p>It might require updating, installing or uninstalling other add-ons depending on the
+     * dependencies of the affected add-ons.
      *
      * @param addOn the add-on that would be updated
-     * @return the resulting changes with the add-ons that need to be updated, installed or uninstalled
+     * @return the resulting changes with the add-ons that need to be updated, installed or
+     *     uninstalled
      * @since 2.4.3
      */
     public AddOnChangesResult calculateUpdateChanges(AddOn addOn) {
@@ -365,12 +435,13 @@ class AddOnDependencyChecker {
 
     /**
      * Calculates the changes required to update the given add-ons.
-     * <p>
-     * It might require updating, installing or uninstalling other add-ons depending on the dependencies of the affected
-     * add-ons.
+     *
+     * <p>It might require updating, installing or uninstalling other add-ons depending on the
+     * dependencies of the affected add-ons.
      *
      * @param addOns the add-ons that would be updated
-     * @return the resulting changes with the add-ons that need to be updated, installed or uninstalled
+     * @return the resulting changes with the add-ons that need to be updated, installed or
+     *     uninstalled
      */
     public AddOnChangesResult calculateUpdateChanges(Set<AddOn> addOns) {
         return calculateChanges(addOns, true);
@@ -402,7 +473,8 @@ class AddOnDependencyChecker {
 
         boolean newerJavaVersion = false;
         for (AddOn addOn : selectedAddOns) {
-            newerJavaVersion |= addDependencies(addOn, selectedAddOns, oldVersions, newVersions, installs);
+            newerJavaVersion |=
+                    addDependencies(addOn, selectedAddOns, oldVersions, newVersions, installs);
         }
 
         Set<AddOn> remainingInstalledAddOns = new HashSet<>();
@@ -424,29 +496,32 @@ class AddOnDependencyChecker {
 
         for (AddOn addOn : remainingInstalledAddOns) {
             if (addOn.dependsOn(changedAddOns)
-                    && addOn.calculateRunRequirements(expectedInstalledAddOns).hasDependencyIssue()) {
+                    && addOn.calculateRunRequirements(expectedInstalledAddOns)
+                            .hasDependencyIssue()) {
                 uninstalls.add(addOn);
             }
         }
 
-        for (Iterator<AddOn> it = uninstalls.iterator(); it.hasNext();) {
+        for (Iterator<AddOn> it = uninstalls.iterator(); it.hasNext(); ) {
             AddOn addOn = it.next();
             AddOn addOnUpdate = availableAddOns.getAddOn(addOn.getId());
             if (addOnUpdate != null && !addOnUpdate.equals(addOn)) {
                 it.remove();
                 oldVersions.add(addOn);
                 newVersions.add(addOnUpdate);
-                newerJavaVersion |= addDependencies(addOnUpdate, selectedAddOns, oldVersions, newVersions, installs);
+                newerJavaVersion |=
+                        addDependencies(
+                                addOnUpdate, selectedAddOns, oldVersions, newVersions, installs);
             }
         }
 
-        for (Iterator<AddOn> it = uninstalls.iterator(); it.hasNext();) {
+        for (Iterator<AddOn> it = uninstalls.iterator(); it.hasNext(); ) {
             AddOn addOn = it.next();
             if (contains(installs, addOn)
                     || contains(newVersions, addOn)
-                    || (addOn.calculateRunRequirements(installedAddOns.getAddOns()).hasDependencyIssue() && !containsAny(
-                            addOn.getIdsAddOnDependencies(),
-                            uninstalls))) {
+                    || (addOn.calculateRunRequirements(installedAddOns.getAddOns())
+                                    .hasDependencyIssue()
+                            && !containsAny(addOn.getIdsAddOnDependencies(), uninstalls))) {
                 it.remove();
             }
         }
@@ -469,10 +544,10 @@ class AddOnDependencyChecker {
         for (AddOn addOn : expectedInstalledAddOns) {
             List<String> extensionsWithDeps = addOn.getExtensionsWithDeps();
             for (Extension extension : addOn.getLoadedExtensionsWithDeps()) {
-                AddOn.AddOnRunRequirements requirements = addOn.calculateExtensionRunRequirements(
-                        extension,
-                        expectedInstalledAddOns);
-                AddOn.ExtensionRunRequirements extReqs = requirements.getExtensionRequirements().get(0);
+                AddOn.AddOnRunRequirements requirements =
+                        addOn.calculateExtensionRunRequirements(extension, expectedInstalledAddOns);
+                AddOn.ExtensionRunRequirements extReqs =
+                        requirements.getExtensionRequirements().get(0);
                 if (!extReqs.isRunnable()) {
                     unloadExtensions.add(extension);
                 } else if (CollectionUtils.containsAny(extReqs.getDependencies(), oldVersions)) {
@@ -482,10 +557,11 @@ class AddOnDependencyChecker {
             }
 
             for (String classname : extensionsWithDeps) {
-                AddOn.AddOnRunRequirements requirements = addOn.calculateExtensionRunRequirements(
-                        classname,
-                        availableAddOns.getAddOns());
-                AddOn.ExtensionRunRequirements extReqs = requirements.getExtensionRequirements().get(0);
+                AddOn.AddOnRunRequirements requirements =
+                        addOn.calculateExtensionRunRequirements(
+                                classname, availableAddOns.getAddOns());
+                AddOn.ExtensionRunRequirements extReqs =
+                        requirements.getExtensionRequirements().get(0);
                 if (extReqs.isRunnable()) {
                     optionalAddOns.addAll(extReqs.getDependencies());
                 }
@@ -510,8 +586,9 @@ class AddOnDependencyChecker {
 
     /**
      * Calculates the changes required to uninstall the given add-ons.
-     * <p>
-     * It might require uninstalling other add-ons depending on the dependencies of the affected add-ons.
+     *
+     * <p>It might require uninstalling other add-ons depending on the dependencies of the affected
+     * add-ons.
      *
      * @param selectedAddOns the add-ons that would be uninstalled
      * @return the resulting changes with the add-ons that need to be uninstalled
@@ -524,16 +601,18 @@ class AddOnDependencyChecker {
         List<AddOn> addOnsToCheck = new ArrayList<>(remainingAddOns);
         while (!addOnsToCheck.isEmpty()) {
             AddOn addOn = addOnsToCheck.remove(0);
-            AddOn.AddOnRunRequirements requirements = addOn.calculateRunRequirements(remainingAddOns);
+            AddOn.AddOnRunRequirements requirements =
+                    addOn.calculateRunRequirements(remainingAddOns);
 
             if (!requirements.hasDependencyIssue()) {
                 addOnsToCheck.removeAll(requirements.getDependencies());
-            } else if (AddOn.InstallationStatus.UNINSTALLATION_FAILED != addOn.getInstallationStatus()) {
+            } else if (AddOn.InstallationStatus.UNINSTALLATION_FAILED
+                    != addOn.getInstallationStatus()) {
                 uninstallations.add(addOn);
             }
         }
 
-        for (Iterator<AddOn> it = uninstallations.iterator(); it.hasNext();) {
+        for (Iterator<AddOn> it = uninstallations.iterator(); it.hasNext(); ) {
             AddOn addOn = it.next();
             if (addOn.calculateRunRequirements(installedAddOns.getAddOns()).hasDependencyIssue()
                     && !containsAny(addOn.getIdsAddOnDependencies(), uninstallations)) {
@@ -546,9 +625,11 @@ class AddOnDependencyChecker {
         for (AddOn addOn : remainingAddOns) {
             if (addOn.hasExtensionsWithDeps()) {
                 for (Extension ext : addOn.getLoadedExtensions()) {
-                    AddOn.AddOnRunRequirements requirements = addOn.calculateExtensionRunRequirements(ext, remainingAddOns);
+                    AddOn.AddOnRunRequirements requirements =
+                            addOn.calculateExtensionRunRequirements(ext, remainingAddOns);
                     if (!requirements.getExtensionRequirements().isEmpty()) {
-                        AddOn.ExtensionRunRequirements extReqs = requirements.getExtensionRequirements().get(0);
+                        AddOn.ExtensionRunRequirements extReqs =
+                                requirements.getExtensionRequirements().get(0);
                         if (!extReqs.isRunnable()) {
                             extensions.add(ext);
                         }
@@ -574,15 +655,18 @@ class AddOnDependencyChecker {
 
     /**
      * Asks the user for confirmation of uninstall changes.
-     * <p>
-     * User will also be warned about add-ons that are being uninstalled which are required by add-ons being downloaded.
+     *
+     * <p>User will also be warned about add-ons that are being uninstalled which are required by
+     * add-ons being downloaded.
      *
      * @param parent the parent component of the confirmation dialogue
      * @param result the calculation result of the uninstallation
-     * @param addOnsBeingDownloaded the add-ons being downloaded to check if depend on the add-ons being uninstalled
+     * @param addOnsBeingDownloaded the add-ons being downloaded to check if depend on the add-ons
+     *     being uninstalled
      * @return {@code true} if the user accept the changes, {@code false} otherwise
      */
-    public boolean confirmUninstallChanges(Component parent, UninstallationResult result, Set<AddOn> addOnsBeingDownloaded) {
+    public boolean confirmUninstallChanges(
+            Component parent, UninstallationResult result, Set<AddOn> addOnsBeingDownloaded) {
 
         Set<AddOn> forcedUninstallations = new HashSet<>(result.getUninstallations());
         forcedUninstallations.removeAll(result.getSelectedAddOns());
@@ -597,7 +681,8 @@ class AddOnDependencyChecker {
 
         if (!dependencyDownloadFound) {
             for (AddOn addOnDownloading : addOnsBeingDownloaded) {
-                if (containsAny(addOnDownloading.getIdsAddOnDependencies(), result.getSelectedAddOns())) {
+                if (containsAny(
+                        addOnDownloading.getIdsAddOnDependencies(), result.getSelectedAddOns())) {
                     dependencyDownloadFound = true;
                     break;
                 }
@@ -606,44 +691,59 @@ class AddOnDependencyChecker {
 
         if (dependencyDownloadFound) {
             if (JOptionPane.showConfirmDialog(
-                    parent,
-                    new Object[] {
-                            Constant.messages.getString("cfu.confirmation.dialogue.message.uninstallsRequiredByAddOnsDownloading"),
-                            Constant.messages.getString("cfu.confirmation.dialogue.message.continueWithUninstallation") },
-                    Constant.PROGRAM_NAME,
-                    JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                            parent,
+                            new Object[] {
+                                Constant.messages.getString(
+                                        "cfu.confirmation.dialogue.message.uninstallsRequiredByAddOnsDownloading"),
+                                Constant.messages.getString(
+                                        "cfu.confirmation.dialogue.message.continueWithUninstallation")
+                            },
+                            Constant.PROGRAM_NAME,
+                            JOptionPane.YES_NO_OPTION)
+                    != JOptionPane.YES_OPTION) {
                 return false;
             }
         }
 
         if (forcedUninstallations.isEmpty() && result.getExtensions().isEmpty()) {
             return JOptionPane.showConfirmDialog(
-                    parent,
-                    Constant.messages.getString("cfu.uninstall.confirm"),
-                    Constant.PROGRAM_NAME,
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                            parent,
+                            Constant.messages.getString("cfu.uninstall.confirm"),
+                            Constant.PROGRAM_NAME,
+                            JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION;
         }
 
         if (result.getExtensions().isEmpty()) {
             return JOptionPane.showConfirmDialog(
-                    parent,
-                    new Object[] {
-                            Constant.messages.getString("cfu.uninstall.dependentAddOns.confirm"),
-                            createScrollableTable(new AddOnTableModel(forcedUninstallations, false)),
-                            Constant.messages.getString("cfu.confirmation.dialogue.message.continueWithUninstallation") },
-                    Constant.PROGRAM_NAME,
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                            parent,
+                            new Object[] {
+                                Constant.messages.getString(
+                                        "cfu.uninstall.dependentAddOns.confirm"),
+                                createScrollableTable(
+                                        new AddOnTableModel(forcedUninstallations, false)),
+                                Constant.messages.getString(
+                                        "cfu.confirmation.dialogue.message.continueWithUninstallation")
+                            },
+                            Constant.PROGRAM_NAME,
+                            JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION;
         }
 
         if (forcedUninstallations.isEmpty()) {
             return JOptionPane.showConfirmDialog(
-                    parent,
-                    new Object[] {
-                            Constant.messages.getString("cfu.uninstall.dependentExtensions.confirm"),
-                            createScrollableTable(new ExtensionsTableModel(result.getExtensions())),
-                            Constant.messages.getString("cfu.confirmation.dialogue.message.continueWithUninstallation") },
-                    Constant.PROGRAM_NAME,
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                            parent,
+                            new Object[] {
+                                Constant.messages.getString(
+                                        "cfu.uninstall.dependentExtensions.confirm"),
+                                createScrollableTable(
+                                        new ExtensionsTableModel(result.getExtensions())),
+                                Constant.messages.getString(
+                                        "cfu.confirmation.dialogue.message.continueWithUninstallation")
+                            },
+                            Constant.PROGRAM_NAME,
+                            JOptionPane.YES_NO_OPTION)
+                    == JOptionPane.YES_OPTION;
         }
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -655,25 +755,31 @@ class AddOnDependencyChecker {
                 createScrollableTable(new AddOnTableModel(forcedUninstallations, false)));
 
         tabs.add(
-                Constant.messages.getString("cfu.confirmation.dialogue.tab.header.extensionUnloads"),
+                Constant.messages.getString(
+                        "cfu.confirmation.dialogue.tab.header.extensionUnloads"),
                 createScrollableTable(new ExtensionsTableModel(result.getExtensions())));
 
         List<Object> optionPaneContents = new ArrayList<>();
-        optionPaneContents.add(Constant.messages.getString("cfu.uninstall.dependentAddonsAndExtensions.confirm"));
+        optionPaneContents.add(
+                Constant.messages.getString("cfu.uninstall.dependentAddonsAndExtensions.confirm"));
         optionPaneContents.add(panel);
-        optionPaneContents.add(Constant.messages.getString("cfu.confirmation.dialogue.message.continueWithUninstallation"));
+        optionPaneContents.add(
+                Constant.messages.getString(
+                        "cfu.confirmation.dialogue.message.continueWithUninstallation"));
 
         return JOptionPane.showConfirmDialog(
-                parent,
-                optionPaneContents.toArray(),
-                Constant.PROGRAM_NAME,
-                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                        parent,
+                        optionPaneContents.toArray(),
+                        Constant.PROGRAM_NAME,
+                        JOptionPane.YES_NO_OPTION)
+                == JOptionPane.YES_OPTION;
     }
 
     /**
      * The result of an installation or update of add-on(s).
-     * <p>
-     * Contains all add-ons that need to be installed, updated and uninstalled as the result of the changes.
+     *
+     * <p>Contains all add-ons that need to be installed, updated and uninstalled as the result of
+     * the changes.
      */
     public static class AddOnChangesResult {
 
@@ -755,9 +861,11 @@ class AddOnDependencyChecker {
         }
 
         /**
-         * Tells whether or not a newer Java version is required by any of add-ons as result of the changes.
+         * Tells whether or not a newer Java version is required by any of add-ons as result of the
+         * changes.
          *
-         * @return {@code true} if a newer Java version is required by any of the add-ons, {@code false} otherwise
+         * @return {@code true} if a newer Java version is required by any of the add-ons, {@code
+         *     false} otherwise
          */
         public boolean isNewerJavaVersionRequired() {
             return newerJavaVersion;
@@ -782,8 +890,8 @@ class AddOnDependencyChecker {
         }
 
         /**
-         * Gets the extensions that have to be soft unloaded as result of the changes. The extension will be unloaded and then
-         * loaded once the dependency is updated-
+         * Gets the extensions that have to be soft unloaded as result of the changes. The extension
+         * will be unloaded and then loaded once the dependency is updated-
          *
          * @return the extensions that have to be soft unloaded
          */
@@ -792,25 +900,27 @@ class AddOnDependencyChecker {
         }
 
         /**
-         * Add the contents from the specified results 
+         * Add the contents from the specified results
+         *
          * @param result
          */
-		public void addResults(AddOnChangesResult result) {
-	        selectedAddOns.addAll(result.getSelectedAddOns());
-	        oldVersions.addAll(result.oldVersions);
-	        uninstalls.addAll(result.getUninstalls());
-	        newVersions.addAll(result.getNewVersions());
-	        installs.addAll(result.getInstalls());
-	        optionalAddOns.addAll(result.getOptionalAddOns());
-	        unloadExtensions.addAll(result.getUnloadExtensions());
-	        softUnloadExtensions.addAll(result.getSoftUnloadExtensions());
-		}
+        public void addResults(AddOnChangesResult result) {
+            selectedAddOns.addAll(result.getSelectedAddOns());
+            oldVersions.addAll(result.oldVersions);
+            uninstalls.addAll(result.getUninstalls());
+            newVersions.addAll(result.getNewVersions());
+            installs.addAll(result.getInstalls());
+            optionalAddOns.addAll(result.getOptionalAddOns());
+            unloadExtensions.addAll(result.getUnloadExtensions());
+            softUnloadExtensions.addAll(result.getSoftUnloadExtensions());
+        }
     }
 
     /**
      * The result of an uninstallation of add-on(s).
-     * <p>
-     * Contains all add-ons that need to be uninstalled as the result of an uninstallation or several.
+     *
+     * <p>Contains all add-ons that need to be uninstalled as the result of an uninstallation or
+     * several.
      */
     public static class UninstallationResult {
 
@@ -818,7 +928,8 @@ class AddOnDependencyChecker {
         private final Set<AddOn> uninstallations;
         private final Set<Extension> extensions;
 
-        private UninstallationResult(Set<AddOn> selectedAddOns, Set<AddOn> uninstallations, Set<Extension> extensions) {
+        private UninstallationResult(
+                Set<AddOn> selectedAddOns, Set<AddOn> uninstallations, Set<Extension> extensions) {
             this.selectedAddOns = selectedAddOns;
             this.uninstallations = uninstallations;
             this.extensions = extensions;
@@ -834,7 +945,8 @@ class AddOnDependencyChecker {
         }
 
         /**
-         * Gets all the add-ons (selected and dependencies) that need to be uninstalled as result of the uninstallations.
+         * Gets all the add-ons (selected and dependencies) that need to be uninstalled as result of
+         * the uninstallations.
          *
          * @return all the add-ons that need to be uninstalled
          */
@@ -857,9 +969,10 @@ class AddOnDependencyChecker {
         private static final long serialVersionUID = 5446781970087315105L;
 
         private static final String[] COLUMNS = {
-                Constant.messages.getString("cfu.generic.table.header.addOn"),
-                Constant.messages.getString("cfu.generic.table.header.version"),
-                Constant.messages.getString("cfu.generic.table.header.minimumJavaVersion") };
+            Constant.messages.getString("cfu.generic.table.header.addOn"),
+            Constant.messages.getString("cfu.generic.table.header.version"),
+            Constant.messages.getString("cfu.generic.table.header.minimumJavaVersion")
+        };
 
         private final List<AddOn> addOns;
         private final int columnCount;
@@ -913,14 +1026,14 @@ class AddOnDependencyChecker {
         public Object getValueAt(int rowIndex, int columnIndex) {
             AddOn addOn = getAddOn(rowIndex);
             switch (columnIndex) {
-            case 0:
-                return addOn.getName();
-            case 1:
-                return addOn.getVersion();
-            case 2:
-                return addOn.getMinimumJavaVersion();
-            default:
-                return "";
+                case 0:
+                    return addOn.getName();
+                case 1:
+                    return addOn.getVersion();
+                case 2:
+                    return addOn.getMinimumJavaVersion();
+                default:
+                    return "";
             }
         }
 
@@ -1003,7 +1116,9 @@ class AddOnDependencyChecker {
 
         private static final long serialVersionUID = 5446781970087315105L;
 
-        private static final String[] COLUMNS = { Constant.messages.getString("cfu.generic.table.header.extension") };
+        private static final String[] COLUMNS = {
+            Constant.messages.getString("cfu.generic.table.header.extension")
+        };
 
         private final List<Extension> extensions;
 
@@ -1030,10 +1145,10 @@ class AddOnDependencyChecker {
         public Object getValueAt(int rowIndex, int columnIndex) {
             Extension extension = extensions.get(rowIndex);
             switch (columnIndex) {
-            case 0:
-                return extension.getUIName();
-            default:
-                return "";
+                case 0:
+                    return extension.getUIName();
+                default:
+                    return "";
             }
         }
     }

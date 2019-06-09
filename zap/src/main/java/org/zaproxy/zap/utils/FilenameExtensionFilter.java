@@ -25,31 +25,31 @@ import java.util.Locale;
 
 /**
  * A {@link FilenameFilter} that allows to filter by an extension.
- * 
+ *
  * @since 1.2.0
  */
 public class FilenameExtensionFilter implements FilenameFilter {
 
-	String ext;
-	boolean ignoreCase = false;
-	
-	/**
-	 * Constructs a {@code FilenameExtensionFilter} with the given extension and if the case should be ignored.
-	 *
-	 * @param ext the extension that the files must have.
-	 * @param ignoreCase if the case should be ignored.
-	 */
-	public FilenameExtensionFilter (String ext, boolean ignoreCase) {
-		this.ignoreCase = ignoreCase;
-		this.ext = ignoreCase ? ext.toLowerCase(Locale.ROOT) : ext;
-	}
-	
-	@Override
-	public boolean accept(File dir, String name) {
-		if (ignoreCase) {
-			return name.toLowerCase(Locale.ROOT).endsWith(ext);
-		}
-		return name.endsWith(ext);
-	}
+    String ext;
+    boolean ignoreCase = false;
 
+    /**
+     * Constructs a {@code FilenameExtensionFilter} with the given extension and if the case should
+     * be ignored.
+     *
+     * @param ext the extension that the files must have.
+     * @param ignoreCase if the case should be ignored.
+     */
+    public FilenameExtensionFilter(String ext, boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+        this.ext = ignoreCase ? ext.toLowerCase(Locale.ROOT) : ext;
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+        if (ignoreCase) {
+            return name.toLowerCase(Locale.ROOT).endsWith(ext);
+        }
+        return name.endsWith(ext);
+    }
 }

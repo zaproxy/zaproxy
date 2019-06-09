@@ -1,10 +1,10 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
+ *
  * Copyright 2016 The ZAP Development Team
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,16 +27,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
+import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-import net.htmlparser.jericho.Source;
-
 /**
- * Class with helper/utility methods to help testing classes involving {@code SpiderParser} implementations.
+ * Class with helper/utility methods to help testing classes involving {@code SpiderParser}
+ * implementations.
  *
  * @see org.zaproxy.zap.spider.parser.SpiderParser
  */
@@ -64,7 +63,8 @@ public class SpiderParserTestUtils extends TestUtils {
         return new TestSpiderParserListener();
     }
 
-    public static TestSpiderParserListener createAndAddTestSpiderParserListener(SpiderParser parser) {
+    public static TestSpiderParserListener createAndAddTestSpiderParserListener(
+            SpiderParser parser) {
         TestSpiderParserListener listener = createTestSpiderParserListener();
         parser.addSpiderParserListener(listener);
         return listener;
@@ -103,13 +103,15 @@ public class SpiderParserTestUtils extends TestUtils {
         }
 
         @Override
-        public void resourceURIFound(HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
+        public void resourceURIFound(
+                HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
             urls.add(uri);
             resources.add(uriResource(responseMessage, depth, uri, shouldIgnore));
         }
 
         @Override
-        public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
+        public void resourcePostURIFound(
+                HttpMessage responseMessage, int depth, String uri, String requestBody) {
             urls.add(uri);
             resources.add(postResource(responseMessage, depth, uri, requestBody));
         }
@@ -123,11 +125,13 @@ public class SpiderParserTestUtils extends TestUtils {
         return new SpiderResource(message, depth, uri);
     }
 
-    public static SpiderResource uriResource(HttpMessage message, int depth, String uri, boolean shouldIgnore) {
+    public static SpiderResource uriResource(
+            HttpMessage message, int depth, String uri, boolean shouldIgnore) {
         return new SpiderResource(message, depth, uri, shouldIgnore);
     }
 
-    public static SpiderResource postResource(HttpMessage message, int depth, String uri, String requestBody) {
+    public static SpiderResource postResource(
+            HttpMessage message, int depth, String uri, String requestBody) {
         return new SpiderResource(message, depth, uri, requestBody);
     }
 
@@ -148,7 +152,8 @@ public class SpiderParserTestUtils extends TestUtils {
 
     public static String param(String name, String value) {
         try {
-            return URLEncoder.encode(name, StandardCharsets.UTF_8.name()) + "="
+            return URLEncoder.encode(name, StandardCharsets.UTF_8.name())
+                    + "="
                     + URLEncoder.encode(value, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);

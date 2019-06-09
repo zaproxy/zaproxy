@@ -21,10 +21,11 @@
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2012/12/20 Added listener setter for persistentConnectionListenerList.
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
-// ZAP: 2013/04/14 Issue 608: Rename the method ExtensionHook.addSiteMapListner to addSiteMapListener
+// ZAP: 2013/04/14 Issue 608: Rename the method ExtensionHook.addSiteMapListner to
+// addSiteMapListener
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
-// ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions. 
+// ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions.
 // ZAP: 2016/04/08 Allow to add ContextDataFactory
 // ZAP: 2016/05/30 Allow to add AddOnInstallationStatusListener
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
@@ -32,13 +33,13 @@
 // ZAP: 2017/07/25 Allow to add HttpSenderListener.
 // ZAP: 2017/11/23 Add an add method for OverrideMessageProxyListener.
 // ZAP: 2019/06/01 Normalise line endings.
+// ZAP: 2019/06/05 Normalise format/style.
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
@@ -46,21 +47,20 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.ApiImplementor;
-import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.SiteMapListener;
-
 
 public class ExtensionHook {
 
     /**
      * The hook for menus.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #getHookMenu()
      * @see #getHookMenuNoInit()
      */
@@ -68,13 +68,14 @@ public class ExtensionHook {
 
     /**
      * The hook for view components.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #getHookView()
      * @see #getHookViewNoInit()
      */
     private ExtensionHookView hookView;
+
     private Model model = null;
     private Vector<OptionsChangedListener> optionsListenerList = new Vector<>();
 
@@ -82,9 +83,9 @@ public class ExtensionHook {
 
     /**
      * The {@link OverrideMessageProxyListener}s added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addOverrideMessageProxyListener(OverrideMessageProxyListener)
      * @see #getOverrideMessageProxyListenerList()
      */
@@ -92,13 +93,14 @@ public class ExtensionHook {
 
     /**
      * The {@link ConnectRequestProxyListener}s added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addConnectionRequestProxyListener(ConnectRequestProxyListener)
      * @see #getConnectRequestProxyListeners()
      */
     private List<ConnectRequestProxyListener> connectRequestProxyListeners;
+
     private Vector<SessionChangedListener> sessionListenerList = new Vector<>();
     private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
@@ -106,13 +108,13 @@ public class ExtensionHook {
     // ZAP: Added support for Scanner Hooks
     private Vector<ScannerHook> scannerHookList = new Vector<>();
     private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
-    private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<>(); 
+    private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<>();
 
     /**
      * The {@link ContextDataFactory}s added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addContextDataFactory(ContextDataFactory)
      * @see #getContextDataFactories()
      */
@@ -120,9 +122,9 @@ public class ExtensionHook {
 
     /**
      * The {@link AddOnInstallationStatusListener}s added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addAddOnInstallationStatusListener(AddOnInstallationStatusListener)
      * @see #getAddOnInstallationStatusListeners()
      */
@@ -130,9 +132,9 @@ public class ExtensionHook {
 
     /**
      * The {@link ApiImplementor}s added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addApiImplementor(ApiImplementor)
      * @see #getApiImplementors()
      */
@@ -140,14 +142,14 @@ public class ExtensionHook {
 
     /**
      * The {@link HttpSenderListener}s added to this extension hook.
-     * <p>
-     * Lazily initialised.
-     * 
+     *
+     * <p>Lazily initialised.
+     *
      * @see #addHttpSenderListener(HttpSenderListener)
      * @see #getHttpSenderListeners()
      */
     private List<HttpSenderListener> httpSenderListeners;
-    
+
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
 
@@ -169,11 +171,11 @@ public class ExtensionHook {
     }
 
     /**
-     * Adds the given {@link ConnectRequestProxyListener} to the extension hook, to be later notified of CONNECT requests
-     * received by the local proxy.
-     * <p>
-     * By default, the {@code ConnectRequestProxyListener}s added are removed from the local proxy when the extension is
-     * unloaded.
+     * Adds the given {@link ConnectRequestProxyListener} to the extension hook, to be later
+     * notified of CONNECT requests received by the local proxy.
+     *
+     * <p>By default, the {@code ConnectRequestProxyListener}s added are removed from the local
+     * proxy when the extension is unloaded.
      *
      * @param listener the {@code ConnectRequestProxyListener} that will be added and then notified
      * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
@@ -193,7 +195,8 @@ public class ExtensionHook {
     /**
      * Gets the {@link ConnectRequestProxyListener}s added to this hook.
      *
-     * @return an unmodifiable {@code List} containing the added {@code ConnectRequestProxyListener}s, never {@code null}.
+     * @return an unmodifiable {@code List} containing the added {@code
+     *     ConnectRequestProxyListener}s, never {@code null}.
      * @since 2.5.0
      */
     List<ConnectRequestProxyListener> getConnectRequestProxyListeners() {
@@ -202,27 +205,27 @@ public class ExtensionHook {
         }
         return Collections.unmodifiableList(connectRequestProxyListeners);
     }
-    
+
     public void addSessionListener(SessionChangedListener listener) {
         sessionListenerList.add(listener);
     }
 
     /**
-     * @deprecated Replaced by the method {@link #addSiteMapListener(SiteMapListener)}. 
-     * It will be removed in a future release.
+     * @deprecated Replaced by the method {@link #addSiteMapListener(SiteMapListener)}. It will be
+     *     removed in a future release.
      */
     @Deprecated
     public void addSiteMapListner(SiteMapListener listener) {
-    	siteMapListenerList.add(listener);
+        siteMapListenerList.add(listener);
     }
 
     public void addSiteMapListener(SiteMapListener listener) {
         siteMapListenerList.add(listener);
     }
-    
+
     // ZAP: add a scanner hook
     public void addScannerHook(ScannerHook hook) {
-    	scannerHookList.add(hook);
+        scannerHookList.add(hook);
     }
 
     public void addPersistentConnectionListener(PersistentConnectionListener listener) {
@@ -232,14 +235,14 @@ public class ExtensionHook {
     public void addCommandLine(CommandLineArgument[] arg) {
         this.arg = arg;
     }
-    
+
     public void addAddonFilesChangedListener(AddonFilesChangedListener listener) {
-    	addonFilesChangedListenerList.add(listener);
+        addonFilesChangedListenerList.add(listener);
     }
 
     /**
-     * Adds the given {@code listener} to the extension hook, to be later notified of changes in the installation status of the
-     * add-ons.
+     * Adds the given {@code listener} to the extension hook, to be later notified of changes in the
+     * installation status of the add-ons.
      *
      * @param listener the listener that will be added and then notified
      * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
@@ -259,7 +262,8 @@ public class ExtensionHook {
     /**
      * Gets the {@link AddOnInstallationStatusListener}s added to this hook.
      *
-     * @return an unmodifiable {@code List} containing the added {@code AddOnInstallationStatusListener}s, never {@code null}.
+     * @return an unmodifiable {@code List} containing the added {@code
+     *     AddOnInstallationStatusListener}s, never {@code null}.
      * @since 2.5.0
      */
     List<AddOnInstallationStatusListener> getAddOnInstallationStatusListeners() {
@@ -271,7 +275,7 @@ public class ExtensionHook {
 
     /**
      * Gets the hook for menus.
-     * 
+     *
      * @return the hook for menus, never {@code null}.
      */
     public ExtensionHookMenu getHookMenu() {
@@ -293,7 +297,7 @@ public class ExtensionHook {
 
     /**
      * Gets the hook for view components.
-     * 
+     *
      * @return the hook for view components, never {@code null}.
      */
     public ExtensionHookView getHookView() {
@@ -313,16 +317,12 @@ public class ExtensionHook {
         return hookView;
     }
 
-    /**
-     * @return Returns the model.
-     */
+    /** @return Returns the model. */
     public Model getModel() {
         return model;
     }
 
-    /**
-     * @return Returns the optionsListenerList.
-     */
+    /** @return Returns the optionsListenerList. */
     public Vector<OptionsChangedListener> getOptionsChangedListenerList() {
         return optionsListenerList;
     }
@@ -331,16 +331,12 @@ public class ExtensionHook {
         return optionsParamSetList;
     }
 
-    /**
-     * @return Returns the proxyListenerList.
-     */
+    /** @return Returns the proxyListenerList. */
     public Vector<ProxyListener> getProxyListenerList() {
         return proxyListenerList;
     }
 
-    /**
-     * @return Returns the sessionListenerList.
-     */
+    /** @return Returns the sessionListenerList. */
     public Vector<SessionChangedListener> getSessionListenerList() {
         return sessionListenerList;
     }
@@ -348,19 +344,17 @@ public class ExtensionHook {
     public Vector<SiteMapListener> getSiteMapListenerList() {
         return siteMapListenerList;
     }
-    
+
     // ZAP: get all scannerhooks (used by extensionloader and the scanner)
     public Vector<ScannerHook> getScannerHookList() {
-    	return scannerHookList;
+        return scannerHookList;
     }
 
     public Vector<PersistentConnectionListener> getPersistentConnectionListener() {
         return persistentConnectionListenerList;
     }
-    
-    /**
-     * @return Returns the view.
-     */
+
+    /** @return Returns the view. */
     public ViewDelegate getView() {
         return view;
     }
@@ -369,33 +363,37 @@ public class ExtensionHook {
         return arg;
     }
 
-	public List<AddonFilesChangedListener> getAddonFilesChangedListener() {
-		return addonFilesChangedListenerList;
-	}
+    public List<AddonFilesChangedListener> getAddonFilesChangedListener() {
+        return addonFilesChangedListenerList;
+    }
 
     /**
-     * Adds the given {@code overrideMessageProxyListener} to the extension hook, to be later added to the
-     * {@link org.parosproxy.paros.control.Proxy Proxy}.
-     * <p>
-     * By default, the {@code OverrideMessageProxyListener}s added to this extension hook are removed from the {@code Proxy}
-     * when the extension is unloaded.
+     * Adds the given {@code overrideMessageProxyListener} to the extension hook, to be later added
+     * to the {@link org.parosproxy.paros.control.Proxy Proxy}.
      *
-     * @param overrideMessageProxyListener the {@code OverrideMessageProxyListener} that will be added to the {@code Proxy}
-     * @throws IllegalArgumentException if the given {@code overrideMessageProxyListener} is {@code null}.
+     * <p>By default, the {@code OverrideMessageProxyListener}s added to this extension hook are
+     * removed from the {@code Proxy} when the extension is unloaded.
+     *
+     * @param overrideMessageProxyListener the {@code OverrideMessageProxyListener} that will be
+     *     added to the {@code Proxy}
+     * @throws IllegalArgumentException if the given {@code overrideMessageProxyListener} is {@code
+     *     null}.
      * @since 2.7.0
      */
-    public void addOverrideMessageProxyListener(OverrideMessageProxyListener overrideMessageProxyListener) {
+    public void addOverrideMessageProxyListener(
+            OverrideMessageProxyListener overrideMessageProxyListener) {
         getOverrideMessageProxyListenerList().add(overrideMessageProxyListener);
     }
 
     /**
      * Gets the {@link OverrideMessageProxyListener}s added to this hook.
-     * <p>
-     * While it's possible to add the listener with this method it's not recommended, use
-     * {@link #addOverrideMessageProxyListener(OverrideMessageProxyListener)} whenever possible. The accessibility of this
-     * method might change in a future version (to package access).
      *
-     * @return a {@code List} containing the added {@code OverrideMessageProxyListener}s, never {@code null}.
+     * <p>While it's possible to add the listener with this method it's not recommended, use {@link
+     * #addOverrideMessageProxyListener(OverrideMessageProxyListener)} whenever possible. The
+     * accessibility of this method might change in a future version (to package access).
+     *
+     * @return a {@code List} containing the added {@code OverrideMessageProxyListener}s, never
+     *     {@code null}.
      * @since 2.3.0
      */
     public List<OverrideMessageProxyListener> getOverrideMessageProxyListenerList() {
@@ -406,11 +404,14 @@ public class ExtensionHook {
     }
 
     /**
-     * Adds the given {@link ContextDataFactory} to the extension hook, to be later added to the {@link Model}.
-     * <p>
-     * By default, the {@code ContextDataFactory}s added are removed from the {@code Model} when the extension is unloaded.
+     * Adds the given {@link ContextDataFactory} to the extension hook, to be later added to the
+     * {@link Model}.
      *
-     * @param contextDataFactory the {@code ContextDataFactory} that will be added to the {@code Model}
+     * <p>By default, the {@code ContextDataFactory}s added are removed from the {@code Model} when
+     * the extension is unloaded.
+     *
+     * @param contextDataFactory the {@code ContextDataFactory} that will be added to the {@code
+     *     Model}
      * @since 2.5.0
      */
     public void addContextDataFactory(ContextDataFactory contextDataFactory) {
@@ -423,7 +424,8 @@ public class ExtensionHook {
     /**
      * Gets the {@link ContextDataFactory}s added to this hook.
      *
-     * @return an unmodifiable {@code List} containing the added {@code ContextDataFactory}s, never {@code null}.
+     * @return an unmodifiable {@code List} containing the added {@code ContextDataFactory}s, never
+     *     {@code null}.
      * @since 2.5.0
      */
     List<ContextDataFactory> getContextDataFactories() {
@@ -434,11 +436,11 @@ public class ExtensionHook {
     }
 
     /**
-     * Adds the given {@code apiImplementor} to the extension hook, to be later added to the
-     * {@link org.zaproxy.zap.extension.api.API API}.
-     * <p>
-     * By default, the {@code ApiImplementor}s added to this extension hook are removed from the {@code API} when the extension
-     * is unloaded.
+     * Adds the given {@code apiImplementor} to the extension hook, to be later added to the {@link
+     * org.zaproxy.zap.extension.api.API API}.
+     *
+     * <p>By default, the {@code ApiImplementor}s added to this extension hook are removed from the
+     * {@code API} when the extension is unloaded.
      *
      * @param apiImplementor the ApiImplementor that will be added to the ZAP API
      * @throws IllegalArgumentException if the given {@code apiImplementor} is {@code null}.
@@ -458,7 +460,8 @@ public class ExtensionHook {
     /**
      * Gets the {@link ApiImplementor}s added to this hook.
      *
-     * @return an unmodifiable {@code List} containing the added {@code ApiImplementor}s, never {@code null}.
+     * @return an unmodifiable {@code List} containing the added {@code ApiImplementor}s, never
+     *     {@code null}.
      * @since 2.6.0
      */
     List<ApiImplementor> getApiImplementors() {
@@ -471,9 +474,9 @@ public class ExtensionHook {
     /**
      * Adds the given {@code httpSenderListener} to the extension hook, to be later added to the
      * {@link org.parosproxy.paros.network.HttpSender HttpSender}.
-     * <p>
-     * By default, the {@code HttpSenderListener}s added to this extension hook are removed from the {@code HttpSender} when the
-     * extension is unloaded.
+     *
+     * <p>By default, the {@code HttpSenderListener}s added to this extension hook are removed from
+     * the {@code HttpSender} when the extension is unloaded.
      *
      * @param httpSenderListener the HttpSenderListener that will be added to the {@code HttpSender}
      * @throws IllegalArgumentException if the given {@code httpSenderListener} is {@code null}.
@@ -493,7 +496,8 @@ public class ExtensionHook {
     /**
      * Gets the {@link HttpSenderListener}s added to this hook.
      *
-     * @return an unmodifiable {@code List} containing the added {@code HttpSenderListener}s, never {@code null}.
+     * @return an unmodifiable {@code List} containing the added {@code HttpSenderListener}s, never
+     *     {@code null}.
      * @since 2.7.0
      */
     List<HttpSenderListener> getHttpSenderListeners() {
