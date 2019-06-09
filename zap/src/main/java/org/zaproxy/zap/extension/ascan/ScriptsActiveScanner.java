@@ -330,4 +330,24 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     public int getWascId() {
         return 0;
     }
+
+    @Override
+    public boolean isPage200(HttpMessage msg) {
+        return super.isPage200(msg);
+    }
+
+    @Override
+    public boolean isPage404(HttpMessage msg) {
+        return super.isPage404(msg);
+    }
+
+    @Override
+    public boolean isPage500(HttpMessage msg) {
+        return super.isPage500(msg);
+    }
+
+    @Override
+    public boolean isPageOther(HttpMessage msg) {
+        return super.isPageOther(msg);
+    }
 }

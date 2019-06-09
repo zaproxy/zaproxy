@@ -66,6 +66,7 @@
 // ZAP: 2019/10/21 Use and expose Alert builder.
 // ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
 // ExtensionAntiCSRF.
+// ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -87,6 +88,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
@@ -585,6 +587,62 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     protected boolean isFileExist(HttpMessage msg) {
         return parent.getAnalyser().isFileExist(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches the specific {@code CustomPageType}
+     *
+     * @param msg the message that will be checked
+     * @param cpType the custom page type to be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    private boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
+        return parent.isCustomPage(msg, cpType);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPageType.OK_200} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPage200(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.OK_200);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPageType.ERROR_500} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPage500(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.ERROR_500);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPageType.NOTFOUND_404} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPage404(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.NOTFOUND_404);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPageType.OTHER} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPageOther(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.OTHER);
     }
 
     /**
