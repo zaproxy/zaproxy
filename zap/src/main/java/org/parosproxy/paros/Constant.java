@@ -97,6 +97,7 @@
 // ZAP: 2019/05/29 Update Jericho log configuration.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/06/07 Update current version.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -158,7 +159,7 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
 
-    private static final long VERSION_TAG = 2007000;
+    private static final long VERSION_TAG = 2008000;
 
     // Old version numbers - for upgrade
     private static final long V_2_7_0_TAG = 2007000;
