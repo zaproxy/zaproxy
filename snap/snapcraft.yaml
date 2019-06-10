@@ -1,5 +1,5 @@
 name: zaproxy
-version: '2.7.0' 
+version: '2.8.0' 
 summary: OWASP ZAP, a tool for finding vulnerabilities in web applications
 description: |
   The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools
@@ -19,7 +19,7 @@ apps:
 parts:
   zaproxy:
     after: [desktop-glib-only]
-    source: https://github.com/zaproxy/zaproxy/releases/download/2.7.0/ZAP_2.7.0_Linux.tar.gz
+    source: https://github.com/zaproxy/zaproxy/releases/download/v2.8.0/ZAP_2.8.0_Linux.tar.gz
     plugin: dump
     override-build: |
       cp -R * $SNAPCRAFT_PART_INSTALL/
