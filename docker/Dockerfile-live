@@ -46,21 +46,12 @@ RUN mkdir /home/zap/.vnc
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
-# Pull the ZAP repos
+# Pull the ZAP repo
 RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
-	git clone --depth 1 https://github.com/zaproxy/zap-extensions.git && \
-	git clone --depth 1 https://github.com/zaproxy/zap-core-help.git && \
-	git clone --depth 1 https://github.com/zaproxy/zap-hud.git && \
-	# Build ZAP
-	cd zap-extensions && \
-	./gradlew copyWeeklyAddOns && \
-	cd ../zap-hud/ && \
-	./gradlew copyZapAddOn && \
-	cd ../zap-core-help/ && \
-	./gradlew copyWeeklyAddOns && \
-	cd ../zaproxy && \
-	ant -f build/build.xml day-stamped-release && \
-	cp -R /zap-src/zaproxy/build/zap/* /zap/ && \
+	# Build ZAP with weekly add-ons
+	cd zaproxy && \
+	./gradlew :zap:prepareDistWeekly && \
+	cp -R /zap-src/zaproxy/zap/build/distFilesWeekly/* /zap/ && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \
 	# Setup Webswing
