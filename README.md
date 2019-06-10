@@ -25,7 +25,7 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
   * [Swag!](https://github.com/zaproxy/zap-swag) - official ZAP swag that you can buy, as well as all of the original artwork released under the CC License
 
 ### For help using ZAP:
-  * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.7.0/ZAPGettingStartedGuide-2.7.pdf) - an introductory guide you can print
+  * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/v2.8.0/ZAPGettingStartedGuide-2.8.pdf) - an introductory guide you can print
   * [Tutorial Videos](https://www.youtube.com/playlist?list=PLEBitBW-Hlsv8cEIUntAO8st2UGhmrjUB)
   * [Articles](https://github.com/zaproxy/zaproxy/wiki/ZAP-Articles) - that go into ZAP features in more depth
   * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
