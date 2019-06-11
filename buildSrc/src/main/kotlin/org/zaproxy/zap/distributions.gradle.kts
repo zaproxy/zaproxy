@@ -307,9 +307,9 @@ val buildWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
 
     repositoriesDirectory.set(temporaryDir)
     repositoriesDataFile.set(file("src/main/weekly-add-ons.json"))
+    clean.set(true)
 
     tasks {
-        register("clean")
         register("test")
         register("copyZapAddOn") {
             args.set(listOf("--into=$weeklyAddOnsDir"))
