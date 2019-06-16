@@ -1,11 +1,11 @@
 # [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap32x32.png) OWASP ZAP](https://www.owasp.org/index.php/ZAP)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub release](https://img.shields.io/github/release/zaproxy/zaproxy.svg)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
-[![Build Status](https://travis-ci.org/zaproxy/zaproxy.svg?branch=develop)](https://travis-ci.org/zaproxy/zaproxy)
+[![Build Status](https://travis-ci.com/zaproxy/zaproxy.svg?branch=develop)](https://travis-ci.com/zaproxy/zaproxy)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/24/badge)](https://bestpractices.coreinfrastructure.org/projects/24)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5559/badge.svg)](https://scan.coverity.com/projects/zaproxy-zaproxy)
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
-[![Javadocs](https://javadoc.io/badge/org.zaproxy/zap/2.7.0.svg)](https://javadoc.io/doc/org.zaproxy/zap/2.7.0)
+[![Javadocs](https://javadoc.io/badge/org.zaproxy/zap/2.8.0.svg)](https://javadoc.io/doc/org.zaproxy/zap/2.8.0)
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://www.owasp.org/index.php/OWASP_Project_Inventory#tab=Flagship_Projects)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/zaproxy/zaproxy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/zaproxy/zaproxy/context:java)
 [![Twitter Follow](https://img.shields.io/twitter/follow/zaproxy.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/zaproxy)
@@ -25,7 +25,7 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
   * [Swag!](https://github.com/zaproxy/zap-swag) - official ZAP swag that you can buy, as well as all of the original artwork released under the CC License
 
 ### For help using ZAP:
-  * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.7.0/ZAPGettingStartedGuide-2.7.pdf) - an introductory guide you can print
+  * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/v2.8.0/ZAPGettingStartedGuide-2.8.pdf) - an introductory guide you can print
   * [Tutorial Videos](https://www.youtube.com/playlist?list=PLEBitBW-Hlsv8cEIUntAO8st2UGhmrjUB)
   * [Articles](https://github.com/zaproxy/zaproxy/wiki/ZAP-Articles) - that go into ZAP features in more depth
   * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
