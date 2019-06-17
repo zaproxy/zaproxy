@@ -56,6 +56,7 @@ public class CreateGitHubRelease extends DefaultTask {
     private final Property<String> body;
     private final RegularFileProperty bodyFile;
     private final Property<Boolean> draft;
+    private final Property<Boolean> prerelease;
     private NamedDomainObjectContainer<Asset> assets;
 
     public CreateGitHubRelease() {
@@ -67,6 +68,7 @@ public class CreateGitHubRelease extends DefaultTask {
         this.body = objects.property(String.class);
         this.bodyFile = objects.fileProperty();
         this.draft = objects.property(Boolean.class).value(false);
+        this.prerelease = objects.property(Boolean.class).value(false);
         this.assets = getProject().container(Asset.class, label -> new Asset(label, getProject()));
 
         setGroup("ZAP Misc");
@@ -111,6 +113,11 @@ public class CreateGitHubRelease extends DefaultTask {
         return draft;
     }
 
+    @Input
+    public Property<Boolean> getPrerelease() {
+        return prerelease;
+    }
+
     @Nested
     @Optional
     public Iterable<Asset> getAssets() {
@@ -145,6 +152,7 @@ public class CreateGitHubRelease extends DefaultTask {
                 ghRepo.createRelease(tag.get())
                         .name(title.get())
                         .body(releaseBody)
+                        .prerelease(prerelease.get())
                         .draft(true)
                         .create();
 

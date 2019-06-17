@@ -79,6 +79,7 @@ System.getenv("GITHUB_REF")?.let { ref ->
         title.set("$targetTag")
         body.set("")
         draft.set(true)
+        prerelease.set(true)
 
         assets {
             register("weekly") {
