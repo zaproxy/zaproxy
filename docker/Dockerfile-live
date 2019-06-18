@@ -50,7 +50,7 @@ ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	# Build ZAP with weekly add-ons
 	cd zaproxy && \
-	./gradlew :zap:prepareDistWeekly && \
+	ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly && \
 	cp -R /zap-src/zaproxy/zap/build/distFilesWeekly/* /zap/ && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \

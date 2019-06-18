@@ -310,7 +310,9 @@ val buildWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
     clean.set(true)
 
     tasks {
-        register("test")
+        if (System.getenv("ZAP_WEEKLY_ADDONS_NO_TEST") != "true") {
+            register("test")
+        }
         register("copyZapAddOn") {
             args.set(listOf("--into=$weeklyAddOnsDir"))
         }
