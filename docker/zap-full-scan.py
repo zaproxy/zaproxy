@@ -85,7 +85,7 @@ def usage():
     print('    -w report_md      file to write the full ZAP Wiki(Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
     print('    -J report_json    file to write the full ZAP JSON document')
-    print('    -a                include the alpha passive scan rules as well')
+    print('    -a                include the alpha active and passive scan rules as well')
     print('    -d                show debug messages')
     print('    -P                specify listen port')
     print('    -D                delay in seconds to wait for passive scanning ')
@@ -265,11 +265,12 @@ def main(argv):
             params = [
                       '-config', 'spider.maxDuration=' + str(mins),
                       '-addonupdate',
-                      '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+                      '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                      '-addoninstall', 'ascanrulesBeta']
 
             if zap_alpha:
-                params.append('-addoninstall')
-                params.append('pscanrulesAlpha')
+                params.extend(['-addoninstall', 'pscanrulesAlpha'])
+                params.extend(['-addoninstall', 'ascanrulesAlpha'])
 
             add_zap_options(params, zap_options)
 
@@ -288,10 +289,12 @@ def main(argv):
         params = [
                   '-config', 'spider.maxDuration=' + str(mins),
                   '-addonupdate',
-                  '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+                  '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                  '-addoninstall', 'ascanrulesBeta']
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
+            params.extend(['-addoninstall', 'ascanrulesAlpha'])
 
         add_zap_options(params, zap_options)
 
