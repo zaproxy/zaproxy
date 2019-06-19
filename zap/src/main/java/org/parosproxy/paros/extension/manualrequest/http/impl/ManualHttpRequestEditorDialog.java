@@ -314,7 +314,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         try {
             URI uri = new URI("http://www.any_domain_name.org/path", true);
             msg.setRequestHeader(
-                    new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
+                    new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
             setMessage(msg);
         } catch (HttpMalformedHeaderException e) {
             logger.error(e.getMessage(), e);
