@@ -5,6 +5,7 @@
  *  - base64.decode.badinput
  *  - base64.decode.invalidlenght
  * Changed to log the exception instead of print the exception stack trace.
+ * Minor formatting tweak and remove useless conditional (per LGTM issues)
  */
 package org.parosproxy.paros.extension.encoder;
 
@@ -1554,7 +1555,7 @@ public class Base64
         {
             // Set up some useful variables
             java.io.File file = new java.io.File( filename );
-            byte[] buffer = new byte[ Math.max((int)(file.length() * 1.4+1),40) ]; // Need max() for math on small files (v2.2.1); Need +1 for a few corner cases (v2.3.5)
+            byte[] buffer = new byte[Math.max((int)(file.length() * 1.4 + 1), 40)]; // Need max() for math on small files (v2.2.1); Need +1 for a few corner cases (v2.3.5)
             int length   = 0;
             int numBytes = 0;
             
@@ -1778,7 +1779,7 @@ public class Base64
             }   // end else: get data
             
             // Got data?
-            if( position >= 0 ) {
+            else {
                 // End of relevant data?
                 if( /*!encode &&*/ position >= numSigBytes ){
                     return -1;
@@ -1801,7 +1802,7 @@ public class Base64
                 return b & 0xFF; // This is how you "cast" a byte that's
                                  // intended to be unsigned.
                 
-            }   // end if: position >= 0
+            }   // end else (position >= 0)
             
             throw new java.io.IOException( "Error in Base64 code reading stream." );
         }   // end read

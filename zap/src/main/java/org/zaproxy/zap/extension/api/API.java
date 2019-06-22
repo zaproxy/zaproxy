@@ -482,6 +482,14 @@ public class API {
                     }
 
                     ApiResponse res;
+                    if (reqType == null) {
+                        throw new ApiException(
+                                ApiException.Type.BAD_TYPE, "Request Type was not provided.");
+                    }
+                    if (impl == null) {
+                        throw new ApiException(
+                                ApiException.Type.NO_IMPLEMENTOR, "Implementor was not provided.");
+                    }
                     switch (reqType) {
                         case action:
                             if (!getOptionsParamApi().isDisableKey()) {
@@ -537,21 +545,17 @@ public class API {
                             msg = impl.handleApiOther(msg, name, params);
                             break;
                         case pconn:
-                            if (impl != null) {
-                                ApiPersistentConnection pconn =
-                                        impl.getApiPersistentConnection(name);
-                                if (pconn != null) {
-                                    if (!getOptionsParamApi().isDisableKey()
-                                            && !getOptionsParamApi().isNoKeyForSafeOps()) {
-                                        if (!this.hasValidKey(requestHeader, params)) {
-                                            throw new ApiException(ApiException.Type.BAD_API_KEY);
-                                        }
+                            ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
+                            if (pconn != null) {
+                                if (!getOptionsParamApi().isDisableKey()
+                                        && !getOptionsParamApi().isNoKeyForSafeOps()) {
+                                    if (!this.hasValidKey(requestHeader, params)) {
+                                        throw new ApiException(ApiException.Type.BAD_API_KEY);
                                     }
-                                    validateMandatoryParams(params, pconn);
                                 }
-                                impl.handleApiPersistentConnection(
-                                        msg, httpIn, httpOut, name, params);
+                                validateMandatoryParams(params, pconn);
                             }
+                            impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
                             return new HttpMessage();
                     }
                 } else {

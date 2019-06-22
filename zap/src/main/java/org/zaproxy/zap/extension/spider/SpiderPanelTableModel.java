@@ -212,7 +212,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
         @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
-            if (obj == null) return false;
+            if (!(obj instanceof SpiderScanResult)) return false;
             // Removed some irrelevant checks, to speed up the method.
             SpiderScanResult other = (SpiderScanResult) obj;
             if (method == null) {
