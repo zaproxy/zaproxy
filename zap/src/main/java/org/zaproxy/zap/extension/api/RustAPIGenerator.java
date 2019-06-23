@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
 
 public class RustAPIGenerator extends AbstractAPIGenerator {
 
-    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-rust/";
+    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-rust/src";
 
     private static final String HEADER =
             "/* Zed Attack Proxy (ZAP) and its related class files.\n"
@@ -113,9 +113,9 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
             if (isOptional()) {
-                out.write("\t/**\n");
-                out.write("\t * " + OPTIONAL_MESSAGE + "\n");
-                out.write("\t */\n");
+                out.write("/**\n");
+                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+                out.write(" */\n");
             }
         }
         int paramCount = 0;
@@ -150,15 +150,15 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
         out.write(") -> Result<Value, ZapApiError> {\n");
 
         if (paramCount > 0) {
-            out.write("\tlet mut params = HashMap::new();\n");
+            out.write("    let mut params = HashMap::new();\n");
         } else {
-            out.write("\tlet params = HashMap::new();\n");
+            out.write("    let params = HashMap::new();\n");
         }
 
         if (element.getMandatoryParamNames() != null) {
             for (String param : element.getMandatoryParamNames()) {
                 out.write(
-                        "\tparams.insert(\""
+                        "    params.insert(\""
                                 + param
                                 + "\".to_string(), "
                                 + getSafeName(param.toLowerCase())
@@ -168,7 +168,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
         if (element.getOptionalParamNames() != null) {
             for (String param : element.getOptionalParamNames()) {
                 out.write(
-                        "\tparams.insert(\""
+                        "    params.insert(\""
                                 + param
                                 + "\".to_string(), "
                                 + getSafeName(param.toLowerCase())
@@ -177,7 +177,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
         }
 
         out.write(
-                "\tsuper::call(service, \""
+                "    super::call(service, \""
                         + component
                         + "\", \""
                         + type
@@ -208,6 +208,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
                                 "(?<=[^A-Z])(?=[A-Z])",
                                 "(?<=[A-Za-z])(?=[^A-Za-z])"),
                         "_")
+                .replaceAll("__", "_")
                 .toLowerCase();
     }
 

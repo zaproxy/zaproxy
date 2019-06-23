@@ -19,11 +19,15 @@
  */
 package org.zaproxy.zap.tasks;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.InvalidUserDataException;
@@ -54,8 +58,11 @@ public class CreateGitHubRelease extends DefaultTask {
     private final Property<String> tag;
     private final Property<String> title;
     private final Property<String> body;
+    private final Property<Boolean> addChecksums;
+    private final Property<String> checksumAlgorithm;
     private final RegularFileProperty bodyFile;
     private final Property<Boolean> draft;
+    private final Property<Boolean> prerelease;
     private NamedDomainObjectContainer<Asset> assets;
 
     public CreateGitHubRelease() {
@@ -65,8 +72,11 @@ public class CreateGitHubRelease extends DefaultTask {
         this.tag = objects.property(String.class);
         this.title = objects.property(String.class);
         this.body = objects.property(String.class);
+        this.addChecksums = objects.property(Boolean.class).value(true);
+        this.checksumAlgorithm = objects.property(String.class);
         this.bodyFile = objects.fileProperty();
         this.draft = objects.property(Boolean.class).value(false);
+        this.prerelease = objects.property(Boolean.class).value(false);
         this.assets = getProject().container(Asset.class, label -> new Asset(label, getProject()));
 
         setGroup("ZAP Misc");
@@ -99,6 +109,16 @@ public class CreateGitHubRelease extends DefaultTask {
         return body;
     }
 
+    @Input
+    public Property<Boolean> getAddChecksums() {
+        return addChecksums;
+    }
+
+    @Input
+    public Property<String> getChecksumAlgorithm() {
+        return checksumAlgorithm;
+    }
+
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.NONE)
@@ -109,6 +129,11 @@ public class CreateGitHubRelease extends DefaultTask {
     @Input
     public Property<Boolean> getDraft() {
         return draft;
+    }
+
+    @Input
+    public Property<Boolean> getPrerelease() {
+        return prerelease;
     }
 
     @Nested
@@ -130,21 +155,33 @@ public class CreateGitHubRelease extends DefaultTask {
         if (bodyFile.isPresent() && body.isPresent()) {
             throw new InvalidUserDataException("Only one type of body property must be set.");
         }
+        if (checksumAlgorithm.get().isEmpty()) {
+            throw new IllegalArgumentException("The checksum algorithm must not be empty.");
+        }
 
         GHRepository ghRepo = GitHub.connect("", authToken.get()).getRepository(repo.get());
 
         validateTagExists(ghRepo, tag.get());
         validateReleaseDoesNotExist(ghRepo, tag.get());
 
-        String releaseBody =
+        StringBuilder releaseBody = new StringBuilder(250);
+        releaseBody.append(
                 bodyFile.isPresent()
                         ? readContents(bodyFile.getAsFile().get().toPath())
-                        : body.getOrElse("");
+                        : body.getOrElse(""));
+
+        if (addChecksums.get()) {
+            if (releaseBody.length() != 0) {
+                releaseBody.append("\n\n---\n");
+            }
+            appendChecksumsTable(releaseBody);
+        }
 
         GHRelease release =
                 ghRepo.createRelease(tag.get())
                         .name(title.get())
-                        .body(releaseBody)
+                        .body(releaseBody.toString())
+                        .prerelease(prerelease.get())
                         .draft(true)
                         .create();
 
@@ -176,6 +213,33 @@ public class CreateGitHubRelease extends DefaultTask {
 
     private static String readContents(Path file) throws IOException {
         return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+    }
+
+    private void appendChecksumsTable(StringBuilder body) throws IOException {
+        String algorithm = checksumAlgorithm.get();
+        body.append("| File | Checksum (").append(algorithm).append(") |\n");
+        body.append("|---|---|\n");
+
+        String baseDownloadLink =
+                "https://github.com/" + repo.get() + "/releases/download/" + tag.get() + "/";
+        DigestUtils digestUtils = new DigestUtils(algorithm);
+
+        List<File> files =
+                assets.stream()
+                        .map(e -> e.getFile().getAsFile().get())
+                        .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                        .collect(Collectors.toList());
+        for (File file : files) {
+            String fileName = file.getName();
+            body.append("| [")
+                    .append(fileName)
+                    .append("](")
+                    .append(baseDownloadLink)
+                    .append(fileName)
+                    .append(") | `")
+                    .append(digestUtils.digestAsHex(file))
+                    .append("` |\n");
+        }
     }
 
     public static final class Asset implements Named {
