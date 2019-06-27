@@ -195,6 +195,11 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                     break;
                             }
 
+                            if (rsNodes == null) {
+                                log.error(
+                                        "There was a problem parsing the resource. rsNodes should not be null.");
+                                return false;
+                            }
                             // now get the list of files stored in the SVN repo (or this folder of
                             // the repo, depending the SVN working copy format in use)
                             while (rsNodes.next()) {

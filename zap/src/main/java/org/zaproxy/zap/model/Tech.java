@@ -147,10 +147,9 @@ public class Tech implements Comparable<Tech> {
 
     @Override
     public boolean equals(Object tech) {
-        if (tech == null) {
+        if (!(tech instanceof Tech)) {
             return false;
         }
-
         return this.toString().equals(tech.toString());
     }
 
