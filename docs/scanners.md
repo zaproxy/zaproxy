@@ -96,6 +96,7 @@ Scanners:
 10106   Http Only Site
 10107   Httpoxy - Proxy Header Misuse
 10108   Blank link target
+10109   Modern Web Application (info)
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
