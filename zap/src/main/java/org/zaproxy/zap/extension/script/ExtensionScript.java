@@ -526,7 +526,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      *
      * @param type the new type of script
      * @throws InvalidParameterException if a script type with same name is already registered
-     * @see #removeScripType(ScriptType)
+     * @see #removeScriptType(ScriptType)
      */
     public void registerScriptType(ScriptType type) {
         if (typeMap.containsKey(type.getName())) {
@@ -556,8 +556,25 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param type the script type that will be removed
      * @since 2.4.0
      * @see #registerScriptType(ScriptType)
+     * @deprecated (TODO add version) Use {@link #removeScriptType(ScriptType)} instead.
      */
+    @Deprecated
     public void removeScripType(ScriptType type) {
+        removeScriptType(type);
+    }
+
+    /**
+     * Removes the given script type.
+     *
+     * <p>The templates and scripts associated with the given type are also removed, if any.
+     *
+     * <p>The call to this method has no effect if the given type is not registered.
+     *
+     * @param type the script type that will be removed
+     * @since TODO add version
+     * @see #registerScriptType(ScriptType)
+     */
+    public void removeScriptType(ScriptType type) {
         ScriptType scriptType = typeMap.remove(type.getName());
         if (scriptType != null) {
             getTreeModel().removeType(scriptType);
