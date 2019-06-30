@@ -23,12 +23,12 @@ import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -506,9 +506,9 @@ public class DynamicSSLPanel extends AbstractParamPanel {
     }
 
     private void writePubCertificateToFile(File file) throws IOException {
-        try (final OutputStreamWriter osw =
-                new OutputStreamWriter(new FileOutputStream(file), "ASCII")) {
-            osw.write(txt_PubCert.getText());
+        try (BufferedWriter bw =
+                Files.newBufferedWriter(file.toPath(), StandardCharsets.US_ASCII)) {
+            bw.write(txt_PubCert.getText());
         }
     }
 

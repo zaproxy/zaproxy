@@ -219,7 +219,7 @@ public class HttpInputStream extends BufferedInputStream {
     }
 
     @Override
-    public int available() throws IOException {
+    public synchronized int available() throws IOException {
         int avail = 0;
         //		int oneByte = -1;
         int timeout = 0;
