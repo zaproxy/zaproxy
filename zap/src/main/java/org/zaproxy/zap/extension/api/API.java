@@ -28,6 +28,7 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1016,9 +1017,9 @@ public class API {
             return true;
         } finally {
             synchronized (nonces) {
-                for (Entry<String, Nonce> entry : nonces.entrySet()) {
-                    if (!entry.getValue().isValid()) {
-                        nonces.remove(entry.getKey());
+                for (Iterator<Nonce> it = nonces.values().iterator(); it.hasNext(); ) {
+                    if (!it.next().isValid()) {
+                        it.remove();
                     }
                 }
             }
