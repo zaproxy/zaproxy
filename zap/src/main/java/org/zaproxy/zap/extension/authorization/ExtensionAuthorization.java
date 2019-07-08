@@ -93,10 +93,10 @@ public class ExtensionAuthorization extends ExtensionAdaptor
 
     @Override
     public AbstractContextPropertiesPanel getContextPanel(Context context) {
-        ContextAuthorizationPanel panel = this.contextPanelsMap.get(context.getIndex());
+        ContextAuthorizationPanel panel = this.contextPanelsMap.get(context.getId());
         if (panel == null) {
-            panel = new ContextAuthorizationPanel(this, context.getIndex());
-            this.contextPanelsMap.put(context.getIndex(), panel);
+            panel = new ContextAuthorizationPanel(this, context.getId());
+            this.contextPanelsMap.put(context.getId(), panel);
         }
         return panel;
     }
@@ -108,7 +108,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
 
     @Override
     public void discardContext(Context ctx) {
-        this.contextPanelsMap.remove(ctx.getIndex());
+        this.contextPanelsMap.remove(ctx.getId());
     }
 
     @Override
@@ -116,7 +116,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
         try {
             List<String> loadedData =
                     session.getContextDataStrings(
-                            context.getIndex(), RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE);
+                            context.getId(), RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE);
             if (loadedData != null && loadedData.size() > 0) {
                 int type = Integer.parseInt(loadedData.get(0));
                 // Based on the type, call the appropriate method loader
@@ -124,7 +124,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
                     case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
                         context.setAuthorizationDetectionMethod(
                                 BasicAuthorizationDetectionMethod.loadMethodFromSession(
-                                        session, context.getIndex()));
+                                        session, context.getId()));
                         break;
                 }
             }
@@ -139,11 +139,11 @@ public class ExtensionAuthorization extends ExtensionAdaptor
             // Persist the method type first and then the method data itself
             int type = context.getAuthorizationDetectionMethod().getMethodUniqueIdentifier();
             session.setContextData(
-                    context.getIndex(),
+                    context.getId(),
                     RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE,
                     Integer.toString(type));
             context.getAuthorizationDetectionMethod()
-                    .persistMethodToSession(session, context.getIndex());
+                    .persistMethodToSession(session, context.getId());
         } catch (DatabaseException e) {
             log.error("Unable to persist Authorization Detection method.", e);
         }

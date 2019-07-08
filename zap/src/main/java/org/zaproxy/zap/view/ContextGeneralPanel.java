@@ -43,7 +43,7 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
     private JCheckBox chkInScope = null;
 
     public static String getPanelName(Context ctx) {
-        return getPanelName(ctx.getIndex(), ctx.getName());
+        return getPanelName(ctx.getId(), ctx.getName());
     }
 
     public static String getPanelName(int index, String name) {
@@ -70,10 +70,10 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
             super.setName(name);
             return;
         }
-        if (name.startsWith(this.getContextIndex() + ":")) {
+        if (name.startsWith(this.getContextId() + ":")) {
             name = name.substring(name.indexOf(":") + 1);
         }
-        super.setName(getPanelName(this.getContextIndex(), name));
+        super.setName(getPanelName(this.getContextId(), name));
     }
 
     /**
@@ -153,7 +153,7 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
         getTxtDescription().discardAllEdits();
         getChkInScope().setSelected(uiSharedContext.isInScope());
 
-        if (uiSharedContext.getName().equals(Integer.toString(uiSharedContext.getIndex()))
+        if (uiSharedContext.getName().equals(Integer.toString(uiSharedContext.getId()))
                 && uiSharedContext.getIncludeInContextRegexs().size() == 1) {
             // Default to the host name in the first and only regex
             String firstRegex = uiSharedContext.getIncludeInContextRegexs().get(0);
@@ -183,7 +183,7 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
                     Constant.messages.getString("context.error.name.empty"));
         }
 
-        if (!this.getName().equals(getPanelName(this.getContextIndex(), name))
+        if (!this.getName().equals(getPanelName(this.getContextId(), name))
                 && session.getContext(name) != null) {
             throw new IllegalContextNameException(
                     IllegalContextNameException.Reason.DUPLICATED_NAME,
@@ -193,10 +193,10 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void saveContextData(Session session) {
-        Context context = session.getContext(this.getContextIndex());
+        Context context = session.getContext(this.getContextId());
         saveDataInContext(context);
         String name = getTxtName().getText();
-        if (!this.getName().equals(getPanelName(this.getContextIndex(), name))
+        if (!this.getName().equals(getPanelName(this.getContextId(), name))
                 && View.isInitialised()) {
             View.getSingleton().renameContext(context);
         }

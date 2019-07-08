@@ -250,7 +250,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         if (context != null) {
             String userName = this.getStringValue(FIELD_USER);
             List<User> users =
-                    this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+                    this.extUserMgmt.getContextUserAuthManager(context.getId()).getUsers();
             for (User user : users) {
                 if (userName.equals(user.getName())) {
                     return user;
@@ -265,7 +265,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         List<String> userNames = new ArrayList<String>();
         if (context != null) {
             List<User> users =
-                    this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+                    this.extUserMgmt.getContextUserAuthManager(context.getId()).getUsers();
             userNames.add(""); // The default should always be 'not specified'
             for (User user : users) {
                 userNames.add(user.getName());

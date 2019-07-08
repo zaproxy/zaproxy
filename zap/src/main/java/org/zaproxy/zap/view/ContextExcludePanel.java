@@ -39,16 +39,16 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
     private MultipleRegexesOptionsPanel regexesPanel;
 
     /**
-     * Returns the name of the panel "Exclude from context" for the given {@code contextIndex}.
+     * Returns the name of the panel "Exclude from context" for the given {@code contextId}.
      *
-     * @param contextIndex the context index that will be used to create the name of the panel
-     * @return the name of the panel "Exclude from context" for the given {@code contextIndex}
+     * @param contextId the context ID that will be used to create the name of the panel
+     * @return the name of the panel "Exclude from context" for the given {@code contextId}
      * @since 2.2.0
-     * @see Context#getIndex()
+     * @see Context#getId()
      */
-    public static String getPanelName(int contextIndex) {
+    public static String getPanelName(int contextId) {
         // Panel names have to be unique, so precede with the context index
-        return contextIndex + ": " + PANEL_NAME;
+        return contextId + ": " + PANEL_NAME;
     }
 
     /**
@@ -61,7 +61,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
      */
     @Deprecated
     public static String getPanelName(Context context) {
-        return getPanelName(context.getIndex());
+        return getPanelName(context.getId());
     }
 
     /**
@@ -70,12 +70,12 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
      * @param context the target context, must not be {@code null}.
      */
     public ContextExcludePanel(Context context) {
-        super(context.getIndex());
+        super(context.getId());
 
         regexesPanel = new MultipleRegexesOptionsPanel(View.getSingleton().getSessionDialog());
 
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(getContextIndex()));
+        this.setName(getPanelName(getContextId()));
         this.add(getPanelSession(), getPanelSession().getName());
     }
     /**
@@ -136,7 +136,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void saveContextData(Session session) throws Exception {
-        Context context = session.getContext(getContextIndex());
+        Context context = session.getContext(getContextId());
         context.setExcludeFromContextRegexs(regexesPanel.getRegexes());
     }
 

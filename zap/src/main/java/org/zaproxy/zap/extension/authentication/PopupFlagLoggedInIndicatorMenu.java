@@ -39,7 +39,7 @@ public class PopupFlagLoggedInIndicatorMenu extends ExtensionPopupMenuItem {
     private int contextId;
 
     public PopupFlagLoggedInIndicatorMenu(Context ctx) {
-        this.contextId = ctx.getIndex();
+        this.contextId = ctx.getId();
 
         this.setText(
                 Constant.messages.getString(

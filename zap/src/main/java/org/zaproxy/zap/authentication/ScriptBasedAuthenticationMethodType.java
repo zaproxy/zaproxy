@@ -837,7 +837,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
                 // Prepare the method
                 ScriptBasedAuthenticationMethod method =
-                        createAuthenticationMethod(context.getIndex());
+                        createAuthenticationMethod(context.getId());
 
                 // Load the script and make sure it exists and follows the required interface
                 ScriptWrapper script = getScriptsExtension().getScript(scriptName);

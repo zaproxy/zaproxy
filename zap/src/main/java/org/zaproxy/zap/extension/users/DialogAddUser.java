@@ -136,10 +136,10 @@ public class DialogAddUser extends AbstractFormDialog {
         if (this.user != null)
             this.user =
                     new User(
-                            workingContext.getIndex(),
+                            workingContext.getId(),
                             getNameTextField().getText(),
                             this.user.getId());
-        else this.user = new User(workingContext.getIndex(), getNameTextField().getText());
+        else this.user = new User(workingContext.getId(), getNameTextField().getText());
         this.user.setEnabled(getEnabledCheckBox().isSelected());
         // Make sure the credentials panel saves its changes first
         credentialsPanel.saveCredentials();
