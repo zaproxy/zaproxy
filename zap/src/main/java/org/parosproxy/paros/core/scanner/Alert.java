@@ -54,6 +54,7 @@
 // ZAP: 2017/09/15 Initialise the source from the RecordAlert always.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Add utility methods isValidRisk(int) and isValidConfidence(int)
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -891,5 +892,32 @@ public class Alert implements Comparable<Alert> {
             throw new IllegalArgumentException("Parameter source must not be null.");
         }
         this.source = source;
+    }
+
+    /**
+     * Checks if a value {@code int} is between {@value #RISK_INFO} (RISK_INFO) and {@value
+     * #RISK_HIGH} (RISK_HIGH)
+     *
+     * @return true if the checked risk ({@code int}) is in the range, false otherwise
+     * @since TODO add version
+     * @see #RISK_INFO
+     * @see #RISK_HIGH
+     */
+    public static boolean isValidRisk(int risk) {
+        return risk >= RISK_INFO && risk <= RISK_HIGH;
+    }
+
+    /**
+     * Checks if a value {@code int} is between {@value #CONFIDENCE_FALSE_POSITIVE}
+     * (CONFIDENCE_FALSE_POSITIVE) and {@value #CONFIDENCE_USER_CONFIRMED}
+     * (CONFIDENCE_USER_CONFIRMED)
+     *
+     * @return true if the checked confidence ({@code int}) is in the range, false otherwise
+     * @since TODO add version
+     * @see #CONFIDENCE_FALSE_POSITIVE
+     * @see #CONFIDENCE_USER_CONFIRMED
+     */
+    public static boolean isValidConfidence(int confidence) {
+        return confidence >= CONFIDENCE_FALSE_POSITIVE && confidence <= CONFIDENCE_USER_CONFIRMED;
     }
 }
