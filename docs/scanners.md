@@ -205,6 +205,7 @@ Scanners:
 110005  Credit Card Disclosure [Script]
 110006  Private IP Disclosure [Script]
 110007  Username Disclosure [Script]
+110008  Suspicious XML Comments Disclosure [Script]
 
 322420463 Retire.js
 
