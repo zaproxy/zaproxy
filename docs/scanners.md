@@ -198,6 +198,14 @@ Scanners:
 100001  Unexpected Content Types [Script]
 
 110000  Websocket Passive Scan scripts
+110001  Application Error Disclosure [Script]
+110002  Base64 Disclosure [Script]
+110003  Debug Error Disclosure [Script]
+110004  Email Disclosure [Script]
+110005  Credit Card Disclosure [Script]
+110006  Private IP Disclosure [Script]
+110007  Username Disclosure [Script]
+110008  Suspicious XML Comments Disclosure [Script]
 
 322420463 Retire.js
 
