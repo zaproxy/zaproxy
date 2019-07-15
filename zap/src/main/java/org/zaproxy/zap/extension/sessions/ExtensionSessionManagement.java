@@ -106,10 +106,10 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
 
     @Override
     public AbstractContextPropertiesPanel getContextPanel(Context context) {
-        ContextSessionManagementPanel panel = this.contextPanelsMap.get(context.getIndex());
+        ContextSessionManagementPanel panel = this.contextPanelsMap.get(context.getId());
         if (panel == null) {
             panel = new ContextSessionManagementPanel(this, context);
-            this.contextPanelsMap.put(context.getIndex(), panel);
+            this.contextPanelsMap.put(context.getId(), panel);
         }
         return panel;
     }
@@ -158,7 +158,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
 
     @Override
     public void discardContext(Context c) {
-        this.contextPanelsMap.remove(c.getIndex());
+        this.contextPanelsMap.remove(c.getId());
     }
 
     /**
@@ -178,13 +178,13 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         try {
             List<String> typeL =
                     session.getContextDataStrings(
-                            context.getIndex(), RecordContext.TYPE_SESSION_MANAGEMENT_TYPE);
+                            context.getId(), RecordContext.TYPE_SESSION_MANAGEMENT_TYPE);
             if (typeL != null && typeL.size() > 0) {
                 SessionManagementMethodType t =
                         getSessionManagementMethodTypeForIdentifier(Integer.parseInt(typeL.get(0)));
                 if (t != null) {
                     context.setSessionManagementMethod(
-                            t.loadMethodFromSession(session, context.getIndex()));
+                            t.loadMethodFromSession(session, context.getId()));
                 }
             }
         } catch (DatabaseException e) {
@@ -197,11 +197,11 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         try {
             SessionManagementMethodType t = context.getSessionManagementMethod().getType();
             session.setContextData(
-                    context.getIndex(),
+                    context.getId(),
                     RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
                     Integer.toString(t.getUniqueIdentifier()));
             t.persistMethodToSession(
-                    session, context.getIndex(), context.getSessionManagementMethod());
+                    session, context.getId(), context.getSessionManagementMethod());
         } catch (DatabaseException e) {
             log.error("Unable to persist Session Management method.", e);
         }
@@ -220,7 +220,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
                 getSessionManagementMethodTypeForIdentifier(
                         config.getInt(CONTEXT_CONFIG_SESSION_TYPE));
         if (t != null) {
-            SessionManagementMethod method = t.createSessionManagementMethod(ctx.getIndex());
+            SessionManagementMethod method = t.createSessionManagementMethod(ctx.getId());
             t.importData(config, method);
             ctx.setSessionManagementMethod(method);
         }

@@ -177,13 +177,13 @@ public class AuthenticationAPI extends ApiImplementor {
                     actionParams = API.getParams(params.getString(PARAM_METHOD_CONFIG_PARAMS));
                 else actionParams = new JSONObject();
                 context = getContext(params);
-                actionParams.put(PARAM_CONTEXT_ID, context.getIndex());
+                actionParams.put(PARAM_CONTEXT_ID, context.getId());
 
                 AuthenticationMethodType oldMethodType =
                         context.getAuthenticationMethod().getType();
                 AuthMethodEntry authEntry = getSetMethodActionImplementor(params);
                 authEntry.getApi().handleAction(actionParams);
-                resetUsersCredentials(context.getIndex(), oldMethodType, authEntry.getMethodType());
+                resetUsersCredentials(context.getId(), oldMethodType, authEntry.getMethodType());
                 context.save();
                 return ApiResponseElement.OK;
             default:

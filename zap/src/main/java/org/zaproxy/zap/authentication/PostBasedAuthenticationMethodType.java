@@ -801,7 +801,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
                     ExtensionUserManagement userExt = getUserExt();
                     if (userExt != null
-                            && userExt.getUIConfiguredUsers(context.getIndex()).size() == 0) {
+                            && userExt.getUIConfiguredUsers(context.getId()).size() == 0) {
                         String username = userParam.getValue();
                         String password = passwdParam.getValue();
                         if (!username.isEmpty()
@@ -813,13 +813,13 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                             String userStr = paramDecoder.apply(username);
                             String passwdStr = paramDecoder.apply(password);
                             if (!userStr.isEmpty() && !passwdStr.isEmpty()) {
-                                User user = new User(context.getIndex(), userStr);
+                                User user = new User(context.getId(), userStr);
                                 UsernamePasswordAuthenticationCredentials upac =
                                         new UsernamePasswordAuthenticationCredentials(
                                                 userStr, passwdStr);
                                 user.setAuthenticationCredentials(upac);
                                 getUserExt()
-                                        .getContextUserAuthManager(context.getIndex())
+                                        .getContextUserAuthManager(context.getId())
                                         .addUser(user);
                             }
                         }
@@ -1022,8 +1022,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                 sessionDialog.recreateUISharedContexts(
                                         Model.getSingleton().getSession());
                                 uiSharedContext =
-                                        sessionDialog.getUISharedContext(
-                                                this.getContext().getIndex());
+                                        sessionDialog.getUISharedContext(this.getContext().getId());
 
                                 // Do the work/changes on the UI shared context
                                 if (isTypeForMethod(this.getContext().getAuthenticationMethod())) {
@@ -1031,7 +1030,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                             "Selected new login request via PopupMenu. Changing existing "
                                                     + methodName
                                                     + " instance for Context "
-                                                    + getContext().getIndex());
+                                                    + getContext().getId());
                                     PostBasedAuthenticationMethod method =
                                             (PostBasedAuthenticationMethod)
                                                     uiSharedContext.getAuthenticationMethod();
@@ -1050,16 +1049,16 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                             .showSessionDialog(
                                                     Model.getSingleton().getSession(),
                                                     ContextAuthenticationPanel.buildName(
-                                                            this.getContext().getIndex()),
+                                                            this.getContext().getId()),
                                                     false);
                                 } else {
                                     LOGGER.info(
                                             "Selected new login request via PopupMenu. Creating new "
                                                     + methodName
                                                     + " instance for Context "
-                                                    + getContext().getIndex());
+                                                    + getContext().getId());
                                     PostBasedAuthenticationMethod method =
-                                            createAuthenticationMethod(getContext().getIndex());
+                                            createAuthenticationMethod(getContext().getId());
 
                                     try {
                                         method.setLoginRequest(sn);
@@ -1086,7 +1085,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                             .showSessionDialog(
                                                     Model.getSingleton().getSession(),
                                                     ContextAuthenticationPanel.buildName(
-                                                            this.getContext().getIndex()),
+                                                            this.getContext().getId()),
                                                     false,
                                                     new Runnable() {
 
@@ -1207,8 +1206,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 }
 
                 // Set the method
-                PostBasedAuthenticationMethod method =
-                        createAuthenticationMethod(context.getIndex());
+                PostBasedAuthenticationMethod method = createAuthenticationMethod(context.getId());
                 try {
                     method.setLoginRequest(loginUrl, postData);
                 } catch (Exception e) {

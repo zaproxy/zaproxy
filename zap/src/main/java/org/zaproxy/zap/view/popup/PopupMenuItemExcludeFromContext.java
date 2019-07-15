@@ -57,7 +57,7 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
     @Override
     public void performAction(SiteNode sn) {
         Context uiSharedContext =
-                View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
+                View.getSingleton().getSessionDialog().getUISharedContext(context.getId());
 
         try {
             uiSharedContext.excludeFromContext(sn, !sn.isLeaf());
@@ -78,7 +78,7 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
         // Show the session dialog without recreating UI Shared contexts
         View.getSingleton()
                 .showSessionDialog(
-                        session, ContextExcludePanel.getPanelName(context.getIndex()), false);
+                        session, ContextExcludePanel.getPanelName(context.getId()), false);
     }
 
     @Override

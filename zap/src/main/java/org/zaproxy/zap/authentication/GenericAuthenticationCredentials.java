@@ -161,7 +161,7 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
                                 .getExtension(ExtensionUserManagement.class);
                 User user =
                         extensionUserManagement
-                                .getContextUserAuthManager(context.getIndex())
+                                .getContextUserAuthManager(context.getId())
                                 .getUserById(userId);
                 if (user == null)
                     throw new ApiException(

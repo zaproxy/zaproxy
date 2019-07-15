@@ -312,7 +312,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      */
     protected void pauseScan(Context context) {
         log.debug("Access Control pause on Context: " + context);
-        threadManager.getScannerThread(context.getIndex()).pauseScan();
+        threadManager.getScannerThread(context.getId()).pauseScan();
     }
 
     /**
@@ -324,7 +324,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      */
     protected void resumeScan(Context context) {
         log.debug("Access Control resume on Context: " + context);
-        threadManager.getScannerThread(context.getIndex()).resumeScan();
+        threadManager.getScannerThread(context.getId()).resumeScan();
     }
 
     /**
@@ -336,7 +336,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      */
     protected void stopScan(Context context) {
         log.debug("Access Control stop on Context: " + context);
-        threadManager.getScannerThread(context.getIndex()).stopScan();
+        threadManager.getScannerThread(context.getId()).stopScan();
     }
 
     /**
@@ -348,7 +348,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @return {@code true} if the scan is paused, {@code false} otherwise.
      */
     protected boolean isScanStarted(Context context) {
-        return threadManager.getScannerThread(context.getIndex()).isRunning();
+        return threadManager.getScannerThread(context.getId()).isRunning();
     }
 
     /**
@@ -360,7 +360,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @return {@code true} if the scan is paused, {@code false} otherwise.
      */
     protected boolean isScanPaused(Context context) {
-        return threadManager.getScannerThread(context.getIndex()).isPaused();
+        return threadManager.getScannerThread(context.getId()).isPaused();
     }
 
     /**
@@ -372,7 +372,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @return the progress
      */
     protected int getScanProgress(Context context) {
-        return threadManager.getScannerThread(context.getIndex()).getScanProgress();
+        return threadManager.getScannerThread(context.getId()).getScanProgress();
     }
 
     /**
@@ -384,7 +384,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @return the maximum value of the progress
      */
     protected int getScanMaximumProgress(Context context) {
-        return threadManager.getScannerThread(context.getIndex()).getScanMaximumProgress();
+        return threadManager.getScannerThread(context.getId()).getScanMaximumProgress();
     }
 
     @Override
@@ -395,7 +395,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
                     public void run() {
                         log.debug("ScanStarted " + panelPrefix + " on context" + contextId);
                         if (getSelectedContext() != null
-                                && contextId == getSelectedContext().getIndex()) {
+                                && contextId == getSelectedContext().getId()) {
                             setScanButtonsAndProgressBarStates(true, false, false);
                             getProgressBar().setValue(0);
                         }
@@ -417,7 +417,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
                     public void run() {
                         log.debug("ScanFinished " + panelPrefix + " on context" + contextId);
                         if (getSelectedContext() != null
-                                && contextId == getSelectedContext().getIndex()) {
+                                && contextId == getSelectedContext().getId()) {
                             setScanButtonsAndProgressBarStates(false, false, true);
                         }
                     }
@@ -444,7 +444,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
                                         + " "
                                         + progress);
                         if (getSelectedContext() != null
-                                && contextId == getSelectedContext().getIndex()) {
+                                && contextId == getSelectedContext().getId()) {
                             getProgressBar().setValue(progress);
                             getProgressBar().setMaximum(maximum);
                         }

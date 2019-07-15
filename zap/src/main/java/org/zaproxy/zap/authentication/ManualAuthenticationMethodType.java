@@ -412,7 +412,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
             public void handleAction(JSONObject params) throws ApiException {
                 Context context =
                         ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
-                ManualAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
+                ManualAuthenticationMethod method = createAuthenticationMethod(context.getId());
                 context.setAuthenticationMethod(method);
             }
         };
@@ -444,7 +444,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
                                 .getExtension(ExtensionUserManagement.class);
                 User user =
                         extensionUserManagement
-                                .getContextUserAuthManager(context.getIndex())
+                                .getContextUserAuthManager(context.getId())
                                 .getUserById(userId);
                 if (user == null) {
                     throw new ApiException(Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
