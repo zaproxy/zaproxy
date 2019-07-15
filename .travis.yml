@@ -1,4 +1,5 @@
 language: java
+install: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./gradlew assemble ; fi
 
 jdk:
   - oraclejdk8
