@@ -106,7 +106,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
      * @param context the context
      */
     public ContextAuthenticationPanel(ExtensionAuthentication extension, Context context) {
-        super(context.getIndex());
+        super(context.getId());
         this.extension = extension;
         initialize();
     }
@@ -118,7 +118,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     /** Initialize the panel. */
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(buildName(getContextIndex()));
+        this.setName(buildName(getContextId()));
         this.setLayout(new GridBagLayout());
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -232,7 +232,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                                 if (selectedAuthenticationMethod == null
                                         || !type.isTypeForMethod(selectedAuthenticationMethod)) {
                                     selectedAuthenticationMethod =
-                                            type.createAuthenticationMethod(getContextIndex());
+                                            type.createAuthenticationMethod(getContextId());
                                 }
 
                                 // Show the configuration panel
@@ -431,7 +431,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     public void saveContextData(Session session) throws Exception {
         saveMethod();
 
-        Context context = session.getContext(getContextIndex());
+        Context context = session.getContext(getContextId());
         // Notify the previously saved method that it's being discarded so the changes can be
         // reflected in the UI
         if (context.getAuthenticationMethod() != null)

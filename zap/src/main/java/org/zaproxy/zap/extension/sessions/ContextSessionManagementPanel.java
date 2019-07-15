@@ -81,7 +81,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
      * @param context the context
      */
     public ContextSessionManagementPanel(ExtensionSessionManagement extension, Context context) {
-        super(context.getIndex());
+        super(context.getId());
         this.extension = extension;
         initialize();
     }
@@ -89,7 +89,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
     /** Initialize the panel. */
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getContextIndex() + ": " + PANEL_NAME);
+        this.setName(getContextId() + ": " + PANEL_NAME);
         this.setLayout(new GridBagLayout());
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -187,7 +187,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
                                         || !type.isTypeForMethod(selectedMethod)) {
                                     // Create the new session management method
                                     selectedMethod =
-                                            type.createSessionManagementMethod(getContextIndex());
+                                            type.createSessionManagementMethod(getContextId());
                                 }
 
                                 // Show the status panel and configuration button, if needed
@@ -267,7 +267,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
     @Override
     public void saveContextData(Session session) throws Exception {
         if (shownConfigPanel != null) shownConfigPanel.saveMethod();
-        session.getContext(getContextIndex()).setSessionManagementMethod(selectedMethod);
+        session.getContext(getContextId()).setSessionManagementMethod(selectedMethod);
     }
 
     @Override

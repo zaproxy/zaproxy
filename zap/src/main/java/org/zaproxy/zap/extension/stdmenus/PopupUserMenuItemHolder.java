@@ -151,7 +151,7 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
             ContextUserAuthManager manager =
-                    extensionUserAuth.getContextUserAuthManager(context.getIndex());
+                    extensionUserAuth.getContextUserAuthManager(context.getId());
 
             for (User user : manager.getUsers()) {
                 ExtensionPopupMenuItem piicm;

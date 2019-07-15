@@ -86,6 +86,7 @@
 // ZAP: 2019/01/04 Keep Show Tab menu item in the position it was added.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -757,7 +758,7 @@ public class View implements ViewDelegate {
         getSessionDialog().createUISharedContext(c);
 
         String contextsNodeName = Constant.messages.getString("context.list");
-        ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
+        ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getId());
         contextGenPanel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(new String[] {contextsNodeName}, contextGenPanel, false);
         this.contextPanels.add(contextGenPanel);
@@ -821,7 +822,7 @@ public class View implements ViewDelegate {
     public void renameContext(Context c) {
         ContextGeneralPanel ctxPanel = getContextGeneralPanel(c);
         if (ctxPanel != null) {
-            getSessionDialog().renamePanel(ctxPanel, c.getIndex() + ":" + c.getName());
+            getSessionDialog().renamePanel(ctxPanel, c.getId() + ":" + c.getName());
         }
         this.getSiteTreePanel().reloadContextTree();
     }
@@ -836,7 +837,7 @@ public class View implements ViewDelegate {
         for (AbstractParamPanel panel : contextPanels) {
             if (panel instanceof ContextGeneralPanel) {
                 ContextGeneralPanel contextGeneralPanel = (ContextGeneralPanel) panel;
-                if (contextGeneralPanel.getContextIndex() == context.getIndex()) {
+                if (contextGeneralPanel.getContextId() == context.getId()) {
                     return contextGeneralPanel;
                 }
             }
@@ -894,7 +895,7 @@ public class View implements ViewDelegate {
         for (Iterator<AbstractContextPropertiesPanel> it = contextPanels.iterator();
                 it.hasNext(); ) {
             AbstractContextPropertiesPanel panel = it.next();
-            if (panel.getContextIndex() == c.getIndex()) {
+            if (panel.getContextId() == c.getId()) {
                 getSessionDialog().removeParamPanel(panel);
                 it.remove();
                 removedPanels.add(panel);

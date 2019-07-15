@@ -264,7 +264,7 @@ public class SpiderAPI extends ApiImplementor {
                 context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
                 User user =
                         usersExtension
-                                .getContextUserAuthManager(context.getIndex())
+                                .getContextUserAuthManager(context.getId())
                                 .getUserById(userID);
                 if (user == null) {
                     throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);

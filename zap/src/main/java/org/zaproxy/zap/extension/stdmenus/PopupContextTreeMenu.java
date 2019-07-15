@@ -46,7 +46,7 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
             if (node == null || node.isRoot()) {
                 return false;
             }
-            contextId = ((Target) node.getUserObject()).getContext().getIndex();
+            contextId = ((Target) node.getUserObject()).getContext().getId();
             return isEnabledForContext(contextId);
         }
         return false;

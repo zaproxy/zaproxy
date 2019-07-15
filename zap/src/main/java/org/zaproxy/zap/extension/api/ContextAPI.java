@@ -180,7 +180,7 @@ public class ContextAPI extends ApiImplementor {
                     throw new ApiException(ApiException.Type.ALREADY_EXISTS, contextName, e);
                 }
                 Model.getSingleton().getSession().saveContext(context);
-                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
+                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getId()));
             case ACTION_REMOVE_CONTEXT:
                 context = getContext(params);
                 Model.getSingleton().getSession().deleteContext(context);
@@ -209,7 +209,7 @@ public class ContextAPI extends ApiImplementor {
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                 }
-                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
+                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getId()));
             case ACTION_EXPORT_CONTEXT:
                 filename = params.getString(CONTEXT_FILE_PARAM);
                 context = getContext(params);
@@ -385,7 +385,7 @@ public class ContextAPI extends ApiImplementor {
     private ApiResponse buildResponseFromContext(Context c) {
         Map<String, String> fields = new HashMap<>();
         fields.put("name", c.getName());
-        fields.put("id", Integer.toString(c.getIndex()));
+        fields.put("id", Integer.toString(c.getId()));
         fields.put("description", c.getDescription());
         fields.put("inScope", Boolean.toString(c.isInScope()));
         fields.put("excludeRegexs", jsonEncodeList(c.getExcludeFromContextRegexs()));

@@ -50,6 +50,7 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -626,7 +627,7 @@ public class SiteMapPanel extends AbstractPanel {
         for (int i = 0; i < root.getChildCount(); i++) {
             SiteNode node = (SiteNode) root.getChildAt(i);
             Target target = (Target) node.getUserObject();
-            if (c.getIndex() == target.getContext().getIndex()) {
+            if (c.getId() == target.getContext().getId()) {
                 target.setContext(c);
                 if (node.getNodeName().equals(c.getName())) {
                     this.contextTree.nodeChanged(node);

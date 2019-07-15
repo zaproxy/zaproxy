@@ -144,7 +144,7 @@ public class UsersAPI extends ApiImplementor {
                 else {
                     users = new ArrayList<>();
                     for (Context c : Model.getSingleton().getSession().getContexts())
-                        users.addAll(extension.getContextUserAuthManager(c.getIndex()).getUsers());
+                        users.addAll(extension.getContextUserAuthManager(c.getId()).getUsers());
                 }
 
                 // Prepare the response
@@ -182,19 +182,17 @@ public class UsersAPI extends ApiImplementor {
             case ACTION_NEW_USER:
                 context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
                 String userName = ApiUtils.getNonEmptyStringParam(params, PARAM_USER_NAME);
-                user = new User(context.getIndex(), userName);
+                user = new User(context.getId(), userName);
                 user.setAuthenticationCredentials(
                         context.getAuthenticationMethod().createAuthenticationCredentials());
-                extension.getContextUserAuthManager(context.getIndex()).addUser(user);
+                extension.getContextUserAuthManager(context.getId()).addUser(user);
                 context.save();
                 return new ApiResponseElement(PARAM_USER_ID, String.valueOf(user.getId()));
             case ACTION_REMOVE_USER:
                 context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
                 int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
                 boolean deleted =
-                        extension
-                                .getContextUserAuthManager(context.getIndex())
-                                .removeUserById(userId);
+                        extension.getContextUserAuthManager(context.getId()).removeUserById(userId);
                 if (deleted) {
                     context.save();
                     return ApiResponseElement.OK;
@@ -226,7 +224,7 @@ public class UsersAPI extends ApiImplementor {
                     actionParams = API.getParams(params.getString(PARAM_CREDENTIALS_CONFIG_PARAMS));
                 else actionParams = new JSONObject();
                 context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-                actionParams.put(PARAM_CONTEXT_ID, context.getIndex());
+                actionParams.put(PARAM_CONTEXT_ID, context.getId());
                 actionParams.put(PARAM_USER_ID, getUserId(params));
                 // Run the method
                 ApiDynamicActionImplementor a =
