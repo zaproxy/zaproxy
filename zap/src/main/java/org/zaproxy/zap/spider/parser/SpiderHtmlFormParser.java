@@ -333,7 +333,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
         // Get its value(s)
         List<String> values = field.getValues();
-        String defaultValue;
+        String defaultValue = null;
 
         // If the field has a value attribute present(Predefined value)
         // Should store the value being submitted to be passed to the ValueGenerator
@@ -347,25 +347,27 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
         // If there are no values at all or only an empty value
         if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
-            defaultValue = DEFAULT_EMPTY_VALUE;
 
             // Check if we can use predefined values
             Collection<String> predefValues = field.getPredefinedValues();
             if (!predefValues.isEmpty()) {
                 // Store those predefined values in a list for the DefaultValueGenerator
                 definedValues.addAll(predefValues);
-                // Try first elements
-                Iterator<String> iterator = predefValues.iterator();
-                defaultValue = iterator.next();
-
-                // If there are more values, don't use the first, as it usually is a "No select"
-                // item
-                if (iterator.hasNext()) {
+                if (defaultValue == null) {
+                    // Try first elements
+                    Iterator<String> iterator = predefValues.iterator();
                     defaultValue = iterator.next();
+
+                    // If there are more values, don't use the first, as it usually is a "No select"
+                    // item
+                    if (iterator.hasNext()) {
+                        defaultValue = iterator.next();
+                    }
                 }
             }
+            defaultValue = defaultValue == null ? DEFAULT_EMPTY_VALUE : defaultValue;
 
-        } else {
+        } else if (defaultValue == null) {
             defaultValue = values.get(0);
         }
 

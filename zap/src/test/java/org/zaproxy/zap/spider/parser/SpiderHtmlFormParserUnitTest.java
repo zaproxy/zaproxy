@@ -1083,7 +1083,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(8)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -1093,8 +1093,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         "http://example.org/html5/misc?_color=%23ffffff&_email=foo-bar%40example.com&_tel=9999999999&_url=http%3A%2F%2Fwww.example.com&submit=Submit",
                         "http://example.org/unknown?_unknown&submit=Submit",
                         "http://example.org/selects?_select-one-option=first-option&_select-selected-option=selected-option&_select-two-options=last-option&submit=Submit",
-                        "http://example.org/radio?_radio=second-radio&submit=Submit",
-                        "http://example.org/checkbox?_checkbox=second-checkbox&submit=Submit",
+                        "http://example.org/checkbox?_checkbox=first-checkbox&submit=Submit",
                         "http://example.org/html5/date-time?"
                                 + params(
                                         param("_date", formattedDate("yyyy-MM-dd", date)),
@@ -1125,7 +1124,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(8)));
         assertThat(
                 listener.getResourcesFound(),
                 contains(
@@ -1159,13 +1158,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         postResource(
                                 msg,
                                 1,
-                                "http://example.org/radio",
-                                "_radio=second-radio&submit=Submit"),
-                        postResource(
-                                msg,
-                                1,
                                 "http://example.org/checkbox",
-                                "_checkbox=second-checkbox&submit=Submit"),
+                                "_checkbox=first-checkbox&submit=Submit"),
                         postResource(
                                 msg,
                                 1,
@@ -1266,7 +1260,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                                         "http://example.com/",
                                         "http://example.org/post",
                                         "gender",
-                                        "f",
+                                        "m",
                                         list(("m,f")),
                                         attributes(
                                                 attribute("name", "gender"),
