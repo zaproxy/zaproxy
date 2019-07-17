@@ -4,6 +4,7 @@ import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 
 plugins {
     `java-library`
+    jacoco
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -21,6 +22,10 @@ val distDir = file("src/main/dist/")
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+jacoco {
+    toolVersion = "0.8.4"
 }
 
 dependencies {
