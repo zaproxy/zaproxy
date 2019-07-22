@@ -131,18 +131,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private static final Logger logger = Logger.getLogger(ExtensionScript.class);
 
     /**
-     * Flag that indicates if the script templates should be loaded when a new script type is
+     * Flag that indicates if the scripts/templates should be loaded when a new script type is
      * registered.
      *
-     * <p>This is to prevent loading templates of already installed scripts (ones that are
-     * registered during ZAP initialisation) twice, while allowing to load the templates of scripts
-     * registered after initialisation (e.g. from installed add-ons).
+     * <p>This is to prevent loading scripts/templates of already installed scripts (ones that are
+     * registered during ZAP initialisation) twice, while allowing to load the scripts/templates of
+     * script types registered after initialisation (e.g. from installed add-ons).
      *
      * @since 2.4.0
      * @see #registerScriptType(ScriptType)
      * @see #optionsLoaded()
      */
-    private boolean shouldLoadTemplatesOnScriptTypeRegistration;
+    private boolean shouldLoadScriptsOnScriptTypeRegistration;
 
     /**
      * The directories added to the extension, to automatically add and remove its scripts.
@@ -522,7 +522,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     /**
      * Registers a new type of script.
      *
-     * <p>The script is added to the tree of scripts and its templates loaded, if any.
+     * <p>The script is added to the tree of scripts and its scripts/templates loaded, if any.
      *
      * @param type the new type of script
      * @throws InvalidParameterException if a script type with same name is already registered
@@ -535,13 +535,40 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         this.typeMap.put(type.getName(), type);
         this.getTreeModel().addType(type);
 
-        if (shouldLoadTemplatesOnScriptTypeRegistration) {
+        if (shouldLoadScriptsOnScriptTypeRegistration) {
+            addScripts(type);
             loadScriptTemplates(type);
         }
 
         synchronized (trackedDirs) {
             for (File dir : trackedDirs) {
                 addScriptsFromDir(dir, type, null);
+            }
+        }
+    }
+
+    /**
+     * Adds the (saved) scripts of the given script type.
+     *
+     * @param type the type of the script.
+     * @see ScriptParam#getScripts()
+     */
+    private void addScripts(ScriptType type) {
+        for (ScriptWrapper script : this.getScriptParam().getScripts()) {
+            if (!type.getName().equals(script.getTypeName())) {
+                continue;
+            }
+
+            try {
+                loadScript(script);
+                addScript(script, false, false);
+            } catch (MalformedInputException e) {
+                logger.warn(
+                        "Failed to add script \""
+                                + script.getName()
+                                + "\", contains invalid character sequence (UTF-8).");
+            } catch (InvalidParameterException | IOException e) {
+                logger.error("Failed to add script: " + script.getName(), e);
             }
         }
     }
@@ -658,6 +685,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     }
 
     public ScriptNode addScript(ScriptWrapper script, boolean display) {
+        return addScript(script, display, true);
+    }
+
+    private ScriptNode addScript(ScriptWrapper script, boolean display, boolean save) {
         if (script == null) {
             return null;
         }
@@ -670,7 +701,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                 logScriptEventListenerException(listener, script, e);
             }
         }
-        if (script.isLoadOnStart() && script.getFile() != null) {
+        if (save && script.isLoadOnStart() && script.getFile() != null) {
             this.getScriptParam().addScript(script);
             this.getScriptParam().saveScripts();
         }
@@ -780,7 +811,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             try {
                 this.loadScript(script);
                 if (script.getType() != null) {
-                    this.addScript(script, false);
+                    this.addScript(script, false, false);
                 } else {
                     logger.warn(
                             "Failed to add script \""
@@ -831,7 +862,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             int numAdded = addScriptsFromDir(dir);
             logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
         }
-        shouldLoadTemplatesOnScriptTypeRegistration = true;
+        shouldLoadScriptsOnScriptTypeRegistration = true;
 
         Path defaultScriptsDir = Paths.get(Constant.getZapHome(), SCRIPTS_DIR, SCRIPTS_DIR);
         for (ScriptType scriptType : typeMap.values()) {
