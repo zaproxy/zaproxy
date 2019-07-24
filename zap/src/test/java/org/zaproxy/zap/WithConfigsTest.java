@@ -37,6 +37,7 @@ import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class WithConfigsTest extends TestUtils {
@@ -80,5 +81,6 @@ public abstract class WithConfigsTest extends TestUtils {
         given(i18n.getLocal()).willReturn(Locale.getDefault());
         Constant.messages = i18n;
         Control.initSingletonForTesting(Model.getSingleton());
+        Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
     }
 }
