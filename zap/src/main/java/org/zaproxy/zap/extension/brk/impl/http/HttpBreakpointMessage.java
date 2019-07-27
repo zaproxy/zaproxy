@@ -136,8 +136,9 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                     }
                 }
 
-                String src = null;
+                String src;
                 switch (location) {
+                    default:
                     case url:
                         src = uri;
                         break;

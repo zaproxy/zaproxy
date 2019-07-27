@@ -83,6 +83,7 @@
 // ZAP: 2019/03/15 Issue 3578: Added Helper options for Import menu
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 019/07/25: Relocate null check to be earlier in hookScannerHook(scan) [LGTM issue].
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -495,13 +496,14 @@ public class ExtensionLoader {
         Iterator<ExtensionHook> iter = extensionHooks.values().iterator();
         while (iter.hasNext()) {
             ExtensionHook hook = iter.next();
+            if (hook == null) {
+                continue;
+            }
             List<ScannerHook> scannerHookList = hook.getScannerHookList();
 
             for (ScannerHook scannerHook : scannerHookList) {
                 try {
-                    if (hook != null) {
-                        scan.addScannerHook(scannerHook);
-                    }
+                    scan.addScannerHook(scannerHook);
 
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
