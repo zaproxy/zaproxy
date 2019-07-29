@@ -404,7 +404,9 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
                     oldAcsrfTokenValue = parameters.get(antiCsrfToken.getName());
                     replacedPostData =
-                            postRequestBody.replace(oldAcsrfTokenValue, antiCsrfToken.getValue());
+                            postRequestBody.replace(
+                                    oldAcsrfTokenValue,
+                                    paramEncoder.apply(antiCsrfToken.getValue()));
 
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(
