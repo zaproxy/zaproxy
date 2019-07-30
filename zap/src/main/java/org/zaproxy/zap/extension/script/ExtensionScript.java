@@ -1507,15 +1507,16 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * Handles exceptions thrown by scripts.
      *
      * <p>The given {@code exception} (if of type {@code ScriptException} the cause will be used
-     * instead) will be written to the the writer(s) associated with the given {@code script},
-     * moreover it will be disabled and flagged that has an error.
+     * instead) will be written to the writer(s) associated with the given {@code script}, moreover
+     * the script will be disabled and flagged that has an error.
      *
      * @param script the script that resulted in an exception, must not be {@code null}
-     * @param exception the exception thrown , must not be {@code null}
+     * @param exception the exception thrown, must not be {@code null}
      * @since 2.5.0
      * @see #setEnabled(ScriptWrapper, boolean)
      * @see #setError(ScriptWrapper, Exception)
      * @see #handleFailedScriptInterface(ScriptWrapper, String)
+     * @see #handleScriptError(ScriptWrapper, String)
      * @see ScriptException
      */
     public void handleScriptException(ScriptWrapper script, Exception exception) {
@@ -1548,6 +1549,29 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             logger.error(cause.getMessage(), cause);
         }
         this.setError(script, cause);
+        this.setEnabled(script, false);
+    }
+
+    /**
+     * Handles errors caused by scripts.
+     *
+     * <p>The given {@code error} will be written to the writer(s) associated with the given {@code
+     * script}, moreover the script will be disabled and flagged that has an error.
+     *
+     * @param script the script that caused the error, must not be {@code null}.
+     * @param error the error caused by the script, must not be {@code null}.
+     * @since TODO add version
+     * @see #setEnabled(ScriptWrapper, boolean)
+     * @see #setError(ScriptWrapper, String)
+     * @see #handleScriptException(ScriptWrapper, Exception)
+     */
+    public void handleScriptError(ScriptWrapper script, String error) {
+        try {
+            getWriters(script).append(error);
+        } catch (IOException ignore) {
+            // Nothing to do, callers should log the issue.
+        }
+        this.setError(script, error);
         this.setEnabled(script, false);
     }
 

@@ -297,6 +297,20 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 return null;
             }
 
+            if (msg.getRequestHeader().getURI() == null) {
+                String error =
+                        String.format(
+                                "Auth request returned by the script '%s' does not have the request-target.",
+                                this.script.getName());
+                log.error(error);
+                error = "ERROR: " + error + "\n";
+                getScriptsExtension().handleScriptError(this.script, error);
+                if (View.isInitialised()) {
+                    View.getSingleton().getOutputPanel().appendAsync(error);
+                }
+                return null;
+            }
+
             if (this.isAuthenticated(msg)) {
                 // Let the user know it worked
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
