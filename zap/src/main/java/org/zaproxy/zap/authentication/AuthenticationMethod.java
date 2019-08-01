@@ -170,7 +170,7 @@ public abstract class AuthenticationMethod {
      * @return true, if is authenticated or no indicators have been set, and false otherwise
      */
     public boolean isAuthenticated(HttpMessage msg) {
-        if (msg == null || msg.getResponseBody() == null) {
+        if (msg == null) {
             return false;
         }
         // Assume logged in if nothing was set up
