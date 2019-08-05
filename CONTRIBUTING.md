@@ -36,7 +36,7 @@ You can help translate the ZAP User Guide via the [Crowdin owasp-zap-help](https
 For information about the ZAP Evangelists and how to join up see the [ZAP Evangelists wiki page](https://github.com/zaproxy/zaproxy/wiki/ZapEvangelists)
 
 ## Help Improve the Documentation
-The source for the ZAP [User Guide](https://github.com/zaproxy/zap-core-help/wiki) is underneath the zap-core-tree repo [src/help/zaphelp/contents](https://github.com/zaproxy/zap-core-help/tree/master/src/help/zaphelp/contents) directory.
+The source for the ZAP [User Guide](https://github.com/zaproxy/zap-core-help/wiki) is underneath the zap-core-tree repo [addOns/help/src/main/javahelp/contents](https://github.com/zaproxy/zap-core-help/tree/master/addOns/help/src/main/javahelp/contents) directory.
 
 The Java Help included with ZAP and the online version are both generated from these HTML pages. Send Pull Requests to help us improve it.
 

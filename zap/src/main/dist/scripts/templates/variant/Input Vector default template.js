@@ -6,7 +6,7 @@
 
 // The helper parameter leveraged within this variant provides access to the methods
 // in VariantCustom 
-// https://github.com/zaproxy/zaproxy/blob/develop/src/org/parosproxy/paros/core/scanner/VariantCustom.java
+// https://github.com/zaproxy/zaproxy/blob/master/zap/src/main/java/org/parosproxy/paros/core/scanner/VariantCustom.java
 
 var B64STATE = 'b64';
 var paramStates = [];
