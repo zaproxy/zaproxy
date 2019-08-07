@@ -37,6 +37,7 @@
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
@@ -51,6 +52,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.model.StructuralNode;
 
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
@@ -88,14 +90,25 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         //	        return;
         //	    }
 
-        HttpMessage existingMsg = model.getSession().getSiteTree().pollPath(msg);
-
-        // check if a msg of the same type exist
-        if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
-            if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
-                // exist, no modification necessary
-                return true;
+        try {
+            StructuralNode node =
+                    SessionStructure.find(
+                            model.getSession().getSessionId(),
+                            msg.getRequestHeader().getURI(),
+                            msg.getRequestHeader().getMethod(),
+                            msg.getRequestBody().toString());
+            if (node != null) {
+                HttpMessage existingMsg = node.getHistoryReference().getHttpMessage();
+                // check if a msg of the same type exist
+                if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
+                    if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
+                        // exist, no modification necessary
+                        return true;
+                    }
+                }
             }
+        } catch (URIException | DatabaseException | HttpMalformedHeaderException e) {
+            log.warn("Failed to check if message already exists:", e);
         }
 
         // if not, make sure a new copy will be obtained

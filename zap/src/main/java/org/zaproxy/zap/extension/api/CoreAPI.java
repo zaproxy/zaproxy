@@ -1075,16 +1075,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 ((ApiResponseList) result).addItem(new ApiResponseElement("host", site));
             }
         } else if (VIEW_SITES.equals(name)) {
-            result = new ApiResponseList(name);
-            SiteNode root = session.getSiteTree().getRoot();
-            @SuppressWarnings("unchecked")
-            Enumeration<TreeNode> en = root.children();
-            while (en.hasMoreElements()) {
-                ((ApiResponseList) result)
-                        .addItem(
-                                new ApiResponseElement(
-                                        "site", ((SiteNode) en.nextElement()).getNodeName()));
+            ApiResponseList sitesList = new ApiResponseList(name);
+            StructuralNode root = SessionStructure.getRootNode();
+            if (root != null) {
+                for (Iterator<StructuralNode> it = root.getChildIterator(); it.hasNext(); ) {
+                    sitesList.addItem(new ApiResponseElement("site", it.next().getName()));
+                }
             }
+            result = sitesList;
         } else if (VIEW_URLS.equals(name)) {
             result = new ApiResponseList(name);
             SiteNode root = session.getSiteTree().getRoot();
