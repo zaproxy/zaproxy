@@ -102,15 +102,14 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldHaveALengthOfGivenArray() {
+    public void shouldProduceStringFromContents() {
         // given
-        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        byteBuilder = new ByteBuilder(new byte[] {65, 45, 90});
+        byteBuilder.ensureCapacity(50);
         // when
-        String size = byteBuilder.toString();
+        String string = byteBuilder.toString();
         // then
-        assertThat(
-                size.substring(0, TEST_ARRAY.length),
-                is(new String(TEST_ARRAY, 0, TEST_ARRAY.length)));
+        assertThat(string, is("A-Z"));
     }
 
     @Test
@@ -350,7 +349,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendByteBuffer() {
+    public void shouldAppendByteBuilder() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
