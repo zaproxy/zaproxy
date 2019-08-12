@@ -87,7 +87,7 @@ public class ByteBuilder {
 
     @Override
     public String toString() {
-        return new String(array);
+        return new String(array, 0, size);
     }
 
     // all append() methods return this so we can chain calls together, of course :)
