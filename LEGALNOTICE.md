@@ -49,6 +49,7 @@ and subject to their respective licenses.
 | commons-text-1.6.jar                | Apache 2.0                |
 | commons-validator-1.6.jar           | Apache 2.0                |
 | diffutils-1.2.1.jar                 | Apache 2.0                |
+| delight-nashorn-sandbox-0.1.25.jar  | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
 | harlib-1.1.2.jar                    | Apache 2.0                |
 | hsqldb-2.4.1.jar                    | BSD                       |

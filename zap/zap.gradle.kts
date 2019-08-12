@@ -60,6 +60,7 @@ dependencies {
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
+    implementation("org.javadelight:delight-nashorn-sandbox:0.1.25")
 
     // The following are no longer used by core, remove once
     // all (known) add-ons are updated accordingly.
