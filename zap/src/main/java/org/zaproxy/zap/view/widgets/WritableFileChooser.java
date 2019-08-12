@@ -54,9 +54,9 @@ public class WritableFileChooser extends JFileChooser {
                     JOptionPane.showConfirmDialog(
                             this,
                             Constant.messages.getString(
-                                    "report.write.diskspace.warning.dialog.message"),
+                                    "writable.file.chooser.write.diskspace.warning.dialog.message"),
                             Constant.messages.getString(
-                                    "report.write.diskspace.warning.dialog.title"),
+                                    "writable.file.chooser.write.diskspace.warning.dialog.title"),
                             JOptionPane.YES_NO_OPTION);
             if (result != JOptionPane.YES_OPTION) {
                 return;
@@ -64,7 +64,7 @@ public class WritableFileChooser extends JFileChooser {
         }
         if (!Files.isWritable(selectedFile.getParentFile().toPath())) {
             warnNotWritable(
-                    "report.write.permission.dir.dialog.message",
+                    "writable.file.chooser.write.permission.dir.dialog.message",
                     selectedFile.getParentFile().getAbsolutePath());
 
             return;
@@ -72,7 +72,7 @@ public class WritableFileChooser extends JFileChooser {
         if (fileExists) {
             if (!Files.isWritable(selectedFile.toPath())) {
                 warnNotWritable(
-                        "report.write.permission.file.dialog.message",
+                        "writable.file.chooser.write.permission.file.dialog.message",
                         selectedFile.getAbsolutePath());
                 return;
             }
@@ -80,8 +80,10 @@ public class WritableFileChooser extends JFileChooser {
             int result =
                     JOptionPane.showConfirmDialog(
                             this,
-                            Constant.messages.getString("report.write.overwrite.dialog.message"),
-                            Constant.messages.getString("report.write.overwrite.dialog.title"),
+                            Constant.messages.getString(
+                                    "writable.file.chooser.write.overwrite.dialog.message"),
+                            Constant.messages.getString(
+                                    "writable.file.chooser.write.overwrite.dialog.title"),
                             JOptionPane.YES_NO_OPTION);
             if (result == JOptionPane.NO_OPTION || result == JOptionPane.CLOSED_OPTION) {
                 return;
@@ -108,6 +110,6 @@ public class WritableFileChooser extends JFileChooser {
     private void warnNotWritable(String i18nKeyMessage, String path) {
         showErrorDialog(
                 Constant.messages.getString(i18nKeyMessage, path),
-                Constant.messages.getString("report.write.permission.dialog.title"));
+                Constant.messages.getString("writable.file.chooser.write.permission.dialog.title"));
     }
 }
