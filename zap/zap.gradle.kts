@@ -1,10 +1,12 @@
 import java.time.LocalDate
 import java.util.stream.Collectors
+import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 
 plugins {
     `java-library`
     jacoco
+    id("me.champeau.gradle.japicmp") version "0.2.8"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -14,6 +16,7 @@ plugins {
 
 group = "org.zaproxy"
 version = "2.9.0-SNAPSHOT"
+val versionBC = "2.8.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -109,6 +112,22 @@ listOf("jar", "jarDaily").forEach {
     }
 }
 
+val japicmp by tasks.registering(JapicmpTask::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Checks ${project.name}.jar binary compatibility with latest version ($versionBC)."
+
+    oldClasspath = files(zapJar(versionBC))
+    newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
+    onlyBinaryIncompatibleModified = true
+    failOnModification = true
+    ignoreMissingClasses = true
+    htmlOutputFile = file("$buildDir/reports/japi.html")
+}
+
+tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+    dependsOn(japicmp)
+}
+
 tasks.named<Javadoc>("javadoc") {
     title = "OWASP Zed Attack Proxy"
     source = sourceSets["main"].allJava.matching {
@@ -197,4 +216,17 @@ launch4j {
 
 class ToString(private val callable: Callable<String>) {
     override fun toString() = callable.call()
+}
+
+fun zapJar(version: String): File {
+    val oldGroup = group
+    try {
+        // https://discuss.gradle.org/t/is-the-default-configuration-leaking-into-independent-configurations/2088/6
+        group = "virtual_group_for_japicmp"
+        val conf = configurations.detachedConfiguration(dependencies.create("$oldGroup:$name:$version"))
+        conf.isTransitive = false
+        return conf.singleFile
+    } finally {
+        group = oldGroup
+    }
 }
