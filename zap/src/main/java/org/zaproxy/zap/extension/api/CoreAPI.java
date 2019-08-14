@@ -1645,7 +1645,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throws Exception {
         ReportLastScan rls = new ReportLastScan();
         StringBuilder report = new StringBuilder();
-        rls.generate(report, Model.getSingleton());
+        rls.generate(report);
 
         String response;
         if (ScanReportType.XML == reportType) {
