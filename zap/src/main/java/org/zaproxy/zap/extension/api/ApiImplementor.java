@@ -515,4 +515,8 @@ public abstract class ApiImplementor {
     public void addCustomHeaders(String name, RequestType type, HttpMessage msg) {
         // Do nothing in the default implementation
     }
+
+    boolean hasApiOptions() {
+        return param != null;
+    }
 }
