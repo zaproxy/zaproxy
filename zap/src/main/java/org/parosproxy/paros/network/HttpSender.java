@@ -79,6 +79,7 @@
 // ZAP: 2019/03/24 Removed commented and unused sendAndReceive method.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -250,6 +251,7 @@ public class HttpSender {
         if (param.isHttpStateEnabled()) {
             client.setState(param.getHttpState());
             clientViaProxy.setState(param.getHttpState());
+            setProxyAuth(clientViaProxy);
             setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         } else {
             setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
@@ -272,6 +274,7 @@ public class HttpSender {
         } else {
             client.setState(new HttpState());
             clientViaProxy.setState(new HttpState());
+            setProxyAuth(clientViaProxy);
             setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         }
     }
@@ -296,36 +299,29 @@ public class HttpSender {
                 .getHostConfiguration()
                 .setProxy(param.getProxyChainName(), param.getProxyChainPort());
 
-        if (param.isUseProxyChainAuth()) {
-            clientProxy
-                    .getState()
-                    .setProxyCredentials(getAuthScope(param), getNTCredentials(param));
-        }
+        setProxyAuth(clientProxy);
 
         return clientProxy;
     }
 
-    private NTCredentials getNTCredentials(ConnectionParam param) {
-        // NTCredentials credentials = new NTCredentials(
-        // param.getProxyChainUserName(), param.getProxyChainPassword(),
-        // param.getProxyChainName(), param.getProxyChainName());
-        return new NTCredentials(
-                param.getProxyChainUserName(),
-                param.getProxyChainPassword(),
-                "",
-                param.getProxyChainRealm().equals("") ? "" : param.getProxyChainRealm());
+    private void setProxyAuth(HttpClient client) {
+        setProxyAuth(client.getState());
     }
 
-    private AuthScope getAuthScope(ConnectionParam param) {
-        // Below is the original code, but user reported that above code works.
-        // UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
-        // param.getProxyChainUserName(), param.getProxyChainPassword());
-        return new AuthScope(
-                param.getProxyChainName(),
-                param.getProxyChainPort(),
-                param.getProxyChainRealm().equals("")
-                        ? AuthScope.ANY_REALM
-                        : param.getProxyChainRealm());
+    private void setProxyAuth(HttpState state) {
+        if (param.isUseProxyChain() && param.isUseProxyChainAuth()) {
+            String realm = param.getProxyChainRealm();
+            state.setProxyCredentials(
+                    new AuthScope(
+                            param.getProxyChainName(),
+                            param.getProxyChainPort(),
+                            realm.isEmpty() ? AuthScope.ANY_REALM : realm),
+                    new NTCredentials(
+                            param.getProxyChainUserName(),
+                            param.getProxyChainPassword(),
+                            "",
+                            realm));
+        }
     }
 
     public int executeMethod(HttpMethod method, HttpState state) throws IOException {
@@ -343,11 +339,7 @@ public class HttpSender {
                 requestClient
                         .getHostConfiguration()
                         .setProxy(param.getProxyChainName(), param.getProxyChainPort());
-                if (param.isUseProxyChainAuth()) {
-                    requestClient
-                            .getState()
-                            .setProxyCredentials(getAuthScope(param), getNTCredentials(param));
-                }
+                setProxyAuth(requestClient);
             }
         } else if (param.isUseProxy(hostName)) {
             requestClient = clientViaProxy;
@@ -382,11 +374,7 @@ public class HttpSender {
             if (param.isUseProxy(hostName)) {
                 hc.setProxyHost(
                         new ProxyHost(param.getProxyChainName(), param.getProxyChainPort()));
-                if (param.isUseProxyChainAuth()) {
-                    requestClient
-                            .getState()
-                            .setProxyCredentials(getAuthScope(param), getNTCredentials(param));
-                }
+                setProxyAuth(requestClient);
             }
         }
 
@@ -394,6 +382,7 @@ public class HttpSender {
         if (state != null) {
             // Make sure cookies are enabled
             method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            setProxyAuth(state);
         }
         responseCode = requestClient.executeMethod(hc, method, state);
 
