@@ -83,11 +83,13 @@
 // ZAP: 2019/03/15 Issue 3578: Added Helper options for Import menu
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 019/07/25: Relocate null check to be earlier in hookScannerHook(scan) [LGTM issue].
+// ZAP: 2019/07/25 Relocate null check to be earlier in hookScannerHook(scan) [LGTM issue].
+// ZAP: 2019/08/19 Validate menu and main frame in EDT.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -922,8 +924,15 @@ public class ExtensionLoader {
         }
 
         if (view != null) {
-            view.getMainFrame().getMainMenuBar().validate();
-            view.getMainFrame().validate();
+            try {
+                EventQueue.invokeAndWait(
+                        () -> {
+                            view.getMainFrame().getMainMenuBar().validate();
+                            view.getMainFrame().validate();
+                        });
+            } catch (InvocationTargetException | InterruptedException e) {
+                logger.warn("An error occurred while updating the UI:", e);
+            }
         }
     }
 
