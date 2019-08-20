@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import org.parosproxy.paros.Constant;
 
 public class WikiAPIGenerator extends AbstractAPIGenerator {
@@ -58,10 +59,14 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
         try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             out.write(title);
             out.write("## Components\n");
-            for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
-                out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
+            List<ApiImplementor> apis =
+                    ApiGeneratorUtils.getAllImplementors().stream()
+                            .sorted((a, b) -> a.getPrefix().compareTo(b.getPrefix()))
+                            .collect(Collectors.toList());
+            for (ApiImplementor imp : apis) {
+                out.write("  * [" + imp.getPrefix() + "](" + base + imp.getPrefix() + ")\n");
             }
-            out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
+            out.write("\n[Full list.](" + base + "Full)\n");
             // out.write("Generated on " + new Date() + "\n");
         }
     }
