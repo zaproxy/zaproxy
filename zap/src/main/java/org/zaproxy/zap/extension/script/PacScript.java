@@ -29,6 +29,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -36,10 +38,12 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -66,18 +70,56 @@ public class PacScript {
             Collections.unmodifiableList(
                     Arrays.asList("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"));
 
+    private static final String SETTINGS_SEPARATOR = ";";
+    private static final String TYPE_PROXY_DATA_SEPARATOR = " ";
+    private static final String HOST_PORT_SEPARATOR = ":";
+
     private final Invocable pacImpl;
 
     private Clock baseClock;
 
     /**
-     * Retrieves the content pointed by {@code scriptURL} URL and creates a new PACScript object.
+     * Constructs a {@code PacScript} from the given URL (read with UTF-8 charset).
      *
-     * @param scriptURL the URL corresponding to the PAC script location
+     * @param scriptUrl the URL corresponding to the PAC script location.
+     * @throws IOException if an error occurred while connecting to or reading from the URL.
+     * @throws ScriptException if an error occurred while parsing the script.
+     * @throws IllegalArgumentException if the read the script is empty.
+     * @throws NullPointerException if the {@code scriptURL} is {@code null}.
      */
-    public PacScript(URL scriptURL) throws IOException, ScriptException {
+    public PacScript(URL scriptUrl) throws IOException, ScriptException {
+        this(readUrl(Objects.requireNonNull(scriptUrl)));
+    }
+
+    private static String readUrl(URL scriptUrl) throws IOException {
+        return IOUtils.toString(scriptUrl.openStream(), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Constructs a {@code PacScript} from the given file (read with UTF-8 charset).
+     *
+     * @param file the file with the PAC script.
+     * @throws IOException if an error occurred while reading the file.
+     * @throws ScriptException if an error occurred while parsing the script.
+     * @throws IllegalArgumentException if the file is empty.
+     * @throws NullPointerException if the {@code file} is {@code null}.
+     */
+    public PacScript(Path file) throws IOException, ScriptException {
+        this(new String(Files.readAllBytes(Objects.requireNonNull(file)), StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Constructs a {@code PacScript} from the given string.
+     *
+     * @param scriptContent the contents of the PAC script.
+     * @throws ScriptException if an error occurred while parsing the script.
+     * @throws IllegalArgumentException if {@code scriptContent} is {@code null} or empty.
+     */
+    public PacScript(String scriptContent) throws ScriptException {
+        if (scriptContent == null || scriptContent.isEmpty()) {
+            throw new IllegalArgumentException("The PAC script content must not be null or empty.");
+        }
         this.baseClock = Clock.systemDefaultZone();
-        String scriptContent = IOUtils.toString(scriptURL.openStream(), StandardCharsets.UTF_8);
 
         NashornSandbox sandbox = NashornSandboxes.create("-nse");
 
@@ -111,16 +153,102 @@ public class PacScript {
     /**
      * Calls the FindProxyForURL function of this PAC script.
      *
-     * @param destURL the url param of FindProxyForURL(url, host)
-     * @param destHost the host param of FindProxyForURL(url, host)
+     * @param url the url param of FindProxyForURL(url, host)
+     * @param host the host param of FindProxyForURL(url, host)
      * @return a String representation of the return value of FindProxyForURL(url, host)
+     * @throws ScriptException if an error occurred while calling the {@code FindProxyForURL}
+     *     function.
      */
-    public String evaluate(String destURL, String destHost) throws ScriptException {
+    String evaluate(String url, String host) throws ScriptException {
         try {
-            return (String) pacImpl.invokeFunction("FindProxyForURL", destURL, destHost);
+            return (String) pacImpl.invokeFunction("FindProxyForURL", url, host);
         } catch (NoSuchMethodException | ScriptAbuseException e) {
             throw new ScriptException(e);
         }
+    }
+
+    /**
+     * Finds the proxy settings for the given url and host.
+     *
+     * @param url the URL.
+     * @param host the host.
+     * @return a list of proxy settings, empty if none.
+     * @throws ScriptException if an error occurred while calling the {@code FindProxyForURL}
+     *     function or parsing its result.
+     */
+    public List<Setting> findProxyForUrl(String url, String host) throws ScriptException {
+        String result = evaluate(url, host);
+        if (result == null || result.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Setting> settings = new ArrayList<>();
+        for (String entry : result.split(SETTINGS_SEPARATOR, -1)) {
+            String value = entry.trim();
+            if (value.isEmpty()) {
+                continue;
+            }
+
+            Setting setting = createSetting(value);
+            settings.add(setting);
+            if (setting.getType() == Setting.Type.DIRECT) {
+                break;
+            }
+        }
+        return settings;
+    }
+
+    private static Setting createSetting(String value) throws ScriptException {
+        if (Setting.Type.DIRECT.name().equals(value)) {
+            return Setting.DIRECT;
+        }
+
+        String[] elements = value.split(TYPE_PROXY_DATA_SEPARATOR, 2);
+        if (elements.length != 2) {
+            throw new ScriptException(
+                    "Invalid proxy setting format, expected \"<TYPE> <HOST>:<PORT>\" got: "
+                            + value);
+        }
+
+        Setting.Type type;
+        try {
+            type = Setting.Type.valueOf(elements[0]);
+        } catch (IllegalArgumentException e) {
+            throw new ScriptException(
+                    "Invalid proxy setting type, expected \"PROXY\" or \"SOCKS\" got: "
+                            + elements[0]);
+        }
+        if (type == Setting.Type.DIRECT) {
+            throw new ScriptException(
+                    "Invalid proxy setting, expected \"PROXY\" or \"SOCKS\" type in: " + value);
+        }
+
+        String[] proxy = elements[1].split(HOST_PORT_SEPARATOR, 2);
+        if (proxy.length != 2) {
+            throw new ScriptException(
+                    "Invalid proxy setting data, expected \"<HOST>:<PORT>\" got: " + elements[1]);
+        }
+
+        String host = proxy[0];
+        if (host.isEmpty()) {
+            throw new ScriptException(
+                    "Invalid proxy setting host, expected non empty host in: " + elements[1]);
+        }
+
+        int port;
+        try {
+            port = Integer.parseInt(proxy[1]);
+        } catch (NumberFormatException e) {
+            throw new ScriptException(
+                    "Invalid proxy setting port, expected an integer got: " + proxy[1]);
+        }
+        if (port <= 0 || port > 65535) {
+            throw new ScriptException(
+                    "Invalid proxy setting port, expected an integer between 1 and 65535 got: "
+                            + port);
+        }
+
+        return new Setting(type, host, port);
     }
 
     private static boolean isDay(String value) {
@@ -860,5 +988,38 @@ public class PacScript {
     @FunctionalInterface
     public interface StringPredicate {
         public boolean apply(String... args);
+    }
+
+    /** A proxy setting, result from calling the {@code FindProxyForURL} function. */
+    public static final class Setting {
+        enum Type {
+            DIRECT,
+            PROXY,
+            SOCKS;
+        }
+
+        private static final Setting DIRECT = new Setting(Type.DIRECT, null, 0);
+
+        private final Type type;
+        private final String host;
+        private final int port;
+
+        private Setting(Type type, String host, int port) {
+            this.type = type;
+            this.host = host;
+            this.port = port;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public int getPort() {
+            return port;
+        }
     }
 }

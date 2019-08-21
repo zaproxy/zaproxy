@@ -19,7 +19,10 @@
  */
 package org.zaproxy.zap.extension.script;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.net.URL;
 import java.time.Clock;
@@ -30,7 +33,14 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
+import java.util.List;
+import javax.script.ScriptException;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.zaproxy.zap.extension.script.PacScript.Setting;
+import org.zaproxy.zap.extension.script.PacScript.Setting.Type;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /**
@@ -59,6 +69,36 @@ public class PacScriptUnitTest extends TestUtils {
                     ZoneId.ofOffset("UTC", ZoneOffset.ofHours(-2)));
     private static final Clock FIXED_CLOCK_GMT = FIXED_CLOCK.withZone(ZoneId.of("GMT"));
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-M-d");
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToCreatePacScriptWithEmptyString() throws Exception {
+        // Given / When
+        new PacScript("");
+        // Then = IllegalArgumentException
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToCreatePacScriptWithNullString() throws Exception {
+        // Given / When
+        new PacScript((String) null);
+        // Then = IllegalArgumentException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailToCreatePacScriptWithMalformedStringScript() throws Exception {
+        // Given / When
+        new PacScript("not_a_function FindProxyForURL(url, host) { return \"DIRECT\" }");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailToEvaluateIfFindProxyForUrlIsMissing() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript("function NotFindProxyForURL() { return 1; }");
+        // When
+        pacScript.evaluate("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
 
     @Test
     public void testDateRange() throws Exception {
@@ -265,6 +305,193 @@ public class PacScriptUnitTest extends TestUtils {
         assertEquals("FAILURE", result5);
     }
 
+    @Test
+    public void shouldReturnEmptySettingsIfScriptReturnsNull() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns(null));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(0));
+    }
+
+    @Test
+    public void shouldReturnEmptySettingsIfScriptReturnsEmptyString() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns(""));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(0));
+    }
+
+    @Test
+    public void shouldReturnDirectSettingIfScriptReturnsDirect() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("DIRECT"));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(1));
+        assertThat(settings.get(0), hasType(Type.DIRECT));
+    }
+
+    @Test
+    public void shouldReturnProxyAndDirectSettingsIfScriptReturnsProxyAndDirect() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY example.com:80; DIRECT"));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(2));
+        assertThat(
+                settings.get(0), allOf(hasType(Type.PROXY), hasHost("example.com"), hasPort(80)));
+        assertThat(settings.get(1), hasType(Type.DIRECT));
+    }
+
+    @Test
+    public void shouldReturnProxySocksAndDirectSettingsIfScriptReturnsProxySocksAndDirect()
+            throws Exception {
+        // Given
+        PacScript pacScript =
+                new PacScript(
+                        returns(
+                                "PROXY proxy.example.com:80; SOCKS socks.example.com:8080; DIRECT"));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(3));
+        assertThat(
+                settings.get(0),
+                allOf(hasType(Type.PROXY), hasHost("proxy.example.com"), hasPort(80)));
+        assertThat(
+                settings.get(1),
+                allOf(hasType(Type.SOCKS), hasHost("socks.example.com"), hasPort(8080)));
+        assertThat(settings.get(2), hasType(Type.DIRECT));
+    }
+
+    @Test
+    public void shouldReturnProxyAndProxySettingsIfScriptReturnsProxyAndProxy() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY example.com:80; PROXY example.com:81"));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(2));
+        assertThat(
+                settings.get(0), allOf(hasType(Type.PROXY), hasHost("example.com"), hasPort(80)));
+        assertThat(
+                settings.get(1), allOf(hasType(Type.PROXY), hasHost("example.com"), hasPort(81)));
+    }
+
+    @Test
+    public void shouldIgnoreSettingsAfterDirect() throws Exception {
+        // Given
+        PacScript pacScript =
+                new PacScript(
+                        returns(
+                                "PROXY example.com:80; DIRECT; PROXY example.com:81; SOCKS example.com:82"));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(2));
+        assertThat(
+                settings.get(0), allOf(hasType(Type.PROXY), hasHost("example.com"), hasPort(80)));
+        assertThat(settings.get(1), hasType(Type.DIRECT));
+    }
+
+    @Test
+    public void shouldIgnoreEmptySettings() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns(" ; ;  \t ; DIRECT; "));
+        // When
+        List<Setting> settings = pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then
+        assertThat(settings, hasSize(1));
+        assertThat(settings.get(0), hasType(Type.DIRECT));
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfSettingHasUnknownType() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("NOTKNOWNTYPE example.com:80"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasNoHostPort() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY "));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasEmptyHost() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY :80"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasNoPort() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY host"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasEmptyPort() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY host:"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasNonNumericPort() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY host:a"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasPortLowerThanAllowed() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY host:-1"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfNonDirectSettingHasPortHigherThanAllowed() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("PROXY host:65536"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
+    @Test(expected = ScriptException.class)
+    public void shouldFailIfDirectSettingHasOtherContents() throws Exception {
+        // Given
+        PacScript pacScript = new PacScript(returns("DIRECT example.com:80"));
+        // When
+        pacScript.findProxyForUrl("http://example.com/", "example.com");
+        // Then = ScriptException
+    }
+
     private static URL getFileUrl(String fileName) {
         return PacScriptUnitTest.class.getResource(fileName);
     }
@@ -272,5 +499,71 @@ public class PacScriptUnitTest extends TestUtils {
     private static String currentDayOfWeek(Clock clock) {
         DayOfWeek dayOfWeek = LocalDate.now(clock).getDayOfWeek();
         return PacScript.DAYS.get(dayOfWeek.get(WeekFields.SUNDAY_START.dayOfWeek()) - 1);
+    }
+
+    private static String returns(String settings) {
+        return "function FindProxyForURL(url, host) { return "
+                + (settings != null ? "\"" + settings + "\"" : "null")
+                + "; }";
+    }
+
+    private static Matcher<PacScript.Setting> hasType(Type type) {
+        return new BaseMatcher<PacScript.Setting>() {
+
+            @Override
+            public boolean matches(Object actualValue) {
+                return ((PacScript.Setting) actualValue).getType() == type;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("type is ").appendValue(type);
+            }
+
+            @Override
+            public void describeMismatch(Object item, Description description) {
+                description.appendText("was ").appendValue(((PacScript.Setting) item).getType());
+            }
+        };
+    }
+
+    private static Matcher<PacScript.Setting> hasHost(String host) {
+        return new BaseMatcher<PacScript.Setting>() {
+
+            @Override
+            public boolean matches(Object actualValue) {
+                return host.equals(((PacScript.Setting) actualValue).getHost());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("host is ").appendValue(host);
+            }
+
+            @Override
+            public void describeMismatch(Object item, Description description) {
+                description.appendText("was ").appendValue(((PacScript.Setting) item).getHost());
+            }
+        };
+    }
+
+    private static Matcher<PacScript.Setting> hasPort(int port) {
+        return new BaseMatcher<PacScript.Setting>() {
+
+            @Override
+            public boolean matches(Object actualValue) {
+                return ((PacScript.Setting) actualValue).getPort() == port;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("port is ").appendValue(port);
+            }
+
+            @Override
+            public void describeMismatch(Object item, Description description) {
+                description.appendText("was ").appendValue(((PacScript.Setting) item).getPort());
+            }
+        };
     }
 }
