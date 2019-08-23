@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
@@ -419,6 +421,9 @@ public class AddOnUnitTest extends TestUtils {
     public void shouldNotBeValidAddOnIfPathIsNotReadable() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "alpha", "1");
+        assumeTrue(
+                "Test requires support for POSIX file attributes.",
+                Files.getFileStore(file).supportsFileAttributeView(PosixFileAttributeView.class));
         Set<PosixFilePermission> perms =
                 Files.readAttributes(file, PosixFileAttributes.class).permissions();
         perms.remove(PosixFilePermission.OWNER_READ);

@@ -38,6 +38,8 @@ import org.zaproxy.zap.testutils.TestUtils;
 /** Unit test for {@link ReportGenerator}. */
 public class ReportGeneratorUnitTest extends TestUtils {
 
+    private static final String NEWLINE = System.getProperty("line.separator");
+
     @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
 
     @Test
@@ -53,7 +55,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     @Test
     public void shouldWriteReportWithWellformedXml() throws Exception {
         // Given
-        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>J/ψ → VP</data>\n";
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>J/ψ → VP</data>" + NEWLINE;
         Path report = tempDir.newFile().toPath();
         // When
         ReportGenerator.stringToHtml(data, identityXsl(), report.toString());

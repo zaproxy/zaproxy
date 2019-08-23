@@ -22,6 +22,8 @@ package org.zaproxy.zap.utils;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -315,11 +317,11 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendStringValue() {
+    public void shouldAppendStringValueWithGivenCharset() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
-        byteBuilder.append("FooBarBaz£$%^&*");
+        byteBuilder.append("FooBarBaz£$%^&*", StandardCharsets.UTF_8);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
         assertThat(
@@ -332,11 +334,22 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendStringBuffer() {
+    public void shouldAppendStringValueWithDefaultCharsetByDefault() {
+        // Given
+        byteBuilder = new ByteBuilder();
+        String value = "FooBarBaz£$%^&*";
+        // When
+        byteBuilder.append(value);
+        // Then
+        assertThat(byteBuilder.toByteArray(), is(lengthAndBytesOf(value)));
+    }
+
+    @Test
+    public void shouldAppendStringBufferWithGivenCharset() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
-        byteBuilder.append(new StringBuffer("FooBarBaz£$%^&*"));
+        byteBuilder.append(new StringBuffer("FooBarBaz£$%^&*"), StandardCharsets.UTF_8);
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
         assertThat(
@@ -346,6 +359,17 @@ public class ByteBuilderUnitTest {
                             1, 2, 3, 0, 0, 0, 16, 70, 111, 111, 66, 97, 114, 66, 97, 122, -62, -93,
                             36, 37, 94, 38, 42
                         }));
+    }
+
+    @Test
+    public void shouldAppendStringBufferWithDefaultCharsetByDefault() {
+        // given
+        byteBuilder = new ByteBuilder();
+        String value = "FooBarBaz£$%^&*";
+        // when
+        byteBuilder.append(new StringBuffer(value));
+        // then
+        assertThat(byteBuilder.toByteArray(), is(lengthAndBytesOf(value)));
     }
 
     @Test
@@ -379,5 +403,13 @@ public class ByteBuilderUnitTest {
         byte[] toByteArray = byteBuilder.toByteArray();
         // then
         assertThat(toByteArray, is(new byte[] {1, 2, 3, -106, 126, -21}));
+    }
+
+    private static byte[] lengthAndBytesOf(String value) {
+        byte[] bytes = value.getBytes(Charset.defaultCharset());
+        byte[] result = new byte[4 + bytes.length];
+        result[3] = (byte) bytes.length;
+        System.arraycopy(bytes, 0, result, 4, bytes.length);
+        return result;
     }
 }
