@@ -1387,7 +1387,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         if (getView() != null) {
             // Initialise the dialogue so that it gets notifications of
             // possible add-on changes and is also shown when needed
-            getAddOnsDialog();
+            try {
+                EventQueue.invokeAndWait(() -> getAddOnsDialog());
+            } catch (InvocationTargetException | InterruptedException e) {
+                logger.error("Failed to initialise the Manage Add-ons dialogue:", e);
+            }
         }
         try {
             ZapRelease rel = aoc.getZapRelease();

@@ -1194,7 +1194,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         logger.debug("gotLatestData(AddOnCollection " + aoc);
 
         if (aoc != null) {
-            setLatestVersionInfo(aoc);
+            EventQueue.invokeLater(() -> setLatestVersionInfo(aoc));
         } else {
             View.getSingleton()
                     .showWarningDialog(this, Constant.messages.getString("cfu.check.failed"));
