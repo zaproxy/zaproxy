@@ -404,11 +404,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             int column = 0;
             uninstalledAddOnsPanel.add(
                     getMarketplacePanel(), LayoutHelper.getGBC(column, row++, 5, 1.0D, 1.0D));
-            uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(column++, row, 1, 1.0D));
             if (Constant.isDevMode()) {
                 uninstalledAddOnsPanel.add(
                         getInstallAllButton(), LayoutHelper.getGBC(column++, row, 1, 0.0D));
             }
+            uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(column++, row, 1, 1.0D));
             uninstalledAddOnsPanel.add(
                     getInstallButton(), LayoutHelper.getGBC(column++, row, 1, 0.0D));
             uninstalledAddOnsPanel.add(
