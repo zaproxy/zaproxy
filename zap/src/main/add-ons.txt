@@ -16,11 +16,6 @@ https://github.com/zaproxy/zap-core-help/releases/download/help-v9/help-release-
 https://github.com/zaproxy/zap-hud/releases/download/v0.4.0/hud-beta-0.4.0.zap 778e42cf41211491c99207a1a00d62f735f2e2bca3d97ad080600e8fc45cd657
 https://github.com/zaproxy/zap-extensions/releases/download/importurls-v6/importurls-beta-6.zap 865ba2d56165fc49f1d15a8e698f1996ba2dcc4356f1db56de831f94be029fff
 https://github.com/zaproxy/zap-extensions/releases/download/2.7/invoke-beta-9.zap 3f2bb268d7afb59330cf75ed524209db8637e4003740f0b9fcb6dd565a38fc76
-https://github.com/zaproxy/zap-extensions/releases/download/jxbrowser-v14/jxbrowser-alpha-14.zap b185d17c7a981afd0d77c07436786341a4e580e0f76bfa6d319e8f3592c11bbe
-https://github.com/zaproxy/zap-extensions/releases/download/jxbrowserlinux64-v12/jxbrowserlinux64-alpha-12.zap 43838e4dc135ee98ad14d01f2dc2468648cda4fb9a72c93c06201015f05e87af
-https://github.com/zaproxy/zap-extensions/releases/download/jxbrowsermacos-v12/jxbrowsermacos-alpha-12.zap 7dcdfb8148d372d522021e964c7e7b5b172232f0ced45b9617c8c63fff87114c
-https://github.com/zaproxy/zap-extensions/releases/download/jxbrowserwindows64-v5/jxbrowserwindows64-alpha-5.zap f833b91b5acc49ca9023b14bdfc18a7b239794c8b84b73486578f784d3c61038
-https://github.com/zaproxy/zap-extensions/releases/download/jxbrowserwindows-v12/jxbrowserwindows-alpha-12.zap d7af59c37e3a80798767d42c25cf04d9125268101eb61bfd08c7b90d9e1f70b2
 https://github.com/zaproxy/zap-extensions/releases/download/2.7/onlineMenu-release-6.zap 5cedd624a489e5755253eb93501dff548b046fbaa4a11f3e44e550fd18947678
 https://github.com/zaproxy/zap-extensions/releases/download/pscanrules-v24/pscanrules-release-24.zap 23975c6ff6c33b5030a08f8567c5d58428fd8bea6824f4d6ddc2a8091d843726
 https://github.com/zaproxy/zap-extensions/releases/download/quickstart-v26/quickstart-release-26.zap 126c17df032ef284296b8090e236af509de07c7ad93b7171c89e3ac9b4157119
