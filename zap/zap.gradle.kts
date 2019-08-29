@@ -1,12 +1,14 @@
+import japicmp.model.JApiChangeStatus
 import java.time.LocalDate
 import java.util.stream.Collectors
 import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
+import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
 
 plugins {
     `java-library`
     jacoco
-    id("me.champeau.gradle.japicmp") version "0.2.8"
+    id("me.champeau.gradle.japicmp")
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -120,10 +122,14 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     oldClasspath = files(zapJar(versionBC))
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
-    onlyBinaryIncompatibleModified = true
-    failOnModification = true
     ignoreMissingClasses = true
-    htmlOutputFile = file("$buildDir/reports/japi.html")
+
+    richReport {
+        destinationDir = file("$buildDir/reports/japicmp/")
+        reportName = "japi.html"
+        isAddDefaultRules = true
+        addRule(JApiChangeStatus.MODIFIED, AcceptMethodAbstractNowDefaultRule::class.java)
+    }
 }
 
 tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
