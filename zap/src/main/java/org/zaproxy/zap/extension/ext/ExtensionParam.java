@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.ext;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.configuration.ConversionException;
@@ -117,9 +116,7 @@ public class ExtensionParam extends AbstractParam {
 
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_EXTENSIONS_KEY);
         int enabledCount = 0;
-        for (Iterator<Map.Entry<String, Boolean>> it = extensionsState.entrySet().iterator();
-                it.hasNext(); ) {
-            Map.Entry<String, Boolean> entry = it.next();
+        for (Map.Entry<String, Boolean> entry : extensionsState.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }

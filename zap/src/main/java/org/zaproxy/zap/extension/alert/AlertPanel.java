@@ -599,9 +599,8 @@ public class AlertPanel extends AbstractPanel {
             return alerts;
         }
 
-        for (int i = 0; i < paths.length; i++) {
-            DefaultMutableTreeNode alertNode =
-                    (DefaultMutableTreeNode) paths[i].getLastPathComponent();
+        for (TreePath path : paths) {
+            DefaultMutableTreeNode alertNode = (DefaultMutableTreeNode) path.getLastPathComponent();
             if (alertNode.getChildCount() == 0) {
                 alerts.add((Alert) alertNode.getUserObject());
                 continue;

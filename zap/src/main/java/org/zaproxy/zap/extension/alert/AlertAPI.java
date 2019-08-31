@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -203,9 +204,7 @@ public class AlertAPI extends ApiImplementor {
                     list[alert.getRisk()].addItem(alertList);
                 }
             }
-            for (int i = 0; i < list.length; i++) {
-                resultList.addItem(list[i]);
-            }
+            Arrays.stream(list).forEach(resultList::addItem);
         } else if (VIEW_ALERT_COUNTS_BY_RISK.equals(name)) {
             String url = this.getParam(params, PARAM_URL, "");
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
@@ -339,8 +338,7 @@ public class AlertAPI extends ApiImplementor {
             Vector<Integer> v = tableAlert.getAlertList();
 
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
-            for (int i = 0; i < v.size(); i++) {
-                int alertId = v.get(i);
+            for (int alertId : v) {
                 RecordAlert recAlert = tableAlert.read(alertId);
                 Alert alert = new Alert(recAlert);
 
