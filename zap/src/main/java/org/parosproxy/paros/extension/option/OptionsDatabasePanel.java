@@ -193,7 +193,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
 
     private ZapSizeNumberSpinner getRequestBodySize() {
         if (spinnerRequestBodySize == null) {
-            spinnerRequestBodySize = new ZapSizeNumberSpinner(16777216);
+            spinnerRequestBodySize = new ZapSizeNumberSpinner();
         }
         return spinnerRequestBodySize;
     }
@@ -231,7 +231,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
 
     private ZapSizeNumberSpinner getResponseBodySize() {
         if (spinnerResponseBodySize == null) {
-            spinnerResponseBodySize = new ZapSizeNumberSpinner(16777216);
+            spinnerResponseBodySize = new ZapSizeNumberSpinner();
         }
         return spinnerResponseBodySize;
     }

@@ -31,7 +31,7 @@ public class ZapSizeNumberSpinner extends ZapNumberSpinner {
     private static final int MIN_SIZE = 0;
     private static final int MAX_SIZE = Integer.MAX_VALUE;
 
-    public ZapSizeNumberSpinner(int defaultSize) {
+    public ZapSizeNumberSpinner() {
         super(MIN_SIZE, 0, MAX_SIZE);
     }
 }
