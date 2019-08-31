@@ -27,8 +27,7 @@ import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
  * {@code ZapTextField} is a {@code JTextField} with {@code UndoableEdit}s.
  *
  * <p>The default is to maintain a window of 100 undoable edits. When the limit is reached older
- * undoable edits start to be discarded when new ones are saved. The limit can be changed with the
- * method {@code setEditsLimit(int)}.
+ * undoable edits start to be discarded when new ones are saved.
  *
  * <p>It is responsibility of the owner of the {@code ZapTextField} to discard all undoable edits
  * when they are not needed.
@@ -37,7 +36,6 @@ import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
  *
  * @since 1.3.0
  * @see #discardAllEdits()
- * @see #setEditsLimit(int)
  * @see #setUndoManagerPolicy
  * @see ZapTextComponentUndoManager
  */
@@ -107,16 +105,6 @@ public class ZapTextField extends JTextField {
      */
     public void discardAllEdits() {
         undoManager.discardAllEdits();
-    }
-
-    /**
-     * Sets the maximum number of undoable edits this {@code ZapTextField} can hold.
-     *
-     * @param limit the new limit
-     * @see ZapTextComponentUndoManager#setLimit(int)
-     */
-    public void setEditsLimit(int limit) {
-        undoManager.setLimit(limit);
     }
 
     /**
