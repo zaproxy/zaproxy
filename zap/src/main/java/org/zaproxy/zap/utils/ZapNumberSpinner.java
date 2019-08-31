@@ -36,7 +36,6 @@ public class ZapNumberSpinner extends JSpinner {
 
     private int minValue;
     private int maxValue;
-    private int defaultValue;
 
     public ZapNumberSpinner() {
         this(0, 0, Integer.MAX_VALUE);
@@ -46,11 +45,9 @@ public class ZapNumberSpinner extends JSpinner {
         this.minValue = minValue;
         this.maxValue = maxValue;
         if (!isValidValue(defaultValue)) {
-            this.defaultValue = minValue;
-        } else {
-            this.defaultValue = defaultValue;
+            defaultValue = minValue;
         }
-        setModel(new SpinnerNumberModel(this.defaultValue, minValue, maxValue, 1));
+        setModel(new SpinnerNumberModel( defaultValue, minValue, maxValue, 1));
         ((NumberEditor) getEditor())
                 .getTextField()
                 .setFormatterFactory(
@@ -58,19 +55,12 @@ public class ZapNumberSpinner extends JSpinner {
     }
 
     private boolean isValidValue(int value) {
-        if (value < minValue || value > maxValue) {
-            return false;
-        }
-        return true;
-    }
-
-    public void changeToDefaultValue() {
-        super.setValue(defaultValue);
+        return value >= minValue && value <= maxValue;
     }
 
     @Override
     public void setValue(Object value) {
-        if ((value == null) || !(value instanceof Number)) {
+        if (!( value instanceof Number )) {
             return;
         }
         setValue(((Number) value).intValue());
@@ -101,7 +91,7 @@ public class ZapNumberSpinner extends JSpinner {
         private int minValue;
         private int maxValue;
 
-        public ZapNumberFormatter(int minValue, int maxValue) {
+        ZapNumberFormatter( int minValue, int maxValue ) {
             this.minValue = minValue;
             this.maxValue = maxValue;
             setValueClass(Integer.class);
@@ -148,7 +138,7 @@ public class ZapNumberSpinner extends JSpinner {
         private final NumberFormat numberFormat;
         private int minValue;
 
-        public ZapNumberFormat(int minValue) {
+        ZapNumberFormat( int minValue ) {
             this.minValue = minValue;
             this.numberFormat = NumberFormat.getIntegerInstance();
             this.numberFormat.setGroupingUsed(false);
