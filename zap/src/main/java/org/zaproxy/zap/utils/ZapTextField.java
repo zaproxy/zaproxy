@@ -21,7 +21,6 @@ package org.zaproxy.zap.utils;
 
 import javax.swing.JTextField;
 import javax.swing.text.Document;
-import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
 
 /**
  * {@code ZapTextField} is a {@code JTextField} with {@code UndoableEdit}s.
@@ -36,7 +35,6 @@ import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
  *
  * @since 1.3.0
  * @see #discardAllEdits()
- * @see #setUndoManagerPolicy
  * @see ZapTextComponentUndoManager
  */
 public class ZapTextField extends JTextField {
@@ -105,16 +103,5 @@ public class ZapTextField extends JTextField {
      */
     public void discardAllEdits() {
         undoManager.discardAllEdits();
-    }
-
-    /**
-     * Sets the policy of the undoable edits of this {@code ZapTextField}.
-     *
-     * @param policy the new policy
-     * @throws NullPointerException if policy is {@code null}
-     * @see ZapTextComponentUndoManager#setUndoManagerPolicy(UndoManagerPolicy)
-     */
-    public void setUndoManagerPolicy(UndoManagerPolicy policy) throws NullPointerException {
-        undoManager.setUndoManagerPolicy(policy);
     }
 }

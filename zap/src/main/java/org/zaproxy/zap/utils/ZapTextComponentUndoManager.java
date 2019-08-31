@@ -41,14 +41,6 @@ import org.parosproxy.paros.Constant;
  * undoable edits start to be discarded when new ones are saved. The limit can be changed with the
  * method {@code setLimit(int)}.
  *
- * <p>There are three policies that affect if, and when, the undoable edits are saved:
- *
- * <ul>
- *   <li>{@code UndoManagerPolicy.DEFAULT}
- *   <li>{@code UndoManagerPolicy.ALWAYS_ENABLED}
- *   <li>{@code UndoManagerPolicy.ALWAYS_DISABLED}
- * </ul>
- *
  * The policy can be changed with the method {@code setUndoManagerPolicy}.
  *
  * <p>The {@code ZapTextComponentUndoManager} listens to changes to the {@code Document} of the
@@ -57,45 +49,9 @@ import org.parosproxy.paros.Constant;
  *
  * @since 1.4.1
  * @see #setLimit(int)
- * @see #setUndoManagerPolicy(UndoManagerPolicy)
- * @see UndoManagerPolicy
  * @see UndoManager
  */
 public class ZapTextComponentUndoManager extends UndoManager implements PropertyChangeListener {
-
-    /**
-     * There are three policies that affect if, and when, the undoable edits are saved:
-     *
-     * <ul>
-     *   <li>{@code UndoManagerPolicy.DEFAULT}
-     *   <li>{@code UndoManagerPolicy.ALWAYS_ENABLED}
-     *   <li>{@code UndoManagerPolicy.ALWAYS_DISABLED}
-     * </ul>
-     *
-     * @see #DEFAULT
-     * @see #ALWAYS_ENABLED
-     * @see #ALWAYS_DISABLED
-     */
-    public enum UndoManagerPolicy {
-        /**
-         * The undoable edits are saved exactly when the {@code JTextComponent} is enabled and
-         * editable.
-         *
-         * <p>The {@code ZapTextComponentUndoManager} listens to the changes in the properties
-         * "enabled" and "editable", so that can change accordingly to save or not the undoable
-         * edits.
-         */
-        DEFAULT,
-
-        /**
-         * The undoable edits are always saved, even if the {@code JTextComponent} is not editable
-         * and/or enabled.
-         */
-        ALWAYS_ENABLED,
-
-        /** The undoable edits are not saved. */
-        ALWAYS_DISABLED
-    };
 
     private static final long serialVersionUID = -5728632360771625298L;
 
@@ -106,16 +62,13 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
 
     private boolean enabled;
 
-    private UndoManagerPolicy policy;
-
     /**
-     * Creates a new {@code ZapTextComponentUndoManager} with a {@code DEFAULT} policy.
+     * Creates a new {@code ZapTextComponentUndoManager}.
      *
      * @param textComponent the {@code JTextComponent} that will have undoable edits.
      * @throws NullPointerException if textComponent is {@code null}.
-     * @see UndoManagerPolicy#DEFAULT
      */
-    public ZapTextComponentUndoManager(JTextComponent textComponent) {
+    ZapTextComponentUndoManager( JTextComponent textComponent ) {
         super();
 
         if (textComponent == null) {
@@ -128,58 +81,23 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
         this.redoAction = new RedoAction(this);
 
         this.enabled = false;
-        this.policy = null;
 
-        setUndoManagerPolicy(UndoManagerPolicy.DEFAULT);
-    }
+        this.textComponent.addPropertyChangeListener("editable", this);
+        this.textComponent.addPropertyChangeListener("enabled", this);
 
-    /**
-     * Sets the new policy.
-     *
-     * @param policy the new policy
-     * @throws NullPointerException if policy is {@code null}
-     * @see UndoManagerPolicy
-     */
-    public final void setUndoManagerPolicy(UndoManagerPolicy policy) throws NullPointerException {
-        if (policy == null) {
-            throw new NullPointerException("The policy must not be null.");
-        }
-
-        if (this.policy == policy) {
-            return;
-        }
-
-        final UndoManagerPolicy oldPolicy = this.policy;
-        this.policy = policy;
-
-        if (oldPolicy == UndoManagerPolicy.DEFAULT) {
-            this.textComponent.removePropertyChangeListener("editable", this);
-            this.textComponent.removePropertyChangeListener("enabled", this);
-        }
-
-        if (this.policy == UndoManagerPolicy.DEFAULT) {
-            this.textComponent.addPropertyChangeListener("editable", this);
-            this.textComponent.addPropertyChangeListener("enabled", this);
-        }
-
-        handleUndoManagerPolicy();
+        handleUndoManagerDefaultPolicy();
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         final String propertyName = evt.getPropertyName();
 
-        if ("document".equals(propertyName)) {
-            if (this.enabled) {
-                ((Document) evt.getOldValue()).removeUndoableEditListener(this);
-                ((Document) evt.getNewValue()).addUndoableEditListener(this);
+        if ("document".equals(propertyName) && this.enabled) {
+            ((Document) evt.getOldValue()).removeUndoableEditListener(this);
+            ((Document) evt.getNewValue()).addUndoableEditListener(this);
 
-                if (policy == UndoManagerPolicy.DEFAULT) {
-                    handleUndoManagerDefaultPolicy();
-                }
-            }
-        } else if (policy == UndoManagerPolicy.DEFAULT
-                && ("editable".equals(propertyName) || "enabled".equals(propertyName))) {
+            handleUndoManagerDefaultPolicy();
+        } else if ("editable".equals(propertyName) || "enabled".equals(propertyName)) {
             handleUndoManagerDefaultPolicy();
         }
     }
@@ -212,20 +130,6 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
         }
     }
 
-    private void handleUndoManagerPolicy() {
-        switch (policy) {
-            case ALWAYS_DISABLED:
-                this.setEnabled(false);
-                break;
-            case ALWAYS_ENABLED:
-                this.setEnabled(true);
-                break;
-            case DEFAULT:
-            default:
-                handleUndoManagerDefaultPolicy();
-        }
-    }
-
     private void handleUndoManagerDefaultPolicy() {
         this.setEnabled(this.textComponent.isEditable() && this.textComponent.isEnabled());
     }
@@ -234,13 +138,13 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
 
         private static final long serialVersionUID = 6681683056944213164L;
 
-        public static final String ACTION_NAME = "Undo";
-        public static final KeyStroke KEY_STROKE =
+        static final String ACTION_NAME = "Undo";
+        static final KeyStroke KEY_STROKE =
                 KeyStroke.getKeyStroke(Constant.ACCELERATOR_UNDO);
 
         private UndoManager undoManager;
 
-        public UndoAction(UndoManager undoManager) {
+        UndoAction(UndoManager undoManager) {
             super(ACTION_NAME);
 
             this.undoManager = undoManager;
@@ -252,7 +156,7 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
                 if (undoManager.canUndo()) {
                     undoManager.undo();
                 }
-            } catch (CannotUndoException e) {
+            } catch (CannotUndoException ignored) {
             }
         }
     }
@@ -261,13 +165,13 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
 
         private static final long serialVersionUID = -7098526742716575130L;
 
-        public static final String ACTION_NAME = "Redo";
-        public static final KeyStroke KEY_STROKE =
+        static final String ACTION_NAME = "Redo";
+        static final KeyStroke KEY_STROKE =
                 KeyStroke.getKeyStroke(Constant.ACCELERATOR_REDO);
 
         private UndoManager undoManager;
 
-        public RedoAction(UndoManager undoManager) {
+        RedoAction(UndoManager undoManager) {
             super(ACTION_NAME);
 
             this.undoManager = undoManager;
@@ -279,7 +183,7 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
                 if (undoManager.canRedo()) {
                     undoManager.redo();
                 }
-            } catch (CannotRedoException e) {
+            } catch (CannotRedoException ignored) {
             }
         }
     }
