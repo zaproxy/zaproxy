@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,17 +53,15 @@ public class PassiveScannerList {
         List<PassiveScanner> tempScanners =
                 new ArrayList<>(passiveScanners.size() + autoTagScanners.size());
 
-        for (Iterator<PassiveScanner> it = passiveScanners.iterator(); it.hasNext(); ) {
-            PassiveScanner scanner = it.next();
-            if (!(scanner instanceof RegexAutoTagScanner)) {
-                tempScanners.add(scanner);
-            } else {
+        for (PassiveScanner scanner : passiveScanners) {
+            if (scanner instanceof RegexAutoTagScanner) {
                 this.scannerNames.remove(scanner.getName());
+            } else {
+                tempScanners.add(scanner);
             }
         }
 
-        for (Iterator<RegexAutoTagScanner> it = autoTagScanners.iterator(); it.hasNext(); ) {
-            PassiveScanner scanner = it.next();
+        for (PassiveScanner scanner : autoTagScanners) {
             if (scannerNames.contains(scanner.getName())) {
                 logger.error("Duplicate passive scanner name: " + scanner.getName());
             } else {

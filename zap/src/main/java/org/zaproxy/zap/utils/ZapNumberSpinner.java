@@ -47,7 +47,7 @@ public class ZapNumberSpinner extends JSpinner {
         if (!isValidValue(defaultValue)) {
             defaultValue = minValue;
         }
-        setModel(new SpinnerNumberModel( defaultValue, minValue, maxValue, 1));
+        setModel(new SpinnerNumberModel(defaultValue, minValue, maxValue, 1));
         ((NumberEditor) getEditor())
                 .getTextField()
                 .setFormatterFactory(
@@ -60,7 +60,7 @@ public class ZapNumberSpinner extends JSpinner {
 
     @Override
     public void setValue(Object value) {
-        if (!( value instanceof Number )) {
+        if (!(value instanceof Number)) {
             return;
         }
         setValue(((Number) value).intValue());
@@ -91,7 +91,7 @@ public class ZapNumberSpinner extends JSpinner {
         private int minValue;
         private int maxValue;
 
-        ZapNumberFormatter( int minValue, int maxValue ) {
+        ZapNumberFormatter(int minValue, int maxValue) {
             this.minValue = minValue;
             this.maxValue = maxValue;
             setValueClass(Integer.class);
@@ -138,7 +138,7 @@ public class ZapNumberSpinner extends JSpinner {
         private final NumberFormat numberFormat;
         private int minValue;
 
-        ZapNumberFormat( int minValue ) {
+        ZapNumberFormat(int minValue) {
             this.minValue = minValue;
             this.numberFormat = NumberFormat.getIntegerInstance();
             this.numberFormat.setGroupingUsed(false);

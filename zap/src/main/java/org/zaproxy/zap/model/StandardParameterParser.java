@@ -228,9 +228,9 @@ public class StandardParameterParser implements ParameterParser {
 
         if (paramStr != null) {
             String[] keyValue = this.getKeyValuePairSeparatorPattern().split(paramStr);
-            for (int i = 0; i < keyValue.length; i++) {
+            for (String s : keyValue) {
                 try {
-                    String[] keyEqValue = this.getKeyValueSeparatorPattern().split(keyValue[i]);
+                    String[] keyEqValue = this.getKeyValueSeparatorPattern().split(s);
                     if (keyEqValue.length == 1) {
                         map.put(keyEqValue[0], "");
                     } else if (keyEqValue.length > 1) {
@@ -252,8 +252,8 @@ public class StandardParameterParser implements ParameterParser {
 
         List<NameValuePair> parametersList = new ArrayList<>();
         String[] pairs = getKeyValuePairSeparatorPattern().split(parameters);
-        for (int i = 0; i < pairs.length; i++) {
-            String[] nameValuePair = getKeyValueSeparatorPattern().split(pairs[i], 2);
+        for (String pair : pairs) {
+            String[] nameValuePair = getKeyValueSeparatorPattern().split(pair, 2);
             if (nameValuePair.length == 1) {
                 parametersList.add(new DefaultNameValuePair(urlDecode(nameValuePair[0])));
             } else {

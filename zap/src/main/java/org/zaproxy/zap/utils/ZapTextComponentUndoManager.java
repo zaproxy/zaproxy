@@ -41,7 +41,7 @@ import org.parosproxy.paros.Constant;
  * undoable edits start to be discarded when new ones are saved. The limit can be changed with the
  * method {@code setLimit(int)}.
  *
- * The policy can be changed with the method {@code setUndoManagerPolicy}.
+ * <p>The policy can be changed with the method {@code setUndoManagerPolicy}.
  *
  * <p>The {@code ZapTextComponentUndoManager} listens to changes to the {@code Document} of the
  * {@code JTextComponent} used with the {@code ZapTextComponentUndoManager}, so there is no need to
@@ -68,7 +68,7 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
      * @param textComponent the {@code JTextComponent} that will have undoable edits.
      * @throws NullPointerException if textComponent is {@code null}.
      */
-    ZapTextComponentUndoManager( JTextComponent textComponent ) {
+    ZapTextComponentUndoManager(JTextComponent textComponent) {
         super();
 
         if (textComponent == null) {
@@ -139,8 +139,7 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
         private static final long serialVersionUID = 6681683056944213164L;
 
         static final String ACTION_NAME = "Undo";
-        static final KeyStroke KEY_STROKE =
-                KeyStroke.getKeyStroke(Constant.ACCELERATOR_UNDO);
+        static final KeyStroke KEY_STROKE = KeyStroke.getKeyStroke(Constant.ACCELERATOR_UNDO);
 
         private UndoManager undoManager;
 
@@ -166,8 +165,7 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
         private static final long serialVersionUID = -7098526742716575130L;
 
         static final String ACTION_NAME = "Redo";
-        static final KeyStroke KEY_STROKE =
-                KeyStroke.getKeyStroke(Constant.ACCELERATOR_REDO);
+        static final KeyStroke KEY_STROKE = KeyStroke.getKeyStroke(Constant.ACCELERATOR_REDO);
 
         private UndoManager undoManager;
 

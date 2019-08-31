@@ -138,15 +138,10 @@ public class AntiCsrfParam extends AbstractParam {
             return;
         }
 
-        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext(); ) {
-            if (name.equals(it.next().getName())) {
-                return;
-            }
+        if (tokens.stream().noneMatch(token -> name.equals(token.getName()))) {
+            this.tokens.add(new AntiCsrfParamToken(name));
+            this.enabledTokensNames.add(name);
         }
-
-        this.tokens.add(new AntiCsrfParamToken(name));
-
-        this.enabledTokensNames.add(name);
     }
 
     /**

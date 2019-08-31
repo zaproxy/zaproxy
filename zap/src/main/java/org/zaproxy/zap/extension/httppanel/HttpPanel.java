@@ -238,10 +238,10 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         Message oldMessage = this.message;
         this.message = msg;
 
-        for (Iterator<Entry<String, HttpPanelComponentInterface>> it =
-                        components.entrySet().iterator();
-                it.hasNext(); ) {
-            HttpPanelComponentInterface component = it.next().getValue();
+        for (Entry<String, HttpPanelComponentInterface> stringHttpPanelComponentInterfaceEntry :
+                components.entrySet()) {
+            HttpPanelComponentInterface component =
+                    stringHttpPanelComponentInterfaceEntry.getValue();
 
             if (!component.isEnabled(message)) {
                 if (enabledComponents.contains(component)) {
