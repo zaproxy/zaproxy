@@ -19,14 +19,23 @@
  */
 package org.zaproxy.zap.eventBus;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,24 +81,35 @@ public class SimpleEventBus implements EventBus {
             }
             log.debug("registerPublisher " + publisherName);
 
-            RegisteredPublisher regProd = new RegisteredPublisher(publisher, eventTypes);
+            RegisteredPublisher regProd =
+                    new RegisteredPublisher(publisher, new HashSet<>(asList(eventTypes)));
 
             List<RegisteredConsumer> consumers = new ArrayList<>();
             // Check to see if there are any cached consumers
-            danglingConsumers.removeIf(
-                    regCon -> {
-                        if (regCon.getPublisherName().equals(publisherName)) {
-                            consumers.add(regCon);
-                            return true;
-                        }
-                        return false;
-                    });
+            moveConsumers(
+                    danglingConsumers,
+                    consumer -> consumer.getPublisherName().equals(publisherName),
+                    consumers::add);
 
             regProd.addConsumers(consumers);
             nameToPublisher.put(publisherName, regProd);
         } finally {
             regMgmtLock.unlock();
         }
+    }
+
+    private static void moveConsumers(
+            Collection<RegisteredConsumer> source,
+            Predicate<RegisteredConsumer> condition,
+            Consumer<RegisteredConsumer> sink) {
+        source.removeIf(
+                item -> {
+                    if (condition.test(item)) {
+                        sink.accept(item);
+                        return true;
+                    }
+                    return false;
+                });
     }
 
     @Override
@@ -123,6 +143,9 @@ public class SimpleEventBus implements EventBus {
             throw new InvalidParameterException("Consumer must not be null");
         }
 
+        Set<String> eventTypesSet =
+                eventTypes == null ? emptySet() : new HashSet<>(asList(eventTypes));
+
         regMgmtLock.lock();
         try {
             log.debug(
@@ -134,9 +157,9 @@ public class SimpleEventBus implements EventBus {
             if (publisher == null) {
                 // Cache until the publisher registers
                 danglingConsumers.add(
-                        new RegisteredConsumer(consumer, eventTypes, publisherName));
+                        new RegisteredConsumer(consumer, eventTypesSet, publisherName));
             } else {
-                publisher.addConsumer(consumer, eventTypes);
+                publisher.addConsumer(new RegisteredConsumer(consumer, eventTypesSet));
             }
         } finally {
             regMgmtLock.unlock();
@@ -205,54 +228,35 @@ public class SimpleEventBus implements EventBus {
         }
 
         log.debug("publishSyncEvent " + eventType + " from " + publisherName);
-        boolean foundType = false;
-        for (String type : regPublisher.getEventTypes()) {
-            if (eventType.equals(type)) {
-                foundType = true;
-                break;
-            }
-        }
-        if (!foundType) {
+        if (!regPublisher.isEventRegistered(eventType)) {
             throw new InvalidParameterException(
                     "Event type: " + eventType + " not registered for publisher: " + publisherName);
         }
 
-        for (RegisteredConsumer regCon : regPublisher.getConsumers()) {
-            String[] eventTypes = regCon.getEventTypes();
-            boolean isListeningforEvent = false;
-            if (eventTypes == null) {
-                // They are listening for all events from this publisher
-                isListeningforEvent = true;
-            } else {
-                for (String type : eventTypes) {
-                    if (eventType.equals(type)) {
-                        isListeningforEvent = true;
-                        break;
-                    }
-                }
-            }
-            if (isListeningforEvent) {
-                try {
-                    regCon.getConsumer().eventReceived(event);
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-        }
+        regPublisher
+                .getConsumers()
+                .filter(consumer -> consumer.wantsEvent(eventType))
+                .forEach(
+                        regCon -> {
+                            try {
+                                regCon.getConsumer().eventReceived(event);
+                            } catch (Exception e) {
+                                log.error(e.getMessage(), e);
+                            }
+                        });
     }
 
     private static class RegisteredConsumer {
         private EventConsumer consumer;
-        private String[] eventTypes;
+        private Set<String> eventTypes = new HashSet<>();
         private String publisherName;
 
-        RegisteredConsumer(EventConsumer consumer, String[] eventTypes) {
+        RegisteredConsumer(EventConsumer consumer, Set<String> eventTypes) {
             this.consumer = consumer;
-            this.eventTypes = eventTypes;
+            this.eventTypes.addAll(eventTypes);
         }
 
-        RegisteredConsumer(
-                EventConsumer consumer, String[] eventTypes, String publisherName) {
+        RegisteredConsumer(EventConsumer consumer, Set<String> eventTypes, String publisherName) {
             this(consumer, eventTypes);
             this.publisherName = publisherName;
         }
@@ -261,8 +265,8 @@ public class SimpleEventBus implements EventBus {
             return consumer;
         }
 
-        String[] getEventTypes() {
-            return eventTypes;
+        boolean wantsEvent(String eventType) {
+            return eventTypes.isEmpty() || eventTypes.contains(eventType);
         }
 
         String getPublisherName() {
@@ -272,42 +276,37 @@ public class SimpleEventBus implements EventBus {
 
     private static class RegisteredPublisher {
         private EventPublisher publisher;
-        private String[] eventTypes;
+        private Set<String> eventTypes = new HashSet<>();
         private List<RegisteredConsumer> consumers = new CopyOnWriteArrayList<>();
 
-        RegisteredPublisher(EventPublisher publisher, String[] eventTypes) {
-            super();
+        RegisteredPublisher(EventPublisher publisher, Set<String> eventTypes) {
             this.publisher = publisher;
-            this.eventTypes = eventTypes;
+            this.eventTypes.addAll(eventTypes);
         }
 
         EventPublisher getPublisher() {
             return publisher;
         }
 
-        String[] getEventTypes() {
-            return eventTypes;
+        boolean isEventRegistered(String eventType) {
+            return eventTypes.contains(eventType);
         }
 
-        List<RegisteredConsumer> getConsumers() {
-            return consumers;
+        Stream<RegisteredConsumer> getConsumers() {
+            return consumers.stream();
         }
 
-        void addConsumers(List<RegisteredConsumer> consumers) {
-            this.consumers.addAll(consumers);
+        void addConsumer(RegisteredConsumer consumer) {
+            consumers.add(consumer);
         }
 
-        void addConsumer(EventConsumer consumer, String[] eventTypes) {
-            consumers.add(new RegisteredConsumer(consumer, eventTypes));
+        void addConsumers(List<RegisteredConsumer> registeredConsumers) {
+            consumers.addAll(registeredConsumers);
         }
 
         void removeConsumer(EventConsumer consumer) {
-            for (RegisteredConsumer cons : consumers) {
-                if (cons.getConsumer().equals(consumer)) {
-                    consumers.remove(cons);
-                    return;
-                }
-            }
+            consumers.removeIf(
+                    registeredConsumer -> registeredConsumer.getConsumer().equals(consumer));
         }
     }
 }
