@@ -988,4 +988,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         purge(map, node);
         purgeTemporaryParents(map, parent);
     }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        this.getHistoryReferencesTable().persistColumnConfiguration();
+    }
 }
