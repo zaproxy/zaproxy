@@ -177,6 +177,7 @@ Scanners:
 
 90001   Insecure JSF ViewState
 90002   Java Serialized Object
+90003   SRI integrity missing attribute
 90011   Charset Mismatch
 90017	XSLT Injection
 90018   SQL Injection SQLMap
