@@ -20,6 +20,8 @@
 package org.zaproxy.zap.view;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import org.parosproxy.paros.Constant;
@@ -50,15 +52,17 @@ public abstract class DeleteContextAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Context context = getContext();
-        if (context == null) {
+        ArrayList<Context> contexts = getContexts();
+        if (contexts == null) {
             return;
         }
 
         if (View.getSingleton()
                         .showConfirmDialog(Constant.messages.getString("context.delete.warning"))
                 == JOptionPane.OK_OPTION) {
-            Model.getSingleton().getSession().deleteContext(context);
+        	for (Context context : contexts) {
+        		Model.getSingleton().getSession().deleteContext(context);
+        	}
         }
     }
 
@@ -66,6 +70,16 @@ public abstract class DeleteContextAction extends AbstractAction {
      * Called when the action is performed, to delete the returned context.
      *
      * @return the {@code Context} to delete, or {@code null} if none.
-     */
+     
     protected abstract Context getContext();
+    */
+    
+    /**
+     * Called when the action is performed to delete one or more selected
+     * contexts
+     * 
+     * @return the {@code ArrayList} of {@code Context} to delete or
+     * {@code null} if none
+     */
+    protected abstract ArrayList<Context> getContexts();
 }

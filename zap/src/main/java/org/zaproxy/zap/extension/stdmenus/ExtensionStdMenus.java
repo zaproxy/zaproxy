@@ -29,6 +29,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -225,12 +227,14 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     new DeleteContextAction() {
 
                         private static final long serialVersionUID = 1L;
-
                         @Override
-                        protected Context getContext() {
-                            return Model.getSingleton()
+                        protected ArrayList<Context> getContexts() {
+                            ArrayList<Context> contexts = new ArrayList<Context>();
+                            contexts.add(
+                            		Model.getSingleton()
                                     .getSession()
-                                    .getContext(popupContextTreeMenuOutScope.getContextId());
+                                    .getContext(popupContextTreeMenuOutScope.getContextId()));
+                            return contexts;
                         }
                     });
             popupContextTreeMenuDelete.setText(Constant.messages.getString("context.delete.popup"));
