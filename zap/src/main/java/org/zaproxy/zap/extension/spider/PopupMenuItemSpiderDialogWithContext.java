@@ -19,7 +19,12 @@
  */
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.Component;
+
+import javax.swing.JTree;
+
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.SiteMapPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextTreeMenu;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
@@ -45,5 +50,16 @@ public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
                     Context context = Model.getSingleton().getSession().getContext(getContextId());
                     extension.showSpiderDialog(new Target(context));
                 });
+    }
+    
+    @Override
+    public boolean isEnableForComponent(Component invoker) {
+    	if (invoker instanceof JTree
+            && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
+    		JTree contextTree = (JTree) invoker;
+    		
+    		this.setEnabled(contextTree.getSelectionCount() < 2);
+    	}
+    	return(super.isEnableForComponent(invoker));
     }
 }

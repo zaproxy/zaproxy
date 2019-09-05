@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -32,6 +33,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
+import javax.swing.JTree;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -40,6 +43,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
@@ -167,13 +171,15 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            Context ctx =
-                                    Model.getSingleton()
-                                            .getSession()
-                                            .getContext(
-                                                    popupContextTreeMenuOutScope.getContextId());
-                            ctx.setInScope(true);
-                            Model.getSingleton().getSession().saveContext(ctx);
+                            for (Integer id : popupContextTreeMenuInScope.getContextIds()) {
+                            	Context ctx =
+                            		Model.getSingleton()
+                                    .getSession()
+                                    .getContext(id);
+
+                            	ctx.setInScope(true);
+                            	Model.getSingleton().getSession().saveContext(ctx);
+                            }
                         }
                     });
         }
@@ -198,13 +204,15 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            Context ctx =
-                                    Model.getSingleton()
-                                            .getSession()
-                                            .getContext(
-                                                    popupContextTreeMenuOutScope.getContextId());
-                            ctx.setInScope(false);
-                            Model.getSingleton().getSession().saveContext(ctx);
+                            for (Integer id : popupContextTreeMenuOutScope.getContextIds()) {
+                            	Context ctx =
+                            		Model.getSingleton()
+                                    .getSession()
+                                    .getContext(id);
+
+                            	ctx.setInScope(false);
+                            	Model.getSingleton().getSession().saveContext(ctx);
+                            }
                         }
                     });
         }
@@ -230,10 +238,13 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         @Override
                         protected ArrayList<Context> getContexts() {
                             ArrayList<Context> contexts = new ArrayList<Context>();
+                            for (Integer id : popupContextTreeMenuDelete.getContextIds())
+                            {
                             contexts.add(
                             		Model.getSingleton()
                                     .getSession()
-                                    .getContext(popupContextTreeMenuOutScope.getContextId()));
+                                    .getContext(id));
+                            }
                             return contexts;
                         }
                     });
@@ -244,7 +255,20 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     private PopupContextTreeMenu getPopupContextTreeMenuExport() {
         if (popupContextTreeMenuExport == null) {
-            popupContextTreeMenuExport = new PopupContextTreeMenu();
+            popupContextTreeMenuExport = new PopupContextTreeMenu() {
+            	private static final long serialVersionUID = 1L;
+            	
+                @Override
+                public boolean isEnableForComponent(Component invoker) {
+                	if (invoker instanceof JTree
+                        && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
+                		JTree contextTree = (JTree) invoker;
+                		
+                		this.setEnabled(contextTree.getSelectionCount() < 2);
+                	}
+                	return(super.isEnableForComponent(invoker));
+                }
+            };
             popupContextTreeMenuExport.setText(
                     Constant.messages.getString("menu.file.context.export"));
             popupContextTreeMenuExport.setIcon(
@@ -267,6 +291,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                             exportDialog.setVisible(true);
                         }
                     });
+
+            popupContextTreeMenuExport.setEnabled(popupContextTreeMenuExport.getContextIds().size() < 2);
         }
         return popupContextTreeMenuExport;
     }

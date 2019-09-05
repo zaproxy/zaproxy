@@ -20,20 +20,30 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 import javax.swing.JTree;
+import javax.swing.tree.TreePath;
+
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SiteMapPanel;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 
 public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
 
     private int contextId = -1;
+    private List<Integer> contextIds;
 
     /** This method initializes */
     public PopupContextTreeMenu() {
         super();
+        contextIds = new ArrayList<Integer>();
     }
 
     @Override
@@ -43,10 +53,34 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
                 && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
             JTree contextTree = (JTree) invoker;
             SiteNode node = (SiteNode) contextTree.getLastSelectedPathComponent();
+            
             if (node == null || node.isRoot()) {
                 return false;
             }
             contextId = ((Target) node.getUserObject()).getContext().getId();
+            
+            // get all selected contexts as well
+    		TreePath[] paths = contextTree.getSelectionPaths();
+    		if (paths == null || paths.length == 0)
+    			return false;
+
+    		SiteNode[] nodes = Arrays.stream(paths)
+    				.map(p -> (SiteNode) p.getLastPathComponent())
+    				.toArray(SiteNode[]::new);
+
+    		// if only the root is selected no contexts are selected
+    		if (nodes.length == 1 && nodes[0].isRoot())
+    			return false;
+
+    		Stream<Target> targets = Arrays.stream(nodes)
+    				.map(n -> (Target) n.getUserObject());
+
+    		contextIds.clear();
+    		contextIds.addAll(
+    			Arrays.asList(targets
+    					.map(t -> t.getContext().getId())
+    					.toArray(Integer[]::new)));
+    		
             return isEnabledForContext(contextId);
         }
         return false;
@@ -64,6 +98,10 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
 
     protected int getContextId() {
         return contextId;
+    }
+    
+    protected List<Integer> getContextIds() {
+    	return contextIds;
     }
 
     @Override

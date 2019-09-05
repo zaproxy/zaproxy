@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.history;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.log4j.Logger;
@@ -69,7 +70,13 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
         if (file == null) {
             return;
         }
-        super.writeURLs(file, this.getOutputSet(ctx));
+        
+        List<Context> contexts = extension.getView().getSiteTreePanel().getSelectedContexts();
+        SortedSet<String> allUrls = new TreeSet<String>();
+        for (Context c : contexts) {
+        	allUrls.addAll(this.getOutputSet(c));
+        }
+    	super.writeURLs(file, allUrls);
     }
 
     private SortedSet<String> getOutputSet(Context ctx) {
