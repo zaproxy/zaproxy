@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
@@ -33,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.view.MainMenuBar;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -91,13 +93,17 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     public void postInit() {
         if (View.isInitialised()) {
             logger.info("Initializing keyboard shortcuts");
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile());
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuEdit());
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuAnalyse());
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport());
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools());
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuView());
-            initAllMenuItems(View.getSingleton().getMainFrame().getMainMenuBar().getMenuHelp());
+            processMainMenuBarMenus(this::initAllMenuItems);
+        }
+    }
+
+    private void processMainMenuBarMenus(Consumer<JMenu> action) {
+        MainMenuBar mainMenuBar = getView().getMainFrame().getMainMenuBar();
+        for (int i = 0; i < mainMenuBar.getMenuCount(); i++) {
+            JMenu menu = mainMenuBar.getMenu(i);
+            if (menu != null) {
+                action.accept(menu);
+            }
         }
     }
 
@@ -225,26 +231,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     public List<KeyboardShortcut> getShortcuts(boolean reset) {
         if (View.isInitialised()) {
             List<KeyboardShortcut> kss = new ArrayList<KeyboardShortcut>();
-
-            addAllMenuItems(
-                    kss, View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile(), reset);
-            addAllMenuItems(
-                    kss, View.getSingleton().getMainFrame().getMainMenuBar().getMenuEdit(), reset);
-            addAllMenuItems(
-                    kss,
-                    View.getSingleton().getMainFrame().getMainMenuBar().getMenuAnalyse(),
-                    reset);
-            addAllMenuItems(
-                    kss,
-                    View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport(),
-                    reset);
-            addAllMenuItems(
-                    kss, View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools(), reset);
-            addAllMenuItems(
-                    kss, View.getSingleton().getMainFrame().getMainMenuBar().getMenuView(), reset);
-            addAllMenuItems(
-                    kss, View.getSingleton().getMainFrame().getMainMenuBar().getMenuHelp(), reset);
-
+            processMainMenuBarMenus(menu -> addAllMenuItems(kss, menu, reset));
             return kss;
         }
         return null;
