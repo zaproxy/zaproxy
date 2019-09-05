@@ -1024,8 +1024,7 @@ public class AddOnLoader extends URLClassLoader {
         List<ClassNameWrapper> classNames = new ArrayList<>();
         File[] listFile = file.listFiles(fileFilter);
 
-        for (int i = 0; i < listFile.length; i++) {
-            File entry = listFile[i];
+        for (File entry : listFile) {
             if (entry.isDirectory()) {
                 classNames.addAll(parseClassDir(cl, entry, packageName, fileFilter));
                 continue;
