@@ -62,7 +62,7 @@ out_of_scope_dict = {}
 min_level = 0
 
 # Scan rules that aren't really relevant, eg the examples rules in the alpha set
-blacklist = ['-1', '50003', '60000', '60001']
+blacklist = ['-1', '50003', '60000', '60001', '60100', '60101']
 
 # Scan rules that are being addressed
 in_progress_issues = {}
