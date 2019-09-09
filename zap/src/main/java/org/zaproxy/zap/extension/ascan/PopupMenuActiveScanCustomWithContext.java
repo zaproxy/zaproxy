@@ -58,9 +58,8 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
     public boolean isEnableForComponent(Component invoker) {
         if (invoker instanceof JTree
                 && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
-            JTree contextTree = (JTree) invoker;
 
-            this.setEnabled(contextTree.getSelectionCount() < 2);
+            this.setEnabled(((JTree) invoker).getSelectionCount() < 2);
         }
         return (super.isEnableForComponent(invoker));
     }

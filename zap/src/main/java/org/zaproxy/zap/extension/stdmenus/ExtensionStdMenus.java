@@ -236,6 +236,13 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                             }
                             return contexts;
                         }
+
+                        @Override
+                        protected Context getContext() {
+                            return Model.getSingleton()
+                                    .getSession()
+                                    .getContext(popupContextTreeMenuDelete.getContextId());
+                        }
                     });
             popupContextTreeMenuDelete.setText(Constant.messages.getString("context.delete.popup"));
         }
@@ -253,9 +260,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                             if (invoker instanceof JTree
                                     && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(
                                             invoker.getName())) {
-                                JTree contextTree = (JTree) invoker;
-
-                                this.setEnabled(contextTree.getSelectionCount() < 2);
+                                this.setEnabled(((JTree) invoker).getSelectionCount() < 2);
                             }
                             return (super.isEnableForComponent(invoker));
                         }

@@ -21,6 +21,8 @@ package org.zaproxy.zap.view;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -52,7 +54,7 @@ public abstract class DeleteContextAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        ArrayList<Context> contexts = getContexts();
+        List<Context> contexts = getContexts();
         if (contexts == null) {
             return;
         }
@@ -72,11 +74,21 @@ public abstract class DeleteContextAction extends AbstractAction {
             }
         }
     }
+    /**
+     * Called when the action is performed, to delete the returned context.
+     *
+     * @return the {@code Context} to delete, or {@code null} if none.
+     */
+    protected abstract Context getContext();
 
     /**
-     * Called when the action is performed to delete one or more selected contexts
+     * Called when the action is performed to delete one or more selected contexts. Override to
+     * allow for multiple contexts to be deleted
      *
-     * @return the {@code ArrayList} of {@code Context} to delete or {@code null} if none
+     * @return the {@code List} of {@code Context} to delete or {@code null} if none
      */
-    protected abstract ArrayList<Context> getContexts();
+    protected List<Context> getContexts() {
+        Context ctx = getContext();
+        return ctx == null ? null : new ArrayList<Context>(Arrays.asList(ctx));
+    }
 }

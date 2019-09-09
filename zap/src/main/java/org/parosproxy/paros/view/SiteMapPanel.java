@@ -599,6 +599,11 @@ public class SiteMapPanel extends AbstractPanel {
                         protected ArrayList<Context> getContexts() {
                             return new ArrayList<Context>(getSelectedContexts());
                         }
+
+                        @Override
+                        protected Context getContext() {
+                            return getSelectedContext();
+                        }
                     };
             treeContext
                     .getInputMap()
