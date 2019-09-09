@@ -510,6 +510,7 @@ public class SiteMapPanel extends AbstractPanel {
      * nothing is selected or the selection is the root node.
      *
      * @return List of Context selected in the UI
+     * @since TODO Add version
      */
     public List<Context> getSelectedContexts() {
         TreePath[] paths = treeContext.getSelectionPaths();

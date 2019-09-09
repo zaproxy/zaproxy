@@ -97,9 +97,10 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
 
     /**
      * Returns whether or not the menu should be enabled when multiple contexts are currently
-     * selected, override if not
+     * selected, override to change the value (by default True).
      *
-     * @return
+     * @return Whether or not the menu should be enabled on multiple contexts
+     * @since TODO Add version
      */
     public boolean isEnabledForMultipleContexts() {
         return true;
