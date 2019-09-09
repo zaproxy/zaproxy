@@ -62,7 +62,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -556,15 +555,11 @@ public class SiteMapPanel extends AbstractPanel {
                         public void mouseClicked(java.awt.event.MouseEvent e) {
                             TreePath path =
                                     treeContext.getClosestPathForLocation(e.getX(), e.getY());
-                            if (!e.isShiftDown()
-                                    && !e.isControlDown()
-                                    && e.getButton() != MouseEvent.BUTTON3) {
-                                // clear selection if we are not in multiselect mode
-                                treeContext.clearSelection();
-                            }
 
-                            if (path != null && !treeContext.isPathSelected(path)) {
-                                treeContext.addSelectionPath(path);
+                            if (path != null) {
+                                if (((SiteNode) path.getLastPathComponent()).isRoot()) {
+                                    treeContext.removeSelectionPath(path);
+                                }
                             }
                             if (e.getClickCount() > 1) {
                                 // Its a double click - show the relevant context dialog
