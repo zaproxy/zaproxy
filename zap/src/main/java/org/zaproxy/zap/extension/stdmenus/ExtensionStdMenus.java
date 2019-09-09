@@ -31,10 +31,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -172,13 +170,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             for (Integer id : popupContextTreeMenuInScope.getContextIds()) {
-                            	Context ctx =
-                            		Model.getSingleton()
-                                    .getSession()
-                                    .getContext(id);
+                                Context ctx = Model.getSingleton().getSession().getContext(id);
 
-                            	ctx.setInScope(true);
-                            	Model.getSingleton().getSession().saveContext(ctx);
+                                ctx.setInScope(true);
+                                Model.getSingleton().getSession().saveContext(ctx);
                             }
                         }
                     });
@@ -205,13 +200,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             for (Integer id : popupContextTreeMenuOutScope.getContextIds()) {
-                            	Context ctx =
-                            		Model.getSingleton()
-                                    .getSession()
-                                    .getContext(id);
+                                Context ctx = Model.getSingleton().getSession().getContext(id);
 
-                            	ctx.setInScope(false);
-                            	Model.getSingleton().getSession().saveContext(ctx);
+                                ctx.setInScope(false);
+                                Model.getSingleton().getSession().saveContext(ctx);
                             }
                         }
                     });
@@ -235,15 +227,12 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     new DeleteContextAction() {
 
                         private static final long serialVersionUID = 1L;
+
                         @Override
                         protected ArrayList<Context> getContexts() {
                             ArrayList<Context> contexts = new ArrayList<Context>();
-                            for (Integer id : popupContextTreeMenuDelete.getContextIds())
-                            {
-                            contexts.add(
-                            		Model.getSingleton()
-                                    .getSession()
-                                    .getContext(id));
+                            for (Integer id : popupContextTreeMenuDelete.getContextIds()) {
+                                contexts.add(Model.getSingleton().getSession().getContext(id));
                             }
                             return contexts;
                         }
@@ -255,20 +244,22 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     private PopupContextTreeMenu getPopupContextTreeMenuExport() {
         if (popupContextTreeMenuExport == null) {
-            popupContextTreeMenuExport = new PopupContextTreeMenu() {
-            	private static final long serialVersionUID = 1L;
-            	
-                @Override
-                public boolean isEnableForComponent(Component invoker) {
-                	if (invoker instanceof JTree
-                        && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
-                		JTree contextTree = (JTree) invoker;
-                		
-                		this.setEnabled(contextTree.getSelectionCount() < 2);
-                	}
-                	return(super.isEnableForComponent(invoker));
-                }
-            };
+            popupContextTreeMenuExport =
+                    new PopupContextTreeMenu() {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public boolean isEnableForComponent(Component invoker) {
+                            if (invoker instanceof JTree
+                                    && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(
+                                            invoker.getName())) {
+                                JTree contextTree = (JTree) invoker;
+
+                                this.setEnabled(contextTree.getSelectionCount() < 2);
+                            }
+                            return (super.isEnableForComponent(invoker));
+                        }
+                    };
             popupContextTreeMenuExport.setText(
                     Constant.messages.getString("menu.file.context.export"));
             popupContextTreeMenuExport.setIcon(
@@ -292,7 +283,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         }
                     });
 
-            popupContextTreeMenuExport.setEnabled(popupContextTreeMenuExport.getContextIds().size() < 2);
+            popupContextTreeMenuExport.setEnabled(
+                    popupContextTreeMenuExport.getContextIds().size() < 2);
         }
         return popupContextTreeMenuExport;
     }

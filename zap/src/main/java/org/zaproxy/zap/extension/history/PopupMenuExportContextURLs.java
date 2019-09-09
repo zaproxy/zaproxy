@@ -70,13 +70,13 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
         if (file == null) {
             return;
         }
-        
+
         List<Context> contexts = extension.getView().getSiteTreePanel().getSelectedContexts();
         SortedSet<String> allUrls = new TreeSet<String>();
         for (Context c : contexts) {
-        	allUrls.addAll(this.getOutputSet(c));
+            allUrls.addAll(this.getOutputSet(c));
         }
-    	super.writeURLs(file, allUrls);
+        super.writeURLs(file, allUrls);
     }
 
     private SortedSet<String> getOutputSet(Context ctx) {

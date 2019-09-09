@@ -22,7 +22,6 @@ package org.zaproxy.zap.view;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
-
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import org.parosproxy.paros.Constant;
@@ -57,29 +56,27 @@ public abstract class DeleteContextAction extends AbstractAction {
         if (contexts == null) {
             return;
         }
-        
-        String contextList = contexts.stream()
-        		.map(c -> c.getName())
-        		.collect(Collectors.joining(", "));
-        
+
+        String contextList =
+                contexts.stream().map(c -> c.getName()).collect(Collectors.joining(", "));
+
         if (View.getSingleton()
-                        .showConfirmDialog( contexts.size() > 1 ?
-                        		Constant.messages.getString("context.delete.warning.multiple",
-                        				contextList) :
-                        		Constant.messages.getString("context.delete.warning"))
+                        .showConfirmDialog(
+                                contexts.size() > 1
+                                        ? Constant.messages.getString(
+                                                "context.delete.warning.multiple", contextList)
+                                        : Constant.messages.getString("context.delete.warning"))
                 == JOptionPane.OK_OPTION) {
-        	for (Context context : contexts) {
-        		Model.getSingleton().getSession().deleteContext(context);
-        	}
+            for (Context context : contexts) {
+                Model.getSingleton().getSession().deleteContext(context);
+            }
         }
     }
-    
+
     /**
-     * Called when the action is performed to delete one or more selected
-     * contexts
-     * 
-     * @return the {@code ArrayList} of {@code Context} to delete or
-     * {@code null} if none
+     * Called when the action is performed to delete one or more selected contexts
+     *
+     * @return the {@code ArrayList} of {@code Context} to delete or {@code null} if none
      */
     protected abstract ArrayList<Context> getContexts();
 }

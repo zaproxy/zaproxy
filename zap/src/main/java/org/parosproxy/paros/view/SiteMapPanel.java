@@ -68,7 +68,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -506,34 +505,31 @@ public class SiteMapPanel extends AbstractPanel {
         }
         return null;
     }
-    
-	/**
-	 * Returns the List of Context selected in the Site Map panel of the UI or
-	 * {@code null} if nothing is selected or the selection is the root node.
-	 *
-	 * @return List of Context selected in the UI
-	 */
-	public List<Context> getSelectedContexts() {
-		TreePath[] paths = treeContext.getSelectionPaths();
-		if (paths == null || paths.length == 0)
-			return null;
 
-		SiteNode[] nodes = Arrays.stream(paths)
-				.map(p -> (SiteNode) p.getLastPathComponent())
-				.toArray(SiteNode[]::new);
+    /**
+     * Returns the List of Context selected in the Site Map panel of the UI or {@code null} if
+     * nothing is selected or the selection is the root node.
+     *
+     * @return List of Context selected in the UI
+     */
+    public List<Context> getSelectedContexts() {
+        TreePath[] paths = treeContext.getSelectionPaths();
+        if (paths == null || paths.length == 0) return null;
 
-		// if only the root is selected no contexts are selected
-		if (nodes.length == 1 && nodes[0].isRoot())
-			return null;
+        SiteNode[] nodes =
+                Arrays.stream(paths)
+                        .map(p -> (SiteNode) p.getLastPathComponent())
+                        .toArray(SiteNode[]::new);
 
-		Stream<Target> targets = Arrays.stream(nodes)
-				.map(n -> (Target) n.getUserObject());
+        // if only the root is selected no contexts are selected
+        if (nodes.length == 1 && nodes[0].isRoot()) return null;
 
-		return targets == null ? null :
-			Arrays.asList(targets
-					.map(t -> t.getContext())
-					.toArray(Context[]::new));
-	}
+        Stream<Target> targets = Arrays.stream(nodes).map(n -> (Target) n.getUserObject());
+
+        return targets == null
+                ? null
+                : Arrays.asList(targets.map(t -> t.getContext()).toArray(Context[]::new));
+    }
 
     private JTree getTreeContext() {
         if (treeContext == null) {
@@ -558,16 +554,18 @@ public class SiteMapPanel extends AbstractPanel {
 
                         @Override
                         public void mouseClicked(java.awt.event.MouseEvent e) {
-                        	TreePath path = treeContext.getClosestPathForLocation(e.getX(), e.getY());
-        					if (!e.isShiftDown() && !e.isControlDown()
-        							&& e.getButton() != MouseEvent.BUTTON3) {
-        						// clear selection if we are not in multiselect mode
-        						treeContext.clearSelection();
-        					}
-        					
-        					if (path != null && !treeContext.isPathSelected(path)) {
-        						treeContext.addSelectionPath(path);
-        					}
+                            TreePath path =
+                                    treeContext.getClosestPathForLocation(e.getX(), e.getY());
+                            if (!e.isShiftDown()
+                                    && !e.isControlDown()
+                                    && e.getButton() != MouseEvent.BUTTON3) {
+                                // clear selection if we are not in multiselect mode
+                                treeContext.clearSelection();
+                            }
+
+                            if (path != null && !treeContext.isPathSelected(path)) {
+                                treeContext.addSelectionPath(path);
+                            }
                             if (e.getClickCount() > 1) {
                                 // Its a double click - show the relevant context dialog
                                 SiteNode node =
@@ -597,10 +595,10 @@ public class SiteMapPanel extends AbstractPanel {
 
                         private static final long serialVersionUID = 1L;
 
-        				@Override
-        				protected ArrayList<Context> getContexts() {
-        					return new ArrayList<Context>(getSelectedContexts());
-        				}
+                        @Override
+                        protected ArrayList<Context> getContexts() {
+                            return new ArrayList<Context>(getSelectedContexts());
+                        }
                     };
             treeContext
                     .getInputMap()
