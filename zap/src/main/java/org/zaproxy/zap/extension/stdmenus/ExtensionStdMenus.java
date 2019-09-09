@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -32,7 +31,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
-import javax.swing.JTree;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -41,7 +39,6 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
@@ -256,13 +253,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        public boolean isEnableForComponent(Component invoker) {
-                            if (invoker instanceof JTree
-                                    && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(
-                                            invoker.getName())) {
-                                this.setEnabled(((JTree) invoker).getSelectionCount() < 2);
-                            }
-                            return (super.isEnableForComponent(invoker));
+                        public boolean isEnabledForMultipleContexts() {
+                            return false;
                         }
                     };
             popupContextTreeMenuExport.setText(

@@ -49,6 +49,11 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
         if (invoker instanceof JTree
                 && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
             JTree contextTree = (JTree) invoker;
+
+            if (!isEnabledForMultipleContexts()) {
+                this.setEnabled(contextTree.getSelectionCount() < 2);
+            }
+
             SiteNode node = (SiteNode) contextTree.getLastSelectedPathComponent();
 
             if (node == null || node.isRoot()) {
@@ -87,6 +92,16 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
      * @return
      */
     public boolean isEnabledForContext(int contextId) {
+        return true;
+    }
+
+    /**
+     * Returns whether or not the menu should be enabled when multiple contexts are currently
+     * selected, override if not
+     *
+     * @return
+     */
+    public boolean isEnabledForMultipleContexts() {
         return true;
     }
 

@@ -19,11 +19,8 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.Component;
 import javax.swing.ImageIcon;
-import javax.swing.JTree;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.SiteMapPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextTreeMenu;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
@@ -55,12 +52,7 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
     }
 
     @Override
-    public boolean isEnableForComponent(Component invoker) {
-        if (invoker instanceof JTree
-                && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
-
-            this.setEnabled(((JTree) invoker).getSelectionCount() < 2);
-        }
-        return (super.isEnableForComponent(invoker));
+    public boolean isEnabledForMultipleContexts() {
+        return false;
     }
 }
