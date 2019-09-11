@@ -1223,6 +1223,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         private final JEditorPane changesField;
         private final JLabel infoLabel;
         private final JXHyperlink infoField;
+        private final JLabel repoLabel;
+        private final JXHyperlink repoField;
         private final ZapLabel idField;
         private final JLabel authorLabel;
         private final ZapLabel authorField;
@@ -1287,6 +1289,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             infoField = new JXHyperlink();
             infoLabel.setLabelFor(infoField);
 
+            repoLabel = new JLabel(Constant.messages.getString("cfu.table.header.repo"));
+            repoField = new JXHyperlink();
+            repoLabel.setLabelFor(repoField);
+
             JLabel idLabel = new JLabel(Constant.messages.getString("cfu.table.header.id"));
             idField = createZapLabelField(idLabel);
 
@@ -1318,6 +1324,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                                             .addComponent(descLabel)
                                             .addComponent(changesLabel)
                                             .addComponent(infoLabel)
+                                            .addComponent(repoLabel)
                                             .addComponent(idLabel)
                                             .addComponent(authorLabel)
                                             .addComponent(dependenciesLabel)
@@ -1353,6 +1360,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                                                     Short.MAX_VALUE)
                                             .addComponent(
                                                     infoField,
+                                                    0,
+                                                    GroupLayout.DEFAULT_SIZE,
+                                                    Short.MAX_VALUE)
+                                            .addComponent(
+                                                    repoField,
                                                     0,
                                                     GroupLayout.DEFAULT_SIZE,
                                                     Short.MAX_VALUE)
@@ -1415,6 +1427,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                                             .addComponent(infoField))
                             .addGroup(
                                     layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(repoLabel)
+                                            .addComponent(repoField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                             .addComponent(idLabel)
                                             .addComponent(idField))
                             .addGroup(
@@ -1461,15 +1477,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             versionField.setText(addOn.getVersion().toString());
             setTextOrHide(descLabel, descField, addOn.getDescription());
             setTextOrHide(changesLabel, changesField, addOn.getChanges());
-            if (addOn.getInfo() != null) {
-                infoLabel.setVisible(true);
-                infoField.setURI(URI.create(addOn.getInfo().toString()));
-                infoField.setVisible(true);
-            } else {
-                infoLabel.setVisible(false);
-                infoField.setURI(null);
-                infoField.setVisible(false);
-            }
+            setUriOrHide(infoLabel, infoField, addOn.getInfo());
+            setUriOrHide(repoLabel, repoField, addOn.getRepo());
             idField.setText(addOn.getId());
             setTextOrHide(authorLabel, authorField, addOn.getAuthor());
             setTextOrHide(
@@ -1509,6 +1518,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             descField.setText("");
             changesField.setText("");
             infoField.setText("");
+            repoField.setText("");
             idField.setText("");
             authorField.setText("");
             dependenciesField.setText("");
@@ -1531,6 +1541,13 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         label.setVisible(visible);
         textComponent.setVisible(visible);
         textComponent.setText(text);
+    }
+
+    private static void setUriOrHide(JLabel label, JXHyperlink hyperlink, URL url) {
+        boolean visible = url != null;
+        label.setVisible(visible);
+        hyperlink.setVisible(visible);
+        hyperlink.setURI(visible ? URI.create(url.toString()) : null);
     }
 
     private static class DisableSelectionHighlighter extends AbstractHighlighter {

@@ -72,6 +72,7 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getAuthor(), isEmptyString());
         assertThat(manifest.getUrl(), isEmptyString());
         assertThat(manifest.getChanges(), isEmptyString());
+        assertThat(manifest.getRepo(), isEmptyString());
         assertThat(manifest.getNotBeforeVersion(), isEmptyString());
         assertThat(manifest.getNotFromVersion(), isEmptyString());
         assertThat(manifest.getBundleBaseName(), isEmptyString());
@@ -98,6 +99,7 @@ public class ZapAddOnXmlFileUnitTest {
         String author = "Author";
         String url = "http://example.org";
         String changes = "Changes";
+        String repo = "http://example.org/repo/";
         String notBeforeVersion = "1.2.3";
         String notFromVersion = "3.2.1";
         InputStream manifestData =
@@ -111,6 +113,7 @@ public class ZapAddOnXmlFileUnitTest {
                         "<author>" + author + "</author>",
                         "<url>" + url + "</url>",
                         "<changes>" + changes + "</changes>",
+                        "<repo>" + repo + "</repo>",
                         "<not-before-version>" + notBeforeVersion + "</not-before-version>",
                         "<not-from-version>" + notFromVersion + "</not-from-version>",
                         "</zapaddon>");
@@ -125,6 +128,7 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getAuthor(), is(equalTo(author)));
         assertThat(manifest.getUrl(), is(equalTo(url)));
         assertThat(manifest.getChanges(), is(equalTo(changes)));
+        assertThat(manifest.getRepo(), is(equalTo(repo)));
         assertThat(manifest.getNotBeforeVersion(), is(equalTo(notBeforeVersion)));
         assertThat(manifest.getNotFromVersion(), is(equalTo(notFromVersion)));
     }

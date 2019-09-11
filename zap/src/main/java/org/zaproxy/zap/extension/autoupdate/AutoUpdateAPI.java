@@ -186,6 +186,7 @@ public class AutoUpdateAPI extends ApiImplementor {
         map.put("description", ao.getDescription());
         map.put("hash", ObjectUtils.toString(ao.getHash()));
         map.put("infoUrl", ObjectUtils.toString(ao.getInfo()));
+        map.put("repoUrl", ObjectUtils.toString(ao.getRepo()));
         map.put("sizeInBytes", String.valueOf(ao.getSize()));
         map.put("status", ao.getStatus().toString());
         map.put("url", ObjectUtils.toString(ao.getUrl()));
