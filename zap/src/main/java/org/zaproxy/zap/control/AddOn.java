@@ -453,7 +453,12 @@ public class AddOn {
         try {
             return Optional.of(new AddOn(file));
         } catch (AddOn.InvalidAddOnException e) {
-            logger.warn("Invalid add-on: " + file.toString(), e);
+            String logMessage = "Invalid add-on: " + file.toString() + ".";
+            if (logger.isDebugEnabled() || Constant.isDevMode()) {
+                logger.warn(logMessage, e);
+            } else {
+                logger.warn(logMessage + " " + e.getMessage());
+            }
         } catch (Exception e) {
             logger.error("Failed to create an add-on from: " + file.toString(), e);
         }
