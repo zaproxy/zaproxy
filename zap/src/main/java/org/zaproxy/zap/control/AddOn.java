@@ -248,6 +248,7 @@ public class AddOn {
     private File file = null;
     private URL url = null;
     private URL info = null;
+    private URL repo;
     private long size = 0;
     private boolean hasZapAddOnEntry = false;
 
@@ -562,7 +563,8 @@ public class AddOn {
         this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
         this.notFromVersion = zapAddOnXml.getNotFromVersion();
         this.dependencies = zapAddOnXml.getDependencies();
-        this.info = createInfoUrl(zapAddOnXml.getUrl());
+        this.info = createUrl(zapAddOnXml.getUrl());
+        this.repo = createUrl(zapAddOnXml.getRepo());
 
         this.ascanrules = zapAddOnXml.getAscanrules();
         this.extensions = zapAddOnXml.getExtensions();
@@ -621,18 +623,19 @@ public class AddOn {
         this.size = addOnData.getSize();
         this.notBeforeVersion = addOnData.getNotBeforeVersion();
         this.notFromVersion = addOnData.getNotFromVersion();
-        this.info = createInfoUrl(addOnData.getInfo());
+        this.info = createUrl(addOnData.getInfo());
+        this.repo = createUrl(addOnData.getRepo());
         this.hash = addOnData.getHash();
 
         loadManifestFile();
     }
 
-    private URL createInfoUrl(String url) {
+    private URL createUrl(String url) {
         if (url != null && !url.isEmpty()) {
             try {
                 return new URL(url);
             } catch (Exception e) {
-                logger.warn("Invalid info URL for add-on \"" + id + "\":", e);
+                logger.warn("Invalid URL for add-on \"" + id + "\": " + url, e);
             }
         }
         return null;
@@ -1607,6 +1610,16 @@ public class AddOn {
 
     public void setInfo(URL info) {
         this.info = info;
+    }
+
+    /**
+     * Gets the URL to the browsable repo.
+     *
+     * @return the URL to the repo, might be {@code null}.
+     * @since TODO add version
+     */
+    public URL getRepo() {
+        return repo;
     }
 
     public String getHash() {
