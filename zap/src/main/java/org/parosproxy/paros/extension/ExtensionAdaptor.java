@@ -45,9 +45,9 @@
 // ZAP: 2018/04/17 Deprecate ExtensionAdaptor(String, Version) and remove getVersion() override.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/12 Remove getURL().
 package org.parosproxy.paros.extension;
 
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -224,11 +224,6 @@ public abstract class ExtensionAdaptor implements Extension {
     @Override
     public boolean isCore() {
         return false;
-    }
-
-    @Override
-    public URL getURL() {
-        return null;
     }
 
     @Override

@@ -44,6 +44,7 @@
 // ZAP: 2018/04/17 Deprecate getVersion().
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/12 Add defaults to getAuthor() and getURL().
 package org.parosproxy.paros.extension;
 
 import java.net.URL;
@@ -183,9 +184,39 @@ public interface Extension {
 
     boolean isCore();
 
-    String getAuthor();
+    /**
+     * Gets the author of the extension.
+     *
+     * <p>Since TODO add version defaults to the author of the add-on, if set, otherwise an empty
+     * string.
+     *
+     * @return the author of the extension, might be {@code null}.
+     * @since 1.4.0
+     */
+    default String getAuthor() {
+        AddOn addOn = getAddOn();
+        if (addOn != null) {
+            return addOn.getAuthor();
+        }
+        return "";
+    }
 
-    URL getURL();
+    /**
+     * Gets the URL to info about the extension.
+     *
+     * <p>Since TODO add version defaults to the info URL of the add-on, if set, otherwise {@code
+     * null}.
+     *
+     * @return the URL to info about the extension, might be {@code null}.
+     * @since 1.4.0
+     */
+    default URL getURL() {
+        AddOn addOn = getAddOn();
+        if (addOn != null) {
+            return addOn.getInfo();
+        }
+        return null;
+    }
 
     /**
      * Gets the resource bundle of the extension.
