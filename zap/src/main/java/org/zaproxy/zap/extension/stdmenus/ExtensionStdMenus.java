@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.ImageIcon;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -226,8 +227,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected ArrayList<Context> getContexts() {
-                            ArrayList<Context> contexts = new ArrayList<Context>();
+                        protected List<Context> getContexts() {
+                            List<Context> contexts = new ArrayList<Context>();
                             for (Integer id : popupContextTreeMenuDelete.getContextIds()) {
                                 contexts.add(Model.getSingleton().getSession().getContext(id));
                             }
@@ -249,13 +250,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupContextTreeMenu getPopupContextTreeMenuExport() {
         if (popupContextTreeMenuExport == null) {
             popupContextTreeMenuExport =
-                    new PopupContextTreeMenu() {
+                    new PopupContextTreeMenu(false) {
                         private static final long serialVersionUID = 1L;
-
-                        @Override
-                        public boolean isEnabledForMultipleContexts() {
-                            return false;
-                        }
                     };
             popupContextTreeMenuExport.setText(
                     Constant.messages.getString("menu.file.context.export"));
@@ -279,9 +275,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                             exportDialog.setVisible(true);
                         }
                     });
-
-            popupContextTreeMenuExport.setEnabled(
-                    popupContextTreeMenuExport.getContextIds().size() < 2);
         }
         return popupContextTreeMenuExport;
     }

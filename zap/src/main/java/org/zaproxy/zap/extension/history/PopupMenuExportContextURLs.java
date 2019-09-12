@@ -73,18 +73,17 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
 
         List<Context> contexts = extension.getView().getSiteTreePanel().getSelectedContexts();
         SortedSet<String> allUrls = new TreeSet<String>();
+
         for (Context c : contexts) {
-            allUrls.addAll(this.getOutputSet(c));
+            this.getOutputSet(c, allUrls);
         }
         super.writeURLs(file, allUrls);
     }
 
-    private SortedSet<String> getOutputSet(Context ctx) {
-        SortedSet<String> outputSet = new TreeSet<String>();
+    private void getOutputSet(Context ctx, SortedSet<String> outputSet) {
 
         for (SiteNode node : ctx.getNodesInContextFromSiteTree()) {
             outputSet.add(node.getHistoryReference().getURI().toString());
         }
-        return outputSet;
     }
 }

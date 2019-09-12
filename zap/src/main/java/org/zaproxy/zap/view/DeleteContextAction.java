@@ -20,8 +20,8 @@
 package org.zaproxy.zap.view;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
@@ -60,7 +60,7 @@ public abstract class DeleteContextAction extends AbstractAction {
         }
 
         String contextList =
-                contexts.stream().map(c -> c.getName()).collect(Collectors.joining(", "));
+                contexts.stream().map(Context::getName).collect(Collectors.joining("\n"));
 
         if (View.getSingleton()
                         .showConfirmDialog(
@@ -74,6 +74,7 @@ public abstract class DeleteContextAction extends AbstractAction {
             }
         }
     }
+
     /**
      * Called when the action is performed, to delete the returned context.
      *
@@ -85,10 +86,10 @@ public abstract class DeleteContextAction extends AbstractAction {
      * Called when the action is performed to delete one or more selected contexts. Override to
      * allow for multiple contexts to be deleted
      *
-     * @return the {@code List} of {@code Context} to delete or {@code null} if none
+     * @return the {@code List} of {@code Context} to delete or empty List if none
      */
     protected List<Context> getContexts() {
         Context ctx = getContext();
-        return ctx == null ? null : new ArrayList<Context>(Arrays.asList(ctx));
+        return ctx == null ? Collections.emptyList() : Arrays.asList(ctx);
     }
 }

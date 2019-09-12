@@ -35,7 +35,7 @@ public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
     private static final long serialVersionUID = 1L;
 
     public PopupMenuItemSpiderDialogWithContext(ExtensionSpider extension) {
-        super();
+        super(false);
 
         this.setText(extension.getMessages().getString("spider.custom.popup"));
         this.setIcon(extension.getIcon());
@@ -45,10 +45,5 @@ public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
                     Context context = Model.getSingleton().getSession().getContext(getContextId());
                     extension.showSpiderDialog(new Target(context));
                 });
-    }
-
-    @Override
-    public boolean isEnabledForMultipleContexts() {
-        return false;
     }
 }

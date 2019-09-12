@@ -506,7 +506,7 @@ public class SiteMapPanel extends AbstractPanel {
     }
 
     /**
-     * Returns the List of Context selected in the Site Map panel of the UI or {@code null} if
+     * Returns the List of Context selected in the Site Map panel of the UI or an empty List if
      * nothing is selected or the selection is the root node.
      *
      * @return List of Context selected in the UI
@@ -514,7 +514,7 @@ public class SiteMapPanel extends AbstractPanel {
      */
     public List<Context> getSelectedContexts() {
         TreePath[] paths = treeContext.getSelectionPaths();
-        if (paths == null || paths.length == 0) return null;
+        if (paths == null || paths.length == 0) return Collections.emptyList();
 
         SiteNode[] nodes =
                 Arrays.stream(paths)
@@ -526,9 +526,7 @@ public class SiteMapPanel extends AbstractPanel {
 
         Stream<Target> targets = Arrays.stream(nodes).map(n -> (Target) n.getUserObject());
 
-        return targets == null
-                ? null
-                : Arrays.asList(targets.map(t -> t.getContext()).toArray(Context[]::new));
+        return Arrays.asList(targets.map(Target::getContext).toArray(Context[]::new));
     }
 
     private JTree getTreeContext() {
@@ -556,7 +554,9 @@ public class SiteMapPanel extends AbstractPanel {
                         public void mouseClicked(java.awt.event.MouseEvent e) {
                             TreePath path =
                                     treeContext.getClosestPathForLocation(e.getX(), e.getY());
-
+                            if (treeSite.getLastSelectedPathComponent() != null) {
+                                getTreeSite().clearSelection();
+                            }
                             if (path != null) {
                                 if (((SiteNode) path.getLastPathComponent()).isRoot()) {
                                     treeContext.removeSelectionPath(path);
@@ -592,8 +592,8 @@ public class SiteMapPanel extends AbstractPanel {
                         private static final long serialVersionUID = 1L;
 
                         @Override
-                        protected ArrayList<Context> getContexts() {
-                            return new ArrayList<Context>(getSelectedContexts());
+                        protected List<Context> getContexts() {
+                            return getSelectedContexts();
                         }
 
                         @Override

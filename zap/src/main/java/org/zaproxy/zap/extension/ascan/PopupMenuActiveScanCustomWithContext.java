@@ -36,7 +36,7 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
     private static final long serialVersionUID = 1L;
 
     public PopupMenuActiveScanCustomWithContext(ExtensionActiveScan extension) {
-        super();
+        super(false);
 
         this.setText(extension.getMessages().getString("ascan.custom.popup"));
         this.setIcon(
@@ -49,10 +49,5 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
                     Context context = Model.getSingleton().getSession().getContext(getContextId());
                     extension.showCustomScanDialog(new Target(context));
                 });
-    }
-
-    @Override
-    public boolean isEnabledForMultipleContexts() {
-        return false;
     }
 }

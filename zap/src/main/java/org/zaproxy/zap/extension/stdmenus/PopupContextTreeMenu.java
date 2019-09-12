@@ -34,24 +34,39 @@ import org.zaproxy.zap.model.Target;
 public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
 
-    private int contextId = -1;
     private List<Integer> contextIds;
+    private Boolean enabledForMultipleContexts;
 
-    /** This method initializes */
+    /** This method initializes with default support for multiple contexts */
     public PopupContextTreeMenu() {
+        this(true);
+    }
+
+    /**
+     * Initializes by specifying whether or not this menu supports multiple contexts or not
+     *
+     * @param isEnabledForMultipleContexts
+     */
+    public PopupContextTreeMenu(Boolean isEnabledForMultipleContexts) {
         super();
         contextIds = new ArrayList<Integer>();
+
+        this.enabledForMultipleContexts = isEnabledForMultipleContexts;
     }
 
     @Override
     public boolean isEnableForComponent(Component invoker) {
-        contextId = -1;
         if (invoker instanceof JTree
                 && SiteMapPanel.CONTEXT_TREE_COMPONENT_NAME.equals(invoker.getName())) {
             JTree contextTree = (JTree) invoker;
 
             if (!isEnabledForMultipleContexts()) {
-                this.setEnabled(contextTree.getSelectionCount() < 2);
+                if (contextTree.getSelectionCount() < 2) {
+                    this.setEnabled(true);
+                } else {
+                    this.setEnabled(false);
+                    return isEnabledForContext(getContextId());
+                }
             }
 
             SiteNode node = (SiteNode) contextTree.getLastSelectedPathComponent();
@@ -59,7 +74,8 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
             if (node == null || node.isRoot()) {
                 return false;
             }
-            contextId = ((Target) node.getUserObject()).getContext().getId();
+
+            contextIds.clear();
 
             // get all selected contexts as well
             TreePath[] paths = contextTree.getSelectionPaths();
@@ -75,12 +91,11 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
 
             Stream<Target> targets = Arrays.stream(nodes).map(n -> (Target) n.getUserObject());
 
-            contextIds.clear();
             contextIds.addAll(
                     Arrays.asList(
                             targets.map(t -> t.getContext().getId()).toArray(Integer[]::new)));
 
-            return isEnabledForContext(contextId);
+            return isEnabledForContext(getContextId());
         }
         return false;
     }
@@ -97,17 +112,18 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
 
     /**
      * Returns whether or not the menu should be enabled when multiple contexts are currently
-     * selected, override to change the value (by default True).
+     * selected, by default True.
      *
      * @return Whether or not the menu should be enabled on multiple contexts
      * @since TODO Add version
      */
     public boolean isEnabledForMultipleContexts() {
-        return true;
+        return enabledForMultipleContexts;
     }
 
     protected int getContextId() {
-        return contextId;
+        // returns the last id of contextIds if not empty
+        return contextIds.isEmpty() ? -1 : contextIds.get(contextIds.size() - 1);
     }
 
     protected List<Integer> getContextIds() {
