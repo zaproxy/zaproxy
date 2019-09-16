@@ -29,6 +29,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.ImageIcon;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -165,13 +167,12 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            Context ctx =
-                                    Model.getSingleton()
-                                            .getSession()
-                                            .getContext(
-                                                    popupContextTreeMenuOutScope.getContextId());
-                            ctx.setInScope(true);
-                            Model.getSingleton().getSession().saveContext(ctx);
+                            for (Integer id : popupContextTreeMenuInScope.getContextIds()) {
+                                Context ctx = Model.getSingleton().getSession().getContext(id);
+
+                                ctx.setInScope(true);
+                                Model.getSingleton().getSession().saveContext(ctx);
+                            }
                         }
                     });
         }
@@ -196,13 +197,12 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            Context ctx =
-                                    Model.getSingleton()
-                                            .getSession()
-                                            .getContext(
-                                                    popupContextTreeMenuOutScope.getContextId());
-                            ctx.setInScope(false);
-                            Model.getSingleton().getSession().saveContext(ctx);
+                            for (Integer id : popupContextTreeMenuOutScope.getContextIds()) {
+                                Context ctx = Model.getSingleton().getSession().getContext(id);
+
+                                ctx.setInScope(false);
+                                Model.getSingleton().getSession().saveContext(ctx);
+                            }
                         }
                     });
         }
@@ -227,10 +227,19 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         private static final long serialVersionUID = 1L;
 
                         @Override
+                        protected List<Context> getContexts() {
+                            List<Context> contexts = new ArrayList<Context>();
+                            for (Integer id : popupContextTreeMenuDelete.getContextIds()) {
+                                contexts.add(Model.getSingleton().getSession().getContext(id));
+                            }
+                            return contexts;
+                        }
+
+                        @Override
                         protected Context getContext() {
                             return Model.getSingleton()
                                     .getSession()
-                                    .getContext(popupContextTreeMenuOutScope.getContextId());
+                                    .getContext(popupContextTreeMenuDelete.getContextId());
                         }
                     });
             popupContextTreeMenuDelete.setText(Constant.messages.getString("context.delete.popup"));
@@ -240,7 +249,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     private PopupContextTreeMenu getPopupContextTreeMenuExport() {
         if (popupContextTreeMenuExport == null) {
-            popupContextTreeMenuExport = new PopupContextTreeMenu();
+            popupContextTreeMenuExport = new PopupContextTreeMenu(false);
             popupContextTreeMenuExport.setText(
                     Constant.messages.getString("menu.file.context.export"));
             popupContextTreeMenuExport.setIcon(
