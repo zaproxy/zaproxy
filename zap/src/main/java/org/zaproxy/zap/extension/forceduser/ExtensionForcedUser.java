@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.forceduser;
 
 import java.awt.event.ActionEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -288,15 +286,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor
             this.contextPanelsMap.put(context.getId(), panel);
         }
         return panel;
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

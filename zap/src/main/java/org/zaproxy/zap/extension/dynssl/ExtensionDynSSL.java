@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.dynssl;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -145,15 +143,6 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
     @Override
     public String getDescription() {
         return Constant.messages.getString("dynssl.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     public void setRootCa(KeyStore rootca)

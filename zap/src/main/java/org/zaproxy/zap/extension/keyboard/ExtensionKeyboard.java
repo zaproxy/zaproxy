@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.keyboard;
 
 import java.awt.Component;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -325,15 +323,6 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     @Override
     public String getDescription() {
         return Constant.messages.getString("keyboard.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     /** No database tables used, so all supported */

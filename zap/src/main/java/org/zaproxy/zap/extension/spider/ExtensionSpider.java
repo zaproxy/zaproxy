@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.spider;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -305,15 +303,6 @@ public class ExtensionSpider extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("spider.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

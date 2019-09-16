@@ -24,8 +24,6 @@ import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -556,16 +554,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("ascan.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.authorization;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,15 +144,6 @@ public class ExtensionAuthorization extends ExtensionAdaptor
                     .persistMethodToSession(session, context.getId());
         } catch (DatabaseException e) {
             log.error("Unable to persist Authorization Detection method.", e);
-        }
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
         }
     }
 

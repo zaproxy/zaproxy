@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.authentication;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,15 +125,6 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             this.contextPanelsMap.put(context.getId(), panel);
         }
         return panel;
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override
