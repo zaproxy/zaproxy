@@ -21,8 +21,6 @@ package org.zaproxy.zap.extension.search;
 
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -355,15 +353,6 @@ public class ExtensionSearch extends ExtensionAdaptor {
     @Override
     public String getDescription() {
         return Constant.messages.getString("search.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     public void setSearchJustInScope(boolean searchJustInScope) {

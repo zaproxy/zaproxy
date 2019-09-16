@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.EventQueue;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -638,15 +636,6 @@ public class ExtensionParams extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("params.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

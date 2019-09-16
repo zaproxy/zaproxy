@@ -98,6 +98,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/06/07 Update current version.
+// ZAP: 2019/09/16 Deprecate ZAP_HOMEPAGE and ZAP_EXTENSIONS_PAGE.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -146,8 +147,12 @@ public final class Constant {
     // ZAP: rebrand
     public static final String PROGRAM_NAME = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-    public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
+    /** @deprecated (TODO add version) Do not use, it will be removed. */
+    @Deprecated public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
+    /** @deprecated (TODO add version) Do not use, it will be removed. */
+    @Deprecated
     public static final String ZAP_EXTENSIONS_PAGE = "https://github.com/zaproxy/zap-extensions";
+
     public static final String ZAP_TEAM = "ZAP Dev Team";
     public static final String PAROS_TEAM = "Chinotec Technologies";
 

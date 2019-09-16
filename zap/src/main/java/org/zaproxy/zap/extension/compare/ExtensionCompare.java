@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.compare;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -384,15 +382,6 @@ public class ExtensionCompare extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("cmp.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override
