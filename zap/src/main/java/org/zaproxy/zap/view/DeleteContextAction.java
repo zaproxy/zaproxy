@@ -55,7 +55,7 @@ public abstract class DeleteContextAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         List<Context> contexts = getContexts();
-        if (contexts == null) {
+        if (contexts.isEmpty()) {
             return;
         }
 

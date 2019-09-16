@@ -249,10 +249,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     private PopupContextTreeMenu getPopupContextTreeMenuExport() {
         if (popupContextTreeMenuExport == null) {
-            popupContextTreeMenuExport =
-                    new PopupContextTreeMenu(false) {
-                        private static final long serialVersionUID = 1L;
-                    };
+            popupContextTreeMenuExport = new PopupContextTreeMenu(false);
             popupContextTreeMenuExport.setText(
                     Constant.messages.getString("menu.file.context.export"));
             popupContextTreeMenuExport.setIcon(

@@ -35,7 +35,7 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
 
     private List<Integer> contextIds;
-    private Boolean enabledForMultipleContexts;
+    private boolean enabledForMultipleContexts;
 
     /** This method initializes with default support for multiple contexts */
     public PopupContextTreeMenu() {
@@ -47,7 +47,7 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
      *
      * @param isEnabledForMultipleContexts
      */
-    public PopupContextTreeMenu(Boolean isEnabledForMultipleContexts) {
+    public PopupContextTreeMenu(boolean isEnabledForMultipleContexts) {
         super();
         contextIds = new ArrayList<Integer>();
 
@@ -117,7 +117,7 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
      * @return Whether or not the menu should be enabled on multiple contexts
      * @since TODO Add version
      */
-    public boolean isEnabledForMultipleContexts() {
+    protected boolean isEnabledForMultipleContexts() {
         return enabledForMultipleContexts;
     }
 

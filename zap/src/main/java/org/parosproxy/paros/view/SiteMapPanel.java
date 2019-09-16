@@ -522,7 +522,7 @@ public class SiteMapPanel extends AbstractPanel {
                         .toArray(SiteNode[]::new);
 
         // if only the root is selected no contexts are selected
-        if (nodes.length == 1 && nodes[0].isRoot()) return null;
+        if (nodes.length == 1 && nodes[0].isRoot()) return Collections.emptyList();
 
         Stream<Target> targets = Arrays.stream(nodes).map(n -> (Target) n.getUserObject());
 
