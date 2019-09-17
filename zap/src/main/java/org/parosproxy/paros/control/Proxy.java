@@ -34,6 +34,7 @@
 // ZAP: 2017/11/06 Removed ProxyServerSSL (Issue 3983)
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/17 Remove irrelevant conditional in stopServer().
 package org.parosproxy.paros.control;
 
 import java.util.List;
@@ -108,12 +109,7 @@ public class Proxy {
     }
 
     public void stopServer() {
-        if (model.getOptionsParam().getProxyParam().isUseReverseProxy()) {
-            proxyServer.stopServer();
-
-        } else {
-            proxyServer.stopServer();
-        }
+        proxyServer.stopServer();
     }
 
     public void setSerialize(boolean serialize) {
