@@ -80,6 +80,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
+// ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -506,7 +507,7 @@ public class HttpSender {
                 }
             }
         } finally {
-            IN_LISTENER.set(null);
+            IN_LISTENER.remove();
         }
     }
 
@@ -525,7 +526,7 @@ public class HttpSender {
                 }
             }
         } finally {
-            IN_LISTENER.set(null);
+            IN_LISTENER.remove();
         }
     }
 
