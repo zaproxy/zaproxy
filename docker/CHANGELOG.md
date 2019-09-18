@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2019-10-01
+ - Added Python3 and the pip3 version of ZAP in preparation for Python 2 EOL: https://www.python.org/dev/peps/pep-0373/
+
 ### 2019-09-05
  - Changed zap-full-scan.py to ignore example ascan rules
 
