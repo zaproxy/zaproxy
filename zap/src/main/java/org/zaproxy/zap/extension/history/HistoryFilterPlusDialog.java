@@ -131,7 +131,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
      *
      * @return javax.swing.JPanel
      */
-    private JPanel getJPanel() {
+    public JPanel getJPanel() {
         if (jPanel == null) {
             GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
             java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
