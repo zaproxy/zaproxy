@@ -26,28 +26,19 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.scan.filters.FilterCriteria;
 import org.zaproxy.zap.scan.filters.ScanFilter;
+import org.zaproxy.zap.scan.filters.TagFilterBean;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class TagScanFilter implements ScanFilter {
 
-    private Set<String> tags = new LinkedHashSet<>();
+    private Set<TagFilterBean> tagFilterBeans = new LinkedHashSet<>();
 
-    private FilterCriteria filterCriteria;
-
-    public Set<String> getTags() {
-        return tags;
+    public Set<TagFilterBean> getTagFilterBeans() {
+        return tagFilterBeans;
     }
 
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
-    }
-
-    public FilterCriteria getFilterCriteria() {
-        return filterCriteria;
-    }
-
-    public void setFilterCriteria(FilterCriteria filterCriteria) {
-        this.filterCriteria = filterCriteria;
+    public void setTagFilterBeans(Set<TagFilterBean> tagFilterBeans) {
+        this.tagFilterBeans = tagFilterBeans;
     }
 
     @Override
@@ -55,26 +46,28 @@ public class TagScanFilter implements ScanFilter {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
             List<String> nodeTags = href.getTags();
-            switch (filterCriteria) {
-                case INCLUDE_ALL:
-                    return nodeTags.containsAll(this.tags);
-                case EXCLUDE:
-                    for (String tag : nodeTags) {
-                        if (!this.tags.contains(tag)) {
-                            return false;
+            for (TagFilterBean tagFilterBean : tagFilterBeans) {
+                FilterCriteria filterCriteria = tagFilterBean.getFilterCriteria();
+                switch (filterCriteria) {
+                    case INCLUDE:
+                        for (String tag : nodeTags) {
+                            if (tagFilterBean.getTags().contains(tag)) {
+                                return true;
+                            }
                         }
-                    }
-                    return true;
-                case INCLUDE:
-                    for (String tag : nodeTags) {
-                        if (this.tags.contains(tag)) {
-                            return true;
+                    case EXCLUDE:
+                        for (String tag : nodeTags) {
+                            if (!tagFilterBean.getTags().contains(tag)) {
+                                return false;
+                            }
                         }
-                    }
-                    return false;
-                default:
-                    return true;
+                    case INCLUDE_ALL:
+                        return nodeTags.containsAll(tagFilterBean.getTags());
+                    default:
+                        return true;
+                }
             }
+            return true;
         } else {
             return true;
         }

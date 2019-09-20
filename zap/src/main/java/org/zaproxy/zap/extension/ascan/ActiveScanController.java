@@ -39,6 +39,7 @@ import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.scan.filters.FilterCriteria;
+import org.zaproxy.zap.scan.filters.TagFilterBean;
 import org.zaproxy.zap.scan.filters.impl.TagScanFilter;
 import org.zaproxy.zap.users.User;
 
@@ -179,8 +180,10 @@ public class ActiveScanController implements ScanController<ActiveScan> {
             this.activeScanMap.put(id, ascan);
             this.activeScanList.add(ascan);
             TagScanFilter scanFilter = new TagScanFilter();
-            scanFilter.getTags().add("JSON");
-            scanFilter.setFilterCriteria(FilterCriteria.INCLUDE);
+            TagFilterBean tagFilterBean = new TagFilterBean();
+            tagFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
+            tagFilterBean.getTags().add("JSON");
+            scanFilter.getTagFilterBeans().add(tagFilterBean);
             ascan.getScanFilters().add(scanFilter);
             ascan.start(target);
 

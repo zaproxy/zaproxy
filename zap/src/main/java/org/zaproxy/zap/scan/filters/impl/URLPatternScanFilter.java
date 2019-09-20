@@ -55,14 +55,12 @@ public class URLPatternScanFilter implements ScanFilter {
                             return true;
                         }
                     }
-                    return false;
                 case EXCLUDE:
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             return false;
                         }
                     }
-                    return true;
                 default:
                     return true;
             }
