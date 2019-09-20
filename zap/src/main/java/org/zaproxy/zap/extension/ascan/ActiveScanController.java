@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -39,7 +38,7 @@ import org.zaproxy.zap.extension.script.ScriptCollection;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
-import org.zaproxy.zap.scan.filters.ScanFilter;
+import org.zaproxy.zap.scan.filters.FilterCriteria;
 import org.zaproxy.zap.scan.filters.impl.TagScanFilter;
 import org.zaproxy.zap.users.User;
 
@@ -179,7 +178,9 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 
             this.activeScanMap.put(id, ascan);
             this.activeScanList.add(ascan);
-            ScanFilter scanFilter = new TagScanFilter();
+            TagScanFilter scanFilter = new TagScanFilter();
+            scanFilter.getTags().add("JSON");
+            scanFilter.setFilterCriteria(FilterCriteria.INCLUDE);
             ascan.getScanFilters().add(scanFilter);
             ascan.start(target);
 

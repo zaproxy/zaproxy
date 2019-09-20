@@ -102,7 +102,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
@@ -502,14 +501,14 @@ public class HostProcess implements Runnable {
     }
 
     private boolean isFiltered(StructuralNode node) {
-    	for(ScanFilter scanFilter : parentScanner.getScanFilters()) {
-    		if(!scanFilter.isFiltered(node)) {
-    			return false;
-    		}
-    	}
-    	return true;
+        for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
+            if (!scanFilter.isFiltered(node)) {
+                return false;
+            }
+        }
+        return true;
     }
-    
+
     /**
      * Scans the message with the given ID with the given plugin.
      *
@@ -651,12 +650,12 @@ public class HostProcess implements Runnable {
             }
             return false;
         }
-        
-        if(!isFiltered(node)) {
-        	if(log.isDebugEnabled()) {
-        		log.debug("Ignoring filtered node: " + node.getName());
-        	}
-        	return false;
+
+        if (!isFiltered(node)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Ignoring filtered node: " + node.getName());
+            }
+            return false;
         }
 
         return true;

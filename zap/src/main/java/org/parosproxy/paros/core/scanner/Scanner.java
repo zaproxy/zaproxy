@@ -62,7 +62,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
@@ -574,12 +573,11 @@ public class Scanner implements Runnable {
         this.id = id;
     }
 
-	public Set<ScanFilter> getScanFilters() {
-		return scanFilters;
-	}
+    public Set<ScanFilter> getScanFilters() {
+        return scanFilters;
+    }
 
-	public void setScanFilters(Set<ScanFilter> scanFilters) {
-		this.scanFilters = scanFilters;
-	}
-    
+    public void setScanFilters(Set<ScanFilter> scanFilters) {
+        this.scanFilters = scanFilters;
+    }
 }

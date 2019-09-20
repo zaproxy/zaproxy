@@ -19,10 +19,30 @@
  */
 package org.zaproxy.zap.scan.filters;
 
-import org.zaproxy.zap.model.StructuralNode;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public interface ScanFilter {
+public class UrlPatternFilterBean {
 
-    boolean isFiltered(StructuralNode node);
+    private Set<Pattern> urlPatterns = new LinkedHashSet<>();
+
+    private FilterCriteria filterCriteria;
+
+    public Set<Pattern> getUrlPatterns() {
+        return urlPatterns;
+    }
+
+    public void setUrlPatterns(Set<Pattern> urlPatterns) {
+        this.urlPatterns = urlPatterns;
+    }
+
+    public FilterCriteria getFilterCriteria() {
+        return filterCriteria;
+    }
+
+    public void setFilterCriteria(FilterCriteria filterCriteria) {
+        this.filterCriteria = filterCriteria;
+    }
 }

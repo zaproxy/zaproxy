@@ -20,63 +20,53 @@
 package org.zaproxy.zap.scan.filters.impl;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
-import org.zaproxy.zap.scan.filters.FilterCriteria;
 import org.zaproxy.zap.scan.filters.ScanFilter;
+import org.zaproxy.zap.scan.filters.UrlPatternFilterBean;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public class TagScanFilter implements ScanFilter {
+public class URLPatternScanFilter implements ScanFilter {
 
-    private Set<String> tags = new LinkedHashSet<>();
+    private Set<UrlPatternFilterBean> urlPatternFilterBeans = new LinkedHashSet<>();
 
-    private FilterCriteria filterCriteria;
-
-    public Set<String> getTags() {
-        return tags;
+    public Set<UrlPatternFilterBean> getUrlPatternFilterBeans() {
+        return urlPatternFilterBeans;
     }
 
-    public void setTags(Set<String> tags) {
-        this.tags = tags;
-    }
-
-    public FilterCriteria getFilterCriteria() {
-        return filterCriteria;
-    }
-
-    public void setFilterCriteria(FilterCriteria filterCriteria) {
-        this.filterCriteria = filterCriteria;
+    public void setUrlPatternFilterBeans(Set<UrlPatternFilterBean> urlPatternFilterBeans) {
+        this.urlPatternFilterBeans = urlPatternFilterBeans;
     }
 
     @Override
     public boolean isFiltered(StructuralNode node) {
-        HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            List<String> nodeTags = href.getTags();
-            switch (filterCriteria) {
-                case INCLUDE_ALL:
-                    return nodeTags.containsAll(this.tags);
-                case EXCLUDE:
-                    for (String tag : nodeTags) {
-                        if (!this.tags.contains(tag)) {
-                            return false;
-                        }
-                    }
-                    return true;
+        HistoryReference hRef = node.getHistoryReference();
+        if (hRef == null) {
+            return true;
+        }
+
+        for (UrlPatternFilterBean urlPatternFilterBean : this.urlPatternFilterBeans) {
+            switch (urlPatternFilterBean.getFilterCriteria()) {
                 case INCLUDE:
-                    for (String tag : nodeTags) {
-                        if (this.tags.contains(tag)) {
+                    for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
+                        if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             return true;
                         }
                     }
                     return false;
+                case EXCLUDE:
+                    for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
+                        if (pattern.matcher(hRef.getURI().toString()).matches()) {
+                            return false;
+                        }
+                    }
+                    return true;
                 default:
                     return true;
             }
-        } else {
-            return true;
         }
+        return true;
     }
 }
