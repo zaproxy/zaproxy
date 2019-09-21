@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
+### 2019-09-19
+ - Added python3 and the pip3 version of zap to containers
 
 ### 2019-09-05
  - Changed zap-full-scan.py to ignore example ascan rules
