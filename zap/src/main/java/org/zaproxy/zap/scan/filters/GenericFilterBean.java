@@ -19,21 +19,34 @@
  */
 package org.zaproxy.zap.scan.filters;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 /**
  * @author KSASAN preetkaran20@gmail.com
- *     <p>Processing of FilterCriteria is first Include then Exclude and then Include_All so in case
- *     a request matches Include and Exclude both the criteria for eg:- say a request tags are there
- *     in include and exclude both then the include is given preference and that request will be
- *     included and will not be filtered out.
+ *     <p>Generic Filter Bean which can be applied to any Class Object which implements hashCode and
+ *     equals
+ * @param <T>
  */
-public enum FilterCriteria {
+public class GenericFilterBean<T> {
 
-    /** Include if any value match */
-    INCLUDE,
+    private Collection<T> values = new LinkedHashSet<>();
 
-    /** Include only if all the values match */
-    INCLUDE_ALL,
+    private FilterCriteria filterCriteria;
 
-    /** Exclude if any value match */
-    EXCLUDE
+    public Collection<T> getValues() {
+        return values;
+    }
+
+    public void setValues(Collection<T> tags) {
+        this.values.addAll(tags);
+    }
+
+    public FilterCriteria getFilterCriteria() {
+        return filterCriteria;
+    }
+
+    public void setFilterCriteria(FilterCriteria filterCriteria) {
+        this.filterCriteria = filterCriteria;
+    }
 }

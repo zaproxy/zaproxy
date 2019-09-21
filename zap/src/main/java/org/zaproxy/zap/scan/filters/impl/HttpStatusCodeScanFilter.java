@@ -17,23 +17,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters;
+package org.zaproxy.zap.scan.filters.impl;
 
-/**
- * @author KSASAN preetkaran20@gmail.com
- *     <p>Processing of FilterCriteria is first Include then Exclude and then Include_All so in case
- *     a request matches Include and Exclude both the criteria for eg:- say a request tags are there
- *     in include and exclude both then the include is given preference and that request will be
- *     included and will not be filtered out.
- */
-public enum FilterCriteria {
+import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.model.StructuralNode;
 
-    /** Include if any value match */
-    INCLUDE,
+/** @author KSASAN preetkaran20@gmail.com */
+public class HttpStatusCodeScanFilter extends AbstractScanFilter<Integer> {
 
-    /** Include only if all the values match */
-    INCLUDE_ALL,
-
-    /** Exclude if any value match */
-    EXCLUDE
+    @Override
+    public boolean isFiltered(StructuralNode node) {
+        HistoryReference href = node.getHistoryReference();
+        if (href != null) {
+            int statusCode = href.getStatusCode();
+            return this.isFiltered(statusCode);
+        } else {
+            return true;
+        }
+    }
 }

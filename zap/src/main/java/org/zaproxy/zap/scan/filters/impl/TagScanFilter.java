@@ -19,55 +19,19 @@
  */
 package org.zaproxy.zap.scan.filters.impl;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
-import org.zaproxy.zap.scan.filters.FilterCriteria;
-import org.zaproxy.zap.scan.filters.ScanFilter;
-import org.zaproxy.zap.scan.filters.TagFilterBean;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public class TagScanFilter implements ScanFilter {
-
-    private Set<TagFilterBean> tagFilterBeans = new LinkedHashSet<>();
-
-    public Set<TagFilterBean> getTagFilterBeans() {
-        return tagFilterBeans;
-    }
-
-    public void setTagFilterBeans(Set<TagFilterBean> tagFilterBeans) {
-        this.tagFilterBeans = tagFilterBeans;
-    }
+public class TagScanFilter extends AbstractScanFilter<String> {
 
     @Override
     public boolean isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
             List<String> nodeTags = href.getTags();
-            for (TagFilterBean tagFilterBean : tagFilterBeans) {
-                FilterCriteria filterCriteria = tagFilterBean.getFilterCriteria();
-                switch (filterCriteria) {
-                    case INCLUDE:
-                        for (String tag : nodeTags) {
-                            if (tagFilterBean.getTags().contains(tag)) {
-                                return true;
-                            }
-                        }
-                    case EXCLUDE:
-                        for (String tag : nodeTags) {
-                            if (!tagFilterBean.getTags().contains(tag)) {
-                                return false;
-                            }
-                        }
-                    case INCLUDE_ALL:
-                        return nodeTags.containsAll(tagFilterBean.getTags());
-                    default:
-                        return true;
-                }
-            }
-            return true;
+            return this.isFiltered(nodeTags);
         } else {
             return true;
         }
