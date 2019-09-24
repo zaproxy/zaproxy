@@ -66,7 +66,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
-import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
@@ -86,8 +85,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         "ascan.custom.tab.input",
         "ascan.custom.tab.custom",
         "ascan.custom.tab.tech",
-        "ascan.custom.tab.policy",
-        "ascan.custom.tab.filter"
+        "ascan.custom.tab.policy"
     };
 
     private static final String FIELD_START = "ascan.custom.label.start";
@@ -258,9 +256,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         setTechSet(techTreeState);
 
         this.setCustomTabPanel(4, policyPanel);
-
-        // Filter Panel
-        this.setCustomTabPanel(5, this.getFilterPanel());
 
         // add custom panels
         int cIndex = 5;
@@ -645,33 +640,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         return techPanel;
-    }
-
-    private JPanel getFilterPanel() {
-        //        if (techPanel == null) {
-        //            techPanel = new JPanel(new GridBagLayout());
-        //
-        //            JScrollPane scrollPane = new JScrollPane();
-        //
-        // scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        //            scrollPane.setViewportView(getTechTree());
-        //            scrollPane.setBorder(
-        //                    javax.swing.BorderFactory.createEtchedBorder(
-        //                            javax.swing.border.EtchedBorder.RAISED));
-        //
-        //            techPanel.add(scrollPane, LayoutHelper.getGBC(0, 0, 1, 1, 1.0D, 1.0D));
-        //        }
-
-        HistoryFilterPlusDialog dialog = new HistoryFilterPlusDialog();
-        dialog.setModal(true);
-        try {
-            dialog.setAllTags(Model.getSingleton().getDb().getTableTag().getAllTags());
-        } catch (DatabaseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        JPanel panel = dialog.getJPanel();
-        return panel;
     }
 
     private TechnologyTreePanel getTechTree() {

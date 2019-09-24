@@ -21,6 +21,7 @@ package org.zaproxy.zap.scan.filters.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import org.zaproxy.zap.scan.filters.FilterResult;
 import org.zaproxy.zap.scan.filters.GenericFilterBean;
 import org.zaproxy.zap.scan.filters.GenericFilterUtility;
 import org.zaproxy.zap.scan.filters.ScanFilter;
@@ -37,11 +38,11 @@ public abstract class AbstractScanFilter<T> implements ScanFilter {
         this.genericFilterBeans.addAll(tagFilterBeans);
     }
 
-    public boolean isFiltered(Collection<T> values) {
-        return GenericFilterUtility.isFiltered(genericFilterBeans, values);
+    public FilterResult isFiltered(Collection<T> values) {
+        return GenericFilterUtility.isFiltered(genericFilterBeans, values, this.getFilterType());
     }
 
-    public boolean isFiltered(T value) {
-        return GenericFilterUtility.isFiltered(genericFilterBeans, value);
+    public FilterResult isFiltered(T value) {
+        return GenericFilterUtility.isFiltered(genericFilterBeans, value, this.getFilterType());
     }
 }

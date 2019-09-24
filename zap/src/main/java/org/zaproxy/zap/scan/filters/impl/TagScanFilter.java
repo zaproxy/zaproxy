@@ -22,18 +22,26 @@ package org.zaproxy.zap.scan.filters.impl;
 import java.util.List;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.scan.filters.FilterResult;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class TagScanFilter extends AbstractScanFilter<String> {
 
     @Override
-    public boolean isFiltered(StructuralNode node) {
+    public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
             List<String> nodeTags = href.getTags();
             return this.isFiltered(nodeTags);
         } else {
-            return true;
+            FilterResult filterResult = new FilterResult();
+            filterResult.setFiltered(true);
+            return filterResult;
         }
+    }
+
+    @Override
+    public String getFilterType() {
+        return "Tag";
     }
 }

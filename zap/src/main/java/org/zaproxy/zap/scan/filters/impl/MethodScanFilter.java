@@ -21,18 +21,26 @@ package org.zaproxy.zap.scan.filters.impl;
 
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.scan.filters.FilterResult;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class MethodScanFilter extends AbstractScanFilter<String> {
 
     @Override
-    public boolean isFiltered(StructuralNode node) {
+    public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
             String httpMethod = href.getMethod();
             return this.isFiltered(httpMethod);
         } else {
-            return true;
+            FilterResult filterResult = new FilterResult();
+            filterResult.setFiltered(true);
+            return filterResult;
         }
+    }
+
+    @Override
+    public String getFilterType() {
+        return "Http Method";
     }
 }

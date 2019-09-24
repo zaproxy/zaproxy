@@ -121,6 +121,7 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
+import org.zaproxy.zap.scan.filters.FilterResult;
 import org.zaproxy.zap.scan.filters.ScanFilter;
 import org.zaproxy.zap.users.User;
 
@@ -502,7 +503,8 @@ public class HostProcess implements Runnable {
 
     private boolean isFiltered(StructuralNode node) {
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
-            if (!scanFilter.isFiltered(node)) {
+            FilterResult filterResult = scanFilter.isFiltered(node);
+            if (!filterResult.isFiltered()) {
                 return false;
             }
         }

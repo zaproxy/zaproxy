@@ -22,8 +22,11 @@ package org.zaproxy.zap.scan.filters.impl;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.scan.filters.FilterResult;
+import org.zaproxy.zap.scan.filters.GenericFilterUtility;
 import org.zaproxy.zap.scan.filters.ScanFilter;
 import org.zaproxy.zap.scan.filters.UrlPatternFilterBean;
 
@@ -41,10 +44,11 @@ public class URLPatternScanFilter implements ScanFilter {
     }
 
     @Override
-    public boolean isFiltered(StructuralNode node) {
+    public FilterResult isFiltered(StructuralNode node) {
         HistoryReference hRef = node.getHistoryReference();
+        FilterResult filterResult = new FilterResult();
         if (hRef == null) {
-            return true;
+            return filterResult;
         }
 
         for (UrlPatternFilterBean urlPatternFilterBean : this.urlPatternFilterBeans) {
@@ -52,19 +56,43 @@ public class URLPatternScanFilter implements ScanFilter {
                 case INCLUDE:
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
-                            return true;
+                            filterResult.setFiltered(true);
+                            return filterResult;
                         }
                     }
+                    filterResult.setReason(
+                            Constant.messages.getString(
+                                    GenericFilterUtility.INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
+                                    new Object[] {
+                                        this.getFilterType(), urlPatternFilterBean.getUrlPatterns()
+                                    }));
+                    return filterResult;
                 case EXCLUDE:
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
-                            return false;
+                            filterResult.setReason(
+                                    Constant.messages.getString(
+                                            GenericFilterUtility
+                                                    .EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
+                                            new Object[] {
+                                                this.getFilterType(), "[" + pattern + "]"
+                                            }));
+                            return filterResult;
                         }
                     }
+                    filterResult.setFiltered(true);
+                    return filterResult;
                 default:
-                    return true;
+                    filterResult.setFiltered(true);
+                    return filterResult;
             }
         }
-        return true;
+        filterResult.setFiltered(true);
+        return filterResult;
+    }
+
+    @Override
+    public String getFilterType() {
+        return "Url Pattern";
     }
 }

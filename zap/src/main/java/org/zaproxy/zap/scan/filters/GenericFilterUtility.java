@@ -22,6 +22,7 @@ package org.zaproxy.zap.scan.filters;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.parosproxy.paros.Constant;
 
 /**
  * @author KSASAN preetkaran20@gmail.com
@@ -29,6 +30,13 @@ import java.util.Set;
  * @param <T>
  */
 public class GenericFilterUtility {
+
+    public static final String INCLUDE_FILTER_CRITERIA_MESSAGE_KEY =
+            "scan.filter.filtercriteria.include";
+    public static final String EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY =
+            "scan.filter.filtercriteria.exclude";
+    public static final String INCLUDE_ALL_FILTER_CRITERIA_MESSAGE_KEY =
+            "scan.filter.filtercriteria.includeall";
 
     /**
      * @param <T>
@@ -38,30 +46,55 @@ public class GenericFilterUtility {
      *     <p>this Utility is Generic Utility for various criterias and can be used by any Filter
      *     which is based on classes which are implementing hashCode and equals
      */
-    public static <T> boolean isFiltered(
-            Collection<GenericFilterBean<T>> genericFilterBeans, Collection<T> nodeValues) {
+    public static <T> FilterResult isFiltered(
+            Collection<GenericFilterBean<T>> genericFilterBeans,
+            Collection<T> nodeValues,
+            String filterType) {
+        FilterResult filterResult = new FilterResult();
+        filterResult.setFiltered(true);
         for (GenericFilterBean<T> tagFilterBean : genericFilterBeans) {
             FilterCriteria filterCriteria = tagFilterBean.getFilterCriteria();
             switch (filterCriteria) {
                 case INCLUDE:
                     for (T value : nodeValues) {
                         if (tagFilterBean.getValues().contains(value)) {
-                            return true;
+                            return filterResult;
                         }
                     }
+                    filterResult.setFiltered(false);
+                    filterResult.setReason(
+                            Constant.messages.getString(
+                                    INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
+                                    new Object[] {filterType, tagFilterBean.getValues()}));
+                    return filterResult;
+
                 case EXCLUDE:
                     for (T value : nodeValues) {
                         if (!tagFilterBean.getValues().contains(value)) {
-                            return false;
+                            filterResult.setFiltered(false);
+                            filterResult.setReason(
+                                    Constant.messages.getString(
+                                            EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
+                                            new Object[] {filterType, "[" + value + "]"}));
+                            return filterResult;
                         }
                     }
+                    return filterResult;
                 case INCLUDE_ALL:
-                    return nodeValues.containsAll(tagFilterBean.getValues());
+                    boolean isFiltered = nodeValues.containsAll(tagFilterBean.getValues());
+                    if (!isFiltered) {
+                        filterResult.setFiltered(false);
+                        filterResult.setReason(
+                                Constant.messages.getString(
+                                        INCLUDE_ALL_FILTER_CRITERIA_MESSAGE_KEY,
+                                        new Object[] {filterType, tagFilterBean.getValues()}));
+                    }
+                    return filterResult;
                 default:
-                    return true;
+                    return filterResult;
             }
         }
-        return true;
+        return filterResult;
     }
 
     /**
@@ -72,10 +105,10 @@ public class GenericFilterUtility {
      *     <p>this method will call {@code #isFiltered(Collection, Collection)} method internally so
      *     basic requirement of equals and hasCode for the Classes holds same.
      */
-    public static <T> boolean isFiltered(
-            Collection<GenericFilterBean<T>> genericFilterBeans, T nodeValue) {
+    public static <T> FilterResult isFiltered(
+            Collection<GenericFilterBean<T>> genericFilterBeans, T nodeValue, String filterType) {
         Set<T> nodeValues = new LinkedHashSet<>();
         nodeValues.add(nodeValue);
-        return isFiltered(genericFilterBeans, nodeValues);
+        return isFiltered(genericFilterBeans, nodeValues, filterType);
     }
 }
