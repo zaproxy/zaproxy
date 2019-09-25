@@ -41,4 +41,10 @@ public class FilterResult {
     public void setReason(String reason) {
         this.reason = reason;
     }
+
+	@Override
+	public String toString() {
+		return "FilterResult [isFiltered=" + isFiltered + ", reason=" + reason + "]";
+	}
+    
 }
