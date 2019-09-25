@@ -54,6 +54,10 @@ public class URLPatternScanFilter implements ScanFilter {
         for (UrlPatternFilterBean urlPatternFilterBean : this.urlPatternFilterBeans) {
             switch (urlPatternFilterBean.getFilterCriteria()) {
                 case INCLUDE:
+                    if (urlPatternFilterBean.getUrlPatterns().isEmpty()) {
+                        filterResult.setFiltered(true);
+                        return filterResult;
+                    }
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             filterResult.setFiltered(true);
