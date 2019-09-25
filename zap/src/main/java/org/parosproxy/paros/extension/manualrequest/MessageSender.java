@@ -27,4 +27,6 @@ public interface MessageSender {
     void handleSendMessage(Message aMessage) throws Exception;
 
     void cleanup();
+
+    default void initialize() {}
 }

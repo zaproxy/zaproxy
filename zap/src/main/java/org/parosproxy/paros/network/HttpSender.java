@@ -81,6 +81,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
 // ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
+// ZAP: 2019/09/25 Add option to disable cookies
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -178,6 +179,8 @@ public class HttpSender {
     private MultiThreadedHttpConnectionManager httpConnManager = null;
     private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
     private boolean followRedirect = false;
+    private boolean useCookies = true;
+    private boolean useGlobalState = false;
     private int initiator = -1;
 
     /*
@@ -259,6 +262,24 @@ public class HttpSender {
         }
     }
 
+    private void updateCookieState() {
+        if (!useCookies) {
+            // discard cookies, but keep credentials
+            HttpState state = new HttpState();
+            HttpState proxyState = new HttpState();
+
+            state.setCredentials(AuthScope.ANY, client.getState().getCredentials(AuthScope.ANY));
+            proxyState.setCredentials(
+                    AuthScope.ANY, client.getState().getProxyCredentials(AuthScope.ANY));
+            client.setState(state);
+            clientViaProxy.setState(proxyState);
+            setProxyAuth(clientViaProxy);
+        } else if (useGlobalState) {
+            // reload old state
+            checkState();
+        }
+    }
+
     /**
      * Sets whether or not the global state should be used.
      *
@@ -270,7 +291,8 @@ public class HttpSender {
      * @since 2.8.0
      */
     public void setUseGlobalState(boolean enableGlobalState) {
-        if (enableGlobalState) {
+        useGlobalState = enableGlobalState;
+        if (useGlobalState) {
             checkState();
         } else {
             client.setState(new HttpState());
@@ -278,6 +300,22 @@ public class HttpSender {
             setProxyAuth(clientViaProxy);
             setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         }
+    }
+
+    /**
+     * Sets whether or not the requests sent should keep track of cookies.
+     *
+     * @since TODO Add version
+     */
+    public void setUseCookies(boolean shouldUseCookies) {
+        this.useCookies = shouldUseCookies;
+
+        if (useCookies) {
+            setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+        } else {
+            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+        }
+        updateCookieState();
     }
 
     private HttpClient createHttpClient() {
@@ -615,12 +653,17 @@ public class HttpSender {
             // cant do this for EntityEnclosingMethod methods - it will fail
             method.setFollowRedirects(isFollowRedirect);
         }
+
+        // needs to verify if the state
+        // should store cookies
+        updateCookieState();
+
         // ZAP: Use custom HttpState if needed
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
             this.executeMethod(method, forceUser.getCorrespondingHttpState());
         } else {
-            this.executeMethod(method, null);
+            this.executeMethod(method, client.getState());
         }
 
         HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
