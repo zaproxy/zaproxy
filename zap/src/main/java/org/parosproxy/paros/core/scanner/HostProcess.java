@@ -502,11 +502,11 @@ public class HostProcess implements Runnable {
     }
 
     private Set<FilterResult> filterNode(StructuralNode node) {
-    	Set<FilterResult> filterResults = new HashSet<>();
+        Set<FilterResult> filterResults = new HashSet<>();
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
             FilterResult filterResult = scanFilter.isFiltered(node);
             if (!filterResult.isFiltered()) {
-            	filterResults.add(filterResult);
+                filterResults.add(filterResult);
             }
         }
         return filterResults;
@@ -656,7 +656,11 @@ public class HostProcess implements Runnable {
         Set<FilterResult> filterResult = filterNode(node);
         if (filterResult.size() > 0) {
             if (log.isDebugEnabled()) {
-                log.debug("Ignoring filtered node: " + node.getName() + " Reasons for Ignoring: " + filterResult.toString());
+                log.debug(
+                        "Ignoring filtered node: "
+                                + node.getName()
+                                + " Reasons for Ignoring: "
+                                + filterResult.toString());
             }
             return false;
         }

@@ -42,9 +42,8 @@ public class FilterResult {
         this.reason = reason;
     }
 
-	@Override
-	public String toString() {
-		return "FilterResult [isFiltered=" + isFiltered + ", reason=" + reason + "]";
-	}
-    
+    @Override
+    public String toString() {
+        return "FilterResult [isFiltered=" + isFiltered + ", reason=" + reason + "]";
+    }
 }
