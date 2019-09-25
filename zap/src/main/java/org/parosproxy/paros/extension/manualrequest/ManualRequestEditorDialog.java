@@ -37,7 +37,6 @@
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2019/09/25 Add call to initialization method on window open for Window Listener
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -104,11 +103,6 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
                     public void windowClosing(WindowEvent e) {
                         getMessageSender().cleanup();
                         saveConfig();
-                    }
-
-                    @Override
-                    public void windowOpened(WindowEvent e) {
-                        getMessageSender().initialize();
                     }
                 });
 

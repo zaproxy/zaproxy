@@ -211,8 +211,7 @@ public class HttpPanelSender implements MessageSender {
         }
     }
 
-    @Override
-    public void initialize() {
+    public void updateOptions() {
         final boolean isSessionTrackingEnabled =
                 Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
 

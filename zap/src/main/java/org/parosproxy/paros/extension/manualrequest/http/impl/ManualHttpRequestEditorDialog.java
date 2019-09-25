@@ -29,6 +29,7 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/25 Add call to update for sender panel options
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -36,6 +37,8 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -117,6 +120,15 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         getFooterStatusBar().add(getLabelContentLength());
         getFooterStatusBar().addSeparator();
         getFooterStatusBar().add(getLabelTotalLength());
+
+        getWindowPanel()
+                .addComponentListener(
+                        new ComponentAdapter() {
+                            @Override
+                            public void componentShown(ComponentEvent ce) {
+                                sender.updateOptions();
+                            }
+                        });
     }
 
     @Override
