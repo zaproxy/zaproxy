@@ -56,10 +56,10 @@ public class GenericFilterUtility {
             FilterCriteria filterCriteria = genericFilterBean.getFilterCriteria();
             switch (filterCriteria) {
                 case INCLUDE:
-                    if(genericFilterBean.getValues().isEmpty()) {
-                    	return filterResult;
+                    if (genericFilterBean.getValues().isEmpty()) {
+                        return filterResult;
                     }
-                	for (T value : nodeValues) {
+                    for (T value : nodeValues) {
                         if (genericFilterBean.getValues().contains(value)) {
                             return filterResult;
                         }
