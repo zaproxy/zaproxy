@@ -74,6 +74,18 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
 
+    /**
+     * Constant used to define the start validity date for site certificates. Used as 30d before
+     * "now"
+     */
+    private static final int SITE_CERTIFICATE_START_ADJUSTMENT = 30;
+    /**
+     * Constant used to define the end validity date for site certificates. 2years minus start
+     * adjustment. Per: https://cabforum.org/2017/03/17/ballot-193-825-day-certificate-lifetimes/
+     */
+    private static final int SITE_CERTIFICATE_END_VALIDITY_PERIOD =
+            825 - SITE_CERTIFICATE_START_ADJUSTMENT;
+
     private X509Certificate caCert = null;
     private PublicKey caPubKey = null;
     private PrivateKey caPrivKey = null;
@@ -156,12 +168,19 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
         namebld.addRDN(BCStyle.C, "xx");
         namebld.addRDN(BCStyle.EmailAddress, "owasp-zed-attack-proxy@lists.owasp.org");
 
+        long currentTime = System.currentTimeMillis();
         X509v3CertificateBuilder certGen =
                 new JcaX509v3CertificateBuilder(
                         new X509CertificateHolder(caCert.getEncoded()).getSubject(),
                         BigInteger.valueOf(serial.getAndIncrement()),
-                        new Date(System.currentTimeMillis() - Duration.ofDays(30).toMillis()),
-                        new Date(System.currentTimeMillis() + Duration.ofDays(1000).toMillis()),
+                        new Date(
+                                currentTime
+                                        - Duration.ofDays(SITE_CERTIFICATE_START_ADJUSTMENT)
+                                                .toMillis()),
+                        new Date(
+                                currentTime
+                                        + Duration.ofDays(SITE_CERTIFICATE_END_VALIDITY_PERIOD)
+                                                .toMillis()),
                         namebld.build(),
                         pubKey);
 
