@@ -90,6 +90,7 @@
 // ZAP: 2018/03/12 Use the same help page in request editors.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/30 Use hasView().
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -256,7 +257,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         extensionHook.addProxyListener(getProxyListenerLog());
         extensionHook.addConnectionRequestProxyListener(getProxyListenerLog());
 
-        if (getView() != null) {
+        if (hasView()) {
             ExtensionHookView pv = extensionHook.getHookView();
             pv.addStatusPanel(getLogPanel());
 
@@ -312,7 +313,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     public void removeFromHistoryList(final HistoryReference href) {
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             this.historyTableModel.removeEntry(href.getHistoryId());
             historyIdToRef.remove(href.getHistoryId());
         } else {
@@ -332,7 +333,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     private void notifyHistoryItemChanged(final int historyId) {
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             this.historyTableModel.refreshEntryRow(historyId);
         } else {
             EventQueue.invokeLater(
@@ -347,7 +348,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     private void notifyHistoryItemsChanged() {
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             this.historyTableModel.refreshEntryRows();
         } else {
             EventQueue.invokeLater(
@@ -422,7 +423,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                         addToMap(historyRef);
                         return;
                     }
-                    if (getView() != null) {
+                    if (hasView()) {
                         // Dont do this in daemon mode
                         HistoryFilterPlusDialog dialog = getFilterPlusDialog();
                         HistoryFilter historyFilter = dialog.getFilter();
@@ -456,7 +457,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     private void addHistoryInEventQueue(final HistoryReference ref) {
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             historyTableModel.addHistoryReference(ref);
         } else {
             EventQueue.invokeLater(
@@ -495,7 +496,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private void buildHistory(List<Integer> dbList, HistoryFilter historyFilter) {
         HistoryReference historyRef = null;
         synchronized (historyTableModel) {
-            if (getView() != null) {
+            if (hasView()) {
                 getLogPanel().setModel(EMPTY_MODEL);
             }
             historyTableModel.clear();
@@ -536,7 +537,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     logger.error(e.getMessage(), e);
                 }
             }
-            if (getView() != null) {
+            if (hasView()) {
                 getLogPanel().setModel(historyTableModel);
             }
         }
@@ -769,11 +770,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void sessionAboutToChange(final Session session) {
         sessionChanging = true;
 
-        if (getView() == null || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             historyTableModel.clear();
             historyIdToRef.clear();
 
-            if (getView() != null) {
+            if (hasView()) {
                 getView().displayMessage(null);
             }
         } else {
@@ -884,7 +885,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     private void sessionChanged() {
-        if (getView() != null) {
+        if (hasView()) {
             searchHistory(getFilterPlusDialog().getFilter());
         } else {
             searchHistory(null);
@@ -953,7 +954,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * @since 2.7.0
      */
     public void purgeHistory(List<HistoryReference> hrefs) {
-        if (getView() != null && hrefs.size() > 1) {
+        if (hasView() && hrefs.size() > 1) {
             int result =
                     getView()
                             .showConfirmDialog(

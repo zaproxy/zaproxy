@@ -340,7 +340,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             return;
         }
 
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             addAlertToTreeEventHandler(alert);
 
         } else {
@@ -510,7 +510,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
         this.recalcAlerts();
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             JTree alertTree = this.getAlertPanel().getTreeAlert();
             TreePath alertPath = new TreePath(getTreeModel().getAlertNode(alert).getPath());
             alertTree.setSelectionPath(alertPath);
@@ -779,7 +779,7 @@ public class ExtensionAlert extends ExtensionAdaptor
      * @see View#isInitialised()
      */
     void recalcAlerts() {
-        if (!View.isInitialised()) {
+        if (!hasView()) {
             return;
         }
         // Must only be called when View is initialised
@@ -808,7 +808,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 }
             }
         }
-        MainFooterPanel footer = View.getSingleton().getMainFrame().getMainFooterPanel();
+        MainFooterPanel footer = getView().getMainFrame().getMainFooterPanel();
         footer.setAlertInfo(totalInfo);
         footer.setAlertLow(totalLow);
         footer.setAlertMedium(totalMedium);

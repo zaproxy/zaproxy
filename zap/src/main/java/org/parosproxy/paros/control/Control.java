@@ -77,6 +77,7 @@
 // ZAP: 2019/03/14 Improve error handling on shutdown
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/30 Reduce View singleton usage and replace null checks with hasView().
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -139,7 +140,7 @@ public class Control extends AbstractControl implements SessionListener {
         getExtensionLoader().hookPersistentConnectionListener(proxy);
         getExtensionLoader().hookConnectRequestProxyListeners(proxy);
 
-        if (view != null) {
+        if (hasView()) {
             // ZAP: Add site map listeners
             getExtensionLoader().hookSiteMapListener(view.getSiteTreePanel());
         }
@@ -150,6 +151,10 @@ public class Control extends AbstractControl implements SessionListener {
             return proxy.startServer();
         }
         return false;
+    }
+
+    private boolean hasView() {
+        return view != null;
     }
 
     public Proxy getProxy() {
@@ -188,7 +193,7 @@ public class Control extends AbstractControl implements SessionListener {
     @Override
     public void shutdown(boolean compact) {
         try {
-            if (view != null) {
+            if (hasView()) {
                 view.getRequestPanel().saveConfig(model.getOptionsParam().getConfig());
                 view.getResponsePanel().saveConfig(model.getOptionsParam().getConfig());
             }
@@ -219,7 +224,7 @@ public class Control extends AbstractControl implements SessionListener {
                             .getChildCount(model.getSession().getSiteTree().getRoot());
         }
         boolean askOnExit =
-                view != null
+                hasView()
                         && Model.getSingleton()
                                         .getOptionsParam()
                                         .getViewParam()
@@ -302,7 +307,7 @@ public class Control extends AbstractControl implements SessionListener {
                         },
                         "ZAP-Shutdown");
 
-        if (view != null) {
+        if (hasView()) {
             WaitMessageDialog dialog =
                     view.getWaitMessageDialog(
                             Constant.messages.getString("menu.file.shuttingDown")); // ZAP: i18n
@@ -378,7 +383,7 @@ public class Control extends AbstractControl implements SessionListener {
         final Session session = createNewSession();
         model.saveSession(fileName);
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             SwingUtilities.invokeLater(
                     new Runnable() {
 
@@ -448,7 +453,7 @@ public class Control extends AbstractControl implements SessionListener {
         getExtensionLoader().databaseOpen(model.getDb());
         getExtensionLoader().sessionChangedAllPlugin(session);
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             SwingUtilities.invokeLater(
                     new Runnable() {
                         @Override

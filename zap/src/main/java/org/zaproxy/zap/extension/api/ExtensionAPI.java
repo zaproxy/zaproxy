@@ -28,7 +28,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -108,7 +107,7 @@ public class ExtensionAPI extends ExtensionAdaptor {
 
                                 int option =
                                         JOptionPane.showOptionDialog(
-                                                View.getSingleton().getMainFrame(),
+                                                getView().getMainFrame(),
                                                 message,
                                                 title,
                                                 JOptionPane.YES_NO_OPTION,

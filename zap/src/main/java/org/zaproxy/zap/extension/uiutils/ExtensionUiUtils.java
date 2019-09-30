@@ -29,7 +29,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.view.MainFrame;
 
 /**
  * This extension was introduced so that the session persist and snapshot menu item and buttons can
@@ -84,9 +84,10 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     }
 
     private void sessionChangedEventHandler(Session session) {
-        View.getSingleton().getMainFrame().getMainMenuBar().sessionChanged(session);
-        View.getSingleton().getMainFrame().getMainToolbarPanel().sessionChanged(session);
-        View.getSingleton().getMainFrame().setTitle(session);
+        MainFrame mainFrame = getView().getMainFrame();
+        mainFrame.getMainMenuBar().sessionChanged(session);
+        mainFrame.getMainToolbarPanel().sessionChanged(session);
+        mainFrame.setTitle(session);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     @Override
     public void sessionPropertiesChanged(Session session) {
         if (EventQueue.isDispatchThread()) {
-            View.getSingleton().getMainFrame().setTitle(session);
+            getView().getMainFrame().setTitle(session);
             return;
         }
 

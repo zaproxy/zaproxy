@@ -40,7 +40,6 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.model.Context;
@@ -267,7 +266,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                                             .getSession()
                                             .getContext(popupContextTreeMenuExport.getContextId());
                             ContextExportDialog exportDialog =
-                                    new ContextExportDialog(View.getSingleton().getMainFrame());
+                                    new ContextExportDialog(getView().getMainFrame());
                             exportDialog.setSelectedContext(context);
                             exportDialog.setVisible(true);
                         }

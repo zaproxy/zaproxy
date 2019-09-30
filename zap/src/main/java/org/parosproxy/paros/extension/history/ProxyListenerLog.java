@@ -34,6 +34,7 @@
 // being persisted.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/30 Use instance variable for view checks.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -50,7 +51,6 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 
@@ -185,7 +185,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
     }
 
     private void addToSiteMap(final HistoryReference ref, final HttpMessage msg) {
-        if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+        if (hasView() && !EventQueue.isDispatchThread()) {
             try {
                 EventQueue.invokeAndWait(
                         new Runnable() {
@@ -204,10 +204,14 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         SessionStructure.addPath(model.getSession(), ref, msg);
         if (isFirstAccess && !Constant.isLowMemoryOptionSet()) {
             isFirstAccess = false;
-            if (View.isInitialised()) {
+            if (hasView()) {
                 view.getSiteTreePanel().expandRoot();
             }
         }
+    }
+
+    private boolean hasView() {
+        return view != null;
     }
 
     @Override
