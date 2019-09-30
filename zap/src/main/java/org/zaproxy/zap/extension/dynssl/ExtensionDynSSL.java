@@ -51,7 +51,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
 import org.parosproxy.paros.security.SslCertificateService;
-import org.parosproxy.paros.view.View;
 
 /**
  * Extension enables configuration for Root CA certificate
@@ -360,7 +359,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
                         "dynssl.warn.cert.expired",
                         cert.getNotAfter().toString(),
                         new Date().toString());
-        if (View.isInitialised()) {
+        if (hasView()) {
             getView().showWarningDialog(warnMsg);
         }
         logger.warn(warnMsg);

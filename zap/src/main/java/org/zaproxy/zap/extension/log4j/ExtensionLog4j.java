@@ -30,7 +30,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -52,7 +51,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
         super(NAME);
         this.setOrder(56);
 
-        if (Constant.isDevMode() && View.isInitialised()) {
+        if (Constant.isDevMode() && hasView()) {
             // Only enable if this is a developer build, ie build from source, or explicitly enabled
 
             scanStatus =
@@ -64,7 +63,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
             Logger.getRootLogger().addAppender(new ZapOutputWriter(scanStatus));
 
-            View.getSingleton()
+            getView()
                     .getMainFrame()
                     .getMainFooterPanel()
                     .addFooterToolbarRightLabel(scanStatus.getCountLabel());
