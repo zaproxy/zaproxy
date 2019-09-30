@@ -29,6 +29,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
+import org.zaproxy.zap.utils.ThreadUtils;
 
 public class HttpPanelManager {
 
@@ -56,68 +57,85 @@ public class HttpPanelManager {
     }
 
     public void addRequestPanel(HttpPanel panel) {
-        requestPanels.addPanel(panel);
+        ThreadUtils.invokeAndWaitHandled(() -> requestPanels.addPanel(panel));
     }
 
     public void addRequestComponentFactory(HttpPanelComponentFactory componentFactory) {
-        requestPanels.addComponentFactory(componentFactory);
+        ThreadUtils.invokeAndWaitHandled(() -> requestPanels.addComponentFactory(componentFactory));
     }
 
     public void addRequestViewFactory(String componentName, HttpPanelViewFactory viewFactory) {
-        requestPanels.addViewFactory(componentName, viewFactory);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> requestPanels.addViewFactory(componentName, viewFactory));
     }
 
     public void addRequestDefaultViewSelectorFactory(
             String componentName, HttpPanelDefaultViewSelectorFactory defaultViewSelectorFactory) {
-        requestPanels.addDefaultViewSelectorFactory(componentName, defaultViewSelectorFactory);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        requestPanels.addDefaultViewSelectorFactory(
+                                componentName, defaultViewSelectorFactory));
     }
 
     public void addResponsePanel(HttpPanel panel) {
-        responsePanels.addPanel(panel);
+        ThreadUtils.invokeAndWaitHandled(() -> responsePanels.addPanel(panel));
     }
 
     public void addResponseComponentFactory(HttpPanelComponentFactory componentFactory) {
-        responsePanels.addComponentFactory(componentFactory);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> responsePanels.addComponentFactory(componentFactory));
     }
 
     public void addResponseViewFactory(String componentName, HttpPanelViewFactory viewFactory) {
-        responsePanels.addViewFactory(componentName, viewFactory);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> responsePanels.addViewFactory(componentName, viewFactory));
     }
 
     public void addResponseDefaultViewSelectorFactory(
             String componentName, HttpPanelDefaultViewSelectorFactory defaultViewSelectorFactory) {
-        responsePanels.addDefaultViewSelectorFactory(componentName, defaultViewSelectorFactory);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        responsePanels.addDefaultViewSelectorFactory(
+                                componentName, defaultViewSelectorFactory));
     }
 
     public void removeRequestPanel(HttpPanel panel) {
-        requestPanels.removePanel(panel);
+        ThreadUtils.invokeAndWaitHandled(() -> requestPanels.removePanel(panel));
     }
 
     public void removeRequestComponentFactory(String componentFactoryName) {
-        requestPanels.removeComponentFactory(componentFactoryName);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> requestPanels.removeComponentFactory(componentFactoryName));
     }
 
     public void removeRequestComponents(String componentName) {
-        requestPanels.removeComponents(componentName);
+        ThreadUtils.invokeAndWaitHandled(() -> requestPanels.removeComponents(componentName));
     }
 
     public void removeRequestViewFactory(String componentName, String viewFactoryName) {
-        requestPanels.removeViewFactory(componentName, viewFactoryName);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> requestPanels.removeViewFactory(componentName, viewFactoryName));
     }
 
     public void removeRequestViews(String componentName, String viewName, Object options) {
-        requestPanels.removeViews(componentName, viewName, options);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> requestPanels.removeViews(componentName, viewName, options));
     }
 
     public void removeRequestDefaultViewSelectorFactory(
             String componentName, String defaultViewSelectorFactoryName) {
-        requestPanels.removeDefaultViewSelectorFactory(
-                componentName, defaultViewSelectorFactoryName);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        requestPanels.removeDefaultViewSelectorFactory(
+                                componentName, defaultViewSelectorFactoryName));
     }
 
     public void removeRequestDefaultViewSelectors(
             String componentName, String defaultViewSelectorName, Object options) {
-        requestPanels.removeDefaultViewSelectors(componentName, defaultViewSelectorName, options);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        requestPanels.removeDefaultViewSelectors(
+                                componentName, defaultViewSelectorName, options));
     }
 
     /**
@@ -127,38 +145,49 @@ public class HttpPanelManager {
     @Deprecated
     public void removeRequestDefaultViewSelectorFactoryAndDefaultViewSelectorsAdded(
             String componentName, String defaultViewSelectorName, Object options) {
-        requestPanels.removeDefaultViewSelectors(componentName, defaultViewSelectorName, options);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        requestPanels.removeDefaultViewSelectors(
+                                componentName, defaultViewSelectorName, options));
     }
 
     public void removeResponsePanel(HttpPanel panel) {
-        responsePanels.removePanel(panel);
+        ThreadUtils.invokeAndWaitHandled(() -> responsePanels.removePanel(panel));
     }
 
     public void removeResponseComponentFactory(String componentFactoryName) {
-        responsePanels.removeComponentFactory(componentFactoryName);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> responsePanels.removeComponentFactory(componentFactoryName));
     }
 
     public void removeResponseComponents(String componentName) {
-        responsePanels.removeComponents(componentName);
+        ThreadUtils.invokeAndWaitHandled(() -> responsePanels.removeComponents(componentName));
     }
 
     public void removeResponseViewFactory(String componentName, String viewFactoryName) {
-        responsePanels.removeViewFactory(componentName, viewFactoryName);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> responsePanels.removeViewFactory(componentName, viewFactoryName));
     }
 
     public void removeResponseViews(String componentName, String viewName, Object options) {
-        responsePanels.removeViews(componentName, viewName, options);
+        ThreadUtils.invokeAndWaitHandled(
+                () -> responsePanels.removeViews(componentName, viewName, options));
     }
 
     public void removeResponseDefaultViewSelectorFactory(
             String componentName, String defaultViewSelectorFactoryName) {
-        responsePanels.removeDefaultViewSelectorFactory(
-                componentName, defaultViewSelectorFactoryName);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        responsePanels.removeDefaultViewSelectorFactory(
+                                componentName, defaultViewSelectorFactoryName));
     }
 
     public void removeResponseDefaultViewSelectors(
             String componentName, String defaultViewSelectorName, Object options) {
-        responsePanels.removeDefaultViewSelectors(componentName, defaultViewSelectorName, options);
+        ThreadUtils.invokeAndWaitHandled(
+                () ->
+                        responsePanels.removeDefaultViewSelectors(
+                                componentName, defaultViewSelectorName, options));
     }
 
     private static final class HttpPanelManagement {
@@ -176,208 +205,185 @@ public class HttpPanelManager {
         }
 
         public void addPanel(HttpPanel panel) {
-            synchronized (this) {
-                this.panels.add(panel);
+            this.panels.add(panel);
 
-                FileConfiguration fileConfiguration =
-                        Model.getSingleton().getOptionsParam().getConfig();
+            FileConfiguration fileConfiguration =
+                    Model.getSingleton().getOptionsParam().getConfig();
 
-                for (HttpPanelComponentFactory componentFactory : components.values()) {
-                    panel.addComponent(componentFactory.getNewComponent(), fileConfiguration);
+            for (HttpPanelComponentFactory componentFactory : components.values()) {
+                panel.addComponent(componentFactory.getNewComponent(), fileConfiguration);
+            }
+
+            for (Map.Entry<String, Map<String, HttpPanelViewFactory>> componentViews :
+                    views.entrySet()) {
+                for (HttpPanelViewFactory viewFactory : componentViews.getValue().values()) {
+                    panel.addView(
+                            componentViews.getKey(),
+                            viewFactory.getNewView(),
+                            viewFactory.getOptions(),
+                            fileConfiguration);
                 }
+            }
 
-                for (Map.Entry<String, Map<String, HttpPanelViewFactory>> componentViews :
-                        views.entrySet()) {
-                    for (HttpPanelViewFactory viewFactory : componentViews.getValue().values()) {
+            for (Map.Entry<String, Map<String, HttpPanelDefaultViewSelectorFactory>>
+                    componentDefaultViews : defaultViews.entrySet()) {
+                for (HttpPanelDefaultViewSelectorFactory viewFactory :
+                        componentDefaultViews.getValue().values()) {
+                    panel.addDefaultViewSelector(
+                            componentDefaultViews.getKey(),
+                            viewFactory.getNewDefaultViewSelector(),
+                            viewFactory.getOptions());
+                }
+            }
+        }
+
+        public void removePanel(HttpPanel panel) {
+            this.panels.remove(panel);
+        }
+
+        public void addComponentFactory(HttpPanelComponentFactory componentFactory) {
+            if (components.containsKey(componentFactory.getName())) {
+                return;
+            }
+            this.components.put(componentFactory.getName(), componentFactory);
+
+            FileConfiguration fileConfiguration =
+                    Model.getSingleton().getOptionsParam().getConfig();
+
+            for (HttpPanel panel : panels) {
+                panel.addComponent(componentFactory.getNewComponent(), fileConfiguration);
+
+                final String componentName = componentFactory.getComponentName();
+
+                Map<String, HttpPanelViewFactory> componentViews = views.get(componentName);
+                if (componentViews != null) {
+                    for (HttpPanelViewFactory viewFactory : componentViews.values()) {
                         panel.addView(
-                                componentViews.getKey(),
+                                componentName,
                                 viewFactory.getNewView(),
                                 viewFactory.getOptions(),
                                 fileConfiguration);
                     }
                 }
 
-                for (Map.Entry<String, Map<String, HttpPanelDefaultViewSelectorFactory>>
-                        componentDefaultViews : defaultViews.entrySet()) {
-                    for (HttpPanelDefaultViewSelectorFactory viewFactory :
-                            componentDefaultViews.getValue().values()) {
+                Map<String, HttpPanelDefaultViewSelectorFactory> defaultViewsComp =
+                        defaultViews.get(componentName);
+                if (defaultViewsComp != null) {
+                    for (HttpPanelDefaultViewSelectorFactory defaultViewSelector :
+                            defaultViewsComp.values()) {
                         panel.addDefaultViewSelector(
-                                componentDefaultViews.getKey(),
-                                viewFactory.getNewDefaultViewSelector(),
-                                viewFactory.getOptions());
-                    }
-                }
-            }
-        }
-
-        public void removePanel(HttpPanel panel) {
-            synchronized (this) {
-                this.panels.remove(panel);
-            }
-        }
-
-        public void addComponentFactory(HttpPanelComponentFactory componentFactory) {
-            synchronized (this) {
-                if (components.containsKey(componentFactory.getName())) {
-                    return;
-                }
-                this.components.put(componentFactory.getName(), componentFactory);
-
-                FileConfiguration fileConfiguration =
-                        Model.getSingleton().getOptionsParam().getConfig();
-
-                for (HttpPanel panel : panels) {
-                    panel.addComponent(componentFactory.getNewComponent(), fileConfiguration);
-
-                    final String componentName = componentFactory.getComponentName();
-
-                    Map<String, HttpPanelViewFactory> componentViews = views.get(componentName);
-                    if (componentViews != null) {
-                        for (HttpPanelViewFactory viewFactory : componentViews.values()) {
-                            panel.addView(
-                                    componentName,
-                                    viewFactory.getNewView(),
-                                    viewFactory.getOptions(),
-                                    fileConfiguration);
-                        }
-                    }
-
-                    Map<String, HttpPanelDefaultViewSelectorFactory> defaultViewsComp =
-                            defaultViews.get(componentName);
-                    if (defaultViewsComp != null) {
-                        for (HttpPanelDefaultViewSelectorFactory defaultViewSelector :
-                                defaultViewsComp.values()) {
-                            panel.addDefaultViewSelector(
-                                    componentName,
-                                    defaultViewSelector.getNewDefaultViewSelector(),
-                                    defaultViewSelector.getOptions());
-                        }
+                                componentName,
+                                defaultViewSelector.getNewDefaultViewSelector(),
+                                defaultViewSelector.getOptions());
                     }
                 }
             }
         }
 
         public void removeComponentFactory(String componentFactoryName) {
-            synchronized (this) {
-                components.remove(componentFactoryName);
-            }
+            components.remove(componentFactoryName);
         }
 
         public void removeComponents(String componentName) {
-            synchronized (this) {
-                for (HttpPanel panel : panels) {
-                    panel.removeComponent(componentName);
-                }
+            for (HttpPanel panel : panels) {
+                panel.removeComponent(componentName);
             }
         }
 
         public void addViewFactory(String componentName, HttpPanelViewFactory viewFactory) {
-            synchronized (this) {
-                Map<String, HttpPanelViewFactory> componentViews = this.views.get(componentName);
-                if (componentViews == null) {
-                    componentViews = new HashMap<>();
-                    this.views.put(componentName, componentViews);
-                } else if (views.containsKey(viewFactory.getName())) {
-                    return;
-                }
+            Map<String, HttpPanelViewFactory> componentViews = this.views.get(componentName);
+            if (componentViews == null) {
+                componentViews = new HashMap<>();
+                this.views.put(componentName, componentViews);
+            } else if (views.containsKey(viewFactory.getName())) {
+                return;
+            }
 
-                componentViews.put(viewFactory.getName(), viewFactory);
+            componentViews.put(viewFactory.getName(), viewFactory);
 
-                FileConfiguration fileConfiguration =
-                        Model.getSingleton().getOptionsParam().getConfig();
+            FileConfiguration fileConfiguration =
+                    Model.getSingleton().getOptionsParam().getConfig();
 
-                for (HttpPanel panel : panels) {
-                    panel.addView(
-                            componentName,
-                            viewFactory.getNewView(),
-                            viewFactory.getOptions(),
-                            fileConfiguration);
-                }
+            for (HttpPanel panel : panels) {
+                panel.addView(
+                        componentName,
+                        viewFactory.getNewView(),
+                        viewFactory.getOptions(),
+                        fileConfiguration);
             }
         }
 
         public void removeViewFactory(String componentName, String viewFactoryName) {
-            synchronized (this) {
-                Map<String, HttpPanelViewFactory> componentViews = this.views.get(componentName);
-                if (componentViews == null) {
-                    return;
-                }
+            Map<String, HttpPanelViewFactory> componentViews = this.views.get(componentName);
+            if (componentViews == null) {
+                return;
+            }
 
-                HttpPanelViewFactory viewFactory = componentViews.get(viewFactoryName);
-                if (viewFactory == null) {
-                    return;
-                }
+            HttpPanelViewFactory viewFactory = componentViews.get(viewFactoryName);
+            if (viewFactory == null) {
+                return;
+            }
 
-                componentViews.remove(viewFactoryName);
+            componentViews.remove(viewFactoryName);
 
-                if (componentViews.isEmpty()) {
-                    this.views.put(componentName, null);
-                }
+            if (componentViews.isEmpty()) {
+                this.views.put(componentName, null);
             }
         }
 
         public void removeViews(String componentName, String viewName, Object options) {
-            synchronized (this) {
-                for (HttpPanel panel : panels) {
-                    panel.removeView(componentName, viewName, options);
-                }
+            for (HttpPanel panel : panels) {
+                panel.removeView(componentName, viewName, options);
             }
         }
 
         public void addDefaultViewSelectorFactory(
                 String componentName,
                 HttpPanelDefaultViewSelectorFactory defaultViewSelectorFactory) {
-            synchronized (this) {
-                Map<String, HttpPanelDefaultViewSelectorFactory> componentDefaultViews =
-                        this.defaultViews.get(componentName);
-                if (componentDefaultViews == null) {
-                    componentDefaultViews = new HashMap<>();
-                    this.defaultViews.put(componentName, componentDefaultViews);
-                } else if (views.containsKey(defaultViewSelectorFactory.getName())) {
-                    return;
-                }
+            Map<String, HttpPanelDefaultViewSelectorFactory> componentDefaultViews =
+                    this.defaultViews.get(componentName);
+            if (componentDefaultViews == null) {
+                componentDefaultViews = new HashMap<>();
+                this.defaultViews.put(componentName, componentDefaultViews);
+            } else if (views.containsKey(defaultViewSelectorFactory.getName())) {
+                return;
+            }
 
-                componentDefaultViews.put(
-                        defaultViewSelectorFactory.getName(), defaultViewSelectorFactory);
+            componentDefaultViews.put(
+                    defaultViewSelectorFactory.getName(), defaultViewSelectorFactory);
 
-                for (HttpPanel panel : panels) {
-                    panel.addDefaultViewSelector(
-                            componentName,
-                            defaultViewSelectorFactory.getNewDefaultViewSelector(),
-                            defaultViewSelectorFactory.getOptions());
-                }
+            for (HttpPanel panel : panels) {
+                panel.addDefaultViewSelector(
+                        componentName,
+                        defaultViewSelectorFactory.getNewDefaultViewSelector(),
+                        defaultViewSelectorFactory.getOptions());
             }
         }
 
         public void removeDefaultViewSelectorFactory(String componentName, String viewFactoryName) {
-            synchronized (this) {
-                Map<String, HttpPanelDefaultViewSelectorFactory> componentDefaultViews =
-                        this.defaultViews.get(componentName);
-                if (componentDefaultViews == null) {
-                    return;
-                }
+            Map<String, HttpPanelDefaultViewSelectorFactory> componentDefaultViews =
+                    this.defaultViews.get(componentName);
+            if (componentDefaultViews == null) {
+                return;
+            }
 
-                HttpPanelDefaultViewSelectorFactory viewFactory =
-                        componentDefaultViews.get(viewFactoryName);
-                if (viewFactory == null) {
-                    return;
-                }
+            HttpPanelDefaultViewSelectorFactory viewFactory =
+                    componentDefaultViews.get(viewFactoryName);
+            if (viewFactory == null) {
+                return;
+            }
 
-                componentDefaultViews.remove(viewFactoryName);
+            componentDefaultViews.remove(viewFactoryName);
 
-                if (componentDefaultViews.isEmpty()) {
-                    this.defaultViews.put(componentName, null);
-                }
+            if (componentDefaultViews.isEmpty()) {
+                this.defaultViews.put(componentName, null);
             }
         }
 
         public void removeDefaultViewSelectors(
                 String componentName, String defaultViewSelectorName, Object options) {
-            synchronized (this) {
-                for (HttpPanel panel : panels) {
-                    panel.removeDefaultViewSelector(
-                            componentName, defaultViewSelectorName, options);
-                }
+            for (HttpPanel panel : panels) {
+                panel.removeDefaultViewSelector(componentName, defaultViewSelectorName, options);
             }
         }
     }
