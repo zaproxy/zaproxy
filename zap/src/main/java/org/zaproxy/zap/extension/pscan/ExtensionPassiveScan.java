@@ -40,7 +40,6 @@ import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -108,7 +107,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                     .getHookView()
                     .addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
-            View.getSingleton()
+            getView()
                     .getMainFrame()
                     .getMainFooterPanel()
                     .addFooterToolbarRightLabel(getScanStatus().getCountLabel());
@@ -176,7 +175,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
         PassiveScanner scanner = getPassiveScannerList().removeScanner(className);
 
-        if (scanner != null && View.isInitialised() && scanner instanceof PluginPassiveScanner) {
+        if (scanner != null && hasView() && scanner instanceof PluginPassiveScanner) {
             getPolicyPanel()
                     .getPassiveScanTableModel()
                     .removeScanner((PluginPassiveScanner) scanner);
@@ -284,7 +283,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
             added = addPassiveScannerImpl(scanner);
 
-            if (View.isInitialised()) {
+            if (hasView()) {
                 getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
             }
 
@@ -500,7 +499,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     @Override
     public void sessionChanged(Session session) {
         startPassiveScanThread();
-        if (View.isInitialised()) {
+        if (hasView()) {
             getScanStatus().setScanCount(0);
         }
     }

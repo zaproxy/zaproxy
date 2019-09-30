@@ -252,7 +252,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                                         "file.format.zap.addon");
                                             }
                                         });
-                                int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
+                                int rc = chooser.showOpenDialog(getView().getMainFrame());
                                 if (rc == JFileChooser.APPROVE_OPTION) {
                                     file = chooser.getSelectedFile();
                                     if (file == null) {
@@ -383,7 +383,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 int reinstall =
                         View.getSingleton()
                                 .showYesNoDialog(
-                                        View.getSingleton().getMainFrame(),
+                                        getView().getMainFrame(),
                                         new Object[] {
                                             Constant.messages.getString(
                                                     "cfu.warn.addOnSameVersion",
@@ -401,7 +401,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 }
                 uninstallBeforeAddOnCopy = true;
             } else if (!ao.isUpdateTo(installedAddOn)) {
-                View.getSingleton()
+                getView()
                         .showWarningDialog(
                                 Constant.messages.getString(
                                         "cfu.warn.addOnOlderVersion",
@@ -482,15 +482,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     }
 
     private void showWarningMessageInvalidAddOnFile(String reason) {
-        View.getSingleton()
-                .showWarningDialog(Constant.messages.getString("cfu.warn.invalidAddOn", reason));
+        getView().showWarningDialog(Constant.messages.getString("cfu.warn.invalidAddOn", reason));
     }
 
     private void showWarningMessageCantLoadAddOn(AddOn ao) {
         String message =
                 Constant.messages.getString(
                         "cfu.warn.cantload", ao.getNotBeforeVersion(), ao.getNotFromVersion());
-        View.getSingleton().showWarningDialog(message);
+        getView().showWarningDialog(message);
     }
 
     private static File copyAddOnFileToLocalPluginFolder(AddOn addOn) throws IOException {
@@ -546,9 +545,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     }
 
     private void downloadFile(URL url, File targetFile, long size, String hash) {
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Report info to the Output tab
-            View.getSingleton()
+            getView()
                     .getOutputPanel()
                     .append(
                             Constant.messages.getString(
@@ -558,7 +557,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                     + "\n");
         }
         this.downloadFiles.add(this.downloadManager.downloadFile(url, targetFile, size, hash));
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Means we do have a UI
             if (this.downloadProgressThread != null && !this.downloadProgressThread.isAlive()) {
                 this.downloadProgressThread = null;
@@ -717,7 +716,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             extensionHook.getHookView().addMainToolBarComponent(getAddonsButton());
             extensionHook.getHookView().addMainToolBarComponent(getCheckForUpdatesButton());
 
-            View.getSingleton()
+            getView()
                     .getMainFrame()
                     .getMainFooterPanel()
                     .addFooterToolbarRightLabel(getScanStatus().getCountLabel());
@@ -834,7 +833,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         final OptionsParamCheckForUpdates options =
                 getModel().getOptionsParam().getCheckForUpdatesParam();
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             if (!options.isCheckOnStart()) {
                 alertIfOutOfDate(false);
                 return;
@@ -849,7 +848,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         if (!options.checkOnStart()) {
             // Top level option not set, dont do anything, unless already downloaded last release
-            if (View.isInitialised() && this.getPreviousVersionInfo() != null) {
+            if (hasView() && this.getPreviousVersionInfo() != null) {
                 ZapRelease rel = this.getPreviousVersionInfo().getZapRelease();
                 if (rel != null && rel.isNewerThan(this.getCurrentVersion())) {
                     File f = new File(Constant.FOLDER_LOCAL_PLUGIN, rel.getFileName());
@@ -928,7 +927,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     result =
                             View.getSingleton()
                                     .showYesNoDialog(
-                                            View.getSingleton().getMainFrame(),
+                                            getView().getMainFrame(),
                                             new Object[] {msg, cfuOnStart});
                     setCfuOnStart = cfuOnStart.isSelected();
                 }
@@ -956,7 +955,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                 }
                             });
 
-                    View.getSingleton()
+                    getView()
                             .getMainFrame()
                             .getMainFooterPanel()
                             .addFooterToolbarLeftComponent(button);
@@ -986,8 +985,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 result =
                         View.getSingleton()
                                 .showYesNoDialog(
-                                        View.getSingleton().getMainFrame(),
-                                        new Object[] {msg, cfuOnStart});
+                                        getView().getMainFrame(), new Object[] {msg, cfuOnStart});
                 setCfuOnStart = cfuOnStart.isSelected();
             }
             options.setDayLastUpdateWarned();
@@ -999,14 +997,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 getAddOnsDialog().setVisible(true);
                 getAddOnsDialog().checkForUpdates();
                 if (noCfuAlertAdded) {
-                    View.getSingleton()
+                    getView()
                             .getMainFrame()
                             .getMainFooterPanel()
                             .removeFooterToolbarLeftComponent(getOutOfDateButton());
                 }
 
             } else if (!noCfuAlertAdded) {
-                View.getSingleton()
+                getView()
                         .getMainFrame()
                         .getMainFooterPanel()
                         .addFooterToolbarLeftComponent(getOutOfDateButton());
@@ -1090,7 +1088,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     protected boolean downloadLatestRelease() {
         if (Constant.isKali()) {
-            if (View.isInitialised()) {
+            if (hasView()) {
                 // Just tell the user to use one of the Kali options
                 View.getSingleton()
                         .showMessageDialog(
@@ -1279,7 +1277,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     protected void promptToLaunchReleaseAndClose(String version, File f) {
         int ans =
-                View.getSingleton()
+                getView()
                         .showConfirmDialog(
                                 Constant.messages.getString(
                                         "cfu.confirm.launch", version, f.getAbsolutePath()));
@@ -1309,9 +1307,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             }
         }
         logger.info("Installing new addon " + ao.getId() + " v" + ao.getVersion());
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Report info to the Output tab
-            View.getSingleton()
+            getView()
                     .getOutputPanel()
                     .append(
                             Constant.messages.getString(
@@ -1322,9 +1320,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         ExtensionFactory.getAddOnLoader().addAddon(ao);
 
         logger.info("Finished installing new addon " + ao.getId() + " v" + ao.getVersion());
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Report info to the Output tab
-            View.getSingleton()
+            getView()
                     .getOutputPanel()
                     .append(
                             Constant.messages.getString(
@@ -1374,8 +1372,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     @Override
     public void insecureUrl(String url, Exception cause) {
         logger.error("Failed to get check for updates on " + url, cause);
-        if (View.isInitialised()) {
-            View.getSingleton().showWarningDialog(Constant.messages.getString("cfu.warn.badurl"));
+        if (hasView()) {
+            getView().showWarningDialog(Constant.messages.getString("cfu.warn.badurl"));
         }
     }
 
@@ -1404,7 +1402,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 // New ZAP release
                 if (Constant.isKali()) {
                     // Kali has its own package management system
-                    if (View.isInitialised()) {
+                    if (hasView()) {
                         getAddOnsDialog().setVisible(true);
                     }
                     return;

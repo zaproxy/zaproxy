@@ -216,7 +216,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         extensionHook.addCommandLine(getCommandLineArguments());
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             extensionHook.getHookView().addOptionPanel(getOptionsScriptPanel());
         } else {
             // No GUI so add stdout as a writer
@@ -897,8 +897,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                 .collect(ArrayList::new, (c, e) -> c.add(e.getName()), ArrayList::addAll);
     }
 
-    private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
-        if (!View.isInitialised() || scriptsNotAdded.isEmpty()) {
+    private void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
+        if (!hasView() || scriptsNotAdded.isEmpty()) {
             return;
         }
 
@@ -951,7 +951,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                     @Override
                     public void run() {
                         JOptionPane.showMessageDialog(
-                                View.getSingleton().getMainFrame(),
+                                getView().getMainFrame(),
                                 optionPaneContents.toArray(),
                                 Constant.PROGRAM_NAME,
                                 JOptionPane.INFORMATION_MESSAGE);
@@ -2032,7 +2032,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         this.loadScript(sw);
         this.addScript(sw);
-        if (!View.isInitialised()) {
+        if (!hasView()) {
             // Only invoke if run from the command line
             // if the GUI is present then its up to the user to invoke it
             this.invokeScript(sw);

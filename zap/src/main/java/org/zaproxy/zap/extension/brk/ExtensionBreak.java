@@ -45,7 +45,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointManagementDaemonImpl;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
@@ -487,7 +486,7 @@ public class ExtensionBreak extends ExtensionAdaptor
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             // Check to see if anything is selected in the main tabs
                             String url = "";
-                            Component c = View.getSingleton().getMainFrame().getFocusOwner();
+                            Component c = getView().getMainFrame().getFocusOwner();
                             if (c != null) {
                                 if (c instanceof JList) {
                                     // Handles the history list and similar

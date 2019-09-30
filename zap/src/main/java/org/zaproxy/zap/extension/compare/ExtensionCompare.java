@@ -55,7 +55,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
 
 public class ExtensionCompare extends ExtensionAdaptor
@@ -195,7 +194,7 @@ public class ExtensionCompare extends ExtensionAdaptor
                         return Constant.messages.getString("file.format.zap.session");
                     }
                 });
-        int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
+        int rc = chooser.showOpenDialog(getView().getMainFrame());
         if (rc == JFileChooser.APPROVE_OPTION) {
             try {
                 file = chooser.getSelectedFile();
@@ -207,8 +206,7 @@ public class ExtensionCompare extends ExtensionAdaptor
 
                 // log.info("opening session file " + file.getAbsolutePath());
                 // WaitMessageDialog waitMessageDialog =
-                // View.getSingleton().getWaitMessageDialog("Loading session file.  Please wait
-                // ...");
+                // getView().getWaitMessageDialog("Loading session file.  Please wait...");
                 cmpModel.openSession(file, this);
 
                 // TODO support other implementations in the future
@@ -325,7 +323,7 @@ public class ExtensionCompare extends ExtensionAdaptor
                             DesktopUtils.openUrlInBrowser(outputFile.toURI());
                         } catch (Exception e) {
                             log.error(e.getMessage(), e);
-                            View.getSingleton()
+                            getView()
                                     .showMessageDialog(
                                             Constant.messages.getString(
                                                     "report.complete.warning",

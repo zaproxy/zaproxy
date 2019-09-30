@@ -46,6 +46,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/12 Remove getURL().
+// ZAP: 2019/09/30 Add hasView().
 package org.parosproxy.paros.extension;
 
 import java.util.Collections;
@@ -167,6 +168,17 @@ public abstract class ExtensionAdaptor implements Extension {
     @Override
     public ViewDelegate getView() {
         return view;
+    }
+
+    /**
+     * Convenience method that tells whether or not the extension has a view.
+     *
+     * @return {@code true} if the extension has a view, {@code false} otherwise.
+     * @since TODO add version
+     * @see #getView()
+     */
+    protected boolean hasView() {
+        return view != null;
     }
 
     @Override

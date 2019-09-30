@@ -35,7 +35,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.MainMenuBar;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -91,7 +90,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
     @Override
     public void postInit() {
-        if (View.isInitialised()) {
+        if (hasView()) {
             logger.info("Initializing keyboard shortcuts");
             processMainMenuBarMenus(this::initAllMenuItems);
         }
@@ -229,7 +228,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     }
 
     public List<KeyboardShortcut> getShortcuts(boolean reset) {
-        if (View.isInitialised()) {
+        if (hasView()) {
             List<KeyboardShortcut> kss = new ArrayList<KeyboardShortcut>();
             processMainMenuBarMenus(menu -> addAllMenuItems(kss, menu, reset));
             return kss;
