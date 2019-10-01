@@ -24,21 +24,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.WithConfigsTest;
 
 /** @author KSASAN preetkaran20@gmail.com */
-@RunWith(MockitoJUnitRunner.class)
-public class GenericFilterUtilityTest {
-
-    @BeforeClass
-    public static void init() {
-        /** Used to initialize Messages */
-        Constant constant = new Constant();
-    }
+public class GenericFilterUtilityTest extends WithConfigsTest {
 
     @Test
     public void testEmptyNodeValuesAndFilterValuesIncludeCriteria() {
