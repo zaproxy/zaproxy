@@ -291,7 +291,7 @@ public class HttpSender {
      * @since 2.8.0
      */
     public void setUseGlobalState(boolean enableGlobalState) {
-        useGlobalState = enableGlobalState;
+        this.useGlobalState = enableGlobalState;
         if (useGlobalState) {
             checkState();
         } else {

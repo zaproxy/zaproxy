@@ -78,6 +78,7 @@ public class HttpPanelSender implements MessageSender {
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        this.updateOptions();
     }
 
     @Override
@@ -215,7 +216,7 @@ public class HttpPanelSender implements MessageSender {
         final boolean isSessionTrackingEnabled =
                 Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
 
-        useTrackingSessionState.setEnabled(isSessionTrackingEnabled);
+        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
     }
 
     private HttpSender getDelegate() {
