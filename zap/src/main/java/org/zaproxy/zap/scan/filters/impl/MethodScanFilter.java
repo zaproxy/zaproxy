@@ -34,7 +34,6 @@ public class MethodScanFilter extends AbstractScanFilter<String> {
             return this.isFiltered(httpMethod);
         } else {
             FilterResult filterResult = new FilterResult();
-            filterResult.setFiltered(true);
             return filterResult;
         }
     }

@@ -25,6 +25,4 @@ import org.zaproxy.zap.model.StructuralNode;
 public interface ScanFilter {
 
     FilterResult isFiltered(StructuralNode node);
-
-    String getFilterType();
 }

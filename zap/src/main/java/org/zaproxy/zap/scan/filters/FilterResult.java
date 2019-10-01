@@ -22,24 +22,24 @@ package org.zaproxy.zap.scan.filters;
 /** @author KSASAN preetkaran20@gmail.com */
 public class FilterResult {
 
-    private boolean isFiltered;
+    private boolean isFiltered = true;
 
     private String reason;
+
+    public FilterResult(String reason) {
+        this.isFiltered = false;
+        this.reason = reason;
+    }
+
+    /** Adds the default field values ie isFiltered True. */
+    public FilterResult() {}
 
     public boolean isFiltered() {
         return isFiltered;
     }
 
-    public void setFiltered(boolean isFiltered) {
-        this.isFiltered = isFiltered;
-    }
-
     public String getReason() {
         return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     @Override

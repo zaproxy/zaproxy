@@ -30,6 +30,8 @@ import org.zaproxy.zap.scan.filters.ScanFilter;
 public abstract class AbstractScanFilter<T> implements ScanFilter {
     private Collection<GenericFilterBean<T>> genericFilterBeans = new LinkedHashSet<>();
 
+    public abstract String getFilterType();
+
     public Collection<GenericFilterBean<T>> getGenericFilterBeans() {
         return genericFilterBeans;
     }

@@ -55,47 +55,39 @@ public class URLPatternScanFilter implements ScanFilter {
             switch (urlPatternFilterBean.getFilterCriteria()) {
                 case INCLUDE:
                     if (urlPatternFilterBean.getUrlPatterns().isEmpty()) {
-                        filterResult.setFiltered(true);
                         return filterResult;
                     }
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
-                            filterResult.setFiltered(true);
                             return filterResult;
                         }
                     }
-                    filterResult.setReason(
+                    return new FilterResult(
                             Constant.messages.getString(
                                     GenericFilterUtility.INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                     new Object[] {
                                         this.getFilterType(), urlPatternFilterBean.getUrlPatterns()
                                     }));
-                    return filterResult;
                 case EXCLUDE:
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
-                            filterResult.setReason(
+                            return new FilterResult(
                                     Constant.messages.getString(
                                             GenericFilterUtility
                                                     .EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                             new Object[] {
                                                 this.getFilterType(), "[" + pattern + "]"
                                             }));
-                            return filterResult;
                         }
                     }
-                    filterResult.setFiltered(true);
                     return filterResult;
                 default:
-                    filterResult.setFiltered(true);
                     return filterResult;
             }
         }
-        filterResult.setFiltered(true);
         return filterResult;
     }
 
-    @Override
     public String getFilterType() {
         return "Url Pattern";
     }

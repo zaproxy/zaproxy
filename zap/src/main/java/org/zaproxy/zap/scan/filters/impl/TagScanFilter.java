@@ -35,7 +35,6 @@ public class TagScanFilter extends AbstractScanFilter<String> {
             return this.isFiltered(nodeTags);
         } else {
             FilterResult filterResult = new FilterResult();
-            filterResult.setFiltered(true);
             return filterResult;
         }
     }
