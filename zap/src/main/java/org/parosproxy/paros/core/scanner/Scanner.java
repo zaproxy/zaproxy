@@ -55,7 +55,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -105,7 +104,7 @@ public class Scanner implements Runnable {
     private User user = null;
     private TechSet techSet;
     private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
-    private Set<ScanFilter> scanFilters = new LinkedHashSet<>();
+    private List<ScanFilter> scanFilters = new ArrayList<>();
     private int id;
 
     // ZAP: Added scanner pause option
@@ -573,11 +572,11 @@ public class Scanner implements Runnable {
         this.id = id;
     }
 
-    Set<ScanFilter> getScanFilters() {
+    List<ScanFilter> getScanFilters() {
         return scanFilters;
     }
 
-    public void setScanFilters(Set<ScanFilter> scanFilters) {
+    public void setScanFilters(List<ScanFilter> scanFilters) {
         this.scanFilters = scanFilters;
     }
 }

@@ -501,15 +501,14 @@ public class HostProcess implements Runnable {
         return parentScanner.isInScope(nodeName);
     }
 
-    private Set<FilterResult> filterNode(StructuralNode node) {
-        Set<FilterResult> filterResults = new HashSet<>();
+    private FilterResult filterNode(StructuralNode node) {
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
             FilterResult filterResult = scanFilter.isFiltered(node);
             if (!filterResult.isFiltered()) {
-                filterResults.add(filterResult);
+                return filterResult;
             }
         }
-        return filterResults;
+        return new FilterResult();
     }
 
     /**
@@ -653,13 +652,13 @@ public class HostProcess implements Runnable {
             }
             return false;
         }
-        Set<FilterResult> filterResult = filterNode(node);
-        if (filterResult.size() > 0) {
+        FilterResult filterResult = filterNode(node);
+        if (!filterResult.isFiltered()) {
             if (log.isDebugEnabled()) {
                 log.debug(
                         "Ignoring filtered node: "
                                 + node.getName()
-                                + " Reasons for Ignoring: "
+                                + " Reason for Ignoring: "
                                 + filterResult.toString());
             }
             return false;
