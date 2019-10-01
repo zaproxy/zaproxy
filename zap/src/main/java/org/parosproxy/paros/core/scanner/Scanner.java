@@ -573,7 +573,7 @@ public class Scanner implements Runnable {
         this.id = id;
     }
 
-    public Set<ScanFilter> getScanFilters() {
+    Set<ScanFilter> getScanFilters() {
         return scanFilters;
     }
 
