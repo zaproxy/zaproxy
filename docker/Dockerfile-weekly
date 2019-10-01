@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xterm \
 	net-tools \
 	python-pip \
+	python3-pip \
 	firefox \
 	xvfb \
 	x11vnc && \
@@ -26,6 +27,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip zapcli python-owasp-zap-v2.4
+RUN pip3 install --upgrade pip zapcli python-owasp-zap-v2.4
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
