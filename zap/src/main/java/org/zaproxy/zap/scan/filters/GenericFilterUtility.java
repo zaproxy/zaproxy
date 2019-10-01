@@ -25,9 +25,9 @@ import java.util.Set;
 import org.parosproxy.paros.Constant;
 
 /**
+ * Generic Filter Class of handling most of the cases.
+ *
  * @author KSASAN preetkaran20@gmail.com
- *     <p>Generic Filter Class of handling most of the cases.
- * @param <T>
  */
 public class GenericFilterUtility {
 

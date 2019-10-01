@@ -23,9 +23,9 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 
 /**
+ * Generic Filter Bean which can be applied to any Class Object which implements hashCode and equals
+ *
  * @author KSASAN preetkaran20@gmail.com
- *     <p>Generic Filter Bean which can be applied to any Class Object which implements hashCode and
- *     equals
  * @param <T>
  */
 public class GenericFilterBean<T> {
