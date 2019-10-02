@@ -113,6 +113,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
@@ -122,7 +123,6 @@ import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.scan.filters.FilterResult;
-import org.zaproxy.zap.scan.filters.ScanFilter;
 import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
@@ -508,7 +508,7 @@ public class HostProcess implements Runnable {
                 return filterResult;
             }
         }
-        return new FilterResult();
+        return FilterResult.FILTERED_RESULT;
     }
 
     /**

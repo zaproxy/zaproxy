@@ -21,10 +21,10 @@ package org.zaproxy.zap.scan.filters.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.scan.filters.FilterResult;
 import org.zaproxy.zap.scan.filters.GenericFilterBean;
 import org.zaproxy.zap.scan.filters.GenericFilterUtility;
-import org.zaproxy.zap.scan.filters.ScanFilter;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public abstract class AbstractScanFilter<T> implements ScanFilter {

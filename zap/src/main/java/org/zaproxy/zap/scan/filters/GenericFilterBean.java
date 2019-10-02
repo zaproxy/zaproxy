@@ -21,6 +21,7 @@ package org.zaproxy.zap.scan.filters;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * Generic Filter Bean which can be applied to any Class Object which implements hashCode and equals
@@ -39,7 +40,9 @@ public class GenericFilterBean<T> {
     }
 
     public void setValues(Collection<T> tags) {
-        this.values.addAll(tags);
+        if (CollectionUtils.isEmpty(values)) {
+            this.values.addAll(tags);
+        }
     }
 
     public FilterCriteria getFilterCriteria() {

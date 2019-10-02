@@ -33,8 +33,7 @@ public class MethodScanFilter extends AbstractScanFilter<String> {
             String httpMethod = href.getMethod();
             return this.isFiltered(httpMethod);
         } else {
-            FilterResult filterResult = new FilterResult();
-            return filterResult;
+            return FilterResult.FILTERED_RESULT;
         }
     }
 

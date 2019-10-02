@@ -156,6 +156,8 @@ public class ActiveScanController implements ScanController<ActiveScan> {
                         techOverridden = true;
                     } else if (obj instanceof ScriptCollection) {
                         ascan.addScriptCollection((ScriptCollection) obj);
+                    } else if (obj instanceof ScanFilter) {
+                        ascan.addScanFilter((ScanFilter) obj);
                     } else {
                         logger.error(
                                 "Unexpected contextSpecificObject: "

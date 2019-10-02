@@ -17,9 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters;
+package org.zaproxy.zap.extension.ascan;
 
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.scan.filters.FilterResult;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public interface ScanFilter {

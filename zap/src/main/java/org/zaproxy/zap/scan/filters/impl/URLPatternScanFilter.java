@@ -24,10 +24,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.scan.filters.FilterResult;
 import org.zaproxy.zap.scan.filters.GenericFilterUtility;
-import org.zaproxy.zap.scan.filters.ScanFilter;
 import org.zaproxy.zap.scan.filters.UrlPatternFilterBean;
 
 /** @author KSASAN preetkaran20@gmail.com */
@@ -46,23 +46,23 @@ public class URLPatternScanFilter implements ScanFilter {
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference hRef = node.getHistoryReference();
-        FilterResult filterResult = new FilterResult();
         if (hRef == null) {
-            return filterResult;
+            return FilterResult.FILTERED_RESULT;
         }
 
         for (UrlPatternFilterBean urlPatternFilterBean : this.urlPatternFilterBeans) {
             switch (urlPatternFilterBean.getFilterCriteria()) {
                 case INCLUDE:
                     if (urlPatternFilterBean.getUrlPatterns().isEmpty()) {
-                        return filterResult;
+                        return FilterResult.FILTERED_RESULT;
                     }
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
-                            return filterResult;
+                            return FilterResult.FILTERED_RESULT;
                         }
                     }
                     return new FilterResult(
+                            false,
                             Constant.messages.getString(
                                     GenericFilterUtility.INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                     new Object[] {
@@ -72,6 +72,7 @@ public class URLPatternScanFilter implements ScanFilter {
                     for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             return new FilterResult(
+                                    false,
                                     Constant.messages.getString(
                                             GenericFilterUtility
                                                     .EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
@@ -80,12 +81,12 @@ public class URLPatternScanFilter implements ScanFilter {
                                             }));
                         }
                     }
-                    return filterResult;
+                    return FilterResult.FILTERED_RESULT;
                 default:
-                    return filterResult;
+                    return FilterResult.FILTERED_RESULT;
             }
         }
-        return filterResult;
+        return FilterResult.FILTERED_RESULT;
     }
 
     public String getFilterType() {

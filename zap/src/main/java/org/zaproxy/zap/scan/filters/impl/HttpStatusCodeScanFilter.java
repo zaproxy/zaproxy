@@ -33,8 +33,7 @@ public class HttpStatusCodeScanFilter extends AbstractScanFilter<Integer> {
             int statusCode = href.getStatusCode();
             return this.isFiltered(statusCode);
         } else {
-            FilterResult filterResult = new FilterResult();
-            return filterResult;
+            return FilterResult.FILTERED_RESULT;
         }
     }
 

@@ -34,8 +34,7 @@ public class TagScanFilter extends AbstractScanFilter<String> {
             List<String> nodeTags = href.getTags();
             return this.isFiltered(nodeTags);
         } else {
-            FilterResult filterResult = new FilterResult();
-            return filterResult;
+            return FilterResult.FILTERED_RESULT;
         }
     }
 

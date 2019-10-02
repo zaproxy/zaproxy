@@ -58,6 +58,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -70,6 +71,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
+import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.extension.script.ScriptCollection;
@@ -78,7 +80,6 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
-import org.zaproxy.zap.scan.filters.ScanFilter;
 import org.zaproxy.zap.users.User;
 
 public class Scanner implements Runnable {
@@ -576,7 +577,7 @@ public class Scanner implements Runnable {
         return scanFilters;
     }
 
-    public void setScanFilters(List<ScanFilter> scanFilters) {
-        this.scanFilters = scanFilters;
+    public void addScanFilter(ScanFilter scanFilter) {
+        this.scanFilters.add(Objects.requireNonNull(scanFilter));
     }
 }

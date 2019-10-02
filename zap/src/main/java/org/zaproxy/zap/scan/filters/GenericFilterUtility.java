@@ -50,21 +50,21 @@ public class GenericFilterUtility {
             Collection<GenericFilterBean<T>> genericFilterBeans,
             Collection<T> nodeValues,
             String filterType) {
-        FilterResult filterResult = new FilterResult();
         for (GenericFilterBean<T> genericFilterBean : genericFilterBeans) {
             FilterCriteria filterCriteria = genericFilterBean.getFilterCriteria();
             switch (filterCriteria) {
                 case INCLUDE:
                     if (genericFilterBean.getValues().isEmpty()) {
-                        return filterResult;
+                        return FilterResult.FILTERED_RESULT;
                     }
                     for (T value : nodeValues) {
                         if (genericFilterBean.getValues().contains(value)) {
-                            return filterResult;
+                            return FilterResult.FILTERED_RESULT;
                         }
                     }
 
                     return new FilterResult(
+                            false,
                             Constant.messages.getString(
                                     INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                     new Object[] {filterType, genericFilterBean.getValues()}));
@@ -72,26 +72,28 @@ public class GenericFilterUtility {
                     for (T value : nodeValues) {
                         if (genericFilterBean.getValues().contains(value)) {
                             return new FilterResult(
+                                    false,
                                     Constant.messages.getString(
                                             EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                             new Object[] {filterType, "[" + value + "]"}));
                         }
                     }
-                    return filterResult;
+                    return FilterResult.FILTERED_RESULT;
                 case INCLUDE_ALL:
                     boolean isFiltered = nodeValues.containsAll(genericFilterBean.getValues());
                     if (!isFiltered) {
                         return new FilterResult(
+                                false,
                                 Constant.messages.getString(
                                         INCLUDE_ALL_FILTER_CRITERIA_MESSAGE_KEY,
                                         new Object[] {filterType, genericFilterBean.getValues()}));
                     }
-                    return filterResult;
+                    return FilterResult.FILTERED_RESULT;
                 default:
-                    return filterResult;
+                    return FilterResult.FILTERED_RESULT;
             }
         }
-        return filterResult;
+        return FilterResult.FILTERED_RESULT;
     }
 
     /**

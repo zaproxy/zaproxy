@@ -20,22 +20,26 @@
 package org.zaproxy.zap.scan.filters;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public class FilterResult {
+public final class FilterResult {
 
-    private boolean isFiltered = true;
+    public static final FilterResult FILTERED_RESULT = new FilterResult();
 
-    private String reason;
+    private final boolean filtered;
 
-    public FilterResult(String reason) {
-        this.isFiltered = false;
+    private final String reason;
+
+    private FilterResult() {
+        this.filtered = true;
+        reason = null;
+    }
+
+    public FilterResult(boolean filtered, String reason) {
+        this.filtered = filtered;
         this.reason = reason;
     }
 
-    /** Adds the default field values ie isFiltered True. */
-    public FilterResult() {}
-
     public boolean isFiltered() {
-        return isFiltered;
+        return filtered;
     }
 
     public String getReason() {
@@ -44,6 +48,6 @@ public class FilterResult {
 
     @Override
     public String toString() {
-        return "FilterResult [isFiltered=" + isFiltered + ", reason=" + reason + "]";
+        return "FilterResult [filtered=" + filtered + ", reason=" + reason + "]";
     }
 }
