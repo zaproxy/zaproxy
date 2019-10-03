@@ -29,7 +29,6 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2019/09/25 Add call to update for sender panel options
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;

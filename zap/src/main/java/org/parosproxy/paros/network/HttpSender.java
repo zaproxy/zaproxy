@@ -644,7 +644,6 @@ public class HttpSender {
             // cant do this for EntityEnclosingMethod methods - it will fail
             method.setFollowRedirects(isFollowRedirect);
         }
-
         // ZAP: Use custom HttpState if needed
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
