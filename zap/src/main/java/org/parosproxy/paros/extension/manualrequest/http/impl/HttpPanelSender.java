@@ -78,7 +78,11 @@ public class HttpPanelSender implements MessageSender {
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-        this.updateOptions();
+
+        final boolean isSessionTrackingEnabled =
+                Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
+
+        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
     }
 
     @Override
@@ -210,13 +214,6 @@ public class HttpPanelSender implements MessageSender {
             delegate.shutdown();
             delegate = null;
         }
-    }
-
-    public void updateOptions() {
-        final boolean isSessionTrackingEnabled =
-                Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
-
-        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
     }
 
     private HttpSender getDelegate() {

@@ -37,8 +37,6 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -120,15 +118,6 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         getFooterStatusBar().add(getLabelContentLength());
         getFooterStatusBar().addSeparator();
         getFooterStatusBar().add(getLabelTotalLength());
-
-        getWindowPanel()
-                .addComponentListener(
-                        new ComponentAdapter() {
-                            @Override
-                            public void componentShown(ComponentEvent ce) {
-                                sender.updateOptions();
-                            }
-                        });
     }
 
     @Override

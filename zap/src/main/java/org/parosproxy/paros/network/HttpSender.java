@@ -179,8 +179,8 @@ public class HttpSender {
     private MultiThreadedHttpConnectionManager httpConnManager = null;
     private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
     private boolean followRedirect = false;
-    private boolean useCookies = true;
-    private boolean useGlobalState = false;
+    private boolean useCookies;
+    private boolean useGlobalState;
     private int initiator = -1;
 
     /*
@@ -240,6 +240,7 @@ public class HttpSender {
                         defaultUserAgent);
 
         setUseGlobalState(useGlobalState);
+        setUseCookies(true);
     }
 
     private void setClientsCookiePolicy(String policy) {
@@ -252,32 +253,32 @@ public class HttpSender {
     }
 
     private void checkState() {
-        if (param.isHttpStateEnabled()) {
-            client.setState(param.getHttpState());
-            clientViaProxy.setState(param.getHttpState());
+        if (!useCookies) {
+            resetState();
+            setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+        } else if (useGlobalState) {
+            if (param.isHttpStateEnabled()) {
+                client.setState(param.getHttpState());
+                clientViaProxy.setState(param.getHttpState());
+                setProxyAuth(clientViaProxy);
+                setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            } else {
+                setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+            }
+        } else {
+            client.setState(new HttpState());
+            clientViaProxy.setState(new HttpState());
             setProxyAuth(clientViaProxy);
             setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        } else {
-            setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
         }
     }
 
-    private void updateCookieState() {
-        if (!useCookies) {
-            // discard cookies, but keep credentials
-            HttpState state = new HttpState();
-            HttpState proxyState = new HttpState();
+    private void resetState() {
+        HttpState state = new HttpState();
+        HttpState proxyState = new HttpState();
 
-            state.setCredentials(AuthScope.ANY, client.getState().getCredentials(AuthScope.ANY));
-            proxyState.setCredentials(
-                    AuthScope.ANY, client.getState().getProxyCredentials(AuthScope.ANY));
-            client.setState(state);
-            clientViaProxy.setState(proxyState);
-            setProxyAuth(clientViaProxy);
-        } else if (useGlobalState) {
-            // reload old state
-            checkState();
-        }
+        client.setState(state);
+        clientViaProxy.setState(proxyState);
     }
 
     /**
@@ -292,14 +293,8 @@ public class HttpSender {
      */
     public void setUseGlobalState(boolean enableGlobalState) {
         this.useGlobalState = enableGlobalState;
-        if (useGlobalState) {
-            checkState();
-        } else {
-            client.setState(new HttpState());
-            clientViaProxy.setState(new HttpState());
-            setProxyAuth(clientViaProxy);
-            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        }
+
+        checkState();
     }
 
     /**
@@ -311,13 +306,7 @@ public class HttpSender {
     public void setUseCookies(boolean shouldUseCookies) {
         this.useCookies = shouldUseCookies;
 
-        if (useCookies) {
-            this.setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        } else {
-            this.setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-        }
-
-        updateCookieState();
+        checkState();
     }
 
     private HttpClient createHttpClient() {
@@ -656,16 +645,12 @@ public class HttpSender {
             method.setFollowRedirects(isFollowRedirect);
         }
 
-        // needs to verify if the state
-        // should store cookies
-        updateCookieState();
-
         // ZAP: Use custom HttpState if needed
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
             this.executeMethod(method, forceUser.getCorrespondingHttpState());
         } else {
-            this.executeMethod(method, client.getState());
+            this.executeMethod(method, null);
         }
 
         HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
