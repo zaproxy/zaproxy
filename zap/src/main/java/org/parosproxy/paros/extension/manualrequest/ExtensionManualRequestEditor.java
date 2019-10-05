@@ -46,12 +46,14 @@
 // ZAP: 2018/02/23 Issue 1161: Fix Session Tracking button sync
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/10/04 Add dialog/menu icon.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.EventQueue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.swing.ImageIcon;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -196,5 +198,10 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor
     @Override
     public boolean supportsDb(String type) {
         return true;
+    }
+
+    public static final ImageIcon getIcon() {
+        return new ImageIcon(
+                ExtensionManualRequestEditor.class.getResource("/resource/icon/16/hand.png"));
     }
 }

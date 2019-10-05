@@ -39,6 +39,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
@@ -402,6 +403,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                                     .getExtensionLoader()
                                     .getExtension(ExtensionHistory.class));
             popupMenuResendMessage.setMenuIndex(menuIndex);
+            popupMenuResendMessage.setIcon(ExtensionManualRequestEditor.getIcon());
         }
         return popupMenuResendMessage;
     }
