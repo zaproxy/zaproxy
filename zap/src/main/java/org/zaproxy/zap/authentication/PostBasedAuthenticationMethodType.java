@@ -420,11 +420,22 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             Map<String, String> parameters = extractParametersFromPostData(postRequestBody);
             if (parameters != null) {
                 String oldAcsrfTokenValue = null;
-                String replacedPostData = null;
+                String replacedPostData = postRequestBody;
                 for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
                     oldAcsrfTokenValue = parameters.get(antiCsrfToken.getName());
+                    if (oldAcsrfTokenValue == null) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug(
+                                    "ACSRF token "
+                                            + antiCsrfToken.getName()
+                                            + " not found in the POST data: "
+                                            + postRequestBody);
+                        }
+                        continue;
+                    }
+
                     replacedPostData =
-                            postRequestBody.replace(
+                            replacedPostData.replace(
                                     oldAcsrfTokenValue,
                                     paramEncoder.apply(antiCsrfToken.getValue()));
 
