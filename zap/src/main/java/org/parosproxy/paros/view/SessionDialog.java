@@ -71,7 +71,7 @@ public class SessionDialog extends AbstractParamDialog {
     /** This method initializes this dialog. */
     private void initialize() {
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-            this.setSize(650, 500);
+            this.setSize(650, 550);
         } else {
             pack();
         }
