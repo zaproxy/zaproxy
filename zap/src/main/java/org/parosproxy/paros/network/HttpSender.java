@@ -243,6 +243,15 @@ public class HttpSender {
         setUseCookies(true);
     }
 
+    public HttpSender(
+            ConnectionParam connectionParam,
+            boolean useGlobalState,
+            int initiator,
+            boolean useCookies) {
+        this(connectionParam, useGlobalState, initiator);
+        setUseCookies(useCookies);
+    }
+
     private void setClientsCookiePolicy(String policy) {
         client.getParams().setCookiePolicy(policy);
         clientViaProxy.getParams().setCookiePolicy(policy);

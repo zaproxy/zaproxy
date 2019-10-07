@@ -221,7 +221,8 @@ public class HttpPanelSender implements MessageSender {
                     new HttpSender(
                             Model.getSingleton().getOptionsParam().getConnectionParam(),
                             getButtonUseTrackingSessionState().isSelected(),
-                            HttpSender.MANUAL_REQUEST_INITIATOR);
+                            HttpSender.MANUAL_REQUEST_INITIATOR,
+                            getButtonUseCookies().isSelected());
         }
         return delegate;
     }
