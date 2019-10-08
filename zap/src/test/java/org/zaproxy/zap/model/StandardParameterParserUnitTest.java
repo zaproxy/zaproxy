@@ -29,15 +29,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.parosproxy.paros.model.Session;
 
-@RunWith(MockitoJUnitRunner.class)
+/** Unit test for {@link StandardParameterParser}. */
 public class StandardParameterParserUnitTest {
-
-    // @Mock
-    Session session;
 
     private StandardParameterParser spp;
 
@@ -68,7 +62,7 @@ public class StandardParameterParserUnitTest {
     public void nonDefaultParser() {
         spp.setKeyValuePairSeparators(";");
         spp.setKeyValueSeparators(":=");
-        List<String> sps = new ArrayList<String>();
+        List<String> sps = new ArrayList<>();
         sps.add("page");
         spp.setStructuralParameters(sps);
         Map<String, String> res = spp.parse("a=b&c;b:c");
@@ -87,7 +81,7 @@ public class StandardParameterParserUnitTest {
     public void saveAndLoad() {
         spp.setKeyValuePairSeparators(";");
         spp.setKeyValueSeparators(":=");
-        List<String> sps = new ArrayList<String>();
+        List<String> sps = new ArrayList<>();
         sps.add("page");
         spp.setStructuralParameters(sps);
 
@@ -149,7 +143,7 @@ public class StandardParameterParserUnitTest {
                         new URI("http://example.org/path?page=12&data=123&type=1", true), 3));
 
         // With structural params
-        List<String> structuralParameters = new ArrayList<String>();
+        List<String> structuralParameters = new ArrayList<>();
         structuralParameters.add("page");
         structuralParameters.add("type");
         spp.setStructuralParameters(structuralParameters);
@@ -162,7 +156,7 @@ public class StandardParameterParserUnitTest {
                         new URI("http://example.org/path?page=12&data=123&type=1", true), 3));
 
         // with data driven nodes
-        Context context = new Context(session, 0);
+        Context context = new Context(null, 0);
         Pattern p = Pattern.compile("http://example.org/(path/to/)(.+?)(/.*)");
         StructuralNodeModifier ddn =
                 new StructuralNodeModifier(StructuralNodeModifier.Type.DataDrivenNode, p, "DDN");

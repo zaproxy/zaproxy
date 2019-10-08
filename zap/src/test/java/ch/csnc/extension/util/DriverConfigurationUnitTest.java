@@ -69,7 +69,7 @@ public class DriverConfigurationUnitTest {
     }
 
     private static <T> Vector<T> vector(T value1, T value2, T value3) {
-        return new Vector<T>(Arrays.asList(value1, value2, value3));
+        return new Vector<>(Arrays.asList(value1, value2, value3));
     }
 
     private File getDriversXmlFile() throws URISyntaxException {

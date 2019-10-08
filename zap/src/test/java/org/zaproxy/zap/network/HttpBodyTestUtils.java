@@ -108,6 +108,7 @@ public class HttpBodyTestUtils {
                 description.appendText("all zero bytes");
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 description.appendText("has at least one non-zero byte ").appendValue(item);
             }

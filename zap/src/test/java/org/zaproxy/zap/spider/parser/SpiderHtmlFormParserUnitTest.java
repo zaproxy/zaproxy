@@ -1704,9 +1704,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
     private static List<String> list(String preDefValue) {
         if (preDefValue == null || preDefValue.isEmpty()) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         String[] value = preDefValue.split(",");
         for (String val : value) {
             values.add(val);

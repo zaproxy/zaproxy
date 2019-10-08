@@ -25,11 +25,9 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-@RunWith(MockitoJUnitRunner.class)
+/** Unit test for {@link RuleConfigParam}. */
 public class RuleConfigParamUnitTest {
 
     ZapXmlConfiguration configuration;
@@ -94,7 +92,7 @@ public class RuleConfigParamUnitTest {
         rcp.addRuleConfig("key1", "defaultValue1", "value1");
         rcp.addRuleConfig("key2", "defaultValue2", "value2");
         rcp.resetAllRuleConfigValues();
-        ;
+
         assertThat(rcp.getRuleConfig("key1").getKey(), is(equalTo("key1")));
         assertThat(rcp.getRuleConfig("key1").getDefaultValue(), is(equalTo("defaultValue1")));
         assertThat(rcp.getRuleConfig("key1").getValue(), is(equalTo("defaultValue1")));

@@ -23,10 +23,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+/** Unit test for {@link ZapReleaseComparitor}. */
 public class ZapReleaseComparitorUnitTest {
 
     private static final String DEV_BUILD = "Dev Build";
