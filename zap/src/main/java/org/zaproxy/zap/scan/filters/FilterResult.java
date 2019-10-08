@@ -29,7 +29,7 @@ public final class FilterResult {
     private final String reason;
 
     private FilterResult() {
-        this.filtered = true;
+        this.filtered = false;
         reason = null;
     }
 

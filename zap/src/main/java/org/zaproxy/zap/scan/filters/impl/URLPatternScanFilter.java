@@ -28,19 +28,20 @@ import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.scan.filters.FilterResult;
 import org.zaproxy.zap.scan.filters.GenericFilterUtility;
-import org.zaproxy.zap.scan.filters.UrlPatternFilterBean;
+import org.zaproxy.zap.scan.filters.UrlPatternFilterData;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class URLPatternScanFilter implements ScanFilter {
 
-    private Set<UrlPatternFilterBean> urlPatternFilterBeans = new LinkedHashSet<>();
+    private static final String FILTER_TYPE = "scan.filter.filterType.URLPattern";
+    private Set<UrlPatternFilterData> urlPatternFilterDataSet = new LinkedHashSet<>();
 
-    public Set<UrlPatternFilterBean> getUrlPatternFilterBeans() {
-        return urlPatternFilterBeans;
+    public Set<UrlPatternFilterData> getUrlPatternFilterDataSet() {
+        return urlPatternFilterDataSet;
     }
 
-    public void setUrlPatternFilterBeans(Set<UrlPatternFilterBean> urlPatternFilterBeans) {
-        this.urlPatternFilterBeans = urlPatternFilterBeans;
+    public void setUrlPatternFilterDataSet(Set<UrlPatternFilterData> urlPatternFilterDataSet) {
+        this.urlPatternFilterDataSet = urlPatternFilterDataSet;
     }
 
     @Override
@@ -50,29 +51,29 @@ public class URLPatternScanFilter implements ScanFilter {
             return FilterResult.FILTERED_RESULT;
         }
 
-        for (UrlPatternFilterBean urlPatternFilterBean : this.urlPatternFilterBeans) {
-            switch (urlPatternFilterBean.getFilterCriteria()) {
+        for (UrlPatternFilterData urlPatternFilterData : this.urlPatternFilterDataSet) {
+            switch (urlPatternFilterData.getFilterCriteria()) {
                 case INCLUDE:
-                    if (urlPatternFilterBean.getUrlPatterns().isEmpty()) {
+                    if (urlPatternFilterData.getUrlPatterns().isEmpty()) {
                         return FilterResult.FILTERED_RESULT;
                     }
-                    for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
+                    for (Pattern pattern : urlPatternFilterData.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             return FilterResult.FILTERED_RESULT;
                         }
                     }
                     return new FilterResult(
-                            false,
+                            true,
                             Constant.messages.getString(
                                     GenericFilterUtility.INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                     new Object[] {
-                                        this.getFilterType(), urlPatternFilterBean.getUrlPatterns()
+                                        this.getFilterType(), urlPatternFilterData.getUrlPatterns()
                                     }));
                 case EXCLUDE:
-                    for (Pattern pattern : urlPatternFilterBean.getUrlPatterns()) {
+                    for (Pattern pattern : urlPatternFilterData.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             return new FilterResult(
-                                    false,
+                                    true,
                                     Constant.messages.getString(
                                             GenericFilterUtility
                                                     .EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
@@ -90,6 +91,6 @@ public class URLPatternScanFilter implements ScanFilter {
     }
 
     public String getFilterType() {
-        return "Url Pattern";
+        return Constant.messages.getString(FILTER_TYPE);
     }
 }

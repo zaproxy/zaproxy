@@ -19,12 +19,15 @@
  */
 package org.zaproxy.zap.scan.filters.impl;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.scan.filters.FilterResult;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class MethodScanFilter extends AbstractScanFilter<String> {
+
+    private static final String FILTER_TYPE = "scan.filter.filterType.HttpMethod";
 
     @Override
     public FilterResult isFiltered(StructuralNode node) {
@@ -39,6 +42,6 @@ public class MethodScanFilter extends AbstractScanFilter<String> {
 
     @Override
     public String getFilterType() {
-        return "Http Method";
+        return Constant.messages.getString(FILTER_TYPE);
     }
 }

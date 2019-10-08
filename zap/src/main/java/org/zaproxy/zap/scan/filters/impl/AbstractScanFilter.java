@@ -23,28 +23,28 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.scan.filters.FilterResult;
-import org.zaproxy.zap.scan.filters.GenericFilterBean;
+import org.zaproxy.zap.scan.filters.GenericFilterData;
 import org.zaproxy.zap.scan.filters.GenericFilterUtility;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public abstract class AbstractScanFilter<T> implements ScanFilter {
-    private Collection<GenericFilterBean<T>> genericFilterBeans = new LinkedHashSet<>();
+    private Collection<GenericFilterData<T>> genericFilterDataCollection = new LinkedHashSet<>();
 
     public abstract String getFilterType();
 
-    public Collection<GenericFilterBean<T>> getGenericFilterBeans() {
-        return genericFilterBeans;
+    public Collection<GenericFilterData<T>> getGenericFilterDataCollection() {
+        return genericFilterDataCollection;
     }
 
-    public void setGenericFilterBeans(Collection<GenericFilterBean<T>> tagFilterBeans) {
-        this.genericFilterBeans.addAll(tagFilterBeans);
+    public void setGenericFilterDataCollection(Collection<GenericFilterData<T>> genericFilterDataCollection) {
+        this.genericFilterDataCollection.addAll(genericFilterDataCollection);
     }
 
     public FilterResult isFiltered(Collection<T> values) {
-        return GenericFilterUtility.isFiltered(genericFilterBeans, values, this.getFilterType());
+        return GenericFilterUtility.isFiltered(genericFilterDataCollection, values, this.getFilterType());
     }
 
     public FilterResult isFiltered(T value) {
-        return GenericFilterUtility.isFiltered(genericFilterBeans, value, this.getFilterType());
+        return GenericFilterUtility.isFiltered(genericFilterDataCollection, value, this.getFilterType());
     }
 }

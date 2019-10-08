@@ -33,94 +33,94 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testEmptyNodeValuesAndFilterValuesIncludeCriteria() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
     public void testEmptyNodeValuesIncludeCriteria() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
     public void testNodeValuesIncludeCriteriaWithSameValues() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterBean.getValues().add("Dummy");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
+        genericFilterData.getValues().add("Dummy");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
     public void testNodeValuesIncludeCriteriaMoreFilterValues() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterBean.getValues().add("Dummy");
-        genericFilterBean.getValues().add("Dummy1");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
+        genericFilterData.getValues().add("Dummy");
+        genericFilterData.getValues().add("Dummy1");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
     public void testNodeValuesIncludeCriteriaMoreNodeValues() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterBean.getValues().add("Dummy");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
+        genericFilterData.getValues().add("Dummy");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
@@ -128,134 +128,134 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
     public void testShouldFailNodeValuesFilterValuesMismatchIncludeCriteria() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterBean.getValues().add("Dummy");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
+        genericFilterData.getValues().add("Dummy");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy1");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
     public void testEmptyNodeValuesExcludeCriteria() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.EXCLUDE);
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
     public void testShouldFailNodeValuesExcludeCriteriaWithSameValues() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterBean.getValues().add("Dummy");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
+        genericFilterData.getValues().add("Dummy");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
     public void testShouldFailNodeValuesExcludeCriteriaWithMoreFilterValues() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterBean.getValues().add("Dummy");
-        genericFilterBean.getValues().add("Dummy1");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
+        genericFilterData.getValues().add("Dummy");
+        genericFilterData.getValues().add("Dummy1");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
     public void testShouldFailNodeValuesExcludeCriteriaWithMoreNodeValues() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterBean.getValues().add("Dummy");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
+        genericFilterData.getValues().add("Dummy");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
         nodeValues.add("Dummy1");
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
     public void testShouldPassForNodeValuesAndFilterValuesMismatchExcludeCriteria() {
         // Given
-        GenericFilterBean<String> genericFilterBean = new GenericFilterBean<String>();
-        genericFilterBean.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterBean.getValues().add("Dummy");
+        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
+        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
+        genericFilterData.getValues().add("Dummy");
 
-        Collection<GenericFilterBean<String>> genericFilterBeans = new LinkedHashSet<>();
-        genericFilterBeans.add(genericFilterBean);
+        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
+        genericFilterDataCollection.add(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy1");
         // When
         FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterBeans, nodeValues, "Filter");
+                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        Assert.assertEquals(filterResult.isFiltered(), false);
     }
 }

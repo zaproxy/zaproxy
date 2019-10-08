@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public class UrlPatternFilterBean {
+public class UrlPatternFilterData {
 
     private Set<Pattern> urlPatterns = new LinkedHashSet<>();
 

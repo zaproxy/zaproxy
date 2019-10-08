@@ -24,12 +24,12 @@ import java.util.LinkedHashSet;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
- * Generic Filter Bean which can be applied to any Class Object which implements hashCode and equals
+ * Generic Filter Data which can be applied to any Class Object which implements hashCode and equals
  *
  * @author KSASAN preetkaran20@gmail.com
  * @param <T>
  */
-public class GenericFilterBean<T> {
+public class GenericFilterData<T> {
 
     private Collection<T> values = new LinkedHashSet<>();
 

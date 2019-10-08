@@ -504,7 +504,7 @@ public class HostProcess implements Runnable {
     private FilterResult filterNode(StructuralNode node) {
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
             FilterResult filterResult = scanFilter.isFiltered(node);
-            if (!filterResult.isFiltered()) {
+            if (filterResult.isFiltered()) {
                 return filterResult;
             }
         }
@@ -653,7 +653,7 @@ public class HostProcess implements Runnable {
             return false;
         }
         FilterResult filterResult = filterNode(node);
-        if (!filterResult.isFiltered()) {
+        if (filterResult.isFiltered()) {
             if (log.isDebugEnabled()) {
                 log.debug(
                         "Ignoring filtered node: "
