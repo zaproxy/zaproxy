@@ -27,10 +27,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ import javax.swing.event.TableModelListener;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.utils.I18N;
@@ -50,9 +51,9 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
 
     @Before
     public void setUp() throws Exception {
-        I18N i18n = mock(I18N.class);
+        I18N i18n = mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
     }
 
