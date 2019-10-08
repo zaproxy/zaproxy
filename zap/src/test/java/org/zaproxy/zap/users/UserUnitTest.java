@@ -27,9 +27,9 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -41,7 +41,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
@@ -78,16 +78,16 @@ public class UserUnitTest {
         mockedAuthenticationMethod = Mockito.mock(AuthenticationMethod.class);
         when(mockedAuthenticationMethod.getType()).thenReturn(mockedType);
         when(mockedAuthenticationMethod.authenticate(
-                        (SessionManagementMethod) anyObject(),
-                        (AuthenticationCredentials) anyObject(),
-                        (User) anyObject()))
+                        (SessionManagementMethod) any(),
+                        (AuthenticationCredentials) any(),
+                        (User) any()))
                 .thenReturn(Mockito.mock(WebSession.class));
 
         // Make sure no actual message processing is done
         mockedSessionManagementMethod = Mockito.mock(SessionManagementMethod.class);
         doNothing()
                 .when(mockedSessionManagementMethod)
-                .processMessageToMatchSession((HttpMessage) anyObject(), (WebSession) anyObject());
+                .processMessageToMatchSession((HttpMessage) any(), (WebSession) any());
 
         // Make sure mocked session management and authentication methods are returned
         mockedContext = Mockito.mock(Context.class);
@@ -183,7 +183,6 @@ public class UserUnitTest {
     public void shouldAuthenticateWhenRequired() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
-        doReturn(mockedContext).when(user).getContext();
         // When
         doReturn(true).when(user).requiresAuthentication();
         doNothing().when(user).authenticate();
@@ -199,7 +198,6 @@ public class UserUnitTest {
         doReturn(mockedContext).when(user).getContext();
         // When
         doReturn(false).when(user).requiresAuthentication();
-        doNothing().when(user).authenticate();
         user.processMessageToMatchUser(Mockito.mock(HttpMessage.class));
         // Then
         verify(user, never()).authenticate();

@@ -82,7 +82,7 @@ dependencies {
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.24.1")
     testImplementation("junit:junit:4.11")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
-    testImplementation("org.mockito:mockito-all:1.10.8")
+    testImplementation("org.mockito:mockito-core:3.1.0")
     testImplementation("org.slf4j:slf4j-log4j12:1.7.28")
 
     testRuntimeOnly(files(distDir))

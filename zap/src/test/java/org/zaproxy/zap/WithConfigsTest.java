@@ -19,9 +19,10 @@
  */
 package org.zaproxy.zap;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.withSettings;
 
 import java.util.Locale;
 import org.junit.Before;
@@ -30,7 +31,7 @@ import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionLoader;
@@ -70,14 +71,14 @@ public abstract class WithConfigsTest extends TestUtils {
         Constant.setZapHome(zapHomeDir);
 
         ExtensionLoader extLoader = Mockito.mock(ExtensionLoader.class);
-        Control control = Mockito.mock(Control.class);
+        Control control = Mockito.mock(Control.class, withSettings().lenient());
         Mockito.when(control.getExtensionLoader()).thenReturn(extLoader);
 
         // Init all the things
         Constant.getInstance();
-        I18N i18n = Mockito.mock(I18N.class);
+        I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         given(i18n.getLocal()).willReturn(Locale.getDefault());
         Constant.messages = i18n;
         Control.initSingletonForTesting(Model.getSingleton());

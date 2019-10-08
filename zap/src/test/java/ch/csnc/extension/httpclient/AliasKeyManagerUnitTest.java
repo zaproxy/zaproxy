@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Unit test for {@link ch.csnc.extension.httpclient.AliasKeyManager}
@@ -131,11 +131,11 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturnNullAsCertificatesWhenExceptionOccursAccessingKeyStore()
             throws Exception {
         // Given
-        given(keyStoreSpi.engineGetCertificateChain(ALIAS)).willThrow(KeyStoreException.class);
+        given(keyStoreSpi.engineGetCertificateChain(ALIAS))
+                .willAnswer(this::throwKeyStoreException);
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When
         X509Certificate[] certificates = aliasKeyManager.getCertificateChain(ALIAS);
@@ -148,10 +148,8 @@ public class AliasKeyManagerUnitTest {
     public void shouldReturnNullAsKeyWhenExceptionOccursAccessingKeyStore() throws Exception {
         // Given
         given(keyStoreSpi.engineGetKey(ALIAS, PASSWORD.toCharArray()))
-                .willThrow(
-                        KeyStoreException.class,
-                        NoSuchAlgorithmException.class,
-                        UnrecoverableKeyException.class);
+                .willAnswer(this::throwKeyStoreException)
+                .willThrow(NoSuchAlgorithmException.class, UnrecoverableKeyException.class);
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When/Then
         assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(null))); // KeyStoreExcpeption
@@ -171,5 +169,9 @@ public class AliasKeyManagerUnitTest {
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When/Then
         assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(originalKey)));
+    }
+
+    private <T> T throwKeyStoreException(T arg) throws KeyStoreException {
+        throw new KeyStoreException();
     }
 }

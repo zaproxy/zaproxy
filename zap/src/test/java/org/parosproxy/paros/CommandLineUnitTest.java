@@ -27,9 +27,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 
 import java.io.File;
 import java.util.Collections;
@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.zaproxy.zap.utils.I18N;
@@ -60,14 +60,15 @@ public class CommandLineUnitTest {
     private static final Map<String, CommandLineListener> NO_SUPPORTED_FILE_EXTENSIONS =
             Collections.emptyMap();
 
-    @Mock private I18N i18n;
+    @Mock(lenient = true)
+    private I18N i18n;
 
     private CommandLine cmdLine;
 
     @Before
     public void setUp() throws Exception {
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
     }
 

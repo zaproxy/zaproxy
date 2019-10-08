@@ -25,9 +25,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -295,7 +295,7 @@ public class LocaleUtilsUnitTest {
     public void shouldFindResourcesWithGivenControlAndFallbackLocale() {
         // Given
         ResourceBundle.Control control = mockResourceBundleControl();
-        given(control.getFallbackLocale(anyString(), anyObject())).willReturn(Locale.FRANCE);
+        given(control.getFallbackLocale(anyString(), any())).willReturn(Locale.FRANCE);
         List<String> resources = new ArrayList<>();
         // When
         LocaleUtils.findResource(
@@ -345,14 +345,14 @@ public class LocaleUtilsUnitTest {
 
     private static ResourceBundle.Control mockResourceBundleControl() {
         ResourceBundle.Control control = mock(ResourceBundle.Control.class);
-        when(control.getCandidateLocales(anyString(), anyObject()))
+        when(control.getCandidateLocales(anyString(), any()))
                 .thenAnswer(
                         invocation -> {
                             Object[] args = invocation.getArguments();
                             return HELPER_CONTROL.getCandidateLocales(
                                     (String) args[0], (Locale) args[1]);
                         });
-        when(control.toBundleName(anyString(), anyObject()))
+        when(control.toBundleName(anyString(), any()))
                 .thenAnswer(
                         invocation -> {
                             Object[] args = invocation.getArguments();
