@@ -448,6 +448,7 @@ public class VariantCookieUnitTest {
                 description.appendText("cookie header ").appendValue(cookies);
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
                 Vector<String> cookieLines =
@@ -482,6 +483,7 @@ public class VariantCookieUnitTest {
                 description.appendText("no cookie header");
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
                 Vector<String> cookieLines =

@@ -29,12 +29,10 @@ import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.zaproxy.zap.control.AddOnCollection.Platform;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-@RunWith(MockitoJUnitRunner.class)
+/** Unit test for {@link AddOnCollection}. */
 public class AddOnCollectionUnitTest {
 
     private ZapXmlConfiguration configA;

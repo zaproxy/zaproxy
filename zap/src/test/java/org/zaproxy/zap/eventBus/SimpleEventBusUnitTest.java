@@ -215,7 +215,7 @@ public class SimpleEventBusUnitTest {
 
     private class TestEventConsumer implements EventConsumer {
 
-        private List<Event> events = new ArrayList<Event>();
+        private List<Event> events = new ArrayList<>();
 
         @Override
         public void eventReceived(Event event) {
