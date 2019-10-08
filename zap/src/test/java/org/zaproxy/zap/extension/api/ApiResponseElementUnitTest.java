@@ -105,9 +105,9 @@ public class ApiResponseElementUnitTest {
         // Given
         String name = "name";
         String value = "{\"key\":\"value\"}";
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(name, value);
-        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<>("test", map);
         ApiResponseElement apiResponse = new ApiResponseElement(apiRespSet);
         // When
         String jsonResponse = apiResponse.toJSON().toString();

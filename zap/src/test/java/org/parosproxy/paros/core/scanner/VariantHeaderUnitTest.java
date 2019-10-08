@@ -313,6 +313,7 @@ public class VariantHeaderUnitTest {
                 description.appendText("header ").appendValue(name + ": " + value);
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
                 List<HttpHeaderField> headers = message.getRequestHeader().getHeaders();
