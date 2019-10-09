@@ -111,6 +111,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
+import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
@@ -260,6 +261,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         if (hasView()) {
             ExtensionHookView pv = extensionHook.getHookView();
             pv.addStatusPanel(getLogPanel());
+            extensionHook.addOptionsChangedListener((OptionsChangedListener) getResendDialog());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
