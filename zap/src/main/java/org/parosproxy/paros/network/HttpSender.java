@@ -81,6 +81,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
 // ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
+// ZAP: 2019/09/25 Add option to disable cookies
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -178,6 +179,8 @@ public class HttpSender {
     private MultiThreadedHttpConnectionManager httpConnManager = null;
     private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
     private boolean followRedirect = false;
+    private boolean useCookies;
+    private boolean useGlobalState;
     private int initiator = -1;
 
     /*
@@ -237,6 +240,7 @@ public class HttpSender {
                         defaultUserAgent);
 
         setUseGlobalState(useGlobalState);
+        setUseCookies(true);
     }
 
     private void setClientsCookiePolicy(String policy) {
@@ -249,14 +253,33 @@ public class HttpSender {
     }
 
     private void checkState() {
-        if (param.isHttpStateEnabled()) {
-            client.setState(param.getHttpState());
-            clientViaProxy.setState(param.getHttpState());
-            setProxyAuth(clientViaProxy);
-            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        } else {
+        if (!useCookies) {
+            resetState();
             setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+        } else if (useGlobalState) {
+            if (param.isHttpStateEnabled()) {
+                client.setState(param.getHttpState());
+                clientViaProxy.setState(param.getHttpState());
+                setProxyAuth(clientViaProxy);
+                setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            } else {
+                setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+            }
+        } else {
+            resetState();
+
+            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         }
+    }
+
+    private void resetState() {
+        HttpState state = new HttpState();
+        HttpState proxyState = new HttpState();
+
+        client.setState(state);
+        clientViaProxy.setState(proxyState);
+
+        setProxyAuth(clientViaProxy);
     }
 
     /**
@@ -270,14 +293,21 @@ public class HttpSender {
      * @since 2.8.0
      */
     public void setUseGlobalState(boolean enableGlobalState) {
-        if (enableGlobalState) {
-            checkState();
-        } else {
-            client.setState(new HttpState());
-            clientViaProxy.setState(new HttpState());
-            setProxyAuth(clientViaProxy);
-            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        }
+        this.useGlobalState = enableGlobalState;
+
+        checkState();
+    }
+
+    /**
+     * Sets whether or not the requests sent should keep track of cookies.
+     *
+     * @param shouldUseCookies {@code true} if cookies should be used, {@code false} otherwise.
+     * @since TODO Add version
+     */
+    public void setUseCookies(boolean shouldUseCookies) {
+        this.useCookies = shouldUseCookies;
+
+        checkState();
     }
 
     private HttpClient createHttpClient() {

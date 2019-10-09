@@ -66,6 +66,7 @@ public class HttpPanelSender implements MessageSender {
 
     private JToggleButton followRedirect = null;
     private JToggleButton useTrackingSessionState = null;
+    private JToggleButton useCookies = null;
 
     private List<PersistentConnectionListener> persistentConnectionListener = new ArrayList<>();
 
@@ -74,6 +75,7 @@ public class HttpPanelSender implements MessageSender {
 
         requestPanel.addOptions(
                 getButtonUseTrackingSessionState(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 
@@ -220,6 +222,7 @@ public class HttpPanelSender implements MessageSender {
                             Model.getSingleton().getOptionsParam().getConnectionParam(),
                             getButtonUseTrackingSessionState().isSelected(),
                             HttpSender.MANUAL_REQUEST_INITIATOR);
+            delegate.setUseCookies(getButtonUseCookies().isSelected());
         }
         return delegate;
     }
@@ -247,13 +250,28 @@ public class HttpPanelSender implements MessageSender {
                     new JToggleButton(
                             new ImageIcon(
                                     HttpPanelSender.class.getResource(
-                                            "/resource/icon/fugue/cookie.png"))); // Cookie
+                                            "/resource/icon/fugue/globe-green.png")));
             useTrackingSessionState.setToolTipText(
                     Constant.messages.getString("manReq.checkBox.useSession"));
             useTrackingSessionState.addItemListener(
                     e -> setUseTrackingSessionState(e.getStateChange() == ItemEvent.SELECTED));
         }
         return useTrackingSessionState;
+    }
+
+    private JToggleButton getButtonUseCookies() {
+        if (useCookies == null) {
+            useCookies =
+                    new JToggleButton(
+                            new ImageIcon(
+                                    HttpPanelSender.class.getResource(
+                                            "/resource/icon/fugue/cookie.png")),
+                            true);
+            useCookies.setToolTipText(Constant.messages.getString("manReq.checkBox.useCookies"));
+            useCookies.addItemListener(
+                    e -> setUseCookies(e.getStateChange() == ItemEvent.SELECTED));
+        }
+        return useCookies;
     }
 
     public void addPersistentConnectionListener(PersistentConnectionListener listener) {
@@ -330,6 +348,12 @@ public class HttpPanelSender implements MessageSender {
     private void setUseTrackingSessionState(boolean shouldUseTrackingSessionState) {
         if (delegate != null) {
             delegate.setUseGlobalState(shouldUseTrackingSessionState);
+        }
+    }
+
+    private void setUseCookies(boolean shouldUseCookies) {
+        if (delegate != null) {
+            delegate.setUseCookies(shouldUseCookies);
         }
     }
 
