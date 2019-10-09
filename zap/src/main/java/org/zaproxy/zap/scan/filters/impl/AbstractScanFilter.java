@@ -36,15 +36,18 @@ public abstract class AbstractScanFilter<T> implements ScanFilter {
         return genericFilterDataCollection;
     }
 
-    public void setGenericFilterDataCollection(Collection<GenericFilterData<T>> genericFilterDataCollection) {
+    public void setGenericFilterDataCollection(
+            Collection<GenericFilterData<T>> genericFilterDataCollection) {
         this.genericFilterDataCollection.addAll(genericFilterDataCollection);
     }
 
     public FilterResult isFiltered(Collection<T> values) {
-        return GenericFilterUtility.isFiltered(genericFilterDataCollection, values, this.getFilterType());
+        return GenericFilterUtility.isFiltered(
+                genericFilterDataCollection, values, this.getFilterType());
     }
 
     public FilterResult isFiltered(T value) {
-        return GenericFilterUtility.isFiltered(genericFilterDataCollection, value, this.getFilterType());
+        return GenericFilterUtility.isFiltered(
+                genericFilterDataCollection, value, this.getFilterType());
     }
 }
