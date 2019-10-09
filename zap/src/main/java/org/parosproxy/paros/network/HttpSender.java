@@ -243,15 +243,6 @@ public class HttpSender {
         setUseCookies(true);
     }
 
-    public HttpSender(
-            ConnectionParam connectionParam,
-            boolean useGlobalState,
-            int initiator,
-            boolean useCookies) {
-        this(connectionParam, useGlobalState, initiator);
-        setUseCookies(useCookies);
-    }
-
     private void setClientsCookiePolicy(String policy) {
         client.getParams().setCookiePolicy(policy);
         clientViaProxy.getParams().setCookiePolicy(policy);
@@ -275,9 +266,8 @@ public class HttpSender {
                 setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
             }
         } else {
-            client.setState(new HttpState());
-            clientViaProxy.setState(new HttpState());
-            setProxyAuth(clientViaProxy);
+            resetState();
+
             setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         }
     }
@@ -288,6 +278,8 @@ public class HttpSender {
 
         client.setState(state);
         clientViaProxy.setState(proxyState);
+
+        setProxyAuth(clientViaProxy);
     }
 
     /**
