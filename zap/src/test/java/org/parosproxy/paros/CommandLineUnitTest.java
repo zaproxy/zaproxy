@@ -32,10 +32,14 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
 import org.junit.Before;
@@ -64,6 +68,17 @@ public class CommandLineUnitTest {
     private I18N i18n;
 
     private CommandLine cmdLine;
+
+    private static final String[][] TEST_CONF_VALUES = {
+        {"aaa(0).aaa", "bbb"},
+        {"aaa(0).bbb", "ccc"},
+        {"aaa(0).ccc", "ddd"},
+        {"aaa(0).ddd", "eee"},
+        {"aaa(1).aaa", "ddd"},
+        {"aaa(1).bbb", "eee"},
+        {"aaa(1).ccc", "fff"},
+        {"aaa(1).ddd", "ggg"}
+    };
 
     @Before
     public void setUp() throws Exception {
@@ -399,5 +414,46 @@ public class CommandLineUnitTest {
 
         @Override
         public void execute(CommandLineArgument[] args) {}
+    }
+
+    @Test
+    public void shouldMaintainConfigOrder() throws Exception {
+        List<String> list = new ArrayList<String>();
+        for (String[] kv : TEST_CONF_VALUES) {
+            list.add("-config");
+            list.add(kv[0] + "=" + kv[1]);
+        }
+        String[] cl = new String[list.size()];
+        cl = list.toArray(cl);
+        cmdLine = new CommandLine(cl);
+        Map<String, String> map = cmdLine.getOrderedConfigs();
+        assertThat(map.size(), is(equalTo(8)));
+        Iterator<Entry<String, String>> iter = map.entrySet().iterator();
+        Entry<String, String> entry;
+        for (String[] kv : TEST_CONF_VALUES) {
+            entry = iter.next();
+            assertThat(entry.getKey(), is(equalTo(kv[0])));
+            assertThat(entry.getValue(), is(equalTo(kv[1])));
+        }
+    }
+
+    @Test
+    public void shouldMaintainConfigfileOrder() throws Exception {
+        File testFile = folder.newFile("text.conf");
+        PrintWriter pw = new PrintWriter(testFile);
+        for (String[] kv : TEST_CONF_VALUES) {
+            pw.println(kv[0] + "=" + kv[1]);
+        }
+        pw.close();
+        cmdLine = new CommandLine(new String[] {"-configfile", testFile.toString()});
+        Map<String, String> map = cmdLine.getOrderedConfigs();
+        assertThat(map.size(), is(equalTo(8)));
+        Iterator<Entry<String, String>> iter = map.entrySet().iterator();
+        Entry<String, String> entry;
+        for (String[] kv : TEST_CONF_VALUES) {
+            entry = iter.next();
+            assertThat(entry.getKey(), is(equalTo(kv[0])));
+            assertThat(entry.getValue(), is(equalTo(kv[1])));
+        }
     }
 }
