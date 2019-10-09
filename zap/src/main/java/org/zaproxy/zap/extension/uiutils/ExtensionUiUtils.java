@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.uiutils;
 
 import java.awt.EventQueue;
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -119,15 +117,6 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     @Override
     public String getDescription() {
         return Constant.messages.getString("uiutils.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

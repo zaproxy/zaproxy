@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.ext;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,15 +90,6 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
     @Override
     public String getDescription() {
         return Constant.messages.getString("ext.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

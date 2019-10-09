@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,15 +139,6 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("httpsessions.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override
