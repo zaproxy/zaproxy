@@ -25,6 +25,7 @@
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/10/10 Remove old alert update that split the param/attack.
 package org.parosproxy.paros.db;
 
 public class RecordAlert {
@@ -92,12 +93,6 @@ public class RecordAlert {
         setCweId(cweId);
         setWascId(wascId);
         setSourceId(sourceId);
-
-        if ((attack == null || attack.length() == 0) && param.indexOf("=") > 0) {
-            // 'old' alerts will have attack in the param field
-            setAttack(param.substring(param.indexOf("=") + 1));
-            setParam(param.substring(0, param.indexOf("=")));
-        }
     }
 
     /** @return Returns the alert. */
