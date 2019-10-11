@@ -24,7 +24,12 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.model.StructuralNode;
 
-/** @author KSASAN preetkaran20@gmail.com */
+/**
+ * ScanFilter implementation for filtering based on Http Methods.
+ *
+ * @author KSASAN preetkaran20@gmail.com
+ * @since 2.9.0
+ */
 public class MethodScanFilter extends AbstractScanFilter<String> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.HttpMethod";

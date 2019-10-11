@@ -26,7 +26,7 @@ import org.zaproxy.zap.model.StructuralNode;
  * or not. New Filters can be added by implementing this interface.
  *
  * @author KSASAN preetkaran20@gmail.com
- * @since 2.8.0
+ * @since 2.9.0
  */
 public interface ScanFilter {
 

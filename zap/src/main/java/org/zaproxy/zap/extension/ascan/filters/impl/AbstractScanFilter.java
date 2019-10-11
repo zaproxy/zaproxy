@@ -26,7 +26,12 @@ import org.zaproxy.zap.extension.ascan.filters.GenericFilterData;
 import org.zaproxy.zap.extension.ascan.filters.GenericFilterUtility;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 
-/** @author KSASAN preetkaran20@gmail.com */
+/**
+ * Abstract ScanFilter for handling generic filter usecases.
+ *
+ * @author KSASAN preetkaran20@gmail.com
+ * @since 2.9.0
+ */
 public abstract class AbstractScanFilter<T> implements ScanFilter {
     private Collection<GenericFilterData<T>> genericFilterDataCollection = new LinkedHashSet<>();
 
