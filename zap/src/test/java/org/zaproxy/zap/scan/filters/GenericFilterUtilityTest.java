@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.zaproxy.zap.WithConfigsTest;
