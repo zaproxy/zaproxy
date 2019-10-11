@@ -96,14 +96,14 @@ public class GenericFilterUtility {
     }
 
     /**
+     * this method will call {@code GenericFilterUtility#isFiltered(Collection, Collection, String)}
+     * method internally so basic requirement of equals and hasCode for the Classes holds same.
+     *
      * @param <T> any object implementing hashCode and equals method
      * @param genericFilterDataCollection Collection of data provided by setting filter criteria
      * @param nodeValue data associated with the scanned node.
      * @param filterType type of the filter ie Tag/Http Status code/Method etc
      * @return FilterResult contains result after applying filter.
-     *     <p>this method will call {@code GenericFilterUtility#isFiltered(Collection, Collection,
-     *     String)} method internally so basic requirement of equals and hasCode for the Classes
-     *     holds same.
      */
     public static <T> FilterResult isFiltered(
             Collection<GenericFilterData<T>> genericFilterDataCollection,
