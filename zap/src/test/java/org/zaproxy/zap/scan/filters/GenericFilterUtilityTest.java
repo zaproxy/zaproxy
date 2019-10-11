@@ -23,9 +23,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.zaproxy.zap.WithConfigsTest;
+import org.zaproxy.zap.extension.ascan.filters.FilterCriteria;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
+import org.zaproxy.zap.extension.ascan.filters.GenericFilterData;
+import org.zaproxy.zap.extension.ascan.filters.GenericFilterUtility;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class GenericFilterUtilityTest extends WithConfigsTest {
