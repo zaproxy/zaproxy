@@ -17,18 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters.impl;
+package org.zaproxy.zap.extension.ascan.filters.impl;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.extension.ascan.ScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
+import org.zaproxy.zap.extension.ascan.filters.GenericFilterUtility;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.UrlPatternFilterData;
 import org.zaproxy.zap.model.StructuralNode;
-import org.zaproxy.zap.scan.filters.FilterResult;
-import org.zaproxy.zap.scan.filters.GenericFilterUtility;
-import org.zaproxy.zap.scan.filters.UrlPatternFilterData;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class URLPatternScanFilter implements ScanFilter {
@@ -48,22 +48,21 @@ public class URLPatternScanFilter implements ScanFilter {
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference hRef = node.getHistoryReference();
         if (hRef == null) {
-            return FilterResult.FILTERED_RESULT;
+            return FilterResult.NOT_FILTERED;
         }
 
         for (UrlPatternFilterData urlPatternFilterData : this.urlPatternFilterDataSet) {
             switch (urlPatternFilterData.getFilterCriteria()) {
                 case INCLUDE:
                     if (urlPatternFilterData.getUrlPatterns().isEmpty()) {
-                        return FilterResult.FILTERED_RESULT;
+                        return FilterResult.NOT_FILTERED;
                     }
                     for (Pattern pattern : urlPatternFilterData.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
-                            return FilterResult.FILTERED_RESULT;
+                            return FilterResult.NOT_FILTERED;
                         }
                     }
                     return new FilterResult(
-                            true,
                             Constant.messages.getString(
                                     GenericFilterUtility.INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                     new Object[] {
@@ -73,7 +72,6 @@ public class URLPatternScanFilter implements ScanFilter {
                     for (Pattern pattern : urlPatternFilterData.getUrlPatterns()) {
                         if (pattern.matcher(hRef.getURI().toString()).matches()) {
                             return new FilterResult(
-                                    true,
                                     Constant.messages.getString(
                                             GenericFilterUtility
                                                     .EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
@@ -82,12 +80,12 @@ public class URLPatternScanFilter implements ScanFilter {
                                             }));
                         }
                     }
-                    return FilterResult.FILTERED_RESULT;
+                    return FilterResult.NOT_FILTERED;
                 default:
-                    return FilterResult.FILTERED_RESULT;
+                    return FilterResult.NOT_FILTERED;
             }
         }
-        return FilterResult.FILTERED_RESULT;
+        return FilterResult.NOT_FILTERED;
     }
 
     public String getFilterType() {

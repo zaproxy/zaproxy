@@ -113,8 +113,9 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.ascan.ScanFilter;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.SessionStructure;
@@ -122,7 +123,6 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
-import org.zaproxy.zap.scan.filters.FilterResult;
 import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
@@ -503,12 +503,17 @@ public class HostProcess implements Runnable {
 
     private FilterResult filterNode(StructuralNode node) {
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
-            FilterResult filterResult = scanFilter.isFiltered(node);
-            if (filterResult.isFiltered()) {
-                return filterResult;
+            try {
+                FilterResult filterResult = scanFilter.isFiltered(node);
+                if (filterResult.isFiltered()) {
+                    return filterResult;
+                }
+            } catch (Exception ex) {
+                // Swallowing exception to prevent filter from breaking scanner.
+                log.error(ex.getMessage(), ex);
             }
         }
-        return FilterResult.FILTERED_RESULT;
+        return FilterResult.NOT_FILTERED;
     }
 
     /**

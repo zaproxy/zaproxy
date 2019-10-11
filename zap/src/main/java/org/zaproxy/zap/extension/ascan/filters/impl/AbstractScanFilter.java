@@ -17,14 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters.impl;
+package org.zaproxy.zap.extension.ascan.filters.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import org.zaproxy.zap.extension.ascan.ScanFilter;
-import org.zaproxy.zap.scan.filters.FilterResult;
-import org.zaproxy.zap.scan.filters.GenericFilterData;
-import org.zaproxy.zap.scan.filters.GenericFilterUtility;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
+import org.zaproxy.zap.extension.ascan.filters.GenericFilterData;
+import org.zaproxy.zap.extension.ascan.filters.GenericFilterUtility;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public abstract class AbstractScanFilter<T> implements ScanFilter {

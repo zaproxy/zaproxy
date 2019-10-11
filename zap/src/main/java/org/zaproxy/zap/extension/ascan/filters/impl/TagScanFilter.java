@@ -17,26 +17,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters.impl;
+package org.zaproxy.zap.extension.ascan.filters.impl;
 
+import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.model.StructuralNode;
-import org.zaproxy.zap.scan.filters.FilterResult;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public class HttpStatusCodeScanFilter extends AbstractScanFilter<Integer> {
+public class TagScanFilter extends AbstractScanFilter<String> {
 
-    private static final String FILTER_TYPE = "scan.filter.filterType.HttpStatusCode";
+    private static final String FILTER_TYPE = "scan.filter.filterType.Tag";
 
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
-            int statusCode = href.getStatusCode();
-            return this.isFiltered(statusCode);
+            List<String> nodeTags = href.getTags();
+            return this.isFiltered(nodeTags);
         } else {
-            return FilterResult.FILTERED_RESULT;
+            return FilterResult.NOT_FILTERED;
         }
     }
 

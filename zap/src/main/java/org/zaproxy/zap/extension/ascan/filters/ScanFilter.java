@@ -17,24 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters;
+package org.zaproxy.zap.extension.ascan.filters;
+
+import org.zaproxy.zap.model.StructuralNode;
 
 /**
- * Processing of FilterCriteria is first Include then Exclude and then Include_All so in case a
- * request matches Include and Exclude both the criteria for eg:- say request tags are there in
- * include and exclude both then the include is given preference and that request will be included
- * and will not be filtered out.
+ * ScanFilter is called by the {@code HostProcess#canScanNode} to check if a given node is filtered
+ * or not. New Filters can be added by implementing this interface.
  *
  * @author KSASAN preetkaran20@gmail.com
+ * @since 2.8.0
  */
-public enum FilterCriteria {
+public interface ScanFilter {
 
-    /** Include if any value match */
-    INCLUDE,
-
-    /** Include only if all the values match */
-    INCLUDE_ALL,
-
-    /** Exclude if any value match */
-    EXCLUDE
+    FilterResult isFiltered(StructuralNode node);
 }

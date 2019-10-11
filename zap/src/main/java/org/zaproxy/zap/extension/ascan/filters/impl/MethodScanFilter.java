@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters.impl;
+package org.zaproxy.zap.extension.ascan.filters.impl;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.model.StructuralNode;
-import org.zaproxy.zap.scan.filters.FilterResult;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class MethodScanFilter extends AbstractScanFilter<String> {
@@ -36,7 +36,7 @@ public class MethodScanFilter extends AbstractScanFilter<String> {
             String httpMethod = href.getMethod();
             return this.isFiltered(httpMethod);
         } else {
-            return FilterResult.FILTERED_RESULT;
+            return FilterResult.NOT_FILTERED;
         }
     }
 

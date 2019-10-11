@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters;
+package org.zaproxy.zap.extension.ascan.filters;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -39,13 +39,14 @@ public class GenericFilterUtility {
             "scan.filter.filtercriteria.includeall";
 
     /**
-     * @param <T> any java object implementing hashCode and equals method
+     * this Utility is Generic Utility for various criteria's and can be used by any Filter which is
+     * based on classes which are implementing hashCode and equals
+     *
+     * @param <T> any object implementing hashCode and equals method
      * @param genericFilterDataCollection Collection of data provided by setting filter criteria
      * @param nodeValues data associated with the scanned node.
      * @param filterType type of the filter ie Tag/Http Status code/Method etc
      * @return FilterResult contains result after applying filter.
-     *     <p>this Utility is Generic Utility for various criteria's and can be used by any Filter
-     *     which is based on classes which are implementing hashCode and equals
      */
     public static <T> FilterResult isFiltered(
             Collection<GenericFilterData<T>> genericFilterDataCollection,
@@ -56,16 +57,15 @@ public class GenericFilterUtility {
             switch (filterCriteria) {
                 case INCLUDE:
                     if (genericFilterData.getValues().isEmpty()) {
-                        return FilterResult.FILTERED_RESULT;
+                        return FilterResult.NOT_FILTERED;
                     }
                     for (T value : nodeValues) {
                         if (genericFilterData.getValues().contains(value)) {
-                            return FilterResult.FILTERED_RESULT;
+                            return FilterResult.NOT_FILTERED;
                         }
                     }
 
                     return new FilterResult(
-                            true,
                             Constant.messages.getString(
                                     INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                     new Object[] {filterType, genericFilterData.getValues()}));
@@ -73,32 +73,30 @@ public class GenericFilterUtility {
                     for (T value : nodeValues) {
                         if (genericFilterData.getValues().contains(value)) {
                             return new FilterResult(
-                                    true,
                                     Constant.messages.getString(
                                             EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                             new Object[] {filterType, "[" + value + "]"}));
                         }
                     }
-                    return FilterResult.FILTERED_RESULT;
+                    return FilterResult.NOT_FILTERED;
                 case INCLUDE_ALL:
                     boolean isFiltered = nodeValues.containsAll(genericFilterData.getValues());
                     if (!isFiltered) {
                         return new FilterResult(
-                                true,
                                 Constant.messages.getString(
                                         INCLUDE_ALL_FILTER_CRITERIA_MESSAGE_KEY,
                                         new Object[] {filterType, genericFilterData.getValues()}));
                     }
-                    return FilterResult.FILTERED_RESULT;
+                    return FilterResult.NOT_FILTERED;
                 default:
-                    return FilterResult.FILTERED_RESULT;
+                    return FilterResult.NOT_FILTERED;
             }
         }
-        return FilterResult.FILTERED_RESULT;
+        return FilterResult.NOT_FILTERED;
     }
 
     /**
-     * @param <T> any java object implementing hashCode and equals method
+     * @param <T> any object implementing hashCode and equals method
      * @param genericFilterDataCollection Collection of data provided by setting filter criteria
      * @param nodeValue data associated with the scanned node.
      * @param filterType type of the filter ie Tag/Http Status code/Method etc

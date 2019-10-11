@@ -17,12 +17,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.scan.filters;
+package org.zaproxy.zap.extension.ascan.filters;
 
-/** @author KSASAN preetkaran20@gmail.com */
+/**
+ * The result of a {@code ScanFilter#isFiltered(org.zaproxy.zap.model.StructuralNode)} method check.
+ *
+ * <p>Used to indicate if a resource was filtered and why.
+ *
+ * @author KSASAN preetkaran20@gmail.com
+ * @since 2.8.0
+ */
 public final class FilterResult {
 
-    public static final FilterResult FILTERED_RESULT = new FilterResult();
+    public static final FilterResult NOT_FILTERED = new FilterResult();
 
     private final boolean filtered;
 
@@ -33,8 +40,8 @@ public final class FilterResult {
         reason = null;
     }
 
-    public FilterResult(boolean filtered, String reason) {
-        this.filtered = filtered;
+    public FilterResult(String reason) {
+        this.filtered = true;
         this.reason = reason;
     }
 
