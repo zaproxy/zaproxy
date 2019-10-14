@@ -8,12 +8,9 @@ on:
 jobs:
   release:
     name: Build and Release
+    if: github.actor == 'kingthorin' || github.actor == 'psiinon' || github.actor == 'thc202'
     runs-on: ubuntu-latest
     steps:
-    - name: Actor Filter
-      uses: actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da
-      with:
-        args: actor kingthorin psiinon thc202
     - uses: actions/checkout@v1
     - name: Build and Release
       uses: docker://openjdk:8
