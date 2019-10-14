@@ -195,6 +195,8 @@ Scanners:
 90030   WSDL File Detection
 90033   Loosely Scoped Cookie
 90034   Cloud Metadata Attack
+90035   Server Side Template Injection
+90036   Server Side Template Injection (Blind)
 
 100000  Client/Server HTTP Error Response Codes [Script]
 100001  Unexpected Content Types [Script]
