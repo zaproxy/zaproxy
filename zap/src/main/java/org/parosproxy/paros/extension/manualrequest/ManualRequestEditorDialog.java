@@ -37,7 +37,6 @@
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2019/10/04 Add dialog icon.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -98,7 +97,6 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
     }
 
     protected void initialize() {
-        this.setIconImage(ExtensionManualRequestEditor.getIcon().getImage());
         addWindowListener(
                 new WindowAdapter() {
                     @Override
