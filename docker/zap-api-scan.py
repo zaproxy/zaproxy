@@ -492,19 +492,19 @@ def main(argv):
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
             # print out the ignored rules
-            ignore_count, not_used = print_rules(alert_dict, 'IGNORE', config_dict, config_msg, min_level,
+            ignore_count, not_used = print_rules(zap, alert_dict, 'IGNORE', config_dict, config_msg, min_level,
                 inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
-            info_count, not_used = print_rules(alert_dict, 'INFO', config_dict, config_msg, min_level,
+            info_count, not_used = print_rules(zap, alert_dict, 'INFO', config_dict, config_msg, min_level,
                 inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
-            warn_count, warn_inprog_count = print_rules(alert_dict, 'WARN', config_dict, config_msg, min_level,
+            warn_count, warn_inprog_count = print_rules(zap, alert_dict, 'WARN', config_dict, config_msg, min_level,
                 inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
-            fail_count, fail_inprog_count = print_rules(alert_dict, 'FAIL', config_dict, config_msg, min_level,
+            fail_count, fail_inprog_count = print_rules(zap, alert_dict, 'FAIL', config_dict, config_msg, min_level,
                 inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:
