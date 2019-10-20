@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zap-deployment
+  labels:
+    app: zaproxy 
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: zaproxy
+  template:
+    metadata:
+      labels:
+        app: zaproxy
+    spec:
+      containers:
+      - name: zaproxy
+        image: zap-k8s:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        - containerPort: 9090
+
