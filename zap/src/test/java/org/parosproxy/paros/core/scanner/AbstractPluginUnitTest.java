@@ -533,6 +533,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith7ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -567,6 +568,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -583,6 +585,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -599,6 +602,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith8ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -634,6 +638,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -650,6 +655,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -666,6 +672,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith10ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -713,6 +720,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -730,6 +738,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -747,6 +756,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith11ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -796,6 +806,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -823,6 +834,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -850,6 +862,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith13ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -903,6 +916,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -932,6 +946,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -961,6 +976,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith14ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -1016,6 +1032,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -1046,6 +1063,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
@@ -1073,6 +1091,100 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         // Then
         Alert alert = getRaisedAlert(hostProcess);
         assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void shouldFailToRaiseAlertWithNewAlertIfNoMessageProvided() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        // When
+        plugin.newAlert().raise();
+        // Then = IllegalStateException
+    }
+
+    @Test
+    public void shouldRaiseAlertWithNewAlertUsingPluginData() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "http://example.com";
+        HttpMessage alertMessage = createAlertMessage(uri);
+        // When
+        plugin.newAlert().setMessage(alertMessage).raise();
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(plugin.getName())));
+        assertThat(alert.getRisk(), is(equalTo(plugin.getRisk())));
+        assertThat(alert.getConfidence(), is(equalTo(Alert.CONFIDENCE_MEDIUM)));
+        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo("")));
+        assertThat(alert.getAttack(), is(equalTo("")));
+        assertThat(alert.getEvidence(), is(equalTo("")));
+        assertThat(alert.getOtherInfo(), is(equalTo("")));
+        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
+        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
+        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
+        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWithNewAlert() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String name = "name";
+        String description = "description";
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String evidence = "evidence";
+        String otherInfo = "otherInfo";
+        String solution = "solution";
+        String reference = "reference";
+        int cweId = 111;
+        int wascId = 222;
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.newAlert()
+                .setRisk(risk)
+                .setConfidence(confidence)
+                .setName(name)
+                .setDescription(description)
+                .setUri(uri)
+                .setParam(param)
+                .setAttack(attack)
+                .setOtherInfo(otherInfo)
+                .setSolution(solution)
+                .setEvidence(evidence)
+                .setReference(reference)
+                .setCweId(cweId)
+                .setWascId(wascId)
+                .setMessage(alertMessage)
+                .raise();
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(name)));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(description)));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo(evidence)));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(solution)));
+        assertThat(alert.getReference(), is(equalTo(reference)));
+        assertThat(alert.getCweId(), is(equalTo(cweId)));
+        assertThat(alert.getWascId(), is(equalTo(wascId)));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
     }
 
     @Test(expected = Exception.class)
