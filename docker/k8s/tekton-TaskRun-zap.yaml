@@ -1,0 +1,22 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: zap-svc-test
+spec:
+  taskSpec:
+    volumes:
+    - name: dracon-secrets
+      emptyDir: {}
+    steps:
+    - name: producer-mc-producerface-0
+      image: dracon/zap/full_scanproducer:latest
+      imagePullPolicy: IfNotPresent
+
+      args:
+      - "--zHost"
+      - "10.100.217.187"
+      - "-P"
+      - "8080"
+      - "-t"
+      - "https://example.com"

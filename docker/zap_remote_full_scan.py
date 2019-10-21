@@ -1,58 +1,12 @@
 #!/usr/bin/env python
-# Zed Attack Proxy (ZAP) and its related class files.
-#
-# ZAP is an HTTP/HTTPS proxy for assessing web application security.
-#
-# Copyright 2016 ZAP Development Team
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
-# This script runs a baseline scan against a target URL using ZAP
-#
-# It can either be run 'standalone', in which case depends on
-# https://pypi.python.org/pypi/python-owasp-zap-v2.4 and Docker, or it can be run
-# inside one of the ZAP docker containers. It automatically detects if it is
-# running in docker so the parameters are the same.
-#
-# By default it will spider the target URL for one minute, but you can change
-# that via the -m parameter.
-# It will then wait for the passive scanning to finish - how long that takes
-# depends on the number of pages found.
-# It will exit with codes of:
-#	0:	Success
-#	1:	At least 1 FAIL
-#	2:	At least one WARN and no FAILs
-#	3:	Any other failure
-# By default all alerts found by ZAP will be treated as WARNings.
-# You can use the -c or -u parameters to specify a configuration file to override
-# this.
-# You can generate a template configuration file using the -g parameter. You will
-# then need to change 'WARN' to 'FAIL', 'INFO' or 'IGNORE' for the rules you want
-# to be handled differently.
-# You can also add your own messages for the rules by appending them after a tab
-# at the end of each line.
-
-import BaseHTTPServer
 import getopt
 import os.path
-from BaseHTTPServer import BaseHTTPRequestHandler
 from datetime import datetime
 from pprint import pprint
-from urllib import urlopen
-
 from zapv2 import ZAPv2
-
 from zap_common import *
+import logging
 
 config_dict = {}
 config_msg = {}
@@ -68,48 +22,6 @@ in_progress_issues = {}
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 # Hide "Starting new HTTP connection" messages
 logging.getLogger("requests").setLevel(logging.WARNING)
-
-http_alive = False
-
-
-def launch_trigger_endpoint(trigger_host='0.0.0.0', trigger_port=0):
-    """launch HTTP server waiting for a "tests finished start scanning" command
-    when the command has been received, return
-    """
-    if trigger_port == 0:
-        wrong_arg("You need to specify which port to listen to for the trigger command")
-    run_http_server(trigger_host, trigger_port)
-
-
-# HTTPRequestHandler class
-class RequestHandler(BaseHTTPRequestHandler):
-    # GET
-    def do_GET(self):
-        global http_alive
-        if 'trigger' in self.path:
-            # Send response status code
-            http_alive = False
-            self.send_response(200)
-        else:
-            self.send_response(404)
-
-
-def run_http_server(address='0.0.0.0', port=8181):
-    global http_alive
-    try:
-        logging.info('starting server...%s:%s' % (address, port))
-        server_address = (address, int(port))
-        httpd = BaseHTTPServer.HTTPServer(server_address, RequestHandler)
-        logging.debug('Running Trigger server...')
-        http_alive = True
-        while http_alive:
-            print(http_alive)
-            httpd.handle_request()
-        logging.debug('Killing httpd')
-    except TypeError as te:
-        pprint(te.message)
-        traceback.print_exc()
-
 
 def usage():
     print('Usage: zap-baseline.py -t <target> [options]')
@@ -127,6 +39,7 @@ def usage():
     print('    -a                include the alpha passive scan rules as well')
     print('    -d                show debug messages')
     print('    -P                specify listen port')
+    print('    --zHost           host where zap listens on')
     print('    -D                delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
     print('    -I                do not return failure on warning')
@@ -141,40 +54,8 @@ def usage():
     print(
         '    --noSpider no spider, just attack whatever is already in your history, useful for proxying e2e tests through zap"')
     print('    -sD spider_depth  spider depth to crawl"')
-    print(
-        '    --testMode prevents shutdown, expect external orchestration script to feed it commandes such as /attack or setup fuzzing etc.'
-        'Will continuously print output"')
-    print(
-        '--triggerPort port  To be used in testMode, launches an HTTP server in the specified port and waits for a GET'
-        'on that endpoint to start the attack')
-
     print('')
     print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan')
-
-
-def print_ps_aux():
-    try:
-        import subprocess
-        import shlex
-        print('Calling ps aux')
-        proc1 = subprocess.check_output(['ps', ' aux'], shell=True)
-        pprint(proc1)
-    except Exception as e:
-        traceback.print_exc()
-
-
-def check_if_zap_is_running_and_genocide():
-    try:
-        import subprocess
-        import shlex
-        proc1 = subprocess.check_output(['ps', 'aux'], shell=True)
-        pprint(proc1)
-        # proc2 = subprocess.check_output(['grep', ' zap'], stdin=io.BytesIO(proc1), shell=True)
-        # pprint(proc2)
-        if 'java' in proc1:
-            subprocess.Popen(shlex.split('killall -9 java'))
-    except Exception as e:
-        traceback.print_exc()
 
 
 def handle_results(zap=None, all_rules=None, alert_dict={}, zap_conf_lvls=None, detailed_output=False,
@@ -219,7 +100,10 @@ def handle_results(zap=None, all_rules=None, alert_dict={}, zap_conf_lvls=None, 
 
     if report_json:
         # Save the report
-        write_report(base_dir + report_json, zap.core.jsonreport())
+        report =  zap.core.jsonreport()
+        write_report(base_dir + report_json,report)
+        from pprint import pprint
+        pprint(report)
 
     if report_md:
         # Save the report
@@ -262,7 +146,7 @@ def setup(target=None, config_file=None, generate=False, report_html='', report_
     if port == 0:
         port = get_free_port()
 
-    logging.debug('Using port: ' + str(port))
+    print('Using port: ' + str(port))
 
     if config_file:
         # load config file from filestore
@@ -272,17 +156,6 @@ def setup(target=None, config_file=None, generate=False, report_html='', report_
             except ValueError as e:
                 logging.warning("Failed to load config file " + base_dir + config_file + " " + str(e))
                 sys.exit(3)
-    elif config_url:
-        # load config file from url
-        try:
-            load_config(urlopen(config_url).read().decode('UTF-8'), config_dict, config_msg, out_of_scope_dict)
-        except ValueError as e:
-            logging.warning("Failed to read configs from " + config_url + " " + str(e))
-            sys.exit(3)
-        except:
-            logging.warning('Failed to read configs from ' + config_url)
-            sys.exit(3)
-
     if progress_file:
         # load progress file from filestore
         with open(base_dir + progress_file) as f:
@@ -292,55 +165,6 @@ def setup(target=None, config_file=None, generate=False, report_html='', report_
             for issue in progress["issues"]:
                 if issue["state"] == "inprogress":
                     in_progress_issues[issue["id"]] = issue
-
-    if running_in_docker():
-        docker_setup(mins=mins, zap_alpha=zap_alpha, zap_options=zap_options, port=port)
-    else:
-        non_docker_setup(context_file=context_file, mins=mins, zap_alpha=zap_alpha, zap_options=zap_options, port=port)
-
-
-def docker_setup(mins=0, zap_alpha=False, zap_options=None, port=0):
-    try:
-        params = [
-            '-config', 'spider.maxDuration=' + str(mins),
-            '-addonupdate',
-            '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
-
-        if zap_alpha:
-            params.append('-addoninstall')
-            params.append('pscanrulesAlpha')
-
-        add_zap_options(params, zap_options)
-        start_zap(port, params)
-
-    except OSError:
-        logging.warning('Failed to start ZAP :(')
-        sys.exit(3)
-
-
-def non_docker_setup(context_file=None, mins=0, zap_alpha=False, zap_options=None, port=0):
-    # Not running in docker, so start one
-    mount_dir = ''
-    if context_file:
-        mount_dir = os.path.dirname(os.path.abspath(context_file))
-
-    params = [
-        '-config', 'spider.maxDuration=' + str(mins),
-        '-addonupdate']
-
-    if (zap_alpha):
-        params.extend(['-addoninstall', 'pscanrulesAlpha'])
-
-    add_zap_options(params, zap_options)
-
-    try:
-        cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)
-        zap_ip = ipaddress_for_cid(cid)
-        logging.debug('Docker ZAP IP Addr: ' + zap_ip)
-    except OSError:
-        logging.warning('Failed to start ZAP in docker :(')
-        sys.exit(3)
-
 
 def main(argv):
     global min_level
@@ -385,7 +209,7 @@ def main(argv):
 
     try:
         opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:I:IF",
-                                   ['spiderDepth=', 'noSpider', 'testMode', 'triggerPort=', 'activeScan'])
+                                   ['spiderDepth', 'noSpider', 'testMode', 'triggerPort=', 'activeScan','zHost='])
     except getopt.GetoptError as exc:
         wrong_arg('Invalid option ' + exc.opt + ' : ' + exc.msg)
 
@@ -396,7 +220,7 @@ def main(argv):
             sys.exit(0)
         elif opt == '-t':
             target = arg
-            logging.debug('Target: ' + target)
+            print('Target: ' + target)
         elif opt == '-c':
             config_file = arg
         elif opt == '-u':
@@ -404,11 +228,13 @@ def main(argv):
         elif opt == '-g':
             generate = arg
         elif opt == '-d':
-            logging.getLogger().setLevel(logging.DEBUG)
+            logging.getLogger().setLevel(print)
         elif opt == '-m':
             mins = int(arg)
         elif opt == '-P':
             port = int(arg)
+        elif opt == '--zHost':
+            zap_ip = arg
         elif opt == '-D':
             delay = int(arg)
         elif opt == '-n':
@@ -448,35 +274,31 @@ def main(argv):
             timeout = int(arg)
         elif opt == '--noSpider':
             spider = False
-        elif opt == '--testMode':
-            testMode = True
-        elif opt == '--triggerPort':
-            tests_trigger_port = arg
         elif opt == '--activeScan':
             active_scan = True
 
     check_zap_client_version()
-
+    print('setting up')
     setup(target=target, config_file=config_file, generate=generate, report_html=report_html, report_xml=report_xml,
           report_json=report_json, progress_file=progress_file, port=port,
           config_url=config_url, zap_alpha=zap_alpha, zap_options=zap_options, mins=mins)
     try:
-        logging.debug("starting zap")
+        print("Connecting to zap at %s"%'https://' + zap_ip + ':' + str(port))
         zap = ZAPv2(
             proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
 
-        logging.debug('Will wait %s for zap to start' % timeout)
 
-        wait_for_zap_start(zap, timeout * 60)
 
-        logging.debug('Zap started, configuring..')
+        # wait_for_zap_start(zap, timeout)
+
+        print('Zap started, configuring..')
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
             res = zap.context.import_context('/zap/wrk/' + os.path.basename(context_file))
             if res.startswith("ZAP Error"):
                 logging.error('Failed to load context file ' + context_file + ' : ' + res)
 
-        logging.info('Accessing %s')
+        print('Accessing %s')
         zap_access_target(zap, target)
 
         if target.count('/') > 2:
@@ -485,35 +307,26 @@ def main(argv):
 
         time.sleep(2)
 
-        if testMode:
-            # wait for the /attack command
-            logging.debug("launching http server in port %s" % (tests_trigger_port))
-            launch_trigger_endpoint(trigger_host=zap_ip, trigger_port=tests_trigger_port)
-
         if spider:
             # Spider target
             print("Spidering....")
             zap_spider(zap, target)
-            # spider = zap.spider()
-            # spider.set_option_max_depth(1,"")
-            # spider.set_option_max_children(10,"")
-            # spider.scan(url=target,maxchildren=10)
 
             if ajax:
                 zap_ajax_spider(zap, target, mins)
         else:
-            logging.debug("Spider Turned off")
+            print("Spider Turned off")
 
         if delay:
             start_scan = datetime.now()
             while (datetime.now() - start_scan).seconds < delay:
                 time.sleep(5)
-                logging.debug(
+                print(
                     'Delay passive scan check ' + str(delay - (datetime.now() - start_scan).seconds) + ' seconds')
 
         zap_wait_for_passive_scan(zap, timeout * 60)
 
-        logging.debug("passive done, active scanning...")
+        print("passive done, active scanning...")
 
         if active_scan:
             # unleash hell
@@ -524,7 +337,7 @@ def main(argv):
         num_urls = len(zap.core.urls())
         if num_urls == 0:
             logging.warning(
-                'No URLs found - is the target URL accessible? Local services may not be accessible from the Docker container')
+                'No URLs found - is the target URL accessible? Local services may not be accessible from the pod')
         else:
             if detailed_output:
                 print('Total of ' + str(num_urls) + ' URLs')
