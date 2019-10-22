@@ -356,7 +356,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
         HttpResponseHeader responseHeader = msg.getResponseHeader();
         SpiderResource resource =
                 new SpiderResource(
-                        msg.getHistoryRef().getHistoryId(),
+                        msg.getHistoryRef() != null ? msg.getHistoryRef().getHistoryId() : -1,
                         requestHeader.getMethod(),
                         requestHeader.getURI().toString(),
                         responseHeader.getStatusCode(),
@@ -376,6 +376,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
     }
 
     private void addMessageToMessagesTableModel(final SpiderTaskResult spiderTaskResult) {
+        if (spiderTaskResult.getHttpMessage().getHistoryRef() == null) {
+            return;
+        }
+
         if (EventQueue.isDispatchThread() || cleared) {
             if (cleared) {
                 return;
