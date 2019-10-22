@@ -34,7 +34,7 @@ jacoco {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.0.3")
+    api("com.fifesoft:rsyntaxtextarea:3.0.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.3")
     api("commons-codec:commons-codec:1.12")
@@ -51,10 +51,10 @@ dependencies {
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.6")
-    api("org.bouncycastle:bcmail-jdk15on:1.61")
-    api("org.bouncycastle:bcprov-jdk15on:1.61")
-    api("org.bouncycastle:bcpkix-jdk15on:1.61")
-    api("org.hsqldb:hsqldb:2.4.1")
+    api("org.bouncycastle:bcmail-jdk15on:1.64")
+    api("org.bouncycastle:bcprov-jdk15on:1.64")
+    api("org.bouncycastle:bcpkix-jdk15on:1.64")
+    api("org.hsqldb:hsqldb:2.5.0")
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
