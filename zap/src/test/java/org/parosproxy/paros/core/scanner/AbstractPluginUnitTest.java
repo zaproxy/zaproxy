@@ -22,13 +22,22 @@ package org.parosproxy.paros.core.scanner;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.httpclient.URI;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AbstractPlugin}. */
@@ -523,6 +532,549 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
                 is(equalTo(Plugin.AttackStrength.HIGH.name())));
     }
 
+    @Test
+    public void shouldRaiseAlertWith7ParamsBingo() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String otherInfo = "otherInfo";
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.bingo(risk, confidence, uri, param, attack, otherInfo, alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(plugin.getName())));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo("")));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
+        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
+        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
+        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = null;
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "";
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith8ParamsBingo() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String otherInfo = "otherInfo";
+        String evidence = "evidence";
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.bingo(risk, confidence, uri, param, attack, otherInfo, evidence, alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(plugin.getName())));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(plugin.getDescription())));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo(evidence)));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(plugin.getSolution())));
+        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
+        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
+        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = null;
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", "", alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "";
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, uri, "", "", "", "", alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith10ParamsBingo() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String name = "name";
+        String description = "description";
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String otherInfo = "otherInfo";
+        String solution = "solution";
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.bingo(
+                risk,
+                confidence,
+                name,
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(name)));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(description)));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo("")));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(solution)));
+        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
+        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
+        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = null;
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, "", "", uri, "", "", "", "", alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "";
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW, Alert.CONFIDENCE_HIGH, "", "", uri, "", "", "", "", alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith11ParamsBingo() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String name = "name";
+        String description = "description";
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String evidence = "evidence";
+        String otherInfo = "otherInfo";
+        String solution = "solution";
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.bingo(
+                risk,
+                confidence,
+                name,
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                evidence,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(name)));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(description)));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo(evidence)));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(solution)));
+        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
+        assertThat(alert.getCweId(), is(equalTo(plugin.getCweId())));
+        assertThat(alert.getWascId(), is(equalTo(plugin.getWascId())));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = null;
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW,
+                Alert.CONFIDENCE_HIGH,
+                "",
+                "",
+                uri,
+                "",
+                "",
+                "",
+                "",
+                "",
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "";
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW,
+                Alert.CONFIDENCE_HIGH,
+                "",
+                "",
+                uri,
+                "",
+                "",
+                "",
+                "",
+                "",
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith13ParamsBingo() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String name = "name";
+        String description = "description";
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String evidence = "evidence";
+        String otherInfo = "otherInfo";
+        String solution = "solution";
+        int cweId = 111;
+        int wascId = 222;
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.bingo(
+                risk,
+                confidence,
+                name,
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                evidence,
+                cweId,
+                wascId,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(name)));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(description)));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo(evidence)));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(solution)));
+        assertThat(alert.getReference(), is(equalTo(plugin.getReference())));
+        assertThat(alert.getCweId(), is(equalTo(cweId)));
+        assertThat(alert.getWascId(), is(equalTo(wascId)));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = null;
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW,
+                Alert.CONFIDENCE_HIGH,
+                "",
+                "",
+                uri,
+                "",
+                "",
+                "",
+                "",
+                "",
+                0,
+                0,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "";
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW,
+                Alert.CONFIDENCE_HIGH,
+                "",
+                "",
+                uri,
+                "",
+                "",
+                "",
+                "",
+                "",
+                0,
+                0,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith14ParamsBingo() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        int risk = Alert.RISK_LOW;
+        int confidence = Alert.CONFIDENCE_HIGH;
+        String name = "name";
+        String description = "description";
+        String uri = "uri";
+        String param = "param";
+        String attack = "attack";
+        String evidence = "evidence";
+        String otherInfo = "otherInfo";
+        String solution = "solution";
+        String reference = "reference";
+        int cweId = 111;
+        int wascId = 222;
+        HttpMessage alertMessage = createAlertMessage();
+        // When
+        plugin.bingo(
+                risk,
+                confidence,
+                name,
+                description,
+                uri,
+                param,
+                attack,
+                otherInfo,
+                solution,
+                evidence,
+                reference,
+                cweId,
+                wascId,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getPluginId(), is(equalTo(plugin.getId())));
+        assertThat(alert.getName(), is(equalTo(name)));
+        assertThat(alert.getRisk(), is(equalTo(risk)));
+        assertThat(alert.getConfidence(), is(equalTo(confidence)));
+        assertThat(alert.getDescription(), is(equalTo(description)));
+        assertThat(alert.getUri(), is(equalTo(uri)));
+        assertThat(alert.getParam(), is(equalTo(param)));
+        assertThat(alert.getAttack(), is(equalTo(attack)));
+        assertThat(alert.getEvidence(), is(equalTo(evidence)));
+        assertThat(alert.getOtherInfo(), is(equalTo(otherInfo)));
+        assertThat(alert.getSolution(), is(equalTo(solution)));
+        assertThat(alert.getReference(), is(equalTo(reference)));
+        assertThat(alert.getCweId(), is(equalTo(cweId)));
+        assertThat(alert.getWascId(), is(equalTo(wascId)));
+        assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = null;
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW,
+                Alert.CONFIDENCE_HIGH,
+                "",
+                "",
+                uri,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                0,
+                0,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
+    @Test
+    public void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        HostProcess hostProcess = mock(HostProcess.class);
+        plugin.init(mock(HttpMessage.class), hostProcess);
+        String uri = "";
+        String messageUri = "http://example.com/";
+        HttpMessage alertMessage = createAlertMessage(messageUri);
+        // When
+        plugin.bingo(
+                Alert.RISK_LOW,
+                Alert.CONFIDENCE_HIGH,
+                "",
+                "",
+                uri,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                0,
+                0,
+                alertMessage);
+        // Then
+        Alert alert = getRaisedAlert(hostProcess);
+        assertThat(alert.getUri(), is(equalTo(messageUri)));
+    }
+
     @Test(expected = Exception.class)
     public void shouldFailToSaveToConfigIfConfigNotSet() {
         // Given
@@ -551,5 +1103,28 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(
                 config.getString(basePropertyKey + "strength"),
                 is(equalTo(Plugin.AttackStrength.INSANE.name())));
+    }
+
+    private static HttpMessage createAlertMessage() {
+        return createAlertMessage(null);
+    }
+
+    private static HttpMessage createAlertMessage(String requestUri) {
+        HttpMessage message = mock(HttpMessage.class);
+        HttpRequestHeader requestHeader = mock(HttpRequestHeader.class);
+        when(message.getRequestHeader()).thenReturn(requestHeader);
+        if (requestUri != null) {
+            URI uri = mock(URI.class);
+            when(uri.toString()).thenReturn(requestUri);
+            when(requestHeader.getURI()).thenReturn(uri);
+        }
+        when(message.getRequestBody()).thenReturn(mock(HttpRequestBody.class));
+        return message;
+    }
+
+    private static Alert getRaisedAlert(HostProcess hostProcess) {
+        ArgumentCaptor<Alert> arg = ArgumentCaptor.forClass(Alert.class);
+        verify(hostProcess).alertFound(arg.capture());
+        return arg.getValue();
     }
 }
