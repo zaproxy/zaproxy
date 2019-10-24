@@ -1882,7 +1882,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                         1,
                         null,
                         "",
-                        "-addoninstall <addon>    "
+                        "-addoninstall <addOnId>   "
                                 + Constant.messages.getString("cfu.cmdline.install.help"));
         arguments[ARG_CFU_INSTALL_ALL_IDX] =
                 new CommandLineArgument(
@@ -1890,7 +1890,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                         0,
                         null,
                         "",
-                        "-addoninstallall         "
+                        "-addoninstallall          "
                                 + Constant.messages.getString("cfu.cmdline.installall.help"));
         arguments[ARG_CFU_UNINSTALL_IDX] =
                 new CommandLineArgument(
@@ -1898,7 +1898,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                         1,
                         null,
                         "",
-                        "-addonuninstall <addon>  "
+                        "-addonuninstall <addOnId> "
                                 + Constant.messages.getString("cfu.cmdline.uninstall.help"));
         arguments[ARG_CFU_UPDATE_IDX] =
                 new CommandLineArgument(
@@ -1906,7 +1906,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                         0,
                         null,
                         "",
-                        "-addonupdate             "
+                        "-addonupdate              "
                                 + Constant.messages.getString("cfu.cmdline.update.help"));
         arguments[ARG_CFU_LIST_IDX] =
                 new CommandLineArgument(
@@ -1914,7 +1914,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                         0,
                         null,
                         "",
-                        "-addonlist               "
+                        "-addonlist                "
                                 + Constant.messages.getString("cfu.cmdline.list.help"));
         return arguments;
     }
