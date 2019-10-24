@@ -448,10 +448,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             uri = msg.getRequestHeader().getURI().toString();
         }
 
-        if (param == null) {
-            param = "";
-        }
-
         alert.setDetail(
                 description,
                 uri,
@@ -540,10 +536,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             uri = msg.getRequestHeader().getURI().toString();
         }
 
-        if (param == null) {
-            param = "";
-        }
-
         alert.setDetail(
                 description,
                 uri,
@@ -612,10 +604,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();
-        }
-
-        if (param == null) {
-            param = "";
         }
 
         alert.setDetail(
