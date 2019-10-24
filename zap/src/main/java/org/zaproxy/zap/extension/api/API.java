@@ -327,8 +327,7 @@ public class API {
             }
         }
 
-        if (shortcutImpl == null
-                && callbackImpl == null
+        if (callbackImpl == null
                 && !url.startsWith(API_URL)
                 && !url.startsWith(API_URL_S)
                 && !force) {
