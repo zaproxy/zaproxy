@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -462,6 +463,91 @@ public class APIUnitTest {
         assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
     }
 
+    @Test
+    public void shouldNotHandleShortcutIfNotForcedRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        boolean forced = false;
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, "localhost", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream(),
+                        forced);
+        // Then
+        assertThat(requestHandled, is(nullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldHandleShortcutIfForcedRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        boolean forced = true;
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, "localhost", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream(),
+                        forced);
+        // Then
+        assertThat(requestHandled, is(notNullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldHandleShortcutIfZapRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, API.API_DOMAIN, requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream());
+        // Then
+        assertThat(requestHandled, is(notNullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldHandleShortcutIfSecureZapRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        HttpRequestHeader apiRequest =
+                createApiRequest(new byte[] {127, 0, 0, 1}, API.API_DOMAIN, requestUri);
+        apiRequest.setSecure(true);
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        apiRequest, createMockedHttpInputStream(), createMockedHttpOutputStream());
+        // Then
+        assertThat(requestHandled, is(notNullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+    }
+
     @Test(expected = ApiException.class)
     public void shouldFailToGetXmlFromResponseWithNullEndpointName() throws ApiException {
         // Given
@@ -634,6 +720,14 @@ public class APIUnitTest {
 
     private static HttpOutputStream createMockedHttpOutputStream() {
         return Mockito.mock(HttpOutputStream.class);
+    }
+
+    private static API createApiWithoutKey() {
+        OptionsParamApi options = createOptionsParamApi();
+        options.setDisableKey(true);
+        API api = new API();
+        api.setOptionsParamApi(options);
+        return api;
     }
 
     private static class TestApiImplementor extends ApiImplementor {
