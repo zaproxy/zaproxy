@@ -1,7 +1,9 @@
 ---
 name: '3rd party add-on '
 about: Tell us about a 3rd party add-on that we should add or update in the ZAP Marketplace
+title: ''
 labels: Type-Task, add-on, third-party
+assignees: ''
 
 ---
 
