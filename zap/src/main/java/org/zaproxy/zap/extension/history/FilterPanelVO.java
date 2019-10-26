@@ -55,22 +55,22 @@ public class FilterPanelVO {
     private List<Pattern> urlExcPatternList = new ArrayList<>();
 
     public void setIncMethodList(List<String> incMethodList) {
-        this.incMethodList.clear();
+        Objects.requireNonNull(excMethodList, "Include method list should not be null");
         this.incMethodList = incMethodList;
     }
 
     public void setExcMethodList(List<String> excMethodList) {
-        this.excMethodList.clear();
+        Objects.requireNonNull(excMethodList, "Exclude method list should not be null");
         this.excMethodList = excMethodList;
     }
 
     public void setIncCodeList(List<Integer> incCodeList) {
-        this.incCodeList.clear();
+        Objects.requireNonNull(incCodeList, "Include code list should not be null");
         this.incCodeList = incCodeList;
     }
 
     public void setExcCodeList(List<Integer> excCodeList) {
-        this.excCodeList.clear();
+        Objects.requireNonNull(incCodeList, "Exclude code list should not be null");
         this.excCodeList = excCodeList;
     }
 
@@ -95,24 +95,14 @@ public class FilterPanelVO {
         this.confidenceList.clear();
     }
 
-    public List<Pattern> getUrlIncPatternList() {
-        return urlIncPatternList;
-    }
-
     public void setUrlIncPatternList(List<Pattern> urlIncPatternList) {
+        Objects.requireNonNull(urlIncPatternList, "Include url list should not be null");
         this.urlIncPatternList = urlIncPatternList;
     }
 
-    public List<Pattern> getUrlExcPatternList() {
-        return urlExcPatternList;
-    }
-
     public void setUrlExcPatternList(List<Pattern> urlExcPatternList) {
+        Objects.requireNonNull(urlExcPatternList, "Exclude url list should not be null");
         this.urlExcPatternList = urlExcPatternList;
-    }
-
-    public List<String> getIncTagList() {
-        return incTagList;
     }
 
     public void setIncTagList(List<String> incTagList) {
@@ -120,12 +110,8 @@ public class FilterPanelVO {
         this.incTagList = incTagList;
     }
 
-    public List<String> getExcTagList() {
-        Objects.requireNonNull(excTagList, "Exclude tag list should not be null");
-        return excTagList;
-    }
-
     public void setExcTagList(List<String> excTagList) {
+        Objects.requireNonNull(excTagList, "Exclude tag list should not be null");
         this.excTagList = excTagList;
     }
 
@@ -181,15 +167,15 @@ public class FilterPanelVO {
 
         if (!CollectionUtils.isEmpty(this.urlIncPatternList)) {
             UrlPatternFilterData urlPatternFilterData =
-                    new UrlPatternFilterData(FilterCriteria.INCLUDE, this.getUrlIncPatternList());
+                    new UrlPatternFilterData(FilterCriteria.INCLUDE, this.urlIncPatternList);
             URLPatternScanFilter urlPatternScanFilter = new URLPatternScanFilter();
             urlPatternScanFilter.getUrlPatternFilterDataSet().add(urlPatternFilterData);
             scanFilterList.add(urlPatternScanFilter);
         }
 
-        if (!CollectionUtils.isEmpty(this.urlIncPatternList)) {
+        if (!CollectionUtils.isEmpty(this.urlExcPatternList)) {
             UrlPatternFilterData urlPatternFilterData =
-                    new UrlPatternFilterData(FilterCriteria.EXCLUDE, this.getUrlExcPatternList());
+                    new UrlPatternFilterData(FilterCriteria.EXCLUDE, this.urlExcPatternList);
             URLPatternScanFilter urlPatternScanFilter = new URLPatternScanFilter();
             urlPatternScanFilter.getUrlPatternFilterDataSet().add(urlPatternFilterData);
             scanFilterList.add(urlPatternScanFilter);
