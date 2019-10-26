@@ -83,5 +83,3 @@ RUN chown zap:zap /zap/* CHANGELOG.md && \
 USER zap
 
 ENTRYPOINT ["python3","zap_remote_full_scan.py"]
-
-HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status

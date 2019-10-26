@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zaproxy-fullscan
+  labels:
+    name: zaproxy-client
+
+spec:
+  containers:
+  - name: main
+    imagePullPolicy: IfNotPresent
+    args:
+    - "-t"
+    - "https://example.com"
+    - "--zHost"
+    - "<fillme>""
+    - "--zPort"
+    - "31281"
+    image: zap-fullscan
+  restartPolicy: Never

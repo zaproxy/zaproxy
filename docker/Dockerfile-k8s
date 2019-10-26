@@ -83,4 +83,4 @@ USER zap
 
 HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
 
-ENTRYPOINT ["python3","zap-k8s.py"]
+ENTRYPOINT ["python3","zap-k8s.py","-P","8080"]
