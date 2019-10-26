@@ -515,8 +515,6 @@ public class FilterPanel extends JPanel {
         if (excTagScroller == null) {
             excTagList = new JList<>(getTagModel());
             excTagList.setPrototypeCellValue("Tags are short...");
-            // Need to talk about Include All Design.
-            excTagList.setPrototypeCellValue("Tags are short...");
 
             excTagScroller = new JScrollPane(excTagList);
             excTagScroller.setHorizontalScrollBarPolicy(
