@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.extension.ascan.filters;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -30,19 +32,25 @@ public class UrlPatternFilterData {
 
     private FilterCriteria filterCriteria;
 
+    public UrlPatternFilterData(FilterCriteria filterCriteria, Collection<Pattern> urlPatterns) {
+        this.setFilterCriteria(filterCriteria);
+        this.setUrlPatterns(urlPatterns);
+    }
+
     public Set<Pattern> getUrlPatterns() {
         return urlPatterns;
     }
 
-    public void setUrlPatterns(Set<Pattern> urlPatterns) {
-        this.urlPatterns = urlPatterns;
+    private void setUrlPatterns(Collection<Pattern> urlPatterns) {
+        Objects.requireNonNull(urlPatterns);
+        this.urlPatterns.addAll(urlPatterns);
     }
 
     public FilterCriteria getFilterCriteria() {
         return filterCriteria;
     }
 
-    public void setFilterCriteria(FilterCriteria filterCriteria) {
+    private void setFilterCriteria(FilterCriteria filterCriteria) {
         this.filterCriteria = filterCriteria;
     }
 }

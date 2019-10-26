@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.ascan.filters;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import org.apache.commons.collections.CollectionUtils;
+import java.util.Objects;
 
 /**
  * Generic Filter Data which can be applied to any Class Object which implements hashCode and equals
@@ -35,14 +35,20 @@ public class GenericFilterData<T> {
 
     private FilterCriteria filterCriteria;
 
+    public GenericFilterData() {}
+
+    public GenericFilterData(FilterCriteria filterCriteria, Collection<T> values) {
+        this.setValues(values);
+        this.setFilterCriteria(filterCriteria);
+    }
+
     public Collection<T> getValues() {
         return values;
     }
 
-    public void setValues(Collection<T> tags) {
-        if (CollectionUtils.isEmpty(values)) {
-            this.values.addAll(tags);
-        }
+    public void setValues(Collection<T> values) {
+        Objects.requireNonNull(values);
+        this.values.addAll(values);
     }
 
     public FilterCriteria getFilterCriteria() {

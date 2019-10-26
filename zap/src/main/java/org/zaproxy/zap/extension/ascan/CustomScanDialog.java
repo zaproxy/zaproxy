@@ -66,6 +66,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
+import org.zaproxy.zap.extension.history.FilterPanel;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
@@ -85,7 +86,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         "ascan.custom.tab.input",
         "ascan.custom.tab.custom",
         "ascan.custom.tab.tech",
-        "ascan.custom.tab.policy"
+        "ascan.custom.tab.policy",
+        "ascan.custom.tab.filter"
     };
 
     private static final String FIELD_START = "ascan.custom.label.start";
@@ -114,6 +116,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private JPanel customPanel = null;
     private JPanel techPanel = null;
+    private FilterPanel filterPanel = null;
     private ZapTextArea requestField = null;
     private JButton addCustomButton = null;
     private JButton removeCustomButton = null;
@@ -257,8 +260,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         this.setCustomTabPanel(4, policyPanel);
 
+        // Filter panel
+        this.setCustomTabPanel(5, getFilterJPanel(target));
+
         // add custom panels
-        int cIndex = 5;
+        int cIndex = 6;
         if (this.customPanels != null) {
             for (CustomScanPanel customPanel : this.customPanels) {
                 this.setCustomTabPanel(cIndex, customPanel.getPanel(true));
@@ -642,6 +648,21 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
+    private JPanel getFilterJPanel(Target target) {
+        if (this.filterPanel == null) {
+            filterPanel = new FilterPanel();
+        } else {
+            filterPanel.resetFilterPanel();
+        }
+        SiteNode siteNode = target.getStartNode();
+        if (siteNode != null
+                && siteNode.getHistoryReference() != null
+                && siteNode.getHistoryReference().getTags() != null) {
+            filterPanel.setAllTags(siteNode.getHistoryReference().getTags());
+        }
+        return filterPanel;
+    }
+
     private TechnologyTreePanel getTechTree() {
         if (techTree == null) {
             techTree =
@@ -864,6 +885,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             contextSpecificObjects.add(scannerParam);
             contextSpecificObjects.add(techTreeState);
+            contextSpecificObjects.add(filterPanel.getFilterPanelVO());
 
             if (this.customPanels != null) {
                 for (CustomScanPanel customPanel : this.customPanels) {
