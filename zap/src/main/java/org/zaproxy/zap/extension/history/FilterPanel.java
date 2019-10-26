@@ -155,8 +155,8 @@ public class FilterPanel extends JPanel {
                             try {
                                 filterPanelVO.setIncMethodList(methodList.getSelectedValuesList());
                                 filterPanelVO.setIncCodeList(codeList.getSelectedValuesList());
-                                filterPanelVO.setRisks(riskList.getSelectedValuesList());
-                                filterPanelVO.setReliabilities(
+                                filterPanelVO.setAlertList(riskList.getSelectedValuesList());
+                                filterPanelVO.setConfidenceList(
                                         confidenceList.getSelectedValuesList());
                                 filterPanelVO.setUrlIncPatternList(
                                         strToRegexList(regexInc.getText()));
@@ -322,7 +322,7 @@ public class FilterPanel extends JPanel {
                             3,
                             1,
                             1,
-                            2,
+                            1,
                             1.0,
                             1.0,
                             GridBagConstraints.BOTH,
@@ -352,14 +352,26 @@ public class FilterPanel extends JPanel {
                             GridBagConstraints.NORTHWEST,
                             stdInset());
 
+            GridBagConstraints gbc23 =
+                    LayoutHelper.getGBC(
+                            3,
+                            2,
+                            1,
+                            1,
+                            0.0,
+                            0.0,
+                            GridBagConstraints.NONE,
+                            GridBagConstraints.NORTHWEST,
+                            stdInset());
+
             GridBagConstraints gbc33 =
                     LayoutHelper.getGBC(
                             3,
                             3,
                             1,
                             1,
-                            1.0,
-                            1.0,
+                            0.0,
+                            0.0,
                             GridBagConstraints.BOTH,
                             GridBagConstraints.NORTHWEST,
                             stdInset());
@@ -400,6 +412,10 @@ public class FilterPanel extends JPanel {
             jPanel2.add(
                     new JLabel(Constant.messages.getString("scan.filter.label.urlexcregex")),
                     gbc24);
+
+            jPanel2.add(
+                    new JLabel(Constant.messages.getString("scan.filter.label.confidencelevel")),
+                    gbc23);
 
             jPanel2.add(getConfidenceScroller(), gbc33);
             jPanel2.add(getUrlRegxExcScroller(), gbc34);

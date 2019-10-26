@@ -29,6 +29,8 @@ import org.zaproxy.zap.extension.ascan.filters.FilterCriteria;
 import org.zaproxy.zap.extension.ascan.filters.GenericFilterData;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.ascan.filters.UrlPatternFilterData;
+import org.zaproxy.zap.extension.ascan.filters.impl.AlertScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.impl.ConfidenceLevelScanFilter;
 import org.zaproxy.zap.extension.ascan.filters.impl.HttpStatusCodeScanFilter;
 import org.zaproxy.zap.extension.ascan.filters.impl.MethodScanFilter;
 import org.zaproxy.zap.extension.ascan.filters.impl.TagScanFilter;
@@ -46,8 +48,8 @@ public class FilterPanelVO {
     private List<String> excMethodList = new ArrayList<>();
     private List<Integer> incCodeList = new ArrayList<>();
     private List<Integer> excCodeList = new ArrayList<>();
-    // Need to add Filters for Risk List and Confidence List
-    private List<String> riskList = new ArrayList<>();
+    // Need to add Filters for Alert List and Confidence List
+    private List<String> alertList = new ArrayList<>();
     private List<String> confidenceList = new ArrayList<>();
     private List<String> incTagList = new ArrayList<>();
     private List<String> excTagList = new ArrayList<>();
@@ -74,14 +76,14 @@ public class FilterPanelVO {
         this.excCodeList = excCodeList;
     }
 
-    public void setRisks(List<String> risks) {
-        riskList.clear();
-        riskList.addAll(risks);
+    public void setAlertList(List<String> alerts) {
+        Objects.requireNonNull(alerts, "Alert list should not be null");
+        alertList.addAll(alerts);
     }
 
-    public void setReliabilities(List<String> reliabilities) {
-        confidenceList.clear();
-        confidenceList.addAll(reliabilities);
+    public void setConfidenceList(List<String> confidenceList) {
+        Objects.requireNonNull(confidenceList, "Confidence list should not be null");
+        this.confidenceList.addAll(confidenceList);
     }
 
     public void reset() {
@@ -91,7 +93,7 @@ public class FilterPanelVO {
         this.excCodeList.clear();
         this.excTagList.clear();
         this.incTagList.clear();
-        this.riskList.clear();
+        this.alertList.clear();
         this.confidenceList.clear();
     }
 
@@ -179,6 +181,22 @@ public class FilterPanelVO {
             URLPatternScanFilter urlPatternScanFilter = new URLPatternScanFilter();
             urlPatternScanFilter.getUrlPatternFilterDataSet().add(urlPatternFilterData);
             scanFilterList.add(urlPatternScanFilter);
+        }
+
+        if (!CollectionUtils.isEmpty(this.alertList)) {
+            GenericFilterData<String> genericFilterData =
+                    new GenericFilterData<String>(FilterCriteria.INCLUDE, this.alertList);
+            AlertScanFilter alertScanFilter = new AlertScanFilter();
+            alertScanFilter.getGenericFilterDataCollection().add(genericFilterData);
+            scanFilterList.add(alertScanFilter);
+        }
+
+        if (!CollectionUtils.isEmpty(this.confidenceList)) {
+            GenericFilterData<String> genericFilterData =
+                    new GenericFilterData<String>(FilterCriteria.INCLUDE, this.confidenceList);
+            ConfidenceLevelScanFilter alertScanFilter = new ConfidenceLevelScanFilter();
+            alertScanFilter.getGenericFilterDataCollection().add(genericFilterData);
+            scanFilterList.add(alertScanFilter);
         }
 
         return scanFilterList;
