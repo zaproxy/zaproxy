@@ -364,6 +364,12 @@ public class WebUI {
                 sb.append("</form>\n");
 
             } else {
+                if (Constant.messages.containsKey(impl.getDescriptionKey())) {
+                    sb.append("<p>\n");
+                    sb.append(Constant.messages.getString(impl.getDescriptionKey()));
+                    sb.append("\n</p>\n");
+                }
+
                 List<ApiElement> elementList = new ArrayList<>();
                 List<ApiView> viewList = impl.getApiViews();
                 if (viewList != null && viewList.size() > 0) {
@@ -425,20 +431,25 @@ public class WebUI {
             sb.append("<h3>");
             sb.append(Constant.messages.getString("api.html.components"));
             sb.append("</h3>\n");
-            ArrayList<String> components = new ArrayList<String>(api.getImplementors().keySet());
-            Collections.sort(components);
+            List<ApiImplementor> components = new ArrayList<>(api.getImplementors().values());
+            Collections.sort(components, Comparator.comparing(ApiImplementor::getPrefix));
 
             sb.append("<table>\n");
-            for (String cmp : components) {
+            for (ApiImplementor cmp : components) {
                 sb.append("<tr>");
                 sb.append("<td>");
                 sb.append("<a href=\"/");
                 sb.append(Format.UI.name());
                 sb.append('/');
-                sb.append(cmp);
+                sb.append(cmp.getPrefix());
                 sb.append("/\">");
-                sb.append(cmp);
+                sb.append(cmp.getPrefix());
                 sb.append("</a>");
+                sb.append("</td>");
+                sb.append("<td>");
+                if (Constant.messages.containsKey(cmp.getDescriptionKey())) {
+                    sb.append(Constant.messages.getString(cmp.getDescriptionKey()));
+                }
                 sb.append("</td>");
                 sb.append("</tr>\n");
             }
