@@ -55,6 +55,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Add utility methods isValidRisk(int) and isValidConfidence(int)
+// ZAP: 2019/10/21 Add Alert builder.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -289,9 +290,30 @@ public class Alert implements Comparable<Alert> {
     }
 
     public void setRiskConfidence(int risk, int confidence) {
+        setRisk(risk);
+        setConfidence(confidence);
+    }
+
+    /**
+     * Sets the risk of the alert.
+     *
+     * @param risk the new risk.
+     * @since TODO Add version
+     */
+    public void setRisk(int risk) {
         this.risk = risk;
+    }
+
+    /**
+     * Sets the confidence of the alert.
+     *
+     * @param confidence the new confidence.
+     * @since TODO add version
+     */
+    public void setConfidence(int confidence) {
         this.confidence = confidence;
     }
+
     /**
      * @deprecated (2.5.0) Replaced by {@link #setName}. Use of alert has been deprecated in favour
      *     of using name.
@@ -324,6 +346,7 @@ public class Alert implements Comparable<Alert> {
      * @param msg the HTTP message that triggers/triggered the issue
      * @deprecated (2.2.0) Replaced by {@link #setDetail(String, String, String, String, String,
      *     String, String, String, int, int, HttpMessage)}. It will be removed in a future release.
+     * @see Builder
      */
     @Deprecated
     public void setDetail(
@@ -353,6 +376,7 @@ public class Alert implements Comparable<Alert> {
      * @param wascId the WASC ID of the issue
      * @param msg the HTTP message that triggers/triggered the issue
      * @since 2.2.0
+     * @see Builder
      */
     public void setDetail(
             String description,
@@ -892,6 +916,183 @@ public class Alert implements Comparable<Alert> {
             throw new IllegalArgumentException("Parameter source must not be null.");
         }
         this.source = source;
+    }
+
+    /**
+     * Returns a new alert builder.
+     *
+     * @return the alert builder.
+     * @since TODO add version
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * A builder of alerts.
+     *
+     * @since TODO add version
+     * @see #build()
+     */
+    public static class Builder {
+
+        private int alertId = -1;
+        private int pluginId;
+        private String name;
+        private int risk = RISK_INFO;
+        private int confidence = CONFIDENCE_MEDIUM;
+        private String description;
+        private String uri;
+        private String param;
+        private String attack;
+        private String otherInfo;
+        private String solution;
+        private String reference;
+        private String evidence;
+        private int cweId = -1;
+        private int wascId = -1;
+        private HttpMessage message;
+        private int sourceHistoryId;
+        private HistoryReference historyRef;
+        private Source source = Source.UNKNOWN;
+
+        protected Builder() {}
+
+        public Builder setAlertId(int alertId) {
+            this.alertId = alertId;
+            return this;
+        }
+
+        public Builder setPluginId(int pluginId) {
+            this.pluginId = pluginId;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setRisk(int risk) {
+            this.risk = risk;
+            return this;
+        }
+
+        public Builder setConfidence(int confidence) {
+            this.confidence = confidence;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setUri(String uri) {
+            this.uri = uri;
+            return this;
+        }
+
+        public Builder setParam(String param) {
+            this.param = param;
+            return this;
+        }
+
+        public Builder setAttack(String attack) {
+            this.attack = attack;
+            return this;
+        }
+
+        public Builder setOtherInfo(String otherInfo) {
+            this.otherInfo = otherInfo;
+            return this;
+        }
+
+        public Builder setSolution(String solution) {
+            this.solution = solution;
+            return this;
+        }
+
+        public Builder setReference(String reference) {
+            this.reference = reference;
+            return this;
+        }
+
+        public Builder setEvidence(String evidence) {
+            this.evidence = evidence;
+            return this;
+        }
+
+        public Builder setCweId(int cweId) {
+            this.cweId = cweId;
+            return this;
+        }
+
+        public Builder setWascId(int wascId) {
+            this.wascId = wascId;
+            return this;
+        }
+
+        public Builder setMessage(HttpMessage message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder setSourceHistoryId(int sourceHistoryId) {
+            this.sourceHistoryId = sourceHistoryId;
+            return this;
+        }
+
+        public Builder setHistoryRef(HistoryReference historyRef) {
+            this.historyRef = historyRef;
+            return this;
+        }
+
+        public Builder setSource(Source source) {
+            this.source = source;
+            return this;
+        }
+
+        /**
+         * Builds the alert from the specified data.
+         *
+         * <p>The alert URI defaults to the one from the {@code HistoryReference} or {@code
+         * HttpMessage} if set.
+         *
+         * @return the alert with specified data.
+         */
+        public final Alert build() {
+            String alertUri = uri;
+            if (alertUri == null || alertUri.isEmpty()) {
+                if (historyRef != null) {
+                    alertUri = historyRef.getURI().toString();
+                } else if (message != null) {
+                    alertUri = message.getRequestHeader().getURI().toString();
+                }
+            }
+
+            Alert alert = new Alert(pluginId);
+            alert.setAlertId(alertId);
+            alert.setName(name);
+            alert.setRisk(risk);
+            alert.setConfidence(confidence);
+            alert.setDescription(description);
+            alert.setUri(alertUri);
+            alert.setParam(param);
+            alert.setAttack(attack);
+            alert.setOtherInfo(otherInfo);
+            alert.setSolution(solution);
+            alert.setReference(reference);
+            alert.setEvidence(evidence);
+            alert.setCweId(cweId);
+            alert.setWascId(wascId);
+            alert.setMessage(message);
+            alert.setSourceHistoryId(sourceHistoryId);
+            alert.setHistoryRef(historyRef);
+            alert.setSource(source);
+
+            return alert;
+        }
     }
 
     /**
