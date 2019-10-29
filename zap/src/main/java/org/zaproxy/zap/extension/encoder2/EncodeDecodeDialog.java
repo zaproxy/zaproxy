@@ -57,6 +57,8 @@ public class EncodeDecodeDialog extends AbstractFrame {
     private ZapTextArea inputField = null;
     private ZapTextArea base64EncodeField = null;
     private ZapTextArea base64DecodeField = null;
+    private ZapTextArea base64urlEncodeField = null;
+    private ZapTextArea base64urlDecodeField = null;
     private ZapTextArea urlEncodeField = null;
     private ZapTextArea urlDecodeField = null;
     private ZapTextArea asciiHexEncodeField = null;
@@ -129,11 +131,11 @@ public class EncodeDecodeDialog extends AbstractFrame {
 
             // jPanel is the outside one
             jPanel = new JPanel();
-            jPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+            jPanel.setPreferredSize(new java.awt.Dimension(800, 800));
             jPanel.setLayout(new GridBagLayout());
 
             jTabbed = new JTabbedPane();
-            jTabbed.setPreferredSize(new java.awt.Dimension(800, 500));
+            jTabbed.setPreferredSize(new java.awt.Dimension(800, 700));
 
             final JPanel jPanel1 = new JPanel();
             jPanel1.setLayout(new GridBagLayout());
@@ -162,21 +164,26 @@ public class EncodeDecodeDialog extends AbstractFrame {
             addField(
                     jPanel1,
                     2,
+                    getBase64urlEncodeField(),
+                    Constant.messages.getString("enc2.label.b64urlEnc"));
+            addField(
+                    jPanel1,
+                    3,
                     getUrlEncodeField(),
                     Constant.messages.getString("enc2.label.urlEnc"));
             addField(
                     jPanel1,
-                    3,
+                    4,
                     getAsciiHexEncodeField(),
                     Constant.messages.getString("enc2.label.asciiEnc"));
             addField(
                     jPanel1,
-                    4,
+                    5,
                     getHTMLEncodeField(),
                     Constant.messages.getString("enc2.label.HTMLEnc"));
             addField(
                     jPanel1,
-                    5,
+                    6,
                     getJavaScriptEncodeField(),
                     Constant.messages.getString("enc2.label.JavaScriptEnc"));
 
@@ -188,21 +195,26 @@ public class EncodeDecodeDialog extends AbstractFrame {
             addField(
                     jPanel2,
                     2,
+                    getBase64urlDecodeField(),
+                    Constant.messages.getString("enc2.label.b64urlDec"));
+            addField(
+                    jPanel2,
+                    3,
                     getUrlDecodeField(),
                     Constant.messages.getString("enc2.label.urlDec"));
             addField(
                     jPanel2,
-                    3,
+                    4,
                     getAsciiHexDecodeField(),
                     Constant.messages.getString("enc2.label.asciiDec"));
             addField(
                     jPanel2,
-                    4,
+                    5,
                     getHTMLDecodeField(),
                     Constant.messages.getString("enc2.label.HTMLDec"));
             addField(
                     jPanel2,
-                    5,
+                    6,
                     getJavaScriptDecodeField(),
                     Constant.messages.getString("enc2.label.JavaScriptDec"));
 
@@ -363,6 +375,20 @@ public class EncodeDecodeDialog extends AbstractFrame {
             base64DecodeField = newField(false);
         }
         return base64DecodeField;
+    }
+
+    private ZapTextArea getBase64urlEncodeField() {
+        if (base64urlEncodeField == null) {
+            base64urlEncodeField = newField(false);
+        }
+        return base64urlEncodeField;
+    }
+
+    private ZapTextArea getBase64urlDecodeField() {
+        if (base64urlDecodeField == null) {
+            base64urlDecodeField = newField(false);
+        }
+        return base64urlDecodeField;
     }
 
     private ZapTextArea getUrlEncodeField() {
@@ -584,6 +610,23 @@ public class EncodeDecodeDialog extends AbstractFrame {
         } catch (IOException | IllegalArgumentException e) {
             base64DecodeField.setText(e.getMessage());
             base64DecodeField.setEnabled(false);
+        }
+
+        // Base 64 URL
+        try {
+            base64urlEncodeField.setText(
+                    getEncoder().getBase64urlEncode(getInputField().getText()));
+        } catch (NullPointerException | IOException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        try {
+            base64urlDecodeField.setText(
+                    getEncoder().getBase64urlDecode(getInputField().getText()));
+            base64urlDecodeField.setEnabled(base64urlDecodeField.getText().length() > 0);
+        } catch (IOException | IllegalArgumentException e) {
+            base64urlDecodeField.setText(e.getMessage());
+            base64urlDecodeField.setEnabled(false);
         }
 
         // URLs
