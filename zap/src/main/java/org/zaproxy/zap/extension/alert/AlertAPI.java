@@ -30,14 +30,12 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -320,35 +318,9 @@ public class AlertAPI extends ApiImplementor {
                 throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
             }
 
-            final ExtensionAlert extAlert =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-            if (extAlert != null) {
-                extAlert.deleteAlert(new Alert(recAlert));
-            } else {
-                try {
-                    Model.getSingleton().getDb().getTableAlert().deleteAlert(alertId);
-                } catch (DatabaseException e) {
-                    logger.error(e.getMessage(), e);
-                    throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-                }
-            }
+            extension.deleteAlert(new Alert(recAlert));
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
-            final ExtensionAlert extAlert =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-            if (extAlert != null) {
-                extAlert.deleteAllAlerts();
-            } else {
-                try {
-                    Model.getSingleton().getDb().getTableAlert().deleteAllAlerts();
-                } catch (DatabaseException e) {
-                    logger.error(e.getMessage(), e);
-                }
-
-                SiteNode rootNode = Model.getSingleton().getSession().getSiteTree().getRoot();
-                rootNode.deleteAllAlerts();
-
-                removeHistoryReferenceAlerts(rootNode);
-            }
+            extension.deleteAllAlerts();
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
             String alertName = params.getString(PARAM_ALERT_NAME);
@@ -434,18 +406,6 @@ public class AlertAPI extends ApiImplementor {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
         return ApiResponseElement.OK;
-    }
-
-    private static void removeHistoryReferenceAlerts(SiteNode siteNode) {
-        for (int i = 0; i < siteNode.getChildCount(); i++) {
-            removeHistoryReferenceAlerts((SiteNode) siteNode.getChildAt(i));
-        }
-        if (siteNode.getHistoryReference() != null) {
-            siteNode.getHistoryReference().deleteAllAlerts();
-        }
-        for (HistoryReference hRef : siteNode.getPastHistoryReference()) {
-            hRef.deleteAllAlerts();
-        }
     }
 
     private ApiResponseList filterAlertInstances(AlertNode alertNode, String url, boolean recurse) {
