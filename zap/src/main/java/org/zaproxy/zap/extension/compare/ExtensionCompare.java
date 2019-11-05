@@ -54,6 +54,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.utils.DesktopUtils;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class ExtensionCompare extends ExtensionAdaptor
         implements SessionChangedListener, SessionListener {
@@ -343,7 +344,8 @@ public class ExtensionCompare extends ExtensionAdaptor
 
     private File getOutputFile() {
 
-        JFileChooser chooser = new JFileChooser(getModel().getOptionsParam().getUserDirectory());
+        JFileChooser chooser =
+                new WritableFileChooser(getModel().getOptionsParam().getUserDirectory());
         chooser.setFileFilter(
                 new FileNameExtensionFilter(
                         Constant.messages.getString("file.format.html"), "htm", "html"));
@@ -355,7 +357,6 @@ public class ExtensionCompare extends ExtensionAdaptor
             if (file == null) {
                 return file;
             }
-            getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
             String fileNameLc = file.getAbsolutePath().toLowerCase();
             if (!fileNameLc.endsWith(".htm") && !fileNameLc.endsWith(".html")) {
                 file = new File(file.getAbsolutePath() + ".html");
