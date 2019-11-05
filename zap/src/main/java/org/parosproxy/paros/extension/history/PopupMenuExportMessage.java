@@ -32,6 +32,7 @@
 // ZAP: 2018/03/29 Use FileNameExtensionFilter.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/05 Use WritableFileChooser for saves.
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedWriter;
@@ -48,6 +49,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class PopupMenuExportMessage extends JMenuItem {
 
@@ -170,7 +172,7 @@ public class PopupMenuExportMessage extends JMenuItem {
     private File getOutputFile() {
 
         JFileChooser chooser =
-                new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
+                new WritableFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
         chooser.setFileFilter(
                 new FileNameExtensionFilter(
                         Constant.messages.getString("file.format.ascii"), "txt"));
@@ -181,7 +183,6 @@ public class PopupMenuExportMessage extends JMenuItem {
             if (file == null) {
                 return file;
             }
-            extension.getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
             String fileName = file.getAbsolutePath();
             if (!fileName.toLowerCase(Locale.ROOT).endsWith(".txt")) {
                 fileName += ".txt";

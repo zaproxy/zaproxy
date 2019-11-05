@@ -28,6 +28,7 @@
 // ZAP: 2018/08/15 Added null check
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/05 Use WritableFileChooser for saves.
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedOutputStream;
@@ -41,6 +42,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class PopupMenuExportResponse extends JMenuItem {
 
@@ -144,7 +146,7 @@ public class PopupMenuExportResponse extends JMenuItem {
         String filename = "untitled.txt";
 
         JFileChooser chooser =
-                new JFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
+                new WritableFileChooser(extension.getModel().getOptionsParam().getUserDirectory());
         if (filename.length() > 0) {
             chooser.setSelectedFile(new File(filename));
         }
@@ -156,8 +158,6 @@ public class PopupMenuExportResponse extends JMenuItem {
             if (file == null) {
                 return file;
             }
-
-            extension.getModel().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
 
             return file;
         }
