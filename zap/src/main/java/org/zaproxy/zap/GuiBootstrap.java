@@ -50,7 +50,6 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.LocaleUtils;
@@ -207,13 +206,7 @@ public class GuiBootstrap extends ZapBootstrap {
 
                                 warnAddOnsAndExtensionsNoLongerRunnable();
 
-                                final ExtensionAutoUpdate eau =
-                                        Control.getSingleton()
-                                                .getExtensionLoader()
-                                                .getExtension(ExtensionAutoUpdate.class);
-                                if (eau != null) {
-                                    eau.alertIfNewVersions();
-                                }
+                                HeadlessBootstrap.checkForUpdates();
                             }
                         });
         bootstrap.setName("ZAP-BootstrapGUI");

@@ -109,6 +109,8 @@ class DaemonBootstrap extends HeadlessBootstrap {
                                     System.out.println(message);
                                 }
 
+                                HeadlessBootstrap.checkForUpdates();
+
                                 // This is the only non-daemon thread, so should keep running
                                 // CoreAPI.handleApiAction uses System.exit to shutdown
                                 while (true) {
