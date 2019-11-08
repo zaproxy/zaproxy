@@ -502,7 +502,7 @@ public class HostProcess implements Runnable {
         return parentScanner.isInScope(nodeName);
     }
 
-    private FilterResult filterNode(StructuralNode node) {
+    private boolean filterNode(StructuralNode node) {
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
             try {
                 FilterResult filterResult = scanFilter.isFiltered(node);
@@ -512,15 +512,15 @@ public class HostProcess implements Runnable {
                                 "Ignoring filtered node: "
                                         + node.getName()
                                         + " Reason: "
-                                        + filterResult.toString());
+                                        + filterResult.getReason());
                     }
-                    return filterResult;
+                    return true;
                 }
             } catch (Exception ex) {
                 log.error(ex.getMessage(), ex);
             }
         }
-        return FilterResult.NOT_FILTERED;
+        return false;
     }
 
     /**
@@ -664,8 +664,8 @@ public class HostProcess implements Runnable {
             }
             return false;
         }
-        FilterResult filterResult = filterNode(node);
-        if (filterResult.isFiltered()) {
+
+        if (filterNode(node)) {
             return false;
         }
 
