@@ -123,6 +123,16 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     oldClasspath = files(zapJar(versionBC))
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
     ignoreMissingClasses = true
+    classExcludes = listOf(
+        // Not expected to be used by add-ons
+        "org.parosproxy.paros.view.LicenseFrame",
+        "org.zaproxy.zap.view.LicenseFrame"
+    )
+    fieldExcludes = listOf(
+        // Not expected to be used by add-ons
+        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE",
+        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE_DEFAULT"
+    )
     methodExcludes = listOf(
         // Implementation moved to interface
         "org.parosproxy.paros.extension.ExtensionAdaptor#getURL()",
