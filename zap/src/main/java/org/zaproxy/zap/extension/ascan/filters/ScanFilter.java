@@ -22,8 +22,9 @@ package org.zaproxy.zap.extension.ascan.filters;
 import org.zaproxy.zap.model.StructuralNode;
 
 /**
- * ScanFilter is called by the {@code HostProcess#canScanNode} to check if a given node is filtered
- * or not. New Filters can be added by implementing this interface.
+ * ScanFilter is called for each message to be scanned to check if it's filtered or not. New Filters
+ * are added to the scan through {@link ExtensionActiveScan#startScan(String, Target, User,
+ * Object[]) }.
  *
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0

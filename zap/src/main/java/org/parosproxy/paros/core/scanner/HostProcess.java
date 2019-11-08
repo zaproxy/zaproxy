@@ -90,6 +90,7 @@
 // ZAP: 2019/01/19 Handle counting alerts raised by scan (Issue 3929).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -506,10 +507,16 @@ public class HostProcess implements Runnable {
             try {
                 FilterResult filterResult = scanFilter.isFiltered(node);
                 if (filterResult.isFiltered()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "Ignoring filtered node: "
+                                        + node.getName()
+                                        + " Reason: "
+                                        + filterResult.toString());
+                    }
                     return filterResult;
                 }
             } catch (Exception ex) {
-                // Swallowing exception to prevent filter from breaking scanner.
                 log.error(ex.getMessage(), ex);
             }
         }
@@ -659,13 +666,6 @@ public class HostProcess implements Runnable {
         }
         FilterResult filterResult = filterNode(node);
         if (filterResult.isFiltered()) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Ignoring filtered node: "
-                                + node.getName()
-                                + " Reason for Ignoring: "
-                                + filterResult.toString());
-            }
             return false;
         }
 
