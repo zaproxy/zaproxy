@@ -484,7 +484,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            checkForUpdates();
+                            checkForUpdates(false);
                         }
                     });
             retrievePanel.add(new JLabel(""), LayoutHelper.getGBC(0, 0, 1, 1.0D));
@@ -798,16 +798,16 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            checkForUpdates();
+                            checkForUpdates(false);
                         }
                     });
         }
         return checkForUpdatesButton;
     }
 
-    protected void checkForUpdates() {
+    protected void checkForUpdates(boolean force) {
         this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        extension.getLatestVersionInfo(this);
+        extension.getLatestVersionInfo(this, force);
         this.setCursor(Cursor.getDefaultCursor());
     }
 

@@ -136,7 +136,10 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     methodExcludes = listOf(
         // Implementation moved to interface
         "org.parosproxy.paros.extension.ExtensionAdaptor#getURL()",
-        "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()"
+        "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()",
+        // Not expected to be used by add-ons
+        "org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate#getLatestVersionInfo(org.zaproxy.zap.extension.autoupdate.CheckForUpdateCallback)",
+        "org.zaproxy.zap.extension.autoupdate.ManageAddOnsDialog#checkForUpdates()"
     )
 
     richReport {
