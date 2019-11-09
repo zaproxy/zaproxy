@@ -33,7 +33,6 @@ import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
-import org.zaproxy.zap.extension.history.FilterPanelVO;
 import org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.extension.script.ScriptCollection;

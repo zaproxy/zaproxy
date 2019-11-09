@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.history;
+package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -41,15 +41,15 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.ascan.CustomScanDialog;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * FilterPanel is used as a Tab in {@link CustomScanDialog}. This tab gives various options for
- * Filtering the Active Scan nodes based on the selection.
+ * filtering the Active Scan nodes based on the selection.
  *
  * @author KSASAN preetkaran20@gmail.com
+ * @since TODO add version
  */
 public class FilterPanel extends JPanel {
 
