@@ -99,6 +99,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/06/07 Update current version.
 // ZAP: 2019/09/16 Deprecate ZAP_HOMEPAGE and ZAP_EXTENSIONS_PAGE.
+// ZAP: 2019/11/07 Removed constants related to accepting the license.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -246,8 +247,6 @@ public final class Constant {
     public String FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
     public String DBNAME_UNTITLED =
             FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
-    public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
-    public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
 
     public static final String FILE_PROGRAM_SPLASH = "resource/zap128x128.png";
 
@@ -492,7 +491,6 @@ public final class Constant {
         FILE_CONFIG = zapHome + FILE_CONFIG;
         FOLDER_SESSION = zapHome + FOLDER_SESSION;
         DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
-        ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
         DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
         FUZZER_DIR = zapHome + FUZZER_DIR;
         FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_PLUGIN;

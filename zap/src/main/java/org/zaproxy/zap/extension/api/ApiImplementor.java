@@ -422,6 +422,19 @@ public abstract class ApiImplementor {
 
     public abstract String getPrefix();
 
+    /**
+     * Gets the resource key of the description.
+     *
+     * <p>Defaults to {@code getPrefix() + ".api.desc"}.
+     *
+     * @return the key of the description.
+     * @since TODO add version
+     * @see org.zaproxy.zap.utils.I18N#getString(String)
+     */
+    public String getDescriptionKey() {
+        return getPrefix() + ".api.desc";
+    }
+
     public ApiAction getApiAction(String name) {
         for (ApiAction action : this.apiActions) {
             if (action.getName().equals(name)) {

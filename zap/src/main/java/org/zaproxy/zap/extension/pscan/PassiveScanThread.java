@@ -191,13 +191,22 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                 if (scanner.isEnabled()
                                         && (scanner.appliesToHistoryType(hrefHistoryType)
                                                 || optedInHistoryTypes.contains(hrefHistoryType))) {
-                                    scanner.setParent(this);
+                                    boolean cleanScanner = false;
+                                    if (scanner instanceof PluginPassiveScanner) {
+                                        ((PluginPassiveScanner) scanner).init(this, msg);
+                                        cleanScanner = true;
+                                    } else {
+                                        scanner.setParent(this);
+                                    }
                                     currentRuleName = scanner.getName();
                                     currentRuleStartTime = System.currentTimeMillis();
                                     scanner.scanHttpRequestSend(msg, href.getHistoryId());
                                     if (msg.isResponseFromTargetHost()) {
                                         scanner.scanHttpResponseReceive(
                                                 msg, href.getHistoryId(), src);
+                                    }
+                                    if (cleanScanner) {
+                                        ((PluginPassiveScanner) scanner).clean();
                                     }
                                     long timeTaken =
                                             System.currentTimeMillis() - currentRuleStartTime;

@@ -25,7 +25,7 @@ package org.zaproxy.zap.extension.ascan.filters;
  * <p>Used to indicate if a resource was filtered and why.
  *
  * @author KSASAN preetkaran20@gmail.com
- * @since 2.8.0
+ * @since TODO add version
  */
 public final class FilterResult {
 

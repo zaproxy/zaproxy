@@ -34,7 +34,7 @@ jacoco {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.0.3")
+    api("com.fifesoft:rsyntaxtextarea:3.0.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.3")
     api("commons-codec:commons-codec:1.12")
@@ -51,10 +51,10 @@ dependencies {
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.6")
-    api("org.bouncycastle:bcmail-jdk15on:1.61")
-    api("org.bouncycastle:bcprov-jdk15on:1.61")
-    api("org.bouncycastle:bcpkix-jdk15on:1.61")
-    api("org.hsqldb:hsqldb:2.4.1")
+    api("org.bouncycastle:bcmail-jdk15on:1.64")
+    api("org.bouncycastle:bcprov-jdk15on:1.64")
+    api("org.bouncycastle:bcpkix-jdk15on:1.64")
+    api("org.hsqldb:hsqldb:2.5.0")
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
@@ -123,10 +123,23 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     oldClasspath = files(zapJar(versionBC))
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
     ignoreMissingClasses = true
+    classExcludes = listOf(
+        // Not expected to be used by add-ons
+        "org.parosproxy.paros.view.LicenseFrame",
+        "org.zaproxy.zap.view.LicenseFrame"
+    )
+    fieldExcludes = listOf(
+        // Not expected to be used by add-ons
+        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE",
+        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE_DEFAULT"
+    )
     methodExcludes = listOf(
         // Implementation moved to interface
         "org.parosproxy.paros.extension.ExtensionAdaptor#getURL()",
-        "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()"
+        "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()",
+        // Not expected to be used by add-ons
+        "org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate#getLatestVersionInfo(org.zaproxy.zap.extension.autoupdate.CheckForUpdateCallback)",
+        "org.zaproxy.zap.extension.autoupdate.ManageAddOnsDialog#checkForUpdates()"
     )
 
     richReport {

@@ -46,6 +46,7 @@
 // ZAP: 2018/04/19 Added support for publishing events
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;

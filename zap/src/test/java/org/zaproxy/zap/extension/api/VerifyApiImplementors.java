@@ -55,6 +55,7 @@ public class VerifyApiImplementors {
         apis.sort((a, b) -> a.getPrefix().compareTo(b.getPrefix()));
         // Then
         for (ApiImplementor api : apis) {
+            checkKey(api.getDescriptionKey());
             checkApiElements(api, api.getApiActions(), API.RequestType.action);
             checkApiElements(api, api.getApiOthers(), API.RequestType.other);
             checkApiElements(api, api.getApiViews(), API.RequestType.view);

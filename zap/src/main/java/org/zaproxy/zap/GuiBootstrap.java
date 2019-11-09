@@ -23,11 +23,9 @@ import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -52,11 +50,9 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.LocaleUtils;
-import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
 
@@ -116,27 +112,7 @@ public class GuiBootstrap extends ZapBootstrap {
         setX11AwtAppClassName();
         setDefaultViewLocale(Constant.getLocale());
 
-        if (isShowLicense()) {
-            setupLookAndFeel();
-            showLicense();
-        } else {
-            boolean firstTime = isFirstTime();
-            if (firstTime) {
-                createAcceptedLicenseFile();
-            }
-            init(firstTime);
-        }
-    }
-
-    private void createAcceptedLicenseFile() {
-        try {
-            Files.createFile(Paths.get(Constant.getInstance().ACCEPTED_LICENSE));
-
-        } catch (final IOException ie) {
-            JOptionPane.showMessageDialog(null, Constant.messages.getString("start.unknown.error"));
-            logger.error("Failed to create 'accepted license' file: ", ie);
-            return;
-        }
+        init();
     }
 
     private void setX11AwtAppClassName() {
@@ -156,13 +132,8 @@ public class GuiBootstrap extends ZapBootstrap {
         }
     }
 
-    /**
-     * Initialises the {@code Model}, {@code View} and {@code Control}.
-     *
-     * @param firstTime {@code true} if it's the first time ZAP is being started, {@code false}
-     *     otherwise
-     */
-    private void init(final boolean firstTime) {
+    /** Initialises the {@code Model}, {@code View} and {@code Control}. */
+    private void init() {
         try {
             initModel();
             setupLookAndFeel();
@@ -235,23 +206,7 @@ public class GuiBootstrap extends ZapBootstrap {
 
                                 warnAddOnsAndExtensionsNoLongerRunnable();
 
-                                if (firstTime) {
-                                    // Disabled for now - we have too many popups occurring when you
-                                    // first start up
-                                    // be nice to have a clean start up wizard...
-                                    // ExtensionHelp.showHelp();
-
-                                } else {
-                                    // Don't auto check for updates the first time, no chance of any
-                                    // proxy having been set
-                                    final ExtensionAutoUpdate eau =
-                                            Control.getSingleton()
-                                                    .getExtensionLoader()
-                                                    .getExtension(ExtensionAutoUpdate.class);
-                                    if (eau != null) {
-                                        eau.alertIfNewVersions();
-                                    }
-                                }
+                                HeadlessBootstrap.checkForUpdates();
                             }
                         });
         bootstrap.setName("ZAP-BootstrapGUI");
@@ -371,10 +326,9 @@ public class GuiBootstrap extends ZapBootstrap {
     /**
      * Setups Swing's look and feel.
      *
-     * <p><strong>Note:</strong> Should be called only after calling {@link #initModel()}, if not
-     * initialising ZAP for the {@link #isFirstTime() first time}. The look and feel set up might
-     * initialise some network classes (e.g. {@link java.net.InetAddress InetAddress}) preventing
-     * some ZAP options from being correctly applied.
+     * <p><strong>Note:</strong> Should be called only after calling {@link #initModel()}. The look
+     * and feel set up might initialise some network classes (e.g. {@link java.net.InetAddress
+     * InetAddress}) preventing some ZAP options from being correctly applied.
      */
     private void setupLookAndFeel() {
         if (lookAndFeelSet) {
@@ -552,36 +506,6 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     /**
-     * Shows license dialogue, asynchronously (the method returns immediately after/while showing
-     * the dialogue).
-     *
-     * <p>It continues the bootstrap process, by calling {@code init(true)} if the license is
-     * accepted. Aborts the bootstrap process if the license is not accepted.
-     *
-     * @see #init(boolean)
-     */
-    private void showLicense() {
-        final LicenseFrame license = new LicenseFrame();
-        license.setPostTask(
-                new Runnable() {
-
-                    @Override
-                    public void run() {
-                        license.dispose();
-
-                        if (!license.isAccepted()) {
-                            return;
-                        }
-
-                        createAcceptedLicenseFile();
-
-                        init(true);
-                    }
-                });
-        license.setVisible(true);
-    }
-
-    /**
      * Warns, through a dialogue, about add-ons and extensions that are no longer runnable because
      * of changes in its dependencies.
      */
@@ -602,41 +526,5 @@ public class GuiBootstrap extends ZapBootstrap {
                 Constant.messages.getString("start.gui.warn.addOnsOrExtensionsNoLongerRunning"),
                 addOnLoader.getAddOnCollection(),
                 addOnsNoLongerRunning);
-    }
-
-    /**
-     * Tells whether or not ZAP license should be shown, if the license was already accepted it does
-     * not need to be shown again.
-     *
-     * <p>The license is considered accepted if a file named {@link
-     * Constant#ACCEPTED_LICENSE_DEFAULT AcceptedLicense} exists in the installation and/or home
-     * directory, or if running ZAP in "dev mode".
-     *
-     * @return {@code true} if the license should be shown, {@code false} otherwise.
-     */
-    private boolean isShowLicense() {
-        if (getArgs().isDevMode()) {
-            return false;
-        }
-
-        Path acceptedLicenseFile =
-                Paths.get(
-                        Constant.getZapInstall(), Constant.getInstance().ACCEPTED_LICENSE_DEFAULT);
-        if (Files.exists(acceptedLicenseFile)) {
-            return false;
-        }
-        return isFirstTime();
-    }
-
-    /**
-     * Tells whether or not ZAP is being started for first time. It does so by checking if the
-     * license was not yet been accepted.
-     *
-     * @return {@code true} if it's the first time, {@code false} otherwise.
-     * @see Constant#ACCEPTED_LICENSE
-     */
-    private static boolean isFirstTime() {
-        Path acceptedLicenseFile = Paths.get(Constant.getInstance().ACCEPTED_LICENSE);
-        return Files.notExists(acceptedLicenseFile);
     }
 }

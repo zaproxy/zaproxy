@@ -90,6 +90,7 @@
 // ZAP: 2019/01/19 Handle counting alerts raised by scan (Issue 3929).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -501,19 +502,25 @@ public class HostProcess implements Runnable {
         return parentScanner.isInScope(nodeName);
     }
 
-    private FilterResult filterNode(StructuralNode node) {
+    private boolean filterNode(StructuralNode node) {
         for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
             try {
                 FilterResult filterResult = scanFilter.isFiltered(node);
                 if (filterResult.isFiltered()) {
-                    return filterResult;
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "Ignoring filtered node: "
+                                        + node.getName()
+                                        + " Reason: "
+                                        + filterResult.getReason());
+                    }
+                    return true;
                 }
             } catch (Exception ex) {
-                // Swallowing exception to prevent filter from breaking scanner.
                 log.error(ex.getMessage(), ex);
             }
         }
-        return FilterResult.NOT_FILTERED;
+        return false;
     }
 
     /**
@@ -657,15 +664,8 @@ public class HostProcess implements Runnable {
             }
             return false;
         }
-        FilterResult filterResult = filterNode(node);
-        if (filterResult.isFiltered()) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Ignoring filtered node: "
-                                + node.getName()
-                                + " Reason for Ignoring: "
-                                + filterResult.toString());
-            }
+
+        if (filterNode(node)) {
             return false;
         }
 
