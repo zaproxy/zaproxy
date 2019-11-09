@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import getopt
+import os
 import os.path
 from datetime import datetime
 from pprint import pprint
@@ -151,11 +152,13 @@ def main(argv):
             if res.startswith("ZAP Error"):
                 logging.error('Failed to load context file ' +
                               context_file + ' : ' + res)
-
+        f = open("/tmp/zap-ready", "a")
+        f.write("zap is ready")
+        f.close()
         while True:
             print("heartbeat: %s" % zap.core.version)
             time.sleep(1)
-
+        os.remove("/tmp/zap-ready")
     except IOError as e:
         print("IOError occurred")
         if hasattr(e, 'args') and len(e.args) > 1:

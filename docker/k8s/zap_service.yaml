@@ -10,7 +10,3 @@ spec:
       port: 8080
       targetPort: 8080
       name: proxy-port
-    - protocol: TCP
-      port: 9090 
-      targetPort: 9090
-      name: shutdown-trigger-port

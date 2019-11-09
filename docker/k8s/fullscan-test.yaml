@@ -13,8 +13,8 @@ spec:
     - "-t"
     - "https://example.com"
     - "--zHost"
-    - "<fillme>""
+    - "zap-svc.default"
     - "--zPort"
-    - "31281"
+    - "8080"
     image: zap-fullscan
   restartPolicy: Never
