@@ -204,7 +204,7 @@ public class FilterPanel extends JPanel {
         return jPanel1;
     }
 
-    public void resetFilterPanel() {
+    public void resetFilterPanel(boolean resetTagListModel) {
         methodList.setSelectedIndices(new int[0]);
         codeList.setSelectedIndices(new int[0]);
         incTagList.setSelectedIndices(new int[0]);
@@ -214,6 +214,9 @@ public class FilterPanel extends JPanel {
         regexInc.setText("");
         regexExc.setText("");
         filterPanelVO.reset();
+        if (resetTagListModel) {
+            resetTagModel();
+        }
     }
 
     /**
@@ -231,7 +234,7 @@ public class FilterPanel extends JPanel {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             // Unset everything
-                            resetFilterPanel();
+                            resetFilterPanel(false);
                         }
                     });
         }
@@ -494,6 +497,10 @@ public class FilterPanel extends JPanel {
             tagModel = new DefaultListModel<>();
         }
         return tagModel;
+    }
+
+    private void resetTagModel() {
+        tagModel.clear();
     }
 
     private JScrollPane getIncTagScroller() {

@@ -651,7 +651,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         if (this.filterPanel == null) {
             filterPanel = new FilterPanel();
         } else {
-            filterPanel.resetFilterPanel();
+            filterPanel.resetFilterPanel(true);
         }
         SiteNode siteNode = target.getStartNode();
         if (siteNode != null
@@ -659,6 +659,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 && siteNode.getHistoryReference().getTags() != null) {
             filterPanel.setAllTags(siteNode.getHistoryReference().getTags());
         }
+
         return filterPanel;
     }
 
