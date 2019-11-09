@@ -32,8 +32,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -647,19 +651,46 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
+    private void addTagsInFilterPanel(SiteNode siteNode, Collection<String> tags) {
+        if (siteNode != null) {
+            if (siteNode.getHistoryReference() != null
+                    && siteNode.getHistoryReference().getTags() != null) {
+                tags.addAll(siteNode.getHistoryReference().getTags());
+            }
+            Enumeration<?> childEnumeration = siteNode.children();
+            while (childEnumeration.hasMoreElements()) {
+                Object node = childEnumeration.nextElement();
+                if (node instanceof SiteNode) {
+                    addTagsInFilterPanel((SiteNode) node, tags);
+                }
+            }
+        }
+    }
+
     private JPanel getFilterJPanel(Target target) {
         if (this.filterPanel == null) {
             filterPanel = new FilterPanel();
         } else {
-            filterPanel.resetFilterPanel(true);
-        }
-        SiteNode siteNode = target.getStartNode();
-        if (siteNode != null
-                && siteNode.getHistoryReference() != null
-                && siteNode.getHistoryReference().getTags() != null) {
-            filterPanel.setAllTags(siteNode.getHistoryReference().getTags());
+            filterPanel.resetFilterPanel();
         }
 
+        Set<String> tags = new LinkedHashSet<>();
+        SiteNode siteNode = target.getStartNode();
+        if (siteNode != null) {
+            this.addTagsInFilterPanel(siteNode, tags);
+        } else if (target.getContext() != null || target.isInScopeOnly()) {
+            List<SiteNode> nodes = Collections.emptyList();
+            if (target.isInScopeOnly()) {
+                nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
+            } else if (target.getContext() != null) {
+                nodes = target.getContext().getTopNodesInContextFromSiteTree();
+            }
+            for (SiteNode node : nodes) {
+                this.addTagsInFilterPanel(node, tags);
+            }
+        }
+
+        filterPanel.setAllTags(new ArrayList<String>(tags));
         return filterPanel;
     }
 
