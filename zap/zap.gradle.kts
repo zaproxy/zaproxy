@@ -36,21 +36,21 @@ jacoco {
 dependencies {
     api("com.fifesoft:rsyntaxtextarea:3.0.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")
-    api("commons-beanutils:commons-beanutils:1.9.3")
-    api("commons-codec:commons-codec:1.12")
+    api("commons-beanutils:commons-beanutils:1.9.4")
+    api("commons-codec:commons-codec:1.13")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
     api("commons-io:commons-io:2.6")
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.9")
-    api("org.apache.commons:commons-text:1.6")
+    api("org.apache.commons:commons-text:1.8")
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
     api("log4j:log4j:1.2.17")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.6")
+    api("org.apache.commons:commons-csv:1.7")
     api("org.bouncycastle:bcmail-jdk15on:1.64")
     api("org.bouncycastle:bcprov-jdk15on:1.64")
     api("org.bouncycastle:bcpkix-jdk15on:1.64")
@@ -58,14 +58,14 @@ dependencies {
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.27.2.1")
+    api("org.xerial:sqlite-jdbc:3.28.0")
 
     implementation("commons-validator:commons-validator:1.6")
     // Don't need its dependencies, for now.
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
-    implementation("org.javadelight:delight-nashorn-sandbox:0.1.25")
+    implementation("org.javadelight:delight-nashorn-sandbox:0.1.26")
 
     // The following are no longer used by core, remove once
     // all (known) add-ons are updated accordingly.
@@ -79,7 +79,7 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.24.1")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1")
     testImplementation("junit:junit:4.11")
     testImplementation("org.hamcrest:hamcrest-all:1.3")
     testImplementation("org.mockito:mockito-core:3.1.0")
