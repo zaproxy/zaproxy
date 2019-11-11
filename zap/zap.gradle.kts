@@ -36,7 +36,7 @@ jacoco {
 dependencies {
     api("com.fifesoft:rsyntaxtextarea:3.0.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")
-    api("commons-beanutils:commons-beanutils:1.9.3")
+    api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.12")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
