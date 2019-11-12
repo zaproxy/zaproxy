@@ -48,7 +48,6 @@ and subject to their respective licenses.
 | commons-logging-1.2.jar             | Apache 2.0                |
 | commons-text-1.8.jar                | Apache 2.0                |
 | commons-validator-1.6.jar           | Apache 2.0                |
-| diffutils-1.2.1.jar                 | Apache 2.0                |
 | delight-nashorn-sandbox-0.1.26.jar  | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
 | harlib-1.1.2.jar                    | Apache 2.0                |
@@ -58,7 +57,6 @@ and subject to their respective licenses.
 | javahelp-2.0.05.jar                 | GPL + classpath exception |
 | java-semver-0.9.0.jar               | MIT                       |
 | jcommon-1.0.23.jar                  | LGPL                      |
-| jdom-1.1.3.jar                      | BSD                       |
 | jericho-html-3.4.jar                | EPL / LGPL dual license   |
 | jfreechart-1.0.13.jar               | LGPL                      |
 | jgrapht-core-0.9.0.jar              | LGPL 2.1                  |

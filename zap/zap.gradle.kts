@@ -67,12 +67,6 @@ dependencies {
     }
     implementation("org.javadelight:delight-nashorn-sandbox:0.1.26")
 
-    // The following are no longer used by core, remove once
-    // all (known) add-ons are updated accordingly.
-    runtimeOnly("com.googlecode.java-diff-utils:diffutils:1.2.1")
-    runtimeOnly("org.jdom:jdom:1.1.3")
-    // -----------------------
-
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
     runtimeOnly("com.io7m.xom:xom:1.2.10") {
