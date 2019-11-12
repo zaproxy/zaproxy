@@ -34,11 +34,11 @@ and subject to their respective licenses.
 | bcmail-jdk15on-1.64.jar             | MIT                       |
 | bcpkix-jdk15on-1.64.jar             | MIT                       |
 | bcprov-jdk15on-1.64.jar             | MIT                       |
-| commons-beanutils-1.9.3.jar         | Apache 2.0                |
-| commons-codec-1.12.jar              | Apache 2.0                |
+| commons-beanutils-1.9.4.jar         | Apache 2.0                |
+| commons-codec-1.13.jar              | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
-| commons-csv-1.6.jar                 | Apache 2.0                |
+| commons-csv-1.7.jar                 | Apache 2.0                |
 | commons-digester-1.8.1.jar          | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
 | commons-io-2.6.jar                  | Apache 2.0                |
@@ -46,10 +46,10 @@ and subject to their respective licenses.
 | commons-lang-2.6.jar                | Apache 2.0                |
 | commons-lang3-3.9.jar               | Apache 2.0                |
 | commons-logging-1.2.jar             | Apache 2.0                |
-| commons-text-1.6.jar                | Apache 2.0                |
+| commons-text-1.8.jar                | Apache 2.0                |
 | commons-validator-1.6.jar           | Apache 2.0                |
 | diffutils-1.2.1.jar                 | Apache 2.0                |
-| delight-nashorn-sandbox-0.1.25.jar  | Apache 2.0                |
+| delight-nashorn-sandbox-0.1.26.jar  | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
 | harlib-1.1.2.jar                    | Apache 2.0                |
 | hsqldb-2.5.0.jar                    | BSD                       |
@@ -65,7 +65,7 @@ and subject to their respective licenses.
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
 | log4j-1.2.17.jar                    | Apache 2.0                |
 | rsyntaxtextarea-3.0.4.jar           | BSD-3 clause              |
-| sqlite-jdbc-3.27.2.1.jar            | BSD-2 clause              |
+| sqlite-jdbc-3.28.0.jar              | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.2.10.jar                      | LGPL                      |
