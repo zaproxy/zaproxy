@@ -19,15 +19,19 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +41,7 @@ import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
@@ -476,6 +481,42 @@ public class AddOnUnitTest extends TestUtils {
     }
 
     @Test
+    public void shouldNotBeValidAddOnIfHasMissingLib() throws Exception {
+        // Given
+        Path file =
+                createAddOnFile(
+                        "addon.zap",
+                        "release",
+                        "1.0.0",
+                        manifest ->
+                                manifest.append("<libs>")
+                                        .append("<lib>missing.jar</lib>")
+                                        .append("</libs>"));
+        // When
+        ValidationResult result = AddOn.isValidAddOn(file);
+        // Then
+        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_LIB)));
+    }
+
+    @Test
+    public void shouldNotBeValidAddOnIfHasLibWithMissingName() throws Exception {
+        // Given
+        Path file =
+                createAddOnFile(
+                        "addon.zap",
+                        "release",
+                        "1.0.0",
+                        manifest ->
+                                manifest.append("<libs>")
+                                        .append("<lib>dir/</lib>")
+                                        .append("</libs>"));
+        // When
+        ValidationResult result = AddOn.isValidAddOn(file);
+        // Then
+        assertThat(result.getValidity(), is(equalTo(ValidationResult.Validity.INVALID_LIB)));
+    }
+
+    @Test
     public void shouldBeValidAddOnIfValid() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "release", "1.0.0");
@@ -865,6 +906,100 @@ public class AddOnUnitTest extends TestUtils {
         assertThat(canRun, is(equalTo(false)));
     }
 
+    @Test
+    public void shouldReturnLibsInManifest() throws Exception {
+        // Given
+        String lib1 = "lib1.jar";
+        String lib2 = "dir/lib2.jar";
+        Path file = createAddOnWithLibs(lib1, lib2);
+        // When
+        AddOn addOn = new AddOn(file);
+        // Then
+        assertThat(addOn.getLibs(), contains(new AddOn.Lib(lib1), new AddOn.Lib(lib2)));
+    }
+
+    @Test
+    public void shouldNotBeRunnableIfLibsAreNotInFileSystem() throws Exception {
+        // Given
+        AddOn addOn = new AddOn(createAddOnWithLibs("lib1.jar", "lib2.jar"));
+        // When
+        AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(Collections.emptyList());
+        // Then
+        assertThat(reqs.isRunnable(), is(equalTo(false)));
+        assertThat(reqs.hasMissingLibs(), is(equalTo(true)));
+        assertThat(reqs.getAddOnMissingLibs(), is(equalTo(addOn)));
+    }
+
+    @Test
+    public void shouldBeRunnableIfLibsAreInFileSystem() throws Exception {
+        // Given
+        String lib1 = "lib1.jar";
+        String lib2 = "lib2.jar";
+        AddOn addOn = new AddOn(createAddOnWithLibs(lib1, lib2));
+        File libsDir = tempDir.newFolder();
+        addOn.getLibs().get(0).setFileSystemUrl(new File(libsDir, lib1).toURI().toURL());
+        addOn.getLibs().get(1).setFileSystemUrl(new File(libsDir, lib2).toURI().toURL());
+        // When
+        AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(Collections.emptyList());
+        // Then
+        assertThat(reqs.isRunnable(), is(equalTo(true)));
+        assertThat(reqs.hasMissingLibs(), is(equalTo(false)));
+        assertThat(reqs.getAddOnMissingLibs(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldCreateAddOnLibFromRootJarPath() throws Exception {
+        // Given
+        String jarPath = "lib.jar";
+        // When
+        AddOn.Lib lib = new AddOn.Lib(jarPath);
+        // Then
+        assertThat(lib.getJarPath(), is(equalTo(jarPath)));
+        assertThat(lib.getName(), is(equalTo(jarPath)));
+    }
+
+    @Test
+    public void shouldCreateAddOnLibFromNonRootJarPath() throws Exception {
+        // Given
+        String name = "lib.jar";
+        String jarPath = "dir/" + name;
+        // When
+        AddOn.Lib lib = new AddOn.Lib(jarPath);
+        // Then
+        assertThat(lib.getJarPath(), is(equalTo(jarPath)));
+        assertThat(lib.getName(), is(equalTo(name)));
+    }
+
+    @Test
+    public void shouldNotHaveFileSystemUrlInAddOnLibByDefault() throws Exception {
+        // Given / When
+        AddOn.Lib lib = new AddOn.Lib("lib.jar");
+        // Then
+        assertThat(lib.getFileSystemUrl(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldSetFileSystemUrlToAddOnLib() throws Exception {
+        // Given
+        AddOn.Lib lib = new AddOn.Lib("lib.jar");
+        URL fsUrl = new URL("file:///some/path");
+        // When
+        lib.setFileSystemUrl(fsUrl);
+        // Then
+        assertThat(lib.getFileSystemUrl(), is(equalTo(fsUrl)));
+    }
+
+    @Test
+    public void shouldSetNullFileSystemUrlToAddOnLib() throws Exception {
+        // Given
+        AddOn.Lib lib = new AddOn.Lib("lib.jar");
+        lib.setFileSystemUrl(new URL("file:///some/path"));
+        // When
+        lib.setFileSystemUrl(null);
+        // Then
+        assertThat(lib.getFileSystemUrl(), is(nullValue()));
+    }
+
     private static ZapXmlConfiguration createZapVersionsXml() throws Exception {
         ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
         zapVersionsXml.setExpressionEngine(new XPathExpressionEngine());
@@ -881,13 +1016,44 @@ public class AddOnUnitTest extends TestUtils {
         }
     }
 
+    private Path createAddOnWithLibs(String... libs) {
+        String lib1 = "lib1.jar";
+        String lib2 = "dir/lib2.jar";
+        return createAddOnFile(
+                "addon.zap",
+                "release",
+                "1.0.0",
+                manifest ->
+                        manifest.append("<libs>")
+                                .append("<lib>")
+                                .append(lib1)
+                                .append("</lib>")
+                                .append("<lib>")
+                                .append(lib2)
+                                .append("</lib>")
+                                .append("</libs>"),
+                addOnContents -> {
+                    try {
+                        ZipEntry lib = new ZipEntry(lib1);
+                        addOnContents.putNextEntry(lib);
+                        addOnContents.closeEntry();
+
+                        lib = new ZipEntry(lib2);
+                        addOnContents.putNextEntry(lib);
+                        addOnContents.closeEntry();
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+    }
+
     private Path createAddOnFile(String fileName, String status, String version) {
         return createAddOnFile(fileName, status, version, (String) null);
     }
 
     private Path createAddOnFile(
             String fileName, String status, String version, String javaVersion) {
-        return createAddOnFile(fileName, status, version, javaVersion, null);
+        return createAddOnFile(fileName, status, version, javaVersion, null, null);
     }
 
     private Path createAddOnFile(
@@ -895,7 +1061,16 @@ public class AddOnUnitTest extends TestUtils {
             String status,
             String version,
             Consumer<StringBuilder> manifestConsumer) {
-        return createAddOnFile(fileName, status, version, null, manifestConsumer);
+        return createAddOnFile(fileName, status, version, null, manifestConsumer, null);
+    }
+
+    private Path createAddOnFile(
+            String fileName,
+            String status,
+            String version,
+            Consumer<StringBuilder> manifestConsumer,
+            Consumer<ZipOutputStream> addOnConsumer) {
+        return createAddOnFile(fileName, status, version, null, manifestConsumer, addOnConsumer);
     }
 
     private Path createAddOnFile(
@@ -903,7 +1078,8 @@ public class AddOnUnitTest extends TestUtils {
             String status,
             String version,
             String javaVersion,
-            Consumer<StringBuilder> manifestConsumer) {
+            Consumer<StringBuilder> manifestConsumer,
+            Consumer<ZipOutputStream> addOnConsumer) {
         try {
             File file = new File(tempDir.newFolder(), fileName);
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
@@ -925,6 +1101,9 @@ public class AddOnUnitTest extends TestUtils {
                 byte[] bytes = strBuilder.toString().getBytes(StandardCharsets.UTF_8);
                 zos.write(bytes, 0, bytes.length);
                 zos.closeEntry();
+                if (addOnConsumer != null) {
+                    addOnConsumer.accept(zos);
+                }
             }
             return file.toPath();
         } catch (IOException e) {
