@@ -650,22 +650,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
-    private void addTagsInFilterPanel(SiteNode siteNode, Collection<String> tags) {
-        if (siteNode != null) {
-            if (siteNode.getHistoryReference() != null
-                    && siteNode.getHistoryReference().getTags() != null) {
-                tags.addAll(siteNode.getHistoryReference().getTags());
-            }
-            Enumeration<?> childEnumeration = siteNode.children();
-            while (childEnumeration.hasMoreElements()) {
-                Object node = childEnumeration.nextElement();
-                if (node instanceof SiteNode) {
-                    addTagsInFilterPanel((SiteNode) node, tags);
-                }
-            }
-        }
-    }
-
     private JPanel getFilterJPanel(Target target) {
         if (this.filterPanel == null) {
             filterPanel = new FilterPanel(target);
