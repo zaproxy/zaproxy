@@ -39,16 +39,12 @@ public class AlertScanFilter extends AbstractScanFilter<String> {
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            List<Alert> alerts = href.getAlerts();
-            List<String> strAlerts = new ArrayList<>();
-            for (Alert alert : alerts) {
-                strAlerts.add(Alert.MSG_RISK[alert.getRisk()]);
-            }
-            return this.isFiltered(strAlerts);
-        } else {
-            return FilterResult.NOT_FILTERED;
+        List<Alert> alerts = href.getAlerts();
+        List<String> strAlerts = new ArrayList<>();
+        for (Alert alert : alerts) {
+            strAlerts.add(Alert.MSG_RISK[alert.getRisk()]);
         }
+        return this.isFiltered(strAlerts);
     }
 
     @Override

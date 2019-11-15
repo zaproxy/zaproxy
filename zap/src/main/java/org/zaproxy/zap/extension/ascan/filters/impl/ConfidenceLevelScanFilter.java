@@ -39,16 +39,13 @@ public class ConfidenceLevelScanFilter extends AbstractScanFilter<String> {
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            List<Alert> alerts = href.getAlerts();
-            List<String> confidenceLevel = new ArrayList<>();
-            for (Alert alert : alerts) {
-                confidenceLevel.add(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
-            }
-            return this.isFiltered(confidenceLevel);
-        } else {
-            return FilterResult.NOT_FILTERED;
+
+        List<Alert> alerts = href.getAlerts();
+        List<String> confidenceLevel = new ArrayList<>();
+        for (Alert alert : alerts) {
+            confidenceLevel.add(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
         }
+        return this.isFiltered(confidenceLevel);
     }
 
     @Override

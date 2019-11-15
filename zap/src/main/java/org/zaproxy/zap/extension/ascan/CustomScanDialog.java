@@ -35,9 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -70,6 +68,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
@@ -669,28 +668,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private JPanel getFilterJPanel(Target target) {
         if (this.filterPanel == null) {
-            filterPanel = new FilterPanel();
+            filterPanel = new FilterPanel(target);
         } else {
-            filterPanel.resetFilterPanel();
+            filterPanel.resetFilterPanel(target);
         }
 
-        Set<String> tags = new LinkedHashSet<>();
-        SiteNode siteNode = target.getStartNode();
-        if (siteNode != null) {
-            this.addTagsInFilterPanel(siteNode, tags);
-        } else if (target.getContext() != null || target.isInScopeOnly()) {
-            List<SiteNode> nodes = Collections.emptyList();
-            if (target.isInScopeOnly()) {
-                nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
-            } else if (target.getContext() != null) {
-                nodes = target.getContext().getTopNodesInContextFromSiteTree();
-            }
-            for (SiteNode node : nodes) {
-                this.addTagsInFilterPanel(node, tags);
-            }
-        }
-
-        filterPanel.setAllTags(new ArrayList<String>(tags));
         return filterPanel;
     }
 
@@ -916,8 +898,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             contextSpecificObjects.add(scannerParam);
             contextSpecificObjects.add(techTreeState);
-            contextSpecificObjects.add(filterPanel.getFilterPanelVO());
-
+            List<ScanFilter> scanFilterList = filterPanel.getFilterPanelVO().getScanFilters();
+            for (ScanFilter scanFilter : scanFilterList) {
+                contextSpecificObjects.add(scanFilter);
+            }
             if (this.customPanels != null) {
                 for (CustomScanPanel customPanel : this.customPanels) {
                     Object[] objs = customPanel.getContextSpecificObjects();

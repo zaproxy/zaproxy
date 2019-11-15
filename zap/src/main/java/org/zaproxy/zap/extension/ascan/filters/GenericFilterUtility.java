@@ -89,15 +89,6 @@ public class GenericFilterUtility {
                         }
                     }
                     return FilterResult.NOT_FILTERED;
-                case INCLUDE_ALL:
-                    boolean isFiltered = nodeValues.containsAll(genericFilterData.getValues());
-                    if (!isFiltered) {
-                        return new FilterResult(
-                                Constant.messages.getString(
-                                        INCLUDE_ALL_FILTER_CRITERIA_MESSAGE_KEY,
-                                        new Object[] {filterType, genericFilterData.getValues()}));
-                    }
-                    return FilterResult.NOT_FILTERED;
                 default:
                     return FilterResult.NOT_FILTERED;
             }

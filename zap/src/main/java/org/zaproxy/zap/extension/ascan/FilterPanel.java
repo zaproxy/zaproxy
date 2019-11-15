@@ -24,7 +24,12 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -38,9 +43,12 @@ import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -96,7 +104,7 @@ public class FilterPanel extends JPanel {
      * +----------------------------------------------------------------------+
      */
     // Constructs and Initializes the Panel
-    public FilterPanel() {
+    public FilterPanel(Target target) {
         GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
         java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
@@ -135,6 +143,7 @@ public class FilterPanel extends JPanel {
         this.add(descLabel, gridBagConstraints11);
         this.add(getJPanel2(), gridBagConstraints12);
         this.add(getJPanel1(), gridBagConstraints6);
+        this.populateTagsInFilterPanel(target);
     }
 
     /**
@@ -204,7 +213,7 @@ public class FilterPanel extends JPanel {
         return jPanel1;
     }
 
-    public void resetFilterPanel() {
+    public void resetFilterPanel(Target target) {
         methodList.setSelectedIndices(new int[0]);
         codeList.setSelectedIndices(new int[0]);
         incTagList.setSelectedIndices(new int[0]);
@@ -214,6 +223,9 @@ public class FilterPanel extends JPanel {
         regexInc.setText("");
         regexExc.setText("");
         filterPanelVO.reset();
+        if (target != null) {
+            this.populateTagsInFilterPanel(target);
+        }
     }
 
     /**
@@ -231,7 +243,7 @@ public class FilterPanel extends JPanel {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             // Unset everything
-                            resetFilterPanel();
+                            resetFilterPanel(null);
                         }
                     });
         }
@@ -546,6 +558,42 @@ public class FilterPanel extends JPanel {
             i++;
         }
         incTagList.setSelectedIndices(inds);
+    }
+
+    private void addTagsInFilterPanel(SiteNode siteNode, Collection<String> tags) {
+        if (siteNode != null) {
+            if (siteNode.getHistoryReference() != null
+                    && siteNode.getHistoryReference().getTags() != null) {
+                tags.addAll(siteNode.getHistoryReference().getTags());
+            }
+            Enumeration<?> childEnumeration = siteNode.children();
+            while (childEnumeration.hasMoreElements()) {
+                Object node = childEnumeration.nextElement();
+                if (node instanceof SiteNode) {
+                    addTagsInFilterPanel((SiteNode) node, tags);
+                }
+            }
+        }
+    }
+
+    private void populateTagsInFilterPanel(Target target) {
+        Set<String> tags = new LinkedHashSet<>();
+        SiteNode siteNode = target.getStartNode();
+        if (siteNode != null) {
+            this.addTagsInFilterPanel(siteNode, tags);
+        } else if (target.getContext() != null || target.isInScopeOnly()) {
+            List<SiteNode> nodes = Collections.emptyList();
+            if (target.isInScopeOnly()) {
+                nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
+            } else if (target.getContext() != null) {
+                nodes = target.getContext().getTopNodesInContextFromSiteTree();
+            }
+            for (SiteNode node : nodes) {
+                this.addTagsInFilterPanel(node, tags);
+            }
+        }
+
+        this.setAllTags(new ArrayList<String>(tags));
     }
 
     public FilterPanelVO getFilterPanelVO() {

@@ -20,10 +20,10 @@
 package org.zaproxy.zap.extension.ascan.filters;
 
 /**
- * Processing of FilterCriteria is first Include then Exclude and then Include_All so in case a
- * request matches Include and Exclude both the criteria for eg:- say request tags are there in
- * include and exclude both then the include is given preference and that request will be included
- * and will not be filtered out.
+ * Processing of FilterCriteria is first Include then Exclude so in case a request matches Include
+ * and Exclude both the criteria for eg:- say request tags are there in include and exclude both
+ * then the include is given preference and that request will be included and will not be filtered
+ * out.
  *
  * @author KSASAN preetkaran20@gmail.com
  */
@@ -31,9 +31,6 @@ public enum FilterCriteria {
 
     /** Include if any value match */
     INCLUDE,
-
-    /** Include only if all the values match */
-    INCLUDE_ALL,
 
     /** Exclude if any value match */
     EXCLUDE
