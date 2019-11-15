@@ -75,8 +75,10 @@ public class SplashScreen extends JFrame {
 
     public SplashScreen() {
         super();
-
+        this.setUndecorated(true);
+        this.setAlwaysOnTop(true);
         setSize(DisplayUtils.getScaledDimension(420, 430));
+        setResizable(false);
         setLocationRelativeTo(null);
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(DisplayUtils.getZapIconImages());
