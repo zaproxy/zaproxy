@@ -33,9 +33,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -155,11 +157,7 @@ public class AddOn {
              * <p>The result contains the {@link ValidationResult#getException() exception}.
              */
             IO_ERROR_FILE,
-            /**
-             * The ZIP file does not have the add-on manifest, {@value #MANIFEST_FILE_NAME}.
-             *
-             * <p>The result contains the {@link ValidationResult#getException() exception}.
-             */
+            /** The ZIP file does not have the add-on manifest, {@value #MANIFEST_FILE_NAME}. */
             MISSING_MANIFEST,
             /**
              * The manifest is not valid.
@@ -167,6 +165,8 @@ public class AddOn {
              * <p>The result contains the {@link ValidationResult#getException() exception}.
              */
             INVALID_MANIFEST,
+            /** The add-on declared a missing/invalid library. */
+            INVALID_LIB,
         };
 
         private final Validity validity;
@@ -291,6 +291,7 @@ public class AddOn {
     private List<PluginPassiveScanner> loadedPscanrules = Collections.emptyList();
     private boolean loadedPscanRulesSet;
     private List<String> files = Collections.emptyList();
+    private List<Lib> libs = Collections.emptyList();
 
     private AddOnClassnames addOnClassnames = AddOnClassnames.ALL_ALLOWED;
 
@@ -420,23 +421,47 @@ public class AddOn {
         }
 
         try (ZipFile zip = new ZipFile(file.toFile())) {
-            ZipEntry manifest = zip.getEntry(MANIFEST_FILE_NAME);
-            if (manifest == null) {
+            ZipEntry manifestEntry = zip.getEntry(MANIFEST_FILE_NAME);
+            if (manifestEntry == null) {
                 return new ValidationResult(ValidationResult.Validity.MISSING_MANIFEST);
             }
 
-            try (InputStream zis = zip.getInputStream(manifest)) {
+            try (InputStream zis = zip.getInputStream(manifestEntry)) {
+                ZapAddOnXmlFile manifest;
                 try {
-                    return new ValidationResult(new ZapAddOnXmlFile(zis));
-                } catch (Exception e) {
+                    manifest = new ZapAddOnXmlFile(zis);
+                } catch (IOException e) {
                     return new ValidationResult(ValidationResult.Validity.INVALID_MANIFEST, e);
                 }
+
+                if (hasInvalidLibs(file, manifest, zip)) {
+                    return new ValidationResult(ValidationResult.Validity.INVALID_LIB);
+                }
+                return new ValidationResult(manifest);
             }
         } catch (ZipException e) {
             return new ValidationResult(ValidationResult.Validity.UNREADABLE_ZIP_FILE, e);
         } catch (Exception e) {
             return new ValidationResult(ValidationResult.Validity.IO_ERROR_FILE, e);
         }
+    }
+
+    private static boolean hasInvalidLibs(Path file, ZapAddOnXmlFile manifest, ZipFile zip) {
+        return manifest.getLibs().stream()
+                .anyMatch(
+                        e -> {
+                            ZipEntry libEntry = zip.getEntry(e);
+                            if (libEntry == null) {
+                                logger.warn("The add-on " + file + " does not have the lib: " + e);
+                                return true;
+                            }
+                            if (libEntry.isDirectory()) {
+                                logger.warn(
+                                        "The add-on " + file + " does not have a file lib: " + e);
+                                return true;
+                            }
+                            return false;
+                        });
     }
 
     /**
@@ -570,6 +595,7 @@ public class AddOn {
         this.extensions = zapAddOnXml.getExtensions();
         this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
         this.files = zapAddOnXml.getFiles();
+        this.libs = createLibs(zapAddOnXml.getLibs());
         this.pscanrules = zapAddOnXml.getPscanrules();
 
         this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
@@ -639,6 +665,13 @@ public class AddOn {
             }
         }
         return null;
+    }
+
+    private static List<Lib> createLibs(List<String> libPaths) {
+        if (libPaths.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return libPaths.stream().map(Lib::new).collect(Collectors.toList());
     }
 
     public String getId() {
@@ -1152,6 +1185,19 @@ public class AddOn {
         return files;
     }
 
+    /**
+     * Gets the bundled libraries of the add-on.
+     *
+     * @return the bundled libraries, never {@code null}.
+     */
+    List<Lib> getLibs() {
+        return libs;
+    }
+
+    private boolean hasMissingLibs() {
+        return libs.stream().anyMatch(lib -> lib.getFileSystemUrl() == null);
+    }
+
     public boolean isSameAddOn(AddOn addOn) {
         return this.getId().equals(addOn.getId());
     }
@@ -1266,10 +1312,31 @@ public class AddOn {
      * @see AddOnRunRequirements
      */
     public AddOnRunRequirements calculateRunRequirements(Collection<AddOn> availableAddOns) {
+        return calculateRunRequirements(availableAddOns, true);
+    }
+
+    /**
+     * Calculates the requirements to install/run this add-on, same as {@link
+     * #calculateRunRequirements(Collection)} but does not require the libraries of the add-ons
+     * (this or dependencies) to exist in the file system.
+     *
+     * @param availableAddOns the other add-ons available.
+     * @return the requirements to install/run the add-on, and if not runnable the reason why it's
+     *     not.
+     * @since TODO add version
+     * @see #calculateRunRequirements(Collection)
+     * @see AddOnRunRequirements
+     */
+    public AddOnRunRequirements calculateInstallRequirements(Collection<AddOn> availableAddOns) {
+        return calculateRunRequirements(availableAddOns, false);
+    }
+
+    private AddOnRunRequirements calculateRunRequirements(
+            Collection<AddOn> availableAddOns, boolean checkLibs) {
         AddOnRunRequirements requirements = new AddOnRunRequirements(this);
-        calculateRunRequirementsImpl(availableAddOns, requirements, null, this);
+        calculateRunRequirementsImpl(availableAddOns, requirements, null, this, checkLibs);
         if (requirements.isRunnable()) {
-            checkExtensionsWithDeps(availableAddOns, requirements, this);
+            checkExtensionsWithDeps(availableAddOns, requirements, this, checkLibs);
         }
         return requirements;
     }
@@ -1278,7 +1345,13 @@ public class AddOn {
             Collection<AddOn> availableAddOns,
             BaseRunRequirements requirements,
             AddOn parent,
-            AddOn addOn) {
+            AddOn addOn,
+            boolean checkLibs) {
+        if (checkLibs && addOn.hasMissingLibs()) {
+            requirements.setMissingLibsIssue(addOn);
+            return;
+        }
+
         AddOn installedVersion = getAddOn(availableAddOns, addOn.getId());
         if (installedVersion != null && !addOn.equals(installedVersion)) {
             requirements.setIssue(
@@ -1327,7 +1400,8 @@ public class AddOn {
                     }
                 }
 
-                calculateRunRequirementsImpl(availableAddOns, requirements, addOn, addOnDep);
+                calculateRunRequirementsImpl(
+                        availableAddOns, requirements, addOn, addOnDep, checkLibs);
                 if (requirements.hasDependencyIssue()) {
                     return;
                 }
@@ -1336,13 +1410,17 @@ public class AddOn {
     }
 
     private static void checkExtensionsWithDeps(
-            Collection<AddOn> availableAddOns, AddOnRunRequirements requirements, AddOn addOn) {
+            Collection<AddOn> availableAddOns,
+            AddOnRunRequirements requirements,
+            AddOn addOn,
+            boolean checkLibs) {
         if (addOn.extensionsWithDeps.isEmpty()) {
             return;
         }
 
         for (ExtensionWithDeps extension : addOn.extensionsWithDeps) {
-            calculateExtensionRunRequirements(extension, availableAddOns, requirements, addOn);
+            calculateExtensionRunRequirements(
+                    extension, availableAddOns, requirements, addOn, checkLibs);
         }
     }
 
@@ -1350,7 +1428,8 @@ public class AddOn {
             ExtensionWithDeps extension,
             Collection<AddOn> availableAddOns,
             AddOnRunRequirements requirements,
-            AddOn addOn) {
+            AddOn addOn,
+            boolean checkLibs) {
         ExtensionRunRequirements extensionRequirements =
                 new ExtensionRunRequirements(addOn, extension.getClassname());
         requirements.addExtensionRequirements(extensionRequirements);
@@ -1388,7 +1467,8 @@ public class AddOn {
                 }
             }
 
-            calculateRunRequirementsImpl(availableAddOns, extensionRequirements, addOn, addOnDep);
+            calculateRunRequirementsImpl(
+                    availableAddOns, extensionRequirements, addOn, addOnDep, checkLibs);
         }
     }
 
@@ -1423,8 +1503,26 @@ public class AddOn {
      */
     public AddOnRunRequirements calculateExtensionRunRequirements(
             Extension extension, Collection<AddOn> availableAddOns) {
-        return calculateExtensionRunRequirements(
-                extension.getClass().getCanonicalName(), availableAddOns);
+        return calculateExtensionRunRequirementsImpl(
+                extension.getClass().getCanonicalName(), availableAddOns, true);
+    }
+
+    /**
+     * Calculates the requirements to install/run the given {@code extension}, same as {@link
+     * #calculateExtensionRunRequirements(Extension, Collection)} but does not require the libraries
+     * of the add-ons (this or dependencies) to exist in the file system.
+     *
+     * @param extension the extension that will be checked.
+     * @param availableAddOns the add-ons available.
+     * @return the requirements to install/run the extension, and if not runnable the reason why
+     *     it's not.
+     * @since TODO add version
+     * @see AddOnRunRequirements#getExtensionRequirements()
+     */
+    public AddOnRunRequirements calculateExtensionInstallRequirements(
+            Extension extension, Collection<AddOn> availableAddOns) {
+        return calculateExtensionRunRequirementsImpl(
+                extension.getClass().getCanonicalName(), availableAddOns, false);
     }
 
     /**
@@ -1445,11 +1543,33 @@ public class AddOn {
      */
     public AddOnRunRequirements calculateExtensionRunRequirements(
             String classname, Collection<AddOn> availableAddOns) {
+        return calculateExtensionRunRequirementsImpl(classname, availableAddOns, true);
+    }
+
+    /**
+     * Calculates the requirements to install/run the given {@code extension}, same as {@link
+     * #calculateExtensionRunRequirements(String, Collection)} but does not require the libraries of
+     * the add-ons (this or dependencies) to exist in the file system.
+     *
+     * @param classname the classname of extension that will be checked.
+     * @param availableAddOns the add-ons available.
+     * @return the requirements to install/run the extension, and if not runnable the reason why
+     *     it's not.
+     * @since TODO add version
+     * @see AddOnRunRequirements#getExtensionRequirements()
+     */
+    public AddOnRunRequirements calculateExtensionInstallRequirements(
+            String classname, Collection<AddOn> availableAddOns) {
+        return calculateExtensionRunRequirementsImpl(classname, availableAddOns, false);
+    }
+
+    private AddOnRunRequirements calculateExtensionRunRequirementsImpl(
+            String classname, Collection<AddOn> availableAddOns, boolean checkLibs) {
         AddOnRunRequirements requirements = new AddOnRunRequirements(this);
         for (ExtensionWithDeps extensionWithDeps : extensionsWithDeps) {
             if (extensionWithDeps.getClassname().equals(classname)) {
                 calculateExtensionRunRequirements(
-                        extensionWithDeps, availableAddOns, requirements, this);
+                        extensionWithDeps, availableAddOns, requirements, this, checkLibs);
                 break;
             }
         }
@@ -1767,6 +1887,66 @@ public class AddOn {
         return version.equals(other.version);
     }
 
+    /**
+     * A library (JAR) bundled in the add-on.
+     *
+     * <p>Bundled libraries are copied and loaded from the file system, which allows to properly
+     * maintain/access all JAR's data (e.g. module info, manifest, services).
+     */
+    static class Lib {
+        private final String jarPath;
+        private final String name;
+        private URL fileSystemUrl;
+
+        Lib(String path) {
+            jarPath = path;
+            name = extractName(path);
+        }
+
+        String getJarPath() {
+            return jarPath;
+        }
+
+        String getName() {
+            return name;
+        }
+
+        URL getFileSystemUrl() {
+            return fileSystemUrl;
+        }
+
+        void setFileSystemUrl(URL fileSystemUrl) {
+            this.fileSystemUrl = fileSystemUrl;
+        }
+
+        private static String extractName(String path) {
+            int idx = path.lastIndexOf('/');
+            if (idx == -1) {
+                return path;
+            }
+            return path.substring(idx + 1);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(jarPath);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            return Objects.equals(jarPath, ((Lib) obj).jarPath);
+        }
+    }
+
     public abstract static class BaseRunRequirements {
 
         /**
@@ -1838,6 +2018,7 @@ public class AddOn {
 
         private String minimumJavaVersion;
         private AddOn addOnMinimumJavaVersion;
+        private AddOn addOnMissingLibs;
 
         private boolean runnable;
 
@@ -2009,6 +2190,37 @@ public class AddOn {
         private void setMinimumJavaVersion(AddOn srcAddOn, String requiredVersion) {
             addOnMinimumJavaVersion = srcAddOn;
             minimumJavaVersion = requiredVersion;
+        }
+
+        /**
+         * Tells whether or not this add-on has missing libraries (that is, not present in the file
+         * system).
+         *
+         * <p>The issue might be caused by a dependency or the add-on itself. To check which one use
+         * the methods {@link #getAddOn()} and {@link #getAddOnMissingLibs()}.
+         *
+         * @return {@code true} if the add-on has missing libraries, {@code false} otherwise.
+         * @since TODO add version
+         */
+        public boolean hasMissingLibs() {
+            return addOnMissingLibs != null;
+        }
+
+        /**
+         * Gets the add-on that has missing libraries.
+         *
+         * @return the add-on, or {@code null} if none.
+         * @see #hasMissingLibs()
+         * @see #getAddOn()
+         * @since TODO add version
+         */
+        public AddOn getAddOnMissingLibs() {
+            return addOnMissingLibs;
+        }
+
+        protected void setMissingLibsIssue(AddOn srcAddOn) {
+            setRunnable(false);
+            addOnMissingLibs = srcAddOn;
         }
     }
 

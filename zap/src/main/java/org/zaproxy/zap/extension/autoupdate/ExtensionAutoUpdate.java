@@ -358,6 +358,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             Constant.messages.getString(
                                     "cfu.warn.invalidAddOn.invalidManifest", e.getMessage()));
                     break;
+                case INVALID_LIB:
+                    showWarningMessageInvalidAddOnFile(
+                            Constant.messages.getString("cfu.warn.invalidAddOn.invalidLib"));
+                    break;
                 default:
                     showWarningMessageInvalidAddOnFile(e.getMessage());
                     logger.warn(e);
@@ -426,7 +430,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         if (result.getOldVersions().isEmpty() && result.getUninstalls().isEmpty()) {
             AddOnRunRequirements reqs =
-                    ao.calculateRunRequirements(getLocalVersionInfo().getAddOns());
+                    ao.calculateInstallRequirements(getLocalVersionInfo().getAddOns());
             if (!reqs.isRunnable()) {
                 if (!AddOnRunIssuesUtils.askConfirmationAddOnNotRunnable(
                         Constant.messages.getString("cfu.warn.addOnNotRunnable.message"),

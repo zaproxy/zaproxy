@@ -86,6 +86,7 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getAscanrules(), is(empty()));
         assertThat(manifest.getPscanrules(), is(empty()));
         assertThat(manifest.getFiles(), is(empty()));
+        assertThat(manifest.getLibs(), is(empty()));
     }
 
     @Test
@@ -182,6 +183,25 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getBundlePrefix(), is(equalTo(bundlePrefix)));
         assertThat(manifest.getHelpSetBaseName(), is(equalTo(helpSetBaseName)));
         assertThat(manifest.getHelpSetLocaleToken(), is(equalTo(helpSetLocaleToken)));
+    }
+
+    @Test
+    public void shouldLoadManifestWithLibs() throws Exception {
+        // Given
+        String lib1 = "lib1.jar";
+        String lib2 = "dir/lib2.jar";
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<libs>",
+                        "  <lib>" + lib1 + "</lib>",
+                        "  <lib>" + lib2 + "</lib>",
+                        "</libs>",
+                        "</zapaddon>");
+        // When
+        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
+        // Then
+        assertThat(manifest.getLibs(), contains(lib1, lib2));
     }
 
     @Test
