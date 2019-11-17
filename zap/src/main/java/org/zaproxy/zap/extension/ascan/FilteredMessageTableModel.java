@@ -24,8 +24,8 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
-/** The Class FilteredNodesTableModel is used as a TableModel for the Active Scan Panel. */
-public class FilteredNodesTableModel extends AbstractTableModel {
+/** The Class FilteredMessageTableModel is used as a TableModel for the Active Scan Panel. */
+public class FilteredMessageTableModel extends AbstractTableModel {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -6380136823410869457L;
@@ -40,11 +40,11 @@ public class FilteredNodesTableModel extends AbstractTableModel {
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
     /** The Filtered nodes results. */
-    private List<FilteredNodesResult> filteredNodesResultList;
+    private List<FilteredMessageResult> filteredMessageResultList;
 
     /** Instantiates a new spider panel table model. */
-    public FilteredNodesTableModel() {
-        filteredNodesResultList = new ArrayList<>();
+    public FilteredMessageTableModel() {
+        filteredMessageResultList = new ArrayList<>();
     }
 
     @Override
@@ -59,13 +59,13 @@ public class FilteredNodesTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return filteredNodesResultList.size();
+        return filteredMessageResultList.size();
     }
 
     @Override
     public Object getValueAt(int row, int col) {
         // Get the ScanResult and the required field
-        FilteredNodesResult result = filteredNodesResultList.get(row);
+        FilteredMessageResult result = filteredMessageResultList.get(row);
         switch (col) {
             case 0:
                 return result.uri;
@@ -78,7 +78,7 @@ public class FilteredNodesTableModel extends AbstractTableModel {
 
     /** Removes all the elements. Method is synchronized internally. */
     public void removeAllElements() {
-        filteredNodesResultList.clear();
+        filteredMessageResultList.clear();
         fireTableDataChanged();
     }
 
@@ -89,10 +89,10 @@ public class FilteredNodesTableModel extends AbstractTableModel {
      * @param method the reason
      */
     public void addScanResult(String uri, String reason) {
-        FilteredNodesResult result = new FilteredNodesResult(uri, reason);
-        filteredNodesResultList.add(result);
+        FilteredMessageResult result = new FilteredMessageResult(uri, reason);
+        filteredMessageResultList.add(result);
         fireTableRowsInserted(
-                filteredNodesResultList.size() - 1, filteredNodesResultList.size() - 1);
+                filteredMessageResultList.size() - 1, filteredMessageResultList.size() - 1);
     }
 
     /**
@@ -102,10 +102,10 @@ public class FilteredNodesTableModel extends AbstractTableModel {
      * @param method the reason
      */
     public void removesScanResult(String uri, String reason) {
-        FilteredNodesResult toRemove = new FilteredNodesResult(uri, reason);
-        int index = filteredNodesResultList.indexOf(toRemove);
+        FilteredMessageResult toRemove = new FilteredMessageResult(uri, reason);
+        int index = filteredMessageResultList.indexOf(toRemove);
         if (index >= 0) {
-            filteredNodesResultList.remove(index);
+            filteredMessageResultList.remove(index);
             fireTableRowsDeleted(index, index);
         }
     }
@@ -128,10 +128,10 @@ public class FilteredNodesTableModel extends AbstractTableModel {
     }
 
     /**
-     * The Class FilteredNodesResult that stores an entry in the table (a result for the filtered
+     * The Class FilteredMessageResult that stores an entry in the table (a result for the filtered
      * nodes in Active Scan).
      */
-    private static class FilteredNodesResult {
+    private static class FilteredMessageResult {
 
         /** The uri */
         protected String uri;
@@ -145,7 +145,7 @@ public class FilteredNodesTableModel extends AbstractTableModel {
          * @param uri the uri
          * @param reason the method
          */
-        protected FilteredNodesResult(String uri, String reason) {
+        protected FilteredMessageResult(String uri, String reason) {
             super();
             this.uri = uri;
             this.reason = reason;
@@ -165,7 +165,7 @@ public class FilteredNodesTableModel extends AbstractTableModel {
             if (this == obj) return true;
             if (obj == null) return false;
             if (getClass() != obj.getClass()) return false;
-            FilteredNodesResult other = (FilteredNodesResult) obj;
+            FilteredMessageResult other = (FilteredMessageResult) obj;
             if (reason == null) {
                 if (other.reason != null) return false;
             } else if (!reason.equals(other.reason)) return false;
@@ -177,8 +177,8 @@ public class FilteredNodesTableModel extends AbstractTableModel {
     }
 
     public List<String> getAddedNodes() {
-        List<String> list = new ArrayList<String>(this.filteredNodesResultList.size());
-        for (FilteredNodesResult res : this.filteredNodesResultList) {
+        List<String> list = new ArrayList<String>(this.filteredMessageResultList.size());
+        for (FilteredMessageResult res : this.filteredMessageResultList) {
             list.add(res.uri);
         }
         return list;
