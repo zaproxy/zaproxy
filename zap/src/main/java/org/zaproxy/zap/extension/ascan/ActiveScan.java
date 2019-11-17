@@ -244,7 +244,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
             filteredMessageTableModel.addScanResult(SessionStructure.getNodeName(msg), reason);
         } catch (URIException e) {
             log.error(
-                    "Error while adding node to filtered message table model: " + e.getMessage(), e);
+                    "Error while adding node to filtered message table model: " + e.getMessage(),
+                    e);
         }
     }
 
