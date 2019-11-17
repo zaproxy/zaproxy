@@ -299,7 +299,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     private ZapTable getFilteredMessageTable() {
         if (filteredMessageTable == null) {
             filteredMessageTable = new ZapTable(EMPTY_FILTERED_MESSAGE_MODEL);
-            filteredMessageTable.setName("FilteredNodesTable");
+            filteredMessageTable.setName("FilteredMessageTable");
             filteredMessageTable.setAutoCreateColumnsFromModel(false);
         }
         return filteredMessageTable;

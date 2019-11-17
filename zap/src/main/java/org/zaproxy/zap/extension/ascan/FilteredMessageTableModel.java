@@ -39,7 +39,7 @@ public class FilteredMessageTableModel extends AbstractTableModel {
     /** The Constant defining the COLUMN COUNT. */
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    /** The Filtered nodes results. */
+    /** The Filtered message results. */
     private List<FilteredMessageResult> filteredMessageResultList;
 
     /** Instantiates a new spider panel table model. */
@@ -83,7 +83,7 @@ public class FilteredMessageTableModel extends AbstractTableModel {
     }
 
     /**
-     * Adds a new filtered node result.
+     * Adds a new filtered message result.
      *
      * @param uri the uri
      * @param method the reason
@@ -129,7 +129,7 @@ public class FilteredMessageTableModel extends AbstractTableModel {
 
     /**
      * The Class FilteredMessageResult that stores an entry in the table (a result for the filtered
-     * nodes in Active Scan).
+     * messages in Active Scan).
      */
     private static class FilteredMessageResult {
 
@@ -140,7 +140,7 @@ public class FilteredMessageTableModel extends AbstractTableModel {
         protected String reason;
 
         /**
-         * Instantiates a new filtered node result.
+         * Instantiates a new filtered message result.
          *
          * @param uri the uri
          * @param reason the method
