@@ -507,6 +507,19 @@ public class HostProcess implements Runnable {
             try {
                 FilterResult filterResult = scanFilter.isFiltered(node);
                 if (filterResult.isFiltered()) {
+                    // Notify Parent Scanner.
+
+                    HttpMessage msg;
+                    try {
+                        msg = node.getHistoryReference().getHttpMessage();
+                        parentScanner.notifyFilteredMessage(msg, filterResult.getReason());
+                    } catch (HttpMalformedHeaderException | DatabaseException e) {
+                        log.error(
+                                "Error while getting httpmessage from history reference: "
+                                        + e.getMessage(),
+                                e);
+                    }
+
                     if (log.isDebugEnabled()) {
                         log.debug(
                                 "Ignoring filtered node: "

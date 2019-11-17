@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.swing.DefaultListModel;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
@@ -45,6 +46,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
@@ -63,6 +65,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private String displayName = null;
     private int progress = 0;
     private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
+    private FilteredNodesTableModel filteredNodesTableModel = new FilteredNodesTableModel();
     private SiteNode startNode = null;
     private ResponseCountSnapshot rcTotals = new ResponseCountSnapshot();
     private ResponseCountSnapshot rcLastSnapshot = new ResponseCountSnapshot();
@@ -222,7 +225,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     @Override
     public void hostProgress(int id, String hostAndPort, String msg, int percentage) {
         // Calculate the percentage based on the average of all of the host processes
-        // This is an approximation as different host process make significantly different times
+        // This is an approximation as different host process make significantly
+        // different times
         int tot = 0;
         for (HostProcess process : this.getHostProcesses()) {
             tot += process.getPercentageComplete();
@@ -231,6 +235,16 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         if (latestProgress != this.progress) {
             this.progress = latestProgress;
             ActiveScanEventPublisher.publishScanProgressEvent(this.getId(), this.progress);
+        }
+    }
+
+    @Override
+    public void filteredMessage(HttpMessage msg, String reason) {
+        try {
+            filteredNodesTableModel.addScanResult(SessionStructure.getNodeName(msg), reason);
+        } catch (URIException e) {
+            log.error(
+                    "Error while adding node to filtered nodes table model: " + e.getMessage(), e);
         }
     }
 
@@ -254,6 +268,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     // @Override
     public DefaultListModel<HistoryReference> getList() {
         return null;
+    }
+
+    public FilteredNodesTableModel getFilteredNodesTableModel() {
+        return filteredNodesTableModel;
     }
 
     public ActiveScanTableModel getMessagesTableModel() {

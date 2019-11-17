@@ -508,10 +508,6 @@ public class FilterPanel extends JPanel {
         return tagModel;
     }
 
-    private void resetTagModel() {
-        tagModel.clear();
-    }
-
     private JScrollPane getIncTagScroller() {
         if (incTagScroller == null) {
             incTagList = new JList<>(getTagModel());

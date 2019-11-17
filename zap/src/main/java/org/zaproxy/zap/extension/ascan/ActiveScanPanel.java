@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,8 +29,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -43,6 +48,7 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel2;
+import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>>
@@ -66,17 +72,23 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     private static final String ZERO_NEW_ALERTS_LABEL_TEXT = "0";
 
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
+    private static final FilteredNodesTableModel EMPTY_FILTERED_NODES_MODEL =
+            new FilteredNodesTableModel();
 
     private ExtensionActiveScan extension;
     private JScrollPane jScrollPane;
+    private JScrollPane filterPane;
     private HistoryReferencesTable messagesTable;
+    private ZapTable filteredNodesTable;
 
     private JButton policyButton = null;
     private JButton scanButton = null;
     private JButton progressButton;
     private JLabel numRequests;
     private JLabel numNewAlerts;
-    private TableExportButton<HistoryReferencesTable> exportButton = null;
+    private JPanel mainPanel;
+    private JTabbedPane tabbedPane;
+    private TableExportButton<ZapTable> exportButton;
 
     /**
      * Constructs an {@code ActiveScanPanel} with the given extension.
@@ -89,6 +101,20 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                 "ascan",
                 new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")),
                 extension);
+        tabbedPane.addChangeListener(
+                new ChangeListener() {
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        switch (tabbedPane.getSelectedIndex()) {
+                            case 0:
+                                getExportButton().setTable(getMessagesTable());
+                                break;
+                            case 1:
+                                getExportButton().setTable(getFilteredNodesTable());
+                                break;
+                        }
+                    }
+                });
         this.extension = extension;
         this.setDefaultAccelerator(
                 extension
@@ -202,7 +228,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         }
     }
 
-    private TableExportButton<HistoryReferencesTable> getExportButton() {
+    private TableExportButton<ZapTable> getExportButton() {
         if (exportButton == null) {
             exportButton = new TableExportButton<>(getMessagesTable());
         }
@@ -229,25 +255,54 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     }
 
     @Override
-    protected JScrollPane getWorkPanel() {
-        if (jScrollPane == null) {
-            jScrollPane = new JScrollPane();
-            jScrollPane.setViewportView(getMessagesTable());
+    protected JPanel getWorkPanel() {
+        if (mainPanel == null) {
+            mainPanel = new JPanel(new BorderLayout());
+            tabbedPane = new JTabbedPane();
+            if (jScrollPane == null) {
+                jScrollPane = new JScrollPane();
+                jScrollPane.setName("ActiveScanMessagePane");
+                jScrollPane.setViewportView(getMessagesTable());
+            }
+            if (filterPane == null) {
+                filterPane = new JScrollPane();
+                filterPane.setName("FilteredNodesPane");
+                filterPane.setViewportView(getFilteredNodesTable());
+            }
+            tabbedPane.add(
+                    Constant.messages.getString("ascan.panel.tab.scannedNodes"), jScrollPane);
+            tabbedPane.add(
+                    Constant.messages.getString("ascan.panel.tab.filteredNodes"), filterPane);
+            tabbedPane.setSelectedIndex(0);
+            mainPanel.add(tabbedPane);
         }
-        return jScrollPane;
+        return mainPanel;
     }
 
     private void resetMessagesTable() {
         getMessagesTable().setModel(EMPTY_RESULTS_MODEL);
     }
 
-    private HistoryReferencesTable getMessagesTable() {
+    private void resetFilteredNodesTable() {
+        getFilteredNodesTable().setModel(EMPTY_FILTERED_NODES_MODEL);
+    }
+
+    private ZapTable getMessagesTable() {
         if (messagesTable == null) {
             messagesTable = new HistoryReferencesTable(EMPTY_RESULTS_MODEL);
             messagesTable.setName(MESSAGE_CONTAINER_NAME);
             messagesTable.setAutoCreateColumnsFromModel(false);
         }
         return messagesTable;
+    }
+
+    private ZapTable getFilteredNodesTable() {
+        if (filteredNodesTable == null) {
+            filteredNodesTable = new ZapTable(EMPTY_FILTERED_NODES_MODEL);
+            filteredNodesTable.setName("FilteredNodesTable");
+            filteredNodesTable.setAutoCreateColumnsFromModel(false);
+        }
+        return filteredNodesTable;
     }
 
     @Override
@@ -270,6 +325,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
         if (scanner != null) {
             getMessagesTable().setModel(scanner.getMessagesTableModel());
+            getFilteredNodesTable().setModel(scanner.getFilteredNodesTableModel());
             this.getNumRequests().setText(Integer.toString(scanner.getTotalRequests()));
             this.getNumNewAlerts().setText(Integer.toString(scanner.getTotalNewAlerts()));
             this.getProgressButton().setEnabled(true);
@@ -283,6 +339,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             }
         } else {
             resetMessagesTable();
+            resetFilteredNodesTable();
             this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
             this.getNumNewAlerts().setText(ZERO_NEW_ALERTS_LABEL_TEXT);
             this.getProgressButton().setEnabled(false);
@@ -335,6 +392,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     public void reset() {
         super.reset();
         this.resetMessagesTable();
+        this.resetFilteredNodesTable();
         this.getProgressButton().setEnabled(false);
     }
 
