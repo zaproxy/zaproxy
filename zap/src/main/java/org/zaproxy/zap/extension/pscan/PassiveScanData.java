@@ -28,6 +28,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 
 /**
@@ -45,6 +46,8 @@ public final class PassiveScanData {
     private final HttpMessage message;
     private final Context context;
 
+    private final TechSet techSet;
+
     private List<User> userList = null;
 
     PassiveScanData(HttpMessage msg) {
@@ -52,7 +55,10 @@ public final class PassiveScanData {
         this.context = getContext(message);
 
         if (getContext() == null) {
-            userList = Collections.emptyList();
+            this.userList = Collections.emptyList();
+            this.techSet = TechSet.AllTech;
+        } else {
+            this.techSet = getContext().getTechSet();
         }
     }
 
@@ -118,5 +124,16 @@ public final class PassiveScanData {
      */
     public Context getContext() {
         return context;
+    }
+
+    /**
+     * Returns the {@code TechSet} associated with the Context of the message being passively
+     * scanned.
+     *
+     * @return the {@code TechSet} if the message has been matched to a Context, {@code
+     *     TechSet.AllTech} otherwise.
+     */
+    public TechSet getTechSet() {
+        return techSet;
     }
 }
