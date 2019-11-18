@@ -36,6 +36,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType;
 import org.zaproxy.zap.session.HttpAuthSessionManagementMethodType;
+import org.zaproxy.zap.session.ScriptBasedSessionManagementMethodType;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -130,6 +131,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         this.sessionManagementMethodTypes = new ArrayList<>();
         this.sessionManagementMethodTypes.add(new CookieBasedSessionManagementMethodType());
         this.sessionManagementMethodTypes.add(new HttpAuthSessionManagementMethodType());
+        this.sessionManagementMethodTypes.add(new ScriptBasedSessionManagementMethodType());
 
         for (SessionManagementMethodType t : sessionManagementMethodTypes) {
             t.hook(extensionHook);
