@@ -3,7 +3,7 @@
 //
 // The SessionWrapper class provides the following methods:
 //   getSession()       - returns a ScriptBasedSession
-//   getHttpMessage()   - returns an HttmMessage
+//   getHttpMessage()   - returns an HttpMessage
 //   getParam(key)      - returns the parameter associated with the specified required or optional param name
 //
 // The ScriptBasedSession class provides the following methods:
