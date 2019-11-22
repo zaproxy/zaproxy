@@ -258,27 +258,27 @@ public class SimpleEventBus implements EventBus {
         private String[] eventTypes;
         private String publisherName;
 
-        public RegisteredConsumer(EventConsumer consumer, String[] eventTypes) {
+        RegisteredConsumer(EventConsumer consumer, String[] eventTypes) {
             this.consumer = consumer;
             this.eventTypes = eventTypes;
         }
 
-        public RegisteredConsumer(
+        RegisteredConsumer(
                 EventConsumer consumer, String[] eventTypes, String publisherName) {
             this.consumer = consumer;
             this.eventTypes = eventTypes;
             this.publisherName = publisherName;
         }
 
-        public EventConsumer getConsumer() {
+        EventConsumer getConsumer() {
             return consumer;
         }
 
-        public String[] getEventTypes() {
+        String[] getEventTypes() {
             return eventTypes;
         }
 
-        public String getPublisherName() {
+        String getPublisherName() {
             return publisherName;
         }
     }
@@ -288,33 +288,33 @@ public class SimpleEventBus implements EventBus {
         private String[] eventTypes;
         private List<RegisteredConsumer> consumers = new CopyOnWriteArrayList<>();
 
-        public RegisteredPublisher(EventPublisher publisher, String[] eventTypes) {
+        RegisteredPublisher(EventPublisher publisher, String[] eventTypes) {
             super();
             this.publisher = publisher;
             this.eventTypes = eventTypes;
         }
 
-        public EventPublisher getPublisher() {
+        EventPublisher getPublisher() {
             return publisher;
         }
 
-        public String[] getEventTypes() {
+        String[] getEventTypes() {
             return eventTypes;
         }
 
-        public List<RegisteredConsumer> getConsumers() {
+        List<RegisteredConsumer> getConsumers() {
             return consumers;
         }
 
-        public void addConsumers(List<RegisteredConsumer> consumers) {
+        void addConsumers(List<RegisteredConsumer> consumers) {
             this.consumers.addAll(consumers);
         }
 
-        public void addConsumer(EventConsumer consumer, String[] eventTypes) {
+        void addConsumer(EventConsumer consumer, String[] eventTypes) {
             this.consumers.add(new RegisteredConsumer(consumer, eventTypes));
         }
 
-        public void removeConsumer(EventConsumer consumer) {
+        void removeConsumer(EventConsumer consumer) {
             for (RegisteredConsumer cons : consumers) {
                 if (cons.getConsumer().equals(consumer)) {
                     this.consumers.remove(cons);
