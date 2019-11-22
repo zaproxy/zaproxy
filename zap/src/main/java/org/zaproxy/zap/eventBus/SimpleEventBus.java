@@ -61,12 +61,12 @@ public class SimpleEventBus implements EventBus {
         }
         regMgmtLock.lock();
         try {
-            if (this.nameToPublisher.get(publisher.getPublisherName()) != null) {
+            if (nameToPublisher.get(publisher.getPublisherName()) != null) {
                 throw new InvalidParameterException(
                         "Publisher with name "
                                 + publisher.getPublisherName()
                                 + " already registered by "
-                                + this.nameToPublisher
+                                + nameToPublisher
                                         .get(publisher.getPublisherName())
                                         .getPublisher()
                                         .getClass()
@@ -88,7 +88,7 @@ public class SimpleEventBus implements EventBus {
                     });
 
             regProd.addConsumers(consumers);
-            this.nameToPublisher.put(publisher.getPublisherName(), regProd);
+            nameToPublisher.put(publisher.getPublisherName(), regProd);
         } finally {
             regMgmtLock.unlock();
         }
@@ -115,7 +115,7 @@ public class SimpleEventBus implements EventBus {
 
     @Override
     public void registerConsumer(EventConsumer consumer, String publisherName) {
-        this.registerConsumer(consumer, publisherName, (String[]) null);
+        registerConsumer(consumer, publisherName, (String[]) null);
     }
 
     @Override
@@ -132,10 +132,10 @@ public class SimpleEventBus implements EventBus {
                             + consumer.getClass().getCanonicalName()
                             + " for "
                             + publisherName);
-            RegisteredPublisher publisher = this.nameToPublisher.get(publisherName);
+            RegisteredPublisher publisher = nameToPublisher.get(publisherName);
             if (publisher == null) {
                 // Cache until the publisher registers
-                this.danglingConsumers.add(
+                danglingConsumers.add(
                         new RegisteredConsumer(consumer, eventTypes, publisherName));
             } else {
                 publisher.addConsumer(consumer, eventTypes);
@@ -165,7 +165,7 @@ public class SimpleEventBus implements EventBus {
     }
 
     private void removeDanglingConsumer(EventConsumer consumer) {
-        Iterator<RegisteredConsumer> iter = this.danglingConsumers.iterator();
+        Iterator<RegisteredConsumer> iter = danglingConsumers.iterator();
         while (iter.hasNext()) {
             if (iter.next().getConsumer().equals(consumer)) {
                 iter.remove();
@@ -186,7 +186,7 @@ public class SimpleEventBus implements EventBus {
                             + consumer.getClass().getCanonicalName()
                             + " for "
                             + publisherName);
-            RegisteredPublisher publisher = this.nameToPublisher.get(publisherName);
+            RegisteredPublisher publisher = nameToPublisher.get(publisherName);
             if (publisher != null) {
                 publisher.removeConsumer(consumer);
             } else {
@@ -204,7 +204,7 @@ public class SimpleEventBus implements EventBus {
             throw new InvalidParameterException("Publisher must not be null");
         }
 
-        RegisteredPublisher regPublisher = this.nameToPublisher.get(publisher.getPublisherName());
+        RegisteredPublisher regPublisher = nameToPublisher.get(publisher.getPublisherName());
         if (regPublisher == null) {
             throw new InvalidParameterException(
                     "Publisher not registered: " + publisher.getPublisherName());
@@ -311,13 +311,13 @@ public class SimpleEventBus implements EventBus {
         }
 
         void addConsumer(EventConsumer consumer, String[] eventTypes) {
-            this.consumers.add(new RegisteredConsumer(consumer, eventTypes));
+            consumers.add(new RegisteredConsumer(consumer, eventTypes));
         }
 
         void removeConsumer(EventConsumer consumer) {
             for (RegisteredConsumer cons : consumers) {
                 if (cons.getConsumer().equals(consumer)) {
-                    this.consumers.remove(cons);
+                    consumers.remove(cons);
                     return;
                 }
             }
