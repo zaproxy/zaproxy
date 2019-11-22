@@ -71,6 +71,7 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
 
     public <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(
             Collection<T> values, R providedMatcher) {
+        Objects.requireNonNull(values);
         FilterCriteria filterCriteria = this.getFilterCriteria();
         if (providedMatcher != null) {
             matcher = providedMatcher;
@@ -107,6 +108,7 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
     }
 
     public <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(T value, R matcher) {
+        Objects.requireNonNull(value);
         Set<T> nodeValues = new LinkedHashSet<>();
         nodeValues.add(value);
         return this.isFiltered(nodeValues, matcher);
