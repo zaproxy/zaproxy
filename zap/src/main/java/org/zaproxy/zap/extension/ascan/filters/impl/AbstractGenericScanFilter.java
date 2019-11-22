@@ -66,6 +66,7 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
     }
 
     public void setGenericFilterDataCollection(Collection<T> genericFilterDataCollection) {
+        Objects.requireNonNull(genericFilterDataCollection);
         this.genericFilterDataCollection.addAll(genericFilterDataCollection);
     }
 
