@@ -450,21 +450,22 @@ public class FilterPanel extends JPanel {
 
     private void populateTagsInFilterPanel(Target target) {
         Set<String> tags = new LinkedHashSet<>();
-        SiteNode siteNode = target.getStartNode();
-        if (siteNode != null) {
-            this.addTagsInFilterPanel(siteNode, tags);
-        } else if (target.getContext() != null || target.isInScopeOnly()) {
-            List<SiteNode> nodes = Collections.emptyList();
-            if (target.isInScopeOnly()) {
-                nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
-            } else if (target.getContext() != null) {
-                nodes = target.getContext().getTopNodesInContextFromSiteTree();
-            }
-            for (SiteNode node : nodes) {
-                this.addTagsInFilterPanel(node, tags);
+        if (target != null) {
+            SiteNode siteNode = target.getStartNode();
+            if (siteNode != null) {
+                this.addTagsInFilterPanel(siteNode, tags);
+            } else if (target.getContext() != null || target.isInScopeOnly()) {
+                List<SiteNode> nodes = Collections.emptyList();
+                if (target.isInScopeOnly()) {
+                    nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
+                } else if (target.getContext() != null) {
+                    nodes = target.getContext().getTopNodesInContextFromSiteTree();
+                }
+                for (SiteNode node : nodes) {
+                    this.addTagsInFilterPanel(node, tags);
+                }
             }
         }
-
         this.setAllTags(new ArrayList<String>(tags));
     }
 

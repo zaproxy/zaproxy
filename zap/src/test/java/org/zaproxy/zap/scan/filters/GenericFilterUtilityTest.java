@@ -19,35 +19,52 @@
  */
 package org.zaproxy.zap.scan.filters;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.filters.FilterCriteria;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
-import org.zaproxy.zap.extension.ascan.filters.GenericFilterData;
-import org.zaproxy.zap.extension.ascan.filters.GenericFilterUtility;
+import org.zaproxy.zap.extension.ascan.filters.impl.AbstractGenericScanFilter;
+import org.zaproxy.zap.model.StructuralNode;
 
 /** @author KSASAN preetkaran20@gmail.com */
 public class GenericFilterUtilityTest extends WithConfigsTest {
 
+    private AbstractGenericScanFilter<String> abstractGenericScanFilter;
+
+    @Before
+    public void init() {
+        abstractGenericScanFilter =
+                new AbstractGenericScanFilter<String>() {
+
+                    @Override
+                    public FilterResult isFiltered(StructuralNode node) {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+
+                    @Override
+                    public String getFilterType() {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+                };
+    }
+
     @Test
     public void testEmptyNodeValuesAndFilterValuesIncludeCriteria() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
-
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        List<String> genericFilterData = new ArrayList<String>();
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
-
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
@@ -56,18 +73,14 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testEmptyNodeValuesIncludeCriteria() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
-
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        List<String> genericFilterData = new ArrayList<String>();
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
@@ -76,19 +89,16 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testNodeValuesIncludeCriteriaWithSameValues() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterData.getValues().add("Dummy");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
@@ -97,20 +107,17 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testNodeValuesIncludeCriteriaMoreFilterValues() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterData.getValues().add("Dummy");
-        genericFilterData.getValues().add("Dummy1");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
+        genericFilterData.add("Dummy1");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
@@ -119,20 +126,16 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testNodeValuesIncludeCriteriaMoreNodeValues() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterData.getValues().add("Dummy");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
-
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
         nodeValues.add("Dummy1");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
@@ -141,19 +144,16 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailNodeValuesFilterValuesMismatchIncludeCriteria() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.INCLUDE);
-        genericFilterData.getValues().add("Dummy");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy1");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
@@ -162,18 +162,16 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testEmptyNodeValuesExcludeCriteria() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
+        abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
         Set<String> nodeValues = new HashSet<>();
-        nodeValues.add("Dummy");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
@@ -182,19 +180,17 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailNodeValuesExcludeCriteriaWithSameValues() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterData.getValues().add("Dummy");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
+        abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
@@ -203,20 +199,18 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailNodeValuesExcludeCriteriaWithMoreFilterValues() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterData.getValues().add("Dummy");
-        genericFilterData.getValues().add("Dummy1");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
+        genericFilterData.add("Dummy1");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
+        abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
 
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
@@ -225,19 +219,18 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailNodeValuesExcludeCriteriaWithMoreNodeValues() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterData.getValues().add("Dummy");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
+        abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy");
         nodeValues.add("Dummy1");
+
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
@@ -246,18 +239,17 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldPassForNodeValuesAndFilterValuesMismatchExcludeCriteria() {
         // Given
-        GenericFilterData<String> genericFilterData = new GenericFilterData<String>();
-        genericFilterData.setFilterCriteria(FilterCriteria.EXCLUDE);
-        genericFilterData.getValues().add("Dummy");
+        List<String> genericFilterData = new ArrayList<String>();
+        genericFilterData.add("Dummy");
 
-        Collection<GenericFilterData<String>> genericFilterDataCollection = new LinkedHashSet<>();
-        genericFilterDataCollection.add(genericFilterData);
+        abstractGenericScanFilter.setGenericFilterDataCollection(genericFilterData);
+        abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
         Set<String> nodeValues = new HashSet<>();
         nodeValues.add("Dummy1");
+
         // When
-        FilterResult filterResult =
-                GenericFilterUtility.isFiltered(genericFilterDataCollection, nodeValues, "Filter");
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(nodeValues, null);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
