@@ -19,35 +19,38 @@
  */
 package org.zaproxy.zap.extension.ascan.filters.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.regex.Pattern;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.model.StructuralNode;
 
 /**
- * ScanFilter implementation to filter nodes based on Alert type.
+ * ScanFilter implementation for filtering based on Url Patterns.
  *
  * @author KSASAN preetkaran20@gmail.com
+ * @since 2.9.0
  */
-public class AlertScanFilter extends AbstractScanFilter<String> {
+public class UrlPatternScanFilter extends AbstractGenericScanFilter<Pattern> {
 
-    private static final String FILTER_TYPE = "scan.filter.filterType.Alert";
+    private static final String FILTER_TYPE = "scan.filter.filterType.URLPattern";
 
     @Override
     public FilterResult isFiltered(StructuralNode node) {
-        HistoryReference href = node.getHistoryReference();
-        List<Alert> alerts = href.getAlerts();
-        List<String> strAlerts = new ArrayList<>();
-        for (Alert alert : alerts) {
-            strAlerts.add(Alert.MSG_RISK[alert.getRisk()]);
+        HistoryReference hRef = node.getHistoryReference();
+        if (hRef == null) {
+            return FilterResult.NOT_FILTERED;
         }
-        return this.isFiltered(strAlerts);
+        return this.isFiltered(
+                this.getGenericFilterDataCollection(),
+                (patterns, value) ->
+                        patterns.stream()
+                                .anyMatch(
+                                        (pattern) ->
+                                                pattern.matcher(hRef.getURI().toString())
+                                                        .matches()));
     }
 
-    @Override
     public String getFilterType() {
         return Constant.messages.getString(FILTER_TYPE);
     }

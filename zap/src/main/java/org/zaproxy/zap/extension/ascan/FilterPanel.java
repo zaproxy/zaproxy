@@ -42,19 +42,23 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
-import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.ascan.filters.GenericFilterUtility;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.impl.HttpStatusCodeScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.impl.MethodScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.impl.TagScanFilter;
+import org.zaproxy.zap.extension.ascan.filters.impl.UrlPatternScanFilter;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * FilterPanel is used as a Tab in {@link CustomScanDialog}. This tab gives various options for
- * filtering the Active Scan nodes based on the selection.
+ * filtering the Active Scan messages based on the selection.
  *
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
@@ -63,17 +67,13 @@ public class FilterPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private JButton btnApply = null;
     private JPanel jPanel1 = null;
-    private FilterPanelVO filterPanelVO = new FilterPanelVO();
 
     private JButton btnReset = null;
     private JPanel jPanel2 = null;
 
     private JList<String> methodList = null;
     private JList<Integer> codeList = null;
-    private JList<String> riskList = null;
-    private JList<String> confidenceList = null;
     private JList<String> incTagList = null;
     private JList<String> excTagList = null;
     private JTextArea regexInc = null;
@@ -86,23 +86,9 @@ public class FilterPanel extends JPanel {
     private JScrollPane incTagScroller = null;
     private JScrollPane excTagScroller = null;
 
-    private JScrollPane riskScroller = null;
-    private JScrollPane confidenceScroller = null;
     private JScrollPane urlRegxIncScroller = null;
     private JScrollPane urlRegxExcScroller = null;
 
-    /**
-     * +----------------------------------------------------------------------+ | Methods Codes Tags
-     * Alerts Inc URL Regexes | | +----------+ +-----+ +-----------+ +---------------+
-     * +-------------+ | | | OPTIONS | | 100 | | | | Informational | | | | | | | | | | | | Low | | |
-     * | | | | | | | | | Medium | | | | | | | | | | | | High | | | | | | | | | | | +---------------+
-     * +-------------+ | | | | | | | | +---------------+ Exc URL Regexes | | | | | | | | | False
-     * Positive| +-------------+ | | | | | | | | | Low | | | | | | | | | | | | Medium | | | | | | |
-     * | | | | | High | | | | | | | | | | | | Confirmed | | | | | +----------+ +-----+ +-----------+
-     * +---------------+ +-------------+ | | | | +-----------+ +-----+[Clear ] [Apply ] +-----+
-     * +------------+ | | | | |
-     * +----------------------------------------------------------------------+
-     */
     // Constructs and Initializes the Panel
     public FilterPanel(Target target) {
         GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
@@ -146,49 +132,6 @@ public class FilterPanel extends JPanel {
         this.populateTagsInFilterPanel(target);
     }
 
-    /**
-     * This method initializes btnApply
-     *
-     * @return javax.swing.JButton
-     */
-    private JButton getBtnApply() {
-        if (btnApply == null) {
-            btnApply = new JButton();
-            btnApply.setText(Constant.messages.getString("scan.filter.button.apply"));
-            btnApply.addActionListener(
-                    new java.awt.event.ActionListener() {
-
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-
-                            try {
-                                filterPanelVO.setIncMethodList(methodList.getSelectedValuesList());
-                                filterPanelVO.setIncCodeList(codeList.getSelectedValuesList());
-                                filterPanelVO.setAlertList(riskList.getSelectedValuesList());
-                                filterPanelVO.setConfidenceList(
-                                        confidenceList.getSelectedValuesList());
-                                filterPanelVO.setUrlIncPatternList(
-                                        strToRegexList(regexInc.getText()));
-                                filterPanelVO.setUrlExcPatternList(
-                                        strToRegexList(regexExc.getText()));
-
-                                filterPanelVO.setIncTagList(incTagList.getSelectedValuesList());
-                                filterPanelVO.setExcTagList(excTagList.getSelectedValuesList());
-
-                            } catch (PatternSyntaxException e1) {
-                                // Invalid regex
-                                View.getSingleton()
-                                        .showWarningDialog(
-                                                Constant.messages.getString(
-                                                        "scan.filter.badregex.warning",
-                                                        e1.getMessage()));
-                            }
-                        }
-                    });
-        }
-        return btnApply;
-    }
-
     private List<Pattern> strToRegexList(String str) throws PatternSyntaxException {
         List<Pattern> list = new ArrayList<>();
         for (String s : str.split("\n")) {
@@ -208,7 +151,6 @@ public class FilterPanel extends JPanel {
         if (jPanel1 == null) {
             jPanel1 = new JPanel();
             jPanel1.add(getBtnReset(), null);
-            jPanel1.add(getBtnApply(), null);
         }
         return jPanel1;
     }
@@ -218,11 +160,8 @@ public class FilterPanel extends JPanel {
         codeList.setSelectedIndices(new int[0]);
         incTagList.setSelectedIndices(new int[0]);
         excTagList.setSelectedIndices(new int[0]);
-        riskList.setSelectedIndices(new int[0]);
-        confidenceList.setSelectedIndices(new int[0]);
         regexInc.setText("");
         regexExc.setText("");
-        filterPanelVO.reset();
         if (target != null) {
             this.populateTagsInFilterPanel(target);
         }
@@ -268,7 +207,6 @@ public class FilterPanel extends JPanel {
             GridBagConstraints gbc01 = LayoutHelper.getGBC(1, 0, 1, 1.0, stdInset());
             GridBagConstraints gbc02 = LayoutHelper.getGBC(2, 0, 1, 1.0, stdInset());
             GridBagConstraints gbc03 = LayoutHelper.getGBC(3, 0, 1, 1.0, stdInset());
-            GridBagConstraints gbc04 = LayoutHelper.getGBC(4, 0, 1, 1.0, stdInset());
 
             GridBagConstraints gbc10 =
                     LayoutHelper.getGBC(
@@ -340,29 +278,6 @@ public class FilterPanel extends JPanel {
                             GridBagConstraints.BOTH,
                             GridBagConstraints.NORTHWEST,
                             stdInset());
-            GridBagConstraints gbc14 =
-                    LayoutHelper.getGBC(
-                            4,
-                            1,
-                            1,
-                            1,
-                            1.0,
-                            1.0,
-                            GridBagConstraints.BOTH,
-                            GridBagConstraints.NORTHWEST,
-                            stdInset());
-
-            GridBagConstraints gbc24 =
-                    LayoutHelper.getGBC(
-                            4,
-                            2,
-                            1,
-                            1,
-                            0.0,
-                            0.0,
-                            GridBagConstraints.NONE,
-                            GridBagConstraints.NORTHWEST,
-                            stdInset());
 
             GridBagConstraints gbc23 =
                     LayoutHelper.getGBC(
@@ -387,17 +302,6 @@ public class FilterPanel extends JPanel {
                             GridBagConstraints.BOTH,
                             GridBagConstraints.NORTHWEST,
                             stdInset());
-            GridBagConstraints gbc34 =
-                    LayoutHelper.getGBC(
-                            4,
-                            3,
-                            1,
-                            1,
-                            0.0,
-                            0.0,
-                            GridBagConstraints.BOTH,
-                            GridBagConstraints.NORTHWEST,
-                            stdInset());
 
             jPanel2.add(
                     new JLabel(Constant.messages.getString("scan.filter.label.methods")), gbc00);
@@ -407,10 +311,10 @@ public class FilterPanel extends JPanel {
                     new JLabel(Constant.messages.getString("scan.filter.label.incTags")), gbc02);
             jPanel2.add(
                     new JLabel(Constant.messages.getString("scan.filter.label.excTags")), gbc22);
-            jPanel2.add(new JLabel(Constant.messages.getString("scan.filter.label.alerts")), gbc03);
+
             jPanel2.add(
                     new JLabel(Constant.messages.getString("scan.filter.label.urlincregex")),
-                    gbc04);
+                    gbc03);
 
             jPanel2.add(getMethodScroller(), gbc10);
             jPanel2.add(getCodeScroller(), gbc11);
@@ -418,19 +322,13 @@ public class FilterPanel extends JPanel {
             jPanel2.add(getIncTagScroller(), gbc12);
             jPanel2.add(getExcTagScroller(), gbc32);
 
-            jPanel2.add(getRiskScroller(), gbc13);
-            jPanel2.add(getUrlRegxIncScroller(), gbc14);
+            jPanel2.add(getUrlRegxIncScroller(), gbc13);
 
             jPanel2.add(
                     new JLabel(Constant.messages.getString("scan.filter.label.urlexcregex")),
-                    gbc24);
-
-            jPanel2.add(
-                    new JLabel(Constant.messages.getString("scan.filter.label.confidencelevel")),
                     gbc23);
 
-            jPanel2.add(getConfidenceScroller(), gbc33);
-            jPanel2.add(getUrlRegxExcScroller(), gbc34);
+            jPanel2.add(getUrlRegxExcScroller(), gbc33);
             getUrlRegxExcScroller();
         }
         return jPanel2;
@@ -461,28 +359,6 @@ public class FilterPanel extends JPanel {
         return codeScroller;
     }
 
-    private JScrollPane getRiskScroller() {
-        if (riskScroller == null) {
-            riskList = new JList<>(Alert.MSG_RISK);
-            riskList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            riskList.setLayoutOrientation(JList.VERTICAL);
-            riskList.setVisibleRowCount(Alert.MSG_RISK.length);
-            riskScroller = new JScrollPane(riskList);
-        }
-        return riskScroller;
-    }
-
-    private JScrollPane getConfidenceScroller() {
-        if (confidenceScroller == null) {
-            confidenceList = new JList<>(Alert.MSG_CONFIDENCE);
-            confidenceList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            confidenceList.setLayoutOrientation(JList.VERTICAL);
-            confidenceList.setVisibleRowCount(Alert.MSG_CONFIDENCE.length);
-            confidenceScroller = new JScrollPane(confidenceList);
-        }
-        return confidenceScroller;
-    }
-
     private JScrollPane getUrlRegxIncScroller() {
         if (urlRegxIncScroller == null) {
             regexInc = new JTextArea();
@@ -506,10 +382,6 @@ public class FilterPanel extends JPanel {
             tagModel = new DefaultListModel<>();
         }
         return tagModel;
-    }
-
-    private void resetTagModel() {
-        tagModel.clear();
     }
 
     private JScrollPane getIncTagScroller() {
@@ -596,7 +468,28 @@ public class FilterPanel extends JPanel {
         this.setAllTags(new ArrayList<String>(tags));
     }
 
-    public FilterPanelVO getFilterPanelVO() {
-        return filterPanelVO;
+    public List<ScanFilter> getScanFilters() {
+        List<ScanFilter> scanFilterList = new ArrayList<>();
+        try {
+            scanFilterList.addAll(
+                    GenericFilterUtility.getScanFilter(
+                            incTagList.getSelectedValuesList(),
+                            excTagList.getSelectedValuesList(),
+                            TagScanFilter::new));
+            scanFilterList.addAll(
+                    GenericFilterUtility.getScanFilter(
+                            methodList.getSelectedValuesList(), null, MethodScanFilter::new));
+            scanFilterList.addAll(
+                    GenericFilterUtility.getScanFilter(
+                            codeList.getSelectedValuesList(), null, HttpStatusCodeScanFilter::new));
+            scanFilterList.addAll(
+                    GenericFilterUtility.getScanFilter(
+                            strToRegexList(regexInc.getText()),
+                            strToRegexList(regexExc.getText()),
+                            UrlPatternScanFilter::new));
+        } catch (PatternSyntaxException e1) {
+            throw e1;
+        }
+        return scanFilterList;
     }
 }

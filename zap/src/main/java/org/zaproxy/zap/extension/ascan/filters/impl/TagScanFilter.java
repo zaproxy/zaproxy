@@ -31,7 +31,7 @@ import org.zaproxy.zap.model.StructuralNode;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public class TagScanFilter extends AbstractScanFilter<String> {
+public class TagScanFilter extends AbstractGenericScanFilter<String> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.Tag";
 
@@ -40,7 +40,7 @@ public class TagScanFilter extends AbstractScanFilter<String> {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
             List<String> nodeTags = href.getTags();
-            return this.isFiltered(nodeTags);
+            return this.isFiltered(nodeTags, null);
         } else {
             return FilterResult.NOT_FILTERED;
         }

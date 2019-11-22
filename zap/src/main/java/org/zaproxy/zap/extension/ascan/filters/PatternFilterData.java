@@ -22,40 +22,35 @@ package org.zaproxy.zap.extension.ascan.filters;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
 
-/**
- * Generic Filter Data which can be applied to any Class Object which implements hashCode and equals
- *
- * @author KSASAN preetkaran20@gmail.com
- * @param <T>
- */
-public class GenericFilterData<T> {
+/** @author KSASAN preetkaran20@gmail.com */
+public class PatternFilterData {
 
-    private Collection<T> values = new LinkedHashSet<>();
+    private Set<Pattern> patterns = new LinkedHashSet<>();
 
     private FilterCriteria filterCriteria;
 
-    public GenericFilterData() {}
-
-    public GenericFilterData(FilterCriteria filterCriteria, Collection<T> values) {
-        this.setValues(values);
+    public PatternFilterData(FilterCriteria filterCriteria, Collection<Pattern> urlPatterns) {
         this.setFilterCriteria(filterCriteria);
+        this.setPatterns(urlPatterns);
     }
 
-    public Collection<T> getValues() {
-        return values;
+    public Set<Pattern> getPatterns() {
+        return patterns;
     }
 
-    public void setValues(Collection<T> values) {
-        Objects.requireNonNull(values);
-        this.values.addAll(values);
+    private void setPatterns(Collection<Pattern> patterns) {
+        Objects.requireNonNull(patterns);
+        this.patterns.addAll(patterns);
     }
 
     public FilterCriteria getFilterCriteria() {
         return filterCriteria;
     }
 
-    public void setFilterCriteria(FilterCriteria filterCriteria) {
+    private void setFilterCriteria(FilterCriteria filterCriteria) {
         this.filterCriteria = filterCriteria;
     }
 }

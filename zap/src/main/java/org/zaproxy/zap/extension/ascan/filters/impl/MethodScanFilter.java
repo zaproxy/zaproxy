@@ -30,7 +30,7 @@ import org.zaproxy.zap.model.StructuralNode;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public class MethodScanFilter extends AbstractScanFilter<String> {
+public class MethodScanFilter extends AbstractGenericScanFilter<String> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.HttpMethod";
 
@@ -39,7 +39,7 @@ public class MethodScanFilter extends AbstractScanFilter<String> {
         HistoryReference href = node.getHistoryReference();
         if (href != null) {
             String httpMethod = href.getMethod();
-            return this.isFiltered(httpMethod);
+            return this.isFiltered(httpMethod, null);
         } else {
             return FilterResult.NOT_FILTERED;
         }
