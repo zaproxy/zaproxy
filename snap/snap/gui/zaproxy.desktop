@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=OWASP ZAP
+Exec=zaproxy
+Icon=${SNAP}/meta/gui/icon.png
+Terminal=false
+Type=Application
+Comment=OWASP ZAP is an open-source web application security scanner
+Keywords=network;scan;scanner;web;security;zed;attack;proxy;
