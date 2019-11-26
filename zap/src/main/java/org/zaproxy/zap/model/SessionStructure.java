@@ -199,15 +199,15 @@ public class SessionStructure {
             // Strip the param summary off
             name = name.substring(0, bracketIndex);
         }
-        int quesIndex = name.indexOf("?");
-        if (quesIndex >= 0) {
+        int queryIndex = name.indexOf("?");
+        if (queryIndex >= 0) {
             if (incParams) {
                 // Escape the params
-                String params = name.substring(quesIndex);
-                name = name.substring(0, quesIndex) + regexEscape(params);
+                String params = name.substring(queryIndex);
+                name = name.substring(0, queryIndex) + regexEscape(params);
             } else {
                 // Strip the parameters off
-                name = name.substring(0, quesIndex);
+                name = name.substring(0, queryIndex);
             }
         }
         if (name.endsWith("/")) {
