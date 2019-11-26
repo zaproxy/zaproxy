@@ -660,7 +660,7 @@ public class Context {
                         return true;
                     }
                 }
-                // log.debug("Didnt need to move " + sn.getHierarchicNodeName());	// Useful for
+                // log.debug("Didn't need to move " + sn.getHierarchicNodeName());	// Useful for
                 // debugging
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
