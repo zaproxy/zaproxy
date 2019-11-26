@@ -297,7 +297,7 @@ public class SpiderController implements SpiderParserListener {
             log.debug(
                     "URI: "
                             + uriV
-                            + " is valid, but will not be fetched, by parser reccommendation.");
+                            + " is valid, but will not be fetched, by parser recommendation.");
             spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
             return;
         }
