@@ -1812,7 +1812,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     @Override
     public void sessionSnapshot(Exception e) {
-        logger.debug("Snaphot session notification");
+        logger.debug("Snapshot session notification");
         this.savingSession = false;
     }
 
