@@ -114,7 +114,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     private static final String LOGIN_URL_LABEL =
             Constant.messages.getString("authentication.method.pb.field.label.loginUrl");
     private static final String LOGIN_PAGE_URL_LABEL =
-            Constant.messages.getString("authentication.method.pb.field.lable.loginPageUrl");
+            Constant.messages.getString("authentication.method.pb.field.label.loginPageUrl");
     private static final String AUTH_DESCRIPTION =
             Constant.messages.getString("authentication.method.pb.field.label.description");
 
