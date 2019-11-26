@@ -57,8 +57,14 @@ public class ScanProgressItem {
         return pluginStats.getPluginName();
     }
 
-    /** @return */
+    /** @deprecated use {link #getAttackStrengthLabel} */
+    @Deprecated
     public String getAttackStrenghtLabel() {
+        return getAttackStrengthLabel();
+    }
+
+    /** @return */
+    public String getAttackStrengthLabel() {
         return Constant.messages.getString(
                 "ascan.policy.level." + plugin.getAttackStrength().name().toLowerCase(Locale.ROOT));
     }
