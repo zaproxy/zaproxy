@@ -161,7 +161,7 @@ public class GenericMethod extends EntityEnclosingMethod {
      *
      * @param paramName name of the parameter
      *
-     * @return If a parameter exists with the name argument, the coresponding
+     * @return If a parameter exists with the name argument, the corresponding
      *         NameValuePair is returned.  Otherwise null.
      *
      * @since 2.0
