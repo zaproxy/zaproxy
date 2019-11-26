@@ -97,7 +97,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             */
         } else {
             if ((encodeDecodeDialog.getState() & Frame.ICONIFIED) == Frame.ICONIFIED) {
-                // bring up to front if iconfied
+                // bring up to front if iconified
                 encodeDecodeDialog.setState(Frame.NORMAL);
             }
         }
