@@ -184,8 +184,14 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         }
     }
 
-    /** @return */
+    /** @deprecated use {link #getReadableParameterizedQuery()} */
+    @Deprecated
     public String getReadableParametrizedQuery() {
+        return getReadableParameterizedQuery();
+    }
+
+    /** @return */
+    public String getReadableParameterizedQuery() {
         StringBuilder result = new StringBuilder();
         int begin = 0;
         int end;
