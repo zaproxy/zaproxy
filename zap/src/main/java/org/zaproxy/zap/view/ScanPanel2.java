@@ -533,16 +533,22 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
         }
     }
 
+    /** @deprecated use {link #scanFinished} */
+    @Deprecated
     public void scanFinshed(final int id, final String host) {
+        scanFinished(id, host);
+    }
+
+    public void scanFinished(final int id, final String host) {
         if (EventQueue.isDispatchThread()) {
-            scanFinshedEventHandler(id, host);
+            scanFinishedEventHandler(id, host);
         } else {
             try {
                 EventQueue.invokeLater(
                         new Runnable() {
                             @Override
                             public void run() {
-                                scanFinshedEventHandler(id, host);
+                                scanFinishedEventHandler(id, host);
                             }
                         });
             } catch (Exception e) {
@@ -551,7 +557,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
         }
     }
 
-    private void scanFinshedEventHandler(int id, String host) {
+    private void scanFinishedEventHandler(int id, String host) {
         log.debug("scanFinished " + prefix + " on " + host);
         if (this.getSelectedScanner() != null && this.getSelectedScanner().getScanId() == id) {
             updateProgressAndButtonsState(getSelectedScanner());

@@ -40,7 +40,7 @@ public class SearchThread extends Thread {
     private String filter;
     private Pattern pattern;
     private Type reqType;
-    private SearchListenner searchListenner;
+    private SearchListener searchListener;
     private boolean stopSearch = false;
     private boolean inverse = false;
     private boolean searchJustInScope = false;
@@ -54,6 +54,8 @@ public class SearchThread extends Thread {
 
     private static Logger log = LogManager.getLogger(SearchThread.class);
 
+    /** @deprecated */
+    @Deprecated
     public SearchThread(
             String filter,
             Type reqType,
@@ -66,7 +68,7 @@ public class SearchThread extends Thread {
         this(
                 filter,
                 reqType,
-                searchListenner,
+                new SearchListenerAdapter(searchListenner),
                 inverse,
                 searchJustInScope,
                 baseUrl,
@@ -75,6 +77,29 @@ public class SearchThread extends Thread {
                 true);
     }
 
+    public SearchThread(
+            String filter,
+            Type reqType,
+            SearchListener searchListener,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count) {
+        this(
+                filter,
+                reqType,
+                searchListener,
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                true);
+    }
+
+    /** @deprecated */
+    @Deprecated
     public SearchThread(
             String filter,
             Type reqType,
@@ -88,7 +113,7 @@ public class SearchThread extends Thread {
         this(
                 filter,
                 reqType,
-                searchListenner,
+                new SearchListenerAdapter(searchListenner),
                 inverse,
                 searchJustInScope,
                 baseUrl,
@@ -98,6 +123,31 @@ public class SearchThread extends Thread {
                 -1);
     }
 
+    public SearchThread(
+            String filter,
+            Type reqType,
+            SearchListener searchListener,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences) {
+        this(
+                filter,
+                reqType,
+                searchListener,
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                -1);
+    }
+
+    /** @deprecated */
+    @Deprecated
     public SearchThread(
             String filter,
             Type reqType,
@@ -113,7 +163,60 @@ public class SearchThread extends Thread {
                 filter,
                 reqType,
                 null,
-                searchListenner,
+                new SearchListenerAdapter(searchListenner),
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                maxOccurrences);
+    }
+
+    public SearchThread(
+            String filter,
+            Type reqType,
+            SearchListener searchListener,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences,
+            int maxOccurrences) {
+        this(
+                filter,
+                reqType,
+                null,
+                searchListener,
+                inverse,
+                searchJustInScope,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                maxOccurrences);
+    }
+
+    /** @deprecated */
+    @Deprecated
+    public SearchThread(
+            String filter,
+            Type reqType,
+            String customSearcherName,
+            SearchListenner searchListenner,
+            boolean inverse,
+            boolean searchJustInScope,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences,
+            int maxOccurrences) {
+        this(
+                filter,
+                reqType,
+                customSearcherName,
+                new SearchListenerAdapter(searchListenner),
                 inverse,
                 searchJustInScope,
                 baseUrl,
@@ -127,7 +230,7 @@ public class SearchThread extends Thread {
             String filter,
             Type reqType,
             String customSearcherName,
-            SearchListenner searchListenner,
+            SearchListener searchListener,
             boolean inverse,
             boolean searchJustInScope,
             String baseUrl,
@@ -140,7 +243,7 @@ public class SearchThread extends Thread {
         this.pattern = Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
         this.reqType = reqType;
         this.customSearcherName = customSearcherName;
-        this.searchListenner = searchListenner;
+        this.searchListener = searchListener;
         this.inverse = inverse;
         this.searchJustInScope = searchJustInScope;
         this.baseUrl = baseUrl;
@@ -160,10 +263,10 @@ public class SearchThread extends Thread {
     @Override
     public void run() {
         try {
-            this.searchListenner.searchStarted();
+            this.searchListener.searchStarted();
             search();
         } finally {
-            this.searchListenner.searchComplete();
+            this.searchListener.searchComplete();
         }
     }
 
@@ -184,7 +287,7 @@ public class SearchThread extends Thread {
                             results = searcher.search(pattern, inverse);
                         }
                         for (SearchResult sr : results) {
-                            searchListenner.addSearchResult(sr);
+                            searchListener.addSearchResult(sr);
                         }
                     }
                 }
@@ -421,7 +524,7 @@ public class SearchThread extends Thread {
         }
 
         pcc.matchProcessed();
-        searchListenner.addSearchResult(
+        searchListener.addSearchResult(
                 new SearchResult(
                         reqType,
                         filter,

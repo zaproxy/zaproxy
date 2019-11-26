@@ -49,6 +49,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.ScanListener2;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -62,7 +63,7 @@ import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter
  * Scan Tab.
  */
 public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderScan>>
-        implements ScanListenner2 {
+        implements ScanListener2, ScanListenner2 {
 
     /**
      * The name of the spider's HTTP messages container.

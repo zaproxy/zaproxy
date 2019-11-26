@@ -345,7 +345,7 @@ public class SearchAPI extends ApiImplementor {
         void processRecordHistory(RecordHistory recordHistory);
     }
 
-    private static class ApiSearchListener implements SearchListenner {
+    private static class ApiSearchListener implements SearchListener {
 
         private boolean searchComplete;
 

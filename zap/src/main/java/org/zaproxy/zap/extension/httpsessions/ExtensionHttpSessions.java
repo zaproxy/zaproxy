@@ -499,7 +499,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
 
     @Override
     public void nodeSelected(SiteNode node) {
-        // Event from SiteMapListenner
+        // Event from SiteMapListener
         this.getHttpSessionsPanel().nodeSelected(node);
     }
 

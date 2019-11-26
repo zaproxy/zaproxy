@@ -39,6 +39,8 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.ScanListener;
+import org.zaproxy.zap.model.ScanListenerAdapter;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.model.SessionStructure;
@@ -119,23 +121,44 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
     private final String id;
 
-    /**
-     * Constructs a {@code SpiderThread} with the given data.
-     *
-     * @param extension the extension to obtain configurations and notify the view
-     * @param spiderParams the spider options
-     * @param site the name that identifies the target site
-     * @param listenner the scan listener
-     * @deprecated (2.6.0) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String,
-     *     ScanListenner)}
-     */
+    /** @deprecated use {link #} */
     @Deprecated
     public SpiderThread(
             ExtensionSpider extension,
             SpiderParam spiderParams,
             String site,
             ScanListenner listenner) {
-        this("?", extension, spiderParams, site, listenner);
+        this("?", extension, spiderParams, site, new ScanListenerAdapter(listenner));
+    }
+
+    /**
+     * Constructs a {@code SpiderThread} with the given data.
+     *
+     * @param extension the extension to obtain configurations and notify the view
+     * @param spiderParams the spider options
+     * @param site the name that identifies the target site
+     * @param listener the scan listener
+     * @deprecated (2.6.0) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String,
+     *     ScanListener)}
+     */
+    @Deprecated
+    public SpiderThread(
+            ExtensionSpider extension,
+            SpiderParam spiderParams,
+            String site,
+            ScanListener listener) {
+        this("?", extension, spiderParams, site, listener);
+    }
+
+    /** @deprecated use {link #} */
+    @Deprecated
+    public SpiderThread(
+            String id,
+            ExtensionSpider extension,
+            SpiderParam spiderParams,
+            String site,
+            ScanListenner listenner) {
+        this(id, extension, spiderParams, site, new ScanListenerAdapter(listenner));
     }
 
     /**
@@ -145,7 +168,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
      * @param extension the extension to obtain configurations and notify the view
      * @param spiderParams the spider options
      * @param site the name that identifies the target site
-     * @param listenner the scan listener
+     * @param listener the scan listener
      * @since 2.6.0
      */
     public SpiderThread(
@@ -153,8 +176,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
             ExtensionSpider extension,
             SpiderParam spiderParams,
             String site,
-            ScanListenner listenner) {
-        super(site, listenner);
+            ScanListener listener) {
+        super(site, listener);
         log.debug("Initializing spider thread for site: " + site);
         this.id = id;
         this.extension = extension;
@@ -195,7 +218,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
         }
         stopScan = true;
         isAlive = false;
-        this.listenner.scanFinshed(site);
+        this.listener.scanFinished(site);
     }
 
     @Override
@@ -421,7 +444,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
         log.info("Spider scanning complete: " + successful);
         stopScan = true;
         this.isAlive = false;
-        this.listenner.scanFinshed(site);
+        this.listener.scanFinished(site);
     }
 
     @Override
