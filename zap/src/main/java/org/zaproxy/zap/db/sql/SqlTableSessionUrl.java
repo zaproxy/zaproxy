@@ -44,7 +44,7 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         try {
             if (!DbUtils.hasTable(conn, TABLE_NAME)) {
                 // Need to create the table
-                DbUtils.execute(conn, DbSQL.getSQL("sessionurl.ps.cretetable"));
+                DbUtils.execute(conn, DbSQL.getSQL("sessionurl.ps.createtable"));
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
