@@ -103,7 +103,7 @@ for alert in alerts:
 		urlSummary = urlEl[4]
 		short = abbrev.get(alert.get('alert'))
 		if (short is None):
-			print 'No abreviation for: ' + alert.get('alert')  
+			print 'No abbreviation for: ' + alert.get('alert')  
 			short = alert.get('alert')
 		aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'other' : set([])})
 		added = False
