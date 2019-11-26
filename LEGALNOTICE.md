@@ -20,7 +20,7 @@ in ApacheLicense-2.0.txt.
 THIRD-PARTY SOFTWARE LICENSES
 -----------------------------
 
-ZAP is a fork of Paros Proxy 3.2.13 developed by Chinotech Technologies Company
+ZAP is a fork of Paros Proxy 3.2.13 developed by Chinotec Technologies Company
 and licensed under the Clarified Artistic License.
 
 In October 2014, imported files licensed under the GPL were relicensed with
