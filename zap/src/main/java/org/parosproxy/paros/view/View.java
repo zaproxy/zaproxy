@@ -999,7 +999,7 @@ public class View implements ViewDelegate {
         return dialog;
     }
 
-    // ZAP: Added main toolbar mathods
+    // ZAP: Added main toolbar methods
     public void addMainToolbarButton(JButton button) {
         this.getMainFrame().getMainToolbarPanel().addButton(button);
     }
