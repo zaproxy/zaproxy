@@ -149,7 +149,7 @@ public class HttpSessionsSite {
         }
         if (activeSession == null) {
             throw new IllegalArgumentException(
-                    "When settting an active session, a non-null session has to be provided.");
+                    "When setting an active session, a non-null session has to be provided.");
         }
 
         if (this.activeSession == activeSession) {
