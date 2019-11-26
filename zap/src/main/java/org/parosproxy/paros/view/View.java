@@ -44,7 +44,7 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
 // ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to
-// accomodate the 'Full Layout' functionality.
+// accommodate the 'Full Layout' functionality.
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session
 // dialog
