@@ -24,14 +24,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-/** Unit test for {@link ZapReleaseComparitor}. */
-public class ZapReleaseComparitorUnitTest {
+/** Unit test for {@link ZapReleaseComparator}. */
+public class ZapReleaseComparatorUnitTest {
 
     private static final String DEV_BUILD = "Dev Build";
 
     @Test
-    public void testComparitor() {
-        ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+    public void testComparator() {
+        ZapReleaseComparator zrc = new ZapReleaseComparator();
 
         // Test equals
         assertTrue(zrc.compare(new ZapRelease(DEV_BUILD), new ZapRelease(DEV_BUILD)) == 0);

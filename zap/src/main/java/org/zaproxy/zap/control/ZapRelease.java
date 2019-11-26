@@ -103,12 +103,12 @@ public class ZapRelease {
     }
 
     public boolean isNewerThan(String otherVersion) {
-        ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+        ZapReleaseComparator zrc = new ZapReleaseComparator();
         return zrc.compare(this, new ZapRelease(otherVersion)) > 0;
     }
 
     public boolean isOlderThan(String otherVersion) {
-        ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+        ZapReleaseComparator zrc = new ZapReleaseComparator();
         return zrc.compare(this, new ZapRelease(otherVersion)) < 0;
     }
 

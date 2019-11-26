@@ -1693,7 +1693,7 @@ public class AddOn {
             return false;
         }
 
-        ZapReleaseComparitor zrc = new ZapReleaseComparitor();
+        ZapReleaseComparator zrc = new ZapReleaseComparator();
         ZapRelease zr = new ZapRelease(zapVersion);
         ZapRelease notBeforeRelease = new ZapRelease(this.notBeforeVersion);
         if (zrc.compare(zr, notBeforeRelease) < 0) {
