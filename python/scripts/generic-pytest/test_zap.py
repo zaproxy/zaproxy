@@ -67,7 +67,7 @@ def match_alerts (alert, pattern):
 		return False
 	return True
 
-# Returns a list of the alerts which dont match the 'ignoreAlerts' - a disctionary of regex patterns
+# Returns a list of the alerts which dont match the 'ignoreAlerts' - a dictionary of regex patterns
 def strip_alerts (alerts, ignoreAlerts):
 	stripped = []
 	for alert in alerts:
