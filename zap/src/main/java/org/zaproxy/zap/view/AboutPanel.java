@@ -59,7 +59,7 @@ public class AboutPanel extends JPanel {
                     + "<a>http://www.apache.org</a> licensed under Apache License 2.0.  HSQLDB is licensed under BSD "
                     + "license.  JDIC is licensed by Sun Microsystems, Inc under the LGPL license.  "
                     + PRODUCT
-                    + " also contains BeanShell, which is licensed unter LGPL.  The Copyrights of these softwares "
+                    + " also contains BeanShell, which is licensed under LGPL.  The Copyrights of these softwares "
                     + "belong to their respective owners.</p></body></html>";
 
     private static final String HOMEPAGE =
