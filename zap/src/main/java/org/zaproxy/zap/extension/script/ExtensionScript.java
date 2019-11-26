@@ -1930,7 +1930,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             T iface = script.getInterface(class1);
 
             if (iface != null) {
-                // the script wrapper has overriden the usual scripting mechanism
+                // the script wrapper has overridden the usual scripting mechanism
                 return iface;
             }
         } finally {
@@ -1972,7 +1972,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             throws ScriptException, IOException {
         T iface = script.getInterface(clazz);
         if (iface != null) {
-            // the script wrapper has overriden the usual scripting mechanism
+            // the script wrapper has overridden the usual scripting mechanism
             return iface;
         }
         return invokeScriptWithOutAddOnLoader(script).getInterface(clazz);

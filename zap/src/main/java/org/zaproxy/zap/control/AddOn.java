@@ -506,7 +506,7 @@ public class AddOn {
         }
         String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
         this.id = strArray[0];
-        this.name = this.id; // Will be overriden if theres a ZapAddOn.xml file
+        this.name = this.id; // Will be overridden if theres a ZapAddOn.xml file
         this.status = Status.valueOf(strArray[1]);
         this.version = new Version(Integer.parseInt(strArray[2]) + ".0.0");
     }

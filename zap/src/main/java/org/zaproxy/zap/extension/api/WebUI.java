@@ -158,7 +158,7 @@ public class WebUI {
 
             String descTag = element.getDescriptionTag();
             if (descTag == null) {
-                // This is the default, but it can be overriden by the getDescriptionTag method if
+                // This is the default, but it can be overridden by the getDescriptionTag method if
                 // required
                 descTag = component + ".api." + type + "." + element.getName();
             }
@@ -253,7 +253,7 @@ public class WebUI {
                 // Handle the (optional) description
                 String descTag = element.getDescriptionTag();
                 if (descTag == null) {
-                    // This is the default, but it can be overriden by the getDescriptionTag method
+                    // This is the default, but it can be overridden by the getDescriptionTag method
                     // if required
                     descTag = component + ".api." + reqType.name() + "." + name;
                 }
