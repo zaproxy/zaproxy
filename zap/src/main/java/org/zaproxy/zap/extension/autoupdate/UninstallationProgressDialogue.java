@@ -476,7 +476,7 @@ class UninstallationProgressDialogue extends AbstractDialog {
                 if (failedUninstallations) {
                     View.getSingleton()
                             .showWarningDialog(
-                                    getOwner(), Constant.messages.getString("cfu.unintall.failed"));
+                                    getOwner(), Constant.messages.getString("cfu.uninstall.failed"));
                 }
             }
         }
