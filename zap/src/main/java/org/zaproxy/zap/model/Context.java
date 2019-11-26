@@ -365,7 +365,7 @@ public class Context {
      */
     public void setIncludeInContextRegexs(List<String> includeRegexs) {
         validateRegexs(includeRegexs);
-        // Check if theyve been changed
+        // Check if they've been changed
         if (includeInRegexs.size() == includeRegexs.size()) {
             boolean changed = false;
             for (int i = 0; i < includeInRegexs.size(); i++) {
@@ -418,7 +418,7 @@ public class Context {
      */
     public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
         validateRegexs(excludeRegexs);
-        // Check if theyve been changed
+        // Check if they've been changed
         if (excludeFromRegexs.size() == excludeRegexs.size()) {
             boolean changed = false;
             for (int i = 0; i < excludeFromRegexs.size(); i++) {
