@@ -214,7 +214,7 @@ public class MainPopupMenu extends JPopupMenu {
     }
 
     /**
-     * The method {@code ExtensionPopupMenu#preprepareShow()} is deprecated but it must still be
+     * The method {@code ExtensionPopupMenu#prepareShow()} is deprecated but it must still be
      * called for backward compatibility, so to avoid hiding future deprecations of other
      * methods/classes this method was added to suppress the deprecation warning locally (instead of
      * the whole method {@code showImpl(PopupMenuInvokerWrapper, int, int))}).
