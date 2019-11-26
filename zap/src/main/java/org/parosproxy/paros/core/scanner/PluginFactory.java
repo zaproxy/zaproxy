@@ -423,7 +423,7 @@ public class PluginFactory {
 
                     if (loadedPlugin.isDepreciated()) {
                         // ZAP: ignore all depreciated plugins
-                        log.info("Plugin " + loadedPlugin.getName() + " depricated");
+                        log.info("Plugin " + loadedPlugin.getName() + " deprecated");
                         continue;
                     }
 
