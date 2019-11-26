@@ -54,11 +54,11 @@ public class DownloadManager extends Thread {
 
         Proxy proxy;
         if (connectionParam.isUseProxy(url.getHost())) {
-            InetSocketAddress scoketAddress =
+            InetSocketAddress socketAddress =
                     new InetSocketAddress(
                             connectionParam.getProxyChainName(),
                             connectionParam.getProxyChainPort());
-            proxy = new Proxy(Proxy.Type.HTTP, scoketAddress);
+            proxy = new Proxy(Proxy.Type.HTTP, socketAddress);
         } else {
             proxy = Proxy.NO_PROXY;
         }
