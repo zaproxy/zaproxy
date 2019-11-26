@@ -544,7 +544,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         hrefs = new HashMap<>();
 
         if (session == null) {
-            // Null session indicated we're sutting down
+            // Null session indicated we're shutting down
             return;
         }
 
