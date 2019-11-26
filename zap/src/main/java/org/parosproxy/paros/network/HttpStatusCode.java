@@ -73,8 +73,11 @@ public final class HttpStatusCode {
     public static final int NOT_IMPLEMENTED = 501;
     public static final int BAD_GATEWAY = 502;
     public static final int SERVICE_UNAVAILABLE = 503;
-    public static final int GATEWAY_TIEMOUT = 504;
+    public static final int GATEWAY_TIMEOUT = 504;
     public static final int HTTP_VERSION_NOT_SUPPORTED = 505;
+
+    /** @deprecated use {link #GATEWAY_TIMEOUT} */
+    @Deprecated public static final int GATEWAY_TIEMOUT = 504;
 
     // ZAP: Added code array
     public static final int[] CODES = {
@@ -116,7 +119,7 @@ public final class HttpStatusCode {
         NOT_IMPLEMENTED,
         BAD_GATEWAY,
         SERVICE_UNAVAILABLE,
-        GATEWAY_TIEMOUT,
+        GATEWAY_TIMEOUT,
         HTTP_VERSION_NOT_SUPPORTED
     };
 
