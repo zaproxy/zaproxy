@@ -120,13 +120,19 @@ public final class HttpStatusCode {
         HTTP_VERSION_NOT_SUPPORTED
     };
 
+    /** @deprecated use {link #isInformational} */
+    @Deprecated
+    public static boolean isInformatinal(int statusCode) {
+        return isInformational(statusCode);
+    }
+
     /**
      * Check if a status code is informational. (100 &le; status &lt; 200)
      *
      * @param statusCode
      * @return true if informational
      */
-    public static boolean isInformatinal(int statusCode) {
+    public static boolean isInformational(int statusCode) {
         if (statusCode >= 100 && statusCode < 200) return true;
         else return false;
     }
