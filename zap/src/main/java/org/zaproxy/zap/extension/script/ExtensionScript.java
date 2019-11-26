@@ -1225,7 +1225,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         }
         if (stdDir.exists()) {
             for (File f : stdDir.listFiles()) {
-                // Dont log errors on duplicates - 'local' templates should take presidence
+                // Dont log errors on duplicates - 'local' templates should take precedence
                 loadTemplate(f, type, engine, true);
             }
         }
