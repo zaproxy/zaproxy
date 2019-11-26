@@ -57,7 +57,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  *   <li>Preserves window state, location and size correctly (will survive multiple session)
  * </ul>
  *
- * Hint for implementers: If you use this class, don't use {@link #setSize(Dimension)}, but {@link
+ * Hint for implementors: If you use this class, don't use {@link #setSize(Dimension)}, but {@link
  * #setPreferredSize(Dimension)} instead. Also, don't use {@link #setLocation(Point)}. This abstract
  * class will automatically take care of size and position.
  */
