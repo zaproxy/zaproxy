@@ -152,7 +152,7 @@ public class AliasKeyManagerUnitTest {
                 .willThrow(NoSuchAlgorithmException.class, UnrecoverableKeyException.class);
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When/Then
-        assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(null))); // KeyStoreExcpeption
+        assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(null))); // KeyStoreException
         assertThat(
                 aliasKeyManager.getPrivateKey(ALIAS),
                 is(equalTo(null))); // NoSuchAlgorithmException

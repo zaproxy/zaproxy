@@ -206,7 +206,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/",
-                        // Mutiple ping URLs with tab in the middle
+                        // Multiple ping URLs with tab in the middle
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/")); // Trailing slash is added on host
@@ -254,7 +254,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/",
-                        // Mutiple ping URLs with tab in the middle
+                        // Multiple ping URLs with tab in the middle
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/")); // Trailing slash is added on host
