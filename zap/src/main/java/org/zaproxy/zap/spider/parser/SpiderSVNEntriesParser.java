@@ -45,7 +45,7 @@ import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.XmlUtils;
 
 /**
- * The Class SpiderSVNEntriesParser is used for parsing SVN metadata, inclusing SVN "entries" and
+ * The Class SpiderSVNEntriesParser is used for parsing SVN metadata, including SVN "entries" and
  * "wc.db" files.
  *
  * @author 70pointer
