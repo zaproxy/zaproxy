@@ -563,7 +563,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        // TODO this doesnt work, but should be used when its fixed :/
+        // TODO this doesn't work, but should be used when its fixed :/
         // Vector<Integer> v =
         // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
         Vector<Integer> v = tableAlert.getAlertList();
@@ -819,7 +819,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v;
         try {
-            // TODO this doesnt work, but should be used when its fixed :/
+            // TODO this doesn't work, but should be used when its fixed :/
             // v =
             // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
             v = tableAlert.getAlertList();

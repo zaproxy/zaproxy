@@ -641,7 +641,7 @@ public class Context {
                     // Have to go to the db as POST data can be used in the name
                     sn2 = sitesTree.findNode(href.getHttpMessage());
                 } else {
-                    // This is better as it doesnt require a db read
+                    // This is better as it doesn't require a db read
                     sn2 = sitesTree.findNode(href.getURI());
                 }
 

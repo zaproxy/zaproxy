@@ -240,7 +240,7 @@ public class Alert implements Comparable<Alert> {
             hRef = new HistoryReference(recordAlert.getHistoryId());
 
         } catch (HttpMalformedHeaderException e) {
-            // ZAP: Just an indication the history record doesnt exist
+            // ZAP: Just an indication the history record doesn't exist
             logger.debug(e.getMessage(), e);
         } catch (Exception e) {
             // ZAP: Log the exception

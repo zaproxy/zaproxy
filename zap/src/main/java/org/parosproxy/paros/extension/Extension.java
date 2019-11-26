@@ -341,12 +341,12 @@ public interface Extension {
     void setAddOn(AddOn addOn);
 
     /**
-     * Return true if the specified db type is supported by the extension (or if it doesnt use any
+     * Return true if the specified db type is supported by the extension (or if it doesn't use any
      * db) If this method returns false (meaning the db in use is not supported) then the extension
      * will not be loaded.
      *
      * @param type the db type
-     * @return true if the specified db type is supported by the extension (or if it doesnt use any
+     * @return true if the specified db type is supported by the extension (or if it doesn't use any
      *     db)
      * @see org.parosproxy.paros.db.Database#getType()
      */
