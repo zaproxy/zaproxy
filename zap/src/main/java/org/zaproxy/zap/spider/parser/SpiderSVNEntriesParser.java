@@ -122,7 +122,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
             try {
                 // get the binary data, and put it in a temp file we can use with the SQLite JDBC
                 // driver
-                // Note: File is not AutoClosable, so cannot use a "try with resources" to manage it
+                // Note: File is not AutoCloseable, so cannot use a "try with resources" to manage it
                 tempSqliteFile = File.createTempFile("sqlite", null);
                 tempSqliteFile.deleteOnExit();
                 OutputStream fos = new FileOutputStream(tempSqliteFile);
