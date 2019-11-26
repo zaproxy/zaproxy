@@ -228,7 +228,7 @@ public class Model {
     public void moveSessionDb(String destFile) throws Exception {
 
         // always use copySession because moving file does not work in Debian,
-        // and for Windows renaming file acrossing different drives does not work.
+        // and for Windows renaming file across different drives does not work.
 
         copySessionDb(currentDBNameUntitled, destFile);
 
