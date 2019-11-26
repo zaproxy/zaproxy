@@ -87,7 +87,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             }
 
             if (!DbUtils.hasIndex(connection, TABLE_NAME, ALERT_INDEX)) {
-                // this speads up session loading
+                // this speeds up session loading
                 DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addalertindex"));
             }
 
