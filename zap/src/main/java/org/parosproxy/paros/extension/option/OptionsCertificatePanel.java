@@ -1351,7 +1351,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                 Model.getSingleton()
                         .getOptionsParam()
                         .getExperimentalFeaturesParam()
-                        .isExerimentalSliSupportEnabled());
+                        .isExperimentalSliSupportEnabled());
 
         // actual certificate fields
         certificateTextField.setEnabled(useClientCertificateCheckBox.isSelected());
