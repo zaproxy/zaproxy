@@ -205,7 +205,7 @@ public class Alert implements Comparable<Alert> {
     private String evidence = "";
     private int cweId = -1;
     private int wascId = -1;
-    // Tempory ref - should be cleared asap after use
+    // Temporary ref - should be cleared asap after use
     private HttpMessage message = null;
     // ZAP: Added sourceHistoryId to Alert
     private int sourceHistoryId = 0;
