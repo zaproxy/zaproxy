@@ -215,7 +215,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
             HttpMessage message, int depth, String action, String baseURL, FormData formData) {
         for (String submitData : formData) {
             log.debug(
-                    "Submitting form with GET method and query with form parameters: " + submitData);
+                    "Submitting form with GET method and query with form parameters: "
+                            + submitData);
             processURL(message, depth, action + submitData, baseURL);
         }
     }
